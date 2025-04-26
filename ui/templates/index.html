@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}pAIssive Income Framework - Home{% endblock %}
+
+{% block page_title %}Welcome to pAIssive Income Framework{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <div class="hero-section">
+        <h1>Develop and Monetize Niche AI Tools</h1>
+        <p class="lead">A comprehensive framework for creating specialized AI-powered software tools that solve specific problems for targeted user groups.</p>
+        <div class="cta-buttons">
+            <a href="{{ url_for('niche_analysis') }}" class="btn btn-primary btn-lg">Start Niche Analysis</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-lg">View Dashboard</a>
+        </div>
+    </div>
+
+    <div class="features-section">
+        <h2>Framework Components</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Niche Analysis</h3>
+                    <p>Identify profitable niches with high demand and low competition using AI-powered market analysis.</p>
+                    <a href="{{ url_for('niche_analysis') }}" class="btn btn-outline-primary">Analyze Niches</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Solution Development</h3>
+                    <p>Design and develop AI-powered solutions for specific niches with the help of the Developer Agent.</p>
+                    <a href="{{ url_for('developer') }}" class="btn btn-outline-primary">Develop Solutions</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h3>Monetization Strategy</h3>
+                    <p>Create effective monetization strategies with subscription models and pricing optimization.</p>
+                    <a href="{{ url_for('monetization') }}" class="btn btn-outline-primary">Create Strategy</a>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h3>Marketing Campaign</h3>
+                    <p>Develop targeted marketing campaigns to reach your ideal customers and drive conversions.</p>
+                    <a href="{{ url_for('marketing') }}" class="btn btn-outline-primary">Plan Marketing</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Analytics & Insights</h3>
+                    <p>Track performance metrics and gain insights to optimize your AI tools and marketing efforts.</p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">View Analytics</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Feedback Collection</h3>
+                    <p>Gather and analyze user feedback to continuously improve your AI tools and services.</p>
+                    <a href="#" class="btn btn-outline-primary">Collect Feedback</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="niches-section">
+        <h2>Promising Niches</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="niche-card">
+                    <h3>YouTube Script Generator</h3>
+                    <p>AI tools to help YouTube creators write engaging scripts faster.</p>
+                    <div class="opportunity-score">
+                        <span class="score">0.82</span>
+                        <span class="label">Opportunity Score</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="niche-card">
+                    <h3>Study Note Generator</h3>
+                    <p>AI tools to help students create comprehensive study notes from lectures.</p>
+                    <div class="opportunity-score">
+                        <span class="score">0.75</span>
+                        <span class="label">Opportunity Score</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="niche-card">
+                    <h3>Freelance Proposal Writer</h3>
+                    <p>AI tools to help freelancers write compelling client proposals.</p>
+                    <div class="opportunity-score">
+                        <span class="score">0.78</span>
+                        <span class="label">Opportunity Score</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="getting-started-section">
+        <h2>Getting Started</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Analyze Market Segments</h3>
+                    <p>Identify promising niches with high demand and low competition.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Develop AI Solution</h3>
+                    <p>Design and implement an AI-powered tool for your chosen niche.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Create Monetization Strategy</h3>
+                    <p>Set up subscription tiers and pricing for your AI tool.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Launch Marketing Campaign</h3>
+                    <p>Promote your AI tool to your target audience.</p>
+                </div>
+            </div>
+        </div>
+        <div class="cta-buttons mt-4">
+            <a href="{{ url_for('niche_analysis') }}" class="btn btn-primary btn-lg">Start Now</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
