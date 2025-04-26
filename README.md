@@ -13,7 +13,7 @@ The framework uses a team of specialized AI agents that collaborate to identify 
 - **Agent Team**: A team of specialized AI agents that collaborate on different aspects of the product development and monetization process.
 - **Niche Analysis**: Tools and methodologies for identifying profitable niches and user pain points.
 - **Tool Templates**: Development templates for creating AI-powered software solutions.
-- **Monetization**: Subscription models and pricing strategies for maximizing recurring revenue.
+- **Monetization**: Subscription models, pricing calculators, and revenue projectors for maximizing recurring revenue.
 - **Marketing**: Strategies for reaching target users and promoting the AI tools.
 
 ## Agent Team
@@ -31,7 +31,7 @@ The project is built around a team of specialized AI agents:
 - **Niche Identification**: Sophisticated analysis tools to identify profitable niches with specific user problems that can be solved with AI.
 - **Problem Analysis**: Detailed analysis of user problems and pain points to ensure solutions address real needs.
 - **Solution Design**: Templates and frameworks for designing AI-powered software solutions.
-- **Monetization Strategy**: Subscription models and pricing strategies optimized for recurring revenue.
+- **Monetization Strategy**: Subscription models, pricing calculators, and revenue projectors optimized for recurring revenue.
 - **Marketing Plan**: Comprehensive marketing strategies tailored to each niche and target user group.
 - **Feedback Loop**: Tools for gathering and analyzing user feedback to continuously improve products.
 
@@ -73,7 +73,32 @@ The framework has identified several promising niches for AI-powered tools:
 
 4. Implement the AI tool using the provided templates in the `tool_templates` directory.
 
-5. Deploy your monetization strategy based on the subscription models in the `monetization` directory.
+5. Deploy your monetization strategy using the tools in the `monetization` directory:
+
+   ```python
+   from monetization import FreemiumModel, PricingCalculator, RevenueProjector
+
+   # Create a subscription model
+   model = FreemiumModel(
+       name="Your AI Tool",
+       description="Your AI tool description"
+   )
+
+   # Add features and tiers
+   # ...
+
+   # Calculate optimal pricing
+   calculator = PricingCalculator(
+       name="Your Pricing Calculator",
+       description="Your pricing calculator description"
+   )
+
+   # Project revenue
+   projector = RevenueProjector(
+       name="Your Revenue Projector",
+       description="Your revenue projector description"
+   )
+   ```
 
 6. Execute the marketing plan using strategies from the `marketing` directory.
 
