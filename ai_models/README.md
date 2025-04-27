@@ -463,6 +463,31 @@ cloud_config = CloudConfig(
 aws_path = generate_cloud_config(cloud_config, "aws")
 ```
 
+### Command-Line Interface
+
+```bash
+# Download a model
+python -m ai_models download --model-id gpt2 --output-dir models
+
+# List available models
+python -m ai_models list --model-dir models
+
+# Get model information
+python -m ai_models info --model-path models/gpt2
+
+# Optimize a model
+python -m ai_models optimize --model-path models/gpt2 --output-path models/gpt2-optimized --method quantize
+
+# Benchmark a model
+python -m ai_models benchmark --model-path models/gpt2 --benchmark-type latency --num-runs 20
+
+# Serve a model with REST API
+python -m ai_models serve-rest --model-path models/gpt2 --host 0.0.0.0 --port 8000
+
+# Deploy a model
+python -m ai_models deploy --model-path models/gpt2 --deployment-type docker --output-dir deployment
+```
+
 ### Agent Integration
 
 ```python
@@ -564,6 +589,27 @@ The AI Models module includes utilities for serving and deploying models:
 - **Docker**: Generate Docker configurations for containerized deployment.
 - **Kubernetes**: Generate Kubernetes manifests for orchestrated deployment.
 - **Cloud Platforms**: Generate deployment configurations for AWS, GCP, and Azure.
+
+## Command-Line Interface
+
+The AI Models module includes a command-line interface for managing models:
+
+### Model Management
+
+- **Download**: Download models from Hugging Face or other sources.
+- **List**: List available models in a directory.
+- **Info**: Get detailed information about a model.
+
+### Model Optimization
+
+- **Optimize**: Optimize models using quantization, pruning, or distillation.
+- **Benchmark**: Benchmark model performance.
+- **Validate**: Validate models for correctness and security.
+
+### Model Serving
+
+- **Serve**: Start a REST or gRPC server for a model.
+- **Deploy**: Generate deployment configurations for Docker, Kubernetes, or cloud platforms.
 
 ## Dependencies
 

@@ -77,6 +77,9 @@ from .serving import (
     generate_docker_config, generate_kubernetes_config, generate_cloud_config
 )
 
+# Import CLI tools
+from .cli import main as cli_main
+
 __all__ = [
     # Core components
     'ModelManager',
@@ -167,6 +170,9 @@ __all__ = [
     'generate_docker_config',
     'generate_kubernetes_config',
     'generate_cloud_config',
+
+    # CLI
+    'cli_main',
 ]
 
 # Add TensorRT adapter if available

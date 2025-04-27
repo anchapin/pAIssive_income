@@ -62,6 +62,36 @@ Each template includes:
 - Call-to-action recommendations
 - SEO optimization tips
 
+## Content Generators
+
+The `content_generators.py` module provides generators for creating marketing content based on templates, including:
+
+- Blog post generators
+- Product description generators
+- Case study generators
+
+Each generator includes:
+
+- Content generation based on templates
+- SEO optimization
+- Customizable output formats
+- Configuration options
+
+## Content Optimization
+
+The `content_optimization.py` module provides tools for optimizing marketing content, including:
+
+- SEO analyzers
+- Keyword analysis
+- Content recommendations
+
+Each optimizer includes:
+
+- Content analysis
+- Scoring and metrics
+- Actionable recommendations
+- Configuration options
+
 ## Usage
 
 To use these tools, import the relevant modules and call the functions with your specific parameters.
@@ -72,6 +102,8 @@ Example:
 from marketing.user_personas import PersonaCreator
 from marketing.channel_strategies import ContentMarketingStrategy
 from marketing.content_templates import BlogPostTemplate
+from marketing.content_generators import BlogPostGenerator
+from marketing.content_optimization import KeywordAnalyzer
 
 # Create a user persona
 persona_creator = PersonaCreator()
@@ -101,8 +133,8 @@ content_strategy = ContentMarketingStrategy(
     frequency="weekly",
 )
 
-# Generate a blog post using a template
-blog_post = BlogPostTemplate(
+# Create a blog post template
+blog_post_template = BlogPostTemplate(
     title="How to Save 5 Hours a Week on YouTube Script Writing",
     target_persona=persona,
     key_points=[
@@ -114,14 +146,39 @@ blog_post = BlogPostTemplate(
     call_to_action="Sign up for a free trial",
 )
 
+# Generate a blog post using the template
+blog_post_generator = BlogPostGenerator(blog_post_template)
+blog_post_content = blog_post_generator.generate_content()
+
+# Analyze the blog post for SEO optimization
+keywords = ["YouTube script writing", "AI", "content creators", "save time"]
+keyword_analyzer = KeywordAnalyzer(blog_post_content, keywords)
+seo_results = keyword_analyzer.analyze()
+
 print(f"User Persona: {persona['name']}")
 print(f"Content Strategy: {content_strategy.get_summary()}")
-print(f"Blog Post Outline: {blog_post.generate_outline()}")
+print(f"Blog Post Template Outline: {blog_post_template.generate_outline()}")
+print(f"Generated Blog Post Title: {blog_post_content['title']}")
+print(f"Generated Blog Post Introduction: {blog_post_content['introduction'][:200]}...")
+print(f"SEO Score: {seo_results['overall_score']:.2f}")
+print(f"SEO Recommendations: {len(seo_results['recommendations'])} recommendations found")
 ```
 
 ## Customization
 
 These tools are designed to be customized for your specific niche and solution. Look for comments marked with `TODO` for guidance on what to customize.
+
+## Demo
+
+Run the demo scripts to see the marketing tools in action:
+
+```bash
+python user_personas_demo.py
+python channel_strategies_demo.py
+python content_templates_demo.py
+python content_generators_demo.py
+python content_optimization_demo.py
+```
 
 ## Dependencies
 

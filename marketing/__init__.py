@@ -7,9 +7,9 @@ to target users in specific niches.
 
 from .user_personas import PersonaCreator, DemographicAnalyzer, PainPointIdentifier, GoalMapper, BehaviorAnalyzer
 from .channel_strategies import (
-    MarketingStrategy, 
-    ContentMarketingStrategy, 
-    SocialMediaStrategy, 
+    MarketingStrategy,
+    ContentMarketingStrategy,
+    SocialMediaStrategy,
     EmailMarketingStrategy
 )
 from .content_templates import (
@@ -23,6 +23,20 @@ from .content_templates import (
     CaseStudyTemplate,
     TestimonialTemplate
 )
+from .content_generators import (
+    ContentGenerator,
+    GeneratorConfig,
+    BlogPostGenerator,
+    ProductDescriptionGenerator,
+    CaseStudyGenerator
+)
+from .content_optimization import (
+    SEOAnalyzer,
+    KeywordAnalyzer,
+    ReadabilityAnalyzer
+)
+from .tone_analyzer import ToneAnalyzer
+from .style_adjuster import StyleAdjuster
 
 __all__ = [
     # User Personas
@@ -31,13 +45,13 @@ __all__ = [
     'PainPointIdentifier',
     'GoalMapper',
     'BehaviorAnalyzer',
-    
+
     # Channel Strategies
     'MarketingStrategy',
     'ContentMarketingStrategy',
     'SocialMediaStrategy',
     'EmailMarketingStrategy',
-    
+
     # Content Templates
     'ContentTemplate',
     'BlogPostTemplate',
@@ -48,4 +62,18 @@ __all__ = [
     'ProductDescriptionTemplate',
     'CaseStudyTemplate',
     'TestimonialTemplate',
+
+    # Content Generators
+    'ContentGenerator',
+    'GeneratorConfig',
+    'BlogPostGenerator',
+    'ProductDescriptionGenerator',
+    'CaseStudyGenerator',
+
+    # Content Optimization
+    'SEOAnalyzer',
+    'KeywordAnalyzer',
+    'ReadabilityAnalyzer',
+    'ToneAnalyzer',
+    'StyleAdjuster',
 ]
