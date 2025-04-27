@@ -222,7 +222,8 @@ class StrategyGenerator(IMarketingStrategy):
         budget: Optional[Dict[str, Any]] = None,
         timeframe: Optional[Dict[str, Any]] = None,
         config: Optional[Dict[str, Any]] = None,
-        agent_team: Optional[IAgentTeam] = None
+        agent_team: Optional[IAgentTeam] = None,
+        business_size: Optional[str] = None
     ):
         """
         Initialize a strategy generator.
@@ -235,6 +236,7 @@ class StrategyGenerator(IMarketingStrategy):
             timeframe: Timeframe information
             config: Optional configuration dictionary
             agent_team: Optional agent team instance
+            business_size: Size of business (e.g., "small", "medium", "large")
         """
         self.id = str(uuid.uuid4())
         self.business_type = business_type
@@ -249,6 +251,7 @@ class StrategyGenerator(IMarketingStrategy):
         self._description = "Generates marketing strategies based on business type, goals, and target audience"
         self._channel_type = "multi-channel"
         self.agent_team = agent_team
+        self.business_size = business_size or "small"  # Default to small business
 
         # Create persona creator for audience analysis
         self.persona_creator = PersonaCreator()
@@ -577,6 +580,7 @@ class StrategyGenerator(IMarketingStrategy):
         return {
             "id": self.id,
             "business_type": self.business_type,
+            "business_size": self.business_size,
             "goals": self.goals,
             "target_audience": self.target_audience,
             "budget": self.budget,

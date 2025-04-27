@@ -25,25 +25,25 @@ def mock_config_file(temp_dir):
             "review_required": False,
         }
     }
-    
+
     config_path = os.path.join(temp_dir, "test_config.json")
-    
+
     with open(config_path, 'w') as f:
         json.dump(config, f)
-    
+
     return config_path
 
 
 def test_agent_team_init():
     """Test AgentTeam initialization with default config."""
     team = AgentTeam("Test Team")
-    
+
     # Check that the team has the expected attributes
     assert team.project_name == "Test Team"
     assert isinstance(team.config, dict)
     assert "model_settings" in team.config
     assert "workflow" in team.config
-    
+
     # Check that the agents were initialized
     assert team.researcher is not None
     assert team.developer is not None
@@ -55,13 +55,13 @@ def test_agent_team_init():
 def test_agent_team_init_with_config(mock_config_file):
     """Test AgentTeam initialization with custom config."""
     team = AgentTeam("Test Team", config_path=mock_config_file)
-    
+
     # Check that the team has the expected attributes
     assert team.project_name == "Test Team"
     assert isinstance(team.config, dict)
     assert "model_settings" in team.config
     assert "workflow" in team.config
-    
+
     # Check that the custom config was loaded
     assert team.config["workflow"]["auto_progression"] is True
     assert team.config["workflow"]["review_required"] is False
@@ -87,16 +87,16 @@ def test_run_niche_analysis(mock_researcher_class):
         },
     ]
     mock_researcher_class.return_value = mock_researcher
-    
+
     # Create a team
     team = AgentTeam("Test Team")
-    
+
     # Run niche analysis
     result = team.run_niche_analysis(["e-commerce", "content creation"])
-    
+
     # Check that the researcher's analyze_market_segments method was called
     mock_researcher.analyze_market_segments.assert_called_once_with(["e-commerce", "content creation"])
-    
+
     # Check that the result is the return value from analyze_market_segments
     assert result == mock_researcher.analyze_market_segments.return_value
     assert len(result) == 2
@@ -115,23 +115,24 @@ def test_develop_solution(mock_developer_class):
         "features": ["feature1", "feature2"],
     }
     mock_developer_class.return_value = mock_developer
-    
+
     # Create a team
     team = AgentTeam("Test Team")
-    
+
     # Create a mock niche
     niche = {
         "id": "niche1",
         "name": "Niche 1",
+        "market_segment": "e-commerce",
         "opportunity_score": 0.8,
     }
-    
+
     # Develop a solution
     result = team.develop_solution(niche)
-    
+
     # Check that the developer's design_solution method was called
     mock_developer.design_solution.assert_called_once_with(niche)
-    
+
     # Check that the result is the return value from design_solution
     assert result == mock_developer.design_solution.return_value
     assert result["name"] == "Solution 1"
@@ -153,23 +154,23 @@ def test_create_monetization_strategy(mock_monetization_class):
         },
     }
     mock_monetization_class.return_value = mock_monetization
-    
+
     # Create a team
     team = AgentTeam("Test Team")
-    
+
     # Create a mock solution
     solution = {
         "id": "solution1",
         "name": "Solution 1",
         "features": ["feature1", "feature2"],
     }
-    
+
     # Create a monetization strategy
     result = team.create_monetization_strategy(solution)
-    
+
     # Check that the monetization agent's create_strategy method was called
     mock_monetization.create_strategy.assert_called_once_with(solution)
-    
+
     # Check that the result is the return value from create_strategy
     assert result == mock_monetization.create_strategy.return_value
     assert result["name"] == "Strategy 1"
@@ -190,21 +191,21 @@ def test_create_marketing_plan(mock_marketing_class):
         "channels": ["content", "social", "email"],
     }
     mock_marketing_class.return_value = mock_marketing
-    
+
     # Create a team
     team = AgentTeam("Test Team")
-    
+
     # Create mock data
     niche = {"id": "niche1", "name": "Niche 1"}
     solution = {"id": "solution1", "name": "Solution 1"}
     monetization = {"id": "strategy1", "name": "Strategy 1"}
-    
+
     # Create a marketing plan
     result = team.create_marketing_plan(niche, solution, monetization)
-    
+
     # Check that the marketing agent's create_plan method was called
     mock_marketing.create_plan.assert_called_once_with(niche, solution, monetization)
-    
+
     # Check that the result is the return value from create_plan
     assert result == mock_marketing.create_plan.return_value
     assert result["name"] == "Marketing Plan 1"
