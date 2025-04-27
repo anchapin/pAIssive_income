@@ -6,15 +6,19 @@ Welcome to the pAIssive Income Framework documentation. This documentation provi
 
 1. [Overview](overview.md)
 2. [Getting Started](getting-started.md)
-3. [Agent Team](agent-team.md)
-4. [Niche Analysis](niche-analysis.md)
-5. [AI Models](ai-models.md)
-6. [Monetization](monetization.md)
-7. [Marketing](marketing.md)
-8. [UI](ui.md)
-9. [Tool Templates](tool-templates.md)
-10. [API Reference](api-reference.md)
-11. [Contributing](contributing.md)
+3. [Project Structure](project-structure.md)
+4. [Agent Team](agent-team.md)
+5. [Niche Analysis](niche-analysis.md)
+6. [AI Models](ai-models.md)
+7. [Monetization](monetization.md)
+8. [Marketing](marketing.md)
+9. [UI](ui.md)
+10. [Tool Templates](tool-templates.md)
+11. [API Reference](api-reference.md)
+12. [Troubleshooting](troubleshooting.md)
+13. [FAQ](faq.md)
+14. [Glossary](glossary.md)
+15. [Contributing](contributing.md)
 
 ## About the Framework
 
