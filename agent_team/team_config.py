@@ -30,14 +30,14 @@ class AgentTeam:
         """
         self.project_name = project_name
         self.config = self._load_config(config_path)
-        
+
         # Initialize the specialized agents
         self.researcher = ResearchAgent(self)
         self.developer = DeveloperAgent(self)
         self.monetization = MonetizationAgent(self)
         self.marketing = MarketingAgent(self)
         self.feedback = FeedbackAgent(self)
-        
+
         # Project state storage
         self.project_state = {
             "identified_niches": [],
@@ -48,7 +48,7 @@ class AgentTeam:
             "marketing_plan": None,
             "feedback_data": [],
         }
-    
+
     def _load_config(self, config_path: Optional[str]) -> Dict[str, Any]:
         """
         Load configuration from a JSON file or use default configuration.
@@ -72,7 +72,7 @@ class AgentTeam:
                 "review_required": True,
             }
         }
-        
+
         if config_path and os.path.exists(config_path):
             with open(config_path, 'r') as f:
                 user_config = json.load(f)
@@ -82,9 +82,9 @@ class AgentTeam:
                         default_config[key].update(value)
                     else:
                         default_config[key] = value
-        
+
         return default_config
-    
+
     def run_niche_analysis(self, market_segments: List[str]) -> List[Dict[str, Any]]:
         """
         Run a complete niche analysis workflow using the researcher agent.
@@ -96,59 +96,96 @@ class AgentTeam:
             List of identified niche opportunities with scores
         """
         return self.researcher.analyze_market_segments(market_segments)
-    
-    def develop_solution(self, niche_id: str) -> Dict[str, Any]:
+
+    def develop_solution(self, niche: Dict[str, Any]) -> Dict[str, Any]:
         """
         Develop an AI solution for a selected niche using the developer agent.
 
         Args:
-            niche_id: ID of the selected niche from the niche analysis
+            niche: The selected niche object from the niche analysis
 
         Returns:
             Solution design specification
         """
-        # Set the selected niche
-        selected_niche = next((n for n in self.project_state["identified_niches"] 
-                              if n.get("id") == niche_id), None)
-        if not selected_niche:
-            raise ValueError(f"Niche with ID {niche_id} not found in identified niches")
-        
-        self.project_state["selected_niche"] = selected_niche
-        
+        # Store the selected niche in the project state
+        self.project_state["selected_niche"] = niche
+
+        # For backward compatibility, also add to identified_niches if not already there
+        if niche not in self.project_state["identified_niches"]:
+            self.project_state["identified_niches"].append(niche)
+
         # Develop the solution
-        return self.developer.design_solution(selected_niche)
-    
-    def create_monetization_strategy(self) -> Dict[str, Any]:
+        solution = self.developer.design_solution(niche)
+
+        # Store the solution in the project state
+        self.project_state["solution_design"] = solution
+
+        return solution
+
+    def create_monetization_strategy(self, solution: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Create a monetization strategy for the developed solution.
+
+        Args:
+            solution: Optional solution object. If not provided, uses the solution from project state.
 
         Returns:
             Monetization strategy specification
         """
-        if not self.project_state["solution_design"]:
+        # If solution is provided, use it; otherwise use the one from project state
+        if solution:
+            # Store the solution in the project state if it's not already there
+            if not self.project_state["solution_design"]:
+                self.project_state["solution_design"] = solution
+        elif not self.project_state["solution_design"]:
             raise ValueError("Solution must be designed before creating monetization strategy")
-        
-        return self.monetization.create_strategy(
-            self.project_state["selected_niche"],
-            self.project_state["solution_design"]
-        )
-    
-    def create_marketing_plan(self) -> Dict[str, Any]:
+
+        # Use the solution from the project state or the provided solution
+        solution_to_use = solution if solution else self.project_state["solution_design"]
+
+        # Create the monetization strategy
+        strategy = self.monetization.create_strategy(solution_to_use)
+
+        # Store the strategy in the project state
+        self.project_state["monetization_strategy"] = strategy
+
+        return strategy
+
+    def create_marketing_plan(self, niche: Optional[Dict[str, Any]] = None,
+                          solution: Optional[Dict[str, Any]] = None,
+                          monetization: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Create a marketing plan for the developed solution.
+
+        Args:
+            niche: Optional niche object. If not provided, uses the niche from project state.
+            solution: Optional solution object. If not provided, uses the solution from project state.
+            monetization: Optional monetization strategy object. If not provided, uses the strategy from project state.
 
         Returns:
             Marketing plan specification
         """
-        if not self.project_state["monetization_strategy"]:
+        # Use provided objects or fall back to project state
+        niche_to_use = niche if niche else self.project_state["selected_niche"]
+        solution_to_use = solution if solution else self.project_state["solution_design"]
+        monetization_to_use = monetization if monetization else self.project_state["monetization_strategy"]
+
+        # Validate that we have all required objects
+        if not niche_to_use:
+            raise ValueError("Niche must be selected before creating marketing plan")
+        if not solution_to_use:
+            raise ValueError("Solution must be designed before creating marketing plan")
+        if not monetization_to_use:
             raise ValueError("Monetization strategy must be created before marketing plan")
-        
-        return self.marketing.create_plan(
-            self.project_state["selected_niche"],
-            self.project_state["solution_design"],
-            self.project_state["monetization_strategy"]
-        )
-    
+
+        # Create the marketing plan
+        plan = self.marketing.create_plan(niche_to_use, solution_to_use, monetization_to_use)
+
+        # Store the plan in the project state
+        self.project_state["marketing_plan"] = plan
+
+        return plan
+
     def process_feedback(self, feedback_data: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Process user feedback and generate improvement recommendations.
@@ -161,7 +198,7 @@ class AgentTeam:
         """
         self.project_state["feedback_data"].extend(feedback_data)
         return self.feedback.analyze_feedback(feedback_data)
-    
+
     def export_project_plan(self, output_path: str) -> None:
         """
         Export the complete project plan to a JSON file.
@@ -171,7 +208,7 @@ class AgentTeam:
         """
         with open(output_path, 'w') as f:
             json.dump(self.project_state, f, indent=2)
-    
+
     def __str__(self) -> str:
         """String representation of the agent team."""
         return f"AgentTeam(project_name={self.project_name}, agents=5)"

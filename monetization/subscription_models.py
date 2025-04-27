@@ -122,7 +122,8 @@ class SubscriptionModel:
             "id": str(uuid.uuid4()),
             "name": name,
             "description": description,
-            "type": feature_type,
+            "feature_type": feature_type,  # Changed from "type" to "feature_type" to match tests
+            "type": feature_type,  # Keep "type" for backward compatibility
             "value_proposition": value_proposition,
             "development_cost": development_cost,
             "created_at": datetime.now().isoformat()
@@ -203,11 +204,14 @@ class SubscriptionModel:
 
         Returns:
             True if the tier was updated, False otherwise
+
+        Raises:
+            ValueError: If the tier ID does not exist
         """
         # Find the tier
         tier = next((t for t in self.tiers if t["id"] == tier_id), None)
         if not tier:
-            return False
+            raise ValueError(f"Tier with ID {tier_id} not found")
 
         # Update the prices
         if price_monthly is not None:
@@ -218,6 +222,30 @@ class SubscriptionModel:
 
         self.updated_at = datetime.now().isoformat()
         return True
+
+    def get_tier_by_id(self, tier_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get a tier by its ID.
+
+        Args:
+            tier_id: ID of the tier to get
+
+        Returns:
+            The tier dictionary, or None if not found
+        """
+        return next((t for t in self.tiers if t["id"] == tier_id), None)
+
+    def get_feature_by_id(self, feature_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get a feature by its ID.
+
+        Args:
+            feature_id: ID of the feature to get
+
+        Returns:
+            The feature dictionary, or None if not found
+        """
+        return next((f for f in self.features if f["id"] == feature_id), None)
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -424,6 +452,15 @@ class FreemiumModel(SubscriptionModel):
         """
         return self.free_tier["id"]
 
+    def get_free_tier(self) -> Dict[str, Any]:
+        """
+        Get the free tier.
+
+        Returns:
+            The free tier dictionary
+        """
+        return self.free_tier
+
     def add_feature_to_free_tier(self, feature_id: str) -> bool:
         """
         Add a feature to the free tier.
@@ -436,6 +473,28 @@ class FreemiumModel(SubscriptionModel):
         """
         return self.assign_feature_to_tier(feature_id, self.free_tier["id"])
 
+    def update_tier_limits(self, tier_id: str, limits: Dict[str, Any]) -> bool:
+        """
+        Update the limits of a tier.
+
+        Args:
+            tier_id: ID of the tier to update
+            limits: Dictionary of usage limits for the tier
+
+        Returns:
+            True if the limits were updated, False otherwise
+        """
+        # Find the tier
+        tier = next((t for t in self.tiers if t["id"] == tier_id), None)
+        if not tier:
+            return False
+
+        # Update the limits
+        tier["limits"] = copy.deepcopy(limits)
+        self.updated_at = datetime.now().isoformat()
+
+        return True
+
     def update_free_tier_limits(self, limits: Dict[str, Any]) -> bool:
         """
         Update the limits of the free tier.
@@ -446,16 +505,7 @@ class FreemiumModel(SubscriptionModel):
         Returns:
             True if the limits were updated, False otherwise
         """
-        # Find the free tier
-        tier = next((t for t in self.tiers if t["id"] == self.free_tier["id"]), None)
-        if not tier:
-            return False
-
-        # Update the limits
-        tier["limits"] = copy.deepcopy(limits)
-        self.updated_at = datetime.now().isoformat()
-
-        return True
+        return self.update_tier_limits(self.free_tier["id"], limits)
 
     def to_dict(self) -> Dict[str, Any]:
         """
