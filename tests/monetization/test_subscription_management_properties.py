@@ -404,6 +404,233 @@ def test_trial_expiration_properties(subscription):
     assert "trial" in last_entry["reason"].lower()
 
 
+@given(
+    subscription=subscriptions()
+)
+def test_tier_upgrade_downgrade_properties(subscription):
+    """Test properties of upgrading and downgrading subscription tiers."""
+    # Only test with active subscriptions and plans that have multiple tiers
+    assume(subscription.status == SubscriptionStatus.ACTIVE)
+    assume(len(subscription.plan.tiers) >= 2)
+    
+    # Create a SubscriptionManager instance with our generated subscription
+    manager = SubscriptionManager()
+    manager.add_subscription(subscription)
+    
+    # Get current tier and an alternative tier
+    current_tier_id = subscription.tier_id
+    current_tier = subscription.get_tier()
+    
+    # Find another tier from the same plan
+    other_tiers = [t for t in subscription.plan.tiers if t["id"] != current_tier_id]
+    assume(len(other_tiers) > 0)
+    
+    # Find a higher priced tier for upgrade test
+    upgrade_tier = None
+    for tier in other_tiers:
+        if tier["price_monthly"] > current_tier["price_monthly"]:
+            upgrade_tier = tier
+            break
+    
+    # If we found an upgrade tier, test upgrade
+    if upgrade_tier:
+        # Store original values
+        original_price = subscription.price
+        
+        # Upgrade to the higher tier
+        manager.change_subscription_tier(
+            subscription_id=subscription.id,
+            new_tier_id=upgrade_tier["id"],
+            prorate=True
+        )
+        
+        # Check the updated subscription
+        upgraded_sub = manager.get_subscription(subscription.id)
+        
+        # Property 1: The tier ID should be updated
+        assert upgraded_sub.tier_id == upgrade_tier["id"]
+        
+        # Property 2: The price should be higher after upgrading
+        if subscription.billing_cycle == "monthly":
+            assert upgraded_sub.price == upgrade_tier["price_monthly"]
+        else:
+            assert upgraded_sub.price == upgrade_tier["price_annual"]
+        
+        # Property 3: The status should still be ACTIVE
+        assert upgraded_sub.status == SubscriptionStatus.ACTIVE
+        
+        # Property 4: There should be a record of the tier change in metadata
+        tier_change = upgraded_sub.get_metadata("tier_change")
+        assert tier_change is not None
+        assert tier_change["old_tier_id"] == current_tier_id
+        assert tier_change["new_tier_id"] == upgrade_tier["id"]
+    
+    # Find a lower priced tier for downgrade test
+    downgrade_tier = None
+    for tier in other_tiers:
+        if tier["price_monthly"] < current_tier["price_monthly"]:
+            downgrade_tier = tier
+            break
+    
+    # If we found a downgrade tier, test downgrade
+    if downgrade_tier:
+        # Reset subscription to original tier if we did an upgrade
+        if upgrade_tier:
+            subscription.tier_id = current_tier_id
+            # Update the manager's copy
+            manager.add_subscription(subscription)
+        
+        # Store original values
+        original_price = subscription.price
+        
+        # Downgrade to the lower tier
+        manager.change_subscription_tier(
+            subscription_id=subscription.id,
+            new_tier_id=downgrade_tier["id"],
+            prorate=True
+        )
+        
+        # Check the updated subscription
+        downgraded_sub = manager.get_subscription(subscription.id)
+        
+        # Property 1: The tier ID should be updated
+        assert downgraded_sub.tier_id == downgrade_tier["id"]
+        
+        # Property 2: The price should be lower after downgrading
+        if subscription.billing_cycle == "monthly":
+            assert downgraded_sub.price == downgrade_tier["price_monthly"]
+        else:
+            assert downgraded_sub.price == downgrade_tier["price_annual"]
+        
+        # Property 3: The status should still be ACTIVE
+        assert downgraded_sub.status == SubscriptionStatus.ACTIVE
+        
+        # Property 4: There should be a record of the tier change in metadata
+        tier_change = downgraded_sub.get_metadata("tier_change")
+        assert tier_change is not None
+        assert tier_change["old_tier_id"] == current_tier_id
+        assert tier_change["new_tier_id"] == downgrade_tier["id"]
+
+
+@given(
+    subscription=subscriptions(),
+    proration_days=st.integers(min_value=1, max_value=29)
+)
+def test_subscription_proration_properties(subscription, proration_days):
+    """Test properties of subscription proration when changing tiers or billing cycles."""
+    # Only test with active monthly subscriptions
+    assume(subscription.status == SubscriptionStatus.ACTIVE)
+    assume(subscription.billing_cycle == "monthly")
+    assume(len(subscription.plan.tiers) >= 2)
+    
+    # Create a SubscriptionManager instance with our generated subscription
+    manager = SubscriptionManager()
+    manager.add_subscription(subscription)
+    
+    # Set the current period to start from today and end in 30 days
+    today = datetime.now()
+    subscription.current_period_start = today
+    subscription.current_period_end = today + timedelta(days=30)
+    
+    # Get current tier and find an upgrade tier
+    current_tier_id = subscription.tier_id
+    current_tier = subscription.get_tier()
+    
+    # Find a higher priced tier
+    other_tiers = [t for t in subscription.plan.tiers if t["id"] != current_tier_id]
+    upgrade_tier = None
+    for tier in other_tiers:
+        if tier["price_monthly"] > current_tier["price_monthly"]:
+            upgrade_tier = tier
+            break
+    
+    # Skip if we can't find an upgrade tier
+    assume(upgrade_tier is not None)
+    
+    # Set the effective date to be partway through the billing cycle
+    effective_date = today + timedelta(days=proration_days)
+    
+    # Test proration when upgrading
+    manager.change_subscription_tier(
+        subscription_id=subscription.id,
+        new_tier_id=upgrade_tier["id"],
+        prorate=True,
+        effective_date=effective_date
+    )
+    
+    # Check the updated subscription
+    upgraded_sub = manager.get_subscription(subscription.id)
+    
+    # Property 1: The tier should be changed
+    assert upgraded_sub.tier_id == upgrade_tier["id"]
+    
+    # Property 2: There should be proration data in the metadata
+    tier_change = upgraded_sub.get_metadata("tier_change")
+    assert tier_change is not None
+    assert "prorated_amount" in tier_change
+    
+    # Property 3: The prorated amount should be greater than 0 for an upgrade
+    assert tier_change["prorated_amount"] > 0
+    
+    # Property 4: For a partial period, the prorated amount should be less than 
+    # the full price difference
+    price_difference = upgrade_tier["price_monthly"] - current_tier["price_monthly"]
+    days_left = 30 - proration_days
+    expected_proration = price_difference * (days_left / 30)
+    assert abs(tier_change["prorated_amount"] - expected_proration) < 0.01
+
+
+@given(
+    subscription_list=st.lists(subscriptions(), min_size=2, max_size=10)
+)
+def test_subscription_batch_operations_properties(subscription_list):
+    """Test properties of batch operations on subscriptions."""
+    
+    # Create a SubscriptionManager instance with our generated subscriptions
+    manager = SubscriptionManager()
+    
+    # Add all generated subscriptions to the manager, filtering for active ones
+    active_subscriptions = []
+    for subscription in subscription_list:
+        if subscription.status == SubscriptionStatus.ACTIVE:
+            manager.add_subscription(subscription)
+            active_subscriptions.append(subscription)
+    
+    # Skip test if we don't have at least 2 active subscriptions
+    assume(len(active_subscriptions) >= 2)
+    
+    # Test batch processing of expirations
+    # First, set some subscriptions to expire today
+    expiring_ids = []
+    for i, sub in enumerate(active_subscriptions):
+        if i % 2 == 0:  # Every other subscription
+            sub.current_period_end = datetime.now() - timedelta(days=1)
+            expiring_ids.append(sub.id)
+            # Update the manager's copy
+            manager.add_subscription(sub)
+    
+    # Process expirations
+    processed_subs = manager.check_period_expirations()
+    
+    # Property 1: The number of processed subscriptions should match our expiring ones
+    assert len(processed_subs) == len(expiring_ids)
+    
+    # Property 2: All IDs should match what we expected
+    processed_ids = [s.id for s in processed_subs]
+    for sub_id in expiring_ids:
+        assert sub_id in processed_ids
+    
+    # Property 3: Batch processing should update all subscriptions properly
+    for sub_id in expiring_ids:
+        updated_sub = manager.get_subscription(sub_id)
+        # Either the subscription was renewed or canceled
+        if updated_sub.get_metadata("cancel_at_period_end", False):
+            assert updated_sub.status == SubscriptionStatus.CANCELED
+        else:
+            # If it was renewed, the period end date should be in the future
+            assert updated_sub.current_period_end > datetime.now()
+
+
 # Helper method to add a subscription to the manager
 def add_subscription(manager, plan):
     """Helper to add a subscription to the manager."""

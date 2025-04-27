@@ -11,47 +11,60 @@ from unittest.mock import MagicMock
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
+# Import our centralized mock fixtures
+from tests.mocks.fixtures import (
+    mock_openai_provider, 
+    mock_ollama_provider,
+    mock_lmstudio_provider,
+    patch_model_providers,
+    mock_huggingface_api,
+    mock_payment_api,
+    mock_email_api,
+    mock_storage_api,
+    patch_external_apis,
+    mock_model_inference_result,
+    mock_embedding_result,
+    mock_subscription_data,
+    mock_niche_analysis_data,
+    mock_marketing_campaign_data
+)
+
 from tests.mocks.mock_model_providers import (
     create_mock_provider,
     MockOpenAIProvider,
     MockOllamaProvider,
     MockLMStudioProvider
 )
-from tests.mocks.mock_payment_apis import (
-    create_payment_gateway,
-    MockStripeGateway,
-    MockPayPalGateway
+
+from tests.mocks.mock_external_apis import (
+    create_mock_api,
+    MockHuggingFaceAPI,
+    MockPaymentAPI,
+    MockEmailAPI,
+    MockStorageAPI
 )
 
+# Keep existing mock payment APIs for backward compatibility
+try:
+    from tests.mocks.mock_payment_apis import (
+        create_payment_gateway,
+        MockStripeGateway,
+        MockPayPalGateway
+    )
+except ImportError:
+    # Create mock versions if the module doesn't exist yet
+    class MockStripeGateway:
+        pass
+    class MockPayPalGateway:
+        pass
+    def create_payment_gateway(gateway_type, config=None):
+        return MagicMock()
 
-@pytest.fixture
-def mock_openai_provider():
-    """Create a mock OpenAI provider."""
-    return create_mock_provider("openai", {
-        "default_completion": "This is a mock response from OpenAI.",
-        "custom_responses": {
-            "summarize": "This is a summary of the content.",
-            "generate ideas": "Here are some innovative ideas for your project.",
-            "analyze market": "Market analysis shows positive growth trends."
-        }
-    })
+# Re-export all fixtures from tests.mocks.fixtures
+# This makes them available to all tests without explicit imports
 
-
-@pytest.fixture
-def mock_ollama_provider():
-    """Create a mock Ollama provider."""
-    return create_mock_provider("ollama", {
-        "default_completion": "This is a mock response from Ollama."
-    })
-
-
-@pytest.fixture
-def mock_lmstudio_provider():
-    """Create a mock LM Studio provider."""
-    return create_mock_provider("lmstudio", {
-        "default_completion": "This is a mock response from LM Studio."
-    })
-
+# Continue with existing fixtures
+# These will be kept for backward compatibility
 
 @pytest.fixture
 def mock_stripe_gateway():
@@ -292,6 +305,10 @@ def mock_test_niche():
         ],
     }
 
+
+# The patch_payment_processor and patch_model_provider fixtures are now
+# deprecated in favor of the more comprehensive patch_external_apis and
+# patch_model_providers fixtures. They are kept for backward compatibility.
 
 @pytest.fixture
 def patch_payment_processor(monkeypatch):

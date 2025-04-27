@@ -115,6 +115,38 @@ Running the main script generates a complete project plan including:
 - Python 3.8+
 - Dependencies listed in each module's README
 
+## Documentation
+
+The project includes comprehensive API documentation that can be built from source:
+
+1. Navigate to the docs_source directory:
+
+   ```bash
+   cd docs_source
+   ```
+
+2. Generate the API documentation from source code:
+
+   ```bash
+   python generate_api_docs.py
+   ```
+
+3. Build the HTML documentation:
+
+   ```bash
+   make html
+   ```
+   
+   On Windows, use:
+   
+   ```bash
+   make.bat html
+   ```
+
+4. The generated documentation will be available in `docs_source/build/html/`
+
+You can view the documentation by opening `docs_source/build/html/index.html` in your web browser.
+
 ## License
 
 [MIT License](LICENSE)

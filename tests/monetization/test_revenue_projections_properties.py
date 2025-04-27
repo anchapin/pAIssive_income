@@ -20,7 +20,7 @@ churn_rates = st.floats(min_value=0.001, max_value=0.5)
 months = st.integers(min_value=1, max_value=36)
 growth_rates = st.floats(min_value=-0.1, max_value=0.5)
 acquisition_costs = st.floats(min_value=1.0, max_value=1000.0)
-average_revenues = st.floats(min_value=1.0, max_value=200.0)
+average_revenues = st.floats(min_value=1.0, max_size=200.0)
 gross_margins = st.floats(min_value=0.1, max_value=0.9)
 
 # Strategy for generating tier distributions
@@ -397,3 +397,122 @@ def test_revenue_projection_calculation_properties(
                 break
         
         # We don't assert here in case we didn't find a valid comparison point
+
+
+@given(
+    initial_users=initial_users,
+    user_acquisition_rate=user_acquisition_rates,
+    conversion_rate=conversion_rates,
+    churn_rate=churn_rates,
+    months=st.integers(min_value=3, max_value=60),
+    growth_rate=growth_rates
+)
+def test_revenue_projection_monthly_to_annual_conversion(
+    initial_users, user_acquisition_rate, conversion_rate, churn_rate, 
+    months, growth_rate
+):
+    """Test properties of revenue projections when converting monthly to annual revenue."""
+    
+    # Create a RevenueProjector instance
+    projector = RevenueProjector(
+        name="Test Revenue Projector",
+        description="Testing monthly to annual revenue conversion",
+        initial_users=initial_users,
+        user_acquisition_rate=user_acquisition_rate,
+        conversion_rate=conversion_rate,
+        churn_rate=churn_rate
+    )
+    
+    # Skip if months is not at least one full year
+    assume(months >= 12)
+    
+    # Project revenue
+    revenue_projections = projector.project_revenue(
+        months=months,
+        growth_rate=growth_rate
+    )
+    
+    # Calculate annual revenues from monthly projections
+    annual_revenues = []
+    for year in range(1, (months // 12) + 1):
+        start_month = (year - 1) * 12
+        end_month = year * 12
+        
+        # Sum monthly revenues for this year
+        yearly_revenue = sum(revenue_projections[i-1]["total_revenue"] for i in range(start_month + 1, end_month + 1))
+        annual_revenues.append(yearly_revenue)
+    
+    # Property 1: Annual revenue should be non-negative
+    for yearly_revenue in annual_revenues:
+        assert yearly_revenue >= 0
+    
+    # Property 2: In a growing business (positive growth, low churn), annual revenue should generally increase year over year
+    if growth_rate > 0.05 and churn_rate < 0.1 and len(annual_revenues) > 1:
+        # Allow for some fluctuations but general trend should be up
+        increasing_pairs = sum(1 for i in range(len(annual_revenues) - 1) if annual_revenues[i+1] >= annual_revenues[i])
+        assert increasing_pairs >= len(annual_revenues) - 2  # Allow one potential decrease
+    
+    # Property 3: Annual revenue should relate to user growth
+    if months >= 24 and initial_users > 0 and growth_rate > 0:
+        # Get user counts from the start and end of year 1 and 2
+        users_start_y1 = revenue_projections[0]["total_users"]
+        users_end_y1 = revenue_projections[11]["total_users"]
+        
+        if len(revenue_projections) >= 24:
+            users_end_y2 = revenue_projections[23]["total_users"]
+            
+            # If users grew significantly, revenue should also grow
+            if users_end_y2 > users_end_y1 * 1.5 and len(annual_revenues) >= 2:
+                # Expect revenue to grow somewhat in proportion to user growth
+                user_growth_ratio = users_end_y2 / users_end_y1
+                revenue_growth_min = 0.5  # Allow for some lag in revenue growth vs user growth
+                assert annual_revenues[1] >= annual_revenues[0] * revenue_growth_min
+
+
+@given(
+    churn_rates=st.lists(churn_rates, min_size=2, max_size=5),
+    average_revenue=average_revenues,
+    months=st.integers(min_value=12, max_value=60)
+)
+def test_revenue_projection_sensitivity_to_churn(churn_rates, average_revenue, months):
+    """Test that revenue projections are appropriately sensitive to changes in churn rate."""
+    
+    # Sort churn rates
+    churn_rates = sorted(churn_rates)
+    
+    # Create revenue projections for each churn rate
+    results = []
+    base_projector = RevenueProjector(
+        name="Test Revenue Projector",
+        description="Testing sensitivity to churn",
+        initial_users=1000,
+        user_acquisition_rate=100,
+        conversion_rate=0.2
+    )
+    
+    for churn_rate in churn_rates:
+        projector = RevenueProjector(
+            name=base_projector.name,
+            description=base_projector.description,
+            initial_users=base_projector.initial_users,
+            user_acquisition_rate=base_projector.user_acquisition_rate,
+            conversion_rate=base_projector.conversion_rate,
+            churn_rate=churn_rate
+        )
+        
+        # Project revenue
+        revenue_projections = projector.project_revenue(
+            months=months,
+            growth_rate=0.05
+        )
+        
+        # Store final cumulative revenue
+        final_revenue = revenue_projections[-1]["cumulative_revenue"]
+        results.append((churn_rate, final_revenue))
+    
+    # Property 1: Higher churn rates should result in lower cumulative revenue
+    for i in range(len(results) - 1):
+        # The relationship might not be perfectly monotonic for very small differences in churn
+        # so we check for significant differences
+        if results[i+1][0] > results[i][0] * 1.5:  # Significantly higher churn
+            assert results[i+1][1] < results[i][1]  # Should result in lower revenue
