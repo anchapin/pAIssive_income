@@ -10,6 +10,7 @@ import json
 import logging
 import threading
 import time
+from datetime import datetime
 from typing import Dict, List, Any, Optional, Union, Callable, Tuple
 from dataclasses import dataclass
 from pathlib import Path
@@ -88,6 +89,8 @@ class ModelInfo:
     metadata: Dict[str, Any] = None
     performance: Dict[str, Any] = None
     last_updated: str = ""
+    created_at: str = ""
+    updated_at: str = ""
 
     def __post_init__(self):
         """
@@ -101,6 +104,15 @@ class ModelInfo:
 
         if self.performance is None:
             self.performance = {}
+
+        # Set timestamps if not provided
+        current_time = time.strftime("%Y-%m-%dT%H:%M:%S")
+
+        if not self.created_at:
+            self.created_at = current_time
+
+        if not self.updated_at:
+            self.updated_at = current_time
 
         if not self.last_updated:
             self.last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -131,7 +143,9 @@ class ModelInfo:
             "capabilities": self.capabilities,
             "metadata": self.metadata,
             "performance": self.performance,
-            "last_updated": self.last_updated
+            "last_updated": self.last_updated,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -161,9 +175,14 @@ class ModelInfo:
 
     def update_timestamp(self) -> None:
         """
-        Update the last_updated timestamp.
+        Update the last_updated and updated_at timestamps.
         """
         self.last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
+        self.updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+
+        # For compatibility with datetime.now().isoformat() in tests
+        if hasattr(datetime, 'now'):
+            self.updated_at = datetime.now().isoformat()
 
     def has_capability(self, capability: str) -> bool:
         """

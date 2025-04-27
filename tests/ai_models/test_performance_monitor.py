@@ -33,7 +33,7 @@ def test_inference_metrics_init():
         input_tokens=10,
         output_tokens=20
     )
-    
+
     # Check that the metrics have the expected attributes
     assert metrics.model_id == "test-model"
     assert metrics.latency_ms == 100
@@ -54,10 +54,10 @@ def test_inference_metrics_to_dict():
         input_tokens=10,
         output_tokens=20
     )
-    
+
     # Convert to dictionary
     metrics_dict = metrics.to_dict()
-    
+
     # Check that the dictionary has the expected keys
     assert "model_id" in metrics_dict
     assert "latency_ms" in metrics_dict
@@ -66,7 +66,7 @@ def test_inference_metrics_to_dict():
     assert "input_tokens" in metrics_dict
     assert "output_tokens" in metrics_dict
     assert "timestamp" in metrics_dict
-    
+
     # Check that the values are correct
     assert metrics_dict["model_id"] == "test-model"
     assert metrics_dict["latency_ms"] == 100
@@ -78,10 +78,12 @@ def test_inference_metrics_to_dict():
 
 def test_inference_tracker_init():
     """Test InferenceTracker initialization."""
-    tracker = InferenceTracker(model_id="test-model")
-    
+    monitor = PerformanceMonitor()
+    tracker = InferenceTracker(monitor=monitor, model_id="test-model")
+
     # Check that the tracker has the expected attributes
     assert tracker.model_id == "test-model"
+    assert tracker.monitor == monitor
     assert hasattr(tracker, "start_time")
     assert hasattr(tracker, "end_time")
     assert hasattr(tracker, "input_tokens")
@@ -92,20 +94,25 @@ def test_inference_tracker_init():
 
 def test_inference_tracker_start_stop(mock_model):
     """Test start and stop methods of InferenceTracker."""
-    tracker = InferenceTracker(model_id=mock_model.id)
-    
+    monitor = PerformanceMonitor()
+    tracker = InferenceTracker(monitor=monitor, model_id=mock_model.id)
+
     # Start tracking
     tracker.start(input_text="Hello, world!")
-    
+
     # Check that start_time is set
     assert tracker.start_time is not None
-    
+
+    # Add a small delay to ensure latency is measurable
+    import time
+    time.sleep(0.01)
+
     # Stop tracking
     metrics = tracker.stop(output_text="Hello, AI!")
-    
+
     # Check that end_time is set
     assert tracker.end_time is not None
-    
+
     # Check that metrics were returned
     assert isinstance(metrics, InferenceMetrics)
     assert metrics.model_id == mock_model.id
@@ -117,7 +124,7 @@ def test_inference_tracker_start_stop(mock_model):
 def test_performance_monitor_init():
     """Test PerformanceMonitor initialization."""
     monitor = PerformanceMonitor()
-    
+
     # Check that the monitor has the expected attributes
     assert hasattr(monitor, "metrics_history")
     assert isinstance(monitor.metrics_history, dict)
@@ -128,21 +135,21 @@ def test_performance_monitor_init():
 def test_performance_monitor_track_inference(mock_model):
     """Test track_inference method of PerformanceMonitor."""
     monitor = PerformanceMonitor()
-    
+
     # Track inference
     metrics = monitor.track_inference(
         model=mock_model,
         input_text="Hello, world!",
         output_text="Hello, AI!"
     )
-    
+
     # Check that metrics were returned
     assert isinstance(metrics, InferenceMetrics)
     assert metrics.model_id == mock_model.id
     assert metrics.latency_ms > 0
     assert metrics.input_tokens > 0
     assert metrics.output_tokens > 0
-    
+
     # Check that metrics were added to history
     assert mock_model.id in monitor.metrics_history
     assert len(monitor.metrics_history[mock_model.id]) == 1
@@ -152,7 +159,7 @@ def test_performance_monitor_track_inference(mock_model):
 def test_performance_monitor_get_model_metrics(mock_model):
     """Test get_model_metrics method of PerformanceMonitor."""
     monitor = PerformanceMonitor()
-    
+
     # Add some metrics to history
     metrics1 = InferenceMetrics(
         model_id=mock_model.id,
@@ -162,7 +169,7 @@ def test_performance_monitor_get_model_metrics(mock_model):
         input_tokens=10,
         output_tokens=20
     )
-    
+
     metrics2 = InferenceMetrics(
         model_id=mock_model.id,
         latency_ms=200,
@@ -171,12 +178,12 @@ def test_performance_monitor_get_model_metrics(mock_model):
         input_tokens=15,
         output_tokens=25
     )
-    
+
     monitor.metrics_history[mock_model.id] = [metrics1, metrics2]
-    
+
     # Get model metrics
     model_metrics = monitor.get_model_metrics(mock_model.id)
-    
+
     # Check that metrics were returned
     assert isinstance(model_metrics, list)
     assert len(model_metrics) == 2
@@ -187,7 +194,7 @@ def test_performance_monitor_get_model_metrics(mock_model):
 def test_performance_monitor_generate_report(mock_model):
     """Test generate_report method of PerformanceMonitor."""
     monitor = PerformanceMonitor()
-    
+
     # Add some metrics to history
     metrics1 = InferenceMetrics(
         model_id=mock_model.id,
@@ -197,7 +204,7 @@ def test_performance_monitor_generate_report(mock_model):
         input_tokens=10,
         output_tokens=20
     )
-    
+
     metrics2 = InferenceMetrics(
         model_id=mock_model.id,
         latency_ms=200,
@@ -206,12 +213,12 @@ def test_performance_monitor_generate_report(mock_model):
         input_tokens=15,
         output_tokens=25
     )
-    
+
     monitor.metrics_history[mock_model.id] = [metrics1, metrics2]
-    
+
     # Generate report
     report = monitor.generate_report(mock_model.id)
-    
+
     # Check that report was returned
     assert isinstance(report, ModelPerformanceReport)
     assert report.model_id == mock_model.id
@@ -234,7 +241,7 @@ def test_model_performance_report_init():
         total_input_tokens=100,
         total_output_tokens=200
     )
-    
+
     # Check that the report has the expected attributes
     assert report.model_id == "test-model"
     assert report.num_inferences == 10
@@ -257,10 +264,10 @@ def test_model_performance_report_to_dict():
         total_input_tokens=100,
         total_output_tokens=200
     )
-    
+
     # Convert to dictionary
     report_dict = report.to_dict()
-    
+
     # Check that the dictionary has the expected keys
     assert "model_id" in report_dict
     assert "num_inferences" in report_dict
@@ -270,7 +277,7 @@ def test_model_performance_report_to_dict():
     assert "total_input_tokens" in report_dict
     assert "total_output_tokens" in report_dict
     assert "timestamp" in report_dict
-    
+
     # Check that the values are correct
     assert report_dict["model_id"] == "test-model"
     assert report_dict["num_inferences"] == 10
