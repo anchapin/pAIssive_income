@@ -7,8 +7,9 @@ This module provides classes for generating and managing receipts for transactio
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
 import uuid
-import json
 import copy
+
+from common_utils import to_json, write_file
 
 
 class ReceiptItem:
@@ -465,7 +466,7 @@ class Receipt:
         Returns:
             JSON string representation of the receipt
         """
-        return json.dumps(self.to_dict(), indent=indent)
+        return to_json(self.to_dict(), indent=indent)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Receipt':
@@ -952,8 +953,7 @@ class Receipt:
         else:
             raise ValueError(f"Unsupported format: {format}")
 
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(content)
+        write_file(file_path, content, encoding="utf-8")
 
     def __str__(self) -> str:
         """String representation of the receipt."""

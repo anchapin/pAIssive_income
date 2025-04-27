@@ -14,7 +14,11 @@ import uuid
 import traceback
 
 from . import app
-from .services import AgentTeamService, NicheAnalysisService, DeveloperService, MonetizationService, MarketingService
+from interfaces.ui_interfaces import (
+    IAgentTeamService, INicheAnalysisService, IDeveloperService,
+    IMonetizationService, IMarketingService
+)
+from service_initialization import get_service
 from .errors import (
     UIError, RouteError, ServiceError, ValidationError,
     api_error_handler, handle_exception
@@ -24,11 +28,11 @@ from .errors import (
 logger = logging.getLogger(__name__)
 
 # Services
-agent_team_service = AgentTeamService()
-niche_analysis_service = NicheAnalysisService()
-developer_service = DeveloperService()
-monetization_service = MonetizationService()
-marketing_service = MarketingService()
+agent_team_service = get_service(IAgentTeamService)
+niche_analysis_service = get_service(INicheAnalysisService)
+developer_service = get_service(IDeveloperService)
+monetization_service = get_service(IMonetizationService)
+marketing_service = get_service(IMarketingService)
 
 # Home route
 @app.route('/')
@@ -102,7 +106,7 @@ def develop_solution():
     niche_id = request.form.get('niche_id')
 
     # Develop solution
-    solution = developer_service.develop_solution(niche_id)
+    solution = developer_service.create_solution(niche_id)
 
     # Store results in session
     session['solution'] = solution

@@ -17,15 +17,15 @@ This document outlines the tasks identified in the comprehensive improvement pla
 - [x] Create interfaces for key components to enable dependency injection
 - [x] Refactor agent team module to use dependency injection
 - [x] Refactor AI models module to use dependency injection
-- [ ] Update service initialization to support dependency injection
+- [x] Update service initialization to support dependency injection
 - [x] Create a dependency container for managing dependencies
 
 ### 1.3 Reduce Code Duplication
-- [ ] Create a common utilities module for shared functionality
-- [ ] Move date handling utilities to the common module
-- [ ] Move JSON serialization utilities to the common module
-- [ ] Move file handling utilities to the common module
-- [ ] Update existing code to use the common utilities
+- [x] Create a common utilities module for shared functionality
+- [x] Move date handling utilities to the common module
+- [x] Move JSON serialization utilities to the common module
+- [x] Move file handling utilities to the common module
+- [x] Update existing code to use the common utilities
 
 ### 1.4 Type Annotations and Validation
 - [ ] Add Pydantic models for data validation in the AI models module

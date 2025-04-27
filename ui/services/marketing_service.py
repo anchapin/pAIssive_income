@@ -8,24 +8,25 @@ import logging
 import os
 import json
 from typing import Dict, List, Any, Optional
-from datetime import datetime
 import uuid
 
+from interfaces.ui_interfaces import IMarketingService
 from .base_service import BaseService
+from common_utils import format_datetime, add_days
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-class MarketingService(BaseService):
+class MarketingService(BaseService, IMarketingService):
     """
     Service for interacting with the Marketing Agent module.
     """
-    
+
     def __init__(self):
         """Initialize the Marketing service."""
         super().__init__()
         self.campaigns_file = 'marketing_campaigns.json'
-        
+
         # Import the Marketing Agent class
         try:
             from agent_team.agent_profiles.marketing import MarketingAgent
@@ -33,14 +34,14 @@ class MarketingService(BaseService):
         except ImportError:
             logger.warning("Marketing Agent module not available. Using mock data.")
             self.marketing_agent_available = False
-    
-    def create_campaign(self, solution_id: str) -> Dict[str, Any]:
+
+    def create_campaign(self, solution_id: str, strategy_id: str = None) -> Dict[str, Any]:
         """
         Create a marketing campaign for a solution.
-        
+
         Args:
             solution_id: ID of the solution
-            
+
         Returns:
             Marketing campaign data
         """
@@ -48,21 +49,21 @@ class MarketingService(BaseService):
         from .developer_service import DeveloperService
         developer_service = DeveloperService()
         solution = developer_service.get_solution(solution_id)
-        
+
         if solution is None:
             logger.error(f"Solution with ID {solution_id} not found")
             return {}
-        
+
         if self.marketing_agent_available:
             try:
                 from agent_team import AgentTeam
-                
+
                 # Create a new agent team for this campaign
                 team = AgentTeam(f"{solution['name']} Marketing")
-                
+
                 # Create the marketing campaign
                 campaign = team.marketing.create_marketing_plan(solution)
-                
+
                 # Add metadata
                 campaign['id'] = str(uuid.uuid4())
                 campaign['solution_id'] = solution_id
@@ -74,34 +75,34 @@ class MarketingService(BaseService):
                 campaign = self._create_mock_campaign(solution)
         else:
             campaign = self._create_mock_campaign(solution)
-        
+
         # Save the campaign
         campaigns = self.get_campaigns()
         campaigns.append(campaign)
-        self._save_data(campaigns, self.campaigns_file)
-        
+        self.save_data(self.campaigns_file, campaigns)
+
         return campaign
-    
+
     def get_campaigns(self) -> List[Dict[str, Any]]:
         """
         Get all marketing campaigns.
-        
+
         Returns:
             List of marketing campaigns
         """
-        campaigns = self._load_data(self.campaigns_file)
+        campaigns = self.load_data(self.campaigns_file)
         if campaigns is None:
             campaigns = []
-            self._save_data(campaigns, self.campaigns_file)
+            self.save_data(self.campaigns_file, campaigns)
         return campaigns
-    
+
     def get_campaign(self, campaign_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a marketing campaign by ID.
-        
+
         Args:
             campaign_id: ID of the campaign
-            
+
         Returns:
             Marketing campaign data, or None if not found
         """
@@ -110,35 +111,44 @@ class MarketingService(BaseService):
             if campaign['id'] == campaign_id:
                 return campaign
         return None
-    
-    def update_campaign(self, campaign_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+
+    def save_campaign(self, campaign: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Update a marketing campaign.
-        
+        Save a marketing campaign.
+
         Args:
-            campaign_id: ID of the campaign
-            updates: Updates to apply to the campaign
-            
+            campaign: Campaign dictionary
+
         Returns:
-            Updated campaign data, or None if not found
+            Saved campaign dictionary
         """
         campaigns = self.get_campaigns()
-        for i, campaign in enumerate(campaigns):
-            if campaign['id'] == campaign_id:
-                campaign.update(updates)
+
+        # Check if the campaign already exists
+        for i, existing_campaign in enumerate(campaigns):
+            if existing_campaign['id'] == campaign['id']:
+                # Update existing campaign
                 campaign['updated_at'] = datetime.now().isoformat()
                 campaigns[i] = campaign
-                self._save_data(campaigns, self.campaigns_file)
+                self.save_data(self.campaigns_file, campaigns)
                 return campaign
-        return None
-    
+
+        # Add new campaign
+        if 'created_at' not in campaign:
+            campaign['created_at'] = datetime.now().isoformat()
+        if 'updated_at' not in campaign:
+            campaign['updated_at'] = datetime.now().isoformat()
+        campaigns.append(campaign)
+        self.save_data(self.campaigns_file, campaigns)
+        return campaign
+
     def _create_mock_campaign(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create a mock marketing campaign for testing.
-        
+
         Args:
             solution: Solution data
-            
+
         Returns:
             Mock marketing campaign data
         """
@@ -199,7 +209,7 @@ class MarketingService(BaseService):
                 }
             }
         ]
-        
+
         # Create channel strategies
         channels = [
             {
@@ -248,7 +258,7 @@ class MarketingService(BaseService):
                 'budget_allocation': '10%'
             }
         ]
-        
+
         # Create content templates
         content_templates = [
             {
@@ -302,7 +312,7 @@ class MarketingService(BaseService):
                 'estimated_length': '500-700 words'
             }
         ]
-        
+
         # Create mock campaign
         return {
             'id': str(uuid.uuid4()),
@@ -339,19 +349,19 @@ class MarketingService(BaseService):
                         {
                             'title': f"How {solution['name']} Can Save You 10 Hours a Week",
                             'type': 'blog_post',
-                            'publish_date': (datetime.now() + timedelta(days=7)).isoformat(),
+                            'publish_date': format_datetime(add_days(datetime.now(), 7), "%Y-%m-%dT%H:%M:%S.%fZ"),
                             'status': 'planned'
                         },
                         {
                             'title': f"5 Ways {solution['name']} Improves Your Work Quality",
                             'type': 'blog_post',
-                            'publish_date': (datetime.now() + timedelta(days=14)).isoformat(),
+                            'publish_date': format_datetime(add_days(datetime.now(), 14), "%Y-%m-%dT%H:%M:%S.%fZ"),
                             'status': 'planned'
                         },
                         {
                             'title': f"Welcome to {solution['name']}",
                             'type': 'email_newsletter',
-                            'publish_date': (datetime.now() + timedelta(days=1)).isoformat(),
+                            'publish_date': format_datetime(add_days(datetime.now(), 1), "%Y-%m-%dT%H:%M:%S.%fZ"),
                             'status': 'planned'
                         }
                     ]
@@ -397,8 +407,8 @@ class MarketingService(BaseService):
                 'acquisition': ['Free trial signups', 'Conversion rate', 'Cost per acquisition'],
                 'retention': ['Churn rate', 'Renewal rate', 'User engagement']
             },
-            'created_at': datetime.now().isoformat(),
-            'updated_at': datetime.now().isoformat(),
+            'created_at': format_datetime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ"),
+            'updated_at': format_datetime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ"),
             'status': 'active',
             'is_mock': True
         }

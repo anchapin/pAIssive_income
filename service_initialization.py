@@ -15,6 +15,10 @@ from interfaces.model_interfaces import IModelManager, IModelConfig, IModelAdapt
 from interfaces.niche_interfaces import INicheAnalyzer
 from interfaces.monetization_interfaces import IMonetizationCalculator
 from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.ui_interfaces import (
+    IAgentTeamService, INicheAnalysisService, IDeveloperService,
+    IMonetizationService, IMarketingService
+)
 
 from agent_team import AgentTeam, ResearchAgent, AgentProfile
 
@@ -25,6 +29,12 @@ from ai_models.adapters import get_adapter_factory
 from niche_analysis.niche_analyzer import NicheAnalyzer
 from monetization.calculator import MonetizationCalculator
 from marketing.strategy_generator import StrategyGenerator
+
+from ui.services.agent_team_service import AgentTeamService
+from ui.services.niche_analysis_service import NicheAnalysisService
+from ui.services.developer_service import DeveloperService
+from ui.services.monetization_service import MonetizationService
+from ui.services.marketing_service import MarketingService
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -59,6 +69,9 @@ def initialize_services(config: Optional[Dict[str, Any]] = None) -> DependencyCo
 
     # Register marketing
     _register_marketing(container)
+
+    # Register UI services
+    _register_ui_services(container)
 
     logger.info("All services initialized and registered")
     return container
@@ -192,6 +205,51 @@ def _register_marketing(container: DependencyContainer) -> None:
     )
 
     logger.info("Registered marketing services")
+
+
+def _register_ui_services(container: DependencyContainer) -> None:
+    """
+    Register UI services in the dependency container.
+
+    Args:
+        container: Dependency container
+    """
+    # Register agent team service
+    container.register(
+        IAgentTeamService,
+        lambda: AgentTeamService(),
+        singleton=True
+    )
+
+    # Register niche analysis service
+    container.register(
+        INicheAnalysisService,
+        lambda: NicheAnalysisService(),
+        singleton=True
+    )
+
+    # Register developer service
+    container.register(
+        IDeveloperService,
+        lambda: DeveloperService(),
+        singleton=True
+    )
+
+    # Register monetization service
+    container.register(
+        IMonetizationService,
+        lambda: MonetizationService(),
+        singleton=True
+    )
+
+    # Register marketing service
+    container.register(
+        IMarketingService,
+        lambda: MarketingService(),
+        singleton=True
+    )
+
+    logger.info("Registered UI services")
 
 
 def get_service(service_type: Type) -> Any:

@@ -33,6 +33,12 @@ from .marketing_interfaces import (
     IPersonaCreator, IMarketingStrategy, IContentTemplate
 )
 
+# Import UI interfaces
+from .ui_interfaces import (
+    IBaseService, IAgentTeamService, INicheAnalysisService,
+    IDeveloperService, IMonetizationService, IMarketingService
+)
+
 __all__ = [
     # Agent interfaces
     'IAgentTeam',
@@ -68,4 +74,12 @@ __all__ = [
     'IPersonaCreator',
     'IMarketingStrategy',
     'IContentTemplate',
+
+    # UI interfaces
+    'IBaseService',
+    'IAgentTeamService',
+    'INicheAnalysisService',
+    'IDeveloperService',
+    'IMonetizationService',
+    'IMarketingService',
 ]

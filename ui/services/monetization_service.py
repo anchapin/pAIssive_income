@@ -11,21 +11,22 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import uuid
 
+from interfaces.ui_interfaces import IMonetizationService
 from .base_service import BaseService
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-class MonetizationService(BaseService):
+class MonetizationService(BaseService, IMonetizationService):
     """
     Service for interacting with the Monetization Agent module.
     """
-    
+
     def __init__(self):
         """Initialize the Monetization service."""
         super().__init__()
         self.strategies_file = 'monetization_strategies.json'
-        
+
         # Import the Monetization Agent class
         try:
             from agent_team.agent_profiles.monetization import MonetizationAgent
@@ -33,14 +34,14 @@ class MonetizationService(BaseService):
         except ImportError:
             logger.warning("Monetization Agent module not available. Using mock data.")
             self.monetization_agent_available = False
-    
+
     def create_strategy(self, solution_id: str) -> Dict[str, Any]:
         """
         Create a monetization strategy for a solution.
-        
+
         Args:
             solution_id: ID of the solution
-            
+
         Returns:
             Monetization strategy data
         """
@@ -48,21 +49,21 @@ class MonetizationService(BaseService):
         from .developer_service import DeveloperService
         developer_service = DeveloperService()
         solution = developer_service.get_solution(solution_id)
-        
+
         if solution is None:
             logger.error(f"Solution with ID {solution_id} not found")
             return {}
-        
+
         if self.monetization_agent_available:
             try:
                 from agent_team import AgentTeam
-                
+
                 # Create a new agent team for this strategy
                 team = AgentTeam(f"{solution['name']} Monetization")
-                
+
                 # Create the monetization strategy
                 strategy = team.monetization.create_monetization_strategy(solution)
-                
+
                 # Add metadata
                 strategy['id'] = str(uuid.uuid4())
                 strategy['solution_id'] = solution_id
@@ -74,34 +75,34 @@ class MonetizationService(BaseService):
                 strategy = self._create_mock_strategy(solution)
         else:
             strategy = self._create_mock_strategy(solution)
-        
+
         # Save the strategy
         strategies = self.get_strategies()
         strategies.append(strategy)
-        self._save_data(strategies, self.strategies_file)
-        
+        self.save_data(self.strategies_file, strategies)
+
         return strategy
-    
+
     def get_strategies(self) -> List[Dict[str, Any]]:
         """
         Get all monetization strategies.
-        
+
         Returns:
             List of monetization strategies
         """
-        strategies = self._load_data(self.strategies_file)
+        strategies = self.load_data(self.strategies_file)
         if strategies is None:
             strategies = []
-            self._save_data(strategies, self.strategies_file)
+            self.save_data(self.strategies_file, strategies)
         return strategies
-    
+
     def get_strategy(self, strategy_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a monetization strategy by ID.
-        
+
         Args:
             strategy_id: ID of the strategy
-            
+
         Returns:
             Monetization strategy data, or None if not found
         """
@@ -110,35 +111,44 @@ class MonetizationService(BaseService):
             if strategy['id'] == strategy_id:
                 return strategy
         return None
-    
-    def update_strategy(self, strategy_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+
+    def save_strategy(self, strategy: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Update a monetization strategy.
-        
+        Save a monetization strategy.
+
         Args:
-            strategy_id: ID of the strategy
-            updates: Updates to apply to the strategy
-            
+            strategy: Strategy dictionary
+
         Returns:
-            Updated strategy data, or None if not found
+            Saved strategy dictionary
         """
         strategies = self.get_strategies()
-        for i, strategy in enumerate(strategies):
-            if strategy['id'] == strategy_id:
-                strategy.update(updates)
+
+        # Check if the strategy already exists
+        for i, existing_strategy in enumerate(strategies):
+            if existing_strategy['id'] == strategy['id']:
+                # Update existing strategy
                 strategy['updated_at'] = datetime.now().isoformat()
                 strategies[i] = strategy
-                self._save_data(strategies, self.strategies_file)
+                self.save_data(self.strategies_file, strategies)
                 return strategy
-        return None
-    
+
+        # Add new strategy
+        if 'created_at' not in strategy:
+            strategy['created_at'] = datetime.now().isoformat()
+        if 'updated_at' not in strategy:
+            strategy['updated_at'] = datetime.now().isoformat()
+        strategies.append(strategy)
+        self.save_data(self.strategies_file, strategies)
+        return strategy
+
     def _create_mock_strategy(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create a mock monetization strategy for testing.
-        
+
         Args:
             solution: Solution data
-            
+
         Returns:
             Mock monetization strategy data
         """
@@ -192,7 +202,7 @@ class MonetizationService(BaseService):
                 'limitations': []
             }
         ]
-        
+
         # Create revenue projections
         revenue_projections = {
             'monthly': {
@@ -220,7 +230,7 @@ class MonetizationService(BaseService):
                 'profit': 5 * 12 * (2000 * 9.99 + 500 * 29.99 - 3000)
             }
         }
-        
+
         # Create mock strategy
         return {
             'id': str(uuid.uuid4()),

@@ -11,22 +11,23 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import uuid
 
+from interfaces.ui_interfaces import INicheAnalysisService
 from .base_service import BaseService
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-class NicheAnalysisService(BaseService):
+class NicheAnalysisService(BaseService, INicheAnalysisService):
     """
     Service for interacting with the Niche Analysis module.
     """
-    
+
     def __init__(self):
         """Initialize the Niche Analysis service."""
         super().__init__()
         self.niches_file = 'niches.json'
         self.market_segments_file = 'market_segments.json'
-        
+
         # Import the Niche Analysis classes
         try:
             from niche_analysis import MarketAnalyzer, ProblemIdentifier, OpportunityScorer
@@ -37,18 +38,18 @@ class NicheAnalysisService(BaseService):
         except ImportError:
             logger.warning("Niche Analysis module not available. Using mock data.")
             self.niche_analysis_available = False
-    
-    def get_market_segments(self) -> List[str]:
+
+    def get_market_segments(self) -> List[Dict[str, Any]]:
         """
         Get all market segments.
-        
+
         Returns:
-            List of market segments
+            List of market segment dictionaries
         """
-        segments = self._load_data(self.market_segments_file)
-        if segments is None:
+        segments_data = self.load_data(self.market_segments_file)
+        if segments_data is None:
             # Default market segments
-            segments = [
+            segment_names = [
                 "e-commerce",
                 "content creation",
                 "freelancing",
@@ -60,49 +61,51 @@ class NicheAnalysisService(BaseService):
                 "marketing",
                 "software development"
             ]
-            self._save_data(segments, self.market_segments_file)
-        return segments
-    
-    def add_market_segment(self, segment: str) -> List[str]:
+            segments_data = [{"id": str(uuid.uuid4()), "name": segment} for segment in segment_names]
+            self.save_data(self.market_segments_file, segments_data)
+        return segments_data
+
+    def add_market_segment(self, segment: str) -> List[Dict[str, Any]]:
         """
         Add a new market segment.
-        
+
         Args:
             segment: Market segment to add
-            
+
         Returns:
             Updated list of market segments
         """
         segments = self.get_market_segments()
-        if segment not in segments:
-            segments.append(segment)
-            self._save_data(segments, self.market_segments_file)
+        segment_names = [s["name"] for s in segments]
+        if segment not in segment_names:
+            segments.append({"id": str(uuid.uuid4()), "name": segment})
+            self.save_data(self.market_segments_file, segments)
         return segments
-    
+
     def analyze_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
         """
         Analyze niches in the given market segments.
-        
+
         Args:
             market_segments: List of market segments to analyze
-            
+
         Returns:
             List of niche opportunities
         """
         niches = []
-        
+
         if self.niche_analysis_available:
             try:
                 for segment in market_segments:
                     # Analyze market data
                     market_data = self.market_analyzer.analyze_market(segment)
-                    
+
                     # Identify problems
                     problems = self.problem_identifier.identify_problems(segment)
-                    
+
                     # Score opportunity
                     opportunity = self.opportunity_scorer.score_opportunity(segment, market_data, problems)
-                    
+
                     # Create niche data
                     niche = {
                         'id': str(uuid.uuid4()),
@@ -115,66 +118,91 @@ class NicheAnalysisService(BaseService):
                         'opportunity_analysis': opportunity,
                         'created_at': datetime.now().isoformat()
                     }
-                    
+
                     niches.append(niche)
             except Exception as e:
                 logger.error(f"Error analyzing niches: {e}")
                 niches = self._create_mock_niches(market_segments)
         else:
             niches = self._create_mock_niches(market_segments)
-        
+
         # Sort niches by opportunity score (descending)
         niches.sort(key=lambda x: x['opportunity_score'], reverse=True)
-        
+
         # Save the niches
         all_niches = self.get_niches()
         for niche in niches:
             all_niches.append(niche)
-        self._save_data(all_niches, self.niches_file)
-        
+        self.save_data(self.niches_file, all_niches)
+
         return niches
-    
+
     def get_niches(self) -> List[Dict[str, Any]]:
         """
         Get all niches.
-        
+
         Returns:
             List of niches
         """
-        niches = self._load_data(self.niches_file)
+        niches = self.load_data(self.niches_file)
         if niches is None:
             niches = []
-            self._save_data(niches, self.niches_file)
+            self.save_data(self.niches_file, niches)
         return niches
-    
+
     def get_niche(self, niche_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a niche by ID.
-        
+
         Args:
             niche_id: ID of the niche
-            
+
         Returns:
-            Niche data, or None if not found
+            Niche dictionary, or None if not found
         """
         niches = self.get_niches()
         for niche in niches:
             if niche['id'] == niche_id:
                 return niche
         return None
-    
+
+    def save_niche(self, niche: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Save a niche.
+
+        Args:
+            niche: Niche dictionary
+
+        Returns:
+            Saved niche dictionary
+        """
+        niches = self.get_niches()
+
+        # Check if the niche already exists
+        for i, existing_niche in enumerate(niches):
+            if existing_niche['id'] == niche['id']:
+                # Update existing niche
+                niches[i] = niche
+                self.save_data(self.niches_file, niches)
+                return niche
+
+        # Add new niche
+        niches.append(niche)
+        self.save_data(self.niches_file, niches)
+        return niche
+
     def _create_mock_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
         """
         Create mock niches for testing.
-        
+
         Args:
             market_segments: List of market segments
-            
+
         Returns:
             List of mock niches
         """
         mock_niches = []
-        
+
         # Mock opportunity scores for different niches
         opportunity_scores = {
             "e-commerce": 0.85,
@@ -188,7 +216,7 @@ class NicheAnalysisService(BaseService):
             "marketing": 0.79,
             "software development": 0.76
         }
-        
+
         # Mock descriptions for different niches
         descriptions = {
             "e-commerce": "AI tools for inventory management and product descriptions",
@@ -202,7 +230,7 @@ class NicheAnalysisService(BaseService):
             "marketing": "AI tools for campaign planning and content creation",
             "software development": "AI tools for code generation and documentation"
         }
-        
+
         for segment in market_segments:
             # Create mock niche data
             niche = {
@@ -245,10 +273,10 @@ class NicheAnalysisService(BaseService):
                 'created_at': datetime.now().isoformat(),
                 'is_mock': True
             }
-            
+
             mock_niches.append(niche)
-        
+
         # Sort mock niches by opportunity score (descending)
         mock_niches.sort(key=lambda x: x['opportunity_score'], reverse=True)
-        
+
         return mock_niches

@@ -12,7 +12,8 @@ from service_initialization import (
     _register_agent_team,
     _register_niche_analysis,
     _register_monetization,
-    _register_marketing
+    _register_marketing,
+    _register_ui_services
 )
 
 from dependency_container import DependencyContainer
@@ -21,6 +22,10 @@ from interfaces.model_interfaces import IModelManager, IModelConfig
 from interfaces.niche_interfaces import INicheAnalyzer
 from interfaces.monetization_interfaces import IMonetizationCalculator
 from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.ui_interfaces import (
+    IAgentTeamService, INicheAnalysisService, IDeveloperService,
+    IMonetizationService, IMarketingService
+)
 
 
 @pytest.fixture
@@ -49,6 +54,11 @@ def test_initialize_services(mock_get_container, mock_model_config, mock_contain
 
     # Verify that all register functions were called
     assert mock_container.register.call_count > 0
+
+    # Verify that _register_ui_services was called
+    # We can't directly check this, but we can check that the register count is high enough
+    # to include UI services (5 more registrations)
+    assert mock_container.register.call_count >= 10
 
 
 @patch('service_initialization.ModelConfig')
@@ -216,6 +226,52 @@ def test_register_marketing(mock_strategy_generator, mock_container):
     args, kwargs = mock_container.register.call_args
     assert args[0] == IMarketingStrategy
     assert kwargs.get('singleton') == True
+
+
+@patch('service_initialization.AgentTeamService')
+@patch('service_initialization.NicheAnalysisService')
+@patch('service_initialization.DeveloperService')
+@patch('service_initialization.MonetizationService')
+@patch('service_initialization.MarketingService')
+def test_register_ui_services(
+    mock_marketing_service, mock_monetization_service, mock_developer_service,
+    mock_niche_analysis_service, mock_agent_team_service, mock_container
+):
+    """Test _register_ui_services function."""
+    # Mock the service classes
+    mock_agent_team_service_instance = MagicMock()
+    mock_agent_team_service.return_value = mock_agent_team_service_instance
+
+    mock_niche_analysis_service_instance = MagicMock()
+    mock_niche_analysis_service.return_value = mock_niche_analysis_service_instance
+
+    mock_developer_service_instance = MagicMock()
+    mock_developer_service.return_value = mock_developer_service_instance
+
+    mock_monetization_service_instance = MagicMock()
+    mock_monetization_service.return_value = mock_monetization_service_instance
+
+    mock_marketing_service_instance = MagicMock()
+    mock_marketing_service.return_value = mock_marketing_service_instance
+
+    # Call the function
+    _register_ui_services(mock_container)
+
+    # Verify that the container.register was called for all UI services
+    assert mock_container.register.call_count == 5
+
+    # Verify that the container.register was called with the correct interfaces
+    register_calls = mock_container.register.call_args_list
+    interfaces = [args[0][0] for args in register_calls]
+    assert IAgentTeamService in interfaces
+    assert INicheAnalysisService in interfaces
+    assert IDeveloperService in interfaces
+    assert IMonetizationService in interfaces
+    assert IMarketingService in interfaces
+
+    # Verify that all services were registered as singletons
+    for args in register_calls:
+        assert args[1].get('singleton') == True
 
 
 @patch('service_initialization.get_container')

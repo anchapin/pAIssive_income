@@ -11,21 +11,22 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import uuid
 
+from interfaces.ui_interfaces import IDeveloperService
 from .base_service import BaseService
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-class DeveloperService(BaseService):
+class DeveloperService(BaseService, IDeveloperService):
     """
     Service for interacting with the Developer Agent module.
     """
-    
+
     def __init__(self):
         """Initialize the Developer service."""
         super().__init__()
         self.solutions_file = 'solutions.json'
-        
+
         # Import the Developer Agent class
         try:
             from agent_team.agent_profiles.developer import DeveloperAgent
@@ -33,14 +34,14 @@ class DeveloperService(BaseService):
         except ImportError:
             logger.warning("Developer Agent module not available. Using mock data.")
             self.developer_agent_available = False
-    
-    def develop_solution(self, niche_id: str) -> Dict[str, Any]:
+
+    def create_solution(self, niche_id: str) -> Dict[str, Any]:
         """
         Develop a solution for a niche.
-        
+
         Args:
             niche_id: ID of the niche
-            
+
         Returns:
             Solution data
         """
@@ -48,21 +49,21 @@ class DeveloperService(BaseService):
         from .niche_analysis_service import NicheAnalysisService
         niche_service = NicheAnalysisService()
         niche = niche_service.get_niche(niche_id)
-        
+
         if niche is None:
             logger.error(f"Niche with ID {niche_id} not found")
             return {}
-        
+
         if self.developer_agent_available:
             try:
                 from agent_team import AgentTeam
-                
+
                 # Create a new agent team for this solution
                 team = AgentTeam(f"{niche['name']} Solution")
-                
+
                 # Develop the solution
                 solution = team.developer.design_solution(niche)
-                
+
                 # Add metadata
                 solution['id'] = str(uuid.uuid4())
                 solution['niche_id'] = niche_id
@@ -74,34 +75,34 @@ class DeveloperService(BaseService):
                 solution = self._create_mock_solution(niche)
         else:
             solution = self._create_mock_solution(niche)
-        
+
         # Save the solution
         solutions = self.get_solutions()
         solutions.append(solution)
-        self._save_data(solutions, self.solutions_file)
-        
+        self.save_data(self.solutions_file, solutions)
+
         return solution
-    
+
     def get_solutions(self) -> List[Dict[str, Any]]:
         """
         Get all solutions.
-        
+
         Returns:
             List of solutions
         """
-        solutions = self._load_data(self.solutions_file)
+        solutions = self.load_data(self.solutions_file)
         if solutions is None:
             solutions = []
-            self._save_data(solutions, self.solutions_file)
+            self.save_data(self.solutions_file, solutions)
         return solutions
-    
+
     def get_solution(self, solution_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a solution by ID.
-        
+
         Args:
             solution_id: ID of the solution
-            
+
         Returns:
             Solution data, or None if not found
         """
@@ -110,35 +111,44 @@ class DeveloperService(BaseService):
             if solution['id'] == solution_id:
                 return solution
         return None
-    
-    def update_solution(self, solution_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+
+    def save_solution(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Update a solution.
-        
+        Save a solution.
+
         Args:
-            solution_id: ID of the solution
-            updates: Updates to apply to the solution
-            
+            solution: Solution dictionary
+
         Returns:
-            Updated solution data, or None if not found
+            Saved solution dictionary
         """
         solutions = self.get_solutions()
-        for i, solution in enumerate(solutions):
-            if solution['id'] == solution_id:
-                solution.update(updates)
+
+        # Check if the solution already exists
+        for i, existing_solution in enumerate(solutions):
+            if existing_solution['id'] == solution['id']:
+                # Update existing solution
                 solution['updated_at'] = datetime.now().isoformat()
                 solutions[i] = solution
-                self._save_data(solutions, self.solutions_file)
+                self.save_data(self.solutions_file, solutions)
                 return solution
-        return None
-    
+
+        # Add new solution
+        if 'created_at' not in solution:
+            solution['created_at'] = datetime.now().isoformat()
+        if 'updated_at' not in solution:
+            solution['updated_at'] = datetime.now().isoformat()
+        solutions.append(solution)
+        self.save_data(self.solutions_file, solutions)
+        return solution
+
     def _create_mock_solution(self, niche: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create a mock solution for testing.
-        
+
         Args:
             niche: Niche data
-            
+
         Returns:
             Mock solution data
         """
@@ -152,7 +162,7 @@ class DeveloperService(BaseService):
                 'priority': 'high' if problem['severity'] == 'high' else 'medium',
                 'status': 'planned'
             })
-        
+
         # Add some generic features
         features.append({
             'id': str(uuid.uuid4()),
@@ -161,7 +171,7 @@ class DeveloperService(BaseService):
             'priority': 'medium',
             'status': 'planned'
         })
-        
+
         features.append({
             'id': str(uuid.uuid4()),
             'name': 'Analytics Dashboard',
@@ -169,7 +179,7 @@ class DeveloperService(BaseService):
             'priority': 'low',
             'status': 'planned'
         })
-        
+
         # Create mock solution
         return {
             'id': str(uuid.uuid4()),

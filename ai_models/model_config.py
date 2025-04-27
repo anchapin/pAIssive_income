@@ -6,7 +6,6 @@ including settings for model paths, cache, and performance options.
 """
 
 import os
-import json
 from typing import Dict, List, Any, Optional, Union
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -14,6 +13,8 @@ from pathlib import Path
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from interfaces.model_interfaces import IModelConfig
+from common_utils import to_json, from_json, save_to_json_file, load_from_json_file
+from .schemas import ModelConfigSchema
 
 
 @dataclass
@@ -68,7 +69,7 @@ class ModelConfig(IModelConfig):
         Returns:
             JSON string representation of the configuration
         """
-        return json.dumps(self.to_dict(), indent=indent)
+        return to_json(self.to_dict(), indent=indent)
 
     def save(self, config_path: str) -> None:
         """
@@ -77,8 +78,7 @@ class ModelConfig(IModelConfig):
         Args:
             config_path: Path to save the configuration
         """
-        with open(config_path, 'w') as f:
-            json.dump(self.to_dict(), f, indent=2)
+        save_to_json_file(self.to_dict(), config_path)
 
     @classmethod
     def load(cls, config_path: str) -> 'ModelConfig':
@@ -94,10 +94,13 @@ class ModelConfig(IModelConfig):
         if not os.path.exists(config_path):
             return cls()
 
-        with open(config_path, 'r') as f:
-            config_dict = json.load(f)
-
-        return cls(**config_dict)
+        try:
+            config_dict = load_from_json_file(config_path)
+            return cls(**config_dict)
+        except Exception as e:
+            # If there's an error loading the config, return the default
+            print(f"Error loading config from {config_path}: {e}")
+            return cls()
 
     @classmethod
     def get_default_config_path(cls) -> str:

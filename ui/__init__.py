@@ -13,12 +13,14 @@ import logging
 from datetime import datetime, timedelta
 import uuid
 
+from service_initialization import initialize_services
+
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Create Flask application
-app = Flask(__name__, 
+app = Flask(__name__,
             template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
             static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 
@@ -33,12 +35,13 @@ from . import routes
 def init_app():
     """Initialize the application."""
     logger.info("Initializing pAIssive Income UI")
-    
+
     # Create necessary directories if they don't exist
     os.makedirs(app.config.get('UPLOAD_FOLDER', os.path.join(app.static_folder, 'uploads')), exist_ok=True)
-    
+
     # Load configuration
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+    config = None
     if os.path.exists(config_path):
         try:
             with open(config_path, 'r') as f:
@@ -48,7 +51,11 @@ def init_app():
             logger.info(f"Loaded configuration from {config_path}")
         except Exception as e:
             logger.error(f"Error loading configuration from {config_path}: {e}")
-    
+
+    # Initialize services with dependency injection
+    initialize_services(config)
+    logger.info("Services initialized with dependency injection")
+
     logger.info("pAIssive Income UI initialized")
 
 # Initialize the application when this module is imported

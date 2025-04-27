@@ -9,10 +9,10 @@ for various subscription models like freemium, tiered, usage-based, and hybrid m
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
 import uuid
-import json
 import copy
 import logging
 
+from common_utils import to_json, from_json, save_to_json_file, load_from_json_file
 from .errors import (
     TierNotFoundError, FeatureNotFoundError, ValidationError,
     handle_exception
@@ -354,7 +354,7 @@ class SubscriptionModel:
         Returns:
             JSON string representation of the subscription model
         """
-        return json.dumps(self.to_dict(), indent=indent)
+        return to_json(self.to_dict(), indent=indent)
 
     def save_to_file(self, file_path: str) -> None:
         """
@@ -367,10 +367,10 @@ class SubscriptionModel:
             MonetizationError: If there's an issue saving the model
         """
         try:
-            with open(file_path, "w") as f:
-                f.write(self.to_json())
+            save_to_json_file(self.to_dict(), file_path)
             logger.info(f"Successfully saved subscription model '{self.name}' to {file_path}")
         except (IOError, OSError) as e:
+            from .errors import MonetizationError
             error = MonetizationError(
                 message=f"Failed to save subscription model to {file_path}: {e}",
                 code="file_write_error",
@@ -380,6 +380,7 @@ class SubscriptionModel:
             raise error
         except Exception as e:
             # Handle unexpected errors
+            from .errors import MonetizationError
             error = handle_exception(
                 e,
                 error_class=MonetizationError,
@@ -402,15 +403,14 @@ class SubscriptionModel:
             MonetizationError: If there's an issue loading the model
         """
         try:
-            with open(file_path, "r") as f:
-                try:
-                    data = json.load(f)
-                except json.JSONDecodeError as e:
-                    raise ValidationError(
-                        message=f"Invalid JSON format in file {file_path}: {e}",
-                        field="file_content",
-                        original_exception=e
-                    )
+            try:
+                data = load_from_json_file(file_path)
+            except Exception as e:
+                raise ValidationError(
+                    message=f"Invalid JSON format in file {file_path}: {e}",
+                    field="file_content",
+                    original_exception=e
+                )
 
             # Validate required fields
             required_fields = ["name", "description", "tiers", "features", "billing_cycles", "id", "created_at", "updated_at"]
@@ -488,6 +488,7 @@ class SubscriptionModel:
             # Re-raise custom errors
             raise
         except FileNotFoundError as e:
+            from .errors import MonetizationError
             error = MonetizationError(
                 message=f"File not found: {file_path}",
                 code="file_not_found",
