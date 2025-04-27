@@ -7,15 +7,17 @@ from typing import Dict, List, Any, Optional
 import uuid
 from datetime import datetime
 
+from interfaces.agent_interfaces import IResearchAgent, IAgentTeam
 
-class ResearchAgent:
+
+class ResearchAgent(IResearchAgent):
     """
     AI agent specialized in market research and niche identification.
     Identifies profitable niches and user pain points that can be addressed
     with AI-powered software tools.
     """
 
-    def __init__(self, team):
+    def __init__(self, team: IAgentTeam):
         """
         Initialize the Research Agent.
 
@@ -23,10 +25,45 @@ class ResearchAgent:
             team: The parent AgentTeam instance
         """
         self.team = team
-        self.name = "Research Agent"
-        self.description = "Specializes in market research and niche identification"
+        self._name = "Research Agent"
+        self._description = "Specializes in market research and niche identification"
         self.model_settings = team.config["model_settings"]["researcher"]
-    
+
+    @property
+    def name(self) -> str:
+        """Get the agent name."""
+        return self._name
+
+    @property
+    def description(self) -> str:
+        """Get the agent description."""
+        return self._description
+
+    def identify_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
+        """
+        Identify profitable niches within market segments.
+
+        Args:
+            market_segments: List of market segments to analyze
+
+        Returns:
+            List of niche dictionaries
+        """
+        niches = []
+
+        for segment in market_segments:
+            segment_niches = self.identify_niches_in_segment(segment)
+            niches.extend(segment_niches)
+
+        # Sort niches by opportunity score
+        niches.sort(key=lambda x: x["opportunity_score"], reverse=True)
+
+        # Store the identified niches in the team's project state
+        if hasattr(self.team, 'project_state'):
+            self.team.project_state["identified_niches"] = niches
+
+        return niches
+
     def analyze_market_segments(self, segments: List[str]) -> List[Dict[str, Any]]:
         """
         Analyze a list of market segments to identify profitable niches.
@@ -37,20 +74,9 @@ class ResearchAgent:
         Returns:
             List of identified niche opportunities with scores
         """
-        niches = []
-        
-        for segment in segments:
-            segment_niches = self.identify_niches_in_segment(segment)
-            niches.extend(segment_niches)
-        
-        # Sort niches by opportunity score
-        niches.sort(key=lambda x: x["opportunity_score"], reverse=True)
-        
-        # Store the identified niches in the team's project state
-        self.team.project_state["identified_niches"] = niches
-        
-        return niches
-    
+        # This method is kept for backward compatibility
+        return self.identify_niches(segments)
+
     def identify_niches_in_segment(self, segment: str) -> List[Dict[str, Any]]:
         """
         Identify specific niches within a market segment.
@@ -63,7 +89,7 @@ class ResearchAgent:
         """
         # In a real implementation, this would use AI to analyze the segment
         # For now, we'll return a placeholder implementation
-        
+
         # Example niches for different segments
         segment_niches = {
             "e-commerce": [
@@ -137,10 +163,39 @@ class ResearchAgent:
                 ),
             ],
         }
-        
+
         # Return niches for the specified segment, or an empty list if not found
         return segment_niches.get(segment.lower(), [])
-    
+
+    def analyze_problems(self, niche_name: str) -> List[Dict[str, Any]]:
+        """
+        Analyze problems in a niche.
+
+        Args:
+            niche_name: Name of the niche to analyze
+
+        Returns:
+            List of problem dictionaries
+        """
+        # For this implementation, we'll create some sample problems
+        problem_areas = [
+            "time-consuming manual processes",
+            "inconsistent quality",
+            "lack of automation",
+            "difficulty scaling",
+            "high error rates"
+        ]
+
+        problems = []
+        for problem_name in problem_areas:
+            problem = self._analyze_problem(niche_name, problem_name)
+            problems.append(problem)
+
+        # Sort problems by priority
+        problems.sort(key=lambda x: x["priority"], reverse=True)
+
+        return problems
+
     def analyze_user_problems(self, niche: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Analyze user problems within a specific niche.
@@ -152,16 +207,16 @@ class ResearchAgent:
             List of detailed user problems with priority scores
         """
         problems = []
-        
+
         for problem_name in niche["problem_areas"]:
             problem = self._analyze_problem(niche["name"], problem_name)
             problems.append(problem)
-        
+
         # Sort problems by priority
         problems.sort(key=lambda x: x["priority"], reverse=True)
-        
+
         return problems
-    
+
     def _analyze_problem(self, niche_name: str, problem_name: str) -> Dict[str, Any]:
         """
         Analyze a specific problem within a niche.
@@ -175,7 +230,7 @@ class ResearchAgent:
         """
         # In a real implementation, this would use AI to analyze the problem
         # For now, we'll return a placeholder implementation
-        
+
         return {
             "id": str(uuid.uuid4()),
             "name": problem_name,
@@ -186,16 +241,16 @@ class ResearchAgent:
             "current_solutions": ["manual processes", "generic tools", "outsourcing"],
             "solution_gaps": ["automation", "specialization", "integration"],
         }
-    
-    def _create_niche(self, name: str, description: str, problem_areas: List[str], opportunity_score: float) -> Dict[str, Any]:
+
+    def create_niche(self, name: str, description: str, problem_areas: List[str], opportunity_score: float) -> Dict[str, Any]:
         """
-        Create a niche dictionary with a unique ID and metadata.
+        Create a niche dictionary.
 
         Args:
             name: Name of the niche
             description: Description of the niche
-            problem_areas: List of problem areas within the niche
-            opportunity_score: Opportunity score between 0 and 1
+            problem_areas: List of problem areas in the niche
+            opportunity_score: Opportunity score for the niche
 
         Returns:
             Niche dictionary
@@ -212,7 +267,23 @@ class ResearchAgent:
             "monetization_potential": "high",  # Placeholder, would be determined by AI
             "timestamp": datetime.now().isoformat(),
         }
-    
+
+    def _create_niche(self, name: str, description: str, problem_areas: List[str], opportunity_score: float) -> Dict[str, Any]:
+        """
+        Create a niche dictionary with a unique ID and metadata.
+
+        Args:
+            name: Name of the niche
+            description: Description of the niche
+            problem_areas: List of problem areas within the niche
+            opportunity_score: Opportunity score between 0 and 1
+
+        Returns:
+            Niche dictionary
+        """
+        # Use the public method for consistency
+        return self.create_niche(name, description, problem_areas, opportunity_score)
+
     def __str__(self) -> str:
         """String representation of the Research Agent."""
         return f"{self.name}: {self.description}"

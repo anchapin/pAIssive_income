@@ -11,9 +11,13 @@ from typing import Dict, List, Any, Optional, Union
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from interfaces.model_interfaces import IModelConfig
+
 
 @dataclass
-class ModelConfig:
+class ModelConfig(IModelConfig):
     """
     Configuration for AI models.
     """

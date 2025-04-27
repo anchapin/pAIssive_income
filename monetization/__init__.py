@@ -9,6 +9,7 @@ through subscription models and other revenue streams.
 from .subscription_models import SubscriptionModel, FreemiumModel
 from .pricing_calculator import PricingCalculator
 from .revenue_projector import RevenueProjector
+from .calculator import MonetizationCalculator
 
 # Import subscription management
 from .subscription import SubscriptionPlan, SubscriptionTier
@@ -49,6 +50,7 @@ __all__ = [
     'FreemiumModel',
     'PricingCalculator',
     'RevenueProjector',
+    'MonetizationCalculator',
 
     # Subscription management
     'SubscriptionPlan',

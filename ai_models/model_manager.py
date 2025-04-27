@@ -21,6 +21,15 @@ import hashlib
 
 from .model_config import ModelConfig
 from typing import TYPE_CHECKING
+import sys
+
+# Add the project root to the Python path to import the errors module
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from errors import (
+    ModelError, ModelNotFoundError, ModelLoadError,
+    ConfigurationError, ValidationError, handle_exception
+)
+from interfaces.model_interfaces import IModelInfo, IModelManager
 
 # Import only for type checking to avoid circular imports
 if TYPE_CHECKING:
@@ -73,7 +82,7 @@ except ImportError:
 
 
 @dataclass
-class ModelInfo:
+class ModelInfo(IModelInfo):
     """
     Information about an AI model.
     """
@@ -210,7 +219,7 @@ class ModelInfo:
         return cls(**data)
 
 
-class ModelManager:
+class ModelManager(IModelManager):
     """
     Central manager for AI models.
     """
@@ -256,8 +265,21 @@ class ModelManager:
                     self.models[model_info.id] = model_info
 
                 logger.info(f"Loaded {len(self.models)} models from registry")
+            except json.JSONDecodeError as e:
+                error = ConfigurationError(
+                    message=f"Invalid JSON format in model registry: {e}",
+                    config_key="registry.json",
+                    original_exception=e
+                )
+                error.log()
+                # Create a new registry
+                self._save_model_registry()
             except Exception as e:
-                logger.error(f"Error loading model registry: {e}")
+                error = handle_exception(
+                    e,
+                    error_class=ConfigurationError,
+                    reraise=False
+                )
                 # Create a new registry
                 self._save_model_registry()
         else:
@@ -279,8 +301,19 @@ class ModelManager:
                 json.dump(registry_data, f, indent=2)
 
             logger.info(f"Saved {len(self.models)} models to registry")
+        except (IOError, OSError) as e:
+            error = ConfigurationError(
+                message=f"Failed to write model registry to {registry_path}: {e}",
+                config_key="models_dir",
+                original_exception=e
+            )
+            error.log()
         except Exception as e:
-            logger.error(f"Error saving model registry: {e}")
+            handle_exception(
+                e,
+                error_class=ConfigurationError,
+                reraise=False
+            )
 
     def discover_models(self) -> List[ModelInfo]:
         """
@@ -316,44 +349,68 @@ class ModelManager:
 
         Returns:
             List of discovered model info
+
+        Raises:
+            ConfigurationError: If there's an issue with the models directory
         """
         discovered_models = []
 
         # Check if models directory exists
         if not os.path.exists(self.config.models_dir):
-            logger.warning(f"Models directory {self.config.models_dir} does not exist")
+            error = ConfigurationError(
+                message=f"Models directory {self.config.models_dir} does not exist",
+                config_key="models_dir"
+            )
+            error.log(level=logging.WARNING)
             return discovered_models
 
-        # Look for model files in the models directory
-        for root, dirs, files in os.walk(self.config.models_dir):
-            for file in files:
-                file_path = os.path.join(root, file)
+        try:
+            # Look for model files in the models directory
+            for root, dirs, files in os.walk(self.config.models_dir):
+                for file in files:
+                    file_path = os.path.join(root, file)
 
-                # Skip registry file and other non-model files
-                if file == "registry.json" or file.startswith("."):
-                    continue
+                    # Skip registry file and other non-model files
+                    if file == "registry.json" or file.startswith("."):
+                        continue
 
-                # Determine model type and format based on file extension
-                model_type, model_format, quantization = self._detect_model_type(file_path)
+                    # Determine model type and format based on file extension
+                    model_type, model_format, quantization = self._detect_model_type(file_path)
 
-                if model_type:
-                    # Generate a unique ID for the model
-                    model_id = hashlib.md5(file_path.encode()).hexdigest()
+                    if model_type:
+                        # Generate a unique ID for the model
+                        model_id = hashlib.md5(file_path.encode()).hexdigest()
 
-                    # Create model info
-                    model_info = ModelInfo(
-                        id=model_id,
-                        name=os.path.basename(file_path),
-                        type=model_type,
-                        path=file_path,
-                        format=model_format,
-                        quantization=quantization
-                    )
+                        # Create model info
+                        model_info = ModelInfo(
+                            id=model_id,
+                            name=os.path.basename(file_path),
+                            type=model_type,
+                            path=file_path,
+                            format=model_format,
+                            quantization=quantization
+                        )
 
-                    discovered_models.append(model_info)
-                    logger.info(f"Discovered local model: {model_info.name} ({model_info.type})")
+                        discovered_models.append(model_info)
+                        logger.info(f"Discovered local model: {model_info.name} ({model_info.type})")
 
-        return discovered_models
+            return discovered_models
+
+        except (IOError, OSError) as e:
+            error = ConfigurationError(
+                message=f"Error accessing models directory {self.config.models_dir}: {e}",
+                config_key="models_dir",
+                original_exception=e
+            )
+            error.log()
+            return discovered_models
+        except Exception as e:
+            error = handle_exception(
+                e,
+                error_class=ConfigurationError,
+                reraise=False
+            )
+            return discovered_models
 
     def _discover_huggingface_models(self) -> List[ModelInfo]:
         """
@@ -361,36 +418,52 @@ class ModelManager:
 
         Returns:
             List of discovered model info
+
+        Raises:
+            ModelError: If there's an issue with the Hugging Face models
         """
         discovered_models = []
 
         if not TRANSFORMERS_AVAILABLE:
-            logger.warning("Transformers not available. Cannot discover Hugging Face models.")
+            error = ModelError(
+                message="Transformers not available. Cannot discover Hugging Face models.",
+                code="transformers_not_available"
+            )
+            error.log(level=logging.WARNING)
             return discovered_models
 
-        # Define a list of common small models for testing
-        common_models = [
-            {"name": "gpt2", "type": "text-generation", "description": "Small GPT-2 model for text generation"},
-            {"name": "distilbert-base-uncased", "type": "text-classification", "description": "Small DistilBERT model for text classification"},
-            {"name": "all-MiniLM-L6-v2", "type": "embedding", "description": "Small embedding model for text similarity"}
-        ]
+        try:
+            # Define a list of common small models for testing
+            common_models = [
+                {"name": "gpt2", "type": "text-generation", "description": "Small GPT-2 model for text generation"},
+                {"name": "distilbert-base-uncased", "type": "text-classification", "description": "Small DistilBERT model for text classification"},
+                {"name": "all-MiniLM-L6-v2", "type": "embedding", "description": "Small embedding model for text similarity"}
+            ]
 
-        for model_data in common_models:
-            model_id = hashlib.md5(model_data["name"].encode()).hexdigest()
+            for model_data in common_models:
+                model_id = hashlib.md5(model_data["name"].encode()).hexdigest()
 
-            model_info = ModelInfo(
-                id=model_id,
-                name=model_data["name"],
-                type=model_data["type"],
-                path=model_data["name"],  # For Hugging Face models, path is the model name
-                description=model_data["description"],
-                format="huggingface"
+                model_info = ModelInfo(
+                    id=model_id,
+                    name=model_data["name"],
+                    type=model_data["type"],
+                    path=model_data["name"],  # For Hugging Face models, path is the model name
+                    description=model_data["description"],
+                    format="huggingface"
+                )
+
+                discovered_models.append(model_info)
+                logger.info(f"Added Hugging Face model: {model_info.name} ({model_info.type})")
+
+            return discovered_models
+
+        except Exception as e:
+            error = handle_exception(
+                e,
+                error_class=ModelError,
+                reraise=False
             )
-
-            discovered_models.append(model_info)
-            logger.info(f"Added Hugging Face model: {model_info.name} ({model_info.type})")
-
-        return discovered_models
+            return discovered_models
 
     def _detect_model_type(self, file_path: str) -> Tuple[str, str, str]:
         """
@@ -525,7 +598,9 @@ class ModelManager:
             Loaded model instance
 
         Raises:
-            ValueError: If the model is not found or cannot be loaded
+            ModelNotFoundError: If the model is not found
+            ModelLoadError: If the model cannot be loaded
+            ValidationError: If the model type is not supported
         """
         # Check if the model is already loaded
         if model_id in self.loaded_models:
@@ -534,7 +609,10 @@ class ModelManager:
         # Get model info
         model_info = self.get_model_info(model_id)
         if not model_info:
-            raise ValueError(f"Model with ID {model_id} not found")
+            raise ModelNotFoundError(
+                message=f"Model with ID {model_id} not found",
+                model_id=model_id
+            )
 
         # Load the model based on its type
         model = None
@@ -549,16 +627,41 @@ class ModelManager:
             elif model_info.type == "onnx":
                 model = self._load_onnx_model(model_info, **kwargs)
             else:
-                raise ValueError(f"Unsupported model type: {model_info.type}")
+                raise ValidationError(
+                    message=f"Unsupported model type: {model_info.type}",
+                    field="model_type",
+                    validation_errors=[{
+                        "field": "model_type",
+                        "value": model_info.type,
+                        "error": "Unsupported model type"
+                    }]
+                )
 
             # Store the loaded model
             self.loaded_models[model_id] = model
 
             return model
 
+        except ImportError as e:
+            # Handle missing dependencies
+            raise ModelLoadError(
+                message=f"Missing dependency for loading model {model_info.name}: {e}",
+                model_id=model_id,
+                details={"dependency_error": str(e)},
+                original_exception=e
+            )
+        except (ValidationError, ModelError) as e:
+            # Re-raise custom errors
+            raise
         except Exception as e:
+            # Handle other errors
             logger.error(f"Error loading model {model_info.name}: {e}")
-            raise ValueError(f"Failed to load model {model_info.name}: {e}")
+            raise ModelLoadError(
+                message=f"Failed to load model {model_info.name}: {e}",
+                model_id=model_id,
+                details={"model_type": model_info.type, "model_path": model_info.path},
+                original_exception=e
+            )
 
     def _load_huggingface_model(self, model_info: ModelInfo, **kwargs) -> Any:
         """
@@ -572,8 +675,8 @@ class ModelManager:
             Loaded model instance
 
         Raises:
+            ModelLoadError: If the model cannot be loaded
             ImportError: If transformers is not available
-            ValueError: If the model cannot be loaded
         """
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError("Transformers not available. Please install it with: pip install transformers torch")
@@ -602,7 +705,16 @@ class ModelManager:
 
         except Exception as e:
             logger.error(f"Error loading Hugging Face model {model_info.name}: {e}")
-            raise ValueError(f"Failed to load Hugging Face model {model_info.name}: {e}")
+            raise ModelLoadError(
+                message=f"Failed to load Hugging Face model {model_info.name}: {e}",
+                model_id=model_info.id,
+                details={
+                    "model_type": model_type,
+                    "device": device,
+                    "path": model_info.path
+                },
+                original_exception=e
+            )
 
     def _load_llama_model(self, model_info: ModelInfo, **kwargs) -> Any:
         """

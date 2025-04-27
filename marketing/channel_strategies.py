@@ -6,6 +6,14 @@ Provides templates for marketing strategies across different channels.
 from typing import Dict, List, Any, Optional
 import uuid
 from datetime import datetime
+import logging
+
+from .errors import (
+    ChannelStrategyError, ValidationError, handle_exception
+)
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 class MarketingStrategy:
@@ -208,23 +216,42 @@ class MarketingStrategy:
 
         Returns:
             Dictionary with complete strategy details
+
+        Raises:
+            ChannelStrategyError: If there's an issue getting the strategy
         """
-        return {
-            "id": self.id,
-            "name": self.name,
-            "description": self.description,
-            "channel_type": self.channel_type,
-            "target_persona": self.target_persona,
-            "goals": self.goals,
-            "tactics": self.tactics,
-            "content_recommendations": self.content_recommendations,
-            "engagement_strategies": self.engagement_strategies,
-            "metrics": self.metrics,
-            "budget": self.budget,
-            "budget_allocation": self.budget_allocation,
-            "timeline": self.timeline,
-            "created_at": self.created_at
-        }
+        try:
+            strategy = {
+                "id": self.id,
+                "name": self.name,
+                "description": self.description,
+                "channel_type": self.channel_type,
+                "target_persona": self.target_persona,
+                "goals": self.goals,
+                "tactics": self.tactics,
+                "content_recommendations": self.content_recommendations,
+                "engagement_strategies": self.engagement_strategies,
+                "metrics": self.metrics,
+                "budget": self.budget,
+                "budget_allocation": self.budget_allocation,
+                "timeline": self.timeline,
+                "created_at": self.created_at
+            }
+
+            logger.info(f"Retrieved full strategy for: {self.name}")
+            return strategy
+
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=ChannelStrategyError,
+                message=f"Failed to get full strategy for: {self.name}",
+                channel=self.channel_type,
+                reraise=True,
+                log_level=logging.ERROR
+            )
+            return {}  # This line won't be reached due to reraise=True
 
 
 class ContentMarketingStrategy(MarketingStrategy):

@@ -11,6 +11,15 @@ from datetime import datetime
 import uuid
 import json
 import copy
+import logging
+
+from .errors import (
+    TierNotFoundError, FeatureNotFoundError, ValidationError,
+    handle_exception
+)
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 class SubscriptionModel:
@@ -145,24 +154,52 @@ class SubscriptionModel:
 
         Returns:
             True if the feature was assigned, False otherwise
+
+        Raises:
+            TierNotFoundError: If the tier ID does not exist
+            FeatureNotFoundError: If the feature ID does not exist
         """
-        # Find the tier
-        tier = next((t for t in self.tiers if t["id"] == tier_id), None)
-        if not tier:
+        try:
+            # Find the tier
+            tier = next((t for t in self.tiers if t["id"] == tier_id), None)
+            if not tier:
+                raise TierNotFoundError(
+                    message=f"Tier with ID {tier_id} not found",
+                    tier_id=tier_id,
+                    model_id=self.id
+                )
+
+            # Check if the feature exists
+            feature = next((f for f in self.features if f["id"] == feature_id), None)
+            if not feature:
+                raise FeatureNotFoundError(
+                    message=f"Feature with ID {feature_id} not found",
+                    feature_id=feature_id,
+                    model_id=self.id
+                )
+
+            # Add the feature to the tier if it's not already there
+            if feature_id not in tier["features"]:
+                tier["features"].append(feature_id)
+                self.updated_at = datetime.now().isoformat()
+                logger.info(f"Assigned feature '{feature['name']}' to tier '{tier['name']}'")
+                return True
+
+            logger.debug(f"Feature '{feature['name']}' already assigned to tier '{tier['name']}'")
             return False
 
-        # Check if the feature exists
-        feature = next((f for f in self.features if f["id"] == feature_id), None)
-        if not feature:
+        except (TierNotFoundError, FeatureNotFoundError) as e:
+            # Log the error and return False
+            e.log(level=logging.WARNING)
             return False
-
-        # Add the feature to the tier if it's not already there
-        if feature_id not in tier["features"]:
-            tier["features"].append(feature_id)
-            self.updated_at = datetime.now().isoformat()
-            return True
-
-        return False
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=MonetizationError,
+                reraise=False
+            )
+            return False
 
     def get_tier_features(self, tier_id: str) -> List[Dict[str, Any]]:
         """
@@ -206,22 +243,64 @@ class SubscriptionModel:
             True if the tier was updated, False otherwise
 
         Raises:
-            ValueError: If the tier ID does not exist
+            TierNotFoundError: If the tier ID does not exist
+            ValidationError: If the price values are invalid
         """
         # Find the tier
         tier = next((t for t in self.tiers if t["id"] == tier_id), None)
         if not tier:
-            raise ValueError(f"Tier with ID {tier_id} not found")
+            raise TierNotFoundError(
+                message=f"Tier with ID {tier_id} not found",
+                tier_id=tier_id,
+                model_id=self.id
+            )
 
-        # Update the prices
-        if price_monthly is not None:
-            tier["price_monthly"] = price_monthly
+        try:
+            # Validate price values
+            if price_monthly is not None and price_monthly < 0:
+                raise ValidationError(
+                    message="Monthly price cannot be negative",
+                    field="price_monthly",
+                    validation_errors=[{
+                        "field": "price_monthly",
+                        "value": price_monthly,
+                        "error": "Price cannot be negative"
+                    }]
+                )
 
-        if price_yearly is not None:
-            tier["price_yearly"] = price_yearly
+            if price_yearly is not None and price_yearly < 0:
+                raise ValidationError(
+                    message="Yearly price cannot be negative",
+                    field="price_yearly",
+                    validation_errors=[{
+                        "field": "price_yearly",
+                        "value": price_yearly,
+                        "error": "Price cannot be negative"
+                    }]
+                )
 
-        self.updated_at = datetime.now().isoformat()
-        return True
+            # Update the prices
+            if price_monthly is not None:
+                tier["price_monthly"] = price_monthly
+
+            if price_yearly is not None:
+                tier["price_yearly"] = price_yearly
+
+            self.updated_at = datetime.now().isoformat()
+            logger.info(f"Updated prices for tier {tier['name']} (ID: {tier_id})")
+            return True
+
+        except ValidationError:
+            # Re-raise validation errors
+            raise
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=ValidationError,
+                reraise=True
+            )
+            return False  # This line won't be reached due to reraise=True
 
     def get_tier_by_id(self, tier_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -283,9 +362,29 @@ class SubscriptionModel:
 
         Args:
             file_path: Path to save the file
+
+        Raises:
+            MonetizationError: If there's an issue saving the model
         """
-        with open(file_path, "w") as f:
-            f.write(self.to_json())
+        try:
+            with open(file_path, "w") as f:
+                f.write(self.to_json())
+            logger.info(f"Successfully saved subscription model '{self.name}' to {file_path}")
+        except (IOError, OSError) as e:
+            error = MonetizationError(
+                message=f"Failed to save subscription model to {file_path}: {e}",
+                code="file_write_error",
+                original_exception=e
+            )
+            error.log()
+            raise error
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=MonetizationError,
+                reraise=True
+            )
 
     @classmethod
     def load_from_file(cls, file_path: str) -> 'SubscriptionModel':
@@ -297,57 +396,113 @@ class SubscriptionModel:
 
         Returns:
             SubscriptionModel instance
+
+        Raises:
+            ValidationError: If the file contains invalid data
+            MonetizationError: If there's an issue loading the model
         """
-        with open(file_path, "r") as f:
-            data = json.load(f)
+        try:
+            with open(file_path, "r") as f:
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError as e:
+                    raise ValidationError(
+                        message=f"Invalid JSON format in file {file_path}: {e}",
+                        field="file_content",
+                        original_exception=e
+                    )
 
-        # Check if this is a specific model type
-        model_type = data.get("model_type", "")
+            # Validate required fields
+            required_fields = ["name", "description", "tiers", "features", "billing_cycles", "id", "created_at", "updated_at"]
+            missing_fields = [field for field in required_fields if field not in data]
 
-        if model_type == "freemium" and cls.__name__ == "FreemiumModel":
-            # Create a FreemiumModel instance
-            model = cls(
-                name=data["name"],
-                description=data["description"],
-                features=data["features"],
-                billing_cycles=data["billing_cycles"]
+            if missing_fields:
+                raise ValidationError(
+                    message=f"Missing required fields in subscription model data: {', '.join(missing_fields)}",
+                    field="file_content",
+                    validation_errors=[{
+                        "field": field,
+                        "error": "Field is required"
+                    } for field in missing_fields]
+                )
+
+            # Check if this is a specific model type
+            model_type = data.get("model_type", "")
+
+            if model_type == "freemium" and cls.__name__ == "FreemiumModel":
+                # Validate freemium-specific fields
+                if "free_tier_id" not in data:
+                    raise ValidationError(
+                        message="Missing required field 'free_tier_id' for FreemiumModel",
+                        field="free_tier_id"
+                    )
+
+                # Create a FreemiumModel instance
+                model = cls(
+                    name=data["name"],
+                    description=data["description"],
+                    features=data["features"],
+                    billing_cycles=data["billing_cycles"]
+                )
+
+                # The free tier is already created in the constructor,
+                # so we need to replace it with the loaded one
+                free_tier_id = data["free_tier_id"]
+                free_tier = next((t for t in data["tiers"] if t["id"] == free_tier_id), None)
+
+                if free_tier:
+                    # Find and remove the auto-created free tier
+                    for i, tier in enumerate(model.tiers):
+                        if tier["id"] == model.free_tier["id"]:
+                            model.tiers.pop(i)
+                            break
+
+                    # Add the loaded free tier
+                    model.tiers.append(free_tier)
+                    model.free_tier = free_tier
+                else:
+                    logger.warning(f"Free tier with ID {free_tier_id} not found in loaded data")
+
+                # Add the other tiers
+                for tier in data["tiers"]:
+                    if tier["id"] != free_tier_id:
+                        model.tiers.append(tier)
+            else:
+                # Create a regular SubscriptionModel instance
+                model = cls(
+                    name=data["name"],
+                    description=data["description"],
+                    tiers=data["tiers"],
+                    features=data["features"],
+                    billing_cycles=data["billing_cycles"]
+                )
+
+            model.id = data["id"]
+            model.created_at = data["created_at"]
+            model.updated_at = data["updated_at"]
+
+            logger.info(f"Successfully loaded subscription model '{model.name}' from {file_path}")
+            return model
+
+        except (ValidationError, MonetizationError):
+            # Re-raise custom errors
+            raise
+        except FileNotFoundError as e:
+            error = MonetizationError(
+                message=f"File not found: {file_path}",
+                code="file_not_found",
+                original_exception=e
             )
-
-            # The free tier is already created in the constructor,
-            # so we need to replace it with the loaded one
-            free_tier_id = data["free_tier_id"]
-            free_tier = next((t for t in data["tiers"] if t["id"] == free_tier_id), None)
-
-            if free_tier:
-                # Find and remove the auto-created free tier
-                for i, tier in enumerate(model.tiers):
-                    if tier["id"] == model.free_tier["id"]:
-                        model.tiers.pop(i)
-                        break
-
-                # Add the loaded free tier
-                model.tiers.append(free_tier)
-                model.free_tier = free_tier
-
-            # Add the other tiers
-            for tier in data["tiers"]:
-                if tier["id"] != free_tier_id:
-                    model.tiers.append(tier)
-        else:
-            # Create a regular SubscriptionModel instance
-            model = cls(
-                name=data["name"],
-                description=data["description"],
-                tiers=data["tiers"],
-                features=data["features"],
-                billing_cycles=data["billing_cycles"]
+            error.log()
+            raise error
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=MonetizationError,
+                reraise=True
             )
-
-        model.id = data["id"]
-        model.created_at = data["created_at"]
-        model.updated_at = data["updated_at"]
-
-        return model
+            return None  # This line won't be reached due to reraise=True
 
     def __str__(self) -> str:
         """String representation of the subscription model."""

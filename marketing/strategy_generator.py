@@ -14,12 +14,19 @@ import re
 import math
 import random
 from collections import Counter
+import os
+import sys
+
+# Add the project root to the Python path to import the interfaces
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.agent_interfaces import IAgentTeam
 
 # Local imports
 from .user_personas import PersonaCreator
 
 
-class StrategyGenerator:
+class StrategyGenerator(IMarketingStrategy):
     """
     Class for generating marketing strategies.
 
@@ -214,7 +221,8 @@ class StrategyGenerator:
         target_audience: Optional[Dict[str, Any]] = None,
         budget: Optional[Dict[str, Any]] = None,
         timeframe: Optional[Dict[str, Any]] = None,
-        config: Optional[Dict[str, Any]] = None
+        config: Optional[Dict[str, Any]] = None,
+        agent_team: Optional[IAgentTeam] = None
     ):
         """
         Initialize a strategy generator.
@@ -226,6 +234,7 @@ class StrategyGenerator:
             budget: Budget information
             timeframe: Timeframe information
             config: Optional configuration dictionary
+            agent_team: Optional agent team instance
         """
         self.id = str(uuid.uuid4())
         self.business_type = business_type
@@ -236,6 +245,10 @@ class StrategyGenerator:
         self.config = config or self.get_default_config()
         self.created_at = datetime.datetime.now().isoformat()
         self.results = None
+        self._name = "Marketing Strategy Generator"
+        self._description = "Generates marketing strategies based on business type, goals, and target audience"
+        self._channel_type = "multi-channel"
+        self.agent_team = agent_team
 
         # Create persona creator for audience analysis
         self.persona_creator = PersonaCreator()
@@ -481,6 +494,78 @@ class StrategyGenerator:
         """
         self.config[key] = value
         self.results = None  # Reset results
+
+    @property
+    def name(self) -> str:
+        """Get the strategy name."""
+        return self._name
+
+    @property
+    def description(self) -> str:
+        """Get the strategy description."""
+        return self._description
+
+    @property
+    def channel_type(self) -> str:
+        """Get the channel type."""
+        return self._channel_type
+
+    def create_strategy(self, target_persona: Dict[str, Any], goals: List[str]) -> Dict[str, Any]:
+        """
+        Create a marketing strategy.
+
+        Args:
+            target_persona: Target user persona
+            goals: List of marketing goals
+
+        Returns:
+            Marketing strategy dictionary
+        """
+        # Set the target audience and goals
+        self.set_target_audience(target_persona)
+        self.set_goals(goals)
+
+        # Generate the strategy
+        self.generate_strategy()
+
+        # Return the full strategy
+        return self.get_full_strategy()
+
+    def get_tactics(self) -> List[Dict[str, Any]]:
+        """
+        Get marketing tactics.
+
+        Returns:
+            List of marketing tactic dictionaries
+        """
+        if not self.results:
+            return []
+
+        return self.results.get("tactics", [])
+
+    def get_metrics(self) -> List[Dict[str, Any]]:
+        """
+        Get marketing metrics.
+
+        Returns:
+            List of marketing metric dictionaries
+        """
+        if not self.results:
+            return []
+
+        return self.results.get("metrics", [])
+
+    def get_full_strategy(self) -> Dict[str, Any]:
+        """
+        Get the full marketing strategy.
+
+        Returns:
+            Dictionary with complete strategy details
+        """
+        if not self.results:
+            return {}
+
+        return self.results
 
     def to_dict(self) -> Dict[str, Any]:
         """

@@ -6,6 +6,14 @@ Provides templates for creating marketing content.
 from typing import Dict, List, Any, Optional, Union
 import uuid
 from datetime import datetime
+import logging
+
+from .errors import (
+    ContentTemplateError, ValidationError, handle_exception
+)
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 class ContentTemplate:
@@ -59,57 +67,101 @@ class ContentTemplate:
 
         Returns:
             Dictionary with outline details
+
+        Raises:
+            ValidationError: If the template is invalid
+            ContentTemplateError: If there's an issue generating the outline
         """
-        sections = []
+        try:
+            # Validate required fields
+            if not self.title:
+                raise ValidationError(
+                    message="Title is required to generate an outline",
+                    field="title",
+                    validation_errors=[{
+                        "field": "title",
+                        "error": "Title is required"
+                    }]
+                )
 
-        # Add introduction
-        sections.append({
-            "section_type": "introduction",
-            "title": "Introduction",
-            "description": f"Introduction to {self.title}",
-            "key_elements": [
-                "Hook to grab attention",
-                "Brief overview of the topic",
-                "Why this matters to the reader"
-            ]
-        })
+            if not self.key_points or len(self.key_points) == 0:
+                raise ValidationError(
+                    message="Key points are required to generate an outline",
+                    field="key_points",
+                    validation_errors=[{
+                        "field": "key_points",
+                        "error": "At least one key point is required"
+                    }]
+                )
 
-        # Add sections for each key point
-        for i, point in enumerate(self.key_points):
+            sections = []
+
+            # Add introduction
             sections.append({
-                "section_type": "body",
-                "title": f"Section {i+1}: {point}",
-                "description": f"Details about {point}",
+                "section_type": "introduction",
+                "title": "Introduction",
+                "description": f"Introduction to {self.title}",
                 "key_elements": [
-                    "Explanation of the point",
-                    "Supporting evidence or examples",
-                    "Practical application"
+                    "Hook to grab attention",
+                    "Brief overview of the topic",
+                    "Why this matters to the reader"
                 ]
             })
 
-        # Add conclusion
-        sections.append({
-            "section_type": "conclusion",
-            "title": "Conclusion",
-            "description": "Summary and next steps",
-            "key_elements": [
-                "Recap of key points",
-                "Final thoughts",
-                "Call to action" if self.call_to_action else "Closing statement"
-            ]
-        })
+            # Add sections for each key point
+            for i, point in enumerate(self.key_points):
+                sections.append({
+                    "section_type": "body",
+                    "title": f"Section {i+1}: {point}",
+                    "description": f"Details about {point}",
+                    "key_elements": [
+                        "Explanation of the point",
+                        "Supporting evidence or examples",
+                        "Practical application"
+                    ]
+                })
 
-        return {
-            "id": self.id,
-            "title": self.title,
-            "content_type": self.content_type,
-            "target_persona": self.target_persona["name"],
-            "tone": self.tone,
-            "sections": sections,
-            "call_to_action": self.call_to_action,
-            "estimated_length": f"{len(self.key_points) * 300 + 600} words",
-            "created_at": self.created_at
-        }
+            # Add conclusion
+            sections.append({
+                "section_type": "conclusion",
+                "title": "Conclusion",
+                "description": "Summary and next steps",
+                "key_elements": [
+                    "Recap of key points",
+                    "Final thoughts",
+                    "Call to action" if self.call_to_action else "Closing statement"
+                ]
+            })
+
+            outline = {
+                "id": self.id,
+                "title": self.title,
+                "content_type": self.content_type,
+                "target_persona": self.target_persona["name"],
+                "tone": self.tone,
+                "sections": sections,
+                "call_to_action": self.call_to_action,
+                "estimated_length": f"{len(self.key_points) * 300 + 600} words",
+                "created_at": self.created_at
+            }
+
+            logger.info(f"Generated outline for content: {self.title}")
+            return outline
+
+        except ValidationError:
+            # Re-raise validation errors
+            raise
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=ContentTemplateError,
+                message=f"Failed to generate outline for content: {self.title}",
+                template_type=self.content_type,
+                reraise=True,
+                log_level=logging.ERROR
+            )
+            return {}  # This line won't be reached due to reraise=True
 
     def get_style_guidelines(self) -> Dict[str, Any]:
         """
@@ -297,65 +349,99 @@ class ContentTemplate:
 
         Returns:
             Dictionary with generated content
+
+        Raises:
+            ValidationError: If the template is invalid
+            ContentTemplateError: If there's an issue generating the content
         """
-        # Update template properties if provided
-        if topic:
-            self.title = topic
+        try:
+            # Update template properties if provided
+            if topic:
+                self.title = topic
 
-        if target_audience:
-            self.target_persona["name"] = target_audience
+            if target_audience:
+                self.target_persona["name"] = target_audience
 
-        if tone:
-            self.tone = tone
+            if tone:
+                self.tone = tone
 
-        # Generate outline first
-        outline = self.generate_outline()
+            # Generate outline first
+            try:
+                outline = self.generate_outline()
+            except ValidationError as e:
+                # Add more context to the validation error
+                raise ValidationError(
+                    message=f"Cannot generate content: {e.message}",
+                    field=e.field,
+                    validation_errors=e.validation_errors,
+                    original_exception=e
+                )
 
-        # Create content structure
-        content = {
-            "id": self.id,
-            "template_id": self.id,
-            "name": self.name,
-            "description": self.description,
-            "title": self.title,
-            "topic": topic or self.title,
-            "content_type": self.content_type,
-            "target_persona": self.target_persona["name"],
-            "target_audience": target_audience or self.target_persona["name"],
-            "tone": self.tone,
-            "sections": [],
-            "call_to_action": self.call_to_action,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at
-        }
+            # Create content structure
+            content = {
+                "id": self.id,
+                "template_id": self.id,
+                "name": self.name,
+                "description": self.description,
+                "title": self.title,
+                "topic": topic or self.title,
+                "content_type": self.content_type,
+                "target_persona": self.target_persona["name"],
+                "target_audience": target_audience or self.target_persona["name"],
+                "tone": self.tone,
+                "sections": [],
+                "call_to_action": self.call_to_action,
+                "created_at": self.created_at,
+                "updated_at": self.updated_at
+            }
 
-        # Add keywords if provided
-        if keywords:
-            content["keywords"] = keywords
+            # Add keywords if provided
+            if keywords:
+                content["keywords"] = keywords
 
-        # Only use the custom sections added by the user
-        content["sections"] = []
-        for section in self.sections:
-            # Create a copy of the section
-            section_copy = section.copy()
+            # Only use the custom sections added by the user
+            content["sections"] = []
+            for section in self.sections:
+                # Create a copy of the section
+                section_copy = section.copy()
 
-            # Add sample content if the section doesn't have any
-            if not section_copy.get("content"):
-                if section_copy.get("name") == "Introduction":
-                    section_copy["content"] = f"Introduction to {self.title}. This addresses the needs of {self.target_persona['name']}."
-                elif section_copy.get("name") == "Main Content":
-                    section_copy["content"] = f"Main content about {self.title}. This is important for {self.target_persona['name']}."
-                elif section_copy.get("name") == "Conclusion":
-                    section_copy["content"] = f"In conclusion, {self.title} is valuable for {self.target_persona['name']}."
-                else:
-                    section_copy["content"] = f"Content about {section_copy.get('name', 'this topic')}."
+                # Add sample content if the section doesn't have any
+                if not section_copy.get("content"):
+                    if section_copy.get("name") == "Introduction":
+                        section_copy["content"] = f"Introduction to {self.title}. This addresses the needs of {self.target_persona['name']}."
+                    elif section_copy.get("name") == "Main Content":
+                        section_copy["content"] = f"Main content about {self.title}. This is important for {self.target_persona['name']}."
+                    elif section_copy.get("name") == "Conclusion":
+                        section_copy["content"] = f"In conclusion, {self.title} is valuable for {self.target_persona['name']}."
+                    else:
+                        section_copy["content"] = f"Content about {section_copy.get('name', 'this topic')}."
 
-            content["sections"].append(section_copy)
+                content["sections"].append(section_copy)
 
-        # Update timestamp
-        self.updated_at = datetime.now().isoformat()
+            # If no custom sections, use the outline sections
+            if not content["sections"]:
+                content["sections"] = outline["sections"]
 
-        return content
+            # Update timestamp
+            self.updated_at = datetime.now().isoformat()
+
+            logger.info(f"Generated content for: {self.title}")
+            return content
+
+        except ValidationError:
+            # Re-raise validation errors
+            raise
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=ContentTemplateError,
+                message=f"Failed to generate content for: {self.title}",
+                template_type=self.content_type,
+                reraise=True,
+                log_level=logging.ERROR
+            )
+            return {}  # This line won't be reached due to reraise=True
 
     def get_summary(self) -> Dict[str, Any]:
         """

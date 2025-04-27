@@ -12,7 +12,27 @@
         </div>
         <h1>500</h1>
         <h2>Server Error</h2>
-        <p>Something went wrong on our end. Please try again later.</p>
+        <p>{{ error.message if error else "Something went wrong on our end. Please try again later." }}</p>
+
+        {% if error and error.code %}
+        <div class="error-details">
+            <p><strong>Error Code:</strong> {{ error.code }}</p>
+            {% if error.details %}
+            <div class="error-additional-details">
+                <p><strong>Additional Details:</strong></p>
+                <ul>
+                    {% for key, value in error.details.items() %}
+                    {% if key != "traceback" %}
+                    <li><strong>{{ key }}:</strong> {{ value }}</li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <p><strong>Timestamp:</strong> {{ error.timestamp }}</p>
+        </div>
+        {% endif %}
+
         <div class="error-actions">
             <a href="{{ url_for('index') }}" class="btn btn-primary">
                 <i class="fas fa-home"></i> Go to Home

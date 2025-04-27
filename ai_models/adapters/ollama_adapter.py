@@ -12,6 +12,8 @@ import time
 from typing import Dict, List, Any, Optional, Union, Generator, Tuple
 import threading
 
+from .base_adapter import BaseModelAdapter
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
@@ -28,11 +30,11 @@ except ImportError:
     REQUESTS_AVAILABLE = False
 
 
-class OllamaAdapter:
+class OllamaAdapter(BaseModelAdapter):
     """
     Adapter for connecting to Ollama.
     """
-    
+
     def __init__(
         self,
         base_url: str = "http://localhost:11434",
@@ -41,27 +43,32 @@ class OllamaAdapter:
     ):
         """
         Initialize the Ollama adapter.
-        
+
         Args:
             base_url: Base URL of the Ollama API
             timeout: Timeout for API requests in seconds
             **kwargs: Additional parameters for the adapter
         """
+        super().__init__(
+            name="Ollama",
+            description="Adapter for connecting to Ollama, a local API server for running large language models"
+        )
+
         if not REQUESTS_AVAILABLE:
             raise ImportError("Requests not available. Please install it with: pip install requests")
-        
+
         self.base_url = base_url
         self.timeout = timeout
         self.kwargs = kwargs
         self.session = requests.Session()
-        
+
         # Check if Ollama is running
         self._check_ollama_status()
-    
+
     def _check_ollama_status(self) -> None:
         """
         Check if Ollama is running.
-        
+
         Raises:
             ConnectionError: If Ollama is not running
         """
@@ -72,11 +79,51 @@ class OllamaAdapter:
         except requests.exceptions.RequestException as e:
             logger.error(f"Error connecting to Ollama: {e}")
             raise ConnectionError(f"Could not connect to Ollama at {self.base_url}. Make sure Ollama is running.")
-    
+
+    def connect(self, **kwargs) -> bool:
+        """
+        Connect to the adapter.
+
+        Args:
+            **kwargs: Connection parameters
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Try to connect to the Ollama API
+            response = self.session.get(f"{self.base_url}", timeout=5)
+            if response.status_code != 200:
+                logger.warning(f"Ollama returned status code {response.status_code}")
+                self._connected = False
+                return False
+
+            self._connected = True
+            return True
+        except Exception as e:
+            logger.error(f"Failed to connect to Ollama: {e}")
+            self._connected = False
+            return False
+
+    def disconnect(self) -> bool:
+        """
+        Disconnect from the adapter.
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            self.session.close()
+            self._connected = False
+            return True
+        except Exception as e:
+            logger.error(f"Error disconnecting from Ollama: {e}")
+            return False
+
     def list_models(self) -> List[Dict[str, Any]]:
         """
         List available models in Ollama.
-        
+
         Returns:
             List of model information dictionaries
         """
@@ -86,21 +133,54 @@ class OllamaAdapter:
                 timeout=self.timeout
             )
             response.raise_for_status()
-            
+
             data = response.json()
             return data.get("models", [])
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error listing models: {e}")
             raise
-    
+
+    def get_models(self) -> List[Dict[str, Any]]:
+        """
+        Get available models from the adapter.
+
+        Returns:
+            List of model dictionaries
+        """
+        try:
+            models = self.list_models()
+
+            # Transform the model data to a standard format
+            standardized_models = []
+            for model in models:
+                standardized_models.append({
+                    "id": model.get("name", ""),
+                    "name": model.get("name", "").split(":")[0],
+                    "description": f"Ollama model: {model.get('name', '')}",
+                    "type": "llm",
+                    "size": model.get("size", 0),
+                    "modified_at": model.get("modified_at", ""),
+                    "adapter": "ollama"
+                })
+
+            return standardized_models
+
+        except Exception as e:
+            self._handle_error(
+                e,
+                f"Failed to get models from Ollama",
+                operation="get_models"
+            )
+            return []
+
     def get_model_info(self, model_name: str) -> Dict[str, Any]:
         """
         Get information about a specific model.
-        
+
         Args:
             model_name: Name of the model
-            
+
         Returns:
             Dictionary with model information
         """
@@ -111,13 +191,13 @@ class OllamaAdapter:
                 timeout=self.timeout
             )
             response.raise_for_status()
-            
+
             return response.json()
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error getting model info for {model_name}: {e}")
             raise
-    
+
     def generate_text(
         self,
         model_name: str,
@@ -133,7 +213,7 @@ class OllamaAdapter:
     ) -> Union[str, Generator[str, None, None]]:
         """
         Generate text using an Ollama model.
-        
+
         Args:
             model_name: Name of the model
             prompt: Input prompt
@@ -145,7 +225,7 @@ class OllamaAdapter:
             stop: Optional list of stop sequences
             stream: Whether to stream the response
             **kwargs: Additional parameters for generation
-            
+
         Returns:
             Generated text or a generator yielding text chunks if streaming
         """
@@ -159,37 +239,37 @@ class OllamaAdapter:
             "num_predict": max_tokens,
             "stream": stream
         }
-        
+
         # Add system prompt if provided
         if system_prompt:
             request_data["system"] = system_prompt
-        
+
         # Add stop sequences if provided
         if stop:
             request_data["stop"] = stop
-        
+
         # Add any additional parameters
         for key, value in kwargs.items():
             if key not in request_data:
                 request_data[key] = value
-        
+
         try:
             if stream:
                 return self._generate_text_stream(request_data)
             else:
                 return self._generate_text_sync(request_data)
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error generating text with {model_name}: {e}")
             raise
-    
+
     def _generate_text_sync(self, request_data: Dict[str, Any]) -> str:
         """
         Generate text synchronously.
-        
+
         Args:
             request_data: Request data for the API
-            
+
         Returns:
             Generated text
         """
@@ -199,17 +279,17 @@ class OllamaAdapter:
             timeout=self.timeout
         )
         response.raise_for_status()
-        
+
         data = response.json()
         return data.get("response", "")
-    
+
     def _generate_text_stream(self, request_data: Dict[str, Any]) -> Generator[str, None, None]:
         """
         Generate text as a stream.
-        
+
         Args:
             request_data: Request data for the API
-            
+
         Returns:
             Generator yielding text chunks
         """
@@ -220,21 +300,21 @@ class OllamaAdapter:
             timeout=self.timeout
         )
         response.raise_for_status()
-        
+
         for line in response.iter_lines():
             if line:
                 try:
                     data = json.loads(line)
                     if "response" in data:
                         yield data["response"]
-                    
+
                     # Check if this is the last chunk
                     if data.get("done", False):
                         break
-                
+
                 except json.JSONDecodeError:
                     logger.warning(f"Could not decode JSON: {line}")
-    
+
     def chat(
         self,
         model_name: str,
@@ -249,7 +329,7 @@ class OllamaAdapter:
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """
         Chat with an Ollama model.
-        
+
         Args:
             model_name: Name of the model
             messages: List of message dictionaries with "role" and "content" keys
@@ -260,7 +340,7 @@ class OllamaAdapter:
             stop: Optional list of stop sequences
             stream: Whether to stream the response
             **kwargs: Additional parameters for chat
-            
+
         Returns:
             Response dictionary or a generator yielding response dictionaries if streaming
         """
@@ -274,33 +354,33 @@ class OllamaAdapter:
             "num_predict": max_tokens,
             "stream": stream
         }
-        
+
         # Add stop sequences if provided
         if stop:
             request_data["stop"] = stop
-        
+
         # Add any additional parameters
         for key, value in kwargs.items():
             if key not in request_data:
                 request_data[key] = value
-        
+
         try:
             if stream:
                 return self._chat_stream(request_data)
             else:
                 return self._chat_sync(request_data)
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error chatting with {model_name}: {e}")
             raise
-    
+
     def _chat_sync(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Chat synchronously.
-        
+
         Args:
             request_data: Request data for the API
-            
+
         Returns:
             Response dictionary
         """
@@ -310,16 +390,16 @@ class OllamaAdapter:
             timeout=self.timeout
         )
         response.raise_for_status()
-        
+
         return response.json()
-    
+
     def _chat_stream(self, request_data: Dict[str, Any]) -> Generator[Dict[str, Any], None, None]:
         """
         Chat as a stream.
-        
+
         Args:
             request_data: Request data for the API
-            
+
         Returns:
             Generator yielding response dictionaries
         """
@@ -330,20 +410,20 @@ class OllamaAdapter:
             timeout=self.timeout
         )
         response.raise_for_status()
-        
+
         for line in response.iter_lines():
             if line:
                 try:
                     data = json.loads(line)
                     yield data
-                    
+
                     # Check if this is the last chunk
                     if data.get("done", False):
                         break
-                
+
                 except json.JSONDecodeError:
                     logger.warning(f"Could not decode JSON: {line}")
-    
+
     def create_embedding(
         self,
         model_name: str,
@@ -352,12 +432,12 @@ class OllamaAdapter:
     ) -> List[float]:
         """
         Create an embedding for a text.
-        
+
         Args:
             model_name: Name of the model
             prompt: Input text
             **kwargs: Additional parameters for embedding
-            
+
         Returns:
             List of embedding values
         """
@@ -366,12 +446,12 @@ class OllamaAdapter:
             "model": model_name,
             "prompt": prompt
         }
-        
+
         # Add any additional parameters
         for key, value in kwargs.items():
             if key not in request_data:
                 request_data[key] = value
-        
+
         try:
             response = self.session.post(
                 f"{self.base_url}/api/embeddings",
@@ -379,14 +459,14 @@ class OllamaAdapter:
                 timeout=self.timeout
             )
             response.raise_for_status()
-            
+
             data = response.json()
             return data.get("embedding", [])
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error creating embedding with {model_name}: {e}")
             raise
-    
+
     def pull_model(
         self,
         model_name: str,
@@ -395,12 +475,12 @@ class OllamaAdapter:
     ) -> Dict[str, Any]:
         """
         Pull a model from the Ollama library.
-        
+
         Args:
             model_name: Name of the model
             insecure: Whether to allow insecure connections
             callback: Optional callback function for progress updates
-            
+
         Returns:
             Dictionary with pull status
         """
@@ -409,7 +489,7 @@ class OllamaAdapter:
             "name": model_name,
             "insecure": insecure
         }
-        
+
         try:
             if callback:
                 return self._pull_model_with_callback(request_data, callback)
@@ -420,13 +500,13 @@ class OllamaAdapter:
                     timeout=None  # No timeout for model pulling
                 )
                 response.raise_for_status()
-                
+
                 return {"status": "success", "model": model_name}
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error pulling model {model_name}: {e}")
             raise
-    
+
     def _pull_model_with_callback(
         self,
         request_data: Dict[str, Any],
@@ -434,11 +514,11 @@ class OllamaAdapter:
     ) -> Dict[str, Any]:
         """
         Pull a model with progress updates.
-        
+
         Args:
             request_data: Request data for the API
             callback: Callback function for progress updates
-            
+
         Returns:
             Dictionary with pull status
         """
@@ -449,22 +529,22 @@ class OllamaAdapter:
             timeout=None  # No timeout for model pulling
         )
         response.raise_for_status()
-        
+
         for line in response.iter_lines():
             if line:
                 try:
                     data = json.loads(line)
                     callback(data)
-                    
+
                     # Check if this is the last chunk
                     if "status" in data and data["status"] == "success":
                         return data
-                
+
                 except json.JSONDecodeError:
                     logger.warning(f"Could not decode JSON: {line}")
-        
+
         return {"status": "success", "model": request_data["name"]}
-    
+
     def push_model(
         self,
         model_name: str,
@@ -473,12 +553,12 @@ class OllamaAdapter:
     ) -> Dict[str, Any]:
         """
         Push a model to a registry.
-        
+
         Args:
             model_name: Name of the model
             insecure: Whether to allow insecure connections
             callback: Optional callback function for progress updates
-            
+
         Returns:
             Dictionary with push status
         """
@@ -487,7 +567,7 @@ class OllamaAdapter:
             "name": model_name,
             "insecure": insecure
         }
-        
+
         try:
             if callback:
                 return self._push_model_with_callback(request_data, callback)
@@ -498,13 +578,13 @@ class OllamaAdapter:
                     timeout=None  # No timeout for model pushing
                 )
                 response.raise_for_status()
-                
+
                 return {"status": "success", "model": model_name}
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error pushing model {model_name}: {e}")
             raise
-    
+
     def _push_model_with_callback(
         self,
         request_data: Dict[str, Any],
@@ -512,11 +592,11 @@ class OllamaAdapter:
     ) -> Dict[str, Any]:
         """
         Push a model with progress updates.
-        
+
         Args:
             request_data: Request data for the API
             callback: Callback function for progress updates
-            
+
         Returns:
             Dictionary with push status
         """
@@ -527,22 +607,22 @@ class OllamaAdapter:
             timeout=None  # No timeout for model pushing
         )
         response.raise_for_status()
-        
+
         for line in response.iter_lines():
             if line:
                 try:
                     data = json.loads(line)
                     callback(data)
-                    
+
                     # Check if this is the last chunk
                     if "status" in data and data["status"] == "success":
                         return data
-                
+
                 except json.JSONDecodeError:
                     logger.warning(f"Could not decode JSON: {line}")
-        
+
         return {"status": "success", "model": request_data["name"]}
-    
+
     def create_model(
         self,
         model_name: str,
@@ -551,12 +631,12 @@ class OllamaAdapter:
     ) -> Dict[str, Any]:
         """
         Create a model from a Modelfile.
-        
+
         Args:
             model_name: Name of the model
             modelfile: Content of the Modelfile
             callback: Optional callback function for progress updates
-            
+
         Returns:
             Dictionary with creation status
         """
@@ -565,7 +645,7 @@ class OllamaAdapter:
             "name": model_name,
             "modelfile": modelfile
         }
-        
+
         try:
             if callback:
                 return self._create_model_with_callback(request_data, callback)
@@ -576,13 +656,13 @@ class OllamaAdapter:
                     timeout=None  # No timeout for model creation
                 )
                 response.raise_for_status()
-                
+
                 return {"status": "success", "model": model_name}
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error creating model {model_name}: {e}")
             raise
-    
+
     def _create_model_with_callback(
         self,
         request_data: Dict[str, Any],
@@ -590,11 +670,11 @@ class OllamaAdapter:
     ) -> Dict[str, Any]:
         """
         Create a model with progress updates.
-        
+
         Args:
             request_data: Request data for the API
             callback: Callback function for progress updates
-            
+
         Returns:
             Dictionary with creation status
         """
@@ -605,29 +685,29 @@ class OllamaAdapter:
             timeout=None  # No timeout for model creation
         )
         response.raise_for_status()
-        
+
         for line in response.iter_lines():
             if line:
                 try:
                     data = json.loads(line)
                     callback(data)
-                    
+
                     # Check if this is the last chunk
                     if "status" in data and data["status"] == "success":
                         return data
-                
+
                 except json.JSONDecodeError:
                     logger.warning(f"Could not decode JSON: {line}")
-        
+
         return {"status": "success", "model": request_data["name"]}
-    
+
     def delete_model(self, model_name: str) -> Dict[str, Any]:
         """
         Delete a model.
-        
+
         Args:
             model_name: Name of the model
-            
+
         Returns:
             Dictionary with deletion status
         """
@@ -635,7 +715,7 @@ class OllamaAdapter:
         request_data = {
             "name": model_name
         }
-        
+
         try:
             response = self.session.delete(
                 f"{self.base_url}/api/delete",
@@ -643,21 +723,21 @@ class OllamaAdapter:
                 timeout=self.timeout
             )
             response.raise_for_status()
-            
+
             return {"status": "success", "model": model_name}
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error deleting model {model_name}: {e}")
             raise
-    
+
     def copy_model(self, source_model: str, target_model: str) -> Dict[str, Any]:
         """
         Copy a model.
-        
+
         Args:
             source_model: Name of the source model
             target_model: Name of the target model
-            
+
         Returns:
             Dictionary with copy status
         """
@@ -666,7 +746,7 @@ class OllamaAdapter:
             "source": source_model,
             "destination": target_model
         }
-        
+
         try:
             response = self.session.post(
                 f"{self.base_url}/api/copy",
@@ -674,9 +754,9 @@ class OllamaAdapter:
                 timeout=self.timeout
             )
             response.raise_for_status()
-            
+
             return {"status": "success", "source": source_model, "target": target_model}
-        
+
         except requests.exceptions.RequestException as e:
             logger.error(f"Error copying model {source_model} to {target_model}: {e}")
             raise
@@ -686,14 +766,14 @@ class OllamaAdapter:
 if __name__ == "__main__":
     # Create an Ollama adapter
     adapter = OllamaAdapter()
-    
+
     # List available models
     try:
         models = adapter.list_models()
         print(f"Available models: {len(models)}")
         for model in models:
             print(f"- {model['name']} ({model['size']})")
-        
+
         # If there are models, get info about the first one
         if models:
             model_name = models[0]["name"]
@@ -702,12 +782,12 @@ if __name__ == "__main__":
             print(f"- Size: {model_info.get('size', 'Unknown')}")
             print(f"- Modified: {model_info.get('modified_at', 'Unknown')}")
             print(f"- Parameters: {model_info.get('parameters', 'Unknown')}")
-            
+
             # Generate text
             prompt = "Hello, world!"
             print(f"\nGenerating text with {model_name} for prompt: {prompt}")
             response = adapter.generate_text(model_name, prompt)
             print(f"Response: {response}")
-    
+
     except Exception as e:
         print(f"Error: {e}")
