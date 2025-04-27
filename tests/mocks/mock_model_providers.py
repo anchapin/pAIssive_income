@@ -7,9 +7,10 @@ that can be used for consistent testing without external dependencies.
 
 import json
 import logging
-from typing import Dict, List, Any, Optional, Union, Generator
+from typing import Dict, List, Any, Optional, Union, Generator, Tuple
 from unittest.mock import MagicMock
 from datetime import datetime
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -735,13 +736,637 @@ class MockLMStudioProvider(MockBaseModelProvider):
         return response
 
 
+class MockHuggingFaceProvider(MockBaseModelProvider):
+    """Mock implementation of Hugging Face API."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize the mock Hugging Face provider."""
+        super().__init__(config)
+        
+        # Override available models for Hugging Face
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "gpt2",
+                "name": "GPT-2",
+                "capabilities": ["text-generation"],
+                "created": int(datetime.now().timestamp()),
+                "pipeline_tag": "text-generation"
+            },
+            {
+                "id": "t5-small",
+                "name": "T5 Small",
+                "capabilities": ["text2text-generation", "summarization", "translation"],
+                "created": int(datetime.now().timestamp()),
+                "pipeline_tag": "text2text-generation"
+            },
+            {
+                "id": "distilbert-base-uncased",
+                "name": "DistilBERT Base Uncased",
+                "capabilities": ["text-classification", "token-classification"],
+                "created": int(datetime.now().timestamp()),
+                "pipeline_tag": "text-classification"
+            },
+            {
+                "id": "all-MiniLM-L6-v2",
+                "name": "MiniLM L6 v2",
+                "capabilities": ["embedding", "sentence-similarity"],
+                "created": int(datetime.now().timestamp()),
+                "pipeline_tag": "feature-extraction"
+            }
+        ])
+        
+        # Mock responses
+        self.mock_responses = {
+            "text_generation": {
+                "generated_text": self.config.get("default_completion", "This is a mock response from the Hugging Face model.")
+            },
+            "text2text_generation": {
+                "generated_text": self.config.get("default_completion", "This is a mock text2text response.")
+            },
+            "summarization": {
+                "summary_text": self.config.get("default_summary", "This is a mock summary.")
+            },
+            "translation": {
+                "translation_text": self.config.get("default_translation", "This is a mock translation.")
+            },
+            "text_classification": [
+                {
+                    "label": "POSITIVE",
+                    "score": 0.95
+                },
+                {
+                    "label": "NEGATIVE",
+                    "score": 0.05
+                }
+            ],
+            "token_classification": [
+                {
+                    "entity": "B-PER",
+                    "score": 0.98,
+                    "word": "John",
+                    "start": 0,
+                    "end": 4
+                },
+                {
+                    "entity": "I-PER",
+                    "score": 0.92,
+                    "word": "Doe",
+                    "start": 5,
+                    "end": 8
+                }
+            ],
+            "embeddings": np.random.rand(1, 384).tolist()  # Common embedding size for MiniLM
+        }
+    
+    def list_models(self) -> List[Dict[str, Any]]:
+        """List available models."""
+        self.record_call("list_models")
+        return self.available_models
+    
+    def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
+        """Get information about a specific model."""
+        self.record_call("get_model_info", model_id=model_id)
+        
+        # Find the model in available models
+        for model in self.available_models:
+            if model["id"] == model_id:
+                return model
+        
+        return None
+    
+    def text_generation(
+        self,
+        model_id: str,
+        text: str,
+        max_length: int = 100,
+        temperature: float = 0.7,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Generate text with a text generation model."""
+        self.record_call(
+            "text_generation",
+            model_id=model_id,
+            text=text,
+            max_length=max_length,
+            temperature=temperature,
+            **kwargs
+        )
+        
+        # Check if model exists and has text generation capability
+        model_info = self.get_model_info(model_id)
+        if not model_info or "text-generation" not in model_info.get("capabilities", []):
+            raise ValueError(f"Model {model_id} not found or does not support text generation")
+        
+        response = self.mock_responses["text_generation"].copy()
+        
+        # If a custom response is provided for this specific text, use it
+        custom_responses = self.config.get("custom_responses", {})
+        for pattern, custom_response in custom_responses.items():
+            if pattern in text:
+                response["generated_text"] = custom_response
+                break
+        
+        return [response]
+    
+    def text2text_generation(
+        self,
+        model_id: str,
+        text: str,
+        max_length: int = 100,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Generate text from text with a text2text generation model."""
+        self.record_call(
+            "text2text_generation",
+            model_id=model_id,
+            text=text,
+            max_length=max_length,
+            **kwargs
+        )
+        
+        # Check if model exists and has text2text generation capability
+        model_info = self.get_model_info(model_id)
+        if not model_info or "text2text-generation" not in model_info.get("capabilities", []):
+            raise ValueError(f"Model {model_id} not found or does not support text2text generation")
+        
+        response = self.mock_responses["text2text_generation"].copy()
+        
+        # If a custom response is provided for this specific text, use it
+        custom_responses = self.config.get("custom_responses", {})
+        for pattern, custom_response in custom_responses.items():
+            if pattern in text:
+                response["generated_text"] = custom_response
+                break
+        
+        return [response]
+    
+    def summarization(
+        self,
+        model_id: str,
+        text: str,
+        max_length: int = 100,
+        min_length: int = 10,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Generate a summary with a summarization model."""
+        self.record_call(
+            "summarization",
+            model_id=model_id,
+            text=text,
+            max_length=max_length,
+            min_length=min_length,
+            **kwargs
+        )
+        
+        # Check if model exists and has summarization capability
+        model_info = self.get_model_info(model_id)
+        if not model_info or "summarization" not in model_info.get("capabilities", []):
+            raise ValueError(f"Model {model_id} not found or does not support summarization")
+        
+        response = self.mock_responses["summarization"].copy()
+        
+        # If a custom response is provided for this specific text, use it
+        custom_responses = self.config.get("custom_responses", {})
+        for pattern, custom_response in custom_responses.items():
+            if pattern in text:
+                response["summary_text"] = custom_response
+                break
+        
+        return [response]
+    
+    def translation(
+        self,
+        model_id: str,
+        text: str,
+        src_lang: str = "en",
+        tgt_lang: str = "fr",
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Translate text with a translation model."""
+        self.record_call(
+            "translation",
+            model_id=model_id,
+            text=text,
+            src_lang=src_lang,
+            tgt_lang=tgt_lang,
+            **kwargs
+        )
+        
+        # Check if model exists and has translation capability
+        model_info = self.get_model_info(model_id)
+        if not model_info or "translation" not in model_info.get("capabilities", []):
+            raise ValueError(f"Model {model_id} not found or does not support translation")
+        
+        response = self.mock_responses["translation"].copy()
+        
+        # If a custom response is provided for this specific text, use it
+        custom_responses = self.config.get("custom_responses", {})
+        for pattern, custom_response in custom_responses.items():
+            if pattern in text:
+                response["translation_text"] = custom_response
+                break
+        
+        return [response]
+    
+    def text_classification(
+        self,
+        model_id: str,
+        text: str,
+        **kwargs
+    ) -> List[Dict[str, Any]]:
+        """Classify text with a text classification model."""
+        self.record_call(
+            "text_classification",
+            model_id=model_id,
+            text=text,
+            **kwargs
+        )
+        
+        # Check if model exists and has text classification capability
+        model_info = self.get_model_info(model_id)
+        if not model_info or "text-classification" not in model_info.get("capabilities", []):
+            raise ValueError(f"Model {model_id} not found or does not support text classification")
+        
+        response = self.mock_responses["text_classification"].copy()
+        
+        return response
+    
+    def token_classification(
+        self,
+        model_id: str,
+        text: str,
+        **kwargs
+    ) -> List[Dict[str, Any]]:
+        """Classify tokens with a token classification model."""
+        self.record_call(
+            "token_classification",
+            model_id=model_id,
+            text=text,
+            **kwargs
+        )
+        
+        # Check if model exists and has token classification capability
+        model_info = self.get_model_info(model_id)
+        if not model_info or "token-classification" not in model_info.get("capabilities", []):
+            raise ValueError(f"Model {model_id} not found or does not support token classification")
+        
+        response = self.mock_responses["token_classification"].copy()
+        
+        return response
+    
+    def embedding(
+        self,
+        model_id: str,
+        text: Union[str, List[str]],
+        **kwargs
+    ) -> np.ndarray:
+        """Generate embeddings with an embedding model."""
+        self.record_call(
+            "embedding",
+            model_id=model_id,
+            text=text,
+            **kwargs
+        )
+        
+        # Check if model exists and has embedding capability
+        model_info = self.get_model_info(model_id)
+        if not model_info or "embedding" not in model_info.get("capabilities", []):
+            raise ValueError(f"Model {model_id} not found or does not support embeddings")
+        
+        # Get base embedding from mock responses
+        base_embedding = np.array(self.mock_responses["embeddings"])
+        
+        # Handle list of inputs
+        if isinstance(text, list):
+            # Create slightly different embeddings for each text
+            embeddings = []
+            for i, t in enumerate(text):
+                # Add a small offset based on the index for deterministic but different vectors
+                offset = np.random.RandomState(hash(t) % 2**32).rand(*base_embedding.shape) * 0.1
+                embeddings.append(base_embedding + offset)
+            return np.vstack(embeddings)
+        else:
+            # Add a small random offset for determinism based on text hash
+            offset = np.random.RandomState(hash(text) % 2**32).rand(*base_embedding.shape) * 0.1
+            return base_embedding + offset
+
+
+class MockLocalModelProvider(MockBaseModelProvider):
+    """Mock implementation of local model inference (like llama.cpp)."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize the mock Local Model provider."""
+        super().__init__(config)
+        
+        # Override available models
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "llama-2-7b-chat.gguf",
+                "name": "Llama 2 7B Chat",
+                "capabilities": ["text-generation", "chat"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/llama-2-7b-chat.gguf",
+                "size_mb": 3900,
+                "format": "gguf",
+                "quantization": "q4_k_m"
+            },
+            {
+                "id": "llama-3-8b-instruct.gguf",
+                "name": "Llama 3 8B Instruct",
+                "capabilities": ["text-generation", "chat"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/llama-3-8b-instruct.gguf",
+                "size_mb": 4200,
+                "format": "gguf",
+                "quantization": "q5_k_m"
+            },
+            {
+                "id": "mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+                "name": "Mistral 7B Instruct",
+                "capabilities": ["text-generation", "chat"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+                "size_mb": 3800,
+                "format": "gguf",
+                "quantization": "q4_k_m"
+            },
+            {
+                "id": "phi-2.Q4_K_M.gguf",
+                "name": "Phi-2",
+                "capabilities": ["text-generation"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/phi-2.Q4_K_M.gguf",
+                "size_mb": 1700,
+                "format": "gguf",
+                "quantization": "q4_k_m"
+            }
+        ])
+        
+        # Mock responses
+        self.mock_responses = {
+            "completion": {
+                "text": self.config.get("default_completion", "This is a mock response from the local GGUF model."),
+                "usage": {
+                    "prompt_tokens": 10,
+                    "completion_tokens": 20,
+                    "total_tokens": 30
+                },
+                "timings": {
+                    "prompt_ms": 100,
+                    "completion_ms": 500
+                }
+            },
+            "embeddings": {
+                "embedding": list(np.random.rand(4096)),  # Common size for GGUF embeddings
+                "usage": {
+                    "prompt_tokens": 8,
+                    "total_tokens": 8
+                }
+            }
+        }
+    
+    def list_models(self) -> List[Dict[str, Any]]:
+        """List available models."""
+        self.record_call("list_models")
+        return self.available_models
+    
+    def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
+        """Get information about a specific model."""
+        self.record_call("get_model_info", model_id=model_id)
+        
+        # Find the model in available models
+        for model in self.available_models:
+            if model["id"] == model_id:
+                return model
+        
+        return None
+    
+    def generate_completion(
+        self,
+        model_id: str,
+        prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 100,
+        stream: bool = False,
+        **kwargs
+    ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
+        """Generate a completion from a GGUF model."""
+        self.record_call(
+            "generate_completion",
+            model_id=model_id,
+            prompt=prompt,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stream=stream,
+            **kwargs
+        )
+        
+        # Check if model exists
+        if not any(m["id"] == model_id for m in self.available_models):
+            raise ValueError(f"Model {model_id} not found")
+        
+        response = self.mock_responses["completion"].copy()
+        
+        # If a custom response is provided for this specific prompt, use it
+        custom_responses = self.config.get("custom_responses", {})
+        for pattern, custom_response in custom_responses.items():
+            if pattern in prompt:
+                response["text"] = custom_response
+                break
+        
+        # Simulate streaming if requested
+        if stream:
+            def generate_stream():
+                text = response["text"]
+                # Split into words and yield one at a time
+                words = text.split()
+                for i, word in enumerate(words):
+                    chunk = {"text": word + " "}
+                    if i == len(words) - 1:
+                        chunk["stop"] = True
+                    yield chunk
+            
+            return generate_stream()
+        
+        return response
+    
+    def generate_chat_completion(
+        self,
+        model_id: str,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: int = 100,
+        stream: bool = False,
+        **kwargs
+    ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
+        """Generate a chat completion from a GGUF model."""
+        self.record_call(
+            "generate_chat_completion",
+            model_id=model_id,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stream=stream,
+            **kwargs
+        )
+        
+        # Check if model exists and has chat capability
+        model_info = self.get_model_info(model_id)
+        if not model_info or "chat" not in model_info.get("capabilities", []):
+            raise ValueError(f"Model {model_id} not found or does not support chat")
+        
+        response = self.mock_responses["completion"].copy()
+        
+        # Extract the user's message for matching custom responses
+        user_message = ""
+        for message in messages:
+            if message.get("role") == "user":
+                user_message = message.get("content", "")
+                break
+        
+        # If a custom response is provided for this specific message, use it
+        custom_responses = self.config.get("custom_responses", {})
+        for pattern, custom_response in custom_responses.items():
+            if pattern in user_message:
+                response["text"] = custom_response
+                break
+        
+        # Simulate streaming if requested
+        if stream:
+            def generate_stream():
+                text = response["text"]
+                # Split into words and yield one at a time
+                words = text.split()
+                for i, word in enumerate(words):
+                    chunk = {"text": word + " "}
+                    if i == len(words) - 1:
+                        chunk["stop"] = True
+                    yield chunk
+            
+            return generate_stream()
+        
+        return response
+
+
+class MockONNXProvider(MockBaseModelProvider):
+    """Mock implementation of ONNX model inference."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize the mock ONNX provider."""
+        super().__init__(config)
+        
+        # Override available models
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "bert-base-onnx",
+                "name": "BERT Base ONNX",
+                "capabilities": ["text-classification", "feature-extraction"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/bert-base.onnx"
+            },
+            {
+                "id": "resnet50-onnx",
+                "name": "ResNet 50 ONNX",
+                "capabilities": ["image-classification"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/resnet50.onnx"
+            },
+            {
+                "id": "gpt2-onnx",
+                "name": "GPT-2 ONNX",
+                "capabilities": ["text-generation"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/gpt2.onnx"
+            }
+        ])
+        
+        # Mock responses
+        self.mock_responses = {
+            "text_classification": {
+                "label_scores": [
+                    ["positive", 0.95],
+                    ["negative", 0.05]
+                ]
+            },
+            "feature_extraction": {
+                "features": list(np.random.rand(768))  # BERT hidden size
+            },
+            "image_classification": {
+                "label_scores": [
+                    ["cat", 0.8],
+                    ["dog", 0.15],
+                    ["bird", 0.05]
+                ]
+            },
+            "text_generation": {
+                "generated_text": self.config.get("default_completion", "This is a mock response from the ONNX model.")
+            }
+        }
+    
+    def list_models(self) -> List[Dict[str, Any]]:
+        """List available models."""
+        self.record_call("list_models")
+        return self.available_models
+    
+    def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
+        """Get information about a specific model."""
+        self.record_call("get_model_info", model_id=model_id)
+        
+        # Find the model in available models
+        for model in self.available_models:
+            if model["id"] == model_id:
+                return model
+        
+        return None
+    
+    def run_inference(
+        self,
+        model_id: str,
+        inputs: Dict[str, Any],
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Run inference with an ONNX model."""
+        self.record_call(
+            "run_inference",
+            model_id=model_id,
+            inputs=inputs,
+            **kwargs
+        )
+        
+        # Check if model exists
+        model_info = self.get_model_info(model_id)
+        if not model_info:
+            raise ValueError(f"Model {model_id} not found")
+        
+        # Get capabilities
+        capabilities = model_info.get("capabilities", [])
+        
+        if "text-classification" in capabilities:
+            return self.mock_responses["text_classification"].copy()
+        elif "feature-extraction" in capabilities:
+            return self.mock_responses["feature_extraction"].copy()
+        elif "image-classification" in capabilities:
+            return self.mock_responses["image_classification"].copy()
+        elif "text-generation" in capabilities:
+            return self.mock_responses["text_generation"].copy()
+        else:
+            raise ValueError(f"Unsupported capability for model {model_id}")
+
+
 # Helper function to create the appropriate mock provider
-def create_mock_provider(provider_type: str, config: Optional[Dict[str, Any]] = None) -> Union[MockOpenAIProvider, MockOllamaProvider, MockLMStudioProvider]:
+def create_mock_provider(provider_type: str, config: Optional[Dict[str, Any]] = None) -> Union[
+    MockOpenAIProvider, 
+    MockOllamaProvider, 
+    MockLMStudioProvider,
+    MockHuggingFaceProvider,
+    MockLocalModelProvider,
+    MockONNXProvider
+]:
     """
     Create a mock provider of the specified type.
     
     Args:
-        provider_type: Type of provider to create ("openai", "ollama", or "lmstudio")
+        provider_type: Type of provider to create
         config: Optional configuration for the provider
         
     Returns:
@@ -750,7 +1375,10 @@ def create_mock_provider(provider_type: str, config: Optional[Dict[str, Any]] = 
     providers = {
         "openai": MockOpenAIProvider,
         "ollama": MockOllamaProvider,
-        "lmstudio": MockLMStudioProvider
+        "lmstudio": MockLMStudioProvider,
+        "huggingface": MockHuggingFaceProvider,
+        "local": MockLocalModelProvider,
+        "onnx": MockONNXProvider
     }
     
     provider_class = providers.get(provider_type.lower())
