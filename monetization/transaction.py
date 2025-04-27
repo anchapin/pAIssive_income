@@ -10,6 +10,7 @@ from datetime import datetime
 import uuid
 import json
 import copy
+from pydantic import BaseModel, Field
 
 
 class TransactionStatus:

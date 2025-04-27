@@ -11,6 +11,7 @@ import logging
 from .errors import (
     ProblemIdentificationError, ValidationError, handle_exception
 )
+from .schemas import ProblemSchema, ProblemSeverityAnalysisSchema, SeverityAnalysisSchema
 
 # Set up logging
 logger = logging.getLogger(__name__)

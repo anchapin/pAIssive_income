@@ -11,6 +11,7 @@ import uuid
 import json
 import copy
 import math
+from pydantic import BaseModel, Field
 
 
 class UsageMetric:
@@ -33,6 +34,20 @@ class UsageCategory:
     STORAGE = "storage"
     DATA_TRANSFER = "data_transfer"
     CUSTOM = "custom"
+
+
+class UsageRecordSchema(BaseModel):
+    id: str = Field(..., description="Unique identifier for the usage record")
+    customer_id: str = Field(..., description="ID of the customer")
+    metric: str = Field(..., description="Type of usage metric (e.g., API_CALL, COMPUTE_TIME)")
+    quantity: float = Field(..., description="Quantity of usage")
+    category: str = Field(..., description="Category of usage (e.g., INFERENCE, TRAINING)")
+    timestamp: datetime = Field(..., description="Timestamp of the usage")
+    resource_id: Optional[str] = Field(None, description="ID of the resource being used")
+    resource_type: Optional[str] = Field(None, description="Type of resource being used")
+    subscription_id: Optional[str] = Field(None, description="ID of the subscription")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata for the usage record")
+    created_at: datetime = Field(..., description="Creation timestamp")
 
 
 class UsageRecord:

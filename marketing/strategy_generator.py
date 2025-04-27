@@ -1,3 +1,758 @@
+```python
+from typing import Dict, List, Any, Optional, Union
+import uuid
+from enum import Enum
+from datetime import datetime
+import json
+
+from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.agent_interfaces import IAgentTeam
+from marketing.schemas import (
+    DemographicsSchema, 
+    TargetAudienceSchema, 
+    BudgetSchema,
+    MarketingChannelSchema,
+    MarketingTacticSchema,
+    MarketingMetricSchema,
+    MarketingStrategySchema
+)
+
+class BusinessType(Enum):
+    """Business type enumeration."""
+    SAAS = "saas"
+    ECOMMERCE = "ecommerce"
+    LOCAL_BUSINESS = "local_business"
+    B2B = "b2b"
+    B2C = "b2c"
+    AGENCY = "agency"
+    NONPROFIT = "nonprofit"
+    EDUCATION = "education"
+    HEALTHCARE = "healthcare"
+    OTHER = "other"
+
+class BusinessSize(Enum):
+    """Business size enumeration."""
+    INDIVIDUAL = "individual"
+    SMALL = "small"
+    MEDIUM = "medium"
+    LARGE = "large"
+    ENTERPRISE = "enterprise"
+
+class BillingPeriod(Enum):
+    """Billing period enumeration."""
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    QUARTERLY = "quarterly"
+    ANNUALLY = "annually"
+
+class MarketingChannel(Enum):
+    """Marketing channel enumeration."""
+    EMAIL = "email"
+    SOCIAL_MEDIA = "social_media"
+    CONTENT = "content"
+    SEO = "seo"
+    PPC = "ppc"
+    PR = "pr"
+    EVENTS = "events"
+    AFFILIATE = "affiliate"
+    INFLUENCER = "influencer"
+    REFERRAL = "referral"
+    DIRECT_MAIL = "direct_mail"
+    SMS = "sms"
+    PODCAST = "podcast"
+    WEBINAR = "webinar"
+    OTHER = "other"
+
+class StrategyGenerator(IMarketingStrategy):
+    """
+    Class for generating marketing strategies.
+
+    This class provides methods for analyzing business needs and generating
+    tailored marketing strategies based on business type, goals, target audience,
+    and other factors.
+    """
+
+    def __init__(
+        self,
+        business_type: Optional[str] = None,
+        goals: Optional[List[str]] = None,
+        target_audience: Optional[Dict[str, Any]] = None,
+        budget: Optional[Dict[str, Any]] = None,
+        timeframe: Optional[Dict[str, Any]] = None,
+        config: Optional[Dict[str, Any]] = None,
+        agent_team: Optional[IAgentTeam] = None,
+        business_size: Optional[str] = None
+    ):
+        """
+        Initialize a strategy generator.
+
+        Args:
+            business_type: Type of business (e.g., "saas", "ecommerce")
+            goals: List of marketing goals (e.g., ["brand_awareness", "lead_generation"])
+            target_audience: Target audience information
+            budget: Budget information
+            timeframe: Timeframe information
+            config: Optional configuration dictionary
+            agent_team: Optional agent team instance
+            business_size: Size of business (e.g., "small", "medium", "large")
+        """
+        self.id = str(uuid.uuid4())
+        
+        # Validate and convert business_type
+        try:
+            self.business_type = BusinessType(business_type).value if business_type else None
+        except ValueError:
+            self.business_type = business_type
+        
+        # Validate and convert business_size
+        try:
+            self.business_size = BusinessSize(business_size).value if business_size else BusinessSize.SMALL.value
+        except ValueError:
+            self.business_size = business_size or BusinessSize.SMALL.value
+            
+        self.goals = goals or []
+        
+        # Validate and convert target_audience to TargetAudienceSchema
+        if target_audience:
+            try:
+                # Create DemographicsSchema first
+                demographics = target_audience.get("demographics", {})
+                demographics_schema = DemographicsSchema(**demographics)
+                
+                # Then create TargetAudienceSchema
+                audience_schema = TargetAudienceSchema(
+                    demographics=demographics_schema,
+                    interests=target_audience.get("interests", []),
+                    pain_points=target_audience.get("pain_points", []),
+                    goals=target_audience.get("goals", [])
+                )
+                self.target_audience = audience_schema.dict()
+            except Exception as e:
+                # If validation fails, use original dict but log the error
+                self.target_audience = target_audience
+                print(f"Warning: Target audience validation failed: {str(e)}")
+        else:
+            self.target_audience = {}
+        
+        # Validate and convert budget to BudgetSchema
+        if budget:
+            try:
+                # Convert string period to BillingPeriod enum
+                period = BillingPeriod.MONTHLY
+                if "period" in budget:
+                    try:
+                        period = BillingPeriod(budget["period"])
+                    except ValueError:
+                        period = BillingPeriod.MONTHLY
+                
+                budget_schema = BudgetSchema(
+                    amount=budget.get("amount", 0),
+                    period=period,
+                    currency=budget.get("currency", "USD")
+                )
+                self.budget = budget_schema.dict()
+            except Exception as e:
+                # If validation fails, use original dict but log the error
+                self.budget = budget
+                print(f"Warning: Budget validation failed: {str(e)}")
+        else:
+            budget_schema = BudgetSchema(
+                amount=0,
+                period=BillingPeriod.MONTHLY,
+                currency="USD"
+            )
+            self.budget = budget_schema.dict()
+        
+        self.timeframe = timeframe or {"start_date": datetime.now().isoformat(), "duration_months": 3}
+        self.config = config or {}
+        self.agent_team = agent_team
+        
+        # Initialize strategy components
+        self._name = "Custom Marketing Strategy"
+        self._description = "A custom marketing strategy generated based on business needs and goals."
+        self._channel_type = "multi-channel"
+        self._tactics = []
+        self._metrics = []
+        self._strategy = None
+    
+    @property
+    def name(self) -> str:
+        """Get the strategy name."""
+        return self._name
+    
+    @property
+    def description(self) -> str:
+        """Get the strategy description."""
+        return self._description
+    
+    @property
+    def channel_type(self) -> str:
+        """Get the channel type."""
+        return self._channel_type
+    
+    def _determine_channel_recommendations(self) -> List[Dict[str, Any]]:
+        """
+        Determine recommended marketing channels based on business type and goals.
+        
+        Returns:
+            List of recommended marketing channels
+        """
+        channels = []
+        
+        # Basic channel selection based on business type
+        if self.business_type == BusinessType.SAAS.value:
+            channels = [
+                MarketingChannelSchema(
+                    name=MarketingChannel.CONTENT.value,
+                    priority="high",
+                    description="Educational content to showcase expertise and drive organic traffic"
+                ).dict(),
+                MarketingChannelSchema(
+                    name=MarketingChannel.EMAIL.value, 
+                    priority="high",
+                    description="Nurture leads and onboard users"
+                ).dict(),
+                MarketingChannelSchema(
+                    name=MarketingChannel.PPC.value,
+                    priority="medium",
+                    description="Target high-intent keywords"
+                ).dict(),
+            ]
+        
+        elif self.business_type == BusinessType.ECOMMERCE.value:
+            channels = [
+                MarketingChannelSchema(
+                    name=MarketingChannel.SOCIAL_MEDIA.value,
+                    priority="high",
+                    description="Visual platforms to showcase products"
+                ).dict(),
+                MarketingChannelSchema(
+                    name=MarketingChannel.EMAIL.value,
+                    priority="high",
+                    description="Cart abandonment recovery and promotions"
+                ).dict(),
+                MarketingChannelSchema(
+                    name=MarketingChannel.PPC.value,
+                    priority="high",
+                    description="Product-focused ads to drive sales"
+                ).dict(),
+            ]
+        
+        elif self.business_type == BusinessType.B2B.value:
+            channels = [
+                MarketingChannelSchema(
+                    name=MarketingChannel.CONTENT.value,
+                    priority="high",
+                    description="Thought leadership content to establish authority"
+                ).dict(),
+                MarketingChannelSchema(
+                    name=MarketingChannel.EMAIL.value,
+                    priority="high",
+                    description="Lead nurturing and relationship building"
+                ).dict(),
+                MarketingChannelSchema(
+                    name=MarketingChannel.WEBINAR.value,
+                    priority="medium",
+                    description="Detailed product demonstrations and education"
+                ).dict(),
+            ]
+        
+        # Default channels if no specific business type matched
+        if not channels:
+            channels = [
+                MarketingChannelSchema(
+                    name=MarketingChannel.CONTENT.value,
+                    priority="medium",
+                    description="Build brand awareness and provide value"
+                ).dict(),
+                MarketingChannelSchema(
+                    name=MarketingChannel.SOCIAL_MEDIA.value,
+                    priority="medium",
+                    description="Engage with audience and build community"
+                ).dict(),
+                MarketingChannelSchema(
+                    name=MarketingChannel.EMAIL.value,
+                    priority="medium",
+                    description="Direct communication with prospects and customers"
+                ).dict(),
+            ]
+        
+        # Adjust based on budget constraints
+        if self.budget and "amount" in self.budget:
+            budget_amount = self.budget["amount"]
+            if budget_amount <= 1000:
+                # Remove high-cost channels or mark them as low priority
+                for channel in channels:
+                    if channel["name"] in [MarketingChannel.PPC.value, MarketingChannel.INFLUENCER.value]:
+                        channel["priority"] = "low"
+                
+                # Add more organic channels
+                channels.append(
+                    MarketingChannelSchema(
+                        name=MarketingChannel.REFERRAL.value,
+                        priority="high",
+                        description="Low-cost word-of-mouth marketing"
+                    ).dict()
+                )
+        
+        return channels
+    
+    def _generate_tactics(self, channels: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Generate tactics for each marketing channel.
+        
+        Args:
+            channels: List of marketing channels
+            
+        Returns:
+            List of marketing tactics
+        """
+        tactics = []
+        
+        for channel in channels:
+            channel_name = channel["name"]
+            
+            if channel_name == MarketingChannel.CONTENT.value:
+                tactics.extend([
+                    MarketingTacticSchema(
+                        name="Blog Content Strategy",
+                        channel=channel_name,
+                        description="Create regular blog posts targeting key industry topics and customer pain points",
+                        estimated_cost=500 if self.budget and self.budget.get("amount") > 1000 else 0,
+                        estimated_impact="medium",
+                        implementation_difficulty="medium"
+                    ).dict(),
+                    MarketingTacticSchema(
+                        name="Lead Magnet Creation",
+                        channel=channel_name,
+                        description="Develop downloadable resources to capture email addresses",
+                        estimated_cost=300,
+                        estimated_impact="high",
+                        implementation_difficulty="medium"
+                    ).dict()
+                ])
+                
+            elif channel_name == MarketingChannel.EMAIL.value:
+                tactics.extend([
+                    MarketingTacticSchema(
+                        name="Welcome Email Sequence",
+                        channel=channel_name,
+                        description="Create a 5-email onboarding sequence for new subscribers",
+                        estimated_cost=200,
+                        estimated_impact="high",
+                        implementation_difficulty="medium"
+                    ).dict(),
+                    MarketingTacticSchema(
+                        name="Newsletter Strategy",
+                        channel=channel_name,
+                        description="Develop a weekly or monthly newsletter template and content calendar",
+                        estimated_cost=100,
+                        estimated_impact="medium",
+                        implementation_difficulty="low"
+                    ).dict()
+                ])
+                
+            elif channel_name == MarketingChannel.SOCIAL_MEDIA.value:
+                tactics.extend([
+                    MarketingTacticSchema(
+                        name="Content Calendar Creation",
+                        channel=channel_name,
+                        description="Develop a monthly content calendar for key platforms",
+                        estimated_cost=200,
+                        estimated_impact="medium", 
+                        implementation_difficulty="medium"
+                    ).dict(),
+                    MarketingTacticSchema(
+                        name="Community Engagement Plan",
+                        channel=channel_name,
+                        description="Schedule daily engagement activities to build community",
+                        estimated_cost=0,
+                        estimated_impact="medium",
+                        implementation_difficulty="low"
+                    ).dict()
+                ])
+                
+            # Add other channel-specific tactics as needed
+        
+        return tactics
+    
+    def _generate_metrics(self) -> List[Dict[str, Any]]:
+        """
+        Generate relevant metrics to track strategy performance.
+        
+        Returns:
+            List of marketing metrics
+        """
+        common_metrics = [
+            MarketingMetricSchema(
+                name="Website Traffic",
+                description="Total number of visitors to the website",
+                target="Increase by 20% within 3 months",
+                measurement_tools=["Google Analytics"]
+            ).dict(),
+            MarketingMetricSchema(
+                name="Conversion Rate",
+                description="Percentage of visitors who complete desired action",
+                target="Improve by 5% within 3 months",
+                measurement_tools=["Google Analytics", "CRM"]
+            ).dict(),
+            MarketingMetricSchema(
+                name="Customer Acquisition Cost (CAC)",
+                description="Cost to acquire a new customer",
+                target="Reduce by 10% within 6 months",
+                measurement_tools=["Marketing automation platform", "CRM"]
+            ).dict(),
+            MarketingMetricSchema(
+                name="Return on Marketing Investment (ROMI)",
+                description="Revenue generated per dollar spent on marketing",
+                target="Achieve 3:1 ROMI within 6 months",
+                measurement_tools=["Marketing automation platform", "CRM", "Financial software"]
+            ).dict()
+        ]
+        
+        # Add goal-specific metrics
+        if "lead_generation" in self.goals:
+            common_metrics.append(
+                MarketingMetricSchema(
+                    name="Lead Generation Rate",
+                    description="Number of new leads generated per month",
+                    target="Increase by 15% within 3 months",
+                    measurement_tools=["CRM", "Lead capture forms"]
+                ).dict()
+            )
+            
+        if "brand_awareness" in self.goals:
+            common_metrics.append(
+                MarketingMetricSchema(
+                    name="Brand Mentions",
+                    description="Number of mentions across social media and web",
+                    target="Increase by 25% within 3 months", 
+                    measurement_tools=["Social listening tools", "Google Alerts"]
+                ).dict()
+            )
+            
+        if "customer_retention" in self.goals:
+            common_metrics.append(
+                MarketingMetricSchema(
+                    name="Customer Retention Rate",
+                    description="Percentage of customers who remain active",
+                    target="Improve by 10% within 6 months",
+                    measurement_tools=["CRM", "Customer database"]
+                ).dict()
+            )
+        
+        return common_metrics
+    
+    def create_strategy(self, target_persona: Dict[str, Any] = None, goals: List[str] = None) -> Dict[str, Any]:
+        """
+        Create a marketing strategy.
+        
+        Args:
+            target_persona: Target user persona (optional, will use self.target_audience if not provided)
+            goals: List of marketing goals (optional, will use self.goals if not provided)
+            
+        Returns:
+            Marketing strategy dictionary
+        """
+        # Use provided values or defaults from initialization
+        _target_persona = target_persona or self.target_audience
+        _goals = goals or self.goals
+        
+        # Update strategy name based on business type and goals
+        business_type_str = self.business_type or "Business"
+        goal_str = _goals[0] if _goals else "Growth"
+        self._name = f"{business_type_str.title()} {goal_str.replace('_', ' ').title()} Strategy"
+        
+        # Determine recommended channels
+        channels = self._determine_channel_recommendations()
+        
+        # Generate tactics for those channels
+        tactics = self._generate_tactics(channels)
+        self._tactics = tactics
+        
+        # Generate relevant metrics
+        metrics = self._generate_metrics()
+        self._metrics = metrics
+        
+        # Create complete strategy
+        strategy = MarketingStrategySchema(
+            id=self.id,
+            name=self.name,
+            description=self.description,
+            business_type=self.business_type,
+            business_size=self.business_size,
+            goals=_goals,
+            target_audience=_target_persona,
+            channels=channels,
+            tactics=tactics,
+            metrics=metrics,
+            budget=self.budget,
+            timeframe=self.timeframe,
+            creation_date=datetime.now().isoformat(),
+            last_updated=datetime.now().isoformat()
+        )
+        
+        self._strategy = strategy.dict()
+        return self._strategy
+    
+    def get_tactics(self) -> List[Dict[str, Any]]:
+        """
+        Get marketing tactics.
+        
+        Returns:
+            List of marketing tactic dictionaries
+        """
+        if not self._tactics and not self._strategy:
+            self.create_strategy()
+        
+        return self._tactics
+    
+    def get_metrics(self) -> List[Dict[str, Any]]:
+        """
+        Get marketing metrics.
+        
+        Returns:
+            List of marketing metric dictionaries
+        """
+        if not self._metrics and not self._strategy:
+            self.create_strategy()
+            
+        return self._metrics
+    
+    def get_full_strategy(self) -> Dict[str, Any]:
+        """
+        Get the full marketing strategy.
+        
+        Returns:
+            Dictionary with complete strategy details
+        """
+        if not self._strategy:
+            self.create_strategy()
+            
+        return self._strategy
+    
+    def export_strategy(self, file_path: str = None) -> str:
+        """
+        Export strategy to JSON file.
+        
+        Args:
+            file_path: Path to save the strategy to (optional)
+            
+        Returns:
+            Path to the saved file or JSON string if no path provided
+        """
+        if not self._strategy:
+            self.create_strategy()
+            
+        strategy_json = json.dumps(self._strategy, indent=2)
+        
+        if file_path:
+            try:
+                with open(file_path, 'w') as f:
+                    f.write(strategy_json)
+                return file_path
+            except Exception as e:
+                print(f"Error saving strategy to file: {str(e)}")
+                return strategy_json
+        
+        return strategy_json
+    
+    def import_strategy(self, strategy_data: Union[Dict, str], file_path: str = None) -> Dict[str, Any]:
+        """
+        Import strategy from dictionary or file.
+        
+        Args:
+            strategy_data: Strategy data dictionary or JSON string
+            file_path: Path to load the strategy from (optional)
+            
+        Returns:
+            Imported strategy dictionary
+        """
+        if file_path:
+            try:
+                with open(file_path, 'r') as f:
+                    strategy_json = f.read()
+                strategy_data = json.loads(strategy_json)
+            except Exception as e:
+                print(f"Error loading strategy from file: {str(e)}")
+                return {}
+        
+        elif isinstance(strategy_data, str):
+            try:
+                strategy_data = json.loads(strategy_data)
+            except Exception as e:
+                print(f"Error parsing strategy JSON: {str(e)}")
+                return {}
+        
+        # Update attributes from imported strategy
+        if isinstance(strategy_data, dict):
+            self._strategy = strategy_data
+            self._name = strategy_data.get("name", self.name)
+            self._description = strategy_data.get("description", self.description)
+            self._channel_type = strategy_data.get("channel_type", self.channel_type)
+            self._tactics = strategy_data.get("tactics", [])
+            self._metrics = strategy_data.get("metrics", [])
+            
+            # Update other attributes if present in imported data
+            self.business_type = strategy_data.get("business_type", self.business_type)
+            self.business_size = strategy_data.get("business_size", self.business_size)
+            self.goals = strategy_data.get("go
+class StrategyGenerator(IMarketingStrategy):
+    """
+    Class for generating marketing strategies.
+
+    This class provides methods for analyzing business needs and generating
+    tailored marketing strategies based on business type, goals, target audience,
+    and other factors.
+    """
+
+    # Define business types and other class attributes here...
+
+    def __init__(
+        self,
+        business_type: Optional[str] = None,
+        goals: Optional[List[str]] = None,
+        target_audience: Optional[Dict[str, Any]] = None,
+        budget: Optional[Dict[str, Any]] = None,
+        timeframe: Optional[Dict[str, Any]] = None,
+        config: Optional[Dict[str, Any]] = None,
+        agent_team: Optional[IAgentTeam] = None,
+        business_size: Optional[str] = None
+    ):
+        """
+        Initialize a strategy generator.
+
+        Args:
+            business_type: Type of business (e.g., "saas", "ecommerce")
+            goals: List of marketing goals (e.g., ["brand_awareness", "lead_generation"])
+            target_audience: Target audience information
+            budget: Budget information
+            timeframe: Timeframe information
+            config: Optional configuration dictionary
+            agent_team: Optional agent team instance
+            business_size: Size of business (e.g., "small", "medium", "large")
+        """
+        self.id = str(uuid.uuid4())
+        
+        # Validate and convert business_type
+        try:
+            self.business_type = BusinessType(business_type).value if business_type else None
+        except ValueError:
+            self.business_type = business_type
+        
+        # Validate and convert business_size
+        try:
+            self.business_size = BusinessSize(business_size).value if business_size else BusinessSize.SMALL.value
+        except ValueError:
+            self.business_size = business_size or BusinessSize.SMALL.value
+            
+        self.goals = goals or []
+        
+        # Validate and convert target_audience to TargetAudienceSchema
+        if target_audience:
+            try:
+                # Create DemographicsSchema first
+                demographics = target_audience.get("demographics", {})
+                demographics_schema = DemographicsSchema(**demographics)
+                
+                # Then create TargetAudienceSchema
+                audience_schema = TargetAudienceSchema(
+                    demographics=demographics_schema,
+                    interests=target_audience.get("interests", []),
+                    pain_points=target_audience.get("pain_points", []),
+                    goals=target_audience.get("goals", [])
+                )
+                self.target_audience = audience_schema.dict()
+            except Exception as e:
+                # If validation fails, use original dict but log the error
+                self.target_audience = target_audience
+                print(f"Warning: Target audience validation failed: {str(e)}")
+        else:
+            self.target_audience = {}
+        
+        # Validate and convert budget to BudgetSchema
+        if budget:
+            try:
+                # Convert string period to BillingPeriod enum
+                period = BillingPeriod.MONTHLY
+                if "period" in budget:
+                    try:
+                        period = BillingPeriod(budget["period"])
+                    except ValueError:
+                        period = BillingPeriod.MONTHLY
+                
+                budget_schema = BudgetSchema(
+                    amount=budget.get("amount", 0),
+                    period=period,
+                    currency=budget.get("currency", "USD")
+                )
+                self.budget = budget_schema.dict()
+            except Exception as e:
+                # If validation fails, use original dict but log the error
+                self.budget = budget
+                print(f"Warning: Budget validation failed: {str(e)}")
+        else:
+            budget_schema = BudgetSchema(
+                amount=0,
+                period=BillingPeriod.MONTHLY,
+                currency="USD"
+            )
+            self.budget = budget_schema.dict()
+            
+        # Validate and convert timeframe to TimeframeSchema
+        if timeframe:
+            try:
+                # Convert string unit to TimeframeUnit enum
+                unit = TimeframeUnit.MONTHS
+                if "unit" in timeframe:
+                    try:
+                        unit = TimeframeUnit(timeframe["unit"])
+                    except ValueError:
+                        unit = TimeframeUnit.MONTHS
+                
+                timeframe_schema = TimeframeSchema(
+                    duration=timeframe.get("duration", 3),
+                    unit=unit
+                )
+                self.timeframe = timeframe_schema.dict()
+            except Exception as e:
+                # If validation fails, use original dict but log the error
+                self.timeframe = timeframe
+                print(f"Warning: Timeframe validation failed: {str(e)}")
+        else:
+            timeframe_schema = TimeframeSchema(
+                duration=3,
+                unit=TimeframeUnit.MONTHS
+            )
+            self.timeframe = timeframe_schema.dict()
+        
+        # Validate and convert config to ConfigSchema
+        if config:
+            try:
+                # Add timestamp if missing
+                config_with_timestamp = config.copy()
+                if "timestamp" not in config_with_timestamp:
+                    config_with_timestamp["timestamp"] = datetime.datetime.now().isoformat()
+                    
+                config_schema = ConfigSchema(**config_with_timestamp)
+                self.config = config_schema.dict()
+            except Exception as e:
+                # If validation fails, use original dict but log the error
+                self.config = config
+                print(f"Warning: Config validation failed: {str(e)}")
+        else:
+            self.config = self.get_default_config()
+            
+        self.created_at = datetime.datetime.now().isoformat()
+        self.results = None
+        self._name = "Marketing Strategy Generator"
+        self._description = "Generates marketing strategies based on business type, goals, and target audience"
+        self._channel_type = "multi-channel"
+        self.agent_team = agent_team
+
+        # Create persona creator for audience analysis
+        self.persona_creator = PersonaCreator()
 """
 Strategy generator module for the pAIssive Income project.
 
@@ -24,8 +779,214 @@ from interfaces.agent_interfaces import IAgentTeam
 
 # Local imports
 from .user_personas import PersonaCreator
+from .schemas import (
+    BusinessType, BusinessSize, BillingPeriod, TimeframeUnit,
+    BudgetSchema, TimeframeSchema, DemographicsSchema, TargetAudienceSchema,
+    ConfigSchema, MarketingStrategyInputSchema, MarketingStrategyResultsSchema,
+    AudienceAnalysisSchema, BusinessAnalysisSchema
+)
+from .errors import (
+    MarketingError, ValidationError, StrategyGenerationError,
+    handle_marketing_exception
+)
+from typing import Optional, List, Dict, Any
+import uuid
+import datetime
+from pydantic import BaseModel
+
+# Enums and schemas (assumed to be defined elsewhere in the project)
+from .enums import BusinessType, BusinessSize, BillingPeriod, TimeframeUnit
+from .schemas import (
+    TargetAudienceSchema,
+    DemographicsSchema,
+    BudgetSchema,
+    TimeframeSchema,
+    ConfigSchema
+)
+from .persona_creator import PersonaCreator
+from .interfaces import IAgentTeam
+
+class StrategyGenerator:
+    def __init__(
+        self,
+        business_type: Optional[str] = None,
+        goals: Optional[List[str]] = None,
+        target_audience: Optional[Dict[str, Any]] = None,
+        budget: Optional[Dict[str, Any]] = None,
+        timeframe: Optional[Dict[str, Any]] = None,
+        config: Optional[Dict[str, Any]] = None,
+        agent_team: Optional[IAgentTeam] = None,
+        business_size: Optional[str] = None
+    ):
+        """
+        Initialize a strategy generator.
+
+        Args:
+            business_type: Type of business (e.g., "saas", "ecommerce")
+            goals: List of marketing goals (e.g., ["brand_awareness", "lead_generation"])
+            target_audience: Target audience information
+            budget: Budget information
+            timeframe: Timeframe information
+            config: Optional configuration dictionary
+            agent_team: Optional agent team instance
+            business_size: Size of business (e.g., "small", "medium", "large")
+        """
+        self.id = str(uuid.uuid4())
+        
+        # Convert string business_type to BusinessType enum
+        if business_type:
+            try:
+                self.business_type = BusinessType(business_type).value
+            except ValueError:
+                self.business_type = business_type
+        else:
+            self.business_type = None
+        
+        # Convert string business_size to BusinessSize enum
+        if business_size:
+            try:
+                self.business_size = BusinessSize(business_size).value
+            except ValueError:
+                self.business_size = business_size
+        else:
+            self.business_size = BusinessSize.SMALL.value
+            
+        self.goals = goals or []
+        
+        # Convert target_audience dict to TargetAudienceSchema
+        if target_audience:
+            try:
+                # Create DemographicsSchema first
+                demographics = target_audience.get("demographics", {})
+                demographics_schema = DemographicsSchema(**demographics)
+                
+                # Then create TargetAudienceSchema
+                self.target_audience = TargetAudienceSchema(
+                    demographics=demographics_schema,
+                    interests=target_audience.get("interests", []),
+                    pain_points=target_audience.get("pain_points", []),
+                    goals=target_audience.get("goals", [])
+                ).dict()
+            except Exception as e:
+                # If validation fails, use original dict
+                self.target_audience = target_audience
+        else:
+            self.target_audience = {}
+        
+        # Convert budget dict to BudgetSchema
+        if budget:
+            try:
+                # Convert string period to BillingPeriod enum
+                if "period" in budget:
+                    try:
+                        period = BillingPeriod(budget["period"])
+                    except ValueError:
+                        period = BillingPeriod.MONTHLY
+                else:
+                    period = BillingPeriod.MONTHLY
+                
+                self.budget = BudgetSchema(
+                    amount=budget.get("amount", 0),
+                    period=period,
+                    currency=budget.get("currency", "USD")
+                ).dict()
+            except Exception as e:
+                # If validation fails, use original dict
+                self.budget = budget
+        else:
+            self.budget = BudgetSchema(
+                amount=0,
+                period=BillingPeriod.MONTHLY,
+                currency="USD"
+            ).dict()
+            
+        # Convert timeframe dict to TimeframeSchema
+        if timeframe:
+            try:
+                # Convert string unit to TimeframeUnit enum
+                if "unit" in timeframe:
+                    try:
+                        unit = TimeframeUnit(timeframe["unit"])
+                    except ValueError:
+                        unit = TimeframeUnit.MONTHS
+                else:
+                    unit = TimeframeUnit.MONTHS
+                
+                self.timeframe = TimeframeSchema(
+                    duration=timeframe.get("duration", 3),
+                    unit=unit
+                ).dict()
+            except Exception as e:
+                # If validation fails, use original dict
+                self.timeframe = timeframe
+        else:
+            self.timeframe = TimeframeSchema(
+                duration=3,
+                unit=TimeframeUnit.MONTHS
+            ).dict()
+        
+        # Convert config dict to ConfigSchema
+        if config:
+            try:
+                config_with_timestamp = config.copy()
+                if "timestamp" not in config_with_timestamp:
+                    config_with_timestamp["timestamp"] = datetime.datetime.now().isoformat()
+                    
+                self.config = ConfigSchema(**config_with_timestamp).dict()
+            except Exception as e:
+                # If validation fails, use original dict
+                self.config = config
+        else:
+            self.config = self.get_default_config()
+            
+        self.created_at = datetime.datetime.now().isoformat()
+        self.results = None
+        self._name = "Marketing Strategy Generator"
+        self._description = "Generates marketing strategies based on business type, goals, and target audience"
+        self._channel_type = "multi-channel"
+        self.agent_team = agent_team
+
+        # Create persona creator for audience analysis
+        self.persona_creator = PersonaCreator()
+"""
+Strategy generator module for the pAIssive Income project.
+
+This module provides classes for generating marketing strategies based on
+business type, goals, target audience, and other factors.
+"""
+
+from typing import Dict, List, Any, Optional, Union, Tuple, Type
+from abc import ABC, abstractmethod
+import uuid
+import json
+import datetime
+import re
+import math
+import random
+from collections import Counter
+import os
+import sys
+
+# Add the project root to the Python path to import the interfaces
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.agent_interfaces import IAgentTeam
+
+# Local imports
+from .user_personas import PersonaCreator
+from .schemas import (
+    BusinessType, BusinessSize, BillingPeriod, TimeframeUnit,
+    BudgetSchema, TimeframeSchema, DemographicsSchema, TargetAudienceSchema,
+    ConfigSchema, MarketingStrategyInputSchema, MarketingStrategyResultsSchema,
+    AudienceAnalysisSchema, BusinessAnalysisSchema
+)
+from .errors import (
+    MarketingError, ValidationError, StrategyGenerationError,
+    handle_marketing_exception
+)
 
 
+```python
 class StrategyGenerator(IMarketingStrategy):
     """
     Class for generating marketing strategies.
@@ -136,83 +1097,7 @@ class StrategyGenerator(IMarketingStrategy):
             "formats": ["keyword_optimization", "technical_seo", "link_building", "local_seo", "content_optimization"],
             "metrics": ["organic_traffic", "rankings", "domain_authority", "click_through_rate", "conversion_rate"],
             "best_for": ["sustainable_traffic", "lead_generation", "brand_awareness", "credibility"],
-            "typical_cost": "low to medium",
-            "time_investment": "high",
-            "difficulty": "high"
-        },
-        "email_marketing": {
-            "description": "Sending targeted emails to nurture leads and engage customers",
-            "formats": ["newsletters", "drip_campaigns", "promotional_emails", "automated_sequences", "transactional_emails"],
-            "metrics": ["open_rate", "click_through_rate", "conversion_rate", "list_growth", "unsubscribe_rate"],
-            "best_for": ["lead_nurturing", "customer_retention", "sales", "relationship_building"],
-            "typical_cost": "low",
-            "time_investment": "medium",
-            "difficulty": "medium"
-        },
-        "social_media": {
-            "description": "Using social platforms to connect with audience and promote content",
-            "formats": ["organic_posts", "stories", "live_videos", "groups", "communities"],
-            "metrics": ["followers", "engagement", "reach", "clicks", "conversions"],
-            "best_for": ["brand_awareness", "community_building", "customer_service", "engagement"],
-            "typical_cost": "low to medium",
-            "time_investment": "high",
-            "difficulty": "medium"
-        },
-        "ppc": {
-            "description": "Paid advertising where you pay per click on your ad",
-            "formats": ["search_ads", "display_ads", "social_media_ads", "retargeting", "shopping_ads"],
-            "metrics": ["clicks", "ctr", "cpc", "conversion_rate", "roas"],
-            "best_for": ["immediate_traffic", "lead_generation", "sales", "testing"],
-            "typical_cost": "high",
-            "time_investment": "medium",
-            "difficulty": "medium"
-        },
-        "influencer_marketing": {
-            "description": "Partnering with influencers to promote products or services",
-            "formats": ["sponsored_content", "reviews", "affiliates", "takeovers", "co_creation"],
-            "metrics": ["reach", "engagement", "conversions", "brand_mentions", "user_generated_content"],
-            "best_for": ["brand_awareness", "credibility", "reaching_new_audiences", "product_launches"],
-            "typical_cost": "medium to high",
-            "time_investment": "medium",
-            "difficulty": "medium"
-        },
-        "affiliate_marketing": {
-            "description": "Paying commissions to affiliates who promote your products",
-            "formats": ["affiliate_programs", "partner_programs", "referral_systems", "commission_structures"],
-            "metrics": ["clicks", "conversions", "commission_paid", "roas", "active_affiliates"],
-            "best_for": ["sales", "reaching_new_audiences", "performance_based_marketing"],
-            "typical_cost": "low upfront, commission-based",
-            "time_investment": "medium",
-            "difficulty": "medium"
-        },
-        "video_marketing": {
-            "description": "Creating and distributing video content to engage audience",
-            "formats": ["tutorials", "product_demos", "testimonials", "explainer_videos", "webinars"],
-            "metrics": ["views", "watch_time", "engagement", "shares", "conversions"],
-            "best_for": ["brand_awareness", "product_education", "engagement", "trust_building"],
-            "typical_cost": "medium to high",
-            "time_investment": "high",
-            "difficulty": "high"
-        },
-        "community_building": {
-            "description": "Creating and nurturing a community around your brand",
-            "formats": ["forums", "groups", "events", "user_generated_content", "ambassador_programs"],
-            "metrics": ["active_members", "engagement", "retention", "user_generated_content", "referrals"],
-            "best_for": ["loyalty", "advocacy", "feedback", "product_development", "retention"],
-            "typical_cost": "low to medium",
-            "time_investment": "high",
-            "difficulty": "high"
-        },
-        "pr": {
-            "description": "Managing public perception and media relations",
-            "formats": ["press_releases", "media_outreach", "thought_leadership", "crisis_management", "events"],
-            "metrics": ["media_mentions", "reach", "sentiment", "backlinks", "brand_awareness"],
-            "best_for": ["credibility", "brand_awareness", "reputation_management", "thought_leadership"],
-            "typical_cost": "medium to high",
-            "time_investment": "medium",
-            "difficulty": "high"
-        }
-    }
+            "typical_cost
 
     def __init__(
         self,

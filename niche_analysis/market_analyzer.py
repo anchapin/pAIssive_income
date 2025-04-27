@@ -12,6 +12,12 @@ from .errors import (
     MarketSegmentError, CompetitionAnalysisError, TrendAnalysisError,
     TargetUserAnalysisError, ValidationError, handle_exception
 )
+from .schemas import (
+    MarketSegmentSchema, CompetitionAnalysisSchema, TrendAnalysisSchema,
+    TargetUserAnalysisSchema, CompetitorSchema, UserSegmentSchema,
+    DemographicsSchema, PsychographicsSchema, BuyingBehaviorSchema,
+    TrendSchema, PredictionSchema
+)
 
 # Set up logging
 logger = logging.getLogger(__name__)

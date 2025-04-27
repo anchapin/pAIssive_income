@@ -23,6 +23,11 @@ from .errors import (
     AgentTeamError, AgentInitializationError, WorkflowError,
     ValidationError, handle_exception
 )
+from .schemas import (
+    TeamConfigSchema, ModelSettingsSchema, WorkflowSettingsSchema,
+    ProjectStateSchema, NicheSchema, SolutionSchema, MonetizationStrategySchema,
+    MarketingPlanSchema, FeedbackItemSchema
+)
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -255,18 +260,6 @@ class AgentTeam(IAgentTeam):
                                 original_exception=e
                             )
 
-                        # Validate user config
-                        if not isinstance(user_config, dict):
-                            raise ValidationError(
-                                message="Configuration must be a dictionary",
-                                field="config_file_content",
-                                validation_errors=[{
-                                    "field": "config_file_content",
-                                    "value": str(type(user_config)),
-                                    "error": "Must be a dictionary"
-                                }]
-                            )
-
                         # Merge user config with default config
                         for key, value in user_config.items():
                             if key in default_config and isinstance(value, dict) and isinstance(default_config[key], dict):
@@ -281,37 +274,17 @@ class AgentTeam(IAgentTeam):
                         original_exception=e
                     )
 
-            # Validate the final config
-            required_sections = ["model_settings", "workflow"]
-            missing_sections = [section for section in required_sections if section not in default_config]
-
-            if missing_sections:
+            # Validate the config using Pydantic schema
+            try:
+                validated_config = TeamConfigSchema(**default_config).dict()
+                logger.info(f"Successfully validated configuration using Pydantic schema")
+                return validated_config
+            except Exception as e:
                 raise ValidationError(
-                    message=f"Configuration is missing required sections: {', '.join(missing_sections)}",
+                    message=f"Invalid configuration: {e}",
                     field="config",
-                    validation_errors=[{
-                        "field": section,
-                        "error": "Required section is missing"
-                    } for section in missing_sections]
+                    original_exception=e
                 )
-
-            # Validate model settings
-            if "model_settings" in default_config:
-                required_agents = ["researcher", "developer", "monetization", "marketing", "feedback"]
-                missing_agents = [agent for agent in required_agents if agent not in default_config["model_settings"]]
-
-                if missing_agents:
-                    raise ValidationError(
-                        message=f"Model settings are missing for agents: {', '.join(missing_agents)}",
-                        field="model_settings",
-                        validation_errors=[{
-                            "field": f"model_settings.{agent}",
-                            "error": "Required agent settings are missing"
-                        } for agent in missing_agents]
-                    )
-
-            logger.info(f"Successfully loaded configuration{' from file: ' + config_path if config_path else ''}")
-            return default_config
 
         except ValidationError:
             # Re-raise validation errors
@@ -435,51 +408,45 @@ class AgentTeam(IAgentTeam):
             WorkflowError: If there's an issue with the workflow
         """
         try:
-            # Validate input
-            if not niche or not isinstance(niche, dict):
+            # Validate input using Pydantic schema
+            try:
+                validated_niche = NicheSchema(**niche).dict()
+                logger.info(f"Successfully validated niche input using Pydantic schema")
+            except Exception as e:
                 raise ValidationError(
-                    message="Niche must be a non-empty dictionary",
+                    message=f"Invalid niche data: {e}",
                     field="niche",
-                    validation_errors=[{
-                        "field": "niche",
-                        "value": str(type(niche)),
-                        "error": "Must be a non-empty dictionary"
-                    }]
+                    original_exception=e
                 )
 
-            # Check for required fields
-            required_fields = ["id", "name", "market_segment", "opportunity_score"]
-            missing_fields = [field for field in required_fields if field not in niche]
-
-            if missing_fields:
-                raise ValidationError(
-                    message=f"Niche is missing required fields: {', '.join(missing_fields)}",
-                    field="niche",
-                    validation_errors=[{
-                        "field": f"niche.{field}",
-                        "error": "Required field is missing"
-                    } for field in missing_fields]
-                )
-
-            logger.info(f"Developing solution for niche: {niche['name']}")
+            logger.info(f"Developing solution for niche: {validated_niche['name']}")
 
             try:
                 # Store the selected niche in the project state
-                self.project_state["selected_niche"] = niche
+                self.project_state["selected_niche"] = validated_niche
 
                 # For backward compatibility, also add to identified_niches if not already there
-                if niche not in self.project_state["identified_niches"]:
-                    self.project_state["identified_niches"].append(niche)
+                if validated_niche not in self.project_state["identified_niches"]:
+                    self.project_state["identified_niches"].append(validated_niche)
 
                 # Develop the solution
-                solution = self.developer.design_solution(niche)
+                solution = self.developer.design_solution(validated_niche)
+
+                # Validate solution using Pydantic schema
+                try:
+                    validated_solution = SolutionSchema(**solution).dict()
+                    logger.info(f"Successfully validated solution output using Pydantic schema")
+                except Exception as e:
+                    logger.warning(f"Solution data does not fully conform to schema: {e}")
+                    # Continue with original solution data if validation fails
+                    validated_solution = solution
 
                 # Store the solution in the project state
-                self.project_state["solution_design"] = solution
+                self.project_state["solution_design"] = validated_solution
                 self.project_state["updated_at"] = str(datetime.now().isoformat())
 
-                logger.info(f"Successfully developed solution: {solution.get('name', 'Unnamed solution')}")
-                return solution
+                logger.info(f"Successfully developed solution: {validated_solution.get('name', 'Unnamed solution')}")
+                return validated_solution
 
             except Exception as e:
                 raise WorkflowError(
@@ -515,25 +482,74 @@ class AgentTeam(IAgentTeam):
 
         Returns:
             Monetization strategy specification
+            
+        Raises:
+            ValidationError: If the solution is invalid
+            MonetizationAgentError: If there's an issue with the monetization agent
+            WorkflowError: If there's an issue with the workflow
         """
-        # If solution is provided, use it; otherwise use the one from project state
-        if solution:
-            # Store the solution in the project state if it's not already there
-            if not self.project_state["solution_design"]:
-                self.project_state["solution_design"] = solution
-        elif not self.project_state["solution_design"]:
-            raise ValueError("Solution must be designed before creating monetization strategy")
+        try:
+            # If solution is provided, validate it using Pydantic schema
+            if solution:
+                try:
+                    validated_solution = SolutionSchema(**solution).dict()
+                    logger.info(f"Successfully validated solution input using Pydantic schema")
+                except Exception as e:
+                    logger.warning(f"Solution data does not fully conform to schema: {e}")
+                    validated_solution = solution
+                    
+                # Store the solution in the project state if it's not already there
+                if not self.project_state["solution_design"]:
+                    self.project_state["solution_design"] = validated_solution
+            elif not self.project_state["solution_design"]:
+                raise ValueError("Solution must be designed before creating monetization strategy")
+                
+            # Use the solution from the project state or the provided solution
+            solution_to_use = validated_solution if solution else self.project_state["solution_design"]
 
-        # Use the solution from the project state or the provided solution
-        solution_to_use = solution if solution else self.project_state["solution_design"]
-
-        # Create the monetization strategy
-        strategy = self.monetization.create_strategy(solution_to_use)
-
-        # Store the strategy in the project state
-        self.project_state["monetization_strategy"] = strategy
-
-        return strategy
+            try:
+                # Create the monetization strategy
+                strategy = self.monetization.create_strategy(solution_to_use)
+                
+                # Validate strategy using Pydantic schema
+                try:
+                    validated_strategy = MonetizationStrategySchema(**strategy).dict()
+                    logger.info(f"Successfully validated monetization strategy using Pydantic schema")
+                except Exception as e:
+                    logger.warning(f"Monetization strategy does not fully conform to schema: {e}")
+                    validated_strategy = strategy
+                
+                # Store the strategy in the project state
+                self.project_state["monetization_strategy"] = validated_strategy
+                self.project_state["updated_at"] = str(datetime.now().isoformat())
+                
+                logger.info(f"Successfully created monetization strategy for solution: {solution_to_use.get('name', 'Unnamed solution')}")
+                return validated_strategy
+                
+            except Exception as e:
+                raise WorkflowError(
+                    message=f"Monetization strategy creation workflow failed: {e}",
+                    workflow_step="create_monetization_strategy",
+                    original_exception=e
+                )
+                
+        except ValueError as e:
+            # Re-raise value errors
+            raise
+        except (AgentTeamError, WorkflowError):
+            # Re-raise agent team and workflow errors
+            raise
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=WorkflowError,
+                message=f"Unexpected error in monetization strategy workflow: {e}",
+                details={"workflow_step": "create_monetization_strategy"},
+                reraise=True,
+                log_level=logging.ERROR
+            )
+            return {}  # This line won't be reached due to reraise=True
 
     def create_marketing_plan(self, niche: Optional[Dict[str, Any]] = None,
                           solution: Optional[Dict[str, Any]] = None,
@@ -548,27 +564,94 @@ class AgentTeam(IAgentTeam):
 
         Returns:
             Marketing plan specification
+            
+        Raises:
+            ValidationError: If any of the inputs are invalid
+            MarketingAgentError: If there's an issue with the marketing agent
+            WorkflowError: If there's an issue with the workflow
         """
-        # Use provided objects or fall back to project state
-        niche_to_use = niche if niche else self.project_state["selected_niche"]
-        solution_to_use = solution if solution else self.project_state["solution_design"]
-        monetization_to_use = monetization if monetization else self.project_state["monetization_strategy"]
+        try:
+            # Use provided objects or fall back to project state
+            niche_to_use = niche if niche else self.project_state["selected_niche"]
+            solution_to_use = solution if solution else self.project_state["solution_design"]
+            monetization_to_use = monetization if monetization else self.project_state["monetization_strategy"]
 
-        # Validate that we have all required objects
-        if not niche_to_use:
-            raise ValueError("Niche must be selected before creating marketing plan")
-        if not solution_to_use:
-            raise ValueError("Solution must be designed before creating marketing plan")
-        if not monetization_to_use:
-            raise ValueError("Monetization strategy must be created before marketing plan")
+            # Validate that we have all required objects
+            if not niche_to_use:
+                raise ValueError("Niche must be selected before creating marketing plan")
+            if not solution_to_use:
+                raise ValueError("Solution must be designed before creating marketing plan")
+            if not monetization_to_use:
+                raise ValueError("Monetization strategy must be created before marketing plan")
 
-        # Create the marketing plan
-        plan = self.marketing.create_plan(niche_to_use, solution_to_use, monetization_to_use)
+            # Validate inputs using Pydantic schemas
+            try:
+                if niche:
+                    validated_niche = NicheSchema(**niche_to_use).dict()
+                    logger.info("Successfully validated niche input using Pydantic schema")
+                    niche_to_use = validated_niche
+            except Exception as e:
+                logger.warning(f"Niche data does not fully conform to schema: {e}")
+                
+            try:
+                if solution:
+                    validated_solution = SolutionSchema(**solution_to_use).dict()
+                    logger.info("Successfully validated solution input using Pydantic schema")
+                    solution_to_use = validated_solution
+            except Exception as e:
+                logger.warning(f"Solution data does not fully conform to schema: {e}")
+                
+            try:
+                if monetization:
+                    validated_monetization = MonetizationStrategySchema(**monetization_to_use).dict()
+                    logger.info("Successfully validated monetization input using Pydantic schema")
+                    monetization_to_use = validated_monetization
+            except Exception as e:
+                logger.warning(f"Monetization data does not fully conform to schema: {e}")
 
-        # Store the plan in the project state
-        self.project_state["marketing_plan"] = plan
-
-        return plan
+            try:
+                # Create the marketing plan
+                plan = self.marketing.create_plan(niche_to_use, solution_to_use, monetization_to_use)
+                
+                # Validate marketing plan using Pydantic schema
+                try:
+                    validated_plan = MarketingPlanSchema(**plan).dict()
+                    logger.info("Successfully validated marketing plan using Pydantic schema")
+                except Exception as e:
+                    logger.warning(f"Marketing plan does not fully conform to schema: {e}")
+                    validated_plan = plan
+                
+                # Store the plan in the project state
+                self.project_state["marketing_plan"] = validated_plan
+                self.project_state["updated_at"] = str(datetime.now().isoformat())
+                
+                logger.info(f"Successfully created marketing plan for solution: {solution_to_use.get('name', 'Unnamed solution')}")
+                return validated_plan
+                
+            except Exception as e:
+                raise WorkflowError(
+                    message=f"Marketing plan creation workflow failed: {e}",
+                    workflow_step="create_marketing_plan",
+                    original_exception=e
+                )
+                
+        except ValueError as e:
+            # Re-raise value errors
+            raise
+        except (AgentTeamError, WorkflowError):
+            # Re-raise agent team and workflow errors
+            raise
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=WorkflowError,
+                message=f"Unexpected error in marketing plan workflow: {e}",
+                details={"workflow_step": "create_marketing_plan"},
+                reraise=True,
+                log_level=logging.ERROR
+            )
+            return {}  # This line won't be reached due to reraise=True
 
     def process_feedback(self, feedback_data: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
@@ -579,9 +662,44 @@ class AgentTeam(IAgentTeam):
 
         Returns:
             Analysis and recommendations based on feedback
+            
+        Raises:
+            ValidationError: If the feedback data is invalid
+            FeedbackAgentError: If there's an issue with the feedback agent
+            WorkflowError: If there's an issue with the workflow
         """
-        self.project_state["feedback_data"].extend(feedback_data)
-        return self.feedback.analyze_feedback(feedback_data)
+        try:
+            # Validate feedback data using Pydantic schema
+            validated_feedback_items = []
+            for i, item in enumerate(feedback_data):
+                try:
+                    validated_item = FeedbackItemSchema(**item).dict()
+                    validated_feedback_items.append(validated_item)
+                except Exception as e:
+                    logger.warning(f"Feedback item at index {i} does not conform to schema: {e}")
+                    validated_feedback_items.append(item)
+            
+            # Store feedback in the project state
+            self.project_state["feedback_data"].extend(validated_feedback_items)
+            self.project_state["updated_at"] = str(datetime.now().isoformat())
+            
+            # Process the feedback
+            analysis = self.feedback.analyze_feedback(validated_feedback_items)
+            
+            logger.info(f"Successfully processed {len(validated_feedback_items)} feedback items")
+            return analysis
+            
+        except Exception as e:
+            # Handle unexpected errors
+            error = handle_exception(
+                e,
+                error_class=WorkflowError,
+                message=f"Unexpected error in feedback processing workflow: {e}",
+                details={"workflow_step": "process_feedback"},
+                reraise=True,
+                log_level=logging.ERROR
+            )
+            return {}  # This line won't be reached due to reraise=True
 
     def export_project_plan(self, output_path: str) -> None:
         """
@@ -589,9 +707,27 @@ class AgentTeam(IAgentTeam):
 
         Args:
             output_path: Path to save the project plan
+            
+        Raises:
+            IOError: If there's an issue writing to the file
         """
-        with open(output_path, 'w') as f:
-            json.dump(self.project_state, f, indent=2)
+        try:
+            # Validate project state using Pydantic schema
+            try:
+                validated_state = ProjectStateSchema(**self.project_state).dict()
+                logger.info("Successfully validated project state using Pydantic schema")
+            except Exception as e:
+                logger.warning(f"Project state does not fully conform to schema: {e}")
+                validated_state = self.project_state
+            
+            with open(output_path, 'w') as f:
+                json.dump(validated_state, f, indent=2)
+                
+            logger.info(f"Successfully exported project plan to: {output_path}")
+            
+        except (IOError, OSError) as e:
+            logger.error(f"Failed to export project plan: {e}")
+            raise
 
     def __str__(self) -> str:
         """String representation of the agent team."""

@@ -1,82 +1,59 @@
 """
-Marketing package for the pAIssive Income project.
+Marketing module for the pAIssive Income project.
 
-This package provides tools and templates for marketing AI-powered software tools
-to target users in specific niches.
+This module provides functionality for generating and managing marketing 
+strategies, tactics, and content for niche AI tools.
 """
 
-from .user_personas import PersonaCreator, DemographicAnalyzer, PainPointIdentifier, GoalMapper, BehaviorAnalyzer
-from .channel_strategies import (
-    MarketingStrategy,
-    ContentMarketingStrategy,
-    SocialMediaStrategy,
-    EmailMarketingStrategy
-)
-from .content_templates import (
-    ContentTemplate,
-    BlogPostTemplate,
-    SocialMediaTemplate,
-    EmailNewsletterTemplate,
-    VideoScriptTemplate,
-    LandingPageTemplate,
-    ProductDescriptionTemplate,
-    CaseStudyTemplate,
-    TestimonialTemplate
-)
-from .content_generators import (
-    ContentGenerator,
-    GeneratorConfig,
-    BlogPostGenerator,
-    ProductDescriptionGenerator,
-    CaseStudyGenerator
-)
-# Import content optimization tools
-from .content_optimization import (
-    SEOAnalyzer,
-    KeywordAnalyzer,
-    ReadabilityAnalyzer
-)
-
-# Import tone analyzer and style adjuster
-from .tone_analyzer import ToneAnalyzer
+from .strategy_generator import StrategyGenerator
+from .channel_strategies import ChannelStrategy
+from .content_generators import ContentGenerator
+from .content_optimization import ContentOptimizer
+from .content_templates import ContentTemplate
 from .style_adjuster import StyleAdjuster
+from .tone_analyzer import ToneAnalyzer
+from .user_personas import PersonaCreator
+from .schemas import (
+    BusinessType, BusinessSize, BillingPeriod, TimeframeUnit,
+    ChannelType, PriorityLevel, DifficultyLevel,
+    BudgetSchema, TimeframeSchema, DemographicsSchema, TargetAudienceSchema,
+    ConfigSchema, MarketingTacticSchema, MetricSchema, ContentItemSchema,
+    ContentCalendarSchema, PersonaSchema, ChannelAnalysisSchema,
+    MarketingPlanSchema, MarketingStrategyInputSchema, MarketingStrategyResultsSchema,
+    AudienceAnalysisSchema, BusinessAnalysisSchema
+)
 
 __all__ = [
-    # User Personas
-    'PersonaCreator',
-    'DemographicAnalyzer',
-    'PainPointIdentifier',
-    'GoalMapper',
-    'BehaviorAnalyzer',
-
-    # Channel Strategies
-    'MarketingStrategy',
-    'ContentMarketingStrategy',
-    'SocialMediaStrategy',
-    'EmailMarketingStrategy',
-
-    # Content Templates
-    'ContentTemplate',
-    'BlogPostTemplate',
-    'SocialMediaTemplate',
-    'EmailNewsletterTemplate',
-    'VideoScriptTemplate',
-    'LandingPageTemplate',
-    'ProductDescriptionTemplate',
-    'CaseStudyTemplate',
-    'TestimonialTemplate',
-
-    # Content Generators
+    'StrategyGenerator',
+    'ChannelStrategy',
     'ContentGenerator',
-    'GeneratorConfig',
-    'BlogPostGenerator',
-    'ProductDescriptionGenerator',
-    'CaseStudyGenerator',
-
-    # Content Optimization
-    'SEOAnalyzer',
-    'KeywordAnalyzer',
-    'ReadabilityAnalyzer',
-    'ToneAnalyzer',
+    'ContentOptimizer',
+    'ContentTemplate',
     'StyleAdjuster',
+    'ToneAnalyzer',
+    'PersonaCreator',
+    # Schema exports
+    'BusinessType',
+    'BusinessSize',
+    'BillingPeriod',
+    'TimeframeUnit',
+    'ChannelType',
+    'PriorityLevel',
+    'DifficultyLevel',
+    'BudgetSchema',
+    'TimeframeSchema',
+    'DemographicsSchema',
+    'TargetAudienceSchema',
+    'ConfigSchema',
+    'MarketingTacticSchema',
+    'MetricSchema',
+    'ContentItemSchema',
+    'ContentCalendarSchema',
+    'PersonaSchema',
+    'ChannelAnalysisSchema',
+    'MarketingPlanSchema',
+    'MarketingStrategyInputSchema',
+    'MarketingStrategyResultsSchema',
+    'AudienceAnalysisSchema',
+    'BusinessAnalysisSchema'
 ]

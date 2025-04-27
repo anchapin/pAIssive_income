@@ -11,6 +11,7 @@ from typing import Dict, List, Any, Optional
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from interfaces.agent_interfaces import IAgentProfile
+from ..schemas import AgentProfileSchema
 
 # Set up logging
 logger = logging.getLogger(__name__)

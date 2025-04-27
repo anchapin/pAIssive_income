@@ -13,6 +13,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from interfaces.niche_interfaces import INicheAnalyzer
 from interfaces.agent_interfaces import IAgentTeam
 from niche_analysis.errors import NicheAnalysisError
+from .schemas import (
+    ProblemSchema, CompetitionAnalysisSchema, OpportunityScoreSchema
+)
 
 # Set up logging
 logger = logging.getLogger(__name__)
