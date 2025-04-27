@@ -9,7 +9,7 @@ from .server import ModelServer, ServerConfig, ServerProtocol
 from .rest_api import RESTServer, RESTConfig
 from .grpc_server import GRPCServer, GRPCConfig
 from .deployment import (
-    DockerConfig, KubernetesConfig, CloudConfig,
+    DockerConfig, KubernetesConfig, CloudConfig, CloudProvider,
     generate_docker_config, generate_kubernetes_config, generate_cloud_config
 )
 
@@ -24,6 +24,7 @@ __all__ = [
     'DockerConfig',
     'KubernetesConfig',
     'CloudConfig',
+    'CloudProvider',
     'generate_docker_config',
     'generate_kubernetes_config',
     'generate_cloud_config',

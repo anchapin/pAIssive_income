@@ -86,6 +86,8 @@ class ModelInfo:
     quantization: str = ""  # 4-bit, 8-bit, etc.
     capabilities: List[str] = None
     metadata: Dict[str, Any] = None
+    performance: Dict[str, Any] = None
+    last_updated: str = ""
 
     def __post_init__(self):
         """
@@ -96,6 +98,12 @@ class ModelInfo:
 
         if self.metadata is None:
             self.metadata = {}
+
+        if self.performance is None:
+            self.performance = {}
+
+        if not self.last_updated:
+            self.last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
 
         # Calculate size if path exists and size is not provided
         if self.size_mb == 0.0 and os.path.exists(self.path):
@@ -121,8 +129,53 @@ class ModelInfo:
             "format": self.format,
             "quantization": self.quantization,
             "capabilities": self.capabilities,
-            "metadata": self.metadata
+            "metadata": self.metadata,
+            "performance": self.performance,
+            "last_updated": self.last_updated
         }
+
+    def to_json(self, indent: int = 2) -> str:
+        """
+        Convert the model info to a JSON string.
+
+        Args:
+            indent: Number of spaces for indentation
+
+        Returns:
+            JSON string representation of the model info
+        """
+        return json.dumps(self.to_dict(), indent=indent)
+
+    def update_performance(self, metrics: Dict[str, Any]) -> None:
+        """
+        Update performance metrics for the model.
+
+        Args:
+            metrics: Dictionary of performance metrics
+        """
+        if self.performance is None:
+            self.performance = {}
+
+        self.performance.update(metrics)
+        self.update_timestamp()
+
+    def update_timestamp(self) -> None:
+        """
+        Update the last_updated timestamp.
+        """
+        self.last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def has_capability(self, capability: str) -> bool:
+        """
+        Check if the model has a specific capability.
+
+        Args:
+            capability: Capability to check
+
+        Returns:
+            True if the model has the capability, False otherwise
+        """
+        return capability in self.capabilities
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ModelInfo':

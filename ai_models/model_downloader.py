@@ -68,6 +68,23 @@ class DownloadProgress:
     status: str = "pending"  # pending, downloading, completed, failed
     error: Optional[str] = None
 
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the progress information to a dictionary.
+
+        Returns:
+            Dictionary representation of the progress information
+        """
+        return {
+            "total_size": self.total_size,
+            "downloaded_size": self.downloaded_size,
+            "percentage": self.percentage,
+            "speed": self.speed,
+            "eta": self.eta,
+            "status": self.status,
+            "error": self.error
+        }
+
 
 class DownloadTask:
     """
@@ -472,6 +489,81 @@ class ModelDownloader:
                 del self.download_tasks[task_id]
 
             return len(completed_tasks)
+
+    def get_task_status(self, task_id: str) -> Dict[str, Any]:
+        """
+        Get the status of a download task.
+
+        Args:
+            task_id: ID of the task
+
+        Returns:
+            Dictionary with task status information
+        """
+        task = self.get_task(task_id)
+        if task:
+            return {
+                "id": task.id,
+                "model_id": task.model_id,
+                "source": task.source,
+                "destination": task.destination,
+                "progress": task.progress.to_dict(),
+                "is_running": task.is_running()
+            }
+        return {"error": f"Task {task_id} not found"}
+
+    def get_all_task_statuses(self) -> List[Dict[str, Any]]:
+        """
+        Get the status of all download tasks.
+
+        Returns:
+            List of dictionaries with task status information
+        """
+        return [self.get_task_status(task.id) for task in self.get_all_tasks()]
+
+    def register_downloaded_model(self, task: DownloadTask, model_type: str, description: str = "") -> Optional['ModelInfo']:
+        """
+        Register a downloaded model with the model manager.
+
+        Args:
+            task: Download task
+            model_type: Type of the model
+            description: Optional description of the model
+
+        Returns:
+            ModelInfo object if registration was successful, None otherwise
+        """
+        if not self.model_manager:
+            logger.warning("No model manager available for registering downloaded models")
+            return None
+
+        if task.progress.status != "completed":
+            logger.warning(f"Cannot register model {task.model_id} because download is not completed")
+            return None
+
+        # Extract model name from source
+        model_name = os.path.basename(task.source)
+        if "/" in task.source and not task.source.startswith(("http://", "https://")):
+            # For Hugging Face models, use the repository name
+            model_name = task.source.split("/")[-1]
+
+        # Determine model format
+        model_format = ""
+        if task.destination.endswith(".gguf"):
+            model_format = "gguf"
+        elif task.destination.endswith(".onnx"):
+            model_format = "onnx"
+        elif task.destination.endswith(".bin"):
+            model_format = "pytorch"
+
+        # Register the model
+        return self.model_manager.register_model(
+            name=model_name,
+            path=task.destination,
+            model_type=model_type,
+            description=description,
+            format=model_format
+        )
 
     def download_from_huggingface(
         self,

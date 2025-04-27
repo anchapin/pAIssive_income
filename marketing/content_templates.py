@@ -15,9 +15,11 @@ class ContentTemplate:
 
     def __init__(
         self,
-        title: str,
-        target_persona: Dict[str, Any],
-        key_points: List[str],
+        name: str = "",
+        description: str = "",
+        title: str = "",
+        target_persona: Optional[Dict[str, Any]] = None,
+        key_points: Optional[List[str]] = None,
         tone: Optional[str] = "professional",
         call_to_action: Optional[str] = None,
     ):
@@ -25,6 +27,8 @@ class ContentTemplate:
         Initialize a content template.
 
         Args:
+            name: Name of the template
+            description: Description of the template
             title: Title of the content
             target_persona: The target user persona for this content
             key_points: List of key points to cover in the content
@@ -32,13 +36,22 @@ class ContentTemplate:
             call_to_action: Optional call to action for the content
         """
         self.id = str(uuid.uuid4())
+        self.name = name
+        self.description = description
         self.title = title
-        self.target_persona = target_persona
-        self.key_points = key_points
+        self.target_persona = target_persona or {
+            "name": "Generic User",
+            "pain_points": ["No specific pain points"],
+            "goals": ["No specific goals"],
+            "behavior": {"tech_savvy": "medium"}
+        }
+        self.key_points = key_points or []
         self.tone = tone
         self.call_to_action = call_to_action
         self.created_at = datetime.now().isoformat()
+        self.updated_at = self.created_at
         self.content_type = "generic"
+        self.sections = []
 
     def generate_outline(self) -> Dict[str, Any]:
         """
@@ -220,6 +233,130 @@ class ContentTemplate:
             ]
         }
 
+    def add_section(
+        self,
+        name: str = "",
+        description: str = "",
+        content_type: str = "text",
+        placeholder: str = "",
+        required: bool = False,
+        section_type: str = "",
+        title: str = "",
+        content: str = ""
+    ) -> Dict[str, Any]:
+        """
+        Add a section to the content template.
+
+        Args:
+            name: Name of the section
+            description: Description of the section
+            content_type: Type of content (e.g., "text", "image", "video")
+            placeholder: Placeholder text for the section
+            required: Whether the section is required
+            section_type: Type of section (e.g., "introduction", "body", "conclusion")
+            title: Title of the section
+            content: Optional content for the section
+
+        Returns:
+            Dictionary with section details
+        """
+        section = {
+            "id": str(uuid.uuid4()),
+            "name": name or title,
+            "description": description,
+            "content_type": content_type,
+            "placeholder": placeholder,
+            "required": required,
+            "section_type": section_type or content_type,
+            "title": title or name,
+            "content": content,
+            "order": len(self.sections) + 1
+        }
+
+        self.sections.append(section)
+        self.updated_at = datetime.now().isoformat()
+        return section
+
+    def generate_content(
+        self,
+        topic: str = "",
+        target_audience: str = "",
+        tone: str = "",
+        keywords: List[str] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Generate content based on the template.
+
+        Args:
+            topic: Topic of the content
+            target_audience: Target audience for the content
+            tone: Tone of the content
+            keywords: Keywords for the content
+            **kwargs: Additional keyword arguments
+
+        Returns:
+            Dictionary with generated content
+        """
+        # Update template properties if provided
+        if topic:
+            self.title = topic
+
+        if target_audience:
+            self.target_persona["name"] = target_audience
+
+        if tone:
+            self.tone = tone
+
+        # Generate outline first
+        outline = self.generate_outline()
+
+        # Create content structure
+        content = {
+            "id": self.id,
+            "template_id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "title": self.title,
+            "topic": topic or self.title,
+            "content_type": self.content_type,
+            "target_persona": self.target_persona["name"],
+            "target_audience": target_audience or self.target_persona["name"],
+            "tone": self.tone,
+            "sections": [],
+            "call_to_action": self.call_to_action,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
+        }
+
+        # Add keywords if provided
+        if keywords:
+            content["keywords"] = keywords
+
+        # Only use the custom sections added by the user
+        content["sections"] = []
+        for section in self.sections:
+            # Create a copy of the section
+            section_copy = section.copy()
+
+            # Add sample content if the section doesn't have any
+            if not section_copy.get("content"):
+                if section_copy.get("name") == "Introduction":
+                    section_copy["content"] = f"Introduction to {self.title}. This addresses the needs of {self.target_persona['name']}."
+                elif section_copy.get("name") == "Main Content":
+                    section_copy["content"] = f"Main content about {self.title}. This is important for {self.target_persona['name']}."
+                elif section_copy.get("name") == "Conclusion":
+                    section_copy["content"] = f"In conclusion, {self.title} is valuable for {self.target_persona['name']}."
+                else:
+                    section_copy["content"] = f"Content about {section_copy.get('name', 'this topic')}."
+
+            content["sections"].append(section_copy)
+
+        # Update timestamp
+        self.updated_at = datetime.now().isoformat()
+
+        return content
+
     def get_summary(self) -> Dict[str, Any]:
         """
         Get a summary of the content template.
@@ -229,10 +366,13 @@ class ContentTemplate:
         """
         return {
             "id": self.id,
+            "name": self.name,
+            "description": self.description,
             "title": self.title,
             "content_type": self.content_type,
             "target_persona": self.target_persona["name"],
             "key_points_count": len(self.key_points),
+            "sections_count": len(self.sections),
             "tone": self.tone,
             "call_to_action": self.call_to_action,
             "created_at": self.created_at
@@ -246,9 +386,11 @@ class BlogPostTemplate(ContentTemplate):
 
     def __init__(
         self,
-        title: str,
-        target_persona: Dict[str, Any],
-        key_points: List[str],
+        name: str = "",
+        description: str = "",
+        title: str = "",
+        target_persona: Optional[Dict[str, Any]] = None,
+        key_points: Optional[List[str]] = None,
         tone: Optional[str] = "professional",
         call_to_action: Optional[str] = None,
         target_word_count: Optional[int] = 1200,
@@ -259,6 +401,8 @@ class BlogPostTemplate(ContentTemplate):
         Initialize a blog post template.
 
         Args:
+            name: Name of the template
+            description: Description of the template
             title: Title of the blog post
             target_persona: The target user persona for this blog post
             key_points: List of key points to cover in the blog post
@@ -268,11 +412,61 @@ class BlogPostTemplate(ContentTemplate):
             include_images: Whether to include image recommendations
             seo_keywords: Optional list of SEO keywords to target
         """
-        super().__init__(title, target_persona, key_points, tone, call_to_action)
+        super().__init__(name, description, title, target_persona, key_points, tone, call_to_action)
         self.content_type = "blog_post"
         self.target_word_count = target_word_count
         self.include_images = include_images
         self.seo_keywords = seo_keywords or []
+
+        # Add default sections
+        if not self.sections:
+            self.add_section(
+                name="Title",
+                description="The title of the blog post",
+                content_type="text",
+                placeholder="Enter a compelling title...",
+                required=True
+            )
+
+            self.add_section(
+                name="Meta Description",
+                description="SEO meta description",
+                content_type="text",
+                placeholder="Enter a meta description (150-160 characters)...",
+                required=True
+            )
+
+            self.add_section(
+                name="Introduction",
+                description="The introduction of the blog post",
+                content_type="text",
+                placeholder="Write an engaging introduction...",
+                required=True
+            )
+
+            self.add_section(
+                name="Main Content",
+                description="The main content of the blog post",
+                content_type="text",
+                placeholder="Write the main content here...",
+                required=True
+            )
+
+            self.add_section(
+                name="Conclusion",
+                description="The conclusion of the blog post",
+                content_type="text",
+                placeholder="Write a compelling conclusion...",
+                required=True
+            )
+
+            self.add_section(
+                name="Call to Action",
+                description="The call to action for the blog post",
+                content_type="text",
+                placeholder="Enter a call to action...",
+                required=False
+            )
 
     def generate_outline(self) -> Dict[str, Any]:
         """
@@ -324,16 +518,24 @@ class BlogPostTemplate(ContentTemplate):
             })
 
         # Add FAQ section recommendation
+        suggested_questions = [f"What is the best way to {self.title.lower()}?"]
+
+        if self.key_points:
+            suggested_questions.append(f"How long does it take to {self.key_points[0].lower()}?")
+        else:
+            suggested_questions.append(f"How long does it take to implement {self.title.lower()}?")
+
+        if self.target_persona and self.target_persona.get('pain_points'):
+            suggested_questions.append(f"What tools do I need for {self.target_persona['pain_points'][0]}?")
+        else:
+            suggested_questions.append(f"What tools do I need for {self.title.lower()}?")
+
         blog_sections.append({
             "section_type": "faq",
             "title": "Frequently Asked Questions",
             "description": "Common questions and answers about the topic",
             "placement": "before conclusion",
-            "suggested_questions": [
-                f"What is the best way to {self.title.lower()}?",
-                f"How long does it take to {self.key_points[0].lower()}?",
-                f"What tools do I need for {self.target_persona['pain_points'][0]}?"
-            ]
+            "suggested_questions": suggested_questions
         })
 
         outline["blog_specific_sections"] = blog_sections
@@ -372,6 +574,97 @@ class BlogPostTemplate(ContentTemplate):
                 break
 
         return variations[:count]
+
+    def generate_blog_post(
+        self,
+        topic: str = "",
+        target_audience: str = "",
+        tone: str = "",
+        keywords: List[str] = None,
+        word_count: int = None,
+        include_images: bool = None
+    ) -> Dict[str, Any]:
+        """
+        Generate a complete blog post.
+
+        Args:
+            topic: Topic of the blog post
+            target_audience: Target audience for the blog post
+            tone: Tone of the blog post
+            keywords: SEO keywords for the blog post
+            word_count: Target word count for the blog post
+            include_images: Whether to include images in the blog post
+
+        Returns:
+            Dictionary with blog post content
+        """
+        # Update template properties if provided
+        if topic:
+            self.title = topic
+
+        if target_audience:
+            self.target_persona["name"] = target_audience
+
+        if tone:
+            self.tone = tone
+
+        if keywords is not None:
+            self.seo_keywords = keywords
+
+        if word_count is not None:
+            self.target_word_count = word_count
+
+        if include_images is not None:
+            self.include_images = include_images
+
+        # Generate base content
+        content = self.generate_content()
+
+        # Add blog-specific elements
+        content["word_count"] = self.target_word_count
+        content["reading_time"] = f"{self.target_word_count // 200} minutes"
+        content["include_images"] = self.include_images
+
+        # Add SEO information
+        seo_info = self.get_blog_seo_recommendations()
+        content["seo_info"] = {
+            "keywords": self.seo_keywords or seo_info.get("secondary_keywords", []),
+            "meta_title": seo_info.get("recommended_meta_title", self.title),
+            "meta_description": seo_info.get("recommended_meta_description", ""),
+            "url_slug": f"/{'-'.join(self.title.lower().split()[:5])}/"
+        }
+
+        # Add keywords to the main content
+        content["keywords"] = self.seo_keywords or seo_info.get("secondary_keywords", [])
+
+        # Add image recommendations if enabled
+        if self.include_images:
+            content["images"] = []
+
+            # Featured image
+            content["images"].append({
+                "type": "featured",
+                "description": f"Featured image for {self.title}",
+                "alt_text": f"{self.title} - {self.target_persona['name']}"
+            })
+
+            # Section images
+            for i, section in enumerate(content["sections"]):
+                if section["section_type"] == "body":
+                    content["images"].append({
+                        "type": "section",
+                        "section_index": i,
+                        "description": f"Image illustrating {section['title']}",
+                        "alt_text": f"{section['title']} - {self.target_persona['name']}"
+                    })
+
+        # Add headline variations
+        content["headline_variations"] = self.generate_headline_variations()
+
+        # Update timestamp
+        self.updated_at = datetime.now().isoformat()
+
+        return content
 
     def get_blog_seo_recommendations(self) -> Dict[str, Any]:
         """
@@ -419,10 +712,13 @@ class SocialMediaTemplate(ContentTemplate):
 
     def __init__(
         self,
-        title: str,
-        target_persona: Dict[str, Any],
-        key_points: List[str],
-        platforms: List[str],
+        name: str = "",
+        description: str = "",
+        title: str = "",
+        target_persona: Optional[Dict[str, Any]] = None,
+        key_points: Optional[List[str]] = None,
+        platform: str = "instagram",
+        platforms: Optional[List[str]] = None,
         tone: Optional[str] = "casual",
         call_to_action: Optional[str] = None,
         hashtags: Optional[List[str]] = None,
@@ -432,20 +728,51 @@ class SocialMediaTemplate(ContentTemplate):
         Initialize a social media post template.
 
         Args:
+            name: Name of the template
+            description: Description of the template
             title: Title or main topic of the social media post
             target_persona: The target user persona for this post
             key_points: List of key points to cover in the post
+            platform: Primary social media platform for this post
             platforms: List of social media platforms for this post
             tone: Optional tone for the post
             call_to_action: Optional call to action for the post
             hashtags: Optional list of hashtags to include
             include_image: Whether to include image recommendations
         """
-        super().__init__(title, target_persona, key_points, tone, call_to_action)
+        super().__init__(name, description, title, target_persona, key_points, tone, call_to_action)
         self.content_type = "social_media"
-        self.platforms = platforms
+        self.platform = platform
+        self.platforms = platforms or [platform]
         self.hashtags = hashtags or []
         self.include_image = include_image
+
+        # Add default sections
+        if not self.sections:
+            self.add_section(
+                name="Caption",
+                description="The caption for the social media post",
+                content_type="text",
+                placeholder="Write an engaging caption...",
+                required=True
+            )
+
+            self.add_section(
+                name="Hashtags",
+                description="Hashtags for the social media post",
+                content_type="text",
+                placeholder="Enter hashtags separated by spaces...",
+                required=False
+            )
+
+            if self.include_image:
+                self.add_section(
+                    name="Image Description",
+                    description="Description of the image to use",
+                    content_type="text",
+                    placeholder="Describe the image you want to use...",
+                    required=True
+                )
 
     def generate_outline(self) -> Dict[str, Any]:
         """
@@ -497,6 +824,190 @@ class SocialMediaTemplate(ContentTemplate):
 
         return outline
 
+    def generate_post(
+        self,
+        topic: str = "",
+        target_audience: str = "",
+        tone: str = "",
+        include_hashtags: bool = None,
+        include_emoji: bool = None,
+        include_call_to_action: bool = None,
+        platform: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Generate a social media post for a specific platform.
+
+        Args:
+            topic: Topic of the post
+            target_audience: Target audience for the post
+            tone: Tone of the post
+            include_hashtags: Whether to include hashtags
+            include_emoji: Whether to include emojis
+            include_call_to_action: Whether to include a call to action
+            platform: Optional platform to generate the post for (defaults to self.platform)
+
+        Returns:
+            Dictionary with post content
+        """
+        # Update template properties if provided
+        if topic:
+            self.title = topic
+
+        if target_audience:
+            self.target_persona["name"] = target_audience
+
+        if tone:
+            self.tone = tone
+
+        # Use specified platform or default to the first platform
+        platform = platform or self.platform
+
+        # Generate platform-specific post
+        if platform.lower() == "twitter" or platform.lower() == "x":
+            post = self._generate_twitter_post()
+        elif platform.lower() == "linkedin":
+            post = self._generate_linkedin_post()
+        elif platform.lower() == "facebook":
+            post = self._generate_facebook_post()
+        elif platform.lower() == "instagram":
+            post = self._generate_instagram_post()
+        else:
+            # Default to a generic post
+            post = {
+                "platform": platform,
+                "content": f"{self.title}\n\n{self.key_points[0] if self.key_points else ''}\n\n{self.call_to_action if self.call_to_action else ''}",
+                "hashtags": self.hashtags,
+                "character_count": len(f"{self.title}\n\n{self.key_points[0] if self.key_points else ''}\n\n{self.call_to_action if self.call_to_action else ''}")
+            }
+
+        # Add common elements
+        post["id"] = self.id
+        post["template_id"] = self.id
+        post["title"] = self.title
+        post["topic"] = topic or self.title
+        post["target_persona"] = self.target_persona["name"]
+        post["target_audience"] = target_audience or self.target_persona["name"]
+        post["tone"] = self.tone
+        post["created_at"] = self.created_at
+
+        # Add sections with content
+        post["sections"] = []
+        for section in self.sections:
+            # Create a copy of the section
+            section_copy = section.copy()
+
+            # Add sample content if the section doesn't have any
+            if not section_copy.get("content"):
+                if section_copy.get("name") == "Caption":
+                    section_copy["content"] = f"Check out these amazing {self.title} that can help you achieve your goals! #trending"
+                elif section_copy.get("name") == "Hashtags":
+                    section_copy["content"] = " ".join([f"#{tag.replace(' ', '')}" for tag in self.hashtags]) if self.hashtags else "#trending #socialmedia"
+                elif section_copy.get("name") == "Image Description":
+                    section_copy["content"] = f"Image showing {self.title} in action"
+                else:
+                    section_copy["content"] = f"Content about {section_copy.get('name', 'this topic')}."
+
+            post["sections"].append(section_copy)
+
+        # Add image recommendation if enabled
+        if self.include_image:
+            post["image"] = {
+                "description": f"Image related to {self.title}",
+                "alt_text": f"{self.title} - {self.target_persona['name']}",
+                "recommended_size": self._get_image_size_for_platform(platform)
+            }
+
+        # Add emojis if requested
+        if include_emoji:
+            post["content"] = self._add_emojis_to_content(post["content"])
+
+        # Add call to action if requested
+        if include_call_to_action and not self.call_to_action:
+            post["content"] += f"\n\nClick the link in bio to learn more!"
+
+        # Update hashtags if requested
+        post["include_hashtags"] = include_hashtags if include_hashtags is not None else bool(self.hashtags)
+        post["include_emoji"] = include_emoji if include_emoji is not None else True
+        post["include_call_to_action"] = include_call_to_action if include_call_to_action is not None else bool(self.call_to_action)
+
+        if include_hashtags is not None:
+            if include_hashtags and not self.hashtags:
+                self.hashtags = self.generate_hashtag_recommendations(5)
+                post["hashtags"] = self.hashtags
+            elif not include_hashtags:
+                post["hashtags"] = []
+
+        # Update timestamp
+        self.updated_at = datetime.now().isoformat()
+
+        return post
+
+    def _add_emojis_to_content(self, content: str) -> str:
+        """
+        Add emojis to content.
+
+        Args:
+            content: Content to add emojis to
+
+        Returns:
+            Content with emojis
+        """
+        # Simple emoji mapping for common topics
+        emoji_mapping = {
+            "business": "💼",
+            "money": "💰",
+            "growth": "📈",
+            "idea": "💡",
+            "success": "🚀",
+            "time": "⏰",
+            "tip": "💯",
+            "learn": "📚",
+            "social": "🔗",
+            "marketing": "📣",
+            "content": "📝",
+            "strategy": "🎯",
+            "analytics": "📊",
+            "customer": "👥",
+            "product": "🛍️",
+            "service": "🛠️",
+            "digital": "💻",
+            "mobile": "📱",
+            "email": "📧",
+            "video": "🎬"
+        }
+
+        # Add emoji to title
+        for keyword, emoji in emoji_mapping.items():
+            if keyword in self.title.lower() and not content.startswith(emoji):
+                content = f"{emoji} {content}"
+                break
+
+        # If no emoji was added, add a default one
+        if not any(emoji in content[:2] for emoji in emoji_mapping.values()):
+            content = f"✨ {content}"
+
+        return content
+
+    def _get_image_size_for_platform(self, platform: str) -> str:
+        """
+        Get the recommended image size for a platform.
+
+        Args:
+            platform: Social media platform
+
+        Returns:
+            Recommended image size
+        """
+        platform_sizes = {
+            "twitter": "1200 x 675 pixels",
+            "x": "1200 x 675 pixels",
+            "linkedin": "1200 x 627 pixels",
+            "facebook": "1200 x 630 pixels",
+            "instagram": "1080 x 1080 pixels (square) or 1080 x 1350 pixels (portrait)"
+        }
+
+        return platform_sizes.get(platform.lower(), "1200 x 1200 pixels")
+
     def _generate_twitter_post(self) -> Dict[str, Any]:
         """Generate a Twitter post."""
         # Create a short version of the post (max 280 characters)
@@ -516,7 +1027,8 @@ class SocialMediaTemplate(ContentTemplate):
         return {
             "platform": "Twitter",
             "character_limit": 280,
-            "post_text": post_text[:280],
+            "content": post_text[:280],
+            "post_text": post_text[:280],  # For backward compatibility
             "estimated_length": len(post_text),
             "recommended_posting_times": ["8-10am", "12-1pm", "5-6pm"],
             "engagement_tips": [
@@ -548,7 +1060,8 @@ class SocialMediaTemplate(ContentTemplate):
         return {
             "platform": "LinkedIn",
             "character_limit": 3000,
-            "post_text": post_text[:3000],
+            "content": post_text[:3000],
+            "post_text": post_text[:3000],  # For backward compatibility
             "estimated_length": len(post_text),
             "recommended_posting_times": ["8-9am", "10-11am", "1-2pm"],
             "engagement_tips": [
@@ -582,7 +1095,8 @@ class SocialMediaTemplate(ContentTemplate):
 
         return {
             "platform": "Facebook",
-            "post_text": post_text,
+            "content": post_text,
+            "post_text": post_text,  # For backward compatibility
             "estimated_length": len(post_text),
             "recommended_posting_times": ["1-4pm", "6-8pm"],
             "engagement_tips": [
@@ -611,8 +1125,9 @@ class SocialMediaTemplate(ContentTemplate):
         post_text = intro + body + cta + hashtag_text
 
         return {
-            "platform": "Instagram",
-            "post_text": post_text,
+            "platform": "instagram",
+            "content": post_text,
+            "post_text": post_text,  # For backward compatibility
             "estimated_length": len(post_text),
             "recommended_posting_times": ["11am-1pm", "7-9pm"],
             "engagement_tips": [
@@ -679,9 +1194,11 @@ class EmailNewsletterTemplate(ContentTemplate):
 
     def __init__(
         self,
-        title: str,
-        target_persona: Dict[str, Any],
-        key_points: List[str],
+        name: str = "",
+        description: str = "",
+        title: str = "",
+        target_persona: Optional[Dict[str, Any]] = None,
+        key_points: Optional[List[str]] = None,
         tone: Optional[str] = "professional",
         call_to_action: Optional[str] = None,
         subject_line: Optional[str] = None,
@@ -694,6 +1211,8 @@ class EmailNewsletterTemplate(ContentTemplate):
         Initialize an email newsletter template.
 
         Args:
+            name: Name of the template
+            description: Description of the template
             title: Title of the email newsletter
             target_persona: The target user persona for this newsletter
             key_points: List of key points to cover in the newsletter
@@ -705,13 +1224,71 @@ class EmailNewsletterTemplate(ContentTemplate):
             sender_name: Optional name of the sender
             sender_email: Optional email of the sender
         """
-        super().__init__(title, target_persona, key_points, tone, call_to_action)
+        super().__init__(name, description, title, target_persona, key_points, tone, call_to_action)
         self.content_type = "email_newsletter"
         self.subject_line = subject_line or title
         self.newsletter_type = newsletter_type
         self.include_images = include_images
         self.sender_name = sender_name
         self.sender_email = sender_email
+
+        # Add default sections
+        if not self.sections:
+            self.add_section(
+                name="Subject Line",
+                description="The subject line of the email",
+                content_type="text",
+                placeholder="Enter a compelling subject line...",
+                required=True
+            )
+
+            self.add_section(
+                name="Preheader",
+                description="The preheader text that appears in email clients",
+                content_type="text",
+                placeholder="Enter preheader text (50-100 characters)...",
+                required=True
+            )
+
+            self.add_section(
+                name="Greeting",
+                description="The greeting for the recipient",
+                content_type="text",
+                placeholder="Enter a greeting...",
+                required=True
+            )
+
+            self.add_section(
+                name="Introduction",
+                description="The introduction of the email",
+                content_type="text",
+                placeholder="Write an engaging introduction...",
+                required=True
+            )
+
+            self.add_section(
+                name="Main Content",
+                description="The main content of the email",
+                content_type="text",
+                placeholder="Write the main content here...",
+                required=True
+            )
+
+            self.add_section(
+                name="Call to Action",
+                description="The call to action for the email",
+                content_type="text",
+                placeholder="Enter a call to action...",
+                required=False
+            )
+
+            self.add_section(
+                name="Footer",
+                description="The footer of the email",
+                content_type="text",
+                placeholder="Enter footer text...",
+                required=True
+            )
 
     def generate_outline(self) -> Dict[str, Any]:
         """
@@ -902,6 +1479,139 @@ class EmailNewsletterTemplate(ContentTemplate):
                 break
 
         return variations[:count]
+
+    def generate_newsletter(
+        self,
+        topic: str = "",
+        target_audience: str = "",
+        tone: str = "",
+        include_images: bool = None,
+        include_personalization: bool = None,
+        include_call_to_action: bool = None
+    ) -> Dict[str, Any]:
+        """
+        Generate a complete email newsletter.
+
+        Args:
+            topic: Topic of the newsletter
+            target_audience: Target audience for the newsletter
+            tone: Tone of the newsletter
+            include_images: Whether to include images
+            include_personalization: Whether to include personalization
+            include_call_to_action: Whether to include a call to action
+
+        Returns:
+            Dictionary with newsletter content
+        """
+        # Update template properties if provided
+        if topic:
+            self.title = topic
+            self.subject_line = topic
+
+        if target_audience:
+            self.target_persona["name"] = target_audience
+
+        if tone:
+            self.tone = tone
+
+        if include_images is not None:
+            self.include_images = include_images
+
+        if include_call_to_action and not self.call_to_action:
+            self.call_to_action = "Click here to learn more"
+
+        # Generate base content
+        outline = self.generate_outline()
+
+        # Create the newsletter content
+        newsletter = {
+            "id": self.id,
+            "template_id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "title": self.title,
+            "topic": topic or self.title,
+            "content_type": self.content_type,
+            "newsletter_type": self.newsletter_type,
+            "subject_line": self.subject_line,
+            "subject_line_variations": self.generate_subject_line_variations(),
+            "target_persona": self.target_persona["name"],
+            "target_audience": target_audience or self.target_persona["name"],
+            "tone": self.tone,
+            "sender_name": self.sender_name,
+            "sender_email": self.sender_email,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "include_images": include_images if include_images is not None else self.include_images,
+            "include_personalization": include_personalization if include_personalization is not None else False,
+            "include_call_to_action": include_call_to_action if include_call_to_action is not None else bool(self.call_to_action)
+        }
+
+        # Add sections with content
+        newsletter["sections"] = []
+        for section in self.sections:
+            # Create a copy of the section
+            section_copy = section.copy()
+
+            # Add sample content if the section doesn't have any
+            if not section_copy.get("content"):
+                if section_copy.get("name") == "Subject Line":
+                    section_copy["content"] = self.subject_line or f"Newsletter: {self.title}"
+                elif section_copy.get("name") == "Preheader":
+                    section_copy["content"] = f"The latest insights on {self.title} for {self.target_persona['name']}"
+                elif section_copy.get("name") == "Greeting":
+                    section_copy["content"] = "Hello {{first_name}},"
+                elif section_copy.get("name") == "Introduction":
+                    section_copy["content"] = f"Welcome to our newsletter about {self.title}. We have some exciting updates to share with you."
+                elif section_copy.get("name") == "Main Content":
+                    section_copy["content"] = f"Here are the key points about {self.title} that you should know about."
+                elif section_copy.get("name") == "Call to Action":
+                    section_copy["content"] = self.call_to_action or "Click here to learn more"
+                elif section_copy.get("name") == "Footer":
+                    section_copy["content"] = "Thank you for reading! If you have any questions, please reply to this email."
+                else:
+                    section_copy["content"] = f"Content about {section_copy.get('name', 'this topic')}."
+
+            newsletter["sections"].append(section_copy)
+
+        # Add image recommendations if enabled
+        if self.include_images and "image_recommendations" in outline:
+            newsletter["images"] = outline["image_recommendations"]
+
+        # Add personalization if requested
+        if include_personalization:
+            newsletter["personalization"] = {
+                "merge_tags": [
+                    {"tag": "{{first_name}}", "description": "Recipient's first name"},
+                    {"tag": "{{last_name}}", "description": "Recipient's last name"},
+                    {"tag": "{{company}}", "description": "Recipient's company name"},
+                    {"tag": "{{unsubscribe}}", "description": "Unsubscribe link"}
+                ],
+                "dynamic_content": [
+                    {"condition": "industry", "values": ["technology", "healthcare", "finance", "education", "retail"]},
+                    {"condition": "role", "values": ["manager", "executive", "individual contributor", "consultant"]}
+                ]
+            }
+
+        # Add best practices
+        newsletter["best_practices"] = self.get_email_best_practices()
+
+        # Add preview text
+        newsletter["preview_text"] = f"Check out our latest insights on {self.title}"
+
+        # Add email metrics to track
+        newsletter["recommended_metrics"] = [
+            "open_rate",
+            "click_through_rate",
+            "conversion_rate",
+            "bounce_rate",
+            "unsubscribe_rate"
+        ]
+
+        # Update timestamp
+        self.updated_at = datetime.now().isoformat()
+
+        return newsletter
 
     def get_email_best_practices(self) -> Dict[str, List[str]]:
         """

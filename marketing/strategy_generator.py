@@ -515,6 +515,344 @@ class StrategyGenerator:
 
     def analyze_business(self) -> Dict[str, Any]:
         """
+        Analyze the business type and goals.
+
+        Returns:
+            Dictionary with business analysis results
+        """
+        if not self.business_type:
+            raise ValueError("Business type not set")
+
+        if not self.goals:
+            raise ValueError("Marketing goals not set")
+
+        # Get business type information
+        business_info = self.BUSINESS_TYPES.get(self.business_type, {})
+
+        # Get goal information
+        goal_info = {goal: self.MARKETING_GOALS.get(goal, {}) for goal in self.goals}
+
+        # Analyze alignment between business type and goals
+        alignment = {}
+        for goal in self.goals:
+            if goal in business_info.get("typical_goals", []):
+                alignment[goal] = "high"
+            else:
+                alignment[goal] = "medium"
+
+        # Analyze recommended channels based on business type and goals
+        recommended_channels = {}
+        for goal in self.goals:
+            goal_channels = self.MARKETING_GOALS.get(goal, {}).get("recommended_channels", [])
+            business_channels = business_info.get("typical_channels", [])
+
+            # Find intersection of goal channels and business channels
+            common_channels = set(goal_channels).intersection(set(business_channels))
+
+            # Add to recommended channels with score
+            for channel in goal_channels:
+                if channel in common_channels:
+                    recommended_channels[channel] = recommended_channels.get(channel, 0) + 2
+                else:
+                    recommended_channels[channel] = recommended_channels.get(channel, 0) + 1
+
+        # Normalize scores
+        max_score = max(recommended_channels.values()) if recommended_channels else 1
+        for channel in recommended_channels:
+            recommended_channels[channel] = round(recommended_channels[channel] / max_score, 2)
+
+        return {
+            "business_type": {
+                "name": self.business_type,
+                "info": business_info
+            },
+            "goals": goal_info,
+            "alignment": alignment,
+            "recommended_channels": recommended_channels
+        }
+
+    def analyze_audience(self) -> Dict[str, Any]:
+        """
+        Analyze the target audience.
+
+        Returns:
+            Dictionary with audience analysis results
+        """
+        if not self.target_audience:
+            raise ValueError("Target audience not set")
+
+        # Extract key audience information
+        demographics = self.target_audience.get("demographics", {})
+        interests = self.target_audience.get("interests", [])
+        pain_points = self.target_audience.get("pain_points", [])
+        goals = self.target_audience.get("goals", [])
+
+        # Generate personas based on target audience
+        personas = []
+        if self.persona_creator:
+            try:
+                personas = self.persona_creator.create_personas(
+                    demographics=demographics,
+                    interests=interests,
+                    pain_points=pain_points,
+                    goals=goals,
+                    count=3  # Generate 3 personas
+                )
+            except Exception as e:
+                personas = []
+
+        # Analyze channel preferences based on demographics and interests
+        channel_preferences = {}
+
+        # Age-based preferences
+        age_range = demographics.get("age_range", "")
+        if "18-24" in age_range:
+            channel_preferences["social_media"] = channel_preferences.get("social_media", 0) + 0.8
+            channel_preferences["video_marketing"] = channel_preferences.get("video_marketing", 0) + 0.7
+        elif "25-34" in age_range:
+            channel_preferences["social_media"] = channel_preferences.get("social_media", 0) + 0.7
+            channel_preferences["email_marketing"] = channel_preferences.get("email_marketing", 0) + 0.6
+        elif "35-44" in age_range:
+            channel_preferences["email_marketing"] = channel_preferences.get("email_marketing", 0) + 0.7
+            channel_preferences["content_marketing"] = channel_preferences.get("content_marketing", 0) + 0.6
+        elif "45-54" in age_range:
+            channel_preferences["email_marketing"] = channel_preferences.get("email_marketing", 0) + 0.8
+            channel_preferences["content_marketing"] = channel_preferences.get("content_marketing", 0) + 0.7
+        elif "55+" in age_range:
+            channel_preferences["email_marketing"] = channel_preferences.get("email_marketing", 0) + 0.9
+            channel_preferences["content_marketing"] = channel_preferences.get("content_marketing", 0) + 0.6
+
+        # Interest-based preferences
+        for interest in interests:
+            if "technology" in interest.lower():
+                channel_preferences["content_marketing"] = channel_preferences.get("content_marketing", 0) + 0.5
+                channel_preferences["email_marketing"] = channel_preferences.get("email_marketing", 0) + 0.4
+            elif "social" in interest.lower():
+                channel_preferences["social_media"] = channel_preferences.get("social_media", 0) + 0.6
+                channel_preferences["community_building"] = channel_preferences.get("community_building", 0) + 0.5
+            elif "education" in interest.lower():
+                channel_preferences["content_marketing"] = channel_preferences.get("content_marketing", 0) + 0.7
+                channel_preferences["video_marketing"] = channel_preferences.get("video_marketing", 0) + 0.6
+
+        # Normalize scores
+        max_score = max(channel_preferences.values()) if channel_preferences else 1
+        for channel in channel_preferences:
+            channel_preferences[channel] = round(channel_preferences[channel] / max_score, 2)
+
+        return {
+            "demographics": demographics,
+            "interests": interests,
+            "pain_points": pain_points,
+            "goals": goals,
+            "personas": personas,
+            "channel_preferences": channel_preferences
+        }
+
+    def segment_audience(self) -> Dict[str, Any]:
+        """
+        Segment the target audience.
+
+        Returns:
+            Dictionary with audience segmentation results
+        """
+        if not self.target_audience:
+            raise ValueError("Target audience not set")
+
+        # Extract key audience information
+        demographics = self.target_audience.get("demographics", {})
+        interests = self.target_audience.get("interests", [])
+        pain_points = self.target_audience.get("pain_points", [])
+        goals = self.target_audience.get("goals", [])
+
+        # Create demographic segments
+        demographic_segments = []
+
+        # Age segments
+        age_range = demographics.get("age_range", "")
+        if age_range:
+            if "18-24" in age_range:
+                demographic_segments.append({
+                    "name": "Young Adults",
+                    "criteria": {"age": "18-24"},
+                    "description": "Young adults who are tech-savvy and socially connected"
+                })
+            if "25-34" in age_range:
+                demographic_segments.append({
+                    "name": "Millennials",
+                    "criteria": {"age": "25-34"},
+                    "description": "Millennials who are career-focused and digitally engaged"
+                })
+            if "35-44" in age_range:
+                demographic_segments.append({
+                    "name": "Gen X",
+                    "criteria": {"age": "35-44"},
+                    "description": "Gen X professionals who value quality and reliability"
+                })
+            if "45-54" in age_range:
+                demographic_segments.append({
+                    "name": "Established Professionals",
+                    "criteria": {"age": "45-54"},
+                    "description": "Established professionals with higher disposable income"
+                })
+            if "55+" in age_range:
+                demographic_segments.append({
+                    "name": "Seniors",
+                    "criteria": {"age": "55+"},
+                    "description": "Seniors who value simplicity and excellent customer service"
+                })
+
+        # Create interest-based segments
+        interest_segments = []
+        for interest in interests:
+            interest_segments.append({
+                "name": f"{interest.title()} Enthusiasts",
+                "criteria": {"interest": interest},
+                "description": f"People with a strong interest in {interest}"
+            })
+
+        # Create pain point segments
+        pain_point_segments = []
+        for pain_point in pain_points:
+            pain_point_segments.append({
+                "name": f"{pain_point.title().replace(' ', '')} Seekers",
+                "criteria": {"pain_point": pain_point},
+                "description": f"People experiencing {pain_point}"
+            })
+
+        # Create goal-based segments
+        goal_segments = []
+        for goal in goals:
+            goal_segments.append({
+                "name": f"{goal.title().replace(' ', '')} Achievers",
+                "criteria": {"goal": goal},
+                "description": f"People aiming to {goal}"
+            })
+
+        # Create cross-segments (combinations of different criteria)
+        cross_segments = []
+
+        # Example: Combine age and interest
+        if demographic_segments and interest_segments:
+            for demo in demographic_segments[:2]:  # Limit to first 2 demographic segments
+                for interest in interest_segments[:2]:  # Limit to first 2 interest segments
+                    cross_segments.append({
+                        "name": f"{demo['name']} {interest['name']}",
+                        "criteria": {**demo['criteria'], **interest['criteria']},
+                        "description": f"{demo['description']} who are also {interest['description'].lower()}"
+                    })
+
+        return {
+            "demographic_segments": demographic_segments,
+            "interest_segments": interest_segments,
+            "pain_point_segments": pain_point_segments,
+            "goal_segments": goal_segments,
+            "cross_segments": cross_segments
+        }
+
+    def analyze_channels(self) -> Dict[str, Any]:
+        """
+        Analyze marketing channels.
+
+        Returns:
+            Dictionary with channel analysis results
+        """
+        if not self.business_type:
+            raise ValueError("Business type not set")
+
+        if not self.goals:
+            raise ValueError("Marketing goals not set")
+
+        # Get business analysis
+        business_analysis = self.analyze_business()
+
+        # Get audience analysis
+        audience_analysis = self.analyze_audience()
+
+        # Combine channel recommendations from business and audience analysis
+        channel_scores = {}
+
+        # Add business recommended channels
+        for channel, score in business_analysis.get("recommended_channels", {}).items():
+            channel_scores[channel] = channel_scores.get(channel, 0) + score * 0.6  # 60% weight
+
+        # Add audience preferred channels
+        for channel, score in audience_analysis.get("channel_preferences", {}).items():
+            channel_scores[channel] = channel_scores.get(channel, 0) + score * 0.4  # 40% weight
+
+        # Adjust scores based on budget
+        budget_amount = self.budget.get("amount", 0)
+        budget_period = self.budget.get("period", "monthly")
+
+        # Convert budget to monthly equivalent
+        if budget_period == "quarterly":
+            monthly_budget = budget_amount / 3
+        elif budget_period == "annually":
+            monthly_budget = budget_amount / 12
+        else:
+            monthly_budget = budget_amount
+
+        # Adjust scores based on budget
+        for channel in channel_scores:
+            channel_info = self.MARKETING_CHANNELS.get(channel, {})
+            typical_cost = channel_info.get("typical_cost", "medium")
+
+            # Apply budget adjustment
+            if typical_cost == "high" and monthly_budget < 1000:
+                channel_scores[channel] *= 0.7  # Reduce score for expensive channels on low budget
+            elif typical_cost == "low" and monthly_budget < 500:
+                channel_scores[channel] *= 1.2  # Increase score for affordable channels on low budget
+
+        # Normalize scores
+        max_score = max(channel_scores.values()) if channel_scores else 1
+        for channel in channel_scores:
+            channel_scores[channel] = round(channel_scores[channel] / max_score, 2)
+
+        # Get channel details
+        channel_details = {}
+        for channel, score in channel_scores.items():
+            channel_info = self.MARKETING_CHANNELS.get(channel, {})
+            channel_details[channel] = {
+                "score": score,
+                "description": channel_info.get("description", ""),
+                "formats": channel_info.get("formats", []),
+                "metrics": channel_info.get("metrics", []),
+                "best_for": channel_info.get("best_for", []),
+                "typical_cost": channel_info.get("typical_cost", ""),
+                "time_investment": channel_info.get("time_investment", ""),
+                "difficulty": channel_info.get("difficulty", "")
+            }
+
+        # Filter channels based on minimum score
+        min_channel_score = self.config.get("min_channel_score", 0.6)
+        recommended_channels = {k: v for k, v in channel_details.items() if v["score"] >= min_channel_score}
+
+        # Sort channels by score
+        sorted_channels = dict(sorted(recommended_channels.items(), key=lambda x: x[1]["score"], reverse=True))
+
+        # Limit to max channels
+        max_channels = self.config.get("max_channels", 5)
+        top_channels = dict(list(sorted_channels.items())[:max_channels])
+
+        return {
+            "all_channels": channel_details,
+            "recommended_channels": top_channels,
+            "channel_scores": channel_scores
+        }
+
+    def to_json(self, indent: int = 2) -> str:
+        """
+        Convert the strategy generator to a JSON string.
+
+        Args:
+            indent: Number of spaces for indentation
+
+        Returns:
+            JSON string representation of the strategy generator
+        """
+        return json.dumps(self.to_dict(), indent=indent)
+
+    def analyze_business(self) -> Dict[str, Any]:
+        """
         Analyze the business based on its type and goals.
 
         Returns:
