@@ -4261,6 +4261,4921 @@ class StrategyGenerator:
 
         return business_growth_barriers
 
+    def analyze_channels(self) -> Dict[str, Any]:
+        """
+        Analyze marketing channels based on business type, goals, target audience, and budget.
+
+        This method evaluates the effectiveness of different marketing channels for the
+        specific business context and provides recommendations on which channels to prioritize.
+
+        Returns:
+            Dictionary with channel analysis results
+        """
+        # Validate inputs
+        business_type_valid, business_type_errors = self.validate_business_type()
+        goals_valid, goals_errors = self.validate_goals()
+
+        if not business_type_valid:
+            raise ValueError(f"Invalid business type: {', '.join(business_type_errors)}")
+
+        if not goals_valid:
+            raise ValueError(f"Invalid goals: {', '.join(goals_errors)}")
+
+        # Analyze channel effectiveness
+        channel_effectiveness = self._analyze_channel_effectiveness()
+
+        # Analyze channel-audience fit
+        audience_fit = self._analyze_channel_audience_fit()
+
+        # Analyze channel-goal alignment
+        goal_alignment = self._analyze_channel_goal_alignment()
+
+        # Analyze channel-budget fit
+        budget_fit = self._analyze_channel_budget_fit()
+
+        # Analyze channel ROI
+        roi_analysis = self._analyze_channel_roi()
+
+        # Prioritize channels
+        prioritized_channels = self._prioritize_channels(
+            channel_effectiveness,
+            audience_fit,
+            goal_alignment,
+            budget_fit,
+            roi_analysis
+        )
+
+        # Generate channel recommendations
+        channel_recommendations = self._generate_channel_recommendations(prioritized_channels)
+
+        # Create channel analysis
+        channel_analysis = {
+            "id": str(uuid.uuid4()),
+            "timestamp": datetime.datetime.now().isoformat(),
+            "channel_effectiveness": channel_effectiveness,
+            "audience_fit": audience_fit,
+            "goal_alignment": goal_alignment,
+            "budget_fit": budget_fit,
+            "roi_analysis": roi_analysis,
+            "prioritized_channels": prioritized_channels,
+            "channel_recommendations": channel_recommendations
+        }
+
+        return channel_analysis
+
+    def _analyze_channel_effectiveness(self) -> Dict[str, Any]:
+        """
+        Analyze the effectiveness of different marketing channels.
+
+        This method evaluates each marketing channel based on its alignment with
+        the business type, goals, and other factors to determine its potential effectiveness.
+
+        Returns:
+            Dictionary with channel effectiveness analysis
+        """
+        # Get all available channels
+        channels = list(self.MARKETING_CHANNELS.keys())
+
+        # Initialize effectiveness scores
+        effectiveness_scores = {}
+
+        # Analyze each channel
+        for channel in channels:
+            # Get channel data
+            channel_data = self.MARKETING_CHANNELS.get(channel, {})
+
+            # Calculate base effectiveness score
+            base_score = self._calculate_channel_base_score(channel)
+
+            # Calculate business type alignment score
+            business_alignment = self._calculate_channel_business_alignment(channel)
+
+            # Calculate goal alignment score
+            goal_alignment = self._calculate_channel_goal_alignment_score(channel)
+
+            # Calculate difficulty adjustment
+            difficulty = channel_data.get("difficulty", "medium")
+            difficulty_adjustment = self._calculate_difficulty_adjustment(difficulty)
+
+            # Calculate time investment adjustment
+            time_investment = channel_data.get("time_investment", "medium")
+            time_adjustment = self._calculate_time_adjustment(time_investment)
+
+            # Calculate metrics effectiveness
+            metrics_effectiveness = self._analyze_channel_metrics_effectiveness(channel)
+            metrics_score = metrics_effectiveness["avg_effectiveness"]
+
+            # Calculate overall effectiveness score
+            overall_score = (
+                base_score * 0.15 +
+                business_alignment * 0.25 +
+                goal_alignment * 0.3 +
+                metrics_score * 0.2 +
+                difficulty_adjustment * 0.05 +
+                time_adjustment * 0.05
+            )
+
+            # Round to 2 decimal places
+            overall_score = round(overall_score, 2)
+
+            # Determine effectiveness level
+            effectiveness_level = "low"
+            if overall_score >= 0.8:
+                effectiveness_level = "high"
+            elif overall_score >= 0.6:
+                effectiveness_level = "medium"
+
+            # Add to effectiveness scores
+            effectiveness_scores[channel] = {
+                "channel": channel,
+                "description": channel_data.get("description", ""),
+                "base_score": base_score,
+                "business_alignment": business_alignment,
+                "goal_alignment": goal_alignment,
+                "difficulty_adjustment": difficulty_adjustment,
+                "time_adjustment": time_adjustment,
+                "metrics_effectiveness": metrics_effectiveness,
+                "overall_score": overall_score,
+                "effectiveness_level": effectiveness_level,
+                "best_for": channel_data.get("best_for", []),
+                "formats": channel_data.get("formats", []),
+                "metrics": channel_data.get("metrics", [])
+            }
+
+        # Sort channels by overall score
+        sorted_channels = sorted(
+            effectiveness_scores.values(),
+            key=lambda x: x["overall_score"],
+            reverse=True
+        )
+
+        # Get top channels
+        top_channels = [channel["channel"] for channel in sorted_channels[:5]]
+
+        # Get highly effective channels
+        highly_effective = [
+            channel["channel"] for channel in sorted_channels
+            if channel["effectiveness_level"] == "high"
+        ]
+
+        # Get moderately effective channels
+        moderately_effective = [
+            channel["channel"] for channel in sorted_channels
+            if channel["effectiveness_level"] == "medium"
+        ]
+
+        return {
+            "effectiveness_scores": effectiveness_scores,
+            "sorted_channels": sorted_channels,
+            "top_channels": top_channels,
+            "highly_effective": highly_effective,
+            "moderately_effective": moderately_effective
+        }
+
+    def _analyze_channel_metrics_effectiveness(self, channel: str) -> Dict[str, Any]:
+        """
+        Analyze the effectiveness of a channel for specific metrics.
+
+        This method evaluates how effective a marketing channel is for different
+        metrics like awareness, engagement, conversion, and retention.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with metrics effectiveness analysis
+        """
+        # Define effectiveness ratings by channel and metric (0.0 to 1.0)
+        channel_metrics_effectiveness = {
+            "content_marketing": {
+                "awareness": 0.7,
+                "engagement": 0.8,
+                "conversion": 0.6,
+                "retention": 0.8,
+                "reach": 0.6,
+                "cost_efficiency": 0.7
+            },
+            "seo": {
+                "awareness": 0.8,
+                "engagement": 0.6,
+                "conversion": 0.7,
+                "retention": 0.5,
+                "reach": 0.8,
+                "cost_efficiency": 0.9
+            },
+            "email_marketing": {
+                "awareness": 0.4,
+                "engagement": 0.7,
+                "conversion": 0.9,
+                "retention": 0.9,
+                "reach": 0.5,
+                "cost_efficiency": 0.8
+            },
+            "social_media": {
+                "awareness": 0.9,
+                "engagement": 0.9,
+                "conversion": 0.5,
+                "retention": 0.6,
+                "reach": 0.8,
+                "cost_efficiency": 0.6
+            },
+            "ppc": {
+                "awareness": 0.8,
+                "engagement": 0.5,
+                "conversion": 0.8,
+                "retention": 0.3,
+                "reach": 0.7,
+                "cost_efficiency": 0.5
+            },
+            "influencer_marketing": {
+                "awareness": 0.9,
+                "engagement": 0.8,
+                "conversion": 0.6,
+                "retention": 0.4,
+                "reach": 0.7,
+                "cost_efficiency": 0.5
+            },
+            "affiliate_marketing": {
+                "awareness": 0.5,
+                "engagement": 0.5,
+                "conversion": 0.9,
+                "retention": 0.4,
+                "reach": 0.6,
+                "cost_efficiency": 0.8
+            },
+            "video_marketing": {
+                "awareness": 0.9,
+                "engagement": 0.8,
+                "conversion": 0.6,
+                "retention": 0.7,
+                "reach": 0.7,
+                "cost_efficiency": 0.5
+            },
+            "community_building": {
+                "awareness": 0.5,
+                "engagement": 0.9,
+                "conversion": 0.5,
+                "retention": 0.9,
+                "reach": 0.4,
+                "cost_efficiency": 0.6
+            },
+            "pr": {
+                "awareness": 0.9,
+                "engagement": 0.5,
+                "conversion": 0.3,
+                "retention": 0.4,
+                "reach": 0.8,
+                "cost_efficiency": 0.6
+            }
+        }
+
+        # Get metrics effectiveness for this channel
+        metrics = channel_metrics_effectiveness.get(channel, {
+            "awareness": 0.5,
+            "engagement": 0.5,
+            "conversion": 0.5,
+            "retention": 0.5,
+            "reach": 0.5,
+            "cost_efficiency": 0.5
+        })
+
+        # Calculate average effectiveness
+        avg_effectiveness = sum(metrics.values()) / len(metrics)
+
+        # Determine top metrics (effectiveness >= 0.8)
+        top_metrics = [metric for metric, score in metrics.items() if score >= 0.8]
+
+        # Determine weak metrics (effectiveness < 0.5)
+        weak_metrics = [metric for metric, score in metrics.items() if score < 0.5]
+
+        # Adjust metrics based on business type
+        adjusted_metrics = self._adjust_metrics_for_business_type(metrics, channel)
+
+        # Adjust metrics based on goals
+        adjusted_metrics = self._adjust_metrics_for_goals(adjusted_metrics, channel)
+
+        return {
+            "metrics": adjusted_metrics,
+            "avg_effectiveness": round(avg_effectiveness, 2),
+            "top_metrics": top_metrics,
+            "weak_metrics": weak_metrics
+        }
+
+    def _adjust_metrics_for_business_type(self, metrics: Dict[str, float], channel: str) -> Dict[str, float]:
+        """
+        Adjust metrics effectiveness based on business type.
+
+        Args:
+            metrics: Dictionary with metrics effectiveness scores
+            channel: Marketing channel
+
+        Returns:
+            Adjusted metrics effectiveness scores
+        """
+        # Get business type
+        business_type = self.business_type
+
+        # Create a copy of metrics
+        adjusted_metrics = metrics.copy()
+
+        # Adjust metrics based on business type
+        if business_type == "saas":
+            # SaaS businesses benefit more from content marketing and email
+            if channel == "content_marketing":
+                adjusted_metrics["conversion"] += 0.1
+                adjusted_metrics["retention"] += 0.1
+            elif channel == "email_marketing":
+                adjusted_metrics["conversion"] += 0.1
+                adjusted_metrics["retention"] += 0.1
+            elif channel == "community_building":
+                adjusted_metrics["retention"] += 0.2
+
+        elif business_type == "ecommerce":
+            # Ecommerce businesses benefit more from PPC and social media
+            if channel == "ppc":
+                adjusted_metrics["conversion"] += 0.1
+                adjusted_metrics["reach"] += 0.1
+            elif channel == "social_media":
+                adjusted_metrics["awareness"] += 0.1
+                adjusted_metrics["engagement"] += 0.1
+            elif channel == "email_marketing":
+                adjusted_metrics["conversion"] += 0.2
+
+        elif business_type == "service":
+            # Service businesses benefit more from content marketing and SEO
+            if channel == "content_marketing":
+                adjusted_metrics["conversion"] += 0.1
+                adjusted_metrics["engagement"] += 0.1
+            elif channel == "seo":
+                adjusted_metrics["conversion"] += 0.1
+                adjusted_metrics["awareness"] += 0.1
+            elif channel == "community_building":
+                adjusted_metrics["retention"] += 0.1
+
+        elif business_type == "local":
+            # Local businesses benefit more from local SEO and community building
+            if channel == "seo":
+                adjusted_metrics["awareness"] += 0.2
+                adjusted_metrics["conversion"] += 0.1
+            elif channel == "community_building":
+                adjusted_metrics["engagement"] += 0.2
+                adjusted_metrics["retention"] += 0.1
+            elif channel == "social_media":
+                adjusted_metrics["awareness"] += 0.1
+                adjusted_metrics["engagement"] += 0.1
+
+        # Cap metrics at 1.0
+        for metric in adjusted_metrics:
+            adjusted_metrics[metric] = min(adjusted_metrics[metric], 1.0)
+
+        return adjusted_metrics
+
+    def _adjust_metrics_for_goals(self, metrics: Dict[str, float], channel: str) -> Dict[str, float]:
+        """
+        Adjust metrics effectiveness based on marketing goals.
+
+        Args:
+            metrics: Dictionary with metrics effectiveness scores
+            channel: Marketing channel
+
+        Returns:
+            Adjusted metrics effectiveness scores
+        """
+        # Get marketing goals
+        goals = self.goals
+
+        # Create a copy of metrics
+        adjusted_metrics = metrics.copy()
+
+        # Adjust metrics based on goals
+        for goal in goals:
+            if goal == "brand_awareness":
+                # Brand awareness benefits from awareness and reach metrics
+                adjusted_metrics["awareness"] += 0.1
+                adjusted_metrics["reach"] += 0.1
+
+            elif goal == "lead_generation":
+                # Lead generation benefits from conversion metrics
+                adjusted_metrics["conversion"] += 0.1
+                adjusted_metrics["cost_efficiency"] += 0.05
+
+            elif goal == "sales":
+                # Sales benefits from conversion metrics
+                adjusted_metrics["conversion"] += 0.15
+                adjusted_metrics["cost_efficiency"] += 0.05
+
+            elif goal == "customer_retention":
+                # Customer retention benefits from retention and engagement metrics
+                adjusted_metrics["retention"] += 0.15
+                adjusted_metrics["engagement"] += 0.1
+
+            elif goal == "customer_engagement":
+                # Customer engagement benefits from engagement metrics
+                adjusted_metrics["engagement"] += 0.15
+                adjusted_metrics["retention"] += 0.05
+
+        # Cap metrics at 1.0
+        for metric in adjusted_metrics:
+            adjusted_metrics[metric] = min(adjusted_metrics[metric], 1.0)
+
+        return adjusted_metrics
+
+    def _calculate_channel_base_score(self, channel: str) -> float:
+        """
+        Calculate the base effectiveness score for a channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Base effectiveness score (0.0 to 1.0)
+        """
+        # This is a simplified implementation
+        # A full implementation would use more sophisticated scoring
+
+        # Define base scores for each channel
+        base_scores = {
+            "content_marketing": 0.8,
+            "seo": 0.75,
+            "email_marketing": 0.85,
+            "social_media": 0.7,
+            "ppc": 0.65,
+            "influencer_marketing": 0.6,
+            "affiliate_marketing": 0.7,
+            "video_marketing": 0.75,
+            "community_building": 0.65,
+            "pr": 0.55
+        }
+
+        # Get base score for this channel
+        return base_scores.get(channel, 0.5)
+
+    def _calculate_channel_business_alignment(self, channel: str) -> float:
+        """
+        Calculate how well a channel aligns with the business type.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Business alignment score (0.0 to 1.0)
+        """
+        # Get business type data
+        business_type_data = self.BUSINESS_TYPES.get(self.business_type, {})
+
+        # Get typical channels for this business type
+        typical_channels = business_type_data.get("typical_channels", [])
+
+        # Calculate alignment score
+        if channel in typical_channels:
+            return 1.0  # Perfect alignment
+        elif any(c in channel for c in typical_channels) or any(channel in c for c in typical_channels):
+            return 0.7  # Partial alignment
+        else:
+            return 0.4  # Low alignment
+
+    def _calculate_channel_goal_alignment_score(self, channel: str) -> float:
+        """
+        Calculate how well a channel aligns with the marketing goals.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Goal alignment score (0.0 to 1.0)
+        """
+        # Get channel data
+        channel_data = self.MARKETING_CHANNELS.get(channel, {})
+
+        # Get best goals for this channel
+        best_for = channel_data.get("best_for", [])
+
+        # Calculate alignment score
+        aligned_goals = [goal for goal in self.goals if goal in best_for or any(goal in bf for bf in best_for)]
+        alignment_score = len(aligned_goals) / len(self.goals) if self.goals else 0
+
+        return alignment_score
+
+    def _calculate_difficulty_adjustment(self, difficulty: str) -> float:
+        """
+        Calculate adjustment factor based on channel difficulty.
+
+        Args:
+            difficulty: Channel difficulty level
+
+        Returns:
+            Difficulty adjustment factor (0.0 to 1.0)
+        """
+        if difficulty == "low":
+            return 1.0
+        elif difficulty == "medium":
+            return 0.8
+        elif difficulty == "high":
+            return 0.6
+        else:
+            return 0.8  # Default to medium
+
+    def _calculate_time_adjustment(self, time_investment: str) -> float:
+        """
+        Calculate adjustment factor based on channel time investment.
+
+        Args:
+            time_investment: Channel time investment level
+
+        Returns:
+            Time adjustment factor (0.0 to 1.0)
+        """
+        if time_investment == "low":
+            return 1.0
+        elif time_investment == "medium":
+            return 0.8
+        elif time_investment == "high":
+            return 0.6
+        else:
+            return 0.8  # Default to medium
+
+    def _analyze_channel_audience_fit(self) -> Dict[str, Any]:
+        """
+        Analyze how well each channel fits with the target audience.
+
+        This method evaluates each marketing channel based on its alignment with
+        the target audience demographics, interests, and behaviors.
+
+        Returns:
+            Dictionary with channel-audience fit analysis
+        """
+        # Validate target audience
+        is_valid, errors = self.validate_target_audience()
+
+        if not is_valid:
+            # If target audience is not valid, return a simplified analysis
+            return self._generate_simplified_audience_fit()
+
+        # Get all available channels
+        channels = list(self.MARKETING_CHANNELS.keys())
+
+        # Initialize audience fit scores
+        audience_fit_scores = {}
+
+        # Get demographic analysis
+        demographic_analysis = self._analyze_demographics()
+
+        # Get age analysis
+        age_analysis = demographic_analysis.get("age", {})
+        generation = age_analysis.get("generation", "unknown")
+        channel_preferences = age_analysis.get("channel_preferences", [])
+
+        # Get location analysis
+        location_analysis = demographic_analysis.get("location", {})
+        location_type = location_analysis.get("location_type", "unknown")
+        channel_implications = location_analysis.get("channel_implications", [])
+
+        # Analyze each channel
+        for channel in channels:
+            # Calculate demographic fit score
+            demographic_fit = self._calculate_channel_demographic_fit(
+                channel,
+                generation,
+                channel_preferences,
+                location_type,
+                channel_implications
+            )
+
+            # Calculate interest fit score
+            interest_fit = self._calculate_channel_interest_fit(channel)
+
+            # Calculate behavior fit score
+            behavior_fit = self._calculate_channel_behavior_fit(channel)
+
+            # Calculate overall audience fit score
+            overall_fit = (
+                demographic_fit * 0.4 +
+                interest_fit * 0.3 +
+                behavior_fit * 0.3
+            )
+
+            # Round to 2 decimal places
+            overall_fit = round(overall_fit, 2)
+
+            # Determine fit level
+            fit_level = "low"
+            if overall_fit >= 0.8:
+                fit_level = "high"
+            elif overall_fit >= 0.6:
+                fit_level = "medium"
+
+            # Add to audience fit scores
+            audience_fit_scores[channel] = {
+                "channel": channel,
+                "demographic_fit": demographic_fit,
+                "interest_fit": interest_fit,
+                "behavior_fit": behavior_fit,
+                "overall_fit": overall_fit,
+                "fit_level": fit_level
+            }
+
+        # Sort channels by overall fit
+        sorted_channels = sorted(
+            audience_fit_scores.values(),
+            key=lambda x: x["overall_fit"],
+            reverse=True
+        )
+
+        # Get top channels
+        top_channels = [channel["channel"] for channel in sorted_channels[:5]]
+
+        # Get high fit channels
+        high_fit_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["fit_level"] == "high"
+        ]
+
+        # Get medium fit channels
+        medium_fit_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["fit_level"] == "medium"
+        ]
+
+        return {
+            "audience_fit_scores": audience_fit_scores,
+            "sorted_channels": sorted_channels,
+            "top_channels": top_channels,
+            "high_fit_channels": high_fit_channels,
+            "medium_fit_channels": medium_fit_channels
+        }
+
+    def _generate_simplified_audience_fit(self) -> Dict[str, Any]:
+        """
+        Generate a simplified audience fit analysis when target audience is not valid.
+
+        Returns:
+            Dictionary with simplified audience fit analysis
+        """
+        # Get all available channels
+        channels = list(self.MARKETING_CHANNELS.keys())
+
+        # Initialize audience fit scores
+        audience_fit_scores = {}
+
+        # Use default scores for each channel
+        default_scores = {
+            "content_marketing": 0.7,
+            "seo": 0.7,
+            "email_marketing": 0.7,
+            "social_media": 0.7,
+            "ppc": 0.6,
+            "influencer_marketing": 0.6,
+            "affiliate_marketing": 0.6,
+            "video_marketing": 0.6,
+            "community_building": 0.5,
+            "pr": 0.5
+        }
+
+        # Create audience fit scores
+        for channel in channels:
+            fit_score = default_scores.get(channel, 0.5)
+
+            # Determine fit level
+            fit_level = "low"
+            if fit_score >= 0.8:
+                fit_level = "high"
+            elif fit_score >= 0.6:
+                fit_level = "medium"
+
+            # Add to audience fit scores
+            audience_fit_scores[channel] = {
+                "channel": channel,
+                "demographic_fit": fit_score,
+                "interest_fit": fit_score,
+                "behavior_fit": fit_score,
+                "overall_fit": fit_score,
+                "fit_level": fit_level
+            }
+
+        # Sort channels by overall fit
+        sorted_channels = sorted(
+            audience_fit_scores.values(),
+            key=lambda x: x["overall_fit"],
+            reverse=True
+        )
+
+        # Get top channels
+        top_channels = [channel["channel"] for channel in sorted_channels[:5]]
+
+        # Get high fit channels
+        high_fit_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["fit_level"] == "high"
+        ]
+
+        # Get medium fit channels
+        medium_fit_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["fit_level"] == "medium"
+        ]
+
+        return {
+            "audience_fit_scores": audience_fit_scores,
+            "sorted_channels": sorted_channels,
+            "top_channels": top_channels,
+            "high_fit_channels": high_fit_channels,
+            "medium_fit_channels": medium_fit_channels,
+            "note": "Simplified analysis due to incomplete target audience data"
+        }
+
+    def _calculate_channel_demographic_fit(
+        self,
+        channel: str,
+        generation: str,
+        channel_preferences: List[str],
+        location_type: str,
+        channel_implications: List[str]
+    ) -> float:
+        """
+        Calculate how well a channel fits with the audience demographics.
+
+        Args:
+            channel: Marketing channel
+            generation: Audience generation
+            channel_preferences: Channel preferences based on generation
+            location_type: Audience location type
+            channel_implications: Channel implications based on location
+
+        Returns:
+            Demographic fit score (0.0 to 1.0)
+        """
+        # Calculate generation fit
+        generation_fit = 0.5  # Default score
+
+        if channel in channel_preferences:
+            generation_fit = 1.0  # Perfect fit
+        elif any(c in channel for c in channel_preferences) or any(channel in c for c in channel_preferences):
+            generation_fit = 0.7  # Partial fit
+
+        # Calculate location fit
+        location_fit = 0.5  # Default score
+
+        if any(channel in implication.lower() for implication in channel_implications):
+            location_fit = 1.0  # Perfect fit
+        elif any(c in channel for c in [impl.lower() for impl in channel_implications]):
+            location_fit = 0.7  # Partial fit
+
+        # Calculate overall demographic fit
+        demographic_fit = (generation_fit * 0.6) + (location_fit * 0.4)
+
+        return demographic_fit
+
+    def _calculate_channel_interest_fit(self, channel: str) -> float:
+        """
+        Calculate how well a channel fits with the audience interests.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Interest fit score (0.0 to 1.0)
+        """
+        # Get interests from target audience
+        interests = self.target_audience.get("interests", [])
+
+        if not interests:
+            return 0.5  # Default score if no interests
+
+        # Define interest-channel mappings
+        interest_channel_mappings = {
+            "technology": ["content_marketing", "seo", "email_marketing", "social_media"],
+            "business": ["content_marketing", "email_marketing", "linkedin", "webinars"],
+            "finance": ["content_marketing", "email_marketing", "ppc", "webinars"],
+            "health": ["content_marketing", "social_media", "influencer_marketing", "video_marketing"],
+            "fitness": ["social_media", "influencer_marketing", "video_marketing", "community_building"],
+            "food": ["social_media", "influencer_marketing", "video_marketing", "pinterest"],
+            "travel": ["social_media", "influencer_marketing", "content_marketing", "email_marketing"],
+            "fashion": ["social_media", "influencer_marketing", "instagram", "pinterest"],
+            "beauty": ["social_media", "influencer_marketing", "youtube", "instagram"],
+            "gaming": ["social_media", "video_marketing", "community_building", "twitch"],
+            "education": ["content_marketing", "email_marketing", "webinars", "youtube"],
+            "entertainment": ["social_media", "video_marketing", "influencer_marketing", "community_building"],
+            "sports": ["social_media", "community_building", "video_marketing", "email_marketing"],
+            "music": ["social_media", "video_marketing", "influencer_marketing", "community_building"],
+            "art": ["social_media", "content_marketing", "community_building", "instagram"],
+            "design": ["social_media", "content_marketing", "pinterest", "instagram"],
+            "photography": ["social_media", "instagram", "pinterest", "content_marketing"],
+            "writing": ["content_marketing", "email_marketing", "social_media", "community_building"],
+            "cooking": ["social_media", "video_marketing", "pinterest", "content_marketing"],
+            "diy": ["social_media", "video_marketing", "pinterest", "content_marketing"],
+            "parenting": ["content_marketing", "social_media", "email_marketing", "community_building"],
+            "pets": ["social_media", "video_marketing", "community_building", "content_marketing"],
+            "science": ["content_marketing", "social_media", "email_marketing", "webinars"],
+            "history": ["content_marketing", "social_media", "email_marketing", "webinars"],
+            "politics": ["content_marketing", "social_media", "email_marketing", "community_building"],
+            "religion": ["content_marketing", "social_media", "community_building", "email_marketing"],
+            "philosophy": ["content_marketing", "social_media", "community_building", "webinars"],
+            "psychology": ["content_marketing", "social_media", "email_marketing", "webinars"],
+            "self_improvement": ["content_marketing", "email_marketing", "social_media", "webinars"],
+            "career": ["content_marketing", "email_marketing", "linkedin", "webinars"]
+        }
+
+        # Calculate interest fit
+        matching_interests = 0
+
+        for interest in interests:
+            # Normalize interest
+            normalized_interest = interest.lower().replace(" ", "_")
+
+            # Get channels for this interest
+            interest_channels = interest_channel_mappings.get(normalized_interest, [])
+
+            # Check if channel matches
+            if channel in interest_channels:
+                matching_interests += 1
+            elif any(c in channel for c in interest_channels) or any(channel in c for c in interest_channels):
+                matching_interests += 0.5
+
+        # Calculate fit score
+        interest_fit = matching_interests / len(interests) if interests else 0.5
+
+        # Cap at 1.0
+        return min(interest_fit, 1.0)
+
+    def _calculate_channel_behavior_fit(self, channel: str) -> float:
+        """
+        Calculate how well a channel fits with the audience behaviors.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Behavior fit score (0.0 to 1.0)
+        """
+        # This is a simplified implementation
+        # A full implementation would analyze specific behaviors
+
+        # Define default behavior fit scores
+        behavior_fit_scores = {
+            "content_marketing": 0.7,
+            "seo": 0.7,
+            "email_marketing": 0.8,
+            "social_media": 0.8,
+            "ppc": 0.6,
+            "influencer_marketing": 0.7,
+            "affiliate_marketing": 0.6,
+            "video_marketing": 0.7,
+            "community_building": 0.6,
+            "pr": 0.5
+        }
+
+        # Get behavior fit score for this channel
+        return behavior_fit_scores.get(channel, 0.5)
+
+    def _analyze_channel_goal_alignment(self) -> Dict[str, Any]:
+        """
+        Analyze how well each channel aligns with the marketing goals.
+
+        This method evaluates each marketing channel based on its alignment with
+        the specified marketing goals to determine which channels are best for
+        achieving each goal.
+
+        Returns:
+            Dictionary with channel-goal alignment analysis
+        """
+        # Validate goals
+        goals_valid, goals_errors = self.validate_goals()
+
+        if not goals_valid:
+            # If goals are not valid, return a simplified analysis
+            return {"error": "Invalid goals", "details": goals_errors}
+
+        # Get all available channels
+        channels = list(self.MARKETING_CHANNELS.keys())
+
+        # Initialize goal alignment scores
+        goal_alignment_scores = {}
+
+        # Analyze each goal
+        for goal in self.goals:
+            # Get goal data
+            goal_data = self.MARKETING_GOALS.get(goal, {})
+
+            # Get recommended channels for this goal
+            recommended_channels = goal_data.get("recommended_channels", [])
+
+            # Initialize channel scores for this goal
+            channel_scores = {}
+
+            # Score each channel for this goal
+            for channel in channels:
+                # Calculate alignment score
+                alignment_score = self._calculate_goal_channel_alignment(goal, channel, recommended_channels)
+
+                # Determine alignment level
+                alignment_level = "low"
+                if alignment_score >= 0.8:
+                    alignment_level = "high"
+                elif alignment_score >= 0.6:
+                    alignment_level = "medium"
+
+                # Add to channel scores
+                channel_scores[channel] = {
+                    "channel": channel,
+                    "alignment_score": alignment_score,
+                    "alignment_level": alignment_level
+                }
+
+            # Sort channels by alignment score
+            sorted_channels = sorted(
+                channel_scores.values(),
+                key=lambda x: x["alignment_score"],
+                reverse=True
+            )
+
+            # Get top channels for this goal
+            top_channels = [channel["channel"] for channel in sorted_channels[:3]]
+
+            # Get high alignment channels
+            high_alignment_channels = [
+                channel["channel"] for channel in sorted_channels
+                if channel["alignment_level"] == "high"
+            ]
+
+            # Add to goal alignment scores
+            goal_alignment_scores[goal] = {
+                "goal": goal,
+                "description": goal_data.get("description", ""),
+                "metrics": goal_data.get("metrics", []),
+                "recommended_channels": recommended_channels,
+                "channel_scores": channel_scores,
+                "sorted_channels": sorted_channels,
+                "top_channels": top_channels,
+                "high_alignment_channels": high_alignment_channels
+            }
+
+        # Calculate overall channel-goal alignment
+        overall_alignment = self._calculate_overall_goal_alignment(goal_alignment_scores)
+
+        # Get top channels across all goals
+        top_channels_overall = self._get_top_channels_overall(overall_alignment)
+
+        return {
+            "goal_alignment_scores": goal_alignment_scores,
+            "overall_alignment": overall_alignment,
+            "top_channels_overall": top_channels_overall
+        }
+
+    def _calculate_goal_channel_alignment(
+        self,
+        goal: str,
+        channel: str,
+        recommended_channels: List[str]
+    ) -> float:
+        """
+        Calculate how well a channel aligns with a specific goal.
+
+        Args:
+            goal: Marketing goal
+            channel: Marketing channel
+            recommended_channels: Recommended channels for this goal
+
+        Returns:
+            Alignment score (0.0 to 1.0)
+        """
+        # Calculate direct alignment
+        if channel in recommended_channels:
+            return 1.0  # Perfect alignment
+
+        # Calculate partial alignment
+        for recommended in recommended_channels:
+            if channel in recommended or recommended in channel:
+                return 0.7  # Partial alignment
+
+        # Get channel data
+        channel_data = self.MARKETING_CHANNELS.get(channel, {})
+
+        # Get best goals for this channel
+        best_for = channel_data.get("best_for", [])
+
+        # Check if goal is in best_for
+        if goal in best_for or any(goal in bf for bf in best_for):
+            return 0.8  # Strong alignment
+
+        # Default alignment
+        return 0.3  # Low alignment
+
+    def _calculate_overall_goal_alignment(self, goal_alignment_scores: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Calculate overall alignment between channels and goals.
+
+        Args:
+            goal_alignment_scores: Goal alignment scores
+
+        Returns:
+            Dictionary with overall alignment scores
+        """
+        # Get all channels
+        channels = list(self.MARKETING_CHANNELS.keys())
+
+        # Initialize overall alignment scores
+        overall_alignment = {}
+
+        # Calculate overall alignment for each channel
+        for channel in channels:
+            # Get alignment scores for this channel across all goals
+            channel_scores = [
+                goal_data["channel_scores"][channel]["alignment_score"]
+                for goal_data in goal_alignment_scores.values()
+            ]
+
+            # Calculate average alignment score
+            avg_alignment = sum(channel_scores) / len(channel_scores) if channel_scores else 0
+
+            # Determine alignment level
+            alignment_level = "low"
+            if avg_alignment >= 0.8:
+                alignment_level = "high"
+            elif avg_alignment >= 0.6:
+                alignment_level = "medium"
+
+            # Add to overall alignment
+            overall_alignment[channel] = {
+                "channel": channel,
+                "avg_alignment": round(avg_alignment, 2),
+                "alignment_level": alignment_level,
+                "goal_scores": {
+                    goal: goal_data["channel_scores"][channel]["alignment_score"]
+                    for goal, goal_data in goal_alignment_scores.items()
+                }
+            }
+
+        return overall_alignment
+
+    def _get_top_channels_overall(self, overall_alignment: Dict[str, Any]) -> List[str]:
+        """
+        Get the top channels across all goals.
+
+        Args:
+            overall_alignment: Overall alignment scores
+
+        Returns:
+            List of top channels
+        """
+        # Sort channels by average alignment
+        sorted_channels = sorted(
+            overall_alignment.values(),
+            key=lambda x: x["avg_alignment"],
+            reverse=True
+        )
+
+        # Get top 5 channels
+        return [channel["channel"] for channel in sorted_channels[:5]]
+
+    def _analyze_channel_budget_fit(self) -> Dict[str, Any]:
+        """
+        Analyze how well each channel fits within the budget.
+
+        This method evaluates each marketing channel based on its cost and
+        the available budget to determine which channels are most cost-effective.
+
+        Returns:
+            Dictionary with channel-budget fit analysis
+        """
+        # Validate budget
+        budget_valid, budget_errors = self.validate_budget()
+
+        if not budget_valid:
+            # If budget is not valid, return a simplified analysis
+            return {"error": "Invalid budget", "details": budget_errors}
+
+        # Get all available channels
+        channels = list(self.MARKETING_CHANNELS.keys())
+
+        # Get budget amount
+        budget_amount = self.budget.get("amount", 0)
+        budget_period = self.budget.get("period", "monthly")
+
+        # Convert budget to monthly if needed
+        monthly_budget = budget_amount
+        if budget_period == "quarterly":
+            monthly_budget = budget_amount / 3
+        elif budget_period == "annually":
+            monthly_budget = budget_amount / 12
+
+        # Initialize budget fit scores
+        budget_fit_scores = {}
+
+        # Analyze each channel
+        for channel in channels:
+            # Get channel data
+            channel_data = self.MARKETING_CHANNELS.get(channel, {})
+
+            # Get channel cost level
+            cost_level = channel_data.get("typical_cost", "medium")
+
+            # Calculate estimated cost
+            estimated_cost = self._estimate_channel_cost(channel, cost_level, monthly_budget)
+
+            # Calculate budget percentage
+            budget_percentage = (estimated_cost / monthly_budget) if monthly_budget > 0 else 0
+
+            # Calculate budget fit score
+            budget_fit = self._calculate_budget_fit_score(budget_percentage)
+
+            # Determine affordability
+            affordability = "affordable"
+            if budget_percentage > 0.5:
+                affordability = "expensive"
+            elif budget_percentage > 0.2:
+                affordability = "moderate"
+
+            # Determine fit level
+            fit_level = "low"
+            if budget_fit >= 0.8:
+                fit_level = "high"
+            elif budget_fit >= 0.6:
+                fit_level = "medium"
+
+            # Add to budget fit scores
+            budget_fit_scores[channel] = {
+                "channel": channel,
+                "cost_level": cost_level,
+                "estimated_cost": round(estimated_cost, 2),
+                "budget_percentage": round(budget_percentage, 2),
+                "budget_fit": round(budget_fit, 2),
+                "affordability": affordability,
+                "fit_level": fit_level
+            }
+
+        # Sort channels by budget fit
+        sorted_channels = sorted(
+            budget_fit_scores.values(),
+            key=lambda x: x["budget_fit"],
+            reverse=True
+        )
+
+        # Get top channels
+        top_channels = [channel["channel"] for channel in sorted_channels[:5]]
+
+        # Get high fit channels
+        high_fit_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["fit_level"] == "high"
+        ]
+
+        # Get affordable channels
+        affordable_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["affordability"] == "affordable"
+        ]
+
+        # Calculate total estimated cost
+        total_estimated_cost = sum(
+            channel_data["estimated_cost"] for channel_data in budget_fit_scores.values()
+        )
+
+        # Calculate budget allocation
+        budget_allocation = self._calculate_budget_allocation(budget_fit_scores, monthly_budget)
+
+        return {
+            "monthly_budget": monthly_budget,
+            "budget_fit_scores": budget_fit_scores,
+            "sorted_channels": sorted_channels,
+            "top_channels": top_channels,
+            "high_fit_channels": high_fit_channels,
+            "affordable_channels": affordable_channels,
+            "total_estimated_cost": round(total_estimated_cost, 2),
+            "budget_allocation": budget_allocation
+        }
+
+    def _estimate_channel_cost(self, channel: str, cost_level: str, monthly_budget: float) -> float:
+        """
+        Estimate the cost of a channel based on its cost level and the monthly budget.
+
+        Args:
+            channel: Marketing channel
+            cost_level: Channel cost level
+            monthly_budget: Monthly budget
+
+        Returns:
+            Estimated monthly cost
+        """
+        # Define cost multipliers based on cost level
+        cost_multipliers = {
+            "low": 0.05,  # 5% of budget
+            "medium": 0.15,  # 15% of budget
+            "high": 0.25,  # 25% of budget
+            "low to medium": 0.10,  # 10% of budget
+            "medium to high": 0.20  # 20% of budget
+        }
+
+        # Get cost multiplier for this cost level
+        multiplier = cost_multipliers.get(cost_level, 0.15)  # Default to medium
+
+        # Calculate estimated cost
+        return monthly_budget * multiplier
+
+    def _calculate_budget_fit_score(self, budget_percentage: float) -> float:
+        """
+        Calculate a budget fit score based on the percentage of budget a channel would consume.
+
+        Args:
+            budget_percentage: Percentage of budget consumed by the channel
+
+        Returns:
+            Budget fit score (0.0 to 1.0)
+        """
+        # Higher score means better fit (lower percentage of budget)
+        if budget_percentage <= 0.1:
+            return 1.0  # Excellent fit
+        elif budget_percentage <= 0.2:
+            return 0.8  # Good fit
+        elif budget_percentage <= 0.3:
+            return 0.6  # Moderate fit
+        elif budget_percentage <= 0.4:
+            return 0.4  # Poor fit
+        else:
+            return 0.2  # Very poor fit
+
+    def _calculate_budget_allocation(self, budget_fit_scores: Dict[str, Any], monthly_budget: float) -> Dict[str, Any]:
+        """
+        Calculate optimal budget allocation across channels.
+
+        Args:
+            budget_fit_scores: Budget fit scores for each channel
+            monthly_budget: Monthly budget
+
+        Returns:
+            Dictionary with budget allocation
+        """
+        # Sort channels by budget fit
+        sorted_channels = sorted(
+            budget_fit_scores.values(),
+            key=lambda x: x["budget_fit"],
+            reverse=True
+        )
+
+        # Get top channels (up to max_channels from config)
+        max_channels = self.config.get("max_channels", 5)
+        top_channels = sorted_channels[:max_channels]
+
+        # Calculate total fit score for normalization
+        total_fit = sum(channel["budget_fit"] for channel in top_channels)
+
+        # Calculate allocation
+        allocation = {}
+        remaining_budget = monthly_budget
+
+        for channel_data in top_channels:
+            channel = channel_data["channel"]
+            fit_score = channel_data["budget_fit"]
+
+            # Calculate allocation percentage based on fit score
+            allocation_percentage = fit_score / total_fit if total_fit > 0 else 0
+
+            # Calculate allocation amount
+            allocation_amount = monthly_budget * allocation_percentage
+
+            # Add to allocation
+            allocation[channel] = {
+                "channel": channel,
+                "allocation_percentage": round(allocation_percentage, 2),
+                "allocation_amount": round(allocation_amount, 2)
+            }
+
+            # Update remaining budget
+            remaining_budget -= allocation_amount
+
+        return {
+            "channel_allocation": allocation,
+            "remaining_budget": round(remaining_budget, 2)
+        }
+
+    def _analyze_channel_roi(self) -> Dict[str, Any]:
+        """
+        Analyze potential ROI for each marketing channel.
+
+        This method estimates the potential return on investment for each channel
+        based on industry benchmarks and the specific business context.
+
+        Returns:
+            Dictionary with channel ROI analysis
+        """
+        # Get all available channels
+        channels = list(self.MARKETING_CHANNELS.keys())
+
+        # Get budget analysis
+        budget_fit = self._analyze_channel_budget_fit()
+
+        # Check if budget analysis was successful
+        if "error" in budget_fit:
+            # If budget analysis failed, return a simplified ROI analysis
+            return self._generate_simplified_roi_analysis()
+
+        # Get budget fit scores
+        budget_fit_scores = budget_fit.get("budget_fit_scores", {})
+
+        # Get audience value analysis
+        audience_value = self._estimate_audience_value()
+
+        # Get monthly revenue potential
+        monthly_revenue = audience_value.get("monthly_revenue_potential", {}).get("moderate", 0)
+
+        # Initialize ROI scores
+        roi_scores = {}
+
+        # Analyze each channel
+        for channel in channels:
+            # Get channel data
+            channel_data = self.MARKETING_CHANNELS.get(channel, {})
+
+            # Get estimated cost from budget analysis
+            estimated_cost = budget_fit_scores.get(channel, {}).get("estimated_cost", 0)
+
+            # Calculate potential revenue
+            potential_revenue = self._estimate_channel_revenue(channel, monthly_revenue)
+
+            # Calculate ROI
+            roi = self._calculate_channel_roi(potential_revenue, estimated_cost)
+
+            # Calculate ROI score
+            roi_score = self._calculate_roi_score(roi)
+
+            # Determine ROI level
+            roi_level = "low"
+            if roi_score >= 0.8:
+                roi_level = "high"
+            elif roi_score >= 0.6:
+                roi_level = "medium"
+
+            # Add to ROI scores
+            roi_scores[channel] = {
+                "channel": channel,
+                "estimated_cost": round(estimated_cost, 2),
+                "potential_revenue": round(potential_revenue, 2),
+                "roi": round(roi, 2),
+                "roi_score": round(roi_score, 2),
+                "roi_level": roi_level
+            }
+
+        # Sort channels by ROI score
+        sorted_channels = sorted(
+            roi_scores.values(),
+            key=lambda x: x["roi_score"],
+            reverse=True
+        )
+
+        # Get top channels
+        top_channels = [channel["channel"] for channel in sorted_channels[:5]]
+
+        # Get high ROI channels
+        high_roi_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["roi_level"] == "high"
+        ]
+
+        return {
+            "roi_scores": roi_scores,
+            "sorted_channels": sorted_channels,
+            "top_channels": top_channels,
+            "high_roi_channels": high_roi_channels
+        }
+
+    def _generate_simplified_roi_analysis(self) -> Dict[str, Any]:
+        """
+        Generate a simplified ROI analysis when budget analysis is not available.
+
+        Returns:
+            Dictionary with simplified ROI analysis
+        """
+        # Get all available channels
+        channels = list(self.MARKETING_CHANNELS.keys())
+
+        # Define default ROI values
+        default_roi_values = {
+            "content_marketing": 5.0,  # 500% ROI
+            "seo": 6.0,  # 600% ROI
+            "email_marketing": 4.0,  # 400% ROI
+            "social_media": 3.0,  # 300% ROI
+            "ppc": 2.0,  # 200% ROI
+            "influencer_marketing": 2.5,  # 250% ROI
+            "affiliate_marketing": 3.5,  # 350% ROI
+            "video_marketing": 2.8,  # 280% ROI
+            "community_building": 2.0,  # 200% ROI
+            "pr": 1.5  # 150% ROI
+        }
+
+        # Initialize ROI scores
+        roi_scores = {}
+
+        # Create ROI scores for each channel
+        for channel in channels:
+            # Get default ROI
+            roi = default_roi_values.get(channel, 2.0)
+
+            # Calculate ROI score
+            roi_score = self._calculate_roi_score(roi)
+
+            # Determine ROI level
+            roi_level = "low"
+            if roi_score >= 0.8:
+                roi_level = "high"
+            elif roi_score >= 0.6:
+                roi_level = "medium"
+
+            # Add to ROI scores
+            roi_scores[channel] = {
+                "channel": channel,
+                "estimated_cost": 0,  # Unknown cost
+                "potential_revenue": 0,  # Unknown revenue
+                "roi": roi,
+                "roi_score": roi_score,
+                "roi_level": roi_level
+            }
+
+        # Sort channels by ROI score
+        sorted_channels = sorted(
+            roi_scores.values(),
+            key=lambda x: x["roi_score"],
+            reverse=True
+        )
+
+        # Get top channels
+        top_channels = [channel["channel"] for channel in sorted_channels[:5]]
+
+        # Get high ROI channels
+        high_roi_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["roi_level"] == "high"
+        ]
+
+        return {
+            "roi_scores": roi_scores,
+            "sorted_channels": sorted_channels,
+            "top_channels": top_channels,
+            "high_roi_channels": high_roi_channels,
+            "note": "Simplified analysis due to unavailable budget data"
+        }
+
+    def _estimate_channel_revenue(self, channel: str, monthly_revenue: float) -> float:
+        """
+        Estimate potential revenue from a channel.
+
+        Args:
+            channel: Marketing channel
+            monthly_revenue: Total monthly revenue potential
+
+        Returns:
+            Estimated monthly revenue from this channel
+        """
+        # Define revenue contribution percentages by channel
+        revenue_contributions = {
+            "content_marketing": 0.20,  # 20% of revenue
+            "seo": 0.25,  # 25% of revenue
+            "email_marketing": 0.15,  # 15% of revenue
+            "social_media": 0.10,  # 10% of revenue
+            "ppc": 0.15,  # 15% of revenue
+            "influencer_marketing": 0.08,  # 8% of revenue
+            "affiliate_marketing": 0.12,  # 12% of revenue
+            "video_marketing": 0.10,  # 10% of revenue
+            "community_building": 0.05,  # 5% of revenue
+            "pr": 0.05  # 5% of revenue
+        }
+
+        # Get revenue contribution for this channel
+        contribution = revenue_contributions.get(channel, 0.10)  # Default to 10%
+
+        # Calculate potential revenue
+        return monthly_revenue * contribution
+
+    def _calculate_channel_roi(self, revenue: float, cost: float) -> float:
+        """
+        Calculate ROI for a channel.
+
+        Args:
+            revenue: Potential revenue
+            cost: Estimated cost
+
+        Returns:
+            ROI value
+        """
+        if cost <= 0:
+            return 0  # Avoid division by zero
+
+        # Calculate ROI
+        return (revenue - cost) / cost
+
+    def _calculate_roi_score(self, roi: float) -> float:
+        """
+        Calculate an ROI score based on the ROI value.
+
+        Args:
+            roi: ROI value
+
+        Returns:
+            ROI score (0.0 to 1.0)
+        """
+        # Higher score means better ROI
+        if roi >= 5.0:
+            return 1.0  # Excellent ROI
+        elif roi >= 3.0:
+            return 0.8  # Good ROI
+        elif roi >= 2.0:
+            return 0.6  # Moderate ROI
+        elif roi >= 1.0:
+            return 0.4  # Poor ROI
+        else:
+            return 0.2  # Very poor ROI
+
+    def _prioritize_channels(
+        self,
+        channel_effectiveness: Dict[str, Any],
+        audience_fit: Dict[str, Any],
+        goal_alignment: Dict[str, Any],
+        budget_fit: Dict[str, Any],
+        roi_analysis: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Prioritize marketing channels based on all analysis factors.
+
+        This method combines the results of all channel analyses to determine
+        the overall priority of each channel.
+
+        Args:
+            channel_effectiveness: Channel effectiveness analysis
+            audience_fit: Channel-audience fit analysis
+            goal_alignment: Channel-goal alignment analysis
+            budget_fit: Channel-budget fit analysis
+            roi_analysis: Channel ROI analysis
+
+        Returns:
+            Dictionary with prioritized channels
+        """
+        # Get all available channels
+        channels = list(self.MARKETING_CHANNELS.keys())
+
+        # Initialize priority scores
+        priority_scores = {}
+
+        # Get prioritization method from config
+        prioritize_by = self.config.get("prioritize_by", "roi")
+
+        # Get minimum channel score from config
+        min_channel_score = self.config.get("min_channel_score", 0.6)
+
+        # Analyze each channel
+        for channel in channels:
+            # Get effectiveness score
+            effectiveness_score = channel_effectiveness.get("effectiveness_scores", {}).get(channel, {}).get("overall_score", 0)
+
+            # Get audience fit score
+            audience_fit_score = audience_fit.get("audience_fit_scores", {}).get(channel, {}).get("overall_fit", 0)
+
+            # Get goal alignment score
+            goal_alignment_score = goal_alignment.get("overall_alignment", {}).get(channel, {}).get("avg_alignment", 0)
+
+            # Get budget fit score
+            budget_fit_score = budget_fit.get("budget_fit_scores", {}).get(channel, {}).get("budget_fit", 0)
+
+            # Get ROI score
+            roi_score = roi_analysis.get("roi_scores", {}).get(channel, {}).get("roi_score", 0)
+
+            # Calculate overall priority score based on prioritization method
+            if prioritize_by == "roi":
+                # Prioritize by ROI
+                overall_score = (
+                    effectiveness_score * 0.2 +
+                    audience_fit_score * 0.2 +
+                    goal_alignment_score * 0.2 +
+                    budget_fit_score * 0.1 +
+                    roi_score * 0.3
+                )
+            elif prioritize_by == "cost":
+                # Prioritize by cost-effectiveness
+                overall_score = (
+                    effectiveness_score * 0.2 +
+                    audience_fit_score * 0.2 +
+                    goal_alignment_score * 0.2 +
+                    budget_fit_score * 0.3 +
+                    roi_score * 0.1
+                )
+            elif prioritize_by == "time":
+                # Prioritize by time-effectiveness
+                time_score = self._calculate_time_score(channel)
+                overall_score = (
+                    effectiveness_score * 0.2 +
+                    audience_fit_score * 0.2 +
+                    goal_alignment_score * 0.2 +
+                    budget_fit_score * 0.1 +
+                    roi_score * 0.1 +
+                    time_score * 0.2
+                )
+            else:
+                # Default balanced approach
+                overall_score = (
+                    effectiveness_score * 0.2 +
+                    audience_fit_score * 0.2 +
+                    goal_alignment_score * 0.2 +
+                    budget_fit_score * 0.2 +
+                    roi_score * 0.2
+                )
+
+            # Round to 2 decimal places
+            overall_score = round(overall_score, 2)
+
+            # Determine priority level
+            priority_level = "low"
+            if overall_score >= 0.8:
+                priority_level = "high"
+            elif overall_score >= 0.6:
+                priority_level = "medium"
+
+            # Add to priority scores
+            priority_scores[channel] = {
+                "channel": channel,
+                "effectiveness_score": effectiveness_score,
+                "audience_fit_score": audience_fit_score,
+                "goal_alignment_score": goal_alignment_score,
+                "budget_fit_score": budget_fit_score,
+                "roi_score": roi_score,
+                "overall_score": overall_score,
+                "priority_level": priority_level
+            }
+
+        # Sort channels by overall score
+        sorted_channels = sorted(
+            priority_scores.values(),
+            key=lambda x: x["overall_score"],
+            reverse=True
+        )
+
+        # Filter channels by minimum score
+        recommended_channels = [
+            channel for channel in sorted_channels
+            if channel["overall_score"] >= min_channel_score
+        ]
+
+        # Get top channels
+        max_channels = self.config.get("max_channels", 5)
+        top_channels = [channel["channel"] for channel in sorted_channels[:max_channels]]
+
+        # Get high priority channels
+        high_priority_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["priority_level"] == "high"
+        ]
+
+        # Get medium priority channels
+        medium_priority_channels = [
+            channel["channel"] for channel in sorted_channels
+            if channel["priority_level"] == "medium"
+        ]
+
+        return {
+            "priority_scores": priority_scores,
+            "sorted_channels": sorted_channels,
+            "recommended_channels": recommended_channels,
+            "top_channels": top_channels,
+            "high_priority_channels": high_priority_channels,
+            "medium_priority_channels": medium_priority_channels,
+            "prioritization_method": prioritize_by
+        }
+
+    def _calculate_time_score(self, channel: str) -> float:
+        """
+        Calculate a time-effectiveness score for a channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Time-effectiveness score (0.0 to 1.0)
+        """
+        # Get channel data
+        channel_data = self.MARKETING_CHANNELS.get(channel, {})
+
+        # Get time investment level
+        time_investment = channel_data.get("time_investment", "medium")
+
+        # Calculate time score
+        if time_investment == "low":
+            return 1.0  # Excellent time-effectiveness
+        elif time_investment == "medium":
+            return 0.7  # Good time-effectiveness
+        elif time_investment == "high":
+            return 0.4  # Poor time-effectiveness
+        else:
+            return 0.7  # Default to medium
+
+    def _generate_channel_recommendations(self, prioritized_channels: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Generate specific recommendations for each prioritized channel.
+
+        This method creates detailed recommendations for implementing each
+        prioritized marketing channel, including content types, tactics,
+        metrics to track, and implementation guidelines.
+
+        Args:
+            prioritized_channels: Dictionary with prioritized channels
+
+        Returns:
+            Dictionary with channel recommendations
+        """
+        # Get recommended channels
+        recommended_channels = prioritized_channels.get("recommended_channels", [])
+
+        # Initialize channel recommendations
+        channel_recommendations = {}
+
+        # Generate recommendations for each channel
+        for channel_data in recommended_channels:
+            channel = channel_data.get("channel", "")
+
+            # Skip if channel is empty
+            if not channel:
+                continue
+
+            # Generate recommendations for this channel
+            channel_recommendations[channel] = self._generate_single_channel_recommendations(channel)
+
+        return {
+            "channel_recommendations": channel_recommendations,
+            "recommended_channels": [channel for channel in channel_recommendations.keys()]
+        }
+
+    def _generate_single_channel_recommendations(self, channel: str) -> Dict[str, Any]:
+        """
+        Generate recommendations for a single marketing channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with channel recommendations
+        """
+        # Get channel data
+        channel_data = self.MARKETING_CHANNELS.get(channel, {})
+
+        # Generate general recommendations
+        general_recommendations = self._generate_general_recommendations(channel)
+
+        # Generate content recommendations
+        content_recommendations = self._generate_content_recommendations(channel)
+
+        # Generate tactical recommendations
+        tactical_recommendations = self._generate_tactical_recommendations(channel)
+
+        # Generate metrics recommendations
+        metrics_recommendations = self._generate_metrics_recommendations(channel)
+
+        # Generate implementation timeline
+        implementation_timeline = self._generate_implementation_timeline(channel)
+
+        # Generate budget recommendations
+        budget_recommendations = self._generate_budget_recommendations(channel)
+
+        return {
+            "channel": channel,
+            "description": channel_data.get("description", ""),
+            "general_recommendations": general_recommendations,
+            "content_recommendations": content_recommendations,
+            "tactical_recommendations": tactical_recommendations,
+            "metrics_recommendations": metrics_recommendations,
+            "implementation_timeline": implementation_timeline,
+            "budget_recommendations": budget_recommendations
+        }
+
+    def _generate_general_recommendations(self, channel: str) -> List[str]:
+        """
+        Generate general recommendations for a marketing channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            List of general recommendations
+        """
+        # Define general recommendations by channel
+        general_recommendations = {
+            "content_marketing": [
+                "Develop a content calendar with regular publishing schedule",
+                "Focus on solving customer problems and addressing pain points",
+                "Create a mix of evergreen and timely content",
+                "Repurpose content across multiple formats and channels",
+                "Implement a content distribution strategy"
+            ],
+            "seo": [
+                "Conduct keyword research focused on user intent",
+                "Optimize website structure and technical SEO elements",
+                "Create high-quality, relevant content around target keywords",
+                "Build high-quality backlinks from reputable sources",
+                "Regularly monitor and improve site performance"
+            ],
+            "email_marketing": [
+                "Build and segment your email list based on user behavior and preferences",
+                "Create automated email sequences for different customer journeys",
+                "Personalize email content based on user data",
+                "Test subject lines, content, and send times",
+                "Focus on providing value, not just selling"
+            ],
+            "social_media": [
+                "Choose platforms based on where your audience is most active",
+                "Create a consistent posting schedule",
+                "Engage with your audience through comments and messages",
+                "Use a mix of content types (educational, entertaining, promotional)",
+                "Leverage platform-specific features and formats"
+            ],
+            "ppc": [
+                "Start with a small budget and scale based on performance",
+                "Create highly targeted ad campaigns with specific goals",
+                "Develop compelling ad copy and creative assets",
+                "Continuously test and optimize landing pages",
+                "Implement conversion tracking and attribution"
+            ],
+            "influencer_marketing": [
+                "Focus on relevance and engagement over follower count",
+                "Develop authentic partnerships with influencers who align with your brand",
+                "Create clear campaign briefs with measurable goals",
+                "Allow creative freedom within brand guidelines",
+                "Track performance beyond vanity metrics"
+            ],
+            "affiliate_marketing": [
+                "Recruit affiliates who align with your brand and target audience",
+                "Provide affiliates with high-converting creative assets",
+                "Offer competitive commission rates and incentives",
+                "Regularly communicate with and support your affiliates",
+                "Track and analyze performance data"
+            ],
+            "video_marketing": [
+                "Focus on storytelling and providing value",
+                "Optimize videos for each platform's requirements and audience",
+                "Include clear calls-to-action in your videos",
+                "Create both short-form and long-form content",
+                "Repurpose video content across multiple channels"
+            ],
+            "community_building": [
+                "Define clear community guidelines and values",
+                "Create regular engagement opportunities and activities",
+                "Recognize and reward active community members",
+                "Provide exclusive value and resources to community members",
+                "Listen to feedback and adapt based on community needs"
+            ],
+            "pr": [
+                "Develop newsworthy stories and angles",
+                "Build relationships with relevant journalists and publications",
+                "Create a press kit with key information and assets",
+                "Monitor industry news and trends for opportunities",
+                "Measure the impact of PR efforts beyond mentions"
+            ]
+        }
+
+        # Get recommendations for this channel
+        return general_recommendations.get(channel, [
+            "Develop a clear strategy with specific goals",
+            "Focus on providing value to your target audience",
+            "Regularly measure and analyze performance",
+            "Test different approaches and iterate based on results",
+            "Integrate with other marketing channels for maximum impact"
+        ])
+
+    def _generate_content_recommendations(self, channel: str) -> Dict[str, Any]:
+        """
+        Generate content recommendations for a marketing channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with content recommendations
+        """
+        # Define content types by channel
+        content_types = {
+            "content_marketing": [
+                "Blog posts",
+                "Ebooks and guides",
+                "Case studies",
+                "Infographics",
+                "Whitepapers",
+                "Templates and checklists"
+            ],
+            "seo": [
+                "Keyword-optimized blog posts",
+                "Pillar pages and topic clusters",
+                "FAQ pages",
+                "Resource pages",
+                "Local SEO content"
+            ],
+            "email_marketing": [
+                "Welcome sequences",
+                "Newsletters",
+                "Promotional emails",
+                "Abandoned cart emails",
+                "Re-engagement campaigns",
+                "Educational sequences"
+            ],
+            "social_media": [
+                "Short-form videos",
+                "Carousel posts",
+                "Stories and ephemeral content",
+                "User-generated content",
+                "Live videos",
+                "Polls and interactive content"
+            ],
+            "ppc": [
+                "Text ads",
+                "Display ads",
+                "Video ads",
+                "Shopping ads",
+                "Remarketing ads",
+                "Landing pages"
+            ],
+            "influencer_marketing": [
+                "Sponsored posts",
+                "Product reviews",
+                "Takeovers",
+                "Affiliate content",
+                "Co-created content",
+                "Giveaways and contests"
+            ],
+            "affiliate_marketing": [
+                "Product reviews",
+                "Comparison content",
+                "Resource pages",
+                "Tutorial content",
+                "Discount and deal content"
+            ],
+            "video_marketing": [
+                "How-to tutorials",
+                "Product demos",
+                "Customer testimonials",
+                "Explainer videos",
+                "Behind-the-scenes content",
+                "Webinars and live streams"
+            ],
+            "community_building": [
+                "Discussion prompts",
+                "AMAs (Ask Me Anything)",
+                "User spotlights",
+                "Exclusive content",
+                "Community challenges",
+                "Events and meetups"
+            ],
+            "pr": [
+                "Press releases",
+                "Media pitches",
+                "Thought leadership articles",
+                "Interview content",
+                "Company news and announcements",
+                "Crisis communication materials"
+            ]
+        }
+
+        # Define content formats by channel
+        content_formats = {
+            "content_marketing": [
+                "Long-form articles (1500+ words)",
+                "Short-form articles (500-1000 words)",
+                "Visual content",
+                "Interactive content",
+                "Downloadable resources"
+            ],
+            "seo": [
+                "Long-form, comprehensive guides",
+                "FAQ-style content",
+                "List posts",
+                "How-to guides",
+                "Comparison posts"
+            ],
+            "email_marketing": [
+                "Plain text emails",
+                "HTML emails with images",
+                "Interactive emails",
+                "Personalized content blocks",
+                "Mobile-optimized formats"
+            ],
+            "social_media": [
+                "Images with text overlay",
+                "Carousel posts",
+                "Short videos (15-60 seconds)",
+                "Live video",
+                "Stories format"
+            ],
+            "ppc": [
+                "Responsive search ads",
+                "Image ads in various sizes",
+                "Video ads (6-15 seconds)",
+                "Native ad formats",
+                "Interactive ad formats"
+            ],
+            "influencer_marketing": [
+                "In-feed posts",
+                "Stories",
+                "Reels/TikToks",
+                "YouTube videos",
+                "Blog posts"
+            ],
+            "affiliate_marketing": [
+                "In-depth reviews",
+                "Comparison tables",
+                "Resource lists",
+                "Tutorial content",
+                "Buying guides"
+            ],
+            "video_marketing": [
+                "Short-form (under 2 minutes)",
+                "Mid-form (2-10 minutes)",
+                "Long-form (10+ minutes)",
+                "Live video",
+                "Vertical video format"
+            ],
+            "community_building": [
+                "Text posts",
+                "Polls and surveys",
+                "Live events",
+                "User-generated content",
+                "Interactive challenges"
+            ],
+            "pr": [
+                "Press releases (300-500 words)",
+                "Media pitches (150-300 words)",
+                "Bylined articles (800-1200 words)",
+                "Media kits",
+                "Crisis statements"
+            ]
+        }
+
+        # Define content topics based on business type and audience
+        content_topics = self._generate_content_topics()
+
+        # Get content types and formats for this channel
+        channel_content_types = content_types.get(channel, [
+            "Educational content",
+            "Promotional content",
+            "Entertaining content",
+            "Inspirational content",
+            "User-generated content"
+        ])
+
+        channel_content_formats = content_formats.get(channel, [
+            "Text-based content",
+            "Image-based content",
+            "Video content",
+            "Audio content",
+            "Interactive content"
+        ])
+
+        return {
+            "content_types": channel_content_types,
+            "content_formats": channel_content_formats,
+            "recommended_topics": content_topics[:5],  # Top 5 topics
+            "content_mix": self._generate_content_mix(channel)
+        }
+
+    def _generate_content_topics(self) -> List[str]:
+        """
+        Generate recommended content topics based on business type and audience.
+
+        Returns:
+            List of recommended content topics
+        """
+        # This is a simplified implementation
+        # A full implementation would analyze business type, audience, and goals
+
+        # Define default topics
+        default_topics = [
+            "Industry trends and insights",
+            "How-to guides and tutorials",
+            "Customer success stories",
+            "Product features and benefits",
+            "Frequently asked questions",
+            "Industry challenges and solutions",
+            "Expert interviews and opinions",
+            "Behind-the-scenes content",
+            "Tips and best practices",
+            "Comparison and review content"
+        ]
+
+        # Get business type
+        business_type = self.business_type
+
+        # Define topics by business type
+        business_topics = {
+            "saas": [
+                "Product tutorials and walkthroughs",
+                "Industry-specific use cases",
+                "Integration possibilities",
+                "ROI and business impact",
+                "Product updates and new features",
+                "Customer success stories",
+                "Industry trends and insights",
+                "Technical guides and documentation",
+                "Comparison with alternatives",
+                "Tips for maximizing value"
+            ],
+            "ecommerce": [
+                "Product spotlights and features",
+                "Styling and usage guides",
+                "Customer reviews and testimonials",
+                "Behind-the-scenes manufacturing",
+                "Material and quality information",
+                "Seasonal trends and collections",
+                "Gift guides",
+                "Care and maintenance tips",
+                "Product comparisons",
+                "Lifestyle content related to products"
+            ],
+            "service": [
+                "Service explanations and processes",
+                "Client success stories",
+                "Industry expertise and insights",
+                "Problem-solution content",
+                "Service comparisons and packages",
+                "Team spotlights and expertise",
+                "FAQs and common concerns",
+                "Industry trends and news",
+                "Tips related to your service area",
+                "Before and after showcases"
+            ],
+            "local": [
+                "Local events and involvement",
+                "Customer spotlights",
+                "Behind-the-scenes content",
+                "Local area guides and information",
+                "Seasonal offerings and promotions",
+                "Staff spotlights",
+                "Local partnerships and collaborations",
+                "Community impact stories",
+                "Local tips and recommendations",
+                "History and heritage content"
+            ]
+        }
+
+        # Get topics for this business type
+        return business_topics.get(business_type, default_topics)
+
+    def _generate_content_mix(self, channel: str) -> Dict[str, float]:
+        """
+        Generate recommended content mix percentages.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with content mix percentages
+        """
+        # Define content mix by channel
+        content_mixes = {
+            "content_marketing": {
+                "educational": 0.50,
+                "promotional": 0.20,
+                "entertaining": 0.15,
+                "inspirational": 0.15
+            },
+            "seo": {
+                "educational": 0.60,
+                "promotional": 0.15,
+                "entertaining": 0.10,
+                "inspirational": 0.15
+            },
+            "email_marketing": {
+                "educational": 0.40,
+                "promotional": 0.30,
+                "entertaining": 0.15,
+                "inspirational": 0.15
+            },
+            "social_media": {
+                "educational": 0.30,
+                "promotional": 0.20,
+                "entertaining": 0.30,
+                "inspirational": 0.20
+            },
+            "ppc": {
+                "educational": 0.20,
+                "promotional": 0.60,
+                "entertaining": 0.10,
+                "inspirational": 0.10
+            },
+            "influencer_marketing": {
+                "educational": 0.25,
+                "promotional": 0.25,
+                "entertaining": 0.30,
+                "inspirational": 0.20
+            },
+            "affiliate_marketing": {
+                "educational": 0.40,
+                "promotional": 0.40,
+                "entertaining": 0.10,
+                "inspirational": 0.10
+            },
+            "video_marketing": {
+                "educational": 0.35,
+                "promotional": 0.20,
+                "entertaining": 0.30,
+                "inspirational": 0.15
+            },
+            "community_building": {
+                "educational": 0.30,
+                "promotional": 0.10,
+                "entertaining": 0.30,
+                "inspirational": 0.30
+            },
+            "pr": {
+                "educational": 0.40,
+                "promotional": 0.30,
+                "entertaining": 0.10,
+                "inspirational": 0.20
+            }
+        }
+
+        # Get content mix for this channel
+        return content_mixes.get(channel, {
+            "educational": 0.40,
+            "promotional": 0.25,
+            "entertaining": 0.20,
+            "inspirational": 0.15
+        })
+
+    def _generate_tactical_recommendations(self, channel: str) -> Dict[str, Any]:
+        """
+        Generate tactical recommendations for a marketing channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with tactical recommendations
+        """
+        # Define tactical recommendations by channel
+        tactical_recommendations = {
+            "content_marketing": {
+                "quick_wins": [
+                    "Update and optimize your 5 most popular blog posts",
+                    "Create a content upgrade for your top-performing post",
+                    "Implement content sharing buttons on all content",
+                    "Set up an email capture form on high-traffic pages",
+                    "Repurpose existing content into a new format"
+                ],
+                "best_practices": [
+                    "Create a documented content strategy",
+                    "Develop a consistent publishing schedule",
+                    "Focus on quality over quantity",
+                    "Include visuals in all content",
+                    "Optimize all content for search engines"
+                ],
+                "tools": [
+                    "Content management system (WordPress, HubSpot, etc.)",
+                    "Editorial calendar tool (CoSchedule, Trello, etc.)",
+                    "SEO tool (Ahrefs, SEMrush, etc.)",
+                    "Content optimization tool (Clearscope, MarketMuse, etc.)",
+                    "Analytics tool (Google Analytics, etc.)"
+                ],
+                "implementation_steps": [
+                    "Conduct a content audit",
+                    "Develop a content calendar",
+                    "Create content guidelines and templates",
+                    "Set up content distribution channels",
+                    "Implement content performance tracking"
+                ]
+            },
+            "seo": {
+                "quick_wins": [
+                    "Fix broken links and 404 errors",
+                    "Optimize page titles and meta descriptions",
+                    "Improve page loading speed",
+                    "Add internal links to high-value pages",
+                    "Update and expand thin content"
+                ],
+                "best_practices": [
+                    "Focus on user intent, not just keywords",
+                    "Create comprehensive, high-quality content",
+                    "Optimize for mobile experience",
+                    "Build high-quality backlinks",
+                    "Regularly audit and update content"
+                ],
+                "tools": [
+                    "Keyword research tool (Ahrefs, SEMrush, etc.)",
+                    "Technical SEO audit tool (Screaming Frog, etc.)",
+                    "Analytics tool (Google Analytics, etc.)",
+                    "Search Console (Google Search Console, etc.)",
+                    "Rank tracking tool (SERP Robot, Ahrefs, etc.)"
+                ],
+                "implementation_steps": [
+                    "Conduct a technical SEO audit",
+                    "Perform keyword research",
+                    "Optimize on-page elements",
+                    "Develop a content strategy",
+                    "Build a link building strategy"
+                ]
+            },
+            "email_marketing": {
+                "quick_wins": [
+                    "Segment your email list",
+                    "Create a welcome email sequence",
+                    "Optimize email subject lines",
+                    "Add personalization to emails",
+                    "Clean your email list"
+                ],
+                "best_practices": [
+                    "Focus on providing value, not just selling",
+                    "Test different elements (subject lines, CTAs, etc.)",
+                    "Optimize for mobile devices",
+                    "Maintain a consistent sending schedule",
+                    "Follow email marketing regulations (GDPR, CAN-SPAM, etc.)"
+                ],
+                "tools": [
+                    "Email marketing platform (Mailchimp, ConvertKit, etc.)",
+                    "Email testing tool (Litmus, Email on Acid, etc.)",
+                    "Landing page builder (Unbounce, Instapage, etc.)",
+                    "Lead magnet creation tool (Canva, etc.)",
+                    "Analytics tool (built-in to email platform)"
+                ],
+                "implementation_steps": [
+                    "Set up email marketing platform",
+                    "Create lead magnets and opt-in forms",
+                    "Develop email sequences",
+                    "Set up list segmentation",
+                    "Implement email analytics and tracking"
+                ]
+            },
+            "social_media": {
+                "quick_wins": [
+                    "Complete and optimize all social profiles",
+                    "Create a content calendar",
+                    "Engage with followers and commenters",
+                    "Join relevant groups and communities",
+                    "Add social sharing buttons to your website"
+                ],
+                "best_practices": [
+                    "Focus on platforms where your audience is active",
+                    "Maintain a consistent posting schedule",
+                    "Create platform-specific content",
+                    "Engage with your audience, don't just broadcast",
+                    "Use analytics to refine your strategy"
+                ],
+                "tools": [
+                    "Social media management tool (Hootsuite, Buffer, etc.)",
+                    "Content creation tool (Canva, Adobe Express, etc.)",
+                    "Analytics tool (platform analytics, Sprout Social, etc.)",
+                    "Hashtag research tool (RiteTag, Hashtagify, etc.)",
+                    "Social listening tool (Mention, Brand24, etc.)"
+                ],
+                "implementation_steps": [
+                    "Audit current social media presence",
+                    "Develop a social media strategy",
+                    "Create a content calendar",
+                    "Set up social media management tools",
+                    "Implement social media analytics"
+                ]
+            },
+            "ppc": {
+                "quick_wins": [
+                    "Optimize existing ad copy",
+                    "Improve landing page experience",
+                    "Add negative keywords",
+                    "Adjust bid strategies",
+                    "Test different ad formats"
+                ],
+                "best_practices": [
+                    "Structure campaigns and ad groups logically",
+                    "Use specific, relevant keywords",
+                    "Create compelling ad copy with clear CTAs",
+                    "Test different targeting options",
+                    "Regularly review and optimize campaigns"
+                ],
+                "tools": [
+                    "Ad platform (Google Ads, Facebook Ads, etc.)",
+                    "Keyword research tool (Google Keyword Planner, etc.)",
+                    "Landing page builder (Unbounce, Instapage, etc.)",
+                    "Analytics tool (Google Analytics, etc.)",
+                    "Conversion tracking tool (platform-specific)"
+                ],
+                "implementation_steps": [
+                    "Define campaign goals and KPIs",
+                    "Conduct keyword and audience research",
+                    "Create campaign structure",
+                    "Develop ad creative and landing pages",
+                    "Set up conversion tracking"
+                ]
+            },
+            "influencer_marketing": {
+                "quick_wins": [
+                    "Identify relevant micro-influencers",
+                    "Engage with potential influencers' content",
+                    "Create an influencer outreach template",
+                    "Offer product samples to potential influencers",
+                    "Repurpose influencer content on your channels"
+                ],
+                "best_practices": [
+                    "Focus on relevance and engagement, not just follower count",
+                    "Build authentic, long-term relationships",
+                    "Allow creative freedom within brand guidelines",
+                    "Track performance beyond vanity metrics",
+                    "Comply with disclosure requirements"
+                ],
+                "tools": [
+                    "Influencer discovery tool (BuzzSumo, HypeAuditor, etc.)",
+                    "Outreach and management tool (Upfluence, etc.)",
+                    "Contract and payment tool (PayPal, etc.)",
+                    "Content tracking tool (Mention, etc.)",
+                    "Analytics tool (platform-specific)"
+                ],
+                "implementation_steps": [
+                    "Define influencer marketing goals",
+                    "Identify and research potential influencers",
+                    "Develop outreach strategy",
+                    "Create campaign briefs",
+                    "Set up tracking and measurement"
+                ]
+            },
+            "affiliate_marketing": {
+                "quick_wins": [
+                    "Optimize existing affiliate program terms",
+                    "Create ready-to-use creative assets",
+                    "Reach out to existing customers as potential affiliates",
+                    "Improve affiliate dashboard and reporting",
+                    "Offer special promotions for affiliates"
+                ],
+                "best_practices": [
+                    "Recruit affiliates who align with your brand",
+                    "Provide comprehensive resources and support",
+                    "Offer competitive commission rates",
+                    "Communicate regularly with affiliates",
+                    "Track and analyze performance data"
+                ],
+                "tools": [
+                    "Affiliate program platform (ShareASale, Impact, etc.)",
+                    "Tracking and attribution tool (platform-specific)",
+                    "Communication tool (email, Slack, etc.)",
+                    "Creative asset management tool (cloud storage)",
+                    "Analytics tool (platform-specific)"
+                ],
+                "implementation_steps": [
+                    "Set up affiliate program structure",
+                    "Create affiliate terms and conditions",
+                    "Develop affiliate resources and assets",
+                    "Recruit initial affiliates",
+                    "Implement tracking and reporting"
+                ]
+            },
+            "video_marketing": {
+                "quick_wins": [
+                    "Optimize video titles, descriptions, and tags",
+                    "Add captions to existing videos",
+                    "Create short clips from longer videos",
+                    "Add end screens and cards to YouTube videos",
+                    "Cross-promote videos on other channels"
+                ],
+                "best_practices": [
+                    "Focus on storytelling and providing value",
+                    "Optimize for each platform's requirements",
+                    "Include clear calls-to-action",
+                    "Keep videos concise and engaging",
+                    "Use analytics to inform future content"
+                ],
+                "tools": [
+                    "Video editing software (Adobe Premiere, Final Cut, etc.)",
+                    "Screen recording tool (Loom, Camtasia, etc.)",
+                    "Video hosting platform (YouTube, Vimeo, etc.)",
+                    "Thumbnail creation tool (Canva, etc.)",
+                    "Analytics tool (platform-specific)"
+                ],
+                "implementation_steps": [
+                    "Develop a video content strategy",
+                    "Create a video production workflow",
+                    "Set up video hosting and distribution",
+                    "Optimize videos for search and engagement",
+                    "Implement video performance tracking"
+                ]
+            },
+            "community_building": {
+                "quick_wins": [
+                    "Create a welcome sequence for new members",
+                    "Start a regular discussion thread",
+                    "Highlight and recognize active members",
+                    "Add community guidelines",
+                    "Create exclusive resources for community members"
+                ],
+                "best_practices": [
+                    "Focus on providing value to members",
+                    "Foster connections between members",
+                    "Maintain consistent engagement",
+                    "Listen to feedback and adapt",
+                    "Balance structure with organic interaction"
+                ],
+                "tools": [
+                    "Community platform (Discord, Circle, Facebook Groups, etc.)",
+                    "Communication tool (email, Slack, etc.)",
+                    "Content management tool (cloud storage)",
+                    "Event management tool (Eventbrite, Zoom, etc.)",
+                    "Analytics tool (platform-specific)"
+                ],
+                "implementation_steps": [
+                    "Define community purpose and guidelines",
+                    "Set up community platform",
+                    "Create onboarding process",
+                    "Develop engagement strategy",
+                    "Implement community management processes"
+                ]
+            },
+            "pr": {
+                "quick_wins": [
+                    "Create a media kit",
+                    "Develop relationships with 3-5 relevant journalists",
+                    "Monitor for relevant PR opportunities",
+                    "Optimize your newsroom or press page",
+                    "Create a PR response template for inquiries"
+                ],
+                "best_practices": [
+                    "Focus on newsworthy stories and angles",
+                    "Build relationships before you need them",
+                    "Tailor pitches to specific publications",
+                    "Provide value to journalists",
+                    "Be prepared for crisis communication"
+                ],
+                "tools": [
+                    "Media database (Cision, Muck Rack, etc.)",
+                    "Press release distribution tool (PR Newswire, etc.)",
+                    "Media monitoring tool (Google Alerts, Mention, etc.)",
+                    "Email outreach tool (email platform)",
+                    "Analytics tool (coverage tracking)"
+                ],
+                "implementation_steps": [
+                    "Develop PR strategy and messaging",
+                    "Create media kit and press materials",
+                    "Build media list and relationships",
+                    "Develop pitch templates",
+                    "Set up media monitoring"
+                ]
+            }
+        }
+
+        # Get tactical recommendations for this channel
+        channel_recommendations = tactical_recommendations.get(channel, {
+            "quick_wins": [
+                "Define clear goals and KPIs",
+                "Create a basic implementation plan",
+                "Start with small tests and experiments",
+                "Document processes and results",
+                "Review and optimize regularly"
+            ],
+            "best_practices": [
+                "Focus on providing value to your audience",
+                "Maintain consistency in execution",
+                "Test and iterate based on results",
+                "Integrate with other marketing channels",
+                "Track and analyze performance"
+            ],
+            "tools": [
+                "Planning and strategy tools",
+                "Content creation tools",
+                "Distribution and promotion tools",
+                "Measurement and analytics tools",
+                "Collaboration and project management tools"
+            ],
+            "implementation_steps": [
+                "Define goals and KPIs",
+                "Develop strategy and plan",
+                "Create necessary assets and resources",
+                "Implement initial campaigns",
+                "Measure, analyze, and optimize"
+            ]
+        })
+
+        return channel_recommendations
+
+    def _generate_metrics_recommendations(self, channel: str) -> Dict[str, Any]:
+        """
+        Generate metrics recommendations for a marketing channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with metrics recommendations
+        """
+        # Define key metrics by channel
+        key_metrics = {
+            "content_marketing": [
+                {
+                    "metric": "Organic traffic",
+                    "description": "Number of visitors from organic search",
+                    "benchmark": "10-20% monthly growth",
+                    "measurement_tool": "Google Analytics"
+                },
+                {
+                    "metric": "Time on page",
+                    "description": "Average time users spend on content",
+                    "benchmark": "3+ minutes for long-form content",
+                    "measurement_tool": "Google Analytics"
+                },
+                {
+                    "metric": "Conversion rate",
+                    "description": "Percentage of visitors who take a desired action",
+                    "benchmark": "2-5% for lead generation",
+                    "measurement_tool": "Google Analytics, CRM"
+                },
+                {
+                    "metric": "Social shares",
+                    "description": "Number of times content is shared on social media",
+                    "benchmark": "Varies by industry and audience size",
+                    "measurement_tool": "BuzzSumo, social platforms"
+                },
+                {
+                    "metric": "Backlinks",
+                    "description": "Number of external sites linking to your content",
+                    "benchmark": "5-10 quality backlinks per month",
+                    "measurement_tool": "Ahrefs, SEMrush"
+                }
+            ],
+            "seo": [
+                {
+                    "metric": "Organic traffic",
+                    "description": "Number of visitors from organic search",
+                    "benchmark": "10-20% monthly growth",
+                    "measurement_tool": "Google Analytics"
+                },
+                {
+                    "metric": "Keyword rankings",
+                    "description": "Positions in search results for target keywords",
+                    "benchmark": "Top 10 positions for primary keywords",
+                    "measurement_tool": "Ahrefs, SEMrush"
+                },
+                {
+                    "metric": "Click-through rate (CTR)",
+                    "description": "Percentage of impressions that result in clicks",
+                    "benchmark": "3-5% average across all keywords",
+                    "measurement_tool": "Google Search Console"
+                },
+                {
+                    "metric": "Backlinks",
+                    "description": "Number of external sites linking to your site",
+                    "benchmark": "5-10 quality backlinks per month",
+                    "measurement_tool": "Ahrefs, SEMrush"
+                },
+                {
+                    "metric": "Page load speed",
+                    "description": "Time it takes for pages to load",
+                    "benchmark": "Under 3 seconds",
+                    "measurement_tool": "Google PageSpeed Insights"
+                }
+            ],
+            "email_marketing": [
+                {
+                    "metric": "Open rate",
+                    "description": "Percentage of recipients who open the email",
+                    "benchmark": "15-25% for most industries",
+                    "measurement_tool": "Email platform analytics"
+                },
+                {
+                    "metric": "Click-through rate (CTR)",
+                    "description": "Percentage of recipients who click a link",
+                    "benchmark": "2-5% for most industries",
+                    "measurement_tool": "Email platform analytics"
+                },
+                {
+                    "metric": "Conversion rate",
+                    "description": "Percentage of clicks that result in a desired action",
+                    "benchmark": "2-5% for most industries",
+                    "measurement_tool": "Email platform, Google Analytics"
+                },
+                {
+                    "metric": "List growth rate",
+                    "description": "Rate at which your email list is growing",
+                    "benchmark": "3-5% monthly growth",
+                    "measurement_tool": "Email platform analytics"
+                },
+                {
+                    "metric": "Unsubscribe rate",
+                    "description": "Percentage of recipients who unsubscribe",
+                    "benchmark": "Under 0.5% per email",
+                    "measurement_tool": "Email platform analytics"
+                }
+            ],
+            "social_media": [
+                {
+                    "metric": "Engagement rate",
+                    "description": "Interactions (likes, comments, shares) divided by reach",
+                    "benchmark": "1-5% depending on platform",
+                    "measurement_tool": "Platform analytics"
+                },
+                {
+                    "metric": "Reach",
+                    "description": "Number of unique users who see your content",
+                    "benchmark": "30-60% of follower count",
+                    "measurement_tool": "Platform analytics"
+                },
+                {
+                    "metric": "Follower growth",
+                    "description": "Rate at which your follower count is growing",
+                    "benchmark": "5-10% monthly growth",
+                    "measurement_tool": "Platform analytics"
+                },
+                {
+                    "metric": "Click-through rate (CTR)",
+                    "description": "Percentage of viewers who click on links",
+                    "benchmark": "1-3% for most industries",
+                    "measurement_tool": "Platform analytics, URL shorteners"
+                },
+                {
+                    "metric": "Conversion rate",
+                    "description": "Percentage of social traffic that converts",
+                    "benchmark": "1-3% for most industries",
+                    "measurement_tool": "Google Analytics"
+                }
+            ],
+            "ppc": [
+                {
+                    "metric": "Click-through rate (CTR)",
+                    "description": "Percentage of impressions that result in clicks",
+                    "benchmark": "1-2% for search, 0.1-0.3% for display",
+                    "measurement_tool": "Ad platform analytics"
+                },
+                {
+                    "metric": "Conversion rate",
+                    "description": "Percentage of clicks that result in a desired action",
+                    "benchmark": "2-5% for most industries",
+                    "measurement_tool": "Ad platform, Google Analytics"
+                },
+                {
+                    "metric": "Cost per click (CPC)",
+                    "description": "Average cost for each click",
+                    "benchmark": "Varies widely by industry and platform",
+                    "measurement_tool": "Ad platform analytics"
+                },
+                {
+                    "metric": "Cost per acquisition (CPA)",
+                    "description": "Cost to acquire a customer or lead",
+                    "benchmark": "Varies by industry and customer value",
+                    "measurement_tool": "Ad platform, Google Analytics"
+                },
+                {
+                    "metric": "Return on ad spend (ROAS)",
+                    "description": "Revenue generated for every dollar spent",
+                    "benchmark": "4:1 or higher",
+                    "measurement_tool": "Ad platform, Google Analytics"
+                }
+            ],
+            "influencer_marketing": [
+                {
+                    "metric": "Engagement rate",
+                    "description": "Interactions on influencer content",
+                    "benchmark": "2-5% depending on platform and audience size",
+                    "measurement_tool": "Platform analytics, influencer tools"
+                },
+                {
+                    "metric": "Reach",
+                    "description": "Number of unique users who see the content",
+                    "benchmark": "30-60% of influencer's follower count",
+                    "measurement_tool": "Platform analytics, influencer reports"
+                },
+                {
+                    "metric": "Click-through rate (CTR)",
+                    "description": "Percentage of viewers who click on links",
+                    "benchmark": "1-3% for most industries",
+                    "measurement_tool": "URL shorteners, tracking links"
+                },
+                {
+                    "metric": "Conversion rate",
+                    "description": "Percentage of clicks that result in a desired action",
+                    "benchmark": "1-3% for most industries",
+                    "measurement_tool": "Google Analytics, tracking links"
+                },
+                {
+                    "metric": "Cost per acquisition (CPA)",
+                    "description": "Cost to acquire a customer or lead",
+                    "benchmark": "Varies by industry and customer value",
+                    "measurement_tool": "Campaign tracking"
+                }
+            ],
+            "affiliate_marketing": [
+                {
+                    "metric": "Click-through rate (CTR)",
+                    "description": "Percentage of impressions that result in clicks",
+                    "benchmark": "0.5-1% for most industries",
+                    "measurement_tool": "Affiliate platform"
+                },
+                {
+                    "metric": "Conversion rate",
+                    "description": "Percentage of clicks that result in a sale",
+                    "benchmark": "1-3% for most industries",
+                    "measurement_tool": "Affiliate platform"
+                },
+                {
+                    "metric": "Average order value (AOV)",
+                    "description": "Average value of orders from affiliate traffic",
+                    "benchmark": "Varies by industry and product",
+                    "measurement_tool": "Affiliate platform, ecommerce platform"
+                },
+                {
+                    "metric": "Revenue per click (RPC)",
+                    "description": "Average revenue generated per click",
+                    "benchmark": "Varies by industry and product",
+                    "measurement_tool": "Affiliate platform"
+                },
+                {
+                    "metric": "Active affiliate ratio",
+                    "description": "Percentage of affiliates actively driving traffic",
+                    "benchmark": "20-30% of total affiliates",
+                    "measurement_tool": "Affiliate platform"
+                }
+            ],
+            "video_marketing": [
+                {
+                    "metric": "View count",
+                    "description": "Number of times videos are viewed",
+                    "benchmark": "Varies by audience size and platform",
+                    "measurement_tool": "Platform analytics"
+                },
+                {
+                    "metric": "Watch time",
+                    "description": "Total time viewers spend watching videos",
+                    "benchmark": "50-60% of video length",
+                    "measurement_tool": "Platform analytics"
+                },
+                {
+                    "metric": "Engagement rate",
+                    "description": "Likes, comments, and shares per view",
+                    "benchmark": "1-3% depending on platform",
+                    "measurement_tool": "Platform analytics"
+                },
+                {
+                    "metric": "Click-through rate (CTR)",
+                    "description": "Percentage of viewers who click on links",
+                    "benchmark": "0.5-1.5% for most industries",
+                    "measurement_tool": "Platform analytics, URL shorteners"
+                },
+                {
+                    "metric": "Subscriber growth",
+                    "description": "Rate at which your subscriber count is growing",
+                    "benchmark": "5-10% monthly growth",
+                    "measurement_tool": "Platform analytics"
+                }
+            ],
+            "community_building": [
+                {
+                    "metric": "Active members",
+                    "description": "Number of members who actively participate",
+                    "benchmark": "10-20% of total members",
+                    "measurement_tool": "Community platform analytics"
+                },
+                {
+                    "metric": "Engagement rate",
+                    "description": "Posts, comments, and reactions per member",
+                    "benchmark": "2-5 engagements per active member per week",
+                    "measurement_tool": "Community platform analytics"
+                },
+                {
+                    "metric": "Member growth rate",
+                    "description": "Rate at which your community is growing",
+                    "benchmark": "5-10% monthly growth",
+                    "measurement_tool": "Community platform analytics"
+                },
+                {
+                    "metric": "Retention rate",
+                    "description": "Percentage of members who remain active",
+                    "benchmark": "70-80% monthly retention",
+                    "measurement_tool": "Community platform analytics"
+                },
+                {
+                    "metric": "Conversion rate",
+                    "description": "Percentage of members who convert to customers",
+                    "benchmark": "3-7% for most industries",
+                    "measurement_tool": "CRM, community platform"
+                }
+            ],
+            "pr": [
+                {
+                    "metric": "Media mentions",
+                    "description": "Number of times your brand is mentioned in media",
+                    "benchmark": "3-5 quality mentions per month",
+                    "measurement_tool": "Media monitoring tools"
+                },
+                {
+                    "metric": "Reach",
+                    "description": "Potential audience reached through media coverage",
+                    "benchmark": "Varies by publication and industry",
+                    "measurement_tool": "Media monitoring tools"
+                },
+                {
+                    "metric": "Share of voice",
+                    "description": "Your brand mentions compared to competitors",
+                    "benchmark": "Equal to or greater than market share",
+                    "measurement_tool": "Media monitoring tools"
+                },
+                {
+                    "metric": "Sentiment",
+                    "description": "Positive, neutral, or negative tone of coverage",
+                    "benchmark": "70%+ positive or neutral mentions",
+                    "measurement_tool": "Media monitoring tools"
+                },
+                {
+                    "metric": "Referral traffic",
+                    "description": "Website traffic from media coverage",
+                    "benchmark": "Varies by publication and industry",
+                    "measurement_tool": "Google Analytics"
+                }
+            ]
+        }
+
+        # Define secondary metrics by channel
+        secondary_metrics = {
+            "content_marketing": [
+                "Bounce rate",
+                "Pages per session",
+                "Comments per post",
+                "Email sign-ups",
+                "Content ROI"
+            ],
+            "seo": [
+                "Domain authority",
+                "Crawl errors",
+                "Indexed pages",
+                "Organic visibility",
+                "Branded vs. non-branded traffic"
+            ],
+            "email_marketing": [
+                "Revenue per email",
+                "Email sharing rate",
+                "List segmentation effectiveness",
+                "Mobile open rate",
+                "Email deliverability rate"
+            ],
+            "social_media": [
+                "Amplification rate",
+                "Applause rate",
+                "Response rate",
+                "Brand mentions",
+                "Share of voice"
+            ],
+            "ppc": [
+                "Quality score",
+                "Impression share",
+                "Frequency",
+                "View-through conversions",
+                "Ad relevance"
+            ],
+            "influencer_marketing": [
+                "Brand sentiment",
+                "Content saves",
+                "Audience growth",
+                "User-generated content",
+                "Campaign ROI"
+            ],
+            "affiliate_marketing": [
+                "New vs. returning customers",
+                "Affiliate activation rate",
+                "Affiliate retention rate",
+                "Fraud rate",
+                "Program ROI"
+            ],
+            "video_marketing": [
+                "Audience retention",
+                "Video completion rate",
+                "Shares per view",
+                "Comments per view",
+                "Video conversion rate"
+            ],
+            "community_building": [
+                "Time spent in community",
+                "User-generated content",
+                "Member satisfaction",
+                "Referral rate",
+                "Community ROI"
+            ],
+            "pr": [
+                "Message pull-through",
+                "Executive quote inclusion",
+                "Key message inclusion",
+                "PR equivalency",
+                "Spokesperson effectiveness"
+            ]
+        }
+
+        # Get metrics for this channel
+        channel_key_metrics = key_metrics.get(channel, [
+            {
+                "metric": "Traffic",
+                "description": "Number of visitors to your website or landing page",
+                "benchmark": "10-20% monthly growth",
+                "measurement_tool": "Google Analytics"
+            },
+            {
+                "metric": "Engagement",
+                "description": "Interactions with your content or brand",
+                "benchmark": "Varies by channel and industry",
+                "measurement_tool": "Various analytics tools"
+            },
+            {
+                "metric": "Conversion rate",
+                "description": "Percentage of visitors who take a desired action",
+                "benchmark": "2-5% for most industries",
+                "measurement_tool": "Google Analytics, CRM"
+            },
+            {
+                "metric": "Cost per acquisition (CPA)",
+                "description": "Cost to acquire a customer or lead",
+                "benchmark": "Varies by industry and customer value",
+                "measurement_tool": "Campaign tracking"
+            },
+            {
+                "metric": "Return on investment (ROI)",
+                "description": "Revenue generated compared to cost",
+                "benchmark": "3:1 or higher",
+                "measurement_tool": "Financial tracking"
+            }
+        ])
+
+        channel_secondary_metrics = secondary_metrics.get(channel, [
+            "Brand awareness",
+            "Customer satisfaction",
+            "Customer lifetime value",
+            "Retention rate",
+            "Referral rate"
+        ])
+
+        # Get goal-specific metrics
+        goal_metrics = self._get_goal_specific_metrics()
+
+        return {
+            "key_metrics": channel_key_metrics,
+            "secondary_metrics": channel_secondary_metrics,
+            "goal_metrics": goal_metrics,
+            "tracking_frequency": "Weekly for key metrics, monthly for secondary metrics",
+            "reporting_recommendations": [
+                "Create a dashboard with key metrics",
+                "Set up automated reporting",
+                "Review metrics weekly with team",
+                "Adjust strategy based on performance",
+                "Compare results to benchmarks and goals"
+            ]
+        }
+
+    def _get_goal_specific_metrics(self) -> List[Dict[str, Any]]:
+        """
+        Get metrics specific to the marketing goals.
+
+        Returns:
+            List of goal-specific metrics
+        """
+        # Define metrics by goal
+        goal_metrics = {
+            "brand_awareness": [
+                {
+                    "metric": "Brand mentions",
+                    "description": "Number of times your brand is mentioned online",
+                    "benchmark": "10-20% monthly growth",
+                    "measurement_tool": "Social listening tools"
+                },
+                {
+                    "metric": "Share of voice",
+                    "description": "Your brand mentions compared to competitors",
+                    "benchmark": "Equal to or greater than market share",
+                    "measurement_tool": "Social listening tools"
+                },
+                {
+                    "metric": "Brand search volume",
+                    "description": "Number of searches for your brand name",
+                    "benchmark": "5-10% monthly growth",
+                    "measurement_tool": "Google Trends, keyword tools"
+                }
+            ],
+            "lead_generation": [
+                {
+                    "metric": "Number of leads",
+                    "description": "Total number of leads generated",
+                    "benchmark": "10-20% monthly growth",
+                    "measurement_tool": "CRM, lead forms"
+                },
+                {
+                    "metric": "Cost per lead (CPL)",
+                    "description": "Cost to generate a lead",
+                    "benchmark": "Varies by industry and lead quality",
+                    "measurement_tool": "Campaign tracking, CRM"
+                },
+                {
+                    "metric": "Lead quality",
+                    "description": "Percentage of leads that are qualified",
+                    "benchmark": "50-70% qualified leads",
+                    "measurement_tool": "CRM, sales feedback"
+                }
+            ],
+            "sales": [
+                {
+                    "metric": "Conversion rate",
+                    "description": "Percentage of leads that convert to customers",
+                    "benchmark": "2-5% for most industries",
+                    "measurement_tool": "CRM, ecommerce platform"
+                },
+                {
+                    "metric": "Average order value (AOV)",
+                    "description": "Average value of each sale",
+                    "benchmark": "Varies by industry and product",
+                    "measurement_tool": "Ecommerce platform, CRM"
+                },
+                {
+                    "metric": "Revenue growth",
+                    "description": "Increase in revenue over time",
+                    "benchmark": "10-20% monthly growth",
+                    "measurement_tool": "Financial tracking"
+                }
+            ],
+            "customer_retention": [
+                {
+                    "metric": "Retention rate",
+                    "description": "Percentage of customers who continue to purchase",
+                    "benchmark": "70-80% annual retention",
+                    "measurement_tool": "CRM, customer database"
+                },
+                {
+                    "metric": "Churn rate",
+                    "description": "Percentage of customers who stop purchasing",
+                    "benchmark": "5-7% monthly churn for SaaS",
+                    "measurement_tool": "CRM, customer database"
+                },
+                {
+                    "metric": "Customer lifetime value (CLV)",
+                    "description": "Total value of a customer over time",
+                    "benchmark": "3-5x customer acquisition cost",
+                    "measurement_tool": "Financial tracking, CRM"
+                }
+            ],
+            "customer_engagement": [
+                {
+                    "metric": "Engagement rate",
+                    "description": "Interactions with your content or brand",
+                    "benchmark": "1-5% depending on channel",
+                    "measurement_tool": "Various analytics tools"
+                },
+                {
+                    "metric": "Time spent",
+                    "description": "Time users spend engaging with your brand",
+                    "benchmark": "Varies by channel and content type",
+                    "measurement_tool": "Various analytics tools"
+                },
+                {
+                    "metric": "Repeat visits",
+                    "description": "Number of times users return",
+                    "benchmark": "30-50% returning visitors",
+                    "measurement_tool": "Google Analytics"
+                }
+            ]
+        }
+
+        # Get metrics for the specified goals
+        metrics = []
+
+        for goal in self.goals:
+            goal_specific_metrics = goal_metrics.get(goal, [])
+            metrics.extend(goal_specific_metrics)
+
+        return metrics
+
+    def _generate_implementation_timeline(self, channel: str) -> Dict[str, Any]:
+        """
+        Generate an implementation timeline for a marketing channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with implementation timeline
+        """
+        # Define implementation phases by channel
+        implementation_phases = {
+            "content_marketing": {
+                "phase_1": {
+                    "name": "Foundation (Month 1)",
+                    "description": "Set up the foundation for your content marketing",
+                    "tasks": [
+                        "Conduct content audit",
+                        "Develop content strategy",
+                        "Create content calendar",
+                        "Set up content management system",
+                        "Develop content guidelines"
+                    ]
+                },
+                "phase_2": {
+                    "name": "Content Creation (Months 2-3)",
+                    "description": "Create initial content assets",
+                    "tasks": [
+                        "Create cornerstone content",
+                        "Develop lead magnets",
+                        "Set up email capture forms",
+                        "Create content distribution plan",
+                        "Implement SEO best practices"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Distribution & Promotion (Months 4-5)",
+                    "description": "Distribute and promote your content",
+                    "tasks": [
+                        "Implement content distribution strategy",
+                        "Promote content on social media",
+                        "Set up email newsletters",
+                        "Reach out for backlinks",
+                        "Repurpose content for different channels"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Optimization (Months 6+)",
+                    "description": "Analyze and optimize your content marketing",
+                    "tasks": [
+                        "Analyze content performance",
+                        "Update underperforming content",
+                        "Scale successful content types",
+                        "Refine content strategy",
+                        "Develop advanced content assets"
+                    ]
+                }
+            },
+            "seo": {
+                "phase_1": {
+                    "name": "Technical SEO (Month 1)",
+                    "description": "Fix technical SEO issues",
+                    "tasks": [
+                        "Conduct technical SEO audit",
+                        "Fix crawl errors",
+                        "Improve site speed",
+                        "Implement schema markup",
+                        "Optimize mobile experience"
+                    ]
+                },
+                "phase_2": {
+                    "name": "On-Page SEO (Months 2-3)",
+                    "description": "Optimize on-page elements",
+                    "tasks": [
+                        "Conduct keyword research",
+                        "Optimize page titles and meta descriptions",
+                        "Improve content quality and relevance",
+                        "Optimize internal linking",
+                        "Create new SEO-focused content"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Off-Page SEO (Months 4-5)",
+                    "description": "Build authority through off-page SEO",
+                    "tasks": [
+                        "Develop link building strategy",
+                        "Create linkable assets",
+                        "Reach out to relevant websites",
+                        "Build local citations (if applicable)",
+                        "Monitor backlink profile"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Ongoing Optimization (Months 6+)",
+                    "description": "Continuously improve SEO performance",
+                    "tasks": [
+                        "Monitor keyword rankings",
+                        "Analyze organic traffic",
+                        "Update content for search intent",
+                        "Expand keyword targeting",
+                        "Stay updated with algorithm changes"
+                    ]
+                }
+            },
+            "email_marketing": {
+                "phase_1": {
+                    "name": "Setup (Month 1)",
+                    "description": "Set up email marketing infrastructure",
+                    "tasks": [
+                        "Select email marketing platform",
+                        "Set up email templates",
+                        "Create lead magnets",
+                        "Implement opt-in forms",
+                        "Set up list segmentation"
+                    ]
+                },
+                "phase_2": {
+                    "name": "Initial Campaigns (Months 2-3)",
+                    "description": "Create and launch initial email campaigns",
+                    "tasks": [
+                        "Create welcome sequence",
+                        "Develop newsletter template",
+                        "Set up automated sequences",
+                        "Implement A/B testing",
+                        "Create promotional emails"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Optimization (Months 4-5)",
+                    "description": "Optimize email campaigns",
+                    "tasks": [
+                        "Analyze email performance",
+                        "Refine segmentation strategy",
+                        "Improve email content",
+                        "Optimize send times",
+                        "Implement personalization"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Advanced Strategies (Months 6+)",
+                    "description": "Implement advanced email marketing strategies",
+                    "tasks": [
+                        "Develop behavioral email sequences",
+                        "Implement advanced personalization",
+                        "Create re-engagement campaigns",
+                        "Integrate with other channels",
+                        "Optimize for conversions"
+                    ]
+                }
+            },
+            "social_media": {
+                "phase_1": {
+                    "name": "Setup (Month 1)",
+                    "description": "Set up social media presence",
+                    "tasks": [
+                        "Audit current social media presence",
+                        "Select primary platforms",
+                        "Create and optimize profiles",
+                        "Develop social media strategy",
+                        "Set up social media management tools"
+                    ]
+                },
+                "phase_2": {
+                    "name": "Content Creation (Months 2-3)",
+                    "description": "Create and schedule social media content",
+                    "tasks": [
+                        "Develop content themes",
+                        "Create content calendar",
+                        "Produce initial content",
+                        "Set up scheduling",
+                        "Implement engagement strategy"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Community Building (Months 4-5)",
+                    "description": "Build and engage your social media community",
+                    "tasks": [
+                        "Engage with followers",
+                        "Join relevant groups and communities",
+                        "Collaborate with others",
+                        "Run engagement campaigns",
+                        "Implement user-generated content strategy"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Optimization & Growth (Months 6+)",
+                    "description": "Optimize and scale social media efforts",
+                    "tasks": [
+                        "Analyze performance data",
+                        "Refine content strategy",
+                        "Scale successful content types",
+                        "Implement paid social strategy",
+                        "Integrate with other marketing channels"
+                    ]
+                }
+            },
+            "ppc": {
+                "phase_1": {
+                    "name": "Research & Setup (Month 1)",
+                    "description": "Research and set up PPC campaigns",
+                    "tasks": [
+                        "Conduct keyword research",
+                        "Analyze competitors",
+                        "Set up ad accounts",
+                        "Create campaign structure",
+                        "Set up conversion tracking"
+                    ]
+                },
+                "phase_2": {
+                    "name": "Initial Campaigns (Months 2-3)",
+                    "description": "Launch and monitor initial campaigns",
+                    "tasks": [
+                        "Create ad copy and creative",
+                        "Build landing pages",
+                        "Launch initial campaigns",
+                        "Monitor performance",
+                        "Make initial optimizations"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Optimization (Months 4-5)",
+                    "description": "Optimize campaigns for better performance",
+                    "tasks": [
+                        "Refine targeting",
+                        "Optimize ad copy and creative",
+                        "Improve landing pages",
+                        "Adjust bid strategies",
+                        "Expand successful campaigns"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Scaling & Advanced Strategies (Months 6+)",
+                    "description": "Scale successful campaigns and implement advanced strategies",
+                    "tasks": [
+                        "Scale budget for successful campaigns",
+                        "Implement advanced targeting",
+                        "Develop retargeting strategies",
+                        "Test new ad formats",
+                        "Integrate with other channels"
+                    ]
+                }
+            },
+            "influencer_marketing": {
+                "phase_1": {
+                    "name": "Research & Planning (Month 1)",
+                    "description": "Research and plan influencer marketing strategy",
+                    "tasks": [
+                        "Define influencer marketing goals",
+                        "Identify target influencer types",
+                        "Research potential influencers",
+                        "Develop outreach strategy",
+                        "Create campaign brief"
+                    ]
+                },
+                "phase_2": {
+                    "name": "Outreach & Negotiation (Months 2-3)",
+                    "description": "Reach out to and negotiate with influencers",
+                    "tasks": [
+                        "Conduct initial outreach",
+                        "Evaluate influencer fit",
+                        "Negotiate terms",
+                        "Finalize contracts",
+                        "Brief influencers on campaign"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Campaign Execution (Months 4-5)",
+                    "description": "Execute influencer marketing campaigns",
+                    "tasks": [
+                        "Provide products/services to influencers",
+                        "Review content before publishing",
+                        "Monitor campaign performance",
+                        "Engage with audience",
+                        "Repurpose influencer content"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Scaling & Relationship Building (Months 6+)",
+                    "description": "Scale successful campaigns and build long-term relationships",
+                    "tasks": [
+                        "Analyze campaign results",
+                        "Identify top-performing influencers",
+                        "Develop long-term partnerships",
+                        "Expand influencer program",
+                        "Implement ambassador program"
+                    ]
+                }
+            },
+            "affiliate_marketing": {
+                "phase_1": {
+                    "name": "Program Setup (Month 1)",
+                    "description": "Set up affiliate marketing program",
+                    "tasks": [
+                        "Select affiliate platform",
+                        "Define commission structure",
+                        "Create affiliate terms and conditions",
+                        "Develop tracking system",
+                        "Create affiliate resources"
+                    ]
+                },
+                "phase_2": {
+                    "name": "Recruitment (Months 2-3)",
+                    "description": "Recruit initial affiliates",
+                    "tasks": [
+                        "Identify potential affiliates",
+                        "Develop outreach strategy",
+                        "Conduct initial outreach",
+                        "Onboard initial affiliates",
+                        "Provide training and resources"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Optimization & Support (Months 4-5)",
+                    "description": "Optimize program and support affiliates",
+                    "tasks": [
+                        "Monitor affiliate performance",
+                        "Create additional resources",
+                        "Provide ongoing support",
+                        "Optimize commission structure",
+                        "Implement affiliate incentives"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Scaling & Advanced Strategies (Months 6+)",
+                    "description": "Scale program and implement advanced strategies",
+                    "tasks": [
+                        "Recruit high-performing affiliates",
+                        "Develop tiered commission structure",
+                        "Create exclusive promotions",
+                        "Implement advanced tracking",
+                        "Integrate with other channels"
+                    ]
+                }
+            },
+            "video_marketing": {
+                "phase_1": {
+                    "name": "Strategy & Setup (Month 1)",
+                    "description": "Develop video strategy and set up infrastructure",
+                    "tasks": [
+                        "Define video marketing goals",
+                        "Develop video content strategy",
+                        "Set up video production workflow",
+                        "Select video hosting platforms",
+                        "Create channel branding"
+                    ]
+                },
+                "phase_2": {
+                    "name": "Initial Content Creation (Months 2-3)",
+                    "description": "Create initial video content",
+                    "tasks": [
+                        "Produce introductory videos",
+                        "Create how-to and educational content",
+                        "Develop video SEO strategy",
+                        "Optimize video descriptions and tags",
+                        "Set up video distribution"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Promotion & Engagement (Months 4-5)",
+                    "description": "Promote videos and engage with audience",
+                    "tasks": [
+                        "Promote videos across channels",
+                        "Engage with viewers",
+                        "Collaborate with others",
+                        "Repurpose video content",
+                        "Analyze video performance"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Scaling & Advanced Content (Months 6+)",
+                    "description": "Scale video production and create advanced content",
+                    "tasks": [
+                        "Develop content series",
+                        "Create more complex video formats",
+                        "Implement paid video promotion",
+                        "Optimize for conversions",
+                        "Expand to new platforms"
+                    ]
+                }
+            },
+            "community_building": {
+                "phase_1": {
+                    "name": "Foundation (Month 1)",
+                    "description": "Lay the foundation for your community",
+                    "tasks": [
+                        "Define community purpose and values",
+                        "Select community platform",
+                        "Create community guidelines",
+                        "Set up community infrastructure",
+                        "Develop moderation strategy"
+                    ]
+                },
+                "phase_2": {
+                    "name": "Initial Growth (Months 2-3)",
+                    "description": "Grow initial community membership",
+                    "tasks": [
+                        "Invite initial members",
+                        "Create welcome process",
+                        "Develop content calendar",
+                        "Initiate discussions",
+                        "Create initial resources"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Engagement & Culture (Months 4-5)",
+                    "description": "Foster engagement and community culture",
+                    "tasks": [
+                        "Implement regular engagement activities",
+                        "Recognize active members",
+                        "Gather community feedback",
+                        "Create exclusive content",
+                        "Facilitate member connections"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Scaling & Evolution (Months 6+)",
+                    "description": "Scale community and evolve offerings",
+                    "tasks": [
+                        "Implement growth strategies",
+                        "Develop community programs",
+                        "Create community events",
+                        "Implement community-led initiatives",
+                        "Integrate with other marketing efforts"
+                    ]
+                }
+            },
+            "pr": {
+                "phase_1": {
+                    "name": "Foundation (Month 1)",
+                    "description": "Lay the foundation for PR efforts",
+                    "tasks": [
+                        "Develop PR strategy",
+                        "Create media kit",
+                        "Identify target publications",
+                        "Develop key messaging",
+                        "Set up media monitoring"
+                    ]
+                },
+                "phase_2": {
+                    "name": "Relationship Building (Months 2-3)",
+                    "description": "Build relationships with media",
+                    "tasks": [
+                        "Create media list",
+                        "Develop pitch templates",
+                        "Initiate contact with journalists",
+                        "Engage on social media",
+                        "Offer expert commentary"
+                    ]
+                },
+                "phase_3": {
+                    "name": "Campaign Execution (Months 4-5)",
+                    "description": "Execute PR campaigns",
+                    "tasks": [
+                        "Develop newsworthy stories",
+                        "Create press releases",
+                        "Pitch to media outlets",
+                        "Follow up on pitches",
+                        "Monitor coverage"
+                    ]
+                },
+                "phase_4": {
+                    "name": "Expansion & Integration (Months 6+)",
+                    "description": "Expand PR efforts and integrate with marketing",
+                    "tasks": [
+                        "Analyze PR performance",
+                        "Expand to new publications",
+                        "Develop thought leadership strategy",
+                        "Create speaking opportunities",
+                        "Integrate PR with content marketing"
+                    ]
+                }
+            }
+        }
+
+        # Define quick wins by channel
+        quick_wins = {
+            "content_marketing": [
+                "Update and optimize your 5 most popular blog posts",
+                "Create a content upgrade for your top-performing post",
+                "Implement content sharing buttons on all content",
+                "Set up an email capture form on high-traffic pages",
+                "Repurpose existing content into a new format"
+            ],
+            "seo": [
+                "Fix broken links and 404 errors",
+                "Optimize page titles and meta descriptions",
+                "Improve page loading speed",
+                "Add internal links to high-value pages",
+                "Update and expand thin content"
+            ],
+            "email_marketing": [
+                "Segment your email list",
+                "Create a welcome email sequence",
+                "Optimize email subject lines",
+                "Add personalization to emails",
+                "Clean your email list"
+            ],
+            "social_media": [
+                "Complete and optimize all social profiles",
+                "Create a content calendar",
+                "Engage with followers and commenters",
+                "Join relevant groups and communities",
+                "Add social sharing buttons to your website"
+            ],
+            "ppc": [
+                "Optimize existing ad copy",
+                "Improve landing page experience",
+                "Add negative keywords",
+                "Adjust bid strategies",
+                "Test different ad formats"
+            ],
+            "influencer_marketing": [
+                "Identify relevant micro-influencers",
+                "Engage with potential influencers' content",
+                "Create an influencer outreach template",
+                "Offer product samples to potential influencers",
+                "Repurpose influencer content on your channels"
+            ],
+            "affiliate_marketing": [
+                "Optimize existing affiliate program terms",
+                "Create ready-to-use creative assets",
+                "Reach out to existing customers as potential affiliates",
+                "Improve affiliate dashboard and reporting",
+                "Offer special promotions for affiliates"
+            ],
+            "video_marketing": [
+                "Optimize video titles, descriptions, and tags",
+                "Add captions to existing videos",
+                "Create short clips from longer videos",
+                "Add end screens and cards to YouTube videos",
+                "Cross-promote videos on other channels"
+            ],
+            "community_building": [
+                "Create a welcome sequence for new members",
+                "Start a regular discussion thread",
+                "Highlight and recognize active members",
+                "Add community guidelines",
+                "Create exclusive resources for community members"
+            ],
+            "pr": [
+                "Create a media kit",
+                "Develop relationships with 3-5 relevant journalists",
+                "Monitor for relevant PR opportunities",
+                "Optimize your newsroom or press page",
+                "Create a PR response template for inquiries"
+            ]
+        }
+
+        # Get implementation phases for this channel
+        channel_implementation_phases = implementation_phases.get(channel, {
+            "phase_1": {
+                "name": "Research & Planning (Month 1)",
+                "description": "Research and plan your strategy",
+                "tasks": [
+                    "Define goals and KPIs",
+                    "Research target audience",
+                    "Analyze competitors",
+                    "Develop strategy",
+                    "Create implementation plan"
+                ]
+            },
+            "phase_2": {
+                "name": "Setup & Initial Implementation (Months 2-3)",
+                "description": "Set up infrastructure and implement initial strategies",
+                "tasks": [
+                    "Set up necessary tools and platforms",
+                    "Create initial assets",
+                    "Implement tracking and analytics",
+                    "Launch initial campaigns",
+                    "Monitor performance"
+                ]
+            },
+            "phase_3": {
+                "name": "Optimization (Months 4-5)",
+                "description": "Analyze and optimize performance",
+                "tasks": [
+                    "Analyze initial results",
+                    "Identify successful elements",
+                    "Optimize underperforming elements",
+                    "Expand successful strategies",
+                    "Refine approach based on data"
+                ]
+            },
+            "phase_4": {
+                "name": "Scaling & Integration (Months 6+)",
+                "description": "Scale successful strategies and integrate with other channels",
+                "tasks": [
+                    "Scale successful strategies",
+                    "Implement advanced techniques",
+                    "Integrate with other marketing channels",
+                    "Develop long-term strategy",
+                    "Continuously optimize based on results"
+                ]
+            }
+        })
+
+        # Get quick wins for this channel
+        channel_quick_wins = quick_wins.get(channel, [
+            "Define clear goals and KPIs",
+            "Create a basic implementation plan",
+            "Start with small tests and experiments",
+            "Document processes and results",
+            "Review and optimize regularly"
+        ])
+
+        return {
+            "implementation_phases": channel_implementation_phases,
+            "quick_wins": channel_quick_wins,
+            "estimated_timeline": "6+ months for full implementation",
+            "resource_requirements": self._estimate_resource_requirements(channel),
+            "key_milestones": [
+                "Strategy development completed (Week 2)",
+                "Infrastructure setup completed (Week 4)",
+                "Initial implementation launched (Month 2)",
+                "First optimization cycle completed (Month 4)",
+                "Full integration with other channels (Month 6)"
+            ]
+        }
+
+    def _estimate_resource_requirements(self, channel: str) -> Dict[str, Any]:
+        """
+        Estimate resource requirements for implementing a marketing channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with resource requirements
+        """
+        # Define resource requirements by channel
+        resource_requirements = {
+            "content_marketing": {
+                "time": "10-20 hours per week",
+                "budget": "Low to medium",
+                "skills": ["Writing", "Editing", "SEO", "Content strategy", "Analytics"],
+                "tools": ["Content management system", "SEO tools", "Analytics tools", "Editorial calendar", "Design tools"],
+                "team": ["Content strategist", "Content writer", "Editor", "Designer"]
+            },
+            "seo": {
+                "time": "10-15 hours per week",
+                "budget": "Low to medium",
+                "skills": ["SEO", "Content creation", "Technical SEO", "Analytics", "Link building"],
+                "tools": ["SEO tools", "Analytics tools", "Keyword research tools", "Technical SEO tools"],
+                "team": ["SEO specialist", "Content creator", "Web developer"]
+            },
+            "email_marketing": {
+                "time": "5-10 hours per week",
+                "budget": "Low to medium",
+                "skills": ["Copywriting", "Email design", "Segmentation", "Analytics", "Automation"],
+                "tools": ["Email marketing platform", "Analytics tools", "Design tools", "Landing page builder"],
+                "team": ["Email marketer", "Copywriter", "Designer"]
+            },
+            "social_media": {
+                "time": "10-15 hours per week",
+                "budget": "Low to high (depending on paid social)",
+                "skills": ["Content creation", "Community management", "Copywriting", "Design", "Analytics"],
+                "tools": ["Social media management tools", "Design tools", "Analytics tools", "Scheduling tools"],
+                "team": ["Social media manager", "Content creator", "Designer"]
+            },
+            "ppc": {
+                "time": "5-10 hours per week",
+                "budget": "Medium to high",
+                "skills": ["PPC management", "Copywriting", "Landing page optimization", "Analytics", "Bid management"],
+                "tools": ["Ad platforms", "Analytics tools", "Landing page builder", "Bid management tools"],
+                "team": ["PPC specialist", "Copywriter", "Designer", "Web developer"]
+            },
+            "influencer_marketing": {
+                "time": "5-10 hours per week",
+                "budget": "Medium to high",
+                "skills": ["Relationship building", "Negotiation", "Campaign management", "Content creation", "Analytics"],
+                "tools": ["Influencer discovery tools", "Communication tools", "Contract management", "Analytics tools"],
+                "team": ["Influencer manager", "Content creator", "Designer"]
+            },
+            "affiliate_marketing": {
+                "time": "5-10 hours per week",
+                "budget": "Low to medium (commission-based)",
+                "skills": ["Program management", "Relationship building", "Analytics", "Content creation"],
+                "tools": ["Affiliate platform", "Analytics tools", "Communication tools", "Content management"],
+                "team": ["Affiliate manager", "Content creator", "Designer"]
+            },
+            "video_marketing": {
+                "time": "10-20 hours per week",
+                "budget": "Medium to high",
+                "skills": ["Video production", "Editing", "Scriptwriting", "On-camera presence", "SEO"],
+                "tools": ["Video editing software", "Camera equipment", "Hosting platforms", "Analytics tools"],
+                "team": ["Video producer", "Editor", "Scriptwriter", "On-camera talent"]
+            },
+            "community_building": {
+                "time": "10-15 hours per week",
+                "budget": "Low to medium",
+                "skills": ["Community management", "Content creation", "Moderation", "Engagement", "Analytics"],
+                "tools": ["Community platform", "Communication tools", "Content management", "Analytics tools"],
+                "team": ["Community manager", "Content creator", "Moderator"]
+            },
+            "pr": {
+                "time": "5-10 hours per week",
+                "budget": "Medium to high",
+                "skills": ["Media relations", "Writing", "Storytelling", "Relationship building", "Crisis management"],
+                "tools": ["Media database", "Press release distribution", "Media monitoring", "Analytics tools"],
+                "team": ["PR specialist", "Copywriter", "Media relations manager"]
+            }
+        }
+
+        # Get resource requirements for this channel
+        return resource_requirements.get(channel, {
+            "time": "5-15 hours per week",
+            "budget": "Varies by implementation",
+            "skills": ["Strategy", "Content creation", "Analytics", "Project management"],
+            "tools": ["Planning tools", "Analytics tools", "Content creation tools", "Project management tools"],
+            "team": ["Marketing manager", "Content creator", "Analyst"]
+        })
+
+    def _generate_budget_recommendations(self, channel: str) -> Dict[str, Any]:
+        """
+        Generate budget recommendations for a marketing channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with budget recommendations
+        """
+        # Get budget information
+        budget_amount = self.budget.get("amount", 0)
+        budget_period = self.budget.get("period", "monthly")
+
+        # Convert budget to monthly if needed
+        monthly_budget = budget_amount
+        if budget_period == "quarterly":
+            monthly_budget = budget_amount / 3
+        elif budget_period == "annually":
+            monthly_budget = budget_amount / 12
+
+        # Get business type and size
+        business_type = self.business_type
+        business_size = self.business_size
+
+        # Generate budget recommendations
+        budget_ranges = self._estimate_budget_ranges(channel, business_type, business_size)
+        budget_allocation = self._recommend_budget_allocation(channel)
+        activity_costs = self._estimate_activity_costs(channel, business_type, business_size)
+        roi_estimates = self._estimate_channel_roi_potential(channel, business_type)
+        scaling_recommendations = self._recommend_budget_scaling(channel, monthly_budget)
+
+        return {
+            "budget_ranges": budget_ranges,
+            "budget_allocation": budget_allocation,
+            "activity_costs": activity_costs,
+            "roi_estimates": roi_estimates,
+            "scaling_recommendations": scaling_recommendations,
+            "recommended_starting_budget": self._calculate_recommended_starting_budget(
+                channel, monthly_budget, business_type, business_size
+            )
+        }
+
+    def _estimate_budget_ranges(self, channel: str, business_type: str, business_size: str) -> Dict[str, Any]:
+        """
+        Estimate appropriate budget ranges for a marketing channel.
+
+        Args:
+            channel: Marketing channel
+            business_type: Type of business
+            business_size: Size of business
+
+        Returns:
+            Dictionary with budget ranges
+        """
+        # Define base budget ranges by channel (monthly, in USD)
+        base_budget_ranges = {
+            "content_marketing": {
+                "starter": {"min": 500, "max": 2000},
+                "growth": {"min": 2000, "max": 5000},
+                "established": {"min": 5000, "max": 15000}
+            },
+            "seo": {
+                "starter": {"min": 500, "max": 2000},
+                "growth": {"min": 2000, "max": 5000},
+                "established": {"min": 5000, "max": 15000}
+            },
+            "email_marketing": {
+                "starter": {"min": 300, "max": 1000},
+                "growth": {"min": 1000, "max": 3000},
+                "established": {"min": 3000, "max": 10000}
+            },
+            "social_media": {
+                "starter": {"min": 500, "max": 2000},
+                "growth": {"min": 2000, "max": 5000},
+                "established": {"min": 5000, "max": 15000}
+            },
+            "ppc": {
+                "starter": {"min": 1000, "max": 3000},
+                "growth": {"min": 3000, "max": 10000},
+                "established": {"min": 10000, "max": 50000}
+            },
+            "influencer_marketing": {
+                "starter": {"min": 1000, "max": 3000},
+                "growth": {"min": 3000, "max": 10000},
+                "established": {"min": 10000, "max": 50000}
+            },
+            "affiliate_marketing": {
+                "starter": {"min": 500, "max": 2000},
+                "growth": {"min": 2000, "max": 5000},
+                "established": {"min": 5000, "max": 15000}
+            },
+            "video_marketing": {
+                "starter": {"min": 1000, "max": 3000},
+                "growth": {"min": 3000, "max": 10000},
+                "established": {"min": 10000, "max": 50000}
+            },
+            "community_building": {
+                "starter": {"min": 300, "max": 1000},
+                "growth": {"min": 1000, "max": 3000},
+                "established": {"min": 3000, "max": 10000}
+            },
+            "pr": {
+                "starter": {"min": 1000, "max": 3000},
+                "growth": {"min": 3000, "max": 10000},
+                "established": {"min": 10000, "max": 30000}
+            }
+        }
+
+        # Define business type multipliers
+        business_type_multipliers = {
+            "saas": 1.2,  # SaaS typically requires more marketing investment
+            "ecommerce": 1.1,  # Ecommerce has significant competition
+            "service": 0.9,  # Service businesses can rely more on relationships
+            "local": 0.7  # Local businesses typically have smaller budgets
+        }
+
+        # Define business size multipliers
+        business_size_multipliers = {
+            "startup": 0.7,  # Startups have limited budgets
+            "small": 1.0,  # Base multiplier
+            "medium": 1.5,  # Medium businesses have more resources
+            "large": 2.0  # Large businesses have significant resources
+        }
+
+        # Get base budget range for this channel
+        base_range = base_budget_ranges.get(channel, {
+            "starter": {"min": 500, "max": 2000},
+            "growth": {"min": 2000, "max": 5000},
+            "established": {"min": 5000, "max": 15000}
+        })
+
+        # Get multipliers
+        type_multiplier = business_type_multipliers.get(business_type, 1.0)
+        size_multiplier = business_size_multipliers.get(business_size, 1.0)
+
+        # Calculate adjusted budget ranges
+        adjusted_ranges = {}
+        for level, range_data in base_range.items():
+            min_budget = range_data["min"] * type_multiplier * size_multiplier
+            max_budget = range_data["max"] * type_multiplier * size_multiplier
+
+            adjusted_ranges[level] = {
+                "min": round(min_budget, -2),  # Round to nearest 100
+                "max": round(max_budget, -2)  # Round to nearest 100
+            }
+
+        # Add percentage of revenue recommendations
+        revenue_percentages = {
+            "starter": {"min": 5, "max": 10},
+            "growth": {"min": 10, "max": 15},
+            "established": {"min": 15, "max": 20}
+        }
+
+        # Adjust percentages based on business type
+        if business_type == "saas":
+            for level in revenue_percentages:
+                revenue_percentages[level]["min"] += 5
+                revenue_percentages[level]["max"] += 5
+        elif business_type == "local":
+            for level in revenue_percentages:
+                revenue_percentages[level]["min"] -= 2
+                revenue_percentages[level]["max"] -= 2
+
+        return {
+            "absolute_ranges": adjusted_ranges,
+            "revenue_percentages": revenue_percentages,
+            "business_context": {
+                "business_type": business_type,
+                "business_size": business_size,
+                "type_multiplier": type_multiplier,
+                "size_multiplier": size_multiplier
+            },
+            "notes": [
+                "Budget ranges are monthly estimates in USD",
+                "Actual budgets should be adjusted based on specific business goals and constraints",
+                "Consider starting at the lower end of the range and scaling based on performance",
+                "These ranges include all costs associated with the channel (tools, personnel, media spend, etc.)"
+            ]
+        }
+
+    def _recommend_budget_allocation(self, channel: str) -> Dict[str, Any]:
+        """
+        Recommend how to allocate the budget within a marketing channel.
+
+        Args:
+            channel: Marketing channel
+
+        Returns:
+            Dictionary with budget allocation recommendations
+        """
+        # Define budget allocations by channel
+        budget_allocations = {
+            "content_marketing": {
+                "content_creation": 0.40,  # 40% for creating content
+                "content_promotion": 0.20,  # 20% for promoting content
+                "tools_and_platforms": 0.15,  # 15% for tools and platforms
+                "freelancers_and_agencies": 0.15,  # 15% for freelancers and agencies
+                "analytics_and_optimization": 0.10  # 10% for analytics and optimization
+            },
+            "seo": {
+                "content_creation": 0.35,  # 35% for creating SEO content
+                "technical_seo": 0.20,  # 20% for technical SEO
+                "link_building": 0.20,  # 20% for link building
+                "tools_and_platforms": 0.15,  # 15% for tools and platforms
+                "analytics_and_optimization": 0.10  # 10% for analytics and optimization
+            },
+            "email_marketing": {
+                "platform_and_tools": 0.25,  # 25% for email platform and tools
+                "content_creation": 0.30,  # 30% for creating email content
+                "list_building": 0.20,  # 20% for building and maintaining email list
+                "design_and_templates": 0.15,  # 15% for design and templates
+                "testing_and_optimization": 0.10  # 10% for testing and optimization
+            },
+            "social_media": {
+                "content_creation": 0.35,  # 35% for creating social content
+                "paid_social": 0.30,  # 30% for paid social media
+                "tools_and_platforms": 0.15,  # 15% for tools and platforms
+                "community_management": 0.10,  # 10% for community management
+                "analytics_and_optimization": 0.10  # 10% for analytics and optimization
+            },
+            "ppc": {
+                "ad_spend": 0.70,  # 70% for actual ad spend
+                "landing_page_development": 0.10,  # 10% for landing page development
+                "creative_development": 0.10,  # 10% for creative development
+                "tools_and_platforms": 0.05,  # 5% for tools and platforms
+                "testing_and_optimization": 0.05  # 5% for testing and optimization
+            },
+            "influencer_marketing": {
+                "influencer_fees": 0.60,  # 60% for influencer fees
+                "product_and_samples": 0.15,  # 15% for products and samples
+                "campaign_management": 0.10,  # 10% for campaign management
+                "content_amplification": 0.10,  # 10% for amplifying influencer content
+                "tools_and_analytics": 0.05  # 5% for tools and analytics
+            },
+            "affiliate_marketing": {
+                "affiliate_commissions": 0.60,  # 60% for affiliate commissions
+                "program_management": 0.15,  # 15% for program management
+                "creative_and_resources": 0.10,  # 10% for creative assets and resources
+                "platform_and_tools": 0.10,  # 10% for affiliate platform and tools
+                "incentives_and_bonuses": 0.05  # 5% for affiliate incentives and bonuses
+            },
+            "video_marketing": {
+                "video_production": 0.50,  # 50% for video production
+                "editing_and_post_production": 0.20,  # 20% for editing and post-production
+                "distribution_and_promotion": 0.15,  # 15% for distribution and promotion
+                "equipment_and_tools": 0.10,  # 10% for equipment and tools
+                "analytics_and_optimization": 0.05  # 5% for analytics and optimization
+            },
+            "community_building": {
+                "platform_and_tools": 0.30,  # 30% for community platform and tools
+                "content_creation": 0.25,  # 25% for creating community content
+                "community_management": 0.25,  # 25% for community management
+                "events_and_activities": 0.15,  # 15% for community events and activities
+                "analytics_and_optimization": 0.05  # 5% for analytics and optimization
+            },
+            "pr": {
+                "agency_or_consultant_fees": 0.40,  # 40% for PR agency or consultant fees
+                "media_outreach": 0.20,  # 20% for media outreach
+                "content_creation": 0.20,  # 20% for creating PR content
+                "tools_and_platforms": 0.10,  # 10% for PR tools and platforms
+                "events_and_activities": 0.10  # 10% for PR events and activities
+            }
+        }
+
+        # Get allocation for this channel
+        channel_allocation = budget_allocations.get(channel, {
+            "strategy_and_planning": 0.20,  # 20% for strategy and planning
+            "content_and_creative": 0.30,  # 30% for content and creative
+            "tools_and_platforms": 0.20,  # 20% for tools and platforms
+            "distribution_and_promotion": 0.20,  # 20% for distribution and promotion
+            "analytics_and_optimization": 0.10  # 10% for analytics and optimization
+        })
+
+        # Create allocation recommendations for different budget levels
+        starter_allocation = channel_allocation.copy()
+        growth_allocation = channel_allocation.copy()
+        established_allocation = channel_allocation.copy()
+
+        # Adjust allocations based on budget level
+        # For starter budgets, focus more on essentials
+        # For growth budgets, balanced approach
+        # For established budgets, more on optimization and scaling
+
+        # Example adjustments for content marketing
+        if channel == "content_marketing":
+            # Starter: More on content creation, less on promotion
+            starter_allocation["content_creation"] += 0.10
+            starter_allocation["content_promotion"] -= 0.05
+            starter_allocation["analytics_and_optimization"] -= 0.05
+
+            # Established: More on promotion and optimization
+            established_allocation["content_promotion"] += 0.05
+            established_allocation["analytics_and_optimization"] += 0.05
+            established_allocation["content_creation"] -= 0.10
+
+        # Example adjustments for PPC
+        elif channel == "ppc":
+            # Starter: More on ad spend, less on optimization
+            starter_allocation["ad_spend"] += 0.05
+            starter_allocation["testing_and_optimization"] -= 0.05
+
+            # Established: More on optimization, less on ad spend
+            established_allocation["ad_spend"] -= 0.10
+            established_allocation["testing_and_optimization"] += 0.05
+            established_allocation["landing_page_development"] += 0.05
+
+        return {
+            "overall_allocation": channel_allocation,
+            "budget_level_allocations": {
+                "starter": starter_allocation,
+                "growth": growth_allocation,
+                "established": established_allocation
+            },
+            "allocation_notes": [
+                "Allocations are general guidelines and should be adjusted based on specific business goals",
+                "As budget increases, consider shifting more resources to testing and optimization",
+                "For smaller budgets, focus on the highest-impact activities first",
+                "Regularly review and adjust allocations based on performance data"
+            ]
+        }
+
+    def _estimate_activity_costs(self, channel: str, business_type: str, business_size: str) -> Dict[str, Any]:
+        """
+        Estimate costs for specific activities within a marketing channel.
+
+        Args:
+            channel: Marketing channel
+            business_type: Type of business
+            business_size: Size of business
+
+        Returns:
+            Dictionary with activity cost estimates
+        """
+        # Define base activity costs by channel (monthly, in USD)
+        base_activity_costs = {
+            "content_marketing": {
+                "tools_and_platforms": {
+                    "content_management_system": {"min": 0, "max": 500, "notes": "WordPress (free) to enterprise CMS"},
+                    "seo_tools": {"min": 100, "max": 500, "notes": "Basic to advanced SEO tools"},
+                    "content_optimization_tools": {"min": 50, "max": 300, "notes": "Content optimization and research tools"},
+                    "analytics_tools": {"min": 0, "max": 200, "notes": "Google Analytics (free) to premium analytics"}
+                },
+                "services": {
+                    "content_writer": {"min": 50, "max": 500, "notes": "Per article, varies by quality and length"},
+                    "editor": {"min": 30, "max": 200, "notes": "Per article, varies by complexity"},
+                    "graphic_designer": {"min": 50, "max": 300, "notes": "Per graphic, varies by complexity"},
+                    "content_strategist": {"min": 1000, "max": 5000, "notes": "Monthly retainer or project-based"}
+                },
+                "advertising": {
+                    "content_promotion": {"min": 200, "max": 2000, "notes": "Social media and native advertising"},
+                    "newsletter_sponsorship": {"min": 200, "max": 2000, "notes": "Per newsletter, varies by audience size"}
+                }
+            },
+            "seo": {
+                "tools_and_platforms": {
+                    "seo_suite": {"min": 100, "max": 500, "notes": "Ahrefs, SEMrush, Moz, etc."},
+                    "rank_tracking": {"min": 50, "max": 200, "notes": "Dedicated rank tracking tools"},
+                    "technical_seo_tools": {"min": 50, "max": 300, "notes": "Technical SEO audit and monitoring tools"}
+                },
+                "services": {
+                    "seo_audit": {"min": 500, "max": 5000, "notes": "One-time comprehensive audit"},
+                    "content_creation": {"min": 100, "max": 500, "notes": "Per SEO-optimized article"},
+                    "link_building": {"min": 300, "max": 3000, "notes": "Monthly link building services"},
+                    "technical_seo_implementation": {"min": 500, "max": 3000, "notes": "Implementation of technical SEO fixes"}
+                }
+            },
+            "email_marketing": {
+                "tools_and_platforms": {
+                    "email_platform": {"min": 30, "max": 1000, "notes": "Based on list size and features"},
+                    "landing_page_builder": {"min": 30, "max": 200, "notes": "For opt-in pages and lead magnets"},
+                    "email_testing_tools": {"min": 20, "max": 100, "notes": "For testing deliverability and rendering"}
+                },
+                "services": {
+                    "email_copywriter": {"min": 50, "max": 300, "notes": "Per email, varies by complexity"},
+                    "email_designer": {"min": 50, "max": 300, "notes": "Per template, varies by complexity"},
+                    "automation_setup": {"min": 300, "max": 2000, "notes": "Setting up email sequences and automations"}
+                },
+                "list_building": {
+                    "lead_magnets": {"min": 200, "max": 1000, "notes": "Creation of lead magnets"},
+                    "list_building_ads": {"min": 200, "max": 2000, "notes": "Ads specifically for list building"}
+                }
+            },
+            "social_media": {
+                "tools_and_platforms": {
+                    "management_tools": {"min": 50, "max": 300, "notes": "Social media management platforms"},
+                    "analytics_tools": {"min": 30, "max": 200, "notes": "Social media analytics tools"},
+                    "design_tools": {"min": 20, "max": 100, "notes": "For creating social media graphics"}
+                },
+                "services": {
+                    "content_creation": {"min": 300, "max": 3000, "notes": "Monthly content creation services"},
+                    "community_management": {"min": 500, "max": 3000, "notes": "Monthly community management services"},
+                    "strategy_development": {"min": 500, "max": 5000, "notes": "One-time strategy development"}
+                },
+                "advertising": {
+                    "paid_social": {"min": 300, "max": 10000, "notes": "Monthly ad spend, varies widely"}
+                }
+            },
+            "ppc": {
+                "tools_and_platforms": {
+                    "bid_management": {"min": 100, "max": 500, "notes": "Bid management and optimization tools"},
+                    "landing_page_builder": {"min": 30, "max": 200, "notes": "For creating landing pages"},
+                    "conversion_tracking": {"min": 0, "max": 100, "notes": "Tools for tracking conversions"}
+                },
+                "services": {
+                    "campaign_setup": {"min": 500, "max": 3000, "notes": "One-time campaign setup"},
+                    "ongoing_management": {"min": 500, "max": 5000, "notes": "Monthly management fees or % of spend"},
+                    "creative_development": {"min": 300, "max": 2000, "notes": "Ad creative and copy development"}
+                },
+                "advertising": {
+                    "ad_spend": {"min": 1000, "max": 50000, "notes": "Monthly ad spend, varies widely"}
+                }
+            },
+            "influencer_marketing": {
+                "tools_and_platforms": {
+                    "discovery_tools": {"min": 100, "max": 500, "notes": "Influencer discovery and management tools"},
+                    "tracking_tools": {"min": 50, "max": 300, "notes": "For tracking influencer campaign performance"}
+                },
+                "services": {
+                    "campaign_management": {"min": 1000, "max": 5000, "notes": "Monthly campaign management services"},
+                    "content_creation": {"min": 300, "max": 2000, "notes": "Additional content creation for campaigns"}
+                },
+                "influencer_fees": {
+                    "micro_influencers": {"min": 100, "max": 500, "notes": "Per post, 10K-50K followers"},
+                    "mid_tier_influencers": {"min": 500, "max": 5000, "notes": "Per post, 50K-500K followers"},
+                    "macro_influencers": {"min": 5000, "max": 50000, "notes": "Per post, 500K+ followers"}
+                }
+            },
+            "affiliate_marketing": {
+                "tools_and_platforms": {
+                    "affiliate_platform": {"min": 100, "max": 500, "notes": "Affiliate tracking and management platform"},
+                    "tracking_tools": {"min": 50, "max": 200, "notes": "Additional tracking and attribution tools"}
+                },
+                "services": {
+                    "program_setup": {"min": 1000, "max": 5000, "notes": "One-time program setup"},
+                    "program_management": {"min": 1000, "max": 5000, "notes": "Monthly program management services"},
+                    "creative_development": {"min": 300, "max": 2000, "notes": "Creating assets for affiliates"}
+                },
+                "commissions": {
+                    "affiliate_commissions": {"min": 500, "max": 10000, "notes": "Monthly commission payouts, varies widely"}
+                }
+            },
+            "video_marketing": {
+                "tools_and_platforms": {
+                    "editing_software": {"min": 30, "max": 300, "notes": "Video editing software"},
+                    "hosting_platforms": {"min": 0, "max": 500, "notes": "Video hosting platforms"},
+                    "analytics_tools": {"min": 0, "max": 200, "notes": "Video analytics tools"}
+                },
+                "services": {
+                    "video_production": {"min": 500, "max": 10000, "notes": "Per video, varies by complexity"},
+                    "editing_services": {"min": 300, "max": 3000, "notes": "Per video, varies by complexity"},
+                    "scriptwriting": {"min": 200, "max": 1000, "notes": "Per video, varies by length and complexity"}
+                },
+                "equipment": {
+                    "camera_equipment": {"min": 500, "max": 5000, "notes": "One-time purchase, varies by quality"},
+                    "audio_equipment": {"min": 200, "max": 2000, "notes": "One-time purchase, varies by quality"},
+                    "lighting_equipment": {"min": 200, "max": 2000, "notes": "One-time purchase, varies by quality"}
+                }
+            },
+            "community_building": {
+                "tools_and_platforms": {
+                    "community_platform": {"min": 100, "max": 1000, "notes": "Monthly platform fees, varies by features and size"},
+                    "engagement_tools": {"min": 50, "max": 300, "notes": "Tools for fostering engagement"},
+                    "analytics_tools": {"min": 30, "max": 200, "notes": "Community analytics tools"}
+                },
+                "services": {
+                    "community_management": {"min": 1000, "max": 5000, "notes": "Monthly community management services"},
+                    "content_creation": {"min": 300, "max": 2000, "notes": "Creating content for the community"},
+                    "moderation": {"min": 500, "max": 3000, "notes": "Community moderation services"}
+                },
+                "activities": {
+                    "events": {"min": 200, "max": 5000, "notes": "Community events, varies by type and size"},
+                    "incentives": {"min": 200, "max": 2000, "notes": "Rewards and incentives for community members"}
+                }
+            },
+            "pr": {
+                "tools_and_platforms": {
+                    "media_database": {"min": 100, "max": 500, "notes": "Media contact database"},
+                    "monitoring_tools": {"min": 100, "max": 500, "notes": "Media monitoring tools"},
+                    "distribution_services": {"min": 200, "max": 1000, "notes": "Press release distribution services"}
+                },
+                "services": {
+                    "pr_agency": {"min": 2000, "max": 10000, "notes": "Monthly retainer for PR agency services"},
+                    "content_creation": {"min": 300, "max": 2000, "notes": "Creating press releases and media materials"},
+                    "media_training": {"min": 1000, "max": 5000, "notes": "One-time media training for spokespeople"}
+                },
+                "activities": {
+                    "media_events": {"min": 1000, "max": 10000, "notes": "Press events, varies by type and size"},
+                    "press_trips": {"min": 2000, "max": 20000, "notes": "Hosting journalists, varies by scope"}
+                }
+            }
+        }
+
+        # Define business type multipliers
+        business_type_multipliers = {
+            "saas": 1.2,  # SaaS typically has higher costs
+            "ecommerce": 1.1,  # Ecommerce has significant competition
+            "service": 0.9,  # Service businesses can rely more on relationships
+            "local": 0.7  # Local businesses typically have lower costs
+        }
+
+        # Define business size multipliers
+        business_size_multipliers = {
+            "startup": 0.7,  # Startups have limited budgets
+            "small": 1.0,  # Base multiplier
+            "medium": 1.5,  # Medium businesses have more resources
+            "large": 2.0  # Large businesses have significant resources
+        }
+
+        # Get base activity costs for this channel
+        base_costs = base_activity_costs.get(channel, {})
+
+        # Get multipliers
+        type_multiplier = business_type_multipliers.get(business_type, 1.0)
+        size_multiplier = business_size_multipliers.get(business_size, 1.0)
+
+        # Calculate adjusted activity costs
+        adjusted_costs = {}
+
+        for category, activities in base_costs.items():
+            adjusted_costs[category] = {}
+
+            for activity, cost_data in activities.items():
+                min_cost = cost_data["min"] * type_multiplier * size_multiplier
+                max_cost = cost_data["max"] * type_multiplier * size_multiplier
+
+                adjusted_costs[category][activity] = {
+                    "min": round(min_cost, -1),  # Round to nearest 10
+                    "max": round(max_cost, -1),  # Round to nearest 10
+                    "notes": cost_data["notes"]
+                }
+
+        return {
+            "activity_costs": adjusted_costs,
+            "business_context": {
+                "business_type": business_type,
+                "business_size": business_size,
+                "type_multiplier": type_multiplier,
+                "size_multiplier": size_multiplier
+            },
+            "cost_notes": [
+                "Cost estimates are monthly unless otherwise noted",
+                "Costs are in USD and should be adjusted for local markets",
+                "Ranges represent typical costs and may vary based on specific requirements",
+                "Consider starting with essential activities and expanding as budget allows"
+            ]
+        }
+
+    def _estimate_channel_roi_potential(self, channel: str, business_type: str) -> Dict[str, Any]:
+        """
+        Estimate potential ROI for a marketing channel.
+
+        Args:
+            channel: Marketing channel
+            business_type: Type of business
+
+        Returns:
+            Dictionary with ROI estimates
+        """
+        # Define base ROI ranges by channel
+        base_roi_ranges = {
+            "content_marketing": {
+                "low": 2.0,  # 200% ROI
+                "medium": 5.0,  # 500% ROI
+                "high": 10.0  # 1000% ROI
+            },
+            "seo": {
+                "low": 3.0,  # 300% ROI
+                "medium": 7.0,  # 700% ROI
+                "high": 12.0  # 1200% ROI
+            },
+            "email_marketing": {
+                "low": 3.0,  # 300% ROI
+                "medium": 8.0,  # 800% ROI
+                "high": 15.0  # 1500% ROI
+            },
+            "social_media": {
+                "low": 1.5,  # 150% ROI
+                "medium": 4.0,  # 400% ROI
+                "high": 8.0  # 800% ROI
+            },
+            "ppc": {
+                "low": 1.0,  # 100% ROI
+                "medium": 3.0,  # 300% ROI
+                "high": 6.0  # 600% ROI
+            },
+            "influencer_marketing": {
+                "low": 1.5,  # 150% ROI
+                "medium": 4.0,  # 400% ROI
+                "high": 8.0  # 800% ROI
+            },
+            "affiliate_marketing": {
+                "low": 2.0,  # 200% ROI
+                "medium": 5.0,  # 500% ROI
+                "high": 10.0  # 1000% ROI
+            },
+            "video_marketing": {
+                "low": 1.5,  # 150% ROI
+                "medium": 4.0,  # 400% ROI
+                "high": 8.0  # 800% ROI
+            },
+            "community_building": {
+                "low": 1.0,  # 100% ROI
+                "medium": 3.0,  # 300% ROI
+                "high": 7.0  # 700% ROI
+            },
+            "pr": {
+                "low": 1.0,  # 100% ROI
+                "medium": 2.5,  # 250% ROI
+                "high": 5.0  # 500% ROI
+            }
+        }
+
+        # Define business type ROI multipliers
+        business_type_multipliers = {
+            "saas": 1.3,  # SaaS typically has higher ROI potential
+            "ecommerce": 1.1,  # Ecommerce has good ROI potential
+            "service": 0.9,  # Service businesses typically have lower ROI
+            "local": 0.8  # Local businesses typically have lower ROI
+        }
+
+        # Get base ROI range for this channel
+        base_range = base_roi_ranges.get(channel, {
+            "low": 1.5,  # 150% ROI
+            "medium": 4.0,  # 400% ROI
+            "high": 8.0  # 800% ROI
+        })
+
+        # Get multiplier
+        type_multiplier = business_type_multipliers.get(business_type, 1.0)
+
+        # Calculate adjusted ROI ranges
+        adjusted_range = {}
+        for level, roi in base_range.items():
+            adjusted_range[level] = round(roi * type_multiplier, 1)
+
+        # Define time to ROI by channel (in months)
+        time_to_roi = {
+            "content_marketing": {
+                "short_term": 6,
+                "medium_term": 12,
+                "long_term": 24
+            },
+            "seo": {
+                "short_term": 6,
+                "medium_term": 12,
+                "long_term": 24
+            },
+            "email_marketing": {
+                "short_term": 3,
+                "medium_term": 6,
+                "long_term": 12
+            },
+            "social_media": {
+                "short_term": 3,
+                "medium_term": 6,
+                "long_term": 12
+            },
+            "ppc": {
+                "short_term": 1,
+                "medium_term": 3,
+                "long_term": 6
+            },
+            "influencer_marketing": {
+                "short_term": 1,
+                "medium_term": 3,
+                "long_term": 6
+            },
+            "affiliate_marketing": {
+                "short_term": 3,
+                "medium_term": 6,
+                "long_term": 12
+            },
+            "video_marketing": {
+                "short_term": 3,
+                "medium_term": 6,
+                "long_term": 12
+            },
+            "community_building": {
+                "short_term": 6,
+                "medium_term": 12,
+                "long_term": 24
+            },
+            "pr": {
+                "short_term": 3,
+                "medium_term": 6,
+                "long_term": 12
+            }
+        }
+
+        # Get time to ROI for this channel
+        channel_time_to_roi = time_to_roi.get(channel, {
+            "short_term": 3,
+            "medium_term": 6,
+            "long_term": 12
+        })
+
+        # Define ROI factors by channel
+        roi_factors = {
+            "content_marketing": [
+                "Content quality and relevance",
+                "SEO optimization",
+                "Content promotion strategy",
+                "Content distribution channels",
+                "Content repurposing efficiency"
+            ],
+            "seo": [
+                "Keyword competitiveness",
+                "Technical SEO implementation",
+                "Content quality and relevance",
+                "Backlink profile quality",
+                "Local SEO implementation (if applicable)"
+            ],
+            "email_marketing": [
+                "List quality and segmentation",
+                "Email content relevance",
+                "Automation implementation",
+                "Deliverability rates",
+                "Testing and optimization frequency"
+            ],
+            "social_media": [
+                "Platform selection and audience match",
+                "Content quality and engagement",
+                "Paid social strategy",
+                "Community management",
+                "Integration with other channels"
+            ],
+            "ppc": [
+                "Keyword selection and match types",
+                "Ad copy and creative quality",
+                "Landing page experience",
+                "Bid management strategy",
+                "Targeting precision"
+            ],
+            "influencer_marketing": [
+                "Influencer selection and audience match",
+                "Content quality and authenticity",
+                "Influencer relationship management",
+                "Campaign integration with other channels",
+                "Performance tracking and optimization"
+            ],
+            "affiliate_marketing": [
+                "Affiliate selection and quality",
+                "Commission structure",
+                "Affiliate resources and support",
+                "Program management",
+                "Performance tracking and optimization"
+            ],
+            "video_marketing": [
+                "Video quality and relevance",
+                "Platform selection and optimization",
+                "Video SEO implementation",
+                "Distribution strategy",
+                "Integration with other channels"
+            ],
+            "community_building": [
+                "Community platform selection",
+                "Community management quality",
+                "Engagement strategy",
+                "Value provided to members",
+                "Integration with other marketing efforts"
+            ],
+            "pr": [
+                "Story quality and newsworthiness",
+                "Media relationships",
+                "Target publication selection",
+                "Integration with content strategy",
+                "Crisis management preparedness"
+            ]
+        }
+
+        # Get ROI factors for this channel
+        channel_roi_factors = roi_factors.get(channel, [
+            "Strategy quality and implementation",
+            "Audience targeting precision",
+            "Content quality and relevance",
+            "Integration with other channels",
+            "Testing and optimization frequency"
+        ])
+
+        return {
+            "roi_ranges": {
+                "percentage": {
+                    "low": f"{int(adjusted_range['low'] * 100)}%",
+                    "medium": f"{int(adjusted_range['medium'] * 100)}%",
+                    "high": f"{int(adjusted_range['high'] * 100)}%"
+                },
+                "multiplier": adjusted_range
+            },
+            "time_to_roi": channel_time_to_roi,
+            "roi_factors": channel_roi_factors,
+            "business_context": {
+                "business_type": business_type,
+                "type_multiplier": type_multiplier
+            },
+            "roi_notes": [
+                "ROI estimates are based on industry benchmarks and may vary",
+                "Low range represents conservative estimates, high range represents optimal implementation",
+                "Actual ROI depends on implementation quality, market conditions, and other factors",
+                "ROI typically improves over time as strategies are optimized",
+                "Consider both short-term and long-term ROI when evaluating channels"
+            ]
+        }
+
+    def _recommend_budget_scaling(self, channel: str, monthly_budget: float) -> Dict[str, Any]:
+        """
+        Recommend how to scale the budget over time.
+
+        Args:
+            channel: Marketing channel
+            monthly_budget: Monthly budget amount
+
+        Returns:
+            Dictionary with budget scaling recommendations
+        """
+        # Define scaling timelines by channel (in months)
+        scaling_timelines = {
+            "content_marketing": {
+                "initial_period": 3,
+                "evaluation_period": 6,
+                "scaling_period": 12
+            },
+            "seo": {
+                "initial_period": 3,
+                "evaluation_period": 6,
+                "scaling_period": 12
+            },
+            "email_marketing": {
+                "initial_period": 2,
+                "evaluation_period": 4,
+                "scaling_period": 8
+            },
+            "social_media": {
+                "initial_period": 2,
+                "evaluation_period": 4,
+                "scaling_period": 8
+            },
+            "ppc": {
+                "initial_period": 1,
+                "evaluation_period": 2,
+                "scaling_period": 4
+            },
+            "influencer_marketing": {
+                "initial_period": 1,
+                "evaluation_period": 3,
+                "scaling_period": 6
+            },
+            "affiliate_marketing": {
+                "initial_period": 2,
+                "evaluation_period": 4,
+                "scaling_period": 8
+            },
+            "video_marketing": {
+                "initial_period": 2,
+                "evaluation_period": 4,
+                "scaling_period": 8
+            },
+            "community_building": {
+                "initial_period": 3,
+                "evaluation_period": 6,
+                "scaling_period": 12
+            },
+            "pr": {
+                "initial_period": 2,
+                "evaluation_period": 4,
+                "scaling_period": 8
+            }
+        }
+
+        # Get scaling timeline for this channel
+        timeline = scaling_timelines.get(channel, {
+            "initial_period": 2,
+            "evaluation_period": 4,
+            "scaling_period": 8
+        })
+
+        # Define scaling percentages
+        scaling_percentages = {
+            "conservative": 0.2,  # 20% increase
+            "moderate": 0.5,  # 50% increase
+            "aggressive": 1.0  # 100% increase
+        }
+
+        # Define scaling thresholds (performance metrics that trigger scaling)
+        scaling_thresholds = {
+            "content_marketing": {
+                "traffic_increase": "20%+",
+                "conversion_rate": "2%+",
+                "engagement_metrics": "Above industry average",
+                "roi": "200%+"
+            },
+            "seo": {
+                "ranking_improvements": "Top 10 positions for target keywords",
+                "organic_traffic_increase": "20%+",
+                "conversion_rate": "2%+",
+                "roi": "300%+"
+            },
+            "email_marketing": {
+                "open_rate": "20%+",
+                "click_through_rate": "3%+",
+                "conversion_rate": "2%+",
+                "roi": "300%+"
+            },
+            "social_media": {
+                "engagement_rate": "2%+",
+                "follower_growth": "10%+ monthly",
+                "conversion_rate": "1%+",
+                "roi": "150%+"
+            },
+            "ppc": {
+                "click_through_rate": "Above industry average",
+                "conversion_rate": "2%+",
+                "cost_per_acquisition": "Below target",
+                "roi": "100%+"
+            },
+            "influencer_marketing": {
+                "engagement_rate": "2%+",
+                "conversion_rate": "1%+",
+                "cost_per_acquisition": "Below target",
+                "roi": "150%+"
+            },
+            "affiliate_marketing": {
+                "active_affiliate_ratio": "30%+",
+                "conversion_rate": "1%+",
+                "revenue_per_click": "Above target",
+                "roi": "200%+"
+            },
+            "video_marketing": {
+                "view_count": "Above target",
+                "engagement_rate": "2%+",
+                "conversion_rate": "1%+",
+                "roi": "150%+"
+            },
+            "community_building": {
+                "active_member_ratio": "20%+",
+                "engagement_rate": "Above target",
+                "conversion_rate": "3%+",
+                "roi": "100%+"
+            },
+            "pr": {
+                "media_mentions": "Above target",
+                "referral_traffic": "10%+ of total traffic",
+                "brand_sentiment": "70%+ positive",
+                "roi": "100%+"
+            }
+        }
+
+        # Get scaling thresholds for this channel
+        thresholds = scaling_thresholds.get(channel, {
+            "performance_metric_1": "Above target",
+            "performance_metric_2": "Above target",
+            "conversion_rate": "Above target",
+            "roi": "Above target"
+        })
+
+        # Calculate scaled budgets
+        initial_budget = monthly_budget if monthly_budget > 0 else self._calculate_recommended_starting_budget(
+            channel, monthly_budget, self.business_type, self.business_size
+        )["recommended_amount"]
+
+        scaled_budgets = {}
+        current_budget = initial_budget
+
+        for approach, percentage in scaling_percentages.items():
+            scaled_budgets[approach] = {}
+            budget = current_budget
+
+            for i in range(1, 4):  # 3 scaling periods
+                budget = budget * (1 + percentage)
+                scaled_budgets[approach][f"period_{i}"] = round(budget, -1)  # Round to nearest 10
+
+        return {
+            "scaling_timeline": timeline,
+            "scaled_budgets": scaled_budgets,
+            "scaling_thresholds": thresholds,
+            "scaling_notes": [
+                "Start with the initial budget and evaluate performance before scaling",
+                "Only scale budget when performance meets or exceeds thresholds",
+                "Consider conservative scaling initially, then more aggressive as performance proves",
+                "Reallocate budget from underperforming activities before increasing overall budget",
+                "Regularly review and adjust scaling plans based on performance data"
+            ]
+        }
+
+    def _calculate_recommended_starting_budget(self, channel: str, monthly_budget: float, business_type: str, business_size: str) -> Dict[str, Any]:
+        """
+        Calculate the recommended starting budget for a marketing channel.
+
+        Args:
+            channel: Marketing channel
+            monthly_budget: Monthly budget amount
+            business_type: Type of business
+            business_size: Size of business
+
+        Returns:
+            Dictionary with recommended starting budget
+        """
+        # Get budget ranges for this channel
+        budget_ranges = self._estimate_budget_ranges(channel, business_type, business_size)
+
+        # Get the starter range
+        starter_range = budget_ranges["absolute_ranges"]["starter"]
+        min_budget = starter_range["min"]
+        max_budget = starter_range["max"]
+
+        # Calculate recommended amount
+        if monthly_budget <= 0:
+            # If no budget is specified, recommend the minimum
+            recommended_amount = min_budget
+        elif monthly_budget < min_budget:
+            # If budget is below minimum, recommend the minimum
+            recommended_amount = min_budget
+        elif monthly_budget > max_budget:
+            # If budget is above maximum, recommend the maximum
+            recommended_amount = max_budget
+        else:
+            # If budget is within range, recommend that amount
+            recommended_amount = monthly_budget
+
+        # Calculate percentage of total marketing budget
+        total_marketing_budget = self.budget.get("amount", 0)
+        if total_marketing_budget > 0:
+            percentage_of_total = round((recommended_amount / total_marketing_budget) * 100, 1)
+        else:
+            percentage_of_total = None
+
+        return {
+            "recommended_amount": recommended_amount,
+            "budget_range": starter_range,
+            "percentage_of_total": percentage_of_total,
+            "recommendation_notes": [
+                "This is a recommended starting point based on your business type and size",
+                "Adjust based on your specific goals and constraints",
+                "Consider starting at the lower end of the range and scaling based on performance",
+                "Ensure you have enough budget to properly implement the channel strategy"
+            ]
+        }
+
     def _estimate_audience_value(self) -> Dict[str, Any]:
         """
         Estimate the value of the target audience.
