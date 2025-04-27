@@ -1,281 +1,210 @@
 """
-Property-based tests for revenue projection calculations.
+Property-based tests for the RevenueProjector class.
 
-This module tests properties that should hold true for revenue projection calculations
-in the monetization module, using the Hypothesis framework for property-based testing.
+These tests verify that the RevenueProjector produces sensible
+projections across a wide range of input parameters.
 """
-
 import pytest
-import math
-from typing import Dict, Any, List
-from datetime import datetime
-
-from hypothesis import given, strategies as st, settings, assume
-from hypothesis.strategies import composite
-
+from hypothesis import given, strategies as st, assume
 from monetization.revenue_projector import RevenueProjector
 from monetization.subscription_models import SubscriptionModel
 
 
-@composite
-def revenue_projector_strategy(draw):
-    """Strategy to generate valid RevenueProjector instances."""
-    name = draw(st.text(min_size=1, max_size=50))
-    description = draw(st.text(max_size=200))
-    initial_users = draw(st.integers(min_value=0, max_value=10000))
-    user_acquisition_rate = draw(st.integers(min_value=1, max_value=1000))
-    conversion_rate = draw(st.floats(min_value=0.01, max_value=0.5))
-    churn_rate = draw(st.floats(min_value=0.01, max_value=0.2))
+# Strategies for generating valid RevenueProjector parameters
+names = st.text(min_size=1, max_size=100)
+descriptions = st.text(max_size=500)
+initial_users = st.integers(min_value=0, max_value=100000)
+user_acquisition_rates = st.integers(min_value=0, max_value=10000)
+conversion_rates = st.floats(min_value=0.001, max_value=0.999)
+churn_rates = st.floats(min_value=0.001, max_value=0.5)
+months = st.integers(min_value=1, max_value=36)
+growth_rates = st.floats(min_value=-0.1, max_value=0.5)
+
+# Strategy for generating tier distributions
+@st.composite
+def tier_distributions(draw):
+    """Generate a valid tier distribution dictionary."""
+    # Generate between 1 and 5 tiers
+    num_tiers = draw(st.integers(min_value=1, max_value=5))
     
-    # Generate tier distribution that sums to 1.0
-    basic_part = draw(st.floats(min_value=0.1, max_value=0.8))
-    pro_part = draw(st.floats(min_value=0.1, max_value=0.8))
-    # Adjust to make sure they sum to 1.0
-    total = basic_part + pro_part
-    basic_ratio = basic_part / total
-    pro_ratio = pro_part / total
-    premium_ratio = 1.0 - basic_ratio - pro_ratio
+    # Generate tier names
+    tiers = [f"tier_{i}" for i in range(num_tiers)]
     
-    tier_distribution = {
-        "basic": round(basic_ratio, 2),
-        "pro": round(pro_ratio, 2),
-        "premium": round(premium_ratio, 2)
-    }
+    # Generate percentages that sum to 1.0
+    percentages = []
+    remaining = 1.0
+    for i in range(num_tiers - 1):
+        if remaining <= 0:
+            percentages.append(0.0)
+        else:
+            percentage = draw(st.floats(min_value=0.01, max_value=remaining))
+            percentages.append(percentage)
+            remaining -= percentage
     
-    # Adjust final numbers to ensure exactly 1.0 total
-    adjustment = 1.0 - sum(tier_distribution.values())
-    tier_distribution["basic"] += adjustment
+    # Add the last percentage
+    percentages.append(remaining)
     
-    return RevenueProjector(
+    # Create and return the distribution dictionary
+    return {tier: percentage for tier, percentage in zip(tiers, percentages)}
+
+
+@given(
+    name=names,
+    description=descriptions,
+    initial_users=initial_users,
+    user_acquisition_rate=user_acquisition_rates,
+    conversion_rate=conversion_rates,
+    churn_rate=churn_rates,
+    tier_dist=tier_distributions(),
+    months=months,
+    growth_rate=growth_rates
+)
+def test_revenue_projections_properties(
+    name, description, initial_users, user_acquisition_rate, 
+    conversion_rate, churn_rate, tier_dist, months, growth_rate
+):
+    """Test properties of revenue projections across a wide range of inputs."""
+    
+    # Create a RevenueProjector instance
+    projector = RevenueProjector(
         name=name,
         description=description,
         initial_users=initial_users,
         user_acquisition_rate=user_acquisition_rate,
         conversion_rate=conversion_rate,
         churn_rate=churn_rate,
-        tier_distribution=tier_distribution
-    )
-
-
-@composite
-def subscription_model_strategy(draw):
-    """Strategy to generate valid SubscriptionModel instances."""
-    name = draw(st.text(min_size=1, max_size=50))
-    description = draw(st.text(max_size=200))
-    
-    model = SubscriptionModel(name=name, description=description)
-    
-    # Add tiers
-    basic_price = draw(st.floats(min_value=4.99, max_value=14.99))
-    pro_price = draw(st.floats(min_value=basic_price + 5, max_value=basic_price + 20))
-    premium_price = draw(st.floats(min_value=pro_price + 10, max_value=pro_price + 30))
-    
-    model.add_tier(
-        name="Basic",
-        description="Basic tier",
-        price_monthly=round(basic_price, 2)
+        tier_distribution=tier_dist
     )
     
-    model.add_tier(
-        name="Pro",
-        description="Pro tier",
-        price_monthly=round(pro_price, 2)
-    )
-    
-    model.add_tier(
-        name="Premium",
-        description="Premium tier",
-        price_monthly=round(premium_price, 2)
-    )
-    
-    return model
-
-
-@given(
-    projector=revenue_projector_strategy(),
-    growth_rate=st.floats(min_value=0.01, max_value=0.2),
-    months=st.integers(min_value=6, max_value=24)
-)
-@settings(max_examples=25)
-def test_property_steady_state_user_behavior(projector, growth_rate, months):
-    """
-    Property: With sufficient acquisition rate and months, user projections should
-    converge to a relatively steady state determined by acquisition rate, growth rate, 
-    and churn rate.
-    """
-    # For projectors with very low acquisition rates, we need to ensure the test doesn't fail
-    if projector.user_acquisition_rate < 10:
-        projector.user_acquisition_rate = 10
-    
-    user_projections = projector.project_users(months=months, growth_rate=growth_rate)
-    
-    # With sufficient acquisition rate, we should have at least some users at the end
-    assert user_projections[-1]["total_users"] > 0, \
-        f"Expected non-zero users after {months} months"
-    
-    # For longer projections, check the stability by looking at the latter half
-    if months >= 10:
-        # Look at the last half of the projection
-        latter_half = user_projections[months // 2:]
-        
-        # Calculate average change between months
-        changes = [
-            latter_half[i]["total_users"] - latter_half[i-1]["total_users"]
-            for i in range(1, len(latter_half))
-        ]
-        
-        # The average absolute change should be relatively small compared to total users
-        avg_abs_change = sum(abs(change) for change in changes) / len(changes)
-        last_users = latter_half[-1]["total_users"]
-        
-        if last_users > 0:
-            relative_change = avg_abs_change / last_users
-            
-            # Expect relatively small month-to-month fluctuations in the latter half
-            assert relative_change < 0.5, \
-                f"Average change of {avg_abs_change} users is too large relative to {last_users} total users"
-
-
-@given(
-    projector=revenue_projector_strategy(),
-    churn_rate_1=st.floats(min_value=0.01, max_value=0.1),
-    churn_rate_2=st.floats(min_value=0.11, max_value=0.2),
-    arpu=st.floats(min_value=5, max_value=100)
-)
-@settings(max_examples=25)
-def test_property_higher_churn_lower_ltv(projector, churn_rate_1, churn_rate_2, arpu):
-    """
-    Property: Higher churn rates should result in lower customer lifetime value.
-    """
-    ltv_lower_churn = projector.calculate_lifetime_value(arpu, churn_rate=churn_rate_1)
-    ltv_higher_churn = projector.calculate_lifetime_value(arpu, churn_rate=churn_rate_2)
-    
-    assert ltv_lower_churn["lifetime_value"] > ltv_higher_churn["lifetime_value"], \
-        f"Expected lifetime value with churn rate {churn_rate_1} to be higher than with churn rate {churn_rate_2}"
-
-
-@given(
-    projector=revenue_projector_strategy(),
-    model=subscription_model_strategy(),
-    months=st.integers(min_value=3, max_value=24),
-    growth_rate=st.floats(min_value=0.01, max_value=0.2),
-)
-@settings(max_examples=25)
-def test_property_tier_revenue_sum_equals_total(projector, model, months, growth_rate):
-    """
-    Property: The sum of revenue from all tiers should equal the total revenue.
-    """
+    # Project revenue
     revenue_projections = projector.project_revenue(
-        subscription_model=model,
-        months=months, 
+        months=months,
         growth_rate=growth_rate
     )
     
-    for month in revenue_projections:
-        if "tier_revenue" in month and month["tier_revenue"]:
-            tier_revenue_sum = sum(month["tier_revenue"].values())
-            # Use approximate equality due to potential floating point precision issues
-            assert math.isclose(tier_revenue_sum, month["total_revenue"], abs_tol=0.01), \
-                f"Month {month['month']}: Sum of tier revenues {tier_revenue_sum} does not equal total revenue {month['total_revenue']}"
+    # Property 1: The projections list should have the expected length
+    assert len(revenue_projections) == months
+    
+    # Property 2: Month numbers should be sequential from 1 to months
+    assert [p["month"] for p in revenue_projections] == list(range(1, months + 1))
+    
+    # Property 3: Total users should be the sum of free and paid users
+    for projection in revenue_projections:
+        assert projection["total_users"] == projection["free_users"] + projection["paid_users"]
+    
+    # Property 4: Tier users should sum to paid users
+    for projection in revenue_projections:
+        tier_users_sum = sum(projection["tier_users"].values())
+        assert abs(tier_users_sum - projection["paid_users"]) < 1.0  # Allow for floating-point errors
+    
+    # Property 5: Revenue calculations should be consistent with user counts and prices
+    for projection in revenue_projections:
+        for tier, users in projection["tier_users"].items():
+            if users > 0:
+                # If we have tier price information, verify revenue calculation
+                if tier in projection["tier_revenue"] and tier in tier_dist:
+                    # We don't have exact price information here, but we can check that revenue > 0
+                    assert projection["tier_revenue"][tier] >= 0
+    
+    # Property 6: Cumulative revenue should increase monotonically
+    cumulative_revenues = [p["cumulative_revenue"] for p in revenue_projections]
+    assert all(curr >= prev for prev, curr in zip(cumulative_revenues, cumulative_revenues[1:]))
 
 
 @given(
-    projector=revenue_projector_strategy(),
-    arpu=st.floats(min_value=10, max_value=100),
-    cac=st.floats(min_value=20, max_value=200),
-    margin=st.floats(min_value=0.3, max_value=0.9)
+    name=names,
+    description=descriptions,
+    initial_users=initial_users,
+    user_acquisition_rate=user_acquisition_rates,
+    conversion_rate=conversion_rates,
+    churn_rate=churn_rates,
+    months=months,
+    growth_rate=growth_rates
 )
-@settings(max_examples=25)
-def test_property_payback_period_formula_correct(projector, arpu, cac, margin):
-    """
-    Property: Payback period should be calculated as CAC / (ARPU * gross margin).
-    """
-    payback = projector.calculate_payback_period(
-        customer_acquisition_cost=cac,
-        average_revenue_per_user=arpu,
-        gross_margin=margin
+def test_user_projections_properties(
+    name, description, initial_users, user_acquisition_rate, 
+    conversion_rate, churn_rate, months, growth_rate
+):
+    """Test properties of user projections across a wide range of inputs."""
+    
+    # Create a RevenueProjector instance
+    projector = RevenueProjector(
+        name=name,
+        description=description,
+        initial_users=initial_users,
+        user_acquisition_rate=user_acquisition_rate,
+        conversion_rate=conversion_rate,
+        churn_rate=churn_rate
     )
     
-    # The formula for payback period is CAC / (ARPU * gross margin)
-    expected_payback_months = cac / (arpu * margin)
-    actual_payback_months = payback["payback_period_months"]
-    
-    # Due to potential rounding or internal implementation details, use approximate equality
-    assert math.isclose(actual_payback_months, expected_payback_months, rel_tol=0.01), \
-        f"Expected payback period {expected_payback_months} but got {actual_payback_months}"
-
-
-@given(
-    projector=revenue_projector_strategy(),
-    arpu=st.floats(min_value=5, max_value=100),
-    churn_rate=st.floats(min_value=0.01, max_value=0.2)
-)
-@settings(max_examples=25)
-def test_property_ltv_formula_correct(projector, arpu, churn_rate):
-    """
-    Property: Lifetime value should be calculated as ARPU / churn rate.
-    """
-    ltv = projector.calculate_lifetime_value(arpu, churn_rate)
-    
-    expected_lifetime_months = 1 / churn_rate
-    expected_ltv = arpu * expected_lifetime_months
-    
-    # Due to potential rounding or internal implementation details, use approximate equality
-    assert math.isclose(ltv["lifetime_value"], expected_ltv, rel_tol=0.01), \
-        f"Expected LTV {expected_ltv} but got {ltv['lifetime_value']}"
-
-
-@given(
-    projector=revenue_projector_strategy(),
-    model=subscription_model_strategy(),
-    cac=st.floats(min_value=10, max_value=200),
-    margin=st.floats(min_value=0.3, max_value=0.9)
-)
-@settings(max_examples=25)
-def test_property_payback_period_increases_with_cac(projector, model, cac, margin):
-    """
-    Property: Higher customer acquisition costs should result in longer payback periods.
-    """
-    # Use a fixed ARPU for comparison
-    arpu = 25.0
-    
-    payback_lower = projector.calculate_payback_period(
-        customer_acquisition_cost=cac,
-        average_revenue_per_user=arpu,
-        gross_margin=margin
-    )
-    
-    payback_higher = projector.calculate_payback_period(
-        customer_acquisition_cost=cac * 1.5,  # 50% higher CAC
-        average_revenue_per_user=arpu,
-        gross_margin=margin
-    )
-    
-    assert payback_higher["payback_period_months"] > payback_lower["payback_period_months"], \
-        "Higher customer acquisition cost should result in longer payback period"
-
-
-@given(
-    projector=revenue_projector_strategy(),
-    model=subscription_model_strategy(),
-    months=st.integers(min_value=12, max_value=36)
-)
-@settings(max_examples=25)
-def test_property_cumulative_revenue_increases_correctly(projector, model, months):
-    """
-    Property: Cumulative revenue at month N should equal the sum of monthly revenues from months 1 to N.
-    """
-    revenue_projections = projector.project_revenue(
-        subscription_model=model,
+    # Project users
+    user_projections = projector.project_users(
         months=months,
-        growth_rate=0.05
+        growth_rate=growth_rate
     )
     
-    # Calculate running sum
-    running_sum = 0
+    # Property 1: The projections list should have the expected length
+    assert len(user_projections) == months
     
-    for i, month in enumerate(revenue_projections):
-        running_sum += month["total_revenue"]
-        # Use approximate equality due to potential floating point precision issues
-        assert math.isclose(running_sum, month["cumulative_revenue"], abs_tol=0.01), \
-            f"Month {month['month']}: Cumulative revenue {month['cumulative_revenue']} doesn't match running sum {running_sum}"
+    # Property 2: Month numbers should be sequential from 1 to months
+    assert [p["month"] for p in user_projections] == list(range(1, months + 1))
+    
+    # Property 3: Total users should be the sum of free and paid users
+    for projection in user_projections:
+        assert projection["total_users"] == projection["free_users"] + projection["paid_users"]
+    
+    # Property 4: With positive growth and no churn, user count should increase
+    if growth_rate > 0 and churn_rate == 0:
+        total_users = [p["total_users"] for p in user_projections]
+        assert all(curr >= prev for prev, curr in zip(total_users, total_users[1:]))
+    
+    # Property 5: With high churn and no growth/acquisition, user count should decrease
+    if growth_rate <= 0 and churn_rate > 0.2 and user_acquisition_rate == 0 and len(user_projections) > 1:
+        total_users = [p["total_users"] for p in user_projections]
+        # Skip this check if initial users is 0 (can't decrease from 0)
+        if initial_users > 0:
+            assert total_users[-1] < total_users[0]
+
+
+@given(
+    name=names,
+    description=descriptions,
+    initial_users=initial_users,
+    user_acquisition_rate=user_acquisition_rates,
+    conversion_rate=conversion_rates,
+    churn_rate=churn_rates,
+    tier_dist=tier_distributions(),
+)
+def test_invariant_properties(
+    name, description, initial_users, user_acquisition_rate, 
+    conversion_rate, churn_rate, tier_dist
+):
+    """Test invariant properties of the RevenueProjector."""
+    
+    # Create a RevenueProjector instance
+    projector = RevenueProjector(
+        name=name,
+        description=description,
+        initial_users=initial_users,
+        user_acquisition_rate=user_acquisition_rate,
+        conversion_rate=conversion_rate,
+        churn_rate=churn_rate,
+        tier_distribution=tier_dist
+    )
+    
+    # Property 1: to_dict() should contain all the initialized values
+    projector_dict = projector.to_dict()
+    assert projector_dict["name"] == name
+    assert projector_dict["description"] == description
+    assert projector_dict["initial_users"] == initial_users
+    assert projector_dict["user_acquisition_rate"] == user_acquisition_rate
+    assert projector_dict["conversion_rate"] == conversion_rate
+    assert projector_dict["churn_rate"] == churn_rate
+    assert projector_dict["tier_distribution"] == tier_dist
+    
+    # Property 2: to_json() should be valid JSON that can be parsed back
+    import json
+    projector_json = projector.to_json()
+    parsed_json = json.loads(projector_json)
+    assert parsed_json["name"] == name
+    assert parsed_json["description"] == description

@@ -23,8 +23,8 @@ class ModelConfig(IModelConfig):
     Configuration for AI models.
     """
     # Base directories
-    models_dir: str = field(default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "models"))
-    cache_dir: str = field(default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "cache"))
+    _models_dir: str = field(default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "models"))
+    _cache_dir: str = field(default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "cache"))
 
     # Cache settings
     cache_enabled: bool = True
@@ -33,10 +33,10 @@ class ModelConfig(IModelConfig):
 
     # Performance settings
     default_device: str = "auto"  # "auto", "cpu", "cuda", "mps", etc.
-    max_threads: Optional[int] = None  # None means use all available threads
+    _max_threads: Optional[int] = None  # None means use all available threads
 
     # Model discovery
-    auto_discover: bool = True
+    _auto_discover: bool = True
     model_sources: List[str] = field(default_factory=lambda: ["local", "huggingface"])
 
     # Default models
@@ -50,6 +50,48 @@ class ModelConfig(IModelConfig):
         os.makedirs(self.models_dir, exist_ok=True)
         os.makedirs(self.cache_dir, exist_ok=True)
 
+    @property
+    def models_dir(self) -> str:
+        """Get the models directory."""
+        return self._models_dir
+    
+    @models_dir.setter
+    def models_dir(self, value: str):
+        """Set the models directory."""
+        self._models_dir = value
+        os.makedirs(self._models_dir, exist_ok=True)
+    
+    @property
+    def cache_dir(self) -> str:
+        """Get the cache directory."""
+        return self._cache_dir
+    
+    @cache_dir.setter
+    def cache_dir(self, value: str):
+        """Set the cache directory."""
+        self._cache_dir = value
+        os.makedirs(self._cache_dir, exist_ok=True)
+    
+    @property
+    def auto_discover(self) -> bool:
+        """Get whether to auto-discover models."""
+        return self._auto_discover
+    
+    @auto_discover.setter
+    def auto_discover(self, value: bool):
+        """Set whether to auto-discover models."""
+        self._auto_discover = value
+    
+    @property
+    def max_threads(self) -> Optional[int]:
+        """Get the maximum number of threads to use."""
+        return self._max_threads
+    
+    @max_threads.setter
+    def max_threads(self, value: Optional[int]):
+        """Set the maximum number of threads to use."""
+        self._max_threads = value
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert the configuration to a dictionary.
@@ -57,7 +99,21 @@ class ModelConfig(IModelConfig):
         Returns:
             Dictionary representation of the configuration
         """
-        return asdict(self)
+        # Convert to dict but replace underscore-prefixed attributes with their property names
+        result = {
+            "models_dir": self.models_dir,
+            "cache_dir": self.cache_dir,
+            "cache_enabled": self.cache_enabled,
+            "cache_ttl": self.cache_ttl,
+            "max_cache_size": self.max_cache_size,
+            "default_device": self.default_device,
+            "max_threads": self.max_threads,
+            "auto_discover": self.auto_discover,
+            "model_sources": self.model_sources,
+            "default_text_model": self.default_text_model,
+            "default_embedding_model": self.default_embedding_model
+        }
+        return result
 
     def to_json(self, indent: int = 2) -> str:
         """

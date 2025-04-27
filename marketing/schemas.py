@@ -63,6 +63,20 @@ class DifficultyLevel(str, Enum):
     LOW = "low"
 
 
+class ReadingLevel(str, Enum):
+    """Enum for reading levels."""
+    BEGINNER = "beginner"
+    INTERMEDIATE = "intermediate"
+    ADVANCED = "advanced"
+
+
+class ContentFormat(str, Enum):
+    """Enum for content formats."""
+    MARKDOWN = "markdown"
+    HTML = "html"
+    PLAIN_TEXT = "plain_text"
+
+
 class BudgetSchema(BaseModel):
     """Pydantic model for marketing budget."""
     amount: float = Field(..., description="Budget amount", ge=0)
@@ -702,20 +716,6 @@ class ContentGeneratorConfigSchema(BaseModel):
     class Config:
         """Configuration for the model."""
         extra = "allow"  # Allow extra fields for template-specific configurations
-
-
-class ReadingLevel(str, Enum):
-    """Enum for reading levels."""
-    BEGINNER = "beginner"
-    INTERMEDIATE = "intermediate"
-    ADVANCED = "advanced"
-
-
-class ContentFormat(str, Enum):
-    """Enum for content formats."""
-    MARKDOWN = "markdown"
-    HTML = "html"
-    PLAIN_TEXT = "plain_text"
 
 
 class ContentTemplateSchema(BaseModel):

@@ -86,20 +86,86 @@ class ModelInfo(IModelInfo):
     """
     Information about an AI model.
     """
-    id: str
-    name: str
-    type: str  # huggingface, llama, embedding, etc.
-    path: str
-    description: str = ""
+    _id: str
+    _name: str
+    _type: str  # huggingface, llama, embedding, etc.
+    _path: str
+    _description: str = ""
     size_mb: float = 0.0
     format: str = ""  # gguf, onnx, pytorch, etc.
     quantization: str = ""  # 4-bit, 8-bit, etc.
     capabilities: List[str] = None
-    metadata: Dict[str, Any] = None
+    _metadata: Dict[str, Any] = None
     performance: Dict[str, Any] = None
     last_updated: str = ""
     created_at: str = ""
     updated_at: str = ""
+
+    def __init__(
+        self,
+        id: str,
+        name: str,
+        type: str,
+        path: str,
+        description: str = "",
+        size_mb: float = 0.0,
+        format: str = "",
+        quantization: str = "",
+        capabilities: List[str] = None,
+        metadata: Dict[str, Any] = None,
+        performance: Dict[str, Any] = None,
+        last_updated: str = "",
+        created_at: str = "",
+        updated_at: str = ""
+    ):
+        """Initialize a new ModelInfo object."""
+        self._id = id
+        self._name = name
+        self._type = type
+        self._path = path
+        self._description = description
+        self.size_mb = size_mb
+        self.format = format
+        self.quantization = quantization
+        self.capabilities = capabilities if capabilities else []
+        self._metadata = metadata if metadata else {}
+        self.performance = performance if performance else {}
+        self.last_updated = last_updated
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+        # Run post-initialization logic
+        self.__post_init__()
+    
+    @property
+    def id(self) -> str:
+        """Get the model ID."""
+        return self._id
+    
+    @property
+    def name(self) -> str:
+        """Get the model name."""
+        return self._name
+        
+    @property
+    def description(self) -> str:
+        """Get the model description."""
+        return self._description
+        
+    @property
+    def type(self) -> str:
+        """Get the model type."""
+        return self._type
+        
+    @property
+    def path(self) -> str:
+        """Get the model path."""
+        return self._path
+        
+    @property
+    def metadata(self) -> Dict[str, Any]:
+        """Get the model metadata."""
+        return self._metadata if self._metadata is not None else {}
 
     def __post_init__(self):
         """
@@ -108,8 +174,8 @@ class ModelInfo(IModelInfo):
         if self.capabilities is None:
             self.capabilities = []
 
-        if self.metadata is None:
-            self.metadata = {}
+        if self._metadata is None:
+            self._metadata = {}
 
         if self.performance is None:
             self.performance = {}
@@ -127,9 +193,9 @@ class ModelInfo(IModelInfo):
             self.last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
 
         # Calculate size if path exists and size is not provided
-        if self.size_mb == 0.0 and os.path.exists(self.path):
+        if self.size_mb == 0.0 and os.path.exists(self._path):
             try:
-                self.size_mb = os.path.getsize(self.path) / (1024 * 1024)
+                self.size_mb = os.path.getsize(self._path) / (1024 * 1024)
             except (OSError, IOError):
                 pass
 
