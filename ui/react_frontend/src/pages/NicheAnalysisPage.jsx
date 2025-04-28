@@ -19,9 +19,17 @@ import {
   Card,
   CardContent,
   CardHeader,
-  Rating
+  Rating,
+  Tab,
+  Tabs
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+// Import our new visualization components
+import { 
+  OpportunityRadarChart, 
+  OpportunityBarChart, 
+  ScoreDistributionPieChart 
+} from '../components/Visualizations';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -30,11 +38,40 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
+// TabPanel component for handling tab content
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`visualization-tabpanel-${index}`}
+      aria-labelledby={`visualization-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
+
+function a11yProps(index) {
+  return {
+    id: `visualization-tab-${index}`,
+    'aria-controls': `visualization-tabpanel-${index}`,
+  };
+}
+
 const NicheAnalysisPage = () => {
   const [selectedSegments, setSelectedSegments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [analysisResults, setAnalysisResults] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
 
   // Market segments available for analysis
   const marketSegments = [
@@ -75,6 +112,11 @@ const NicheAnalysisPage = () => {
     setSearchTerm(event.target.value);
   };
 
+  // Handle tab change
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
   // Handle analysis submission
   const handleAnalyze = () => {
     setIsAnalyzing(true);
@@ -96,7 +138,16 @@ const NicheAnalysisPage = () => {
               'Content creators struggle with SEO optimization',
               'Manual keyword research is time-consuming',
               'Difficulty in maintaining voice consistency'
-            ]
+            ],
+            // Add factor scores for visualization
+            factors: {
+              market_size: 0.85,
+              growth_rate: 0.90,
+              competition: 0.65,
+              problem_severity: 0.75,
+              solution_feasibility: 0.95,
+              monetization_potential: 0.88
+            }
           },
           { 
             id: 2, 
@@ -110,7 +161,16 @@ const NicheAnalysisPage = () => {
               'Privacy concerns with cloud-based coding assistants',
               'Need for offline coding support',
               'Customized code suggestions for specific frameworks'
-            ]
+            ],
+            // Add factor scores for visualization
+            factors: {
+              market_size: 0.90,
+              growth_rate: 0.95,
+              competition: 0.85,
+              problem_severity: 0.90,
+              solution_feasibility: 0.85,
+              monetization_potential: 0.92
+            }
           },
           { 
             id: 3, 
@@ -124,14 +184,40 @@ const NicheAnalysisPage = () => {
               'Complex data interpretation requires expertise',
               'Real-time financial decision support is limited',
               'Personalized investment strategies are expensive'
-            ]
+            ],
+            // Add factor scores for visualization
+            factors: {
+              market_size: 0.80,
+              growth_rate: 0.70,
+              competition: 0.45,
+              problem_severity: 0.85,
+              solution_feasibility: 0.75,
+              monetization_potential: 0.82
+            }
           },
-        ]
+        ],
+        // Add score distribution for visualization
+        scoreDistribution: {
+          excellent: 2,
+          very_good: 1,
+          good: 0,
+          fair: 0,
+          limited: 0
+        }
       };
       
       setAnalysisResults(mockResults);
       setIsAnalyzing(false);
     }, 2000);
+  };
+
+  // Prepare data for the radar chart (single opportunity)
+  const getSelectedNicheData = () => {
+    if (!analysisResults || !analysisResults.niches || analysisResults.niches.length === 0) {
+      return null;
+    }
+    // Return the first niche by default
+    return analysisResults.niches[0];
   };
 
   return (
@@ -276,6 +362,50 @@ const NicheAnalysisPage = () => {
             )}
           </Item>
         </Grid>
+
+        {/* Visualization section - only show when we have analysis results */}
+        {analysisResults && (
+          <Grid item xs={12}>
+            <Item>
+              <Typography variant="h6" gutterBottom>
+                Market Analysis Visualizations
+              </Typography>
+              
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs value={tabValue} onChange={handleTabChange} aria-label="market analysis visualizations">
+                  <Tab label="Factor Analysis" {...a11yProps(0)} />
+                  <Tab label="Opportunity Comparison" {...a11yProps(1)} />
+                  <Tab label="Score Distribution" {...a11yProps(2)} />
+                </Tabs>
+              </Box>
+              
+              <TabPanel value={tabValue} index={0}>
+                <OpportunityRadarChart 
+                  data={getSelectedNicheData()} 
+                  title="Opportunity Factor Analysis" 
+                  height={400} 
+                />
+              </TabPanel>
+              
+              <TabPanel value={tabValue} index={1}>
+                <OpportunityBarChart 
+                  data={analysisResults.niches} 
+                  dataKey="opportunityScore"
+                  title="Opportunity Score Comparison" 
+                  height={400} 
+                />
+              </TabPanel>
+              
+              <TabPanel value={tabValue} index={2}>
+                <ScoreDistributionPieChart 
+                  data={analysisResults.scoreDistribution} 
+                  title="Opportunity Score Distribution"
+                  height={400} 
+                />
+              </TabPanel>
+            </Item>
+          </Grid>
+        )}
       </Grid>
     </Box>
   );

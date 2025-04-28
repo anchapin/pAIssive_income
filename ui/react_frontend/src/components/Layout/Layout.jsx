@@ -21,6 +21,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CodeIcon from '@mui/icons-material/Code';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import CampaignIcon from '@mui/icons-material/Campaign';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import InfoIcon from '@mui/icons-material/Info';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -78,6 +79,7 @@ const navigationItems = [
   { text: 'Developer', path: '/developer', icon: <CodeIcon /> },
   { text: 'Monetization', path: '/monetization', icon: <MonetizationOnIcon /> },
   { text: 'Marketing', path: '/marketing', icon: <CampaignIcon /> },
+  { text: 'User Engagement', path: '/user-engagement', icon: <BarChartIcon /> },
   { text: 'About', path: '/about', icon: <InfoIcon /> },
 ];
 
