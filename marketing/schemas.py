@@ -399,4 +399,14 @@ class ContentGeneratorConfigSchema(BaseModel):
     content_expertise: float = Field(default=0.8, description="Content expertise (0.0 to 1.0)", ge=0.0, le=1.0)
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Configuration timestamp")
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fieldsclass TimeframeSchema(BaseModel):
+    """Schema for timeframe specifications."""
+    value: int = Field(..., description="The numeric value of the timeframe", gt=0)
+    unit: TimeframeUnit = Field(..., description="The unit of the timeframe")
+    
+    model_config = ConfigDict(extra="allow")
+    
+    def __str__(self) -> str:
+        """Return a string representation of the timeframe."""
+        return f"{self.value} {self.unit.value}"
+

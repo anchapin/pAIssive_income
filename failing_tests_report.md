@@ -107,100 +107,64 @@ Several failures in `test_fallback_strategy.py` have been fixed:
 - Fixed: Updated import statement to use the correct module for `ModelInfo` class
 - Fixed: Updated patch target to correctly mock `datetime` in the right module
 
-## Implementation Priority Order
+## Current Failing Tests (April 28, 2025)
 
-1. ✅ **Fix Opportunity Scoring Properties Tests**
-   - ✅ Update factor_weights_strategy() to use valid floating point ranges
-   - ✅ Improve floating-point precision handling in calculate_opportunity_score()
+### 1. Marketing Module Schema Issues
+- **Problem**: Missing schema classes in `marketing/schemas.py`
+  - `ImportError: cannot import name 'TimeframeSchema' from 'marketing.schemas'`
+  - The `TimeframeSchema` class is referenced in `marketing/__init__.py` but is not defined in the schemas file
+  - This affects all marketing-related tests including user personas, content templates, and strategy generator tests
+  - Additional missing schemas include: `ConfigSchema`, `MetricSchema`, `ContentItemSchema`, `ContentCalendarSchema`, `PersonaSchema`, `ChannelAnalysisSchema`, `MarketingPlanSchema`, `MarketingStrategyInputSchema`, `MarketingStrategyResultsSchema`, `AudienceAnalysisSchema`, `BusinessAnalysisSchema`
 
-2. ✅ **Fix Content Optimization Tests**
-   - ✅ Fix parameters: change `max_value` to `max_size` in lists() calls
-   - ✅ Fix parameter count in `_calculate_gunning_fog` method
-   - ✅ Fix KeywordAnalyzer.get_score() to use correct key `placement_score` instead of `score`
-   - ✅ Fix KeywordAnalyzer.get_recommendations() to access correct keys in the keyword_placement data structure
-   - ✅ Fix ReadabilityAnalyzer.get_recommendations() to always generate recommendations when not optimal
-   - ✅ Fix typo in ReadabilityAnalyzer.get_score() (`min_flesh` → `min_flesch`)
+### 2. Model Configuration Issues
+- **Problem**: Parameter mismatch in `ModelConfig` constructor
+  - `ModelConfig.__init__() got an unexpected keyword argument 'models_dir'`
+  - This affects model downloader and model configuration tests
+- **Required fix**: Update the `ModelConfig` class to accept the `models_dir` parameter
 
-3. ✅ **Fix Monetization Integration Test**
-   - ✅ Updated has_feature_access method in SubscriptionManager to correctly check free tier permissions
+### 3. Performance Monitor Issues
+- **Problem**: Missing attributes and parameter mismatches in Performance Monitor classes
+  - `AttributeError: 'PerformanceMonitor' object has no attribute 'metrics_history'`
+  - `TypeError: InferenceTracker.__init__() got an unexpected keyword argument 'monitor'`
+  - `TypeError: ModelPerformanceReport.__init__() missing 1 required positional argument: 'model_name'`
+- **Required fix**: Update Performance Monitor classes to include required attributes and parameter handling
 
-4. ✅ **Fix Content Templates Tests**
-   - ✅ Updated handle_exception function to accept the correct parameters
-   - ✅ Fixed ValidationError handling in content_templates.py
-   - ✅ Added key points to tests to prevent validation errors
+### 4. Opportunity Scoring Properties Test Issues
+- **Problem**: Test assertion failures in weight influence test
+  - `AssertionError: assert 0.44375000000000003 > 0.459375`
+- **Required fix**: Review and fix the opportunity scoring algorithm or update test assertions
 
-5. ✅ **Fix Niche to Solution Integration Test**
-   - ✅ Updated the test to handle validation and transformation of data in the workflow
-   - ✅ Modified assertions to use `assert_called_once()` instead of `assert_called_once_with()`
+### 5. Revenue Projection Test Issues
+- **Problem**: Inconsistencies in revenue projections
+  - `AssertionError: assert 81012.22 >= (270100.9 * 0.3)`
+  - `AssertionError: assert 0 >= (3 - 2)`
+- **Required fix**: Review and fix the monthly-to-annual revenue conversion calculations
 
-6. ✅ **Fix Model Info Tests**
-   - ✅ Fixed the datetime mocking in test_model_info_update_timestamp by updating import and patch target
+### 6. Monetization-Solution Integration Test Issues
+- **Problem**: Key error in tier revenue calculation
+  - `KeyError: 'Free'` when accessing `month["tier_revenue"]["Free"]`
+- **Required fix**: Ensure all tiers, especially the "Free" tier, are properly included in revenue calculations
 
-7. ✅ **Fix Mock Provider Tests**
-   - ✅ Created a mock implementation of `ModelManager` that implements the required abstract methods
-   - ✅ Updated the assertion to use `assertGreaterEqual` instead of `assertEqual` for the call history count
-   - ✅ Updated the assertion to match the actual response string from the mock provider
-   - ✅ Added GPT-4-Turbo model to MockOpenAIProvider's available models
-   - ✅ Added get_model_provider function at the module level in model_manager.py
-   - ✅ Added get_payment_gateway function and created MockPaymentProcessorImpl class
-   - ✅ Fixed model list search functionality in MockHuggingFaceHub
-   - ✅ Updated model registration logic to ensure models are properly added
-   - ✅ Fixed datetime attribute error by importing timedelta
-   - ✅ Added missing fixture and imported json module
-   - ✅ Added 'generate' method to model providers
+## Implementation Priority
 
-8. ✅ **Fix AI Models Integration Tests** (Completed)
-   - ✅ Added missing methods to AgentModelProvider:
-     - ✅ `get_model_with_fallback` - Implemented fallback model selection with error handling
-     - ✅ `model_has_capability` - Implemented capability checking logic
-     - ✅ `get_assigned_model_id` - Added helper method to get the assigned model ID
-   - ✅ Fixed validation in multiple_agents_model_integration test by providing required fields in mock niche data
-   - ✅ Fixed model loading integration by using a mock ModelManager
-   - ✅ Fixed performance tracking by setting the performance_monitor attribute after initialization
+1. **Fix Marketing Schema Issues**
+   - Add the missing `TimeframeSchema` and other schema classes to `marketing/schemas.py`
+   - This will resolve the majority of failing tests related to the marketing module
 
-9. ✅ **Fix Fallback Strategy Tests** (Completed)
-   - ✅ Fixed the error with multiple values for keyword argument 'code' by modifying get_model_info
-   - ✅ Fixed the size tier strategy to handle None types with a try-except block
-   - ✅ Fixed multiple fallback attempts test by using a model that exists
-   - ✅ Fixed unsuccessful result test by skipping it since metrics might be tracked differently
+2. **Fix Model Configuration Issues**
+   - Update the `ModelConfig` class to handle the `models_dir` parameter
+   - This will fix the model downloader and configuration tests
 
-## Current Progress on Improvement Plan (April 28, 2025)
+3. **Fix Performance Monitor Issues**
+   - Add the `metrics_history` attribute to the `PerformanceMonitor` class
+   - Update the `InferenceTracker` constructor to handle the correct parameters
+   - Add the `model_name` parameter to the `ModelPerformanceReport` constructor
 
-All the failing tests have been fixed! Now we have shifted to implementing the suggested improvements to ensure the codebase remains maintainable and robust.
+4. **Fix Monetization-Solution Integration Issues**
+   - Ensure the "Free" tier is properly included in revenue calculations
 
-### 1. ✅ **Updated Pydantic Models to V2 Style** (Completed)
-   - ✅ Migrated from deprecated `@validator` to `@field_validator` and added `@classmethod` decorators
-   - ✅ Updated Config classes to use ConfigDict instead of class-based config
-   - ✅ Updated JSON encoders to use `json_schema_extra` in ConfigDict
-   - ✅ Updated the following files:
-     - ✅ `ai_models/schemas.py`
-     - ✅ `agent_team/schemas.py`
-     - ✅ `marketing/schemas.py`
-     - ✅ `ai_models/fallbacks/schemas.py`
-     - ✅ `niche_analysis/schemas.py` (imports only)
+5. **Fix Revenue Projection Calculation Issues**
+   - Review and fix the monthly-to-annual conversion logic
 
-### Remaining Suggested Improvements
-
-2. **Improve Mock Implementations**
-   - Add more comprehensive tests for the mock implementations
-   - Improve error handling in mock classes
-   - Add more documentation to mock classes and methods
-   - Ensure consistent behavior between real and mock implementations
-
-3. **Standardize Interfaces**
-   - Define consistent interfaces for all core services and enforce them with abstract base classes
-   - Update all mock implementations to properly adhere to these interfaces
-   - Improve test fixtures to better handle configuration changes
-   - Standardize parameter naming and order across related methods
-
-4. **Enhance Type Safety**
-   - Add proper type annotations to all public methods
-   - Use more specific types instead of Dict[str, Any] where possible
-   - Add runtime type checking for critical functions
-
-5. **Improve Test Coverage**
-   - Add more edge case tests for error handling
-   - Add performance tests for critical components
-   - Add integration tests for end-to-end workflows
-
-These improvements will help prevent similar failures in the future and make the test suite more maintainable and robust.
+6. **Fix Opportunity Scoring Properties Issues**
+   - Review and update the weight influence test or algorithm
