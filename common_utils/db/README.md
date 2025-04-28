@@ -154,8 +154,8 @@ db_with_monitoring.execute('SELECT * FROM users')
 
 # Get performance metrics
 report = db_with_monitoring.get_performance_report()
-print(f"Total queries: {report.query_count}")
-print(f"Average query time: {report.average_query_time}ms")
+print(f"Total queries: {report['summary']['query_count']}")
+print(f"Average query time: {report['summary']['average_query_time']}ms")
 ```
 
 ## Unit of Work Pattern
