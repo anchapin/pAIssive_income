@@ -17,10 +17,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 # Import project modules
 from users.models import UserCreate, UserUpdate
-from users.services import authenticate_user, create_user, update_user, get_user_by_id, list_users
-from users.auth import create_session_for_user
+from users.services import authenticate_user, create_user, update_user, get_user_by_id, list_users, get_user_by_email
+from users.auth import create_session_for_user, verify_auth_token
 from users.middleware import authenticate, require_permission, audit_log
 from users.permissions import PERMISSION_LEVELS
+from users.password_reset import generate_password_reset_token, reset_password
+from users.token_refresh import create_refresh_token, refresh_auth_token, blacklist_token
+from users.rate_limiting import rate_limit_login, record_login_attempt
+from users.session_management import create_session, get_user_sessions, terminate_session, terminate_all_user_sessions
 
 from niche_analysis.market_analyzer import MarketAnalyzer
 from niche_analysis.problem_identifier import ProblemIdentifier
@@ -29,7 +33,7 @@ from monetization.subscription_models import SubscriptionModels
 from marketing.strategy_generator import StrategyGenerator
 from marketing.content_generators import ContentGenerators
 from common_utils.validation import (
-    validate_request, sanitize_input, validate_string, validate_email, 
+    validate_request, sanitize_input, validate_string, validate_email,
     validate_integer, validate_list, validate_dict, validate_number
 )
 
@@ -54,6 +58,9 @@ LOGIN_SCHEMA = {
     "password": {
         "required": True,
         "validator": lambda v: validate_string(v, min_length=6, max_length=100)
+    },
+    "remember_me": {
+        "validator": lambda v: isinstance(v, bool)
     }
 }
 
@@ -82,6 +89,42 @@ PROFILE_UPDATE_SCHEMA = {
     },
     "name": {
         "validator": lambda v: validate_string(v, min_length=1, max_length=100)
+    }
+}
+
+PASSWORD_RESET_REQUEST_SCHEMA = {
+    "email": {
+        "required": True,
+        "validator": validate_email
+    }
+}
+
+PASSWORD_RESET_SCHEMA = {
+    "token": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=10)
+    },
+    "password": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=8, max_length=100)
+    }
+}
+
+PASSWORD_CHANGE_SCHEMA = {
+    "current_password": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=6)
+    },
+    "new_password": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=8, max_length=100)
+    }
+}
+
+TOKEN_REFRESH_SCHEMA = {
+    "refresh_token": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=10)
     }
 }
 
@@ -132,19 +175,49 @@ NICHE_ANALYSIS_SCHEMA = {
 @app.route('/api/auth/login', methods=['POST'])
 @sanitize_input
 @validate_request(LOGIN_SCHEMA)
+@rate_limit_login
 @audit_log("login", "user")
 def login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    
+    remember_me = data.get('remember_me', False)
+
+    # Get client IP for session tracking
+    ip_address = request.remote_addr
+
+    # Get device info from user agent
+    user_agent = request.headers.get('User-Agent', '')
+    device_info = {
+        'user_agent': user_agent
+    }
+
     # Authenticate user
     user = authenticate_user(username, password)
     if user:
-        # Create session
+        # Record successful login attempt
+        if hasattr(g, 'rate_limit_identifiers'):
+            record_login_attempt(g.rate_limit_identifiers['username'], True)
+            record_login_attempt(g.rate_limit_identifiers['ip'], True)
+
+        # Create auth token
         session_data = create_session_for_user(user)
+
+        # Create refresh token if remember_me is enabled
+        if remember_me:
+            refresh_token = create_refresh_token(user.id)
+            session_data['refresh_token'] = refresh_token
+
+        # Create session record
+        create_session(
+            user_id=user.id,
+            token=session_data['token'],
+            device_info=device_info,
+            ip_address=ip_address
+        )
+
         return jsonify(session_data), 200
-    
+
     return jsonify({"error": "Authentication Error", "message": "Invalid credentials"}), 401
 
 
@@ -152,8 +225,13 @@ def login():
 @authenticate
 @audit_log("logout", "user")
 def logout():
-    # In a real production app, you would invalidate the JWT token
-    # For now, we just return a success message
+    # Get the token from the Authorization header
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split('Bearer ')[1]
+        # Blacklist the token
+        blacklist_token(token)
+
     return jsonify({"message": "Logged out successfully"}), 200
 
 
@@ -170,12 +248,30 @@ def register():
             name=data.get('name'),
             password=data.get('password')
         )
-        
+
         # Create user with default 'user' role
         user = create_user(user_data)
-        
+
         # Create session
         session_data = create_session_for_user(user)
+
+        # Get client IP for session tracking
+        ip_address = request.remote_addr
+
+        # Get device info from user agent
+        user_agent = request.headers.get('User-Agent', '')
+        device_info = {
+            'user_agent': user_agent
+        }
+
+        # Create session record
+        create_session(
+            user_id=user.id,
+            token=session_data['token'],
+            device_info=device_info,
+            ip_address=ip_address
+        )
+
         return jsonify(session_data), 201
     except ValueError as e:
         return jsonify({"error": "Validation Error", "message": str(e)}), 400
@@ -184,15 +280,191 @@ def register():
         return jsonify({"error": "Server Error", "message": "Registration failed"}), 500
 
 
+@app.route('/api/auth/refresh', methods=['POST'])
+@sanitize_input
+@validate_request(TOKEN_REFRESH_SCHEMA)
+@audit_log("refresh_token", "user")
+def refresh_token():
+    data = request.json
+    refresh_token_str = data.get('refresh_token')
+
+    # Refresh the auth token
+    result = refresh_auth_token(refresh_token_str)
+    if result:
+        return jsonify(result), 200
+
+    return jsonify({"error": "Authentication Error", "message": "Invalid or expired refresh token"}), 401
+
+
+@app.route('/api/auth/password/reset-request', methods=['POST'])
+@sanitize_input
+@validate_request(PASSWORD_RESET_REQUEST_SCHEMA)
+@audit_log("password_reset_request", "user")
+def request_password_reset():
+    data = request.json
+    email = data.get('email')
+
+    # Generate password reset token
+    result = generate_password_reset_token(email)
+
+    # Always return success to prevent email enumeration
+    # In a real app, you would send an email with the reset link
+    if result:
+        token, expiry = result
+        logger.info(f"Password reset token generated for {email}: {token}")
+        # Here you would send an email with the reset link
+        # For demo purposes, we'll just log it
+
+    return jsonify({
+        "message": "If your email is registered, you will receive a password reset link shortly."
+    }), 200
+
+
+@app.route('/api/auth/password/reset', methods=['POST'])
+@sanitize_input
+@validate_request(PASSWORD_RESET_SCHEMA)
+@audit_log("password_reset", "user")
+def reset_password_endpoint():
+    data = request.json
+    token = data.get('token')
+    new_password = data.get('password')
+
+    # Reset the password
+    success = reset_password(token, new_password)
+    if success:
+        return jsonify({"message": "Password has been reset successfully. You can now log in with your new password."}), 200
+
+    return jsonify({"error": "Reset Error", "message": "Invalid or expired token. Please request a new password reset."}), 400
+
+
+@app.route('/api/auth/password/change', methods=['POST'])
+@authenticate
+@sanitize_input
+@validate_request(PASSWORD_CHANGE_SCHEMA)
+@audit_log("password_change", "user")
+def change_password():
+    data = request.json
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+
+    # Verify current password
+    user = authenticate_user(g.user.username, current_password)
+    if not user:
+        return jsonify({"error": "Authentication Error", "message": "Current password is incorrect"}), 401
+
+    try:
+        # Update password
+        user_data = UserUpdate(password=new_password)
+        updated_user = update_user(g.user_id, user_data)
+
+        if not updated_user:
+            return jsonify({"error": "Server Error", "message": "Failed to update password"}), 500
+
+        # Terminate all other sessions for security
+        terminate_all_user_sessions(g.user_id)
+
+        return jsonify({"message": "Password changed successfully. Please log in with your new password."}), 200
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Password change error: {str(e)}")
+        return jsonify({"error": "Server Error", "message": "Failed to change password"}), 500
+
+
 @app.route('/api/user/profile', methods=['GET'])
 @authenticate
 def get_profile():
     # The user object is attached to the request by the authenticate middleware
     user = g.user
-    
+
     # Create session data which includes the public user data
     session_data = create_session_for_user(user)
     return jsonify(session_data['user']), 200
+
+
+@app.route('/api/user/sessions', methods=['GET'])
+@authenticate
+@audit_log("view", "user_sessions")
+def get_user_sessions_endpoint():
+    """Get all active sessions for the current user."""
+    try:
+        # Get all sessions for the current user
+        sessions = get_user_sessions(g.user_id)
+
+        # Convert sessions to a list of dictionaries for JSON response
+        session_list = []
+        for session in sessions:
+            session_dict = session.to_dict()
+            # Remove sensitive data
+            if 'token' in session_dict:
+                del session_dict['token']
+            session_list.append(session_dict)
+
+        return jsonify(session_list), 200
+    except Exception as e:
+        logger.error(f"Get user sessions error: {str(e)}")
+        return jsonify({"error": "Server Error", "message": "Failed to retrieve sessions"}), 500
+
+
+@app.route('/api/user/sessions/<session_id>', methods=['DELETE'])
+@authenticate
+@audit_log("terminate", "user_session")
+def terminate_session_endpoint(session_id):
+    """Terminate a specific session."""
+    try:
+        # Get all sessions for the current user
+        sessions = get_user_sessions(g.user_id)
+
+        # Check if the session belongs to the current user
+        session_belongs_to_user = False
+        for session in sessions:
+            if session.id == session_id:
+                session_belongs_to_user = True
+                break
+
+        if not session_belongs_to_user:
+            return jsonify({"error": "Not Found", "message": "Session not found"}), 404
+
+        # Terminate the session
+        success = terminate_session(session_id)
+        if success:
+            return jsonify({"message": "Session terminated successfully"}), 200
+        else:
+            return jsonify({"error": "Server Error", "message": "Failed to terminate session"}), 500
+    except Exception as e:
+        logger.error(f"Terminate session error: {str(e)}")
+        return jsonify({"error": "Server Error", "message": "Failed to terminate session"}), 500
+
+
+@app.route('/api/user/sessions', methods=['DELETE'])
+@authenticate
+@audit_log("terminate_all", "user_sessions")
+def terminate_all_sessions_endpoint():
+    """Terminate all sessions for the current user except the current one."""
+    try:
+        # Get the current session ID from the request
+        auth_header = request.headers.get('Authorization', '')
+        current_session_id = None
+
+        if auth_header.startswith('Bearer '):
+            token = auth_header.split('Bearer ')[1]
+            # Find the session with this token
+            sessions = get_user_sessions(g.user_id)
+            for session in sessions:
+                if session.token == token:
+                    current_session_id = session.id
+                    break
+
+        # Terminate all sessions except the current one
+        count = terminate_all_user_sessions(g.user_id, current_session_id)
+
+        return jsonify({
+            "message": f"Successfully terminated {count} sessions",
+            "count": count
+        }), 200
+    except Exception as e:
+        logger.error(f"Terminate all sessions error: {str(e)}")
+        return jsonify({"error": "Server Error", "message": "Failed to terminate sessions"}), 500
 
 
 @app.route('/api/user/profile', methods=['PUT'])
@@ -207,12 +479,12 @@ def update_profile():
             email=data.get('email'),
             name=data.get('name')
         )
-        
+
         # Update user
         user = update_user(g.user_id, user_data)
         if not user:
             return jsonify({"error": "Not Found", "message": "User not found"}), 404
-        
+
         # Create session data which includes the public user data
         session_data = create_session_for_user(user)
         return jsonify(session_data['user']), 200
@@ -231,7 +503,7 @@ def get_users():
     try:
         skip = request.args.get('skip', default=0, type=int)
         limit = request.args.get('limit', default=100, type=int)
-        
+
         users = list_users(skip=skip, limit=limit)
         return jsonify(users), 200
     except Exception as e:
@@ -247,7 +519,7 @@ def get_user(user_id):
         user = get_user_by_id(user_id)
         if not user:
             return jsonify({"error": "Not Found", "message": "User not found"}), 404
-            
+
         # Create a public user object without sensitive data
         session_data = create_session_for_user(user)
         return jsonify(session_data['user']), 200
@@ -288,7 +560,7 @@ def get_market_segments():
 def analyze_niches():
     data = request.json
     segment_ids = data.get('segments', [])
-    
+
     try:
         # Here we'd call our actual niche analysis logic
         # For now, return mock data
@@ -302,21 +574,21 @@ def analyze_niches():
 @authenticate
 @require_permission('niche:view')
 def get_niche_results(analysis_id):
-    # Validate the analysis_id format 
+    # Validate the analysis_id format
     # (simple validation for demo purposes - in production you'd check if it exists in database)
     if not isinstance(analysis_id, str) or not analysis_id:
         return jsonify({"error": "Validation Error", "message": "Invalid analysis ID"}), 400
-        
+
     # Mock data - in production, this would retrieve actual analysis results
     results = {
         "analysisId": analysis_id,
         "completed": True,
         "niches": [
-            { 
-                "id": 1, 
-                "name": "AI-powered content optimization", 
+            {
+                "id": 1,
+                "name": "AI-powered content optimization",
                 "segment": "Content Creation",
-                "opportunityScore": 0.87, 
+                "opportunityScore": 0.87,
                 "competitionLevel": "Medium",
                 "demandLevel": "High",
                 "profitPotential": 0.85,
@@ -326,11 +598,11 @@ def get_niche_results(analysis_id):
                     "Difficulty in maintaining voice consistency"
                 ]
             },
-            { 
-                "id": 2, 
-                "name": "Local AI code assistant", 
+            {
+                "id": 2,
+                "name": "Local AI code assistant",
                 "segment": "Software Development",
-                "opportunityScore": 0.92, 
+                "opportunityScore": 0.92,
                 "competitionLevel": "Low",
                 "demandLevel": "Very High",
                 "profitPotential": 0.90,
@@ -340,11 +612,11 @@ def get_niche_results(analysis_id):
                     "Customized code suggestions for specific frameworks"
                 ]
             },
-            { 
-                "id": 3, 
-                "name": "AI-powered financial analysis", 
+            {
+                "id": 3,
+                "name": "AI-powered financial analysis",
                 "segment": "Finance",
-                "opportunityScore": 0.75, 
+                "opportunityScore": 0.75,
                 "competitionLevel": "High",
                 "demandLevel": "High",
                 "profitPotential": 0.82,
@@ -366,21 +638,21 @@ def get_niche_results(analysis_id):
 def get_niches():
     # Mock data - these would normally be from past niche analyses
     niches = [
-        { 
-            "id": 1, 
-            "name": "AI-powered content optimization", 
+        {
+            "id": 1,
+            "name": "AI-powered content optimization",
             "segment": "Content Creation",
             "opportunityScore": 0.87
         },
-        { 
-            "id": 2, 
-            "name": "Local AI code assistant", 
+        {
+            "id": 2,
+            "name": "Local AI code assistant",
             "segment": "Software Development",
             "opportunityScore": 0.92
         },
-        { 
-            "id": 3, 
-            "name": "AI-powered financial analysis", 
+        {
+            "id": 3,
+            "name": "AI-powered financial analysis",
             "segment": "Finance",
             "opportunityScore": 0.75
         }
@@ -394,27 +666,27 @@ def get_niches():
 def get_templates():
     # Mock data for solution templates
     templates = [
-        { 
-            "id": 1, 
-            "name": "Web Application", 
+        {
+            "id": 1,
+            "name": "Web Application",
             "description": "A web-based tool with responsive design",
             "technologies": ["React", "Node.js", "MongoDB"]
         },
-        { 
-            "id": 2, 
-            "name": "Desktop Application", 
+        {
+            "id": 2,
+            "name": "Desktop Application",
             "description": "A native desktop application with local AI integration",
             "technologies": ["Electron", "Python", "PyTorch"]
         },
-        { 
-            "id": 3, 
-            "name": "Mobile Application", 
+        {
+            "id": 3,
+            "name": "Mobile Application",
             "description": "A cross-platform mobile app",
             "technologies": ["React Native", "Node.js", "SQLite"]
         },
-        { 
-            "id": 4, 
-            "name": "CLI Tool", 
+        {
+            "id": 4,
+            "name": "CLI Tool",
             "description": "A command-line interface tool",
             "technologies": ["Python", "Click", "SQLite"]
         }
@@ -432,7 +704,7 @@ def generate_solution():
     data = request.json
     niche_id = data.get('nicheId')
     template_id = data.get('templateId')
-    
+
     try:
         # Here we'd call our actual solution generation logic
         # For now, return a mock response
@@ -449,21 +721,21 @@ def get_solution_details(solution_id):
     try:
         # Validate the solution_id format
         solution_id = int(solution_id)
-        
+
         # Mock solution details
         solution = {
             "id": solution_id,
             "name": "AI Content Optimizer Tool",
             "description": "A powerful tool for AI-powered content optimization built with React, Node.js, MongoDB.",
             "niche": {
-                "id": 1, 
-                "name": "AI-powered content optimization", 
+                "id": 1,
+                "name": "AI-powered content optimization",
                 "segment": "Content Creation",
                 "opportunityScore": 0.87
             },
             "template": {
-                "id": 1, 
-                "name": "Web Application", 
+                "id": 1,
+                "name": "Web Application",
                 "technologies": ["React", "Node.js", "MongoDB"]
             },
             "features": [
@@ -543,7 +815,7 @@ def generate_monetization_strategy():
     data = request.json
     solution_id = data.get('solutionId')
     options = data.get('options', {})
-    
+
     try:
         # Here we'd call our actual monetization strategy generation logic
         # For now, return a mock response
@@ -558,7 +830,7 @@ def get_strategy_details(strategy_id):
     try:
         # Validate the strategy_id format
         strategy_id = int(strategy_id)
-        
+
         # Mock strategy details
         strategy = {
             "id": strategy_id,
@@ -702,7 +974,7 @@ def generate_marketing_campaign():
     solution_id = data.get('solutionId')
     audience_ids = data.get('audienceIds', [])
     channel_ids = data.get('channelIds', [])
-    
+
     try:
         # Here we'd call our actual marketing campaign generation logic
         # For now, return a mock response
@@ -717,7 +989,7 @@ def get_campaign_details(campaign_id):
     try:
         # Validate the campaign_id format
         campaign_id = int(campaign_id)
-        
+
         # Mock campaign details - this would be a very complex structure in reality
         # Simplified for this example
         campaign = {
@@ -790,29 +1062,29 @@ def get_dashboard_overview():
     # Mock dashboard data
     overview = {
         "projects": [
-            { 
-                "id": 1, 
-                "name": "AI Writing Assistant", 
-                "status": "Active", 
-                "revenue": 1250, 
-                "subscribers": 48, 
-                "progress": 100 
+            {
+                "id": 1,
+                "name": "AI Writing Assistant",
+                "status": "Active",
+                "revenue": 1250,
+                "subscribers": 48,
+                "progress": 100
             },
-            { 
-                "id": 2, 
-                "name": "Local Code Helper", 
-                "status": "In Development", 
-                "revenue": 0, 
-                "subscribers": 0, 
-                "progress": 65 
+            {
+                "id": 2,
+                "name": "Local Code Helper",
+                "status": "In Development",
+                "revenue": 0,
+                "subscribers": 0,
+                "progress": 65
             },
-            { 
-                "id": 3, 
-                "name": "Data Analysis Tool", 
-                "status": "In Research", 
-                "revenue": 0, 
-                "subscribers": 0, 
-                "progress": 25 
+            {
+                "id": 3,
+                "name": "Data Analysis Tool",
+                "status": "In Research",
+                "revenue": 0,
+                "subscribers": 0,
+                "progress": 25
             }
         ],
         "totalRevenue": 1250,
@@ -868,7 +1140,7 @@ def handle_exception(e):
     # If it's a validation error from our validation system, return formatted response
     if hasattr(e, 'to_dict') and callable(getattr(e, 'to_dict')):
         return jsonify(e.to_dict()), getattr(e, 'http_status', 400)
-    
+
     # For all other exceptions, return generic server error
     app.logger.error(f"Unhandled exception: {str(e)}")
     return jsonify({
