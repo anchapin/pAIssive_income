@@ -23,11 +23,14 @@
 ## Current Failing Tests (April 28, 2025)
 
 ### 1. Content Optimization Tests (Remaining)
-- Error: `AttributeError: 'KeywordAnalyzer' object has no attribute '_extract_text_from_content'` - Missing method
+- Error 1: `AttributeError: 'KeywordAnalyzer' object has no attribute '_extract_text_from_content'` - Missing method
+- Error 2: `NameError: name 'min_flesh' is not defined` - Typo in ReadabilityAnalyzer.get_score()
 - Affected tests:
   - `test_default_config_validation`
   - `test_keyword_density_bounds`
   - `test_keyword_placement_consistency`
+  - `test_readability_score_bounds`
+  - `test_reading_level_consistency`
   - (Several others)
 
 ### 2. Integration Tests
@@ -102,6 +105,7 @@ Several failures in `test_fallback_strategy.py`:
    - ✅ Fix parameters: change `max_value` to `max_size` in lists() calls
    - ✅ Fix parameter count in `_calculate_gunning_fog` method
    - 🔄 Add missing `_extract_text_from_content` method to KeywordAnalyzer
+   - 🔄 Fix typo in ReadabilityAnalyzer.get_score() (`min_flesh` → `min_flesch`)
 
 3. ✅ **Fix Monetization Integration Test**
    - ✅ Updated has_feature_access method in SubscriptionManager to correctly check free tier permissions

@@ -362,13 +362,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         self.results["keyword_density"] = self._analyze_keyword_density()
 
         # Analyze keyword placement
-        placement_results = self._analyze_keyword_placement()
-
-        # Add score key for compatibility with tests
-        for keyword, data in placement_results.items():
-            data["score"] = data["placement_score"]
-
-        self.results["keyword_placement"] = placement_results
+        self.results["keyword_placement"] = self._analyze_keyword_placement()
 
         # Calculate overall score
         self.results["overall_score"] = self.get_score()
@@ -508,36 +502,76 @@ class KeywordAnalyzer(SEOAnalyzer):
 
     def _extract_text_from_content(self) -> str:
         """
-        Extract all text from the content for analysis.
+        Extract text from content for analysis.
 
         Returns:
-            Extracted text as a string
+            Extracted text
         """
         text = ""
 
         # Add title
         if "title" in self.content:
-            text += self.content["title"] + " "
+            text += self.content["title"] + "\n\n"
 
         # Add meta description
         if "meta_description" in self.content:
-            text += self.content["meta_description"] + " "
+            text += self.content["meta_description"] + "\n\n"
 
         # Add introduction
         if "introduction" in self.content:
-            text += self.content["introduction"] + " "
+            text += self.content["introduction"] + "\n\n"
 
         # Add sections
         if "sections" in self.content:
             for section in self.content["sections"]:
                 if "title" in section:
-                    text += section["title"] + " "
+                    text += section["title"] + "\n\n"
                 if "content" in section:
-                    text += section["content"] + " "
+                    text += section["content"] + "\n\n"
 
         # Add conclusion
         if "conclusion" in self.content:
-            text += self.content["conclusion"] + " "
+            text += self.content["conclusion"] + "\n\n"
+
+        # Add overview (for product descriptions)
+        if "overview" in self.content:
+            text += self.content["overview"] + "\n\n"
+
+        # Add features (for product descriptions)
+        if "features" in self.content:
+            for feature in self.content["features"]:
+                if "description" in feature:
+                    text += feature["description"] + "\n\n"
+
+        # Add benefits (for product descriptions)
+        if "benefits" in self.content:
+            for benefit in self.content["benefits"]:
+                if "description" in benefit:
+                    text += benefit["description"] + "\n\n"
+
+        # Add executive summary (for case studies)
+        if "executive_summary" in self.content:
+            text += self.content["executive_summary"] + "\n\n"
+
+        # Add challenge (for case studies)
+        if "challenge" in self.content:
+            text += self.content["challenge"] + "\n\n"
+
+        # Add solution (for case studies)
+        if "solution" in self.content:
+            text += self.content["solution"] + "\n\n"
+
+        # Add implementation (for case studies)
+        if "implementation" in self.content:
+            text += self.content["implementation"] + "\n\n"
+
+        # Add results (for case studies)
+        if "results" in self.content:
+            text += self.content["results"] + "\n\n"
+
+        # Add testimonial (for case studies)
+        if "testimonial" in self.content:
+            text += self.content["testimonial"] + "\n\n"
 
         return text
 
@@ -579,7 +613,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         Tokenize text into words.
 
         Args:
-            text: Text to tokenize
+            text: The text to tokenize
 
         Returns:
             List of words
@@ -592,21 +626,27 @@ class KeywordAnalyzer(SEOAnalyzer):
 
     def _count_keyword_occurrences(self, text: str, keyword: str) -> int:
         """
-        Count occurrences of a keyword in text.
+        Count the number of occurrences of a keyword in text.
+
+        This method uses word boundary matching to prevent partial matches.
+        For example, searching for "car" won't match "carpet" or "scar".
 
         Args:
-            text: Text to search in
-            keyword: Keyword to count
+            text: The text to search in
+            keyword: The keyword to count
 
         Returns:
             Number of occurrences
         """
         # Convert to lowercase for case-insensitive matching
-        text = text.lower()
-        keyword = keyword.lower()
+        text_lower = text.lower()
+        keyword_lower = keyword.lower()
 
-        # Count occurrences
-        return text.count(keyword)
+        # Use word boundary matching to count occurrences
+        pattern = r'\b' + re.escape(keyword_lower) + r'\b'
+        matches = re.findall(pattern, text_lower)
+
+        return len(matches)
 
     def _contains_keyword(self, text: str, keyword: str) -> bool:
         """
@@ -755,7 +795,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         # Check keyword placement
         for keyword, data in self.results["keyword_placement"].items():
             # Check title
-            if "locations" in data and not data["locations"].get("title", False) and self.config.get("check_keyword_in_title", True):
+            if not data["in_title"] and self.config.get("check_keyword_in_title", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -766,7 +806,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check headings
-            if "locations" in data and not data["locations"].get("headings", False) and self.config.get("check_keyword_in_headings", True):
+            if not data["in_headings"] and self.config.get("check_keyword_in_headings", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -777,7 +817,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check first paragraph
-            if "locations" in data and not data["locations"].get("first_paragraph", False) and self.config.get("check_keyword_in_first_paragraph", True):
+            if not data["in_first_paragraph"] and self.config.get("check_keyword_in_first_paragraph", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -788,7 +828,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check meta description
-            if "locations" in data and not data["locations"].get("meta_description", False) and self.config.get("check_keyword_in_meta_description", True):
+            if not data["in_meta_description"] and self.config.get("check_keyword_in_meta_description", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -799,7 +839,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check URL
-            if "locations" in data and not data["locations"].get("url", False) and self.config.get("check_keyword_in_url", True):
+            if not data["in_url"] and self.config.get("check_keyword_in_url", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -1424,7 +1464,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Clamp score to 0-18 range
         return max(0, min(18, score))
 
-    def _calculate_gunning_fog(self, text: str) -> float:
+    def _calculate_gunning_fog(self, avg_words_per_sentence: float, complex_word_percentage: float) -> float:
         """
         Calculate the Gunning Fog Index for the text.
 
@@ -1451,7 +1491,8 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         For general audiences, a fog index of 12 or below is recommended.
 
         Args:
-            text: Text to analyze
+            avg_words_per_sentence: Average words per sentence
+            complex_word_percentage: Percentage of complex words
 
         Returns:
             Gunning Fog Index (representing years of formal education needed)
