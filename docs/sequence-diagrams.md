@@ -418,4 +418,242 @@ The following sequence diagram illustrates the model deployment process:
     |                 |                       |                       |                      |
 ```
 
-These sequence diagrams illustrate the key workflows in the pAIssive Income framework, showing how different components interact to accomplish specific tasks.
+## 7. Model Fallback Workflow
+
+The following sequence diagram illustrates the model fallback process when a primary model is unavailable:
+
+```
++-----------------+       +------------------+       +----------------+       +------------------+
+| Client          |       | Model            |       | Fallback       |       | Performance      |
+| Application     |       | Manager          |       | Manager        |       | Monitor          |
++-----------------+       +------------------+       +----------------+       +------------------+
+        |                          |                         |                         |
+        | 1. Request               |                         |                         |
+        | model inference          |                         |                         |
+        |------------------------->|                         |                         |
+        |                          |                         |                         |
+        |                          | 2. Try to load          |                         |
+        |                          | primary model           |                         |
+        |                          |------------------X      |                         |
+        |                          | (Model not available)   |                         |
+        |                          |                         |                         |
+        |                          | 3. Request fallback     |                         |
+        |                          | model                   |                         |
+        |                          |------------------------>|                         |
+        |                          |                         |                         |
+        |                          |                         | 4. Determine            |
+        |                          |                         | fallback strategy       |
+        |                          |                         |------------------------>|
+        |                          |                         |                         |
+        |                          |                         |      5. Return model    |
+        |                          |                         |      usage metrics      |
+        |                          |                         |<------------------------|
+        |                          |                         |                         |
+        |                          |                         | 6. Find suitable        |
+        |                          |                         | fallback model          |
+        |                          |                         |-------------------------|
+        |                          |                         |                         |
+        |                          |      7. Return          |                         |
+        |                          |      fallback model     |                         |
+        |                          |<------------------------|                         |
+        |                          |                         |                         |
+        |                          | 8. Load fallback        |                         |
+        |                          | model                   |                         |
+        |                          |-------------------------|                         |
+        |                          |                         |                         |
+        |                          | 9. Log fallback         |                         |
+        |                          | event                   |                         |
+        |                          |------------------------>|                         |
+        |                          |                         |                         |
+        |                          |                         | 10. Record              |
+        |                          |                         | fallback metrics        |
+        |                          |                         |------------------------>|
+        |                          |                         |                         |
+        | 11. Return               |                         |                         |
+        | inference result         |                         |                         |
+        |<-------------------------|                         |                         |
+        |                          |                         |                         |
+```
+
+## 8. User Authentication Workflow
+
+The following sequence diagram illustrates the user authentication process:
+
+```
++-------+       +------------+       +-------------------+       +------------------+       +------------+
+| User  |       | Web        |       | Authentication    |       | User             |       | Session    |
+|       |       | Interface  |       | Service           |       | Database         |       | Manager    |
++-------+       +------------+       +-------------------+       +------------------+       +------------+
+    |                 |                       |                          |                      |
+    | 1. Submit login |                       |                          |                      |
+    | credentials     |                       |                          |                      |
+    |---------------->|                       |                          |                      |
+    |                 | 2. Forward            |                          |                      |
+    |                 | credentials           |                          |                      |
+    |                 |---------------------->|                          |                      |
+    |                 |                       |                          |                      |
+    |                 |                       | 3. Validate              |                      |
+    |                 |                       | credentials              |                      |
+    |                 |                       |------------------------->|                      |
+    |                 |                       |                          |                      |
+    |                 |                       |      4. Return user      |                      |
+    |                 |                       |      info or error       |                      |
+    |                 |                       |<-------------------------|                      |
+    |                 |                       |                          |                      |
+    |                 |                       | 5. If valid, create      |                      |
+    |                 |                       | session                  |                      |
+    |                 |                       |------------------------------------------>|    |
+    |                 |                       |                          |                 |    |
+    |                 |                       |                          |      6. Store   |    |
+    |                 |                       |                          |      session    |    |
+    |                 |                       |                          |      data       |    |
+    |                 |                       |                          |<----------------|    |
+    |                 |                       |                          |                      |
+    |                 |      7. Return auth   |                          |                      |
+    |                 |      result and token |                          |                      |
+    |                 |<----------------------|                          |                      |
+    |                 |                       |                          |                      |
+    | 8. Display      |                       |                          |                      |
+    | result          |                       |                          |                      |
+    |<----------------|                       |                          |                      |
+    |                 |                       |                          |                      |
+    | 9. Access       |                       |                          |                      |
+    | protected       |                       |                          |                      |
+    | resource        |                       |                          |                      |
+    |---------------->|                       |                          |                      |
+    |                 | 10. Validate          |                          |                      |
+    |                 | session token         |                          |                      |
+    |                 |--------- ---------------------------------------->|                     |
+    |                 |                       |                          |                      |
+    |                 |                       |                          |      11. Validate   |
+    |                 |                       |                          |      token          |
+    |                 |                       |                          |      and permissions|
+    |                 |                       |<---------------------------------------------------------|
+    |                 |                       |                          |                      |
+    | 12. Return      |                       |                          |                      |
+    | protected       |                       |                          |                      |
+    | resource        |                       |                          |                      |
+    |<----------------|                       |                          |                      |
+    |                 |                       |                          |                      |
+```
+
+## 9. Error Handling and Recovery Workflow
+
+The following sequence diagram illustrates the error handling and recovery process:
+
+```
++--------+       +------------+       +----------------+       +---------------+       +------------+
+| Client |       | Request    |       | Error          |       | Logging       |       | Monitoring |
+|        |       | Handler    |       | Handler        |       | Service       |       | Service    |
++--------+       +------------+       +----------------+       +---------------+       +------------+
+    |                  |                     |                       |                      |
+    | 1. API Request   |                     |                       |                      |
+    |----------------->|                     |                       |                      |
+    |                  |                     |                       |                      |
+    |                  | 2. Process          |                       |                      |
+    |                  | request             |                       |                      |
+    |                  |----------------X    |                       |                      |
+    |                  | (Exception occurs)  |                       |                      |
+    |                  |                     |                       |                      |
+    |                  | 3. Forward          |                       |                      |
+    |                  | exception           |                       |                      |
+    |                  |-------------------->|                       |                      |
+    |                  |                     |                       |                      |
+    |                  |                     | 4. Categorize         |                      |
+    |                  |                     | exception             |                      |
+    |                  |                     |-----------------X     |                      |
+    |                  |                     |                       |                      |
+    |                  |                     | 5. Log error          |                      |
+    |                  |                     |---------------------->|                      |
+    |                  |                     |                       |                      |
+    |                  |                     |                       | 6. Store error       |
+    |                  |                     |                       | details              |
+    |                  |                     |                       |----------------------|
+    |                  |                     |                       |                      |
+    |                  |                     | 7. Check if           |                      |
+    |                  |                     | recoverable           |                      |
+    |                  |                     |---------------------->|                      |
+    |                  |                     |                       |                      |
+    |                  |                     |      8. Return        |                      |
+    |                  |                     |      recovery options |                      |
+    |                  |                     |<----------------------|                      |
+    |                  |                     |                       |                      |
+    |                  |                     | 9. Apply              |                      |
+    |                  |                     | recovery strategy     |                      |
+    |                  |                     |---------------------->|                      |
+    |                  |                     |                       |                      |
+    |                  |                     |      10. Return       |                      |
+    |                  |                     |      recovery result  |                      |
+    |                  |                     |<----------------------|                      |
+    |                  |                     |                       |                      |
+    |                  | 11. Return          |                       |                      |
+    |                  | appropriate         |                       |                      |
+    |                  | response            |                       |                      |
+    |                  |<--------------------|                       |                      |
+    |                  |                     |                       |                      |
+    | 12. Display      |                     |                       |                      |
+    | result to user   |                     |                       |                      |
+    |<-----------------|                     |                       |                      |
+    |                  |                     |                       |                      |
+```
+
+## 10. Project Data Synchronization Workflow
+
+The following sequence diagram illustrates the project data synchronization process:
+
+```
++--------+       +---------------+       +-------------+       +----------------+       +--------------+
+| Client |       | Project       |       | Database    |       | File Storage   |       | Notification |
+|        |       | Manager       |       | Service     |       | Service        |       | Service      |
++--------+       +---------------+       +-------------+       +----------------+       +--------------+
+    |                   |                      |                      |                       |
+    | 1. Update         |                      |                      |                       |
+    | project data      |                      |                      |                       |
+    |------------------>|                      |                      |                       |
+    |                   |                      |                      |                       |
+    |                   | 2. Validate          |                      |                       |
+    |                   | changes              |                      |                       |
+    |                   |-------------------X  |                      |                       |
+    |                   |                      |                      |                       |
+    |                   | 3. Save changes      |                      |                       |
+    |                   | to database          |                      |                       |
+    |                   |--------------------->|                      |                       |
+    |                   |                      |                      |                       |
+    |                   |                      | 4. Update            |                       |
+    |                   |                      | database             |                       |
+    |                   |                      |------------------X   |                       |
+    |                   |                      |                      |                       |
+    |                   |      5. Return       |                      |                       |
+    |                   |      update status   |                      |                       |
+    |                   |<---------------------|                      |                       |
+    |                   |                      |                      |                       |
+    |                   | 6. Save related      |                      |                       |
+    |                   | files                |                      |                       |
+    |                   |--------------------------------------------->|                     |
+    |                   |                      |                      |                       |
+    |                   |                      |                      | 7. Store files        |
+    |                   |                      |                      |--------------X        |
+    |                   |                      |                      |                       |
+    |                   |                      |      8. Return       |                       |
+    |                   |                      |      storage status  |                       |
+    |                   |<---------------------------------------------|                     |
+    |                   |                      |                      |                       |
+    |                   | 9. Update            |                      |                       |
+    |                   | synchronization      |                      |                       |
+    |                   | status               |                      |                       |
+    |                   |--------------------->|                      |                       |
+    |                   |                      |                      |                       |
+    |                   | 10. Notify           |                      |                       |
+    |                   | interested parties   |                      |                       |
+    |                   |-------------------------------------------------------------->|    |
+    |                   |                      |                      |                  |    |
+    |                   |                      |                      |                  |    |
+    |                   |                      |                      |     11. Send     |    |
+    |                   |                      |                      |     notifications|    |
+    |                   |                      |                      |<-----------------|    |
+    |                   |                      |                      |                       |
+    | 12. Return        |                      |                      |                       |
+    | update result     |                      |                      |                       |
+    |<------------------|                      |                      |                       |
+    |                   |                      |                      |                       |
+```

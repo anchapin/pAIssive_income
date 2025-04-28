@@ -1,3 +1,1 @@
-"""
-Tests for the AI Models module.
-"""
+"""Tests for AI models module."""

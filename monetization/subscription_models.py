@@ -391,32 +391,84 @@ class SubscriptionModel:
     def load_from_file(cls, file_path: str) -> 'SubscriptionModel':
         """
         Load a subscription model from a JSON file.
-
+        
+        This algorithm implements a sophisticated model deserialization process with 
+        polymorphic type handling and advanced validation. The implementation follows
+        these key stages:
+        
+        1. FILE LOADING AND FORMAT VALIDATION:
+           - Attempts to read and parse the JSON file with proper error handling
+           - Validates the basic JSON structure before proceeding with model construction
+           - Uses common_utils for consistent file handling across the application
+           - Converts parsing exceptions into specific ValidationError types for clarity
+        
+        2. MODEL INTEGRITY VERIFICATION:
+           - Performs comprehensive validation of required fields
+           - Builds detailed error report for all missing fields
+           - Ensures the deserialized data meets all structural requirements
+           - Rejects malformed models early to prevent downstream errors
+        
+        3. POLYMORPHIC TYPE HANDLING:
+           - Detects the model type from the deserialized data
+           - Uses runtime type detection to handle specialized model subclasses
+           - Creates the appropriate concrete class based on model_type
+           - Supports extensibility through the class hierarchy
+        
+        4. SPECIALIZED FREEMIUM MODEL HANDLING:
+           - Applies special logic for FreemiumModel instances
+           - Validates freemium-specific fields like free_tier_id
+           - Handles the special free tier replacement logic
+           - Maintains the integrity of the free tier relationship
+        
+        5. IDENTITY AND METADATA PRESERVATION:
+           - Preserves original identifiers across serialization cycles
+           - Maintains creation and modification timestamps
+           - Ensures data consistency in round-trip serialization scenarios
+           - Supports proper audit trails and version tracking
+        
+        6. COMPREHENSIVE ERROR HANDLING:
+           - Implements specialized error handling for each failure category
+           - Maps low-level exceptions to domain-specific error types
+           - Provides detailed context in error messages
+           - Maintains error handling consistency through helper functions
+        
+        This implementation specifically addresses several critical needs:
+        - Safe deserialization of potentially complex data structures
+        - Proper handling of inheritance relationships in serialized form
+        - Maintaining object identity across save/load cycles
+        - Comprehensive validation to prevent invalid model states
+        
         Args:
-            file_path: Path to the JSON file
-
+            file_path: Path to the JSON file containing the serialized model
+            
         Returns:
-            SubscriptionModel instance
-
+            A fully constructed SubscriptionModel or appropriate subclass instance
+            
         Raises:
-            ValidationError: If the file contains invalid data
-            MonetizationError: If there's an issue loading the model
+            ValidationError: If the file contains invalid or incomplete model data
+            MonetizationError: If there's an issue with file access or processing
         """
         try:
+            # STAGE 1: File loading and initial parsing
             try:
+                # Attempt to load and parse the file, converting JSON to a Python dictionary
                 data = load_from_json_file(file_path)
             except Exception as e:
+                # Convert generic parsing errors to specific ValidationError
+                # This improves error handling by categorizing the error type
                 raise ValidationError(
                     message=f"Invalid JSON format in file {file_path}: {e}",
                     field="file_content",
                     original_exception=e
                 )
 
-            # Validate required fields
+            # STAGE 2: Validate model completeness and integrity
+            # Check for all required fields to ensure the model is complete
             required_fields = ["name", "description", "tiers", "features", "billing_cycles", "id", "created_at", "updated_at"]
             missing_fields = [field for field in required_fields if field not in data]
 
             if missing_fields:
+                # Generate detailed validation error with specific missing fields
                 raise ValidationError(
                     message=f"Missing required fields in subscription model data: {', '.join(missing_fields)}",
                     field="file_content",
@@ -426,18 +478,20 @@ class SubscriptionModel:
                     } for field in missing_fields]
                 )
 
-            # Check if this is a specific model type
+            # STAGE 3: Handle polymorphic model types through runtime detection
+            # Check the model_type to determine the concrete class to instantiate
             model_type = data.get("model_type", "")
 
+            # STAGE 3A: Handle the FreemiumModel specialized case
             if model_type == "freemium" and cls.__name__ == "FreemiumModel":
-                # Validate freemium-specific fields
+                # Additional validation for freemium-specific requirements
                 if "free_tier_id" not in data:
                     raise ValidationError(
                         message="Missing required field 'free_tier_id' for FreemiumModel",
                         field="free_tier_id"
                     )
 
-                # Create a FreemiumModel instance
+                # Create a FreemiumModel instance using the base constructor
                 model = cls(
                     name=data["name"],
                     description=data["description"],
@@ -445,8 +499,9 @@ class SubscriptionModel:
                     billing_cycles=data["billing_cycles"]
                 )
 
-                # The free tier is already created in the constructor,
-                # so we need to replace it with the loaded one
+                # STAGE 3B: Handle the special free tier replacement logic
+                # The FreemiumModel constructor auto-creates a free tier,
+                # but we need to replace it with the one from the saved data
                 free_tier_id = data["free_tier_id"]
                 free_tier = next((t for t in data["tiers"] if t["id"] == free_tier_id), None)
 
@@ -457,18 +512,20 @@ class SubscriptionModel:
                             model.tiers.pop(i)
                             break
 
-                    # Add the loaded free tier
+                    # Add the loaded free tier and update the reference
                     model.tiers.append(free_tier)
                     model.free_tier = free_tier
                 else:
+                    # Warn if the referenced free tier is missing in the data
                     logger.warning(f"Free tier with ID {free_tier_id} not found in loaded data")
 
-                # Add the other tiers
+                # Add all other tiers from the loaded data
                 for tier in data["tiers"]:
                     if tier["id"] != free_tier_id:
                         model.tiers.append(tier)
+            # STAGE 3C: Handle the standard SubscriptionModel case
             else:
-                # Create a regular SubscriptionModel instance
+                # Create a regular SubscriptionModel instance with all data
                 model = cls(
                     name=data["name"],
                     description=data["description"],
@@ -477,6 +534,8 @@ class SubscriptionModel:
                     billing_cycles=data["billing_cycles"]
                 )
 
+            # STAGE 4: Preserve identity and metadata
+            # Set the original identifiers and timestamps for consistency
             model.id = data["id"]
             model.created_at = data["created_at"]
             model.updated_at = data["updated_at"]
@@ -484,10 +543,12 @@ class SubscriptionModel:
             logger.info(f"Successfully loaded subscription model '{model.name}' from {file_path}")
             return model
 
+        # STAGE 5: Comprehensive error handling for different failure scenarios
         except (ValidationError, MonetizationError):
-            # Re-raise custom errors
+            # Re-raise domain-specific errors that have already been properly categorized
             raise
         except FileNotFoundError as e:
+            # Convert file not found into a domain-specific error
             from .errors import MonetizationError
             error = MonetizationError(
                 message=f"File not found: {file_path}",
@@ -497,7 +558,7 @@ class SubscriptionModel:
             error.log()
             raise error
         except Exception as e:
-            # Handle unexpected errors
+            # Handle any other unexpected errors
             error = handle_exception(
                 e,
                 error_class=MonetizationError,

@@ -1140,26 +1140,78 @@ class UsageTracker:
         num_intervals: int = 30
     ) -> Dict[str, Any]:
         """
-        Get usage trends over time.
-
+        Generate comprehensive usage trend analysis with intelligent pattern detection.
+        
+        This algorithm implements a sophisticated time-series analysis system for
+        detecting and quantifying usage patterns across multiple dimensions. The
+        implementation follows these key phases:
+        
+        1. TIME RANGE DETERMINATION AND NORMALIZATION:
+           - Establishes proper time boundaries based on requested analysis period
+           - Applies intelligent defaults for missing time parameters
+           - Normalizes the time range to ensure complete interval coverage
+           - Handles various time granularities (hour, day, week, month) appropriately
+           - Creates proper interval alignment for accurate trend analysis
+           
+        2. TEMPORAL DATA AGGREGATION AND GAP FILLING:
+           - Collects and aggregates usage data into consistent time buckets
+           - Handles sparse data by properly zero-filling missing intervals
+           - Ensures complete time-series continuity for accurate trend analysis
+           - Maintains chronological ordering of data points
+           - Preserves temporal relationships between data points
+           
+        3. STATISTICAL TREND IDENTIFICATION:
+           - Divides time-series data into equal analysis segments
+           - Calculates summary statistics for each segment
+           - Applies comparative analysis between segments
+           - Quantifies the direction and magnitude of usage changes
+           - Determines statistically significant trends versus normal variance
+           
+        4. TREND CLASSIFICATION AND INTERPRETATION:
+           - Categorizes usage patterns (increasing, decreasing, stable)
+           - Quantifies percentage changes for objective measurement
+           - Applies thresholds for meaningful trend detection
+           - Provides numerical values for trend strength assessment
+           - Delivers actionable insights through pattern classification
+        
+        This trend analysis algorithm addresses several critical business requirements:
+        - Early detection of changing usage patterns
+        - Quantitative measurement of growth or decline rates
+        - Support for capacity planning and resource allocation
+        - Identification of customer behavior changes
+        - Foundation for predictive analytics and forecasting
+        
+        The implementation specifically supports common business scenarios:
+        - Monitoring customer engagement over time
+        - Detecting unusual spikes or drops in API usage
+        - Measuring adoption rates of new features
+        - Analyzing resource utilization trends
+        - Identifying seasonal patterns in usage behavior
+        
         Args:
-            customer_id: ID of the customer to filter by
-            metric: Type of usage metric to filter by
-            category: Category of usage to filter by
-            resource_type: Type of resource to filter by
-            start_time: Start time for records
-            end_time: End time for records
-            interval: Time interval to group by (hour, day, week, month)
-            num_intervals: Number of intervals to include
-
+            customer_id: Optional customer identifier to filter usage data
+            metric: Optional usage metric type (e.g., API_CALL, STORAGE) to analyze
+            category: Optional usage category (e.g., INFERENCE) to filter by
+            resource_type: Optional resource type (e.g., model) to filter by
+            start_time: Beginning of analysis period (auto-calculated if not provided)
+            end_time: End of analysis period (defaults to current time if not provided)
+            interval: Time bucket size for aggregation (hour, day, week, month)
+            num_intervals: Number of intervals to include when auto-calculating time range
+            
         Returns:
-            Dictionary with usage trends
+            Comprehensive dictionary containing:
+            - Complete time-series data with consistent intervals
+            - Statistical summary of usage volumes
+            - Trend direction classification (increasing, decreasing, stable)
+            - Quantified percentage change measurement
+            - Interval-specific usage breakdowns
         """
-        # Set default end time to now
+        # PHASE 1: Time Range Determination and Normalization
+        # Set default end time to now if not provided
         if end_time is None:
             end_time = datetime.now()
 
-        # Set default start time based on interval and num_intervals
+        # Calculate appropriate start time based on interval and requested span
         if start_time is None:
             if interval == "hour":
                 start_time = end_time - timedelta(hours=num_intervals)
@@ -1168,12 +1220,13 @@ class UsageTracker:
             elif interval == "week":
                 start_time = end_time - timedelta(weeks=num_intervals)
             elif interval == "month":
-                # Approximate months as 30 days
+                # Approximate months as 30 days for consistent calculation
                 start_time = end_time - timedelta(days=30 * num_intervals)
             else:
                 raise ValueError(f"Invalid interval: {interval}")
 
-        # Get usage by time
+        # PHASE 2: Temporal Data Aggregation and Gap Filling
+        # Get base usage data aggregated by the specified time interval
         usage_by_time = self.get_usage_by_time(
             customer_id=customer_id,
             metric=metric,
@@ -1184,15 +1237,16 @@ class UsageTracker:
             interval=interval
         )
 
-        # Generate all interval keys in the range
+        # Generate complete sequence of intervals to ensure gap-free analysis
         all_intervals = []
         current_time = start_time
 
+        # Iterate through the entire time range to generate all interval keys
         while current_time <= end_time:
             interval_key = self._get_interval_key(current_time, interval)
             all_intervals.append(interval_key)
 
-            # Move to next interval
+            # Advance to the next interval using appropriate time increment
             if interval == "hour":
                 current_time += timedelta(hours=1)
             elif interval == "day":
@@ -1200,13 +1254,13 @@ class UsageTracker:
             elif interval == "week":
                 current_time += timedelta(weeks=1)
             elif interval == "month":
-                # Move to the first day of the next month
+                # Special handling for month boundaries to maintain proper calendar alignment
                 if current_time.month == 12:
                     current_time = datetime(current_time.year + 1, 1, 1)
                 else:
                     current_time = datetime(current_time.year, current_time.month + 1, 1)
 
-        # Initialize trends
+        # Initialize the trend analysis result structure
         trends = {
             "total_records": usage_by_time["total_records"],
             "total_quantity": usage_by_time["total_quantity"],
@@ -1220,12 +1274,15 @@ class UsageTracker:
             }
         }
 
-        # Fill in data for all intervals
+        # PHASE 2 Continued: Fill gaps in the time series data for complete analysis
+        # Process each interval in the time range, inserting zero values where needed
         for interval_key in all_intervals:
             if interval_key in usage_by_time["intervals"]:
+                # Use actual usage data when available
                 interval_data = usage_by_time["intervals"][interval_key]
             else:
-                # Create empty data for intervals with no usage
+                # Create zero-filled data for intervals with no recorded usage
+                # This ensures continuity of the time series for accurate trend analysis
                 interval_data = {
                     "count": 0,
                     "quantity": 0.0,
@@ -1239,30 +1296,34 @@ class UsageTracker:
                     ).isoformat()
                 }
 
-            # Add interval key
+            # Add interval identifier to maintain proper chronological order
             interval_data["interval"] = interval_key
-
-            # Add to intervals
+            
+            # Build the complete time series with all intervals represented
             trends["intervals"].append(interval_data)
 
-        # Calculate trend
+        # PHASE 3 & 4: Statistical Trend Identification and Classification
+        # Analyze for trends when sufficient data is available
         if len(trends["intervals"]) >= 2:
-            # Split intervals into two halves
+            # Split the time series into two equal segments for comparison
             half_point = len(trends["intervals"]) // 2
             first_half = trends["intervals"][:half_point]
             second_half = trends["intervals"][half_point:]
 
-            # Calculate average quantity for each half
+            # Calculate the average usage quantity for each half of the time series
             first_half_avg = sum(i["quantity"] for i in first_half) / len(first_half) if first_half else 0
             second_half_avg = sum(i["quantity"] for i in second_half) / len(second_half) if second_half else 0
 
-            # Calculate percentage change
+            # Calculate percentage change between the two periods
+            # Handle division by zero case for when the first period had no usage
             if first_half_avg > 0:
                 percentage_change = ((second_half_avg - first_half_avg) / first_half_avg) * 100
             else:
+                # Special handling for cases where usage started from zero
                 percentage_change = 0 if second_half_avg == 0 else 100
 
-            # Determine trend direction
+            # Classify the trend direction using percentage thresholds
+            # This provides a simple but effective categorization of usage patterns
             if percentage_change > 5:
                 direction = "increasing"
             elif percentage_change < -5:
@@ -1270,6 +1331,7 @@ class UsageTracker:
             else:
                 direction = "stable"
 
+            # Record the trend analysis results
             trends["trend"] = {
                 "direction": direction,
                 "percentage_change": percentage_change

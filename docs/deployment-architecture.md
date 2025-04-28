@@ -370,6 +370,373 @@ For production deployments, consider using:
 4. **Authentication Failures**: Check authentication configuration and credentials
 5. **Network Issues**: Verify network connectivity between components
 
+## CI/CD Pipeline Integration
+
+The pAIssive Income framework can be integrated with Continuous Integration and Continuous Deployment (CI/CD) pipelines to automate testing, building, and deployment processes. Here are examples for common CI/CD platforms:
+
+### GitHub Actions CI/CD Pipeline
+
+```yaml
+name: pAIssive Income CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: Run tests
+        run: |
+          pytest --cov=./ --cov-report=xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+
+  build:
+    needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: paissiveincome/app:latest
+
+  deploy-dev:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Development Environment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.DEV_USER }}
+          key: ${{ secrets.DEV_SSH_KEY }}
+          script: |
+            docker pull paissiveincome/app:latest
+            docker-compose -f ~/paissive-income/docker-compose.yml down
+            docker-compose -f ~/paissive-income/docker-compose.yml up -d
+
+  deploy-prod:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Production Environment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            docker pull paissiveincome/app:latest
+            docker-compose -f ~/paissive-income/docker-compose.yml down
+            docker-compose -f ~/paissive-income/docker-compose.yml up -d
+```
+
+### GitLab CI/CD Pipeline
+
+```yaml
+stages:
+  - test
+  - build
+  - deploy-dev
+  - deploy-prod
+
+variables:
+  DOCKER_IMAGE: registry.gitlab.com/paissiveincome/app
+
+test:
+  stage: test
+  image: python:3.9
+  script:
+    - pip install -r requirements.txt
+    - pip install -r requirements-dev.txt
+    - pytest --cov=./ --cov-report=term
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA $DOCKER_IMAGE:latest
+    - docker push $DOCKER_IMAGE:latest
+  only:
+    - main
+    - dev
+
+deploy-dev:
+  stage: deploy-dev
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh
+    - eval $(ssh-agent -s)
+    - echo "$DEV_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - echo "$DEV_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  script:
+    - ssh $DEV_USER@$DEV_HOST "docker pull $DOCKER_IMAGE:latest && docker-compose -f ~/paissive-income/docker-compose.yml down && docker-compose -f ~/paissive-income/docker-compose.yml up -d"
+  only:
+    - dev
+
+deploy-prod:
+  stage: deploy-prod
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh
+    - eval $(ssh-agent -s)
+    - echo "$PROD_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - echo "$PROD_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  script:
+    - ssh $PROD_USER@$PROD_HOST "docker pull $DOCKER_IMAGE:latest && docker-compose -f ~/paissive-income/docker-compose.yml down && docker-compose -f ~/paissive-income/docker-compose.yml up -d"
+  only:
+    - main
+  when: manual
+```
+
+### Azure DevOps Pipeline
+
+```yaml
+trigger:
+  branches:
+    include:
+      - main
+      - dev
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dockerRegistryServiceConnection: 'docker-registry-connection'
+  imageRepository: 'paissiveincome/app'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+stages:
+- stage: Test
+  jobs:
+  - job: TestJob
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.9'
+        addToPath: true
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+      displayName: 'Install dependencies'
+    - script: |
+        pytest --cov=./ --cov-report=xml
+      displayName: 'Run tests'
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+
+- stage: Build
+  dependsOn: Test
+  condition: succeeded()
+  jobs:
+  - job: BuildJob
+    steps:
+    - task: Docker@2
+      displayName: Login to Docker Hub
+      inputs:
+        command: login
+        containerRegistry: $(dockerRegistryServiceConnection)
+    - task: Docker@2
+      displayName: Build and Push
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
+
+- stage: DeployDev
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'dev'))
+  jobs:
+  - deployment: DeployDev
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadSecureFile@1
+            name: sshKey
+            displayName: 'Download SSH key'
+            inputs:
+              secureFile: 'id_rsa'
+          - script: |
+              mkdir -p ~/.ssh
+              cp $(sshKey.secureFilePath) ~/.ssh/id_rsa
+              chmod 700 ~/.ssh
+              chmod 600 ~/.ssh/id_rsa
+              ssh-keyscan -H $(DEV_HOST) >> ~/.ssh/known_hosts
+              ssh $(DEV_USER)@$(DEV_HOST) "docker pull $(imageRepository):latest && docker-compose -f ~/paissive-income/docker-compose.yml down && docker-compose -f ~/paissive-income/docker-compose.yml up -d"
+            displayName: 'Deploy to Dev Environment'
+
+- stage: DeployProd
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
+  jobs:
+  - deployment: DeployProd
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadSecureFile@1
+            name: sshKey
+            displayName: 'Download SSH key'
+            inputs:
+              secureFile: 'id_rsa'
+          - script: |
+              mkdir -p ~/.ssh
+              cp $(sshKey.secureFilePath) ~/.ssh/id_rsa
+              chmod 700 ~/.ssh
+              chmod 600 ~/.ssh/id_rsa
+              ssh-keyscan -H $(PROD_HOST) >> ~/.ssh/known_hosts
+              ssh $(PROD_USER)@$(PROD_HOST) "docker pull $(imageRepository):latest && docker-compose -f ~/paissive-income/docker-compose.yml down && docker-compose -f ~/paissive-income/docker-compose.yml up -d"
+            displayName: 'Deploy to Production Environment'
+```
+
+### AWS CodePipeline Configuration
+
+For AWS CodePipeline, you can create a `buildspec.yml` file:
+
+```yaml
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo Installing dependencies...
+      - pip install -r requirements.txt
+      - pip install -r requirements-dev.txt
+  
+  pre_build:
+    commands:
+      - echo Running tests...
+      - pytest
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+  
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+  
+  post_build:
+    commands:
+      - echo Pushing the Docker image...
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - echo Writing image definitions file...
+      - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment
+
+artifacts:
+  files:
+    - appspec.yml
+    - taskdef.json
+    - imagedefinitions.json
+```
+
+These CI/CD pipeline configurations provide automation for:
+
+1. Running tests on each push or pull request
+2. Building and pushing Docker images upon successful tests
+3. Deploying to development environments automatically
+4. Deploying to production environments with various safety mechanisms (manual approval or main branch only)
+
+## Scaling Considerations
+
+When deploying pAIssive Income at scale, consider the following aspects:
+
+### Horizontal Scaling
+
+- **Web Interface**: Deploy behind a load balancer with multiple instances
+- **Agent Team Services**: Scale based on request volume
+- **AI Models**: Distribute inference loads across multiple servers
+- **Database**: Use read replicas for scaling read operations
+
+### Vertical Scaling
+
+- **AI Models**: Provision instances with appropriate GPU/CPU resources based on model size
+- **Database**: Upgrade instance types as data volume grows
+- **Memory Optimization**: Configure memory limits based on workload characteristics
+
+### Auto-Scaling Rules
+
+- **CPU Utilization**: Scale when CPU utilization exceeds 70%
+- **Memory Utilization**: Scale when memory utilization exceeds 80%
+- **Request Rate**: Scale based on incoming request rates
+- **Model Inference Time**: Scale when average inference time exceeds thresholds
+
+## High-Availability Configuration
+
+To ensure high availability of pAIssive Income deployments:
+
+### Multi-AZ/Region Deployment
+
+- Deploy application components across multiple availability zones
+- Consider multi-region deployment for critical applications
+- Set up proper database replication across zones/regions
+
+### Backup and Disaster Recovery
+
+- Regular database backups with tested restore procedures
+- Automated snapshot creation for all persistent storage
+- Documented disaster recovery procedures with recovery time objectives (RTO) and recovery point objectives (RPO)
+
+### Health Monitoring
+
+- Implement comprehensive health checks for all services
+- Configure proper readiness and liveness probes for Kubernetes deployments
+- Set up automated alerts based on service health status
+
 ## Additional Resources
 
 - [Docker Documentation](https://docs.docker.com/)
