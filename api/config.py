@@ -34,6 +34,31 @@ class RateLimitScope(str, Enum):
     ENDPOINT = "endpoint"  # Rate limit per endpoint
 
 
+class WebhookEventType(str, Enum):
+    """
+    Webhook event types enumeration.
+    
+    This enum defines the available webhook event types.
+    """
+    NICHE_ANALYSIS_CREATED = "niche_analysis.created"
+    NICHE_ANALYSIS_UPDATED = "niche_analysis.updated"
+    NICHE_ANALYSIS_DELETED = "niche_analysis.deleted"
+    OPPORTUNITY_SCORED = "opportunity.scored"
+    MONETIZATION_PLAN_CREATED = "monetization.plan.created"
+    MONETIZATION_PLAN_UPDATED = "monetization.plan.updated"
+    MARKETING_CAMPAIGN_CREATED = "marketing.campaign.created"
+    MARKETING_CAMPAIGN_UPDATED = "marketing.campaign.updated"
+    MARKETING_CAMPAIGN_COMPLETED = "marketing.campaign.completed"
+    USER_CREATED = "user.created"
+    USER_UPDATED = "user.updated"
+    PROJECT_CREATED = "project.created"
+    PROJECT_UPDATED = "project.updated"
+    PROJECT_SHARED = "project.shared"
+    AGENT_TASK_COMPLETED = "agent.task.completed"
+    MODEL_INFERENCE_COMPLETED = "model.inference.completed"
+    CUSTOM = "custom"  # For custom event types
+
+
 class APIVersion(str, Enum):
     """
     API version enumeration.
@@ -86,6 +111,14 @@ class APIConfig:
     openapi_url: str = "/openapi.json"
     redoc_url: str = "/redoc"
 
+    # GraphQL configuration
+    enable_graphql: bool = True
+    graphql_path: str = "/graphql"
+    graphiql: bool = True  # Interactive GraphQL interface
+    graphql_batch_enabled: bool = True
+    graphql_introspection_enabled: bool = True
+    graphql_playground: bool = True  # Alternative to GraphiQL
+    
     # Versioning configuration
     enable_version_header: bool = True  # Add API version to response headers
     version_header_name: str = "X-API-Version"
@@ -99,6 +132,19 @@ class APIConfig:
     enable_https: bool = False
     enable_auth: bool = False
     enable_rate_limit: bool = False
+    
+    # Webhook configuration
+    enable_webhooks: bool = True
+    webhook_secret_header: str = "X-Webhook-Signature"
+    webhook_max_retries: int = 3
+    webhook_retry_delay: int = 60  # Seconds between webhook delivery attempts
+    webhook_timeout: int = 5  # Timeout for webhook delivery in seconds
+    webhook_batch_size: int = 100  # Maximum number of events to process in a batch
+    webhook_workers: int = 5  # Number of worker threads for webhook delivery
+    webhook_events_retention_days: int = 30  # Number of days to retain webhook events
+    webhook_allowed_event_types: List[WebhookEventType] = field(
+        default_factory=lambda: list(WebhookEventType)
+    )
 
     # HTTPS configuration
     ssl_keyfile: Optional[str] = None
