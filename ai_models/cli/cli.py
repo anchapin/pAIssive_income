@@ -14,7 +14,8 @@ from .commands import (
     DownloadCommand, ListCommand, InfoCommand,
     ServeRESTCommand, ServeGRPCCommand,
     OptimizeCommand, BenchmarkCommand,
-    DeployCommand, ValidateCommand
+    DeployCommand, ValidateCommand,
+    VersionCommand
 )
 
 # Set up logging
@@ -50,7 +51,10 @@ def get_commands() -> Dict[str, Type[BaseCommand]]:
         "deploy": DeployCommand,
         
         # Utility commands
-        "validate": ValidateCommand
+        "validate": ValidateCommand,
+        
+        # Version management commands
+        "version": VersionCommand
     }
 
 

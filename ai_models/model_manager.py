@@ -20,6 +20,8 @@ import shutil
 import hashlib
 
 from .model_config import ModelConfig
+# Added import for the versioning system
+from .model_versioning import VersionedModelManager, ModelVersion
 from typing import TYPE_CHECKING
 import sys
 
@@ -100,6 +102,8 @@ class ModelInfo(IModelInfo):
     last_updated: str = ""
     created_at: str = ""
     updated_at: str = ""
+    # Added version field for model versioning
+    version: str = "0.0.0"
 
     def __init__(
         self,
@@ -116,7 +120,8 @@ class ModelInfo(IModelInfo):
         performance: Dict[str, Any] = None,
         last_updated: str = "",
         created_at: str = "",
-        updated_at: str = ""
+        updated_at: str = "",
+        version: str = "0.0.0"
     ):
         """Initialize a new ModelInfo object."""
         self._id = id
@@ -133,6 +138,7 @@ class ModelInfo(IModelInfo):
         self.last_updated = last_updated
         self.created_at = created_at
         self.updated_at = updated_at
+        self.version = version
 
         # Run post-initialization logic
         self.__post_init__()
@@ -166,6 +172,11 @@ class ModelInfo(IModelInfo):
     def metadata(self) -> Dict[str, Any]:
         """Get the model metadata."""
         return self._metadata if self._metadata is not None else {}
+        
+    @property
+    def model_version(self) -> str:
+        """Get the model version."""
+        return self.version
 
     def __post_init__(self):
         """
@@ -220,7 +231,8 @@ class ModelInfo(IModelInfo):
             "performance": self.performance,
             "last_updated": self.last_updated,
             "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "updated_at": self.updated_at,
+            "version": self.version
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -271,6 +283,16 @@ class ModelInfo(IModelInfo):
         """
         return capability in self.capabilities
 
+    def set_version(self, version: str) -> None:
+        """
+        Set the model version.
+
+        Args:
+            version: Version string in semver format (e.g., "1.0.0")
+        """
+        self.version = version
+        self.update_timestamp()
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ModelInfo':
         """
@@ -310,6 +332,9 @@ class ModelManager(IModelManager):
 
         # Initialize model registry
         self._init_model_registry()
+        
+        # Initialize versioned model manager
+        self.versioned_manager = VersionedModelManager(self, self.config.models_dir)
 
         # Discover models if auto-discover is enabled
         if self.config.auto_discover:
@@ -652,12 +677,13 @@ class ModelManager(IModelManager):
                 return True
             return False
 
-    def load_model(self, model_id: str, **kwargs) -> Any:
+    def load_model(self, model_id: str, version: str = None, **kwargs) -> Any:
         """
         Load a model.
 
         Args:
             model_id: ID of the model to load
+            version: Optional version of the model to load
             **kwargs: Additional parameters for model loading
 
         Returns:
@@ -668,6 +694,16 @@ class ModelManager(IModelManager):
             ModelLoadError: If the model cannot be loaded
             ValidationError: If the model type is not supported
         """
+        # If version is specified, use versioned model manager
+        if version:
+            try:
+                return self.versioned_manager.load_model_version(model_id, version, **kwargs)
+            except ValueError as e:
+                raise ModelNotFoundError(
+                    message=str(e),
+                    model_id=model_id
+                )
+                
         # Check if the model is already loaded
         if model_id in self.loaded_models:
             return self.loaded_models[model_id]
@@ -728,426 +764,140 @@ class ModelManager(IModelManager):
                 details={"model_type": model_info.type, "model_path": model_info.path},
                 original_exception=e
             )
-
-    def _load_huggingface_model(self, model_info: ModelInfo, **kwargs) -> Any:
+            
+    def get_model_versions(self, model_id: str) -> List[ModelVersion]:
         """
-        Load a Hugging Face model.
-
-        Args:
-            model_info: Information about the model
-            **kwargs: Additional parameters for model loading
-
-        Returns:
-            Loaded model instance
-
-        Raises:
-            ModelLoadError: If the model cannot be loaded
-            ImportError: If transformers is not available
-        """
-        if not TRANSFORMERS_AVAILABLE:
-            raise ImportError("Transformers not available. Please install it with: pip install transformers torch")
-
-        logger.info(f"Loading Hugging Face model: {model_info.name}")
-
-        # Determine device
-        device = kwargs.get("device", self.config.default_device)
-        if device == "auto":
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-
-        # Determine model type
-        model_type = kwargs.get("model_type", "text-generation")
-
-        try:
-            # Create pipeline
-            model = pipeline(
-                model_type,
-                model=model_info.path,
-                device=device,
-                **kwargs
-            )
-
-            logger.info(f"Successfully loaded model {model_info.name} on {device}")
-            return model
-
-        except Exception as e:
-            logger.error(f"Error loading Hugging Face model {model_info.name}: {e}")
-            raise ModelLoadError(
-                message=f"Failed to load Hugging Face model {model_info.name}: {e}",
-                model_id=model_info.id,
-                details={
-                    "model_type": model_type,
-                    "device": device,
-                    "path": model_info.path
-                },
-                original_exception=e
-            )
-
-    def _load_llama_model(self, model_info: ModelInfo, **kwargs) -> Any:
-        """
-        Load a Llama model.
-
-        Args:
-            model_info: Information about the model
-            **kwargs: Additional parameters for model loading
-
-        Returns:
-            Loaded model instance
-
-        Raises:
-            ImportError: If llama-cpp-python is not available
-            ValueError: If the model cannot be loaded
-        """
-        if not LLAMA_CPP_AVAILABLE:
-            raise ImportError("llama-cpp-python not available. Please install it with: pip install llama-cpp-python")
-
-        logger.info(f"Loading Llama model: {model_info.name}")
-
-        # Get model parameters
-        n_ctx = kwargs.get("n_ctx", 2048)
-        n_threads = kwargs.get("n_threads", self.config.max_threads) or max(1, os.cpu_count() // 2)
-
-        try:
-            # Load the model
-            model = Llama(
-                model_path=model_info.path,
-                n_ctx=n_ctx,
-                n_threads=n_threads,
-                **kwargs
-            )
-
-            logger.info(f"Successfully loaded model {model_info.name}")
-            return model
-
-        except Exception as e:
-            logger.error(f"Error loading Llama model {model_info.name}: {e}")
-            raise ValueError(f"Failed to load Llama model {model_info.name}: {e}")
-
-    def _load_embedding_model(self, model_info: ModelInfo, **kwargs) -> Any:
-        """
-        Load an embedding model.
-
-        Args:
-            model_info: Information about the model
-            **kwargs: Additional parameters for model loading
-
-        Returns:
-            Loaded model instance
-
-        Raises:
-            ImportError: If sentence-transformers is not available
-            ValueError: If the model cannot be loaded
-        """
-        if not SENTENCE_TRANSFORMERS_AVAILABLE:
-            raise ImportError("Sentence Transformers not available. Please install it with: pip install sentence-transformers")
-
-        logger.info(f"Loading embedding model: {model_info.name}")
-
-        # Determine device
-        device = kwargs.get("device", self.config.default_device)
-        if device == "auto":
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-
-        try:
-            # Load the model
-            model = SentenceTransformer(model_info.path, device=device, **kwargs)
-
-            logger.info(f"Successfully loaded model {model_info.name} on {device}")
-            return model
-
-        except Exception as e:
-            logger.error(f"Error loading embedding model {model_info.name}: {e}")
-            raise ValueError(f"Failed to load embedding model {model_info.name}: {e}")
-
-    def _load_onnx_model(self, model_info: ModelInfo, **kwargs) -> Any:
-        """
-        Load an ONNX model.
-
-        Args:
-            model_info: Information about the model
-            **kwargs: Additional parameters for model loading
-
-        Returns:
-            Loaded model instance
-
-        Raises:
-            ImportError: If onnxruntime is not available
-            ValueError: If the model cannot be loaded
-        """
-        if not ONNX_AVAILABLE:
-            raise ImportError("ONNX Runtime not available. Please install it with: pip install onnxruntime")
-
-        logger.info(f"Loading ONNX model: {model_info.name}")
-
-        try:
-            # Create ONNX session
-            session_options = ort.SessionOptions()
-
-            # Set execution provider
-            providers = kwargs.get("providers", None)
-            if providers is None:
-                providers = ["CUDAExecutionProvider", "CPUExecutionProvider"] if torch.cuda.is_available() else ["CPUExecutionProvider"]
-
-            # Load the model
-            session = ort.InferenceSession(model_info.path, sess_options=session_options, providers=providers)
-
-            logger.info(f"Successfully loaded model {model_info.name}")
-            return session
-
-        except Exception as e:
-            logger.error(f"Error loading ONNX model {model_info.name}: {e}")
-            raise ValueError(f"Failed to load ONNX model {model_info.name}: {e}")
-
-    def unload_model(self, model_id: str) -> bool:
-        """
-        Unload a model from memory.
-
-        Args:
-            model_id: ID of the model to unload
-
-        Returns:
-            True if the model was unloaded, False otherwise
-        """
-        with self.model_lock:
-            if model_id in self.loaded_models:
-                # Remove the model from the loaded models dictionary
-                del self.loaded_models[model_id]
-
-                # Force garbage collection to free memory
-                import gc
-                gc.collect()
-
-                if TORCH_AVAILABLE and torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-
-                return True
-
-            return False
-
-    def get_system_info(self) -> Dict[str, Any]:
-        """
-        Get information about the system.
-
-        Returns:
-            Dictionary with system information
-        """
-        system_info = {
-            "platform": platform.platform(),
-            "python_version": platform.python_version(),
-            "cpu_count": os.cpu_count(),
-            "memory_gb": None,
-            "gpu_available": False,
-            "gpu_info": []
-        }
-
-        # Get memory information
-        try:
-            import psutil
-            memory = psutil.virtual_memory()
-            system_info["memory_gb"] = round(memory.total / (1024 ** 3), 2)
-        except ImportError:
-            pass
-
-        # Get GPU information
-        if TORCH_AVAILABLE and torch.cuda.is_available():
-            system_info["gpu_available"] = True
-            system_info["gpu_count"] = torch.cuda.device_count()
-
-            for i in range(torch.cuda.device_count()):
-                gpu_info = {
-                    "name": torch.cuda.get_device_name(i),
-                    "memory_gb": round(torch.cuda.get_device_properties(i).total_memory / (1024 ** 3), 2)
-                }
-                system_info["gpu_info"].append(gpu_info)
-
-        return system_info
-
-    def get_dependencies_info(self) -> Dict[str, Any]:
-        """
-        Get information about installed dependencies.
-
-        Returns:
-            Dictionary with dependency information
-        """
-        dependencies = {
-            "torch": {"installed": TORCH_AVAILABLE, "version": None},
-            "transformers": {"installed": TRANSFORMERS_AVAILABLE, "version": None},
-            "sentence_transformers": {"installed": SENTENCE_TRANSFORMERS_AVAILABLE, "version": None},
-            "llama_cpp": {"installed": LLAMA_CPP_AVAILABLE, "version": None},
-            "onnxruntime": {"installed": ONNX_AVAILABLE, "version": None}
-        }
-
-        # Get versions
-        if TORCH_AVAILABLE:
-            dependencies["torch"]["version"] = torch.__version__
-
-        if TRANSFORMERS_AVAILABLE:
-            dependencies["transformers"]["version"] = transformers.__version__
-
-        if SENTENCE_TRANSFORMERS_AVAILABLE:
-            import sentence_transformers
-            dependencies["sentence_transformers"]["version"] = sentence_transformers.__version__
-
-        if LLAMA_CPP_AVAILABLE:
-            import llama_cpp
-            dependencies["llama_cpp"]["version"] = llama_cpp.__version__
-
-        if ONNX_AVAILABLE:
-            dependencies["onnxruntime"]["version"] = ort.__version__
-
-        # Check for download dependencies
-        try:
-            import requests
-            dependencies["requests"] = {"installed": True, "version": requests.__version__}
-        except ImportError:
-            dependencies["requests"] = {"installed": False, "version": None}
-
-        try:
-            import huggingface_hub
-            dependencies["huggingface_hub"] = {"installed": True, "version": huggingface_hub.__version__}
-        except ImportError:
-            dependencies["huggingface_hub"] = {"installed": False, "version": None}
-
-        try:
-            import tqdm
-            dependencies["tqdm"] = {"installed": True, "version": tqdm.__version__}
-        except ImportError:
-            dependencies["tqdm"] = {"installed": False, "version": None}
-
-        return dependencies
-
-    def register_downloaded_model(self, download_task: 'DownloadTask', model_type: str, description: str = "") -> Optional[ModelInfo]:
-        """
-        Register a model that was downloaded using the ModelDownloader.
-
-        Args:
-            download_task: Download task that completed successfully
-            model_type: Type of the model
-            description: Optional description of the model
-
-        Returns:
-            ModelInfo instance or None if registration failed
-        """
-        if download_task.progress.status != "completed":
-            logger.error(f"Cannot register model from incomplete download task: {download_task.id}")
-            return None
-
-        # Generate a unique ID for the model
-        model_id = hashlib.md5(f"{download_task.model_id}_{download_task.destination}".encode()).hexdigest()
-
-        # Determine model format and quantization
-        model_format = ""
-        quantization = ""
-
-        if model_type == "huggingface":
-            model_format = "huggingface"
-        elif model_type == "llama":
-            model_format = "gguf"
-
-            # Try to detect quantization from filename
-            file_name = os.path.basename(download_task.destination).lower()
-            if "q4_k_m" in file_name:
-                quantization = "4-bit"
-            elif "q5_k_m" in file_name:
-                quantization = "5-bit"
-            elif "q8_0" in file_name:
-                quantization = "8-bit"
-
-        # Create model info
-        model_info = ModelInfo(
-            id=model_id,
-            name=os.path.basename(download_task.destination),
-            type=model_type,
-            path=download_task.destination,
-            description=description,
-            format=model_format,
-            quantization=quantization
-        )
-
-        # Register the model
-        self.register_model(model_info)
-
-        return model_info
-
-    def get_performance_monitor(self) -> Optional['PerformanceMonitor']:
-        """
-        Get the performance monitor.
-
-        Returns:
-            PerformanceMonitor instance or None if not set
-        """
-        return self.performance_monitor
-
-    def set_performance_monitor(self, monitor: 'PerformanceMonitor') -> None:
-        """
-        Set the performance monitor.
-
-        Args:
-            monitor: PerformanceMonitor instance
-        """
-        self.performance_monitor = monitor
-
-    def track_inference(
-        self,
-        model_id: str,
-        input_tokens: int = 0,
-        parameters: Dict[str, Any] = None
-    ) -> Optional['InferenceTracker']:
-        """
-        Create an inference tracker for a model.
-
+        Get all versions of a model.
+        
         Args:
             model_id: ID of the model
-            input_tokens: Number of input tokens
-            parameters: Additional parameters for the inference
-
+            
         Returns:
-            InferenceTracker instance or None if performance monitor is not set
+            List of ModelVersion instances sorted in descending order
         """
-        if not self.performance_monitor:
-            return None
-
-        from .performance_monitor import InferenceTracker
-        return InferenceTracker(
-            monitor=self.performance_monitor,
-            model_id=model_id,
-            input_tokens=input_tokens,
-            parameters=parameters
-        )
-
-    def generate_performance_report(self, model_id: str) -> Optional['ModelPerformanceReport']:
+        return self.versioned_manager.get_all_model_versions(model_id)
+        
+    def get_latest_version(self, model_id: str) -> Optional[ModelVersion]:
         """
-        Generate a performance report for a model.
-
+        Get the latest version of a model.
+        
         Args:
             model_id: ID of the model
-
+            
         Returns:
-            ModelPerformanceReport instance or None if performance monitor is not set
+            Latest ModelVersion instance or None if no versions exist
         """
-        if not self.performance_monitor:
-            return None
-
+        return self.versioned_manager.get_model_version(model_id)
+        
+    def create_model_version(
+        self, 
+        model_id: str, 
+        version: str, 
+        features: List[str] = None,
+        dependencies: Dict[str, str] = None,
+        compatibility: List[str] = None,
+        metadata: Dict[str, Any] = None
+    ) -> ModelVersion:
+        """
+        Create a new version for a model.
+        
+        Args:
+            model_id: ID of the model
+            version: Version string (e.g., "1.0.0")
+            features: Optional list of features this version supports
+            dependencies: Optional dependencies required by this version
+            compatibility: Optional list of other model versions this is compatible with
+            metadata: Optional additional metadata for this version
+            
+        Returns:
+            ModelVersion instance
+            
+        Raises:
+            ModelNotFoundError: If the model is not found
+        """
+        # Get model info
         model_info = self.get_model_info(model_id)
         if not model_info:
-            logger.error(f"Model with ID {model_id} not found")
-            return None
-
-        return self.performance_monitor.generate_performance_report(
-            model_id=model_id,
-            model_name=model_info.name
+            raise ModelNotFoundError(
+                message=f"Model with ID {model_id} not found",
+                model_id=model_id
+            )
+            
+        # Create version
+        version_obj = self.versioned_manager.register_model_version(
+            model_info=model_info,
+            version_str=version,
+            features=features,
+            dependencies=dependencies,
+            compatibility=compatibility,
+            metadata=metadata
         )
-
-    def get_model_performance_metrics(self, model_id: str) -> List['InferenceMetrics']:
+        
+        # Update model info with the new version
+        model_info.set_version(version)
+        
+        return version_obj
+        
+    def check_version_compatibility(self, model_id1: str, version1: str, model_id2: str, version2: str) -> bool:
         """
-        Get performance metrics for a model.
-
+        Check if two model versions are compatible.
+        
+        Args:
+            model_id1: ID of the first model
+            version1: Version of the first model
+            model_id2: ID of the second model
+            version2: Version of the second model
+            
+        Returns:
+            True if compatible, False otherwise
+        """
+        return self.versioned_manager.check_compatibility(model_id1, version1, model_id2, version2)
+        
+    def register_migration(self, model_id: str, source_version: str, target_version: str, migration_fn: Callable) -> None:
+        """
+        Register a migration function for version transitions.
+        
         Args:
             model_id: ID of the model
-
-        Returns:
-            List of InferenceMetrics instances or empty list if performance monitor is not set
+            source_version: Source version string
+            target_version: Target version string
+            migration_fn: Function that handles the migration
         """
-        if not self.performance_monitor:
-            return []
-
-        return self.performance_monitor.get_model_metrics(model_id)
+        self.versioned_manager.register_migration_function(model_id, source_version, target_version, migration_fn)
+        
+    def migrate_model(self, model_id: str, target_version: str, **kwargs) -> ModelInfo:
+        """
+        Migrate a model to a specific version.
+        
+        Args:
+            model_id: ID of the model to migrate
+            target_version: Target version string
+            **kwargs: Additional parameters for the migration
+            
+        Returns:
+            Updated ModelInfo instance
+            
+        Raises:
+            ModelNotFoundError: If the model is not found
+            ValueError: If migration is not possible
+        """
+        # Get model info
+        model_info = self.get_model_info(model_id)
+        if not model_info:
+            raise ModelNotFoundError(
+                message=f"Model with ID {model_id} not found",
+                model_id=model_id
+            )
+            
+        try:
+            # Perform migration
+            updated_info = self.versioned_manager.migrate_model(model_info, target_version, **kwargs)
+            
+            # Update model registry with the migrated model info
+            self.models[model_id] = updated_info
+            self._save_model_registry()
+            
+            return updated_info
+        except ValueError as e:
+            logger.error(f"Error migrating model {model_id} to version {target_version}: {e}")
+            raise
