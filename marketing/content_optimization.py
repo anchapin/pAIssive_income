@@ -502,58 +502,38 @@ class KeywordAnalyzer(SEOAnalyzer):
 
     def _extract_text_from_content(self) -> str:
         """
-        Extract text from content for analysis.
+        Extract all text from the content for analysis.
 
         Returns:
-            Extracted text
+            Combined text from all content sections
         """
-        if self.content is None:
-            return ""
-
-        text = ""
+        text_parts = []
 
         # Add title
         if "title" in self.content:
-            text += self.content["title"] + "\n\n"
+            text_parts.append(self.content["title"])
 
         # Add meta description
         if "meta_description" in self.content:
-            text += self.content["meta_description"] + "\n\n"
+            text_parts.append(self.content["meta_description"])
 
         # Add introduction
         if "introduction" in self.content:
-            text += self.content["introduction"] + "\n\n"
+            text_parts.append(self.content["introduction"])
 
-        # Add sections
-        if "sections" in self.content:
-            for section in self.content["sections"]:
-                if "title" in section:
-                    text += section["title"] + "\n\n"
-
-                if "content" in section:
-                    text += section["content"] + "\n\n"
+        # Add section content
+        for section in self.content.get("sections", []):
+            if "title" in section:
+                text_parts.append(section["title"])
+            if "content" in section:
+                text_parts.append(section["content"])
 
         # Add conclusion
         if "conclusion" in self.content:
-            text += self.content["conclusion"] + "\n\n"
+            text_parts.append(self.content["conclusion"])
 
-        # Add overview (for product descriptions)
-        if "overview" in self.content:
-            text += self.content["overview"] + "\n\n"
-
-        # Add features (for product descriptions)
-        if "features" in self.content:
-            for feature in self.content["features"]:
-                if "description" in feature:
-                    text += feature["description"] + "\n\n"
-
-        # Add benefits (for product descriptions)
-        if "benefits" in self.content:
-            for benefit in self.content["benefits"]:
-                if "description" in benefit:
-                    text += benefit["description"] + "\n\n"
-
-        return text
+        # Join all parts with spaces
+        return " ".join(text_parts)
 
     def _extract_first_paragraph(self) -> str:
         """
@@ -587,42 +567,6 @@ class KeywordAnalyzer(SEOAnalyzer):
         # Implementation depends on content structure
         # Placeholder implementation:
         return [image.get("alt", "") for image in self.content.get("images", [])]
-
-    def _tokenize_text(self, text: str) -> List[str]:
-        """
-        Tokenize text into words.
-
-        Args:
-            text: The text to tokenize
-
-        Returns:
-            List of words
-        """
-        # Simple tokenization by splitting on whitespace and removing punctuation
-        # In a real implementation, you might use a more sophisticated tokenizer
-        words = []
-        for word in re.findall(r'\b\w+\b', text.lower()):
-            if word:
-                words.append(word)
-        return words
-
-    def _count_keyword_occurrences(self, text: str, keyword: str) -> int:
-        """
-        Count the number of occurrences of a keyword in text.
-
-        Args:
-            text: The text to search in
-            keyword: The keyword to count
-
-        Returns:
-            Number of occurrences
-        """
-        # Convert to lowercase for case-insensitive matching
-        text_lower = text.lower()
-        keyword_lower = keyword.lower()
-
-        # Count occurrences
-        return text_lower.count(keyword_lower)
 
     def _contains_keyword(self, text: str, keyword: str) -> bool:
         """
@@ -721,7 +665,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         placement_scores = []
 
         for keyword, data in self.results["keyword_placement"].items():
-            placement_scores.append(data["score"])
+            placement_scores.append(data["placement_score"] / 100.0)  # Convert to 0-1 scale
 
         placement_score = sum(placement_scores) / len(placement_scores) if placement_scores else 0
 
@@ -771,7 +715,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         # Check keyword placement
         for keyword, data in self.results["keyword_placement"].items():
             # Check title
-            if not data["locations"]["title"] and self.config.get("check_keyword_in_title", True):
+            if not data["in_title"] and self.config.get("check_keyword_in_title", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -782,7 +726,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check headings
-            if not data["locations"]["headings"] and self.config.get("check_keyword_in_headings", True):
+            if not data["in_headings"] and self.config.get("check_keyword_in_headings", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -793,7 +737,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check first paragraph
-            if not data["locations"]["first_paragraph"] and self.config.get("check_keyword_in_first_paragraph", True):
+            if not data["in_first_paragraph"] and self.config.get("check_keyword_in_first_paragraph", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -804,7 +748,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check meta description
-            if not data["locations"]["meta_description"] and self.config.get("check_keyword_in_meta_description", True):
+            if not data["in_meta_description"] and self.config.get("check_keyword_in_meta_description", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -815,7 +759,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check URL
-            if not data["locations"]["url"] and self.config.get("check_keyword_in_url", True):
+            if not data["in_url"] and self.config.get("check_keyword_in_url", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
