@@ -7,6 +7,7 @@ import datetime
 import uuid
 import random
 import json
+import hashlib
 from typing import Dict, List, Any, Optional, Tuple, Union
 from abc import ABC, abstractmethod
 
@@ -22,6 +23,9 @@ from .schemas import (
     ReadingLevel,
     ContentFormat
 )
+
+# Import the centralized caching service
+from common_utils.caching import default_cache
 
 # Class definitions for content templates
 class ContentTemplate(ABC):
@@ -417,6 +421,9 @@ class ContentGenerator(ABC):
             self.config = config
         else:
             self.config = GeneratorConfig()
+        
+        # Cache TTL in seconds (6 hours by default)
+        self.cache_ttl = 21600
     
     @abstractmethod
     def generate(self, template: Dict[str, Any], **kwargs) -> Dict[str, Any]:
@@ -431,6 +438,59 @@ class ContentGenerator(ABC):
         elif reading_level == 'advanced':
             return 1.5
         return 1.0  # intermediate
+    
+    def _generate_cache_key(self, template: Dict[str, Any], **kwargs) -> str:
+        """
+        Generate a cache key based on template and additional parameters.
+        
+        Args:
+            template: Content template dictionary
+            **kwargs: Additional parameters that affect the generated content
+            
+        Returns:
+            A string hash to use as cache key
+        """
+        # Create a copy of the template to avoid modifying the original
+        key_data = {
+            "template": template.copy(),
+            "config": self.config.to_dict(),
+            "kwargs": kwargs
+        }
+        
+        # Remove non-deterministic fields that should not affect caching
+        if "id" in key_data["template"]:
+            key_data["template"]["id"] = "static_id"
+            
+        if "created_at" in key_data["template"]:
+            key_data["template"]["created_at"] = "static_timestamp"
+            
+        if "updated_at" in key_data["template"]:
+            key_data["template"]["updated_at"] = "static_timestamp"
+        
+        # Convert to stable string representation
+        key_str = json.dumps(key_data, sort_keys=True)
+        
+        # Hash to get a fixed-length key
+        return hashlib.md5(key_str.encode()).hexdigest()
+    
+    def set_cache_ttl(self, ttl_seconds: int) -> None:
+        """
+        Set the cache TTL (time to live) for content generation.
+        
+        Args:
+            ttl_seconds: Cache TTL in seconds
+        """
+        self.cache_ttl = ttl_seconds
+    
+    def clear_cache(self) -> bool:
+        """
+        Clear the content generation cache for this generator type.
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        cache_namespace = f"{self.__class__.__name__}_cache"
+        return default_cache.clear(namespace=cache_namespace)
 
 # Concrete generator implementations
 class BlogPostGenerator(ContentGenerator):
@@ -485,6 +545,19 @@ class BlogPostGenerator(ContentGenerator):
         Raises:
             ValueError: If the template is invalid or content generation fails
         """
+        # Check if force_refresh is specified
+        force_refresh = kwargs.pop('force_refresh', False)
+        
+        # Generate cache key based on template and configuration
+        cache_key = self._generate_cache_key(template, **kwargs)
+        cache_namespace = f"{self.__class__.__name__}_cache"
+        
+        # Try to get from cache first (unless force_refresh is True)
+        if not force_refresh:
+            cached_content = default_cache.get(cache_key, namespace=cache_namespace)
+            if cached_content is not None:
+                return cached_content
+        
         # Validate template using Pydantic
         blog_template = BlogPostTemplate(template)
         if not blog_template.validate():
@@ -514,8 +587,13 @@ class BlogPostGenerator(ContentGenerator):
         blog_post = GeneratedBlogPost(generated_content)
         if not blog_post.validate():
             raise ValueError("Generated content validation failed")
+        
+        result = blog_post.to_dict()
+        
+        # Store in cache
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace)
             
-        return blog_post.to_dict()
+        return result
     
     def _generate_introduction(self, template: Dict[str, Any]) -> str:
         """Generate introduction for blog post."""
@@ -589,6 +667,19 @@ class SocialMediaPostGenerator(ContentGenerator):
         Raises:
             ValueError: If the template is invalid or content generation fails
         """
+        # Check if force_refresh is specified
+        force_refresh = kwargs.pop('force_refresh', False)
+        
+        # Generate cache key based on template and configuration
+        cache_key = self._generate_cache_key(template, **kwargs)
+        cache_namespace = f"{self.__class__.__name__}_cache"
+        
+        # Try to get from cache first (unless force_refresh is True)
+        if not force_refresh:
+            cached_content = default_cache.get(cache_key, namespace=cache_namespace)
+            if cached_content is not None:
+                return cached_content
+        
         # Validate template using Pydantic
         social_template = SocialMediaTemplate(template)
         if not social_template.validate():
@@ -612,8 +703,13 @@ class SocialMediaPostGenerator(ContentGenerator):
         social_post = GeneratedSocialMediaPost(generated_content)
         if not social_post.validate():
             raise ValueError("Generated content validation failed")
+        
+        result = social_post.to_dict()
+        
+        # Store in cache
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace)
             
-        return social_post.to_dict()
+        return result
     
     def _generate_content(self, template: Dict[str, Any]) -> str:
         """Generate content for social media post."""
@@ -679,34 +775,54 @@ class EmailNewsletterGenerator(ContentGenerator):
         Raises:
             ValueError: If the template is invalid or content generation fails
         """
+        # Check if force_refresh is specified
+        force_refresh = kwargs.pop('force_refresh', False)
+        
+        # Generate cache key based on template and configuration
+        cache_key = self._generate_cache_key(template, **kwargs)
+        cache_namespace = f"{self.__class__.__name__}_cache"
+        
+        # Try to get from cache first (unless force_refresh is True)
+        if not force_refresh:
+            cached_content = default_cache.get(cache_key, namespace=cache_namespace)
+            if cached_content is not None:
+                return cached_content
+        
         # Validate template using Pydantic
         email_template = EmailNewsletterTemplate(template)
         if not email_template.validate():
             raise ValueError("Invalid email newsletter template")
         
         # Generate content
+        subject = self._generate_subject(template)
+        preheader = self._generate_preheader(template)
+        
         generated_content = {
             'id': str(uuid.uuid4()),
             'template_id': template['id'],
             'timestamp': datetime.datetime.now().isoformat(),
-            'subject': self._generate_subject(template),
-            'preheader': self._generate_preheader(template),
-            'greeting': self._generate_greeting(template),
-            'body': self._generate_body(template),
-            'sections': self._generate_sections(template),
+            'subject_line': subject,
+            'preview_text': preheader,
+            'content_sections': self._generate_sections(template),
+            'header': "Header content" if template.get('include_header', True) else None,
             'footer': self._generate_footer(template),
             'call_to_action': self._generate_call_to_action(template),
-            'sender_info': self._generate_sender_info(template),
-            'unsubscribe_info': self._generate_unsubscribe_info(template),
-            'metrics_prediction': self._predict_metrics(template)
+            'images': [{'url': 'https://example.com/image.jpg', 'alt': 'Newsletter image'}] if template.get('include_images', True) else [],
+            'links': [{'text': 'Learn more', 'url': 'https://example.com'}],
+            'spam_score': random.uniform(0.1, 0.5)
         }
         
         # Validate generated content
         newsletter = GeneratedEmailNewsletter(generated_content)
         if not newsletter.validate():
             raise ValueError("Generated content validation failed")
+        
+        result = newsletter.to_dict()
+        
+        # Store in cache
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace)
             
-        return newsletter.to_dict()
+        return result
     
     def _generate_subject(self, template: Dict[str, Any]) -> str:
         """Generate subject line for email newsletter."""

@@ -9,9 +9,14 @@ from typing import Dict, List, Any, Optional, Union, Tuple
 from datetime import datetime, timedelta
 import math
 import copy
+import hashlib
+import json
 
 from .usage_tracking import UsageRecord, UsageMetric, UsageCategory
 from .usage_tracker import UsageTracker
+
+# Import the centralized caching service
+from common_utils.caching import default_cache
 
 
 class PricingModel:
@@ -532,6 +537,9 @@ class BillingCalculator:
         """
         self.usage_tracker = usage_tracker
         self.pricing_rules = pricing_rules or []
+        
+        # Cache TTL in seconds (24 hours by default)
+        self.cache_ttl = 86400
     
     def add_pricing_rule(self, rule: PricingRule) -> None:
         """
@@ -541,6 +549,9 @@ class BillingCalculator:
             rule: Pricing rule to add
         """
         self.pricing_rules.append(rule)
+        
+        # Invalidate the rule cache when rules change
+        self._invalidate_rule_cache()
     
     def get_pricing_rule(
         self,
@@ -559,6 +570,19 @@ class BillingCalculator:
         Returns:
             Matching pricing rule or None if not found
         """
+        # Generate a cache key
+        cache_key = self._generate_rule_cache_key(metric, category, resource_type)
+        
+        # Try to get from cache first
+        cached_result = default_cache.get(cache_key, namespace="pricing_rules")
+        if cached_result is not None:
+            # Recreate the rule from cached dictionary
+            if cached_result:
+                return PricingRule.from_dict(cached_result)
+            else:
+                # Cache indicates no matching rule
+                return None
+        
         # Find the most specific matching rule
         best_match = None
         best_match_score = -1
@@ -578,7 +602,35 @@ class BillingCalculator:
                     best_match = rule
                     best_match_score = score
         
+        # Cache the result
+        rule_dict = best_match.to_dict() if best_match else None
+        default_cache.set(cache_key, rule_dict, ttl=self.cache_ttl, namespace="pricing_rules")
+        
         return best_match
+    
+    def _generate_rule_cache_key(self, metric: str, category: Optional[str], resource_type: Optional[str]) -> str:
+        """
+        Generate a cache key for pricing rules.
+        
+        Args:
+            metric: Type of usage metric
+            category: Category of usage
+            resource_type: Type of resource
+            
+        Returns:
+            Cache key string
+        """
+        key_parts = [
+            f"metric:{metric}",
+            f"category:{category or 'None'}",
+            f"resource_type:{resource_type or 'None'}"
+        ]
+        
+        return hashlib.md5("|".join(key_parts).encode()).hexdigest()
+    
+    def _invalidate_rule_cache(self) -> None:
+        """Invalidate the pricing rule cache."""
+        default_cache.clear(namespace="pricing_rules")
     
     def calculate_cost(
         self,
@@ -599,12 +651,54 @@ class BillingCalculator:
         Returns:
             Cost for the quantity
         """
+        # Generate a cache key
+        cache_key = self._generate_cost_cache_key(metric, quantity, category, resource_type)
+        
+        # Try to get from cache first
+        cached_cost = default_cache.get(cache_key, namespace="cost_calculations")
+        if cached_cost is not None:
+            return cached_cost
+        
+        # Get the pricing rule
         rule = self.get_pricing_rule(metric, category, resource_type)
         
         if rule is None:
-            return 0.0
+            cost = 0.0
+        else:
+            cost = rule.calculate_cost(quantity)
         
-        return rule.calculate_cost(quantity)
+        # Cache the result
+        default_cache.set(cache_key, cost, ttl=self.cache_ttl, namespace="cost_calculations")
+        
+        return cost
+    
+    def _generate_cost_cache_key(
+        self, 
+        metric: str, 
+        quantity: float, 
+        category: Optional[str], 
+        resource_type: Optional[str]
+    ) -> str:
+        """
+        Generate a cache key for cost calculations.
+        
+        Args:
+            metric: Type of usage metric
+            quantity: Quantity to calculate cost for
+            category: Category of usage
+            resource_type: Type of resource
+            
+        Returns:
+            Cache key string
+        """
+        key_parts = [
+            f"metric:{metric}",
+            f"quantity:{quantity}",
+            f"category:{category or 'None'}",
+            f"resource_type:{resource_type or 'None'}"
+        ]
+        
+        return hashlib.md5("|".join(key_parts).encode()).hexdigest()
     
     def calculate_usage_cost(
         self,
@@ -672,6 +766,14 @@ class BillingCalculator:
         Raises:
             ValueError: If usage_tracker is not set or other required dependencies are missing
         """
+        # Generate a cache key
+        cache_key = self._generate_usage_cost_cache_key(customer_id, start_time, end_time)
+        
+        # Try to get from cache first
+        cached_result = default_cache.get(cache_key, namespace="usage_cost_calculations")
+        if cached_result is not None:
+            return cached_result
+            
         if self.usage_tracker is None:
             raise ValueError("Usage tracker is required to calculate usage cost")
         
@@ -745,7 +847,39 @@ class BillingCalculator:
                     result["items"].append(item)
                     result["total_cost"] += cost
         
+        # Cache the result
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace="usage_cost_calculations")
+        
         return result
+    
+    def _generate_usage_cost_cache_key(
+        self,
+        customer_id: str,
+        start_time: Optional[datetime],
+        end_time: Optional[datetime]
+    ) -> str:
+        """
+        Generate a cache key for usage cost calculations.
+        
+        Args:
+            customer_id: Customer ID
+            start_time: Start time
+            end_time: End time
+            
+        Returns:
+            Cache key string
+        """
+        # Format times as ISO strings or "None"
+        start_str = start_time.isoformat() if start_time else "None"
+        end_str = end_time.isoformat() if end_time else "None"
+        
+        key_parts = [
+            f"customer:{customer_id}",
+            f"start:{start_str}",
+            f"end:{end_str}"
+        ]
+        
+        return hashlib.md5("|".join(key_parts).encode()).hexdigest()
     
     def estimate_cost(
         self,
@@ -836,6 +970,14 @@ class BillingCalculator:
             #     ]
             # }
         """
+        # Generate a cache key for these usage estimates
+        cache_key = self._generate_estimate_cache_key(usage_estimates)
+        
+        # Try to get from cache first
+        cached_result = default_cache.get(cache_key, namespace="cost_estimates")
+        if cached_result is not None:
+            return cached_result
+            
         # Initialize result
         result = {
             "total_cost": 0.0,
@@ -862,176 +1004,41 @@ class BillingCalculator:
                 result["items"].append(item)
                 result["total_cost"] += cost
         
+        # Cache the result
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace="cost_estimates")
+        
         return result
     
-    def create_tiered_pricing_rule(
-        self,
-        metric: str,
-        tiers: List[Dict[str, Any]],
-        graduated: bool = False,
-        category: Optional[str] = None,
-        resource_type: Optional[str] = None,
-        minimum_cost: float = 0.0,
-        maximum_cost: Optional[float) = None
-    ) -> PricingRule:
+    def _generate_estimate_cache_key(self, usage_estimates: Dict[str, Dict[str, float]]) -> str:
         """
-        Create a tiered pricing rule.
+        Generate a cache key for cost estimations.
         
         Args:
-            metric: Type of usage metric
-            tiers: List of tier dictionaries with min_quantity, max_quantity, and price_per_unit
-            graduated: Whether to use graduated pricing
-            category: Category of usage
-            resource_type: Type of resource
-            minimum_cost: Minimum cost
-            maximum_cost: Maximum cost
+            usage_estimates: Usage estimates dictionary
             
         Returns:
-            Tiered pricing rule
+            Cache key string
         """
-        pricing_tiers = []
+        # Convert the nested dict to a stable string representation
+        usage_str = json.dumps(usage_estimates, sort_keys=True)
         
-        for tier_data in tiers:
-            tier = PricingTier(
-                min_quantity=tier_data["min_quantity"],
-                max_quantity=tier_data.get("max_quantity"),
-                price_per_unit=tier_data["price_per_unit"],
-                flat_fee=tier_data.get("flat_fee", 0.0)
-            )
-            
-            pricing_tiers.append(tier)
-        
-        # Sort tiers by min_quantity
-        pricing_tiers.sort(key=lambda t: t.min_quantity)
-        
-        rule = PricingRule(
-            metric=metric,
-            model=PricingModel.GRADUATED if graduated else PricingModel.TIERED,
-            tiers=pricing_tiers,
-            category=category,
-            resource_type=resource_type,
-            minimum_cost=minimum_cost,
-            maximum_cost=maximum_cost
-        )
-        
-        self.add_pricing_rule(rule)
-        
-        return rule
+        # Create a hash of the string
+        return hashlib.md5(usage_str.encode()).hexdigest()
     
-    def create_package_pricing_rule(
-        self,
-        metric: str,
-        quantity: float,
-        price: float,
-        overage_price: Optional[float] = None,
-        category: Optional[str] = None,
-        resource_type: Optional[str] = None,
-        minimum_cost: float = 0.0,
-        maximum_cost: Optional[float] = None
-    ) -> PricingRule:
+    def invalidate_cost_cache(self) -> None:
+        """Invalidate all cost calculation caches."""
+        default_cache.clear(namespace="cost_calculations")
+        default_cache.clear(namespace="usage_cost_calculations") 
+        default_cache.clear(namespace="cost_estimates")
+        
+    def set_cache_ttl(self, ttl_seconds: int) -> None:
         """
-        Create a package pricing rule.
+        Set the cache TTL (time to live) for cost calculations.
         
         Args:
-            metric: Type of usage metric
-            quantity: Quantity included in the package
-            price: Price for the package
-            overage_price: Price per unit for usage beyond the package quantity
-            category: Category of usage
-            resource_type: Type of resource
-            minimum_cost: Minimum cost
-            maximum_cost: Maximum cost
-            
-        Returns:
-            Package pricing rule
+            ttl_seconds: Cache TTL in seconds
         """
-        package = PricingPackage(
-            quantity=quantity,
-            price=price,
-            overage_price=overage_price
-        )
-        
-        rule = PricingRule(
-            metric=metric,
-            model=PricingModel.PACKAGE,
-            package=package,
-            category=category,
-            resource_type=resource_type,
-            minimum_cost=minimum_cost,
-            maximum_cost=maximum_cost
-        )
-        
-        self.add_pricing_rule(rule)
-        
-        return rule
-    
-    def create_flat_rate_pricing_rule(
-        self,
-        metric: str,
-        flat_fee: float,
-        category: Optional[str] = None,
-        resource_type: Optional[str] = None
-    ) -> PricingRule:
-        """
-        Create a flat rate pricing rule.
-        
-        Args:
-            metric: Type of usage metric
-            flat_fee: Flat fee
-            category: Category of usage
-            resource_type: Type of resource
-            
-        Returns:
-            Flat rate pricing rule
-        """
-        rule = PricingRule(
-            metric=metric,
-            model=PricingModel.FLAT_RATE,
-            flat_fee=flat_fee,
-            category=category,
-            resource_type=resource_type
-        )
-        
-        self.add_pricing_rule(rule)
-        
-        return rule
-    
-    def create_per_unit_pricing_rule(
-        self,
-        metric: str,
-        price_per_unit: float,
-        category: Optional[str] = None,
-        resource_type: Optional[str] = None,
-        minimum_cost: float = 0.0,
-        maximum_cost: Optional[float] = None
-    ) -> PricingRule:
-        """
-        Create a per-unit pricing rule.
-        
-        Args:
-            metric: Type of usage metric
-            price_per_unit: Price per unit
-            category: Category of usage
-            resource_type: Type of resource
-            minimum_cost: Minimum cost
-            maximum_cost: Maximum cost
-            
-        Returns:
-            Per-unit pricing rule
-        """
-        rule = PricingRule(
-            metric=metric,
-            model=PricingModel.PER_UNIT,
-            price_per_unit=price_per_unit,
-            category=category,
-            resource_type=resource_type,
-            minimum_cost=minimum_cost,
-            maximum_cost=maximum_cost
-        )
-        
-        self.add_pricing_rule(rule)
-        
-        return rule
+        self.cache_ttl = ttl_seconds
 
 
 # Example usage

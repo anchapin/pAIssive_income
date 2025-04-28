@@ -5,6 +5,8 @@ Analyzes market segments to identify potential niches.
 
 from typing import Dict, List, Any, Optional
 import uuid
+import hashlib
+import json
 from datetime import datetime
 import logging
 
@@ -19,6 +21,9 @@ from .schemas import (
     TrendSchema, PredictionSchema
 )
 
+# Import the centralized caching service
+from common_utils.caching import default_cache, cached
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -32,13 +37,17 @@ class MarketAnalyzer:
         """Initialize the Market Analyzer."""
         self.name = "Market Analyzer"
         self.description = "Analyzes market segments to identify potential niches"
+        
+        # Cache TTL in seconds (12 hours by default for market data)
+        self.cache_ttl = 43200
 
-    def analyze_market(self, segment: str) -> Dict[str, Any]:
+    def analyze_market(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze a market segment to identify potential niches.
 
         Args:
             segment: Market segment to analyze
+            force_refresh: If True, bypasses cache and forces a fresh analysis
 
         Returns:
             Analysis of the market segment
@@ -59,6 +68,16 @@ class MarketAnalyzer:
                         "error": "Must be a non-empty string"
                     }]
                 )
+                
+            # Generate cache key
+            cache_key = f"market_analysis:{segment.lower()}"
+            
+            # Try to get from cache first if not forcing refresh
+            if not force_refresh:
+                cached_result = default_cache.get(cache_key, namespace="market_analysis")
+                if cached_result is not None:
+                    logger.info(f"Using cached market analysis for segment: {segment}")
+                    return cached_result
 
             # In a real implementation, this would use AI to analyze the segment
             # For now, we'll return a placeholder implementation
@@ -200,6 +219,8 @@ class MarketAnalyzer:
 
             if analysis:
                 logger.info(f"Analyzed market segment: {segment_name}")
+                # Cache the result
+                default_cache.set(cache_key, analysis, ttl=self.cache_ttl, namespace="market_analysis")
                 return analysis
             else:
                 # Create a default analysis for unknown segments
@@ -217,6 +238,8 @@ class MarketAnalyzer:
                 }
 
                 logger.info(f"Created default analysis for unknown segment: {segment_name}")
+                # Cache the result
+                default_cache.set(cache_key, default_analysis, ttl=self.cache_ttl, namespace="market_analysis")
                 return default_analysis
 
         except ValidationError:
@@ -232,12 +255,13 @@ class MarketAnalyzer:
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def analyze_competition(self, niche: str) -> Dict[str, Any]:
+    def analyze_competition(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze competition in a specific niche.
 
         Args:
             niche: Niche to analyze
+            force_refresh: If True, bypasses cache and forces a fresh analysis
 
         Returns:
             Competition analysis for the niche
@@ -258,6 +282,16 @@ class MarketAnalyzer:
                         "error": "Must be a non-empty string"
                     }]
                 )
+                
+            # Generate cache key
+            cache_key = f"competition_analysis:{niche.lower()}"
+            
+            # Try to get from cache first if not forcing refresh
+            if not force_refresh:
+                cached_result = default_cache.get(cache_key, namespace="market_analysis")
+                if cached_result is not None:
+                    logger.info(f"Using cached competition analysis for niche: {niche}")
+                    return cached_result
 
             # In a real implementation, this would use AI to analyze the competition
             # For now, we'll return a placeholder implementation
@@ -289,6 +323,10 @@ class MarketAnalyzer:
             }
 
             logger.info(f"Analyzed competition for niche: {niche}")
+            
+            # Cache the result
+            default_cache.set(cache_key, competition_analysis, ttl=self.cache_ttl, namespace="market_analysis")
+            
             return competition_analysis
 
         except ValidationError:
@@ -304,20 +342,31 @@ class MarketAnalyzer:
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def analyze_trends(self, segment: str) -> Dict[str, Any]:
+    def analyze_trends(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze trends in a specific market segment.
 
         Args:
             segment: Market segment to analyze
+            force_refresh: If True, bypasses cache and forces a fresh analysis
 
         Returns:
             Trend analysis for the segment
         """
+        # Generate cache key
+        cache_key = f"trend_analysis:{segment.lower()}"
+        
+        # Try to get from cache first if not forcing refresh
+        if not force_refresh:
+            cached_result = default_cache.get(cache_key, namespace="market_analysis")
+            if cached_result is not None:
+                logger.info(f"Using cached trend analysis for segment: {segment}")
+                return cached_result
+                
         # In a real implementation, this would use AI to analyze the trends
         # For now, we'll return a placeholder implementation
 
-        return {
+        trend_analysis = {
             "id": str(uuid.uuid4()),
             "segment": segment,
             "current_trends": [
@@ -345,21 +394,40 @@ class MarketAnalyzer:
                 "automation",
             ],
         }
+        
+        logger.info(f"Analyzed trends for segment: {segment}")
+        
+        # Cache the result (shorter TTL for trends as they change frequently)
+        trend_ttl = min(self.cache_ttl, 21600)  # 6 hours maximum for trends
+        default_cache.set(cache_key, trend_analysis, ttl=trend_ttl, namespace="market_analysis")
+        
+        return trend_analysis
 
-    def analyze_target_users(self, niche: str) -> Dict[str, Any]:
+    def analyze_target_users(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze target users for a specific niche.
 
         Args:
             niche: Niche to analyze
+            force_refresh: If True, bypasses cache and forces a fresh analysis
 
         Returns:
             Target user analysis for the niche
         """
+        # Generate cache key
+        cache_key = f"target_users_analysis:{niche.lower()}"
+        
+        # Try to get from cache first if not forcing refresh
+        if not force_refresh:
+            cached_result = default_cache.get(cache_key, namespace="market_analysis")
+            if cached_result is not None:
+                logger.info(f"Using cached target user analysis for niche: {niche}")
+                return cached_result
+                
         # In a real implementation, this would use AI to analyze the target users
         # For now, we'll return a placeholder implementation
 
-        return {
+        target_user_analysis = {
             "id": str(uuid.uuid4()),
             "niche": niche,
             "user_segments": [
@@ -400,6 +468,34 @@ class MarketAnalyzer:
             },
             "timestamp": datetime.now().isoformat(),
         }
+        
+        logger.info(f"Analyzed target users for niche: {niche}")
+        
+        # Cache the result
+        default_cache.set(cache_key, target_user_analysis, ttl=self.cache_ttl, namespace="market_analysis")
+        
+        return target_user_analysis
+        
+    def set_cache_ttl(self, ttl_seconds: int) -> None:
+        """
+        Set the cache TTL (time to live) for market analysis.
+        
+        Args:
+            ttl_seconds: Cache TTL in seconds
+        """
+        self.cache_ttl = ttl_seconds
+        logger.info(f"Set market analyzer cache TTL to {ttl_seconds} seconds")
+    
+    def clear_cache(self) -> bool:
+        """
+        Clear the market analyzer cache.
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        result = default_cache.clear(namespace="market_analysis")
+        logger.info(f"Cleared market analyzer cache: {result}")
+        return result
 
     def __str__(self) -> str:
         """String representation of the Market Analyzer."""

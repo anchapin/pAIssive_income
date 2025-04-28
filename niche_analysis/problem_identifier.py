@@ -5,6 +5,7 @@ Identifies user problems and pain points in specific niches.
 
 from typing import Dict, List, Any, Optional
 import uuid
+import hashlib
 from datetime import datetime
 import logging
 
@@ -12,6 +13,9 @@ from .errors import (
     ProblemIdentificationError, ValidationError, handle_exception
 )
 from .schemas import ProblemSchema, ProblemSeverityAnalysisSchema, SeverityAnalysisSchema
+
+# Import the centralized caching service
+from common_utils.caching import default_cache, cached
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -26,13 +30,17 @@ class ProblemIdentifier:
         """Initialize the Problem Identifier."""
         self.name = "Problem Identifier"
         self.description = "Identifies user problems and pain points in specific niches"
+        
+        # Cache TTL in seconds (24 hours by default)
+        self.cache_ttl = 86400
 
-    def identify_problems(self, niche: str) -> List[Dict[str, Any]]:
+    def identify_problems(self, niche: str, force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
         Identify problems and pain points in a specific niche.
 
         Args:
             niche: Niche to analyze
+            force_refresh: If True, bypasses cache and forces a fresh identification
 
         Returns:
             List of identified problems
@@ -53,6 +61,16 @@ class ProblemIdentifier:
                         "error": "Must be a non-empty string"
                     }]
                 )
+                
+            # Generate cache key
+            cache_key = f"problem_identification:{niche.lower()}"
+            
+            # Try to get from cache first if not forcing refresh
+            if not force_refresh:
+                cached_result = default_cache.get(cache_key, namespace="niche_problems")
+                if cached_result is not None:
+                    logger.info(f"Using cached problems for niche: {niche}")
+                    return cached_result
 
             # In a real implementation, this would use AI to identify problems
             # For now, we'll return a placeholder implementation
@@ -232,7 +250,7 @@ class ProblemIdentifier:
 
                 # Check if the niche contains any of these keywords
                 if "e-commerce" in niche or "ecommerce" in niche:
-                    return [
+                    problems = [
                         self._create_problem(
                             "Inventory Management",
                             "Difficulty managing inventory levels across multiple platforms",
@@ -253,7 +271,7 @@ class ProblemIdentifier:
                         )
                     ]
                 elif "content" in niche or "writing" in niche:
-                    return [
+                    problems = [
                         self._create_problem(
                             "Content Creation",
                             "Creating high-quality content consistently is time-consuming",
@@ -274,7 +292,7 @@ class ProblemIdentifier:
                         )
                     ]
                 elif "freelance" in niche or "freelancing" in niche:
-                    return [
+                    problems = [
                         self._create_problem(
                             "Client Acquisition",
                             "Finding and securing new clients consistently",
@@ -296,7 +314,7 @@ class ProblemIdentifier:
                     ]
                 else:
                     # Generic problems for any niche
-                    return [
+                    problems = [
                         self._create_problem(
                             "Time Efficiency",
                             f"Managing time effectively in {niche} activities",
@@ -316,9 +334,19 @@ class ProblemIdentifier:
                             "medium"
                         )
                     ]
+                    
+                # Cache the result
+                default_cache.set(cache_key, problems, ttl=self.cache_ttl, namespace="niche_problems")
+                
+                logger.info(f"Identified {len(problems)} problems for niche: {niche}")
+                return problems
 
             # Return problems for the specified niche
             problems = niche_problems.get(niche, [])
+            
+            # Cache the result
+            default_cache.set(cache_key, problems, ttl=self.cache_ttl, namespace="niche_problems")
+            
             logger.info(f"Identified {len(problems)} problems for niche: {niche}")
             return problems
 
@@ -335,12 +363,13 @@ class ProblemIdentifier:
             )
             return []  # This line won't be reached due to reraise=True
 
-    def analyze_problem_severity(self, problem: Dict[str, Any]) -> Dict[str, Any]:
+    def analyze_problem_severity(self, problem: Dict[str, Any], force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze the severity of a specific problem.
 
         Args:
             problem: Problem dictionary from identify_problems
+            force_refresh: If True, bypasses cache and forces a fresh analysis
 
         Returns:
             Severity analysis for the problem
@@ -375,6 +404,16 @@ class ProblemIdentifier:
                         "error": "Required field is missing"
                     } for field in missing_fields]
                 )
+                
+            # Generate cache key based on problem id
+            cache_key = f"severity_analysis:{problem['id']}"
+            
+            # Try to get from cache first if not forcing refresh
+            if not force_refresh:
+                cached_result = default_cache.get(cache_key, namespace="niche_problems")
+                if cached_result is not None:
+                    logger.info(f"Using cached severity analysis for problem: {problem['name']}")
+                    return cached_result
 
             # In a real implementation, this would use AI to analyze the severity
             # For now, we'll return a placeholder implementation
@@ -419,6 +458,9 @@ class ProblemIdentifier:
                 "user_willingness_to_pay": "high" if severity == "high" else "medium" if severity == "medium" else "low",
                 "timestamp": datetime.now().isoformat(),
             }
+            
+            # Cache the result
+            default_cache.set(cache_key, analysis, ttl=self.cache_ttl, namespace="niche_problems")
 
             logger.info(f"Analyzed severity for problem: {problem['name']}")
             return analysis
@@ -435,6 +477,27 @@ class ProblemIdentifier:
                 log_level=logging.ERROR
             )
             return {}  # This line won't be reached due to reraise=True
+            
+    def set_cache_ttl(self, ttl_seconds: int) -> None:
+        """
+        Set the cache TTL (time to live) for problem identification.
+        
+        Args:
+            ttl_seconds: Cache TTL in seconds
+        """
+        self.cache_ttl = ttl_seconds
+        logger.info(f"Set problem identifier cache TTL to {ttl_seconds} seconds")
+    
+    def clear_cache(self) -> bool:
+        """
+        Clear the problem identifier cache.
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        result = default_cache.clear(namespace="niche_problems")
+        logger.info(f"Cleared problem identifier cache: {result}")
+        return result
 
     def _create_problem(self, name: str, description: str, consequences: List[str], severity: str) -> Dict[str, Any]:
         """

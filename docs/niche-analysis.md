@@ -245,6 +245,105 @@ The `compare_opportunities` method returns a dictionary with information about t
 - **Comparison Factors**: Dictionary of factors used for comparison
 - **Recommendations**: List of recommendations based on the comparison
 
+### Opportunity Scoring Mathematical Model
+
+The opportunity scoring algorithm uses a weighted sum model to calculate the overall opportunity score. This section details the mathematical foundations of this scoring approach.
+
+#### Factor Score Calculation
+
+Each factor is scored on a normalized scale between 0 and 1, where 0 represents the lowest possible value and 1 represents the highest possible value.
+
+For qualitative factors like market size, growth rate, and competition, the algorithm maps categorical values to numerical scores:
+
+| Factor | Category | Numerical Score |
+|--------|----------|----------------|
+| Market Size | Large | 0.9 |
+| | Medium | 0.6 |
+| | Small | 0.3 |
+| | Unknown | 0.5 |
+| Growth Rate | High | 0.9 |
+| | Medium | 0.6 |
+| | Low | 0.3 |
+| | Unknown | 0.5 |
+| Competition | Low | 0.9 |
+| | Medium | 0.5 |
+| | High | 0.2 |
+| | Unknown | 0.5 |
+
+For quantitative factors like problem severity, solution feasibility, and monetization potential, more complex algorithms are used:
+
+1. **Problem Severity Score**: Calculated as the average severity of identified problems.
+
+   Given a set of problems P = {p₁, p₂, ..., pₙ} with respective severities S = {s₁, s₂, ..., sₙ} where s ∈ {high=1.0, medium=0.6, low=0.3}, the problem severity score is:
+
+   PS = (∑ᵢ sᵢ) / n, where n is the number of problems.
+
+2. **Solution Feasibility Score**: Starts with a base score of 0.7, which is adjusted based on niche characteristics:
+   
+   SF = min(max(0.7 + text_content_bonus + data_bonus, 0), 1)
+   
+   Where:
+   - text_content_bonus = 0.2 if the niche contains keywords related to text/content (e.g., "writing", "content")
+   - data_bonus = 0.1 if the niche contains keywords related to data processing (e.g., "analytics", "reporting")
+
+3. **Monetization Potential Score**: Starts with a base score of 0.5, adjusted by multiple factors:
+
+   MP = min(max(0.5 + market_bonus + growth_bonus + severity_bonus + business_bonus, 0), 1)
+   
+   Where:
+   - market_bonus = 0.2 for large markets, 0.1 for medium markets, -0.1 for small markets
+   - growth_bonus = 0.2 for high growth, 0.1 for medium growth, -0.1 for low growth
+   - severity_bonus = 0.1 if problem severity score > 0.7
+   - business_bonus = 0.1 if the niche contains keywords related to business (e.g., "business", "enterprise")
+
+#### Weighted Sum Model
+
+The overall opportunity score is calculated as a weighted sum of the individual factor scores:
+
+OS = ∑ᵢ (wᵢ × fᵢ)
+
+Where:
+- OS is the overall opportunity score
+- wᵢ is the weight for factor i
+- fᵢ is the score for factor i
+- ∑ᵢ wᵢ = 1 (weights sum to 1)
+
+The default weights are:
+- Market Size: 0.2
+- Growth Rate: 0.15
+- Competition: 0.15
+- Problem Severity: 0.2
+- Solution Feasibility: 0.15
+- Monetization Potential: 0.15
+
+#### Score Interpretation
+
+The overall score is interpreted as follows:
+
+| Score Range | Assessment | Recommendations |
+|-------------|------------|----------------|
+| 0.8 - 1.0 | Excellent opportunity with high potential | High priority, significant resources |
+| 0.6 - 0.79 | Very good opportunity worth pursuing | Medium-high priority, appropriate resources |
+| 0.4 - 0.59 | Good opportunity with moderate potential | Medium priority, moderate resources |
+| 0.2 - 0.39 | Fair opportunity with limited potential | Caution, limited exploration |
+| 0.0 - 0.19 | Limited opportunity with minimal potential | Deprioritize, consider alternatives |
+
+#### Opportunity Comparison Algorithm
+
+When comparing multiple opportunities, the comparison algorithm:
+
+1. Sorts opportunities by their overall score in descending order.
+2. Assigns ranks based on sorted position (1 for highest score).
+3. Calculates score distribution statistics:
+   - Highest score: max(scores)
+   - Lowest score: min(scores)
+   - Average score: mean(scores)
+   - Distribution of scores by category (excellent, very good, good, fair, limited)
+4. Identifies the top recommendation (highest-scoring opportunity).
+5. Generates comparative recommendations based on the distribution of scores.
+
+This algorithm enables data-driven decisions about which niches to prioritize for AI solution development.
+
 ## Integration with Agent Team
 
 The Niche Analysis module is integrated with the Agent Team module through the Researcher Agent. The Researcher Agent uses the Market Analyzer, Problem Identifier, and Opportunity Scorer to identify profitable niches.

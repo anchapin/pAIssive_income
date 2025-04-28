@@ -43,6 +43,28 @@ class ResearchAgent(IResearchAgent):
         """
         Identify profitable niches within market segments.
 
+        Algorithm description:
+        ---------------------
+        The niche identification algorithm operates as follows:
+        1. For each market segment in the input list:
+           a. Call identify_niches_in_segment to get segment-specific niches
+           b. Add these niches to the master list
+        2. Sort all identified niches by opportunity score in descending order
+           to prioritize the most promising opportunities
+        3. Store the sorted list in the team's project state for workflow continuity
+        4. Return the sorted list of niche opportunities
+        
+        This algorithm employs a divide-and-conquer approach by:
+        - Breaking down the broad market analysis into segment-specific analyses
+        - Aggregating the results
+        - Applying a consistent ranking methodology across all niches
+
+        Performance considerations:
+        -------------------------
+        - Time complexity: O(n log n), where n is the total number of niches
+          across all segments (dominated by the sorting operation)
+        - Space complexity: O(n) to store all identified niches
+
         Args:
             market_segments: List of market segments to analyze
 
@@ -171,6 +193,29 @@ class ResearchAgent(IResearchAgent):
         """
         Analyze problems in a niche.
 
+        Algorithm description:
+        ---------------------
+        The problem analysis algorithm operates as follows:
+        1. Define a set of common problem areas that apply to most niches
+        2. For each problem area:
+           a. Call _analyze_problem to generate a detailed analysis of how that
+              problem manifests in the specific niche
+           b. Add the analyzed problem to the result list
+        3. Sort all identified problems by priority score in descending order
+           to highlight the most critical issues first
+        4. Return the prioritized list of problems
+        
+        This algorithm employs a standardized problem identification approach that:
+        - Applies domain knowledge to common problem areas
+        - Contextualizes each problem within the specific niche
+        - Prioritizes problems based on impact and frequency
+
+        Performance considerations:
+        -------------------------
+        - Time complexity: O(p log p), where p is the number of problem areas
+          (dominated by the sorting operation)
+        - Space complexity: O(p) to store all identified problems
+
         Args:
             niche_name: Name of the niche to analyze
 
@@ -199,6 +244,30 @@ class ResearchAgent(IResearchAgent):
     def analyze_user_problems(self, niche: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Analyze user problems within a specific niche.
+
+        Algorithm description:
+        ---------------------
+        The user problem analysis algorithm operates as follows:
+        1. Extract problem areas directly from the niche dictionary
+        2. For each problem area in the niche:
+           a. Call _analyze_problem to generate a detailed analysis of how that
+              problem affects users in the specific niche context
+           b. Add the analyzed problem to the result list
+        3. Sort all identified problems by priority score in descending order
+           to identify the most pressing user pain points
+        4. Return the prioritized list of user problems
+        
+        This algorithm differs from analyze_problems() by:
+        - Using problem areas specifically identified for the niche rather than generic ones
+        - Providing deeper context by leveraging the full niche information
+        - Focusing more directly on user pain points rather than market problems
+
+        Performance considerations:
+        -------------------------
+        - Time complexity: O(p log p), where p is the number of problem areas in the niche
+          (dominated by the sorting operation)
+        - Space complexity: O(p) to store all identified problems
+        - More efficient than analyze_problems() when niche-specific problems are already known
 
         Args:
             niche: Niche dictionary from identify_niches_in_segment

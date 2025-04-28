@@ -307,6 +307,25 @@ class AgentTeam(IAgentTeam):
         """
         Run a complete niche analysis workflow using the researcher agent.
 
+        Algorithm description:
+        ---------------------
+        The algorithm follows these steps:
+        1. Validate the input market segments (non-empty list of strings)
+        2. Invoke the researcher agent's analyze_market_segments method, which:
+           a. Breaks down each segment into potential niches
+           b. Evaluates each niche based on multiple factors (market size, growth, etc.)
+           c. Ranks niches by opportunity score
+        3. Store the identified niches in the project state
+        4. Return the list of identified niches
+
+        Performance considerations:
+        -------------------------
+        - Time complexity: O(s*n*f), where:
+          * s = number of market segments
+          * n = average number of niches per segment
+          * f = number of factors evaluated per niche
+        - This algorithm handles API rate limiting by batching requests when possible
+
         Args:
             market_segments: List of market segments to analyze
 
@@ -396,6 +415,27 @@ class AgentTeam(IAgentTeam):
         """
         Develop an AI solution for a selected niche using the developer agent.
 
+        Algorithm description:
+        ---------------------
+        The solution development algorithm follows these steps:
+        1. Validate and normalize the input niche data using Pydantic schema
+        2. Store the selected niche in the project state for workflow continuity
+        3. Invoke the developer agent's design_solution method, which:
+           a. Analyzes user problems in the niche
+           b. Identifies AI capabilities needed to solve these problems
+           c. Creates a solution architecture with component specifications
+           d. Generates feature lists and technology stack recommendations
+        4. Validate the resulting solution design with schema validation
+        5. Store the solution design in the project state
+        6. Return the validated solution design
+
+        Performance considerations:
+        -------------------------
+        - Time complexity: O(p*c), where:
+          * p = number of problems identified in the niche
+          * c = number of components needed for the solution
+        - Memory complexity: O(f), where f is the number of features in the solution
+
         Args:
             niche: The selected niche object from the niche analysis
 
@@ -477,6 +517,28 @@ class AgentTeam(IAgentTeam):
         """
         Create a monetization strategy for the developed solution.
 
+        Algorithm description:
+        ---------------------
+        The monetization strategy algorithm operates as follows:
+        1. Validate the input solution or use the solution from project state
+        2. Store solution in project state if new and needed for workflow continuity
+        3. Invoke monetization agent's create_strategy method, which:
+           a. Analyzes the solution features and target market
+           b. Evaluates multiple pricing models (subscription, one-time, freemium, etc.)
+           c. Calculates optimal price points based on market research
+           d. Generates revenue projections and cash flow estimates
+           e. Recommends customer acquisition and retention strategies
+        4. Validate the resulting strategy with schema validation
+        5. Store the monetization strategy in the project state
+        6. Return the validated monetization strategy
+        
+        Performance considerations:
+        -------------------------
+        - Time complexity: O(m*p), where:
+          * m = number of monetization models evaluated
+          * p = number of price points analyzed per model
+        - The algorithm dynamically adjusts calculation precision based on input size
+
         Args:
             solution: Optional solution object. If not provided, uses the solution from project state.
 
@@ -556,6 +618,30 @@ class AgentTeam(IAgentTeam):
                           monetization: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Create a marketing plan for the developed solution.
+        
+        Algorithm description:
+        ---------------------
+        The marketing plan creation algorithm follows these steps:
+        1. Validate and collect required inputs (niche, solution, monetization strategy)
+           a. Use provided inputs or fall back to project state
+           b. Validate each input with its respective schema
+        2. Invoke marketing agent's create_plan method, which:
+           a. Analyzes target audience characteristics from the niche information
+           b. Examines unique selling propositions from solution features
+           c. Considers pricing strategy from monetization information
+           d. Identifies optimal marketing channels for the audience
+           e. Generates content strategies tailored to the solution
+           f. Creates measurement and optimization approaches
+        3. Validate the resulting marketing plan with schema validation
+        4. Store the marketing plan in the project state
+        5. Return the validated marketing plan
+        
+        Performance considerations:
+        -------------------------
+        - Time complexity: O(c*a), where:
+          * c = number of marketing channels evaluated
+          * a = number of audience segments analyzed
+        - The algorithm prioritizes high-ROI marketing channels based on audience analysis
 
         Args:
             niche: Optional niche object. If not provided, uses the niche from project state.

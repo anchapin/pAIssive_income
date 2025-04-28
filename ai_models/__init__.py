@@ -30,6 +30,9 @@ from .caching import (
     MemoryCache, DiskCache, SQLiteCache
 )
 
+# Import cache integration
+from .caching.cache_integration import cache_model_result, invalidate_model_cache
+
 # Import Redis cache if available
 try:
     from .caching import RedisCache
@@ -113,6 +116,8 @@ __all__ = [
     'MemoryCache',
     'DiskCache',
     'SQLiteCache',
+    'cache_model_result',
+    'invalidate_model_cache',
 
     # Optimization - Quantization
     'Quantizer',
