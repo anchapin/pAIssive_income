@@ -69,3 +69,8 @@ def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManage
     if version_manager is not None:
         from .version import setup_version_middleware
         setup_version_middleware(app, config, version_manager)
+
+    # Add analytics middleware
+    if config.enable_analytics:
+        from .analytics import AnalyticsMiddleware
+        AnalyticsMiddleware(app)

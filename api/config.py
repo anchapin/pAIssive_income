@@ -37,7 +37,7 @@ class RateLimitScope(str, Enum):
 class WebhookEventType(str, Enum):
     """
     Webhook event types enumeration.
-    
+
     This enum defines the available webhook event types.
     """
     NICHE_ANALYSIS_CREATED = "niche_analysis.created"
@@ -118,7 +118,7 @@ class APIConfig:
     graphql_batch_enabled: bool = True
     graphql_introspection_enabled: bool = True
     graphql_playground: bool = True  # Alternative to GraphiQL
-    
+
     # Versioning configuration
     enable_version_header: bool = True  # Add API version to response headers
     version_header_name: str = "X-API-Version"
@@ -132,7 +132,8 @@ class APIConfig:
     enable_https: bool = False
     enable_auth: bool = False
     enable_rate_limit: bool = False
-    
+    enable_analytics: bool = True
+
     # Webhook configuration
     enable_webhooks: bool = True
     webhook_secret_header: str = "X-Webhook-Signature"
@@ -145,6 +146,13 @@ class APIConfig:
     webhook_allowed_event_types: List[WebhookEventType] = field(
         default_factory=lambda: list(WebhookEventType)
     )
+
+    # Analytics configuration
+    analytics_db_path: Optional[str] = None  # Path to analytics database (None for default)
+    analytics_retention_days: int = 365  # Number of days to retain analytics data
+    analytics_dashboard_enabled: bool = True  # Enable analytics dashboard
+    analytics_dashboard_path: str = "/analytics"  # Path to analytics dashboard
+    analytics_export_enabled: bool = True  # Enable analytics export
 
     # HTTPS configuration
     ssl_keyfile: Optional[str] = None

@@ -46,6 +46,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--disable-version-header", action="store_true", help="Disable API version header")
     parser.add_argument("--disable-deprecation-header", action="store_true", help="Disable API deprecation header")
 
+    # GraphQL configuration
+    parser.add_argument("--disable-graphql", action="store_true", help="Disable GraphQL API")
+    parser.add_argument("--graphql-path", type=str, default="/graphql", help="GraphQL endpoint path")
+    parser.add_argument("--disable-graphiql", action="store_true", help="Disable GraphiQL interface")
+    parser.add_argument("--disable-graphql-batch", action="store_true", help="Disable GraphQL batch processing")
+    parser.add_argument("--disable-graphql-introspection", action="store_true", help="Disable GraphQL schema introspection")
+    parser.add_argument("--disable-graphql-playground", action="store_true", help="Disable GraphQL Playground")
+
     # Security configuration
     parser.add_argument("--enable-auth", action="store_true", help="Enable authentication")
     parser.add_argument("--enable-https", action="store_true", help="Enable HTTPS")
@@ -68,6 +76,18 @@ def parse_args() -> argparse.Namespace:
                         help="Burst size for token bucket algorithm")
     parser.add_argument("--disable-rate-limit-headers", action="store_true",
                         help="Disable rate limit headers")
+
+    # Analytics configuration
+    parser.add_argument("--disable-analytics", action="store_true", help="Disable API analytics")
+    parser.add_argument("--analytics-db-path", type=str, help="Path to analytics database")
+    parser.add_argument("--analytics-retention-days", type=int, default=365,
+                        help="Number of days to retain analytics data")
+    parser.add_argument("--disable-analytics-dashboard", action="store_true",
+                        help="Disable analytics dashboard")
+    parser.add_argument("--analytics-dashboard-path", type=str, default="/analytics",
+                        help="Path to analytics dashboard")
+    parser.add_argument("--disable-analytics-export", action="store_true",
+                        help="Disable analytics export")
 
     # Module configuration
     parser.add_argument("--disable-niche-analysis", action="store_true", help="Disable niche analysis module")
@@ -132,6 +152,14 @@ def create_config(args: argparse.Namespace) -> APIConfig:
         enable_version_header=not args.disable_version_header,
         enable_version_deprecation_header=not args.disable_deprecation_header,
 
+        # GraphQL configuration
+        enable_graphql=not args.disable_graphql,
+        graphql_path=args.graphql_path,
+        graphiql=not args.disable_graphiql,
+        graphql_batch_enabled=not args.disable_graphql_batch,
+        graphql_introspection_enabled=not args.disable_graphql_introspection,
+        graphql_playground=not args.disable_graphql_playground,
+
         # Security configuration
         enable_auth=args.enable_auth,
         enable_https=args.enable_https,
@@ -146,6 +174,14 @@ def create_config(args: argparse.Namespace) -> APIConfig:
         rate_limit_period=args.rate_limit_period,
         rate_limit_burst=args.rate_limit_burst,
         enable_rate_limit_headers=not args.disable_rate_limit_headers,
+
+        # Analytics configuration
+        enable_analytics=not args.disable_analytics,
+        analytics_db_path=args.analytics_db_path,
+        analytics_retention_days=args.analytics_retention_days,
+        analytics_dashboard_enabled=not args.disable_analytics_dashboard,
+        analytics_dashboard_path=args.analytics_dashboard_path,
+        analytics_export_enabled=not args.disable_analytics_export,
 
         # Module configuration
         enable_niche_analysis=not args.disable_niche_analysis,

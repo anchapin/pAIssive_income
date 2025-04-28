@@ -7,6 +7,12 @@ more flexible and efficient data querying.
 
 from typing import Dict, Any, List, Optional
 
-# Import your schema and resolver modules
-from .schema_builder import build_schema
+# Import schema builder and router creation
+from .schema_builder import build_schema, create_graphql_router
 from .context import get_context
+
+__all__ = [
+    'build_schema',
+    'create_graphql_router',
+    'get_context'
+]

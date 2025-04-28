@@ -295,7 +295,7 @@ class APIServer:
     def _setup_version_routes(self, version: APIVersion) -> None:
         """
         Set up routes for a specific API version.
-        
+
         Args:
             version: API version to set up routes for
         """
@@ -309,13 +309,13 @@ class APIServer:
         from .routes.dashboard_router import dashboard_router
         from .routes.api_key_router import api_key_router
         from .routes.webhook_router import webhook_router
-        
+
         # Get API prefix for this version
         api_prefix = f"{self.config.prefix}/{version.value}"
-        
+
         # Get version tag for OpenAPI docs
         version_tag = f"v{version.value}"
-        
+
         # Include routers based on configuration
         if self.config.enable_niche_analysis:
             self.app.include_router(
@@ -323,7 +323,7 @@ class APIServer:
                 prefix=f"{api_prefix}/niche-analysis",
                 tags=[f"Niche Analysis {version_tag}"]
             )
-            
+
         if self.config.enable_monetization:
             self.app.include_router(
                 monetization_router,
@@ -373,13 +373,22 @@ class APIServer:
                 prefix=f"{api_prefix}/api-keys",
                 tags=[f"API Keys {version_tag}"]
             )
-            
+
         # Include webhook router
         if webhook_router:
             self.app.include_router(
                 webhook_router,
                 prefix=f"{api_prefix}/webhooks",
                 tags=[f"Webhooks {version_tag}"]
+            )
+
+        # Include analytics router
+        from .routes.analytics import router as analytics_router
+        if analytics_router and self.config.enable_analytics:
+            self.app.include_router(
+                analytics_router,
+                prefix=f"{api_prefix}/analytics",
+                tags=[f"Analytics {version_tag}"]
             )
 
     def _setup_version_info_routes(self) -> None:
