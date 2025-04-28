@@ -14,6 +14,10 @@ from niche_analysis.opportunity_scorer import OpportunityScorer
 from monetization.subscription_models import SubscriptionModels
 from marketing.strategy_generator import StrategyGenerator
 from marketing.content_generators import ContentGenerators
+from common_utils.validation import (
+    validate_request, sanitize_input, validate_string, validate_email, 
+    validate_integer, validate_list, validate_dict, validate_number
+)
 
 app = Flask(__name__, static_folder='react_frontend/build')
 CORS(app)  # Enable CORS for all routes
@@ -35,8 +39,93 @@ def serve_react(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
+# Define validation schemas
+LOGIN_SCHEMA = {
+    "username": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=3, max_length=50)
+    },
+    "password": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=6, max_length=100)
+    }
+}
+
+REGISTER_SCHEMA = {
+    "username": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=3, max_length=50)
+    },
+    "email": {
+        "required": True,
+        "validator": validate_email
+    },
+    "password": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=8, max_length=100)
+    },
+    "name": {
+        "required": True,
+        "validator": lambda v: validate_string(v, min_length=1, max_length=100)
+    }
+}
+
+PROFILE_UPDATE_SCHEMA = {
+    "email": {
+        "validator": validate_email
+    },
+    "name": {
+        "validator": lambda v: validate_string(v, min_length=1, max_length=100)
+    }
+}
+
+SOLUTION_GENERATION_SCHEMA = {
+    "nicheId": {
+        "required": True,
+        "validator": validate_integer
+    },
+    "templateId": {
+        "required": True,
+        "validator": validate_integer
+    }
+}
+
+MONETIZATION_STRATEGY_SCHEMA = {
+    "solutionId": {
+        "required": True,
+        "validator": validate_integer
+    },
+    "options": {
+        "validator": validate_dict
+    }
+}
+
+MARKETING_CAMPAIGN_SCHEMA = {
+    "solutionId": {
+        "required": True,
+        "validator": validate_integer
+    },
+    "audienceIds": {
+        "required": True,
+        "validator": lambda v: validate_list(v, min_length=1)
+    },
+    "channelIds": {
+        "required": True,
+        "validator": lambda v: validate_list(v, min_length=1)
+    }
+}
+
+NICHE_ANALYSIS_SCHEMA = {
+    "segments": {
+        "required": True,
+        "validator": lambda v: validate_list(v, min_length=1)
+    }
+}
+
 # Auth endpoints
 @app.route('/api/auth/login', methods=['POST'])
+@sanitize_input
+@validate_request(LOGIN_SCHEMA)
 def login():
     data = request.json
     username = data.get('username')
@@ -49,7 +138,7 @@ def login():
         ACTIVE_SESSIONS["session1"] = user["id"]
         return jsonify(user), 200
     
-    return jsonify({"message": "Invalid credentials"}), 401
+    return jsonify({"error": "Authentication Error", "message": "Invalid credentials"}), 401
 
 @app.route('/api/auth/logout', methods=['POST'])
 def logout():
@@ -57,6 +146,8 @@ def logout():
     return jsonify({"message": "Logged out successfully"}), 200
 
 @app.route('/api/auth/register', methods=['POST'])
+@sanitize_input
+@validate_request(REGISTER_SCHEMA)
 def register():
     data = request.json
     # In a real app, you'd validate and store user data
@@ -68,10 +159,16 @@ def get_profile():
     user_id = ACTIVE_SESSIONS.get("session1")
     if user_id:
         return jsonify(MOCK_USERS[user_id]), 200
-    return jsonify({"message": "Not authenticated"}), 401
+    return jsonify({"error": "Authentication Error", "message": "Not authenticated"}), 401
 
 @app.route('/api/user/profile', methods=['PUT'])
+@sanitize_input
+@validate_request(PROFILE_UPDATE_SCHEMA)
 def update_profile():
+    user_id = ACTIVE_SESSIONS.get("session1")
+    if not user_id:
+        return jsonify({"error": "Authentication Error", "message": "Not authenticated"}), 401
+    
     data = request.json
     # In a real app, you'd update the user's profile
     return jsonify(MOCK_USERS["user1"]), 200
@@ -98,6 +195,8 @@ def get_market_segments():
     return jsonify(segments), 200
 
 @app.route('/api/niche-analysis/analyze', methods=['POST'])
+@sanitize_input
+@validate_request(NICHE_ANALYSIS_SCHEMA)
 def analyze_niches():
     data = request.json
     segment_ids = data.get('segments', [])
@@ -108,10 +207,15 @@ def analyze_niches():
         analysis_id = "analysis123"
         return jsonify({"analysisId": analysis_id, "message": "Analysis started"}), 202
     except Exception as e:
-        return jsonify({"message": f"Analysis failed: {str(e)}"}), 500
+        return jsonify({"error": "Processing Error", "message": f"Analysis failed: {str(e)}"}), 500
 
 @app.route('/api/niche-analysis/results/<analysis_id>', methods=['GET'])
 def get_niche_results(analysis_id):
+    # Validate the analysis_id format 
+    # (simple validation for demo purposes - in production you'd check if it exists in database)
+    if not isinstance(analysis_id, str) or not analysis_id:
+        return jsonify({"error": "Validation Error", "message": "Invalid analysis ID"}), 400
+        
     # Mock data - in production, this would retrieve actual analysis results
     results = {
         "analysisId": analysis_id,
@@ -161,19 +265,6 @@ def get_niche_results(analysis_id):
             }
         ]
     }
-    return jsonify(results), 200
-
-@app.route('/api/niche-analysis/results', methods=['GET'])
-def get_all_niche_results():
-    # Mock data for all past analyses
-    results = [
-        {
-            "analysisId": "analysis123",
-            "date": "2025-04-27",
-            "segments": ["Content Creation", "Software Development"],
-            "nicheCount": 3
-        }
-    ]
     return jsonify(results), 200
 
 # Developer endpoints
@@ -234,6 +325,8 @@ def get_templates():
     return jsonify(templates), 200
 
 @app.route('/api/developer/solution', methods=['POST'])
+@sanitize_input
+@validate_request(SOLUTION_GENERATION_SCHEMA)
 def generate_solution():
     data = request.json
     niche_id = data.get('nicheId')
@@ -245,58 +338,64 @@ def generate_solution():
         solution_id = 12345  # Normally generated or from database
         return jsonify({"solutionId": solution_id, "message": "Solution generated successfully"}), 201
     except Exception as e:
-        return jsonify({"message": f"Solution generation failed: {str(e)}"}), 500
+        return jsonify({"error": "Processing Error", "message": f"Solution generation failed: {str(e)}"}), 500
 
 @app.route('/api/developer/solutions/<solution_id>', methods=['GET'])
 def get_solution_details(solution_id):
-    # Mock solution details
-    solution = {
-        "id": int(solution_id),
-        "name": "AI Content Optimizer Tool",
-        "description": "A powerful tool for AI-powered content optimization built with React, Node.js, MongoDB.",
-        "niche": {
-            "id": 1, 
-            "name": "AI-powered content optimization", 
-            "segment": "Content Creation",
-            "opportunityScore": 0.87
-        },
-        "template": {
-            "id": 1, 
-            "name": "Web Application", 
-            "technologies": ["React", "Node.js", "MongoDB"]
-        },
-        "features": [
-            "User authentication and profiles",
-            "AI-powered analysis and recommendations",
-            "Data visualization dashboard",
-            "Custom reporting and exports",
-            "API integration capabilities"
-        ],
-        "technologies": ["React", "Node.js", "MongoDB"],
-        "architecture": {
-            "frontend": "React",
-            "backend": "Node.js",
-            "database": "MongoDB",
-            "aiModels": ["Transformer-based model", "Fine-tuned for specific domain"]
-        },
-        "deploymentOptions": [
-            "Self-hosted option",
-            "Cloud deployment (AWS, Azure, GCP)",
-            "Docker container"
-        ],
-        "developmentTime": "4-6 weeks",
-        "nextSteps": [
-            "Set up development environment",
-            "Initialize project structure",
-            "Integrate AI models",
-            "Develop core features",
-            "Create user interface",
-            "Add authentication and user management",
-            "Implement data storage",
-            "Test and refine"
-        ]
-    }
-    return jsonify(solution), 200
+    try:
+        # Validate the solution_id format
+        solution_id = int(solution_id)
+        
+        # Mock solution details
+        solution = {
+            "id": solution_id,
+            "name": "AI Content Optimizer Tool",
+            "description": "A powerful tool for AI-powered content optimization built with React, Node.js, MongoDB.",
+            "niche": {
+                "id": 1, 
+                "name": "AI-powered content optimization", 
+                "segment": "Content Creation",
+                "opportunityScore": 0.87
+            },
+            "template": {
+                "id": 1, 
+                "name": "Web Application", 
+                "technologies": ["React", "Node.js", "MongoDB"]
+            },
+            "features": [
+                "User authentication and profiles",
+                "AI-powered analysis and recommendations",
+                "Data visualization dashboard",
+                "Custom reporting and exports",
+                "API integration capabilities"
+            ],
+            "technologies": ["React", "Node.js", "MongoDB"],
+            "architecture": {
+                "frontend": "React",
+                "backend": "Node.js",
+                "database": "MongoDB",
+                "aiModels": ["Transformer-based model", "Fine-tuned for specific domain"]
+            },
+            "deploymentOptions": [
+                "Self-hosted option",
+                "Cloud deployment (AWS, Azure, GCP)",
+                "Docker container"
+            ],
+            "developmentTime": "4-6 weeks",
+            "nextSteps": [
+                "Set up development environment",
+                "Initialize project structure",
+                "Integrate AI models",
+                "Develop core features",
+                "Create user interface",
+                "Add authentication and user management",
+                "Implement data storage",
+                "Test and refine"
+            ]
+        }
+        return jsonify(solution), 200
+    except ValueError:
+        return jsonify({"error": "Validation Error", "message": "Invalid solution ID format"}), 400
 
 @app.route('/api/developer/solutions', methods=['GET'])
 def get_all_solutions():
@@ -328,6 +427,8 @@ def get_monetization_solutions():
     return jsonify(solutions), 200
 
 @app.route('/api/monetization/strategy', methods=['POST'])
+@sanitize_input
+@validate_request(MONETIZATION_STRATEGY_SCHEMA)
 def generate_monetization_strategy():
     data = request.json
     solution_id = data.get('solutionId')
@@ -339,83 +440,89 @@ def generate_monetization_strategy():
         strategy_id = 54321  # Normally generated or from database
         return jsonify({"strategyId": strategy_id, "message": "Strategy generated successfully"}), 201
     except Exception as e:
-        return jsonify({"message": f"Strategy generation failed: {str(e)}"}), 500
+        return jsonify({"error": "Processing Error", "message": f"Strategy generation failed: {str(e)}"}), 500
 
 @app.route('/api/monetization/strategy/<strategy_id>', methods=['GET'])
 def get_strategy_details(strategy_id):
-    # Mock strategy details
-    strategy = {
-        "id": int(strategy_id),
-        "solutionId": 12345,
-        "solutionName": "AI Content Optimizer Tool",
-        "basePrice": 19.99,
-        "tiers": [
-            {
-                "name": "Free Trial",
-                "price": 0,
-                "billingCycle": "N/A",
-                "features": [
-                    "Limited access to basic features",
-                    "3 projects",
-                    "Community support",
-                    "7-day trial period"
-                ]
-            },
-            {
-                "name": "Basic",
-                "price": 19.99,
-                "billingCycle": "monthly",
-                "features": [
-                    "Full access to basic features",
-                    "10 projects",
-                    "Email support",
-                    "Basic analytics"
-                ]
-            },
-            {
-                "name": "Professional",
-                "price": 49.99,
-                "billingCycle": "monthly",
-                "features": [
-                    "Access to all features",
-                    "Unlimited projects",
-                    "Priority support",
-                    "Advanced analytics",
-                    "Team collaboration"
-                ],
-                "recommended": True
-            },
-            {
-                "name": "Enterprise",
-                "price": "Custom",
-                "billingCycle": "custom",
-                "features": [
-                    "Everything in Professional",
-                    "Dedicated support",
-                    "Custom integrations",
-                    "SLA guarantees",
-                    "Onboarding assistance"
-                ]
-            }
-        ],
-        "projections": [
-            {
-                "userCount": 100,
-                "paidUsers": 5,
-                "monthlyRevenue": 199.95,
-                "annualRevenue": 2399.40,
-                "lifetimeValue": 1799.55
-            },
-            {
-                "userCount": 500,
-                "paidUsers": 25,
-                "monthlyRevenue": 999.75,
-                "annualRevenue": 11997.00,
-                "lifetimeValue": 8997.75
-            }
-        ]
-    }
-    return jsonify(strategy), 200
+    try:
+        # Validate the strategy_id format
+        strategy_id = int(strategy_id)
+        
+        # Mock strategy details
+        strategy = {
+            "id": strategy_id,
+            "solutionId": 12345,
+            "solutionName": "AI Content Optimizer Tool",
+            "basePrice": 19.99,
+            "tiers": [
+                {
+                    "name": "Free Trial",
+                    "price": 0,
+                    "billingCycle": "N/A",
+                    "features": [
+                        "Limited access to basic features",
+                        "3 projects",
+                        "Community support",
+                        "7-day trial period"
+                    ]
+                },
+                {
+                    "name": "Basic",
+                    "price": 19.99,
+                    "billingCycle": "monthly",
+                    "features": [
+                        "Full access to basic features",
+                        "10 projects",
+                        "Email support",
+                        "Basic analytics"
+                    ]
+                },
+                {
+                    "name": "Professional",
+                    "price": 49.99,
+                    "billingCycle": "monthly",
+                    "features": [
+                        "Access to all features",
+                        "Unlimited projects",
+                        "Priority support",
+                        "Advanced analytics",
+                        "Team collaboration"
+                    ],
+                    "recommended": True
+                },
+                {
+                    "name": "Enterprise",
+                    "price": "Custom",
+                    "billingCycle": "custom",
+                    "features": [
+                        "Everything in Professional",
+                        "Dedicated support",
+                        "Custom integrations",
+                        "SLA guarantees",
+                        "Onboarding assistance"
+                    ]
+                }
+            ],
+            "projections": [
+                {
+                    "userCount": 100,
+                    "paidUsers": 5,
+                    "monthlyRevenue": 199.95,
+                    "annualRevenue": 2399.40,
+                    "lifetimeValue": 1799.55
+                },
+                {
+                    "userCount": 500,
+                    "paidUsers": 25,
+                    "monthlyRevenue": 999.75,
+                    "annualRevenue": 11997.00,
+                    "lifetimeValue": 8997.75
+                }
+            ]
+        }
+        return jsonify(strategy), 200
+    except ValueError:
+        return jsonify({"error": "Validation Error", "message": "Invalid strategy ID format"}), 400
 
 @app.route('/api/monetization/strategies', methods=['GET'])
 def get_all_strategies():
@@ -471,6 +578,8 @@ def get_marketing_channels():
     return jsonify(channels), 200
 
 @app.route('/api/marketing/campaign', methods=['POST'])
+@sanitize_input
+@validate_request(MARKETING_CAMPAIGN_SCHEMA)
 def generate_marketing_campaign():
     data = request.json
     solution_id = data.get('solutionId')
@@ -483,56 +592,62 @@ def generate_marketing_campaign():
         campaign_id = 67890  # Normally generated or from database
         return jsonify({"campaignId": campaign_id, "message": "Campaign generated successfully"}), 201
     except Exception as e:
-        return jsonify({"message": f"Campaign generation failed: {str(e)}"}), 500
+        return jsonify({"error": "Processing Error", "message": f"Campaign generation failed: {str(e)}"}), 500
 
 @app.route('/api/marketing/campaign/<campaign_id>', methods=['GET'])
 def get_campaign_details(campaign_id):
-    # Mock campaign details - this would be a very complex structure in reality
-    # Simplified for this example
-    campaign = {
-        "id": int(campaign_id),
-        "solutionId": 12345,
-        "solutionName": "AI Content Optimizer Tool",
-        "strategy": {
-            "title": "Marketing Strategy for AI Content Optimizer Tool",
-            "summary": "A comprehensive marketing approach targeting Content Creators, Marketing Professionals through Social Media, Email Marketing.",
-            "keyPoints": [
-                "Focus on solving specific pain points for each audience segment",
-                "Highlight the AI-powered capabilities and unique features",
-                "Emphasize ease of use and quick implementation",
-                "Showcase real-world examples and case studies",
-                "Leverage free trial to demonstrate value"
-            ],
-            "timeline": "3-month campaign with phased rollout"
-        },
-        "content": {
-            "socialMedia": [
-                {
-                    "platform": "Twitter",
-                    "posts": [
-                        "Tired of manual content optimization? Our new AI tool automates the entire process. Try it free: [link] #AI #ContentOptimization",
-                        "Save 5+ hours every week with AI Content Optimizer. Our users are reporting incredible time savings and better results. Learn more: [link]",
-                        "\"I can't believe how much time this saves me\" - actual customer quote about AI Content Optimizer. See what the buzz is about: [link]"
-                    ]
-                },
-                {
-                    "platform": "LinkedIn",
-                    "posts": [
-                        "Introducing AI Content Optimizer: The AI-powered solution professionals are using to automate content optimization and improve results by up to 40%. Learn more in the comments!",
-                        "We analyzed 1,000+ user workflows and discovered the biggest time-wasters in content creation. Here's how our AI tool solves them: [link]",
-                    ]
-                }
-            ],
-            "emailMarketing": [
-                {
-                    "type": "Welcome Email",
-                    "subject": "Welcome to AI Content Optimizer! Here's How to Get Started",
-                    "content": "Hi [Name],\n\nThank you for signing up for AI Content Optimizer! We're excited to have you on board.\n\n..."
-                }
-            ]
+    try:
+        # Validate the campaign_id format
+        campaign_id = int(campaign_id)
+        
+        # Mock campaign details - this would be a very complex structure in reality
+        # Simplified for this example
+        campaign = {
+            "id": campaign_id,
+            "solutionId": 12345,
+            "solutionName": "AI Content Optimizer Tool",
+            "strategy": {
+                "title": "Marketing Strategy for AI Content Optimizer Tool",
+                "summary": "A comprehensive marketing approach targeting Content Creators, Marketing Professionals through Social Media, Email Marketing.",
+                "keyPoints": [
+                    "Focus on solving specific pain points for each audience segment",
+                    "Highlight the AI-powered capabilities and unique features",
+                    "Emphasize ease of use and quick implementation",
+                    "Showcase real-world examples and case studies",
+                    "Leverage free trial to demonstrate value"
+                ],
+                "timeline": "3-month campaign with phased rollout"
+            },
+            "content": {
+                "socialMedia": [
+                    {
+                        "platform": "Twitter",
+                        "posts": [
+                            "Tired of manual content optimization? Our new AI tool automates the entire process. Try it free: [link] #AI #ContentOptimization",
+                            "Save 5+ hours every week with AI Content Optimizer. Our users are reporting incredible time savings and better results. Learn more: [link]",
+                            "\"I can't believe how much time this saves me\" - actual customer quote about AI Content Optimizer. See what the buzz is about: [link]"
+                        ]
+                    },
+                    {
+                        "platform": "LinkedIn",
+                        "posts": [
+                            "Introducing AI Content Optimizer: The AI-powered solution professionals are using to automate content optimization and improve results by up to 40%. Learn more in the comments!",
+                            "We analyzed 1,000+ user workflows and discovered the biggest time-wasters in content creation. Here's how our AI tool solves them: [link]",
+                        ]
+                    }
+                ],
+                "emailMarketing": [
+                    {
+                        "type": "Welcome Email",
+                        "subject": "Welcome to AI Content Optimizer! Here's How to Get Started",
+                        "content": "Hi [Name],\n\nThank you for signing up for AI Content Optimizer! We're excited to have you on board.\n\n..."
+                    }
+                ]
+            }
         }
-    }
-    return jsonify(campaign), 200
+        return jsonify(campaign), 200
+    except ValueError:
+        return jsonify({"error": "Validation Error", "message": "Invalid campaign ID format"}), 400
 
 @app.route('/api/marketing/campaigns', methods=['GET'])
 def get_all_campaigns():
@@ -622,6 +737,21 @@ def get_subscriber_stats():
         ]
     }
     return jsonify(subscribers), 200
+
+# Global error handler for validation errors
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Handle all unhandled exceptions"""
+    # If it's a validation error from our validation system, return formatted response
+    if hasattr(e, 'to_dict') and callable(getattr(e, 'to_dict')):
+        return jsonify(e.to_dict()), getattr(e, 'http_status', 400)
+    
+    # For all other exceptions, return generic server error
+    app.logger.error(f"Unhandled exception: {str(e)}")
+    return jsonify({
+        "error": "Server Error",
+        "message": "An unexpected error occurred"
+    }), 500
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
