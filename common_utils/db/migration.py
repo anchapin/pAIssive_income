@@ -352,7 +352,7 @@ class Migration{version_str}(Migration):
                 # Remove the migration record based on database type
                 if isinstance(self.db, SQLiteAdapter):
                     # For SQL databases
-                    self.db.delete(self.MIGRATIONS_TABLE, {"version": version})
+                    self.db.delete(self.MIGRATIONS_TABLE, "version = :version", {"version": version})
                 elif isinstance(self.db, MongoDBAdapter):
                     # For MongoDB
                     self.db.db[self.MIGRATIONS_TABLE].delete_one({"version": version})
