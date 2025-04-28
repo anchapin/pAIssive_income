@@ -72,7 +72,6 @@ class SQLiteAdapter(DatabaseInterface):
             else:
                 result = self.cursor.execute(query)
                 
-            self.connection.commit()
             return result
         except sqlite3.Error as e:
             logger.error(f"Error executing query: {e}")
