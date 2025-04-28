@@ -13,6 +13,7 @@ from .content_templates import ContentTemplate
 from .style_adjuster import StyleAdjuster
 from .tone_analyzer import ToneAnalyzer
 from .user_personas import PersonaCreator
+from .ab_testing import ABTesting, ABTest
 from .schemas import (
     BusinessType, BusinessSize, BillingPeriod, TimeframeUnit,
     ChannelType, PriorityLevel, DifficultyLevel,
@@ -32,6 +33,8 @@ __all__ = [
     'StyleAdjuster',
     'ToneAnalyzer',
     'PersonaCreator',
+    'ABTesting',
+    'ABTest',
     # Schema exports
     'BusinessType',
     'BusinessSize',
