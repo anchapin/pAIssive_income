@@ -1,0 +1,24 @@
+# Core dependencies
+fastapi>=0.95.0
+uvicorn>=0.22.0
+pydantic>=2.0.0
+starlette>=0.27.0
+
+# GraphQL dependencies
+strawberry-graphql>=0.171.1
+strawberry-graphql-fastapi>=0.171.1
+
+# Authentication and security
+python-jose>=3.3.0
+passlib>=1.7.4
+bcrypt>=4.0.1
+python-multipart>=0.0.5
+
+# Rate limiting
+redis>=4.5.0  # Optional: for distributed rate limiting
+limits>=2.5.0
+
+# Utilities
+python-dateutil>=2.8.2
+email-validator>=2.0.0
+httpx>=0.24.0

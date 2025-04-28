@@ -20,6 +20,7 @@ import DeveloperPage from './pages/DeveloperPage';
 import MonetizationPage from './pages/MonetizationPage';
 import MarketingPage from './pages/MarketingPage';
 import UserEngagementPage from './pages/UserEngagementPage';
+import ApiAnalyticsPage from './pages/ApiAnalyticsPage';
 import AboutPage from './pages/AboutPage';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -80,6 +81,7 @@ function AppContent() {
           <Route path="/monetization" element={<MonetizationPage />} />
           <Route path="/marketing" element={<MarketingPage />} />
           <Route path="/user-engagement" element={<UserEngagementPage />} />
+          <Route path="/api-analytics" element={<ApiAnalyticsPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

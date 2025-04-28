@@ -22,6 +22,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import ApiIcon from '@mui/icons-material/Api';
 import InfoIcon from '@mui/icons-material/Info';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -80,6 +81,7 @@ const navigationItems = [
   { text: 'Monetization', path: '/monetization', icon: <MonetizationOnIcon /> },
   { text: 'Marketing', path: '/marketing', icon: <CampaignIcon /> },
   { text: 'User Engagement', path: '/user-engagement', icon: <BarChartIcon /> },
+  { text: 'API Analytics', path: '/api-analytics', icon: <ApiIcon /> },
   { text: 'About', path: '/about', icon: <InfoIcon /> },
 ];
 
@@ -141,7 +143,7 @@ export default function Layout({ children }) {
         <List>
           {navigationItems.map((item) => (
             <ListItem key={item.text} disablePadding>
-              <ListItemButton 
+              <ListItemButton
                 selected={location.pathname === item.path}
                 onClick={() => handleNavigation(item.path)}
               >
