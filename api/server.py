@@ -13,6 +13,7 @@ from typing import Dict, Any, Optional, List, Union, Type, Tuple
 from .config import APIConfig, APIVersion
 from .middleware import setup_middleware
 from .version_manager import VersionManager
+from .errors import setup_error_handlers
 
 # Set up logging
 logging.basicConfig(
@@ -128,6 +129,9 @@ class APIServer:
 
         # Set up middleware
         setup_middleware(self.app, self.config, self.version_manager)
+
+        # Set up error handlers
+        setup_error_handlers(self.app)
 
         # Set up routes
         self._setup_routes()
@@ -380,15 +384,6 @@ class APIServer:
                 webhook_router,
                 prefix=f"{api_prefix}/webhooks",
                 tags=[f"Webhooks {version_tag}"]
-            )
-
-        # Include analytics router
-        from .routes.analytics import router as analytics_router
-        if analytics_router and self.config.enable_analytics:
-            self.app.include_router(
-                analytics_router,
-                prefix=f"{api_prefix}/analytics",
-                tags=[f"Analytics {version_tag}"]
             )
 
     def _setup_version_info_routes(self) -> None:

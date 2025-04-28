@@ -10,6 +10,8 @@ from datetime import datetime
 import uuid
 import time
 from common_utils.batch_utils import process_batch, BatchResult
+from errors import BaseError, ValidationError
+from ..errors import HTTPStatus, create_error_response
 
 # Set up logging
 logging.basicConfig(
@@ -89,9 +91,11 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(
-                    status_code=500,
-                    detail="Niche Analysis module not available"
+                # Use a more specific error with appropriate status code
+                raise BaseError(
+                    message="Niche Analysis module not available",
+                    code="module_unavailable",
+                    http_status=HTTPStatus.SERVICE_UNAVAILABLE
                 )
 
             # Generate analysis ID
@@ -105,11 +109,18 @@ if FASTAPI_AVAILABLE:
                 message="Analysis started"
             )
 
+        except BaseError as e:
+            # Let the global error handler handle BaseError exceptions
+            raise
+
         except Exception as e:
+            # Convert generic exceptions to BaseError with appropriate status code
             logger.error(f"Error starting niche analysis: {str(e)}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"Analysis failed: {str(e)}"
+            raise BaseError(
+                message=f"Analysis failed: {str(e)}",
+                code="analysis_error",
+                http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+                original_exception=e
             )
 
     @router.get(
@@ -346,18 +357,21 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(
-                    status_code=500,
-                    detail="Niche Analysis module not available"
+                raise BaseError(
+                    message="Niche Analysis module not available",
+                    code="module_unavailable",
+                    http_status=HTTPStatus.SERVICE_UNAVAILABLE
                 )
 
             # Here we would get the actual niche
             # For now, check if the ID matches our mock data
 
             if niche_id not in ["1", "2", "3"]:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"Niche not found: {niche_id}"
+                raise BaseError(
+                    message=f"Niche not found: {niche_id}",
+                    code="niche_not_found",
+                    http_status=HTTPStatus.NOT_FOUND,
+                    details={"niche_id": niche_id}
                 )
 
             # Create mock niche
@@ -397,14 +411,18 @@ if FASTAPI_AVAILABLE:
 
             return niche
 
-        except HTTPException:
+        except BaseError:
+            # Let the global error handler handle BaseError exceptions
             raise
 
         except Exception as e:
+            # Convert generic exceptions to BaseError with appropriate status code
             logger.error(f"Error getting niche: {str(e)}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error getting niche: {str(e)}"
+            raise BaseError(
+                message=f"Error getting niche: {str(e)}",
+                code="niche_retrieval_error",
+                http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+                original_exception=e
             )
 
     @router.get(
