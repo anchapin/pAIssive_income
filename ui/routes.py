@@ -89,13 +89,12 @@ def niche_analysis():
 @app.route('/niche-analysis/run', methods=['POST'])
 def run_niche_analysis():
     """Run niche analysis on selected market segments as a background task."""
-    # Get selected market segments from form
-    market_segments = request.form.getlist('market_segments')
-
-    # Validate input
-    if not market_segments:
-        flash("Please select at least one market segment.", "error")
-        return redirect(url_for('niche_analysis'))
+    from .validation_schemas import NicheAnalysisRequest
+    from .validators import validate_form_data
+    
+    # Validate input using Pydantic schema
+    validated_data = validate_form_data(NicheAnalysisRequest)
+    market_segments = validated_data.market_segments
 
     try:
         # Start background task
@@ -162,13 +161,12 @@ def developer():
 @app.route('/developer/solution', methods=['POST'])
 def develop_solution():
     """Develop a solution for a selected niche as a background task."""
-    # Get selected niche from form
-    niche_id = request.form.get('niche_id')
-
-    # Validate input
-    if not niche_id:
-        flash("Please select a niche.", "error")
-        return redirect(url_for('developer'))
+    from .validation_schemas import DeveloperSolutionRequest
+    from .validators import validate_form_data
+    
+    # Validate input using Pydantic schema
+    validated_data = validate_form_data(DeveloperSolutionRequest)
+    niche_id = validated_data.niche_id
 
     try:
         # Start background task
@@ -235,13 +233,12 @@ def monetization():
 @app.route('/monetization/strategy', methods=['POST'])
 def create_monetization_strategy_route():
     """Create a monetization strategy for a selected solution as a background task."""
-    # Get selected solution from form
-    solution_id = request.form.get('solution_id')
-
-    # Validate input
-    if not solution_id:
-        flash("Please select a solution.", "error")
-        return redirect(url_for('monetization'))
+    from .validation_schemas import MonetizationStrategyRequest
+    from .validators import validate_form_data
+    
+    # Validate input using Pydantic schema
+    validated_data = validate_form_data(MonetizationStrategyRequest)
+    solution_id = validated_data.solution_id
 
     try:
         # Start background task
@@ -308,13 +305,12 @@ def marketing():
 @app.route('/marketing/campaign', methods=['POST'])
 def create_marketing_campaign_route():
     """Create a marketing campaign for a selected solution as a background task."""
-    # Get selected solution from form
-    solution_id = request.form.get('solution_id')
-
-    # Validate input
-    if not solution_id:
-        flash("Please select a solution.", "error")
-        return redirect(url_for('marketing'))
+    from .validation_schemas import MarketingCampaignRequest
+    from .validators import validate_form_data
+    
+    # Validate input using Pydantic schema
+    validated_data = validate_form_data(MarketingCampaignRequest)
+    solution_id = validated_data.solution_id
 
     try:
         # Start background task
@@ -378,8 +374,22 @@ def about():
 @app.route('/api/task/<task_id>', methods=['GET'])
 def get_task(task_id):
     """API endpoint to get task status."""
+    from .validators import sanitize_input
+    
     try:
-        status = get_task_status(task_id)
+        # Sanitize the task_id to prevent injection attacks
+        sanitized_task_id = sanitize_input(task_id)
+        
+        # Validate the task_id format (basic UUID validation)
+        try:
+            uuid.UUID(sanitized_task_id)
+        except ValueError:
+            raise ValidationError(
+                message="Invalid task ID format",
+                validation_errors=[{"field": "task_id", "error": "Task ID must be a valid UUID"}]
+            )
+            
+        status = get_task_status(sanitized_task_id)
         return jsonify(status)
     except Exception as e:
         return api_error_handler(e)
@@ -387,8 +397,22 @@ def get_task(task_id):
 @app.route('/api/task/<task_id>/cancel', methods=['POST'])
 def cancel_task_route(task_id):
     """API endpoint to cancel a task."""
+    from .validators import sanitize_input
+    
     try:
-        result = cancel_task(task_id)
+        # Sanitize the task_id to prevent injection attacks
+        sanitized_task_id = sanitize_input(task_id)
+        
+        # Validate the task_id format (basic UUID validation)
+        try:
+            uuid.UUID(sanitized_task_id)
+        except ValueError:
+            raise ValidationError(
+                message="Invalid task ID format",
+                validation_errors=[{"field": "task_id", "error": "Task ID must be a valid UUID"}]
+            )
+            
+        result = cancel_task(sanitized_task_id)
         return jsonify({'success': result, 'message': 'Task cancelled' if result else 'Task could not be cancelled'})
     except Exception as e:
         return api_error_handler(e)
@@ -397,8 +421,20 @@ def cancel_task_route(task_id):
 @app.route('/api/niches', methods=['GET'])
 def api_get_niches():
     """API endpoint to get niches."""
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+    
     try:
-        niches = niche_analysis_service.get_niches()
+        # Validate query parameters
+        params = validate_query_params(ApiQueryParams)
+        
+        # Get niches with pagination and sorting
+        niches = niche_analysis_service.get_niches(
+            limit=params.limit,
+            offset=params.offset,
+            sort_by=params.sort_by,
+            sort_order=params.sort_order
+        )
         return jsonify(niches)
     except Exception as e:
         return api_error_handler(e)
@@ -406,8 +442,20 @@ def api_get_niches():
 @app.route('/api/solutions', methods=['GET'])
 def api_get_solutions():
     """API endpoint to get solutions."""
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+    
     try:
-        solutions = developer_service.get_solutions()
+        # Validate query parameters
+        params = validate_query_params(ApiQueryParams)
+        
+        # Get solutions with pagination and sorting
+        solutions = developer_service.get_solutions(
+            limit=params.limit,
+            offset=params.offset,
+            sort_by=params.sort_by,
+            sort_order=params.sort_order
+        )
         return jsonify(solutions)
     except Exception as e:
         return api_error_handler(e)
@@ -415,8 +463,20 @@ def api_get_solutions():
 @app.route('/api/monetization-strategies', methods=['GET'])
 def api_get_monetization_strategies():
     """API endpoint to get monetization strategies."""
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+    
     try:
-        strategies = monetization_service.get_strategies()
+        # Validate query parameters
+        params = validate_query_params(ApiQueryParams)
+        
+        # Get strategies with pagination and sorting
+        strategies = monetization_service.get_strategies(
+            limit=params.limit,
+            offset=params.offset,
+            sort_by=params.sort_by,
+            sort_order=params.sort_order
+        )
         return jsonify(strategies)
     except Exception as e:
         return api_error_handler(e)
@@ -424,8 +484,20 @@ def api_get_monetization_strategies():
 @app.route('/api/marketing-campaigns', methods=['GET'])
 def api_get_marketing_campaigns():
     """API endpoint to get marketing campaigns."""
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+    
     try:
-        campaigns = marketing_service.get_campaigns()
+        # Validate query parameters
+        params = validate_query_params(ApiQueryParams)
+        
+        # Get campaigns with pagination and sorting
+        campaigns = marketing_service.get_campaigns(
+            limit=params.limit,
+            offset=params.offset,
+            sort_by=params.sort_by,
+            sort_order=params.sort_order
+        )
         return jsonify(campaigns)
     except Exception as e:
         return api_error_handler(e)

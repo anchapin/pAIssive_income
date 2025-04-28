@@ -146,17 +146,47 @@ class ModelConfig(IModelConfig):
 
         Returns:
             ModelConfig instance
+            
+        Raises:
+            ValueError: If the configuration file is invalid or cannot be loaded
         """
         if not os.path.exists(config_path):
             return cls()
 
         try:
+            # Load raw config from file
             config_dict = load_from_json_file(config_path)
-            return cls(**config_dict)
+            
+            # Validate using Pydantic schema
+            try:
+                from pydantic import ValidationError
+                
+                # Use the Pydantic schema to validate the config
+                validated_config = ModelConfigSchema.model_validate(config_dict)
+                
+                # Convert back to dict for creating the ModelConfig instance
+                # This ensures all values are properly validated and default values are applied
+                validated_dict = validated_config.model_dump()
+                
+                return cls(**validated_dict)
+                
+            except ValidationError as e:
+                error_messages = []
+                for error in e.errors():
+                    field_path = ".".join(str(loc) for loc in error["loc"])
+                    error_messages.append(f"{field_path}: {error['msg']}")
+                
+                error_str = "\n".join(error_messages)
+                raise ValueError(f"Invalid configuration in {config_path}:\n{error_str}")
+                
+            except ImportError:
+                # Fallback if Pydantic isn't available
+                print(f"Warning: Pydantic validation skipped for {config_path}")
+                return cls(**config_dict)
+                
         except Exception as e:
-            # If there's an error loading the config, return the default
-            print(f"Error loading config from {config_path}: {e}")
-            return cls()
+            # If there's an error loading the config, raise a more informative error
+            raise ValueError(f"Failed to load configuration from {config_path}: {e}")
 
     @classmethod
     def get_default_config_path(cls) -> str:
