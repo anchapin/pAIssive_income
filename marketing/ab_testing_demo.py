@@ -130,7 +130,11 @@ def demo_email_subject_testing():
             print(f"- {variant['name']} (Control)")
         else:
             print(f"- {variant['name']}:")
-            print(f"  CTR p-value: {variant.get('ctr_p_value', 'N/A'):.4f}")
+            ctr_p_value = variant.get('ctr_p_value', 'N/A')
+            if isinstance(ctr_p_value, (int, float)):
+                print(f"  CTR p-value: {ctr_p_value:.4f}")
+            else:
+                print(f"  CTR p-value: {ctr_p_value}")
             print(f"  CTR significant: {variant.get('ctr_is_significant', 'N/A')}")
             print(f"  Conversion p-value: {variant.get('conversion_p_value', 'N/A'):.4f}")
             print(f"  Conversion significant: {variant.get('conversion_is_significant', 'N/A')}")
