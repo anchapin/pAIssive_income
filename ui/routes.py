@@ -359,6 +359,31 @@ def about():
     return render_template('about.html',
                           title='About pAIssive Income Framework')
 
+# Health check route for containerization
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for container monitoring."""
+    try:
+        # Check if critical services are available
+        agent_team_service.is_healthy()
+        niche_analysis_service.is_healthy()
+        developer_service.is_healthy()
+        monetization_service.is_healthy()
+        marketing_service.is_healthy()
+        
+        return jsonify({
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "version": os.environ.get("APP_VERSION", "development")
+        }), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return jsonify({
+            "status": "unhealthy",
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e)
+        }), 500
+
 # Task management API endpoints
 @app.route('/api/task/<task_id>', methods=['GET'])
 def get_task(task_id):

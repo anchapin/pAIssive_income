@@ -1,76 +1,26 @@
 """
-Interfaces for the UI module.
+UI service interfaces for the pAIssive Income project.
 
-This module provides interfaces for the UI services to enable dependency injection
-and improve testability and maintainability.
+This module defines the interfaces for UI services, allowing the UI
+to interact with the core functionality of the framework.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+from typing import List, Dict, Any, Optional
+
+from .health_interfaces import IHealthCheckable
 
 
-class IBaseService(ABC):
-    """Interface for the base service."""
-
-    @abstractmethod
-    def load_data(self, filename: str) -> Optional[Dict[str, Any]]:
-        """
-        Load data from a JSON file.
-
-        Args:
-            filename: Name of the file to load
-
-        Returns:
-            Data from the file, or None if the file doesn't exist
-
-        Raises:
-            DataError: If there's an issue loading the data
-        """
-        pass
-
-    @abstractmethod
-    def save_data(self, filename: str, data: Dict[str, Any]) -> bool:
-        """
-        Save data to a JSON file.
-
-        Args:
-            filename: Name of the file to save
-            data: Data to save
-
-        Returns:
-            True if successful, False otherwise
-
-        Raises:
-            DataError: If there's an issue saving the data
-        """
-        pass
-
-
-class IAgentTeamService(IBaseService):
-    """Interface for the Agent Team service."""
-
-    @abstractmethod
-    def create_project(self, project_name: str, config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """
-        Create a new project with an agent team.
-        
-        Args:
-            project_name: Name of the project
-            config: Optional configuration for the agent team
-            
-        Returns:
-            Project dictionary
-        """
-        pass
+class IAgentTeamService(IHealthCheckable):
+    """Interface for agent team services."""
 
     @abstractmethod
     def get_projects(self) -> List[Dict[str, Any]]:
         """
         Get all projects.
-        
+
         Returns:
-            List of project dictionaries
+            List[Dict[str, Any]]: List of projects.
         """
         pass
 
@@ -78,26 +28,39 @@ class IAgentTeamService(IBaseService):
     def get_project(self, project_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a project by ID.
-        
+
         Args:
-            project_id: ID of the project
-            
+            project_id (str): The ID of the project.
+
         Returns:
-            Project dictionary, or None if not found
+            Optional[Dict[str, Any]]: The project data or None if not found.
         """
         pass
 
     @abstractmethod
-    def update_project(self, project_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def create_project(self, project_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Update a project.
-        
+        Create a new project.
+
         Args:
-            project_id: ID of the project
-            updates: Dictionary of updates
-            
+            project_data (Dict[str, Any]): The data of the project to create.
+
         Returns:
-            Updated project dictionary, or None if not found
+            Dict[str, Any]: The created project data.
+        """
+        pass
+
+    @abstractmethod
+    def update_project(self, project_id: str, project_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Update an existing project.
+
+        Args:
+            project_id (str): The ID of the project to update.
+            project_data (Dict[str, Any]): The new data for the project.
+
+        Returns:
+            Optional[Dict[str, Any]]: The updated project data or None if not found.
         """
         pass
 
@@ -105,26 +68,26 @@ class IAgentTeamService(IBaseService):
     def delete_project(self, project_id: str) -> bool:
         """
         Delete a project.
-        
+
         Args:
-            project_id: ID of the project
-            
+            project_id (str): The ID of the project to delete.
+
         Returns:
-            True if successful, False otherwise
+            bool: True if the project was deleted, False otherwise.
         """
         pass
 
 
-class INicheAnalysisService(IBaseService):
-    """Interface for the Niche Analysis service."""
+class INicheAnalysisService(IHealthCheckable):
+    """Interface for niche analysis services."""
 
     @abstractmethod
     def get_market_segments(self) -> List[Dict[str, Any]]:
         """
         Get all market segments.
-        
+
         Returns:
-            List of market segment dictionaries
+            List[Dict[str, Any]]: List of market segments.
         """
         pass
 
@@ -132,9 +95,9 @@ class INicheAnalysisService(IBaseService):
     def get_niches(self) -> List[Dict[str, Any]]:
         """
         Get all niches.
-        
+
         Returns:
-            List of niche dictionaries
+            List[Dict[str, Any]]: List of niches.
         """
         pass
 
@@ -142,25 +105,25 @@ class INicheAnalysisService(IBaseService):
     def get_niche(self, niche_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a niche by ID.
-        
+
         Args:
-            niche_id: ID of the niche
-            
+            niche_id (str): The ID of the niche.
+
         Returns:
-            Niche dictionary, or None if not found
+            Optional[Dict[str, Any]]: The niche data or None if not found.
         """
         pass
 
     @abstractmethod
     def analyze_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
         """
-        Analyze niches in market segments.
-        
+        Analyze niches in the given market segments.
+
         Args:
-            market_segments: List of market segments to analyze
-            
+            market_segments (List[str]): The market segments to analyze.
+
         Returns:
-            List of niche dictionaries
+            List[Dict[str, Any]]: List of analyzed niches.
         """
         pass
 
@@ -168,26 +131,26 @@ class INicheAnalysisService(IBaseService):
     def save_niche(self, niche: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save a niche.
-        
+
         Args:
-            niche: Niche dictionary
-            
+            niche (Dict[str, Any]): The niche data to save.
+
         Returns:
-            Saved niche dictionary
+            Dict[str, Any]: The saved niche data.
         """
         pass
 
 
-class IDeveloperService(IBaseService):
-    """Interface for the Developer service."""
+class IDeveloperService(IHealthCheckable):
+    """Interface for developer services."""
 
     @abstractmethod
     def get_solutions(self) -> List[Dict[str, Any]]:
         """
         Get all solutions.
-        
+
         Returns:
-            List of solution dictionaries
+            List[Dict[str, Any]]: List of solutions.
         """
         pass
 
@@ -195,12 +158,12 @@ class IDeveloperService(IBaseService):
     def get_solution(self, solution_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a solution by ID.
-        
+
         Args:
-            solution_id: ID of the solution
-            
+            solution_id (str): The ID of the solution.
+
         Returns:
-            Solution dictionary, or None if not found
+            Optional[Dict[str, Any]]: The solution data or None if not found.
         """
         pass
 
@@ -208,12 +171,12 @@ class IDeveloperService(IBaseService):
     def create_solution(self, niche_id: str) -> Dict[str, Any]:
         """
         Create a solution for a niche.
-        
+
         Args:
-            niche_id: ID of the niche
-            
+            niche_id (str): The ID of the niche.
+
         Returns:
-            Solution dictionary
+            Dict[str, Any]: The created solution data.
         """
         pass
 
@@ -221,26 +184,26 @@ class IDeveloperService(IBaseService):
     def save_solution(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save a solution.
-        
+
         Args:
-            solution: Solution dictionary
-            
+            solution (Dict[str, Any]): The solution data to save.
+
         Returns:
-            Saved solution dictionary
+            Dict[str, Any]: The saved solution data.
         """
         pass
 
 
-class IMonetizationService(IBaseService):
-    """Interface for the Monetization service."""
+class IMonetizationService(IHealthCheckable):
+    """Interface for monetization services."""
 
     @abstractmethod
     def get_strategies(self) -> List[Dict[str, Any]]:
         """
         Get all monetization strategies.
-        
+
         Returns:
-            List of strategy dictionaries
+            List[Dict[str, Any]]: List of strategies.
         """
         pass
 
@@ -248,12 +211,12 @@ class IMonetizationService(IBaseService):
     def get_strategy(self, strategy_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a monetization strategy by ID.
-        
+
         Args:
-            strategy_id: ID of the strategy
-            
+            strategy_id (str): The ID of the strategy.
+
         Returns:
-            Strategy dictionary, or None if not found
+            Optional[Dict[str, Any]]: The strategy data or None if not found.
         """
         pass
 
@@ -261,12 +224,12 @@ class IMonetizationService(IBaseService):
     def create_strategy(self, solution_id: str) -> Dict[str, Any]:
         """
         Create a monetization strategy for a solution.
-        
+
         Args:
-            solution_id: ID of the solution
-            
+            solution_id (str): The ID of the solution.
+
         Returns:
-            Strategy dictionary
+            Dict[str, Any]: The created strategy data.
         """
         pass
 
@@ -274,26 +237,26 @@ class IMonetizationService(IBaseService):
     def save_strategy(self, strategy: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save a monetization strategy.
-        
+
         Args:
-            strategy: Strategy dictionary
-            
+            strategy (Dict[str, Any]): The strategy data to save.
+
         Returns:
-            Saved strategy dictionary
+            Dict[str, Any]: The saved strategy data.
         """
         pass
 
 
-class IMarketingService(IBaseService):
-    """Interface for the Marketing service."""
+class IMarketingService(IHealthCheckable):
+    """Interface for marketing services."""
 
     @abstractmethod
     def get_campaigns(self) -> List[Dict[str, Any]]:
         """
         Get all marketing campaigns.
-        
+
         Returns:
-            List of campaign dictionaries
+            List[Dict[str, Any]]: List of marketing campaigns.
         """
         pass
 
@@ -301,12 +264,12 @@ class IMarketingService(IBaseService):
     def get_campaign(self, campaign_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a marketing campaign by ID.
-        
+
         Args:
-            campaign_id: ID of the campaign
-            
+            campaign_id (str): The ID of the campaign.
+
         Returns:
-            Campaign dictionary, or None if not found
+            Optional[Dict[str, Any]]: The campaign data or None if not found.
         """
         pass
 
@@ -314,13 +277,13 @@ class IMarketingService(IBaseService):
     def create_campaign(self, solution_id: str, strategy_id: str) -> Dict[str, Any]:
         """
         Create a marketing campaign for a solution and strategy.
-        
+
         Args:
-            solution_id: ID of the solution
-            strategy_id: ID of the monetization strategy
-            
+            solution_id (str): The ID of the solution.
+            strategy_id (str): The ID of the monetization strategy.
+
         Returns:
-            Campaign dictionary
+            Dict[str, Any]: The created campaign data.
         """
         pass
 
@@ -328,11 +291,11 @@ class IMarketingService(IBaseService):
     def save_campaign(self, campaign: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save a marketing campaign.
-        
+
         Args:
-            campaign: Campaign dictionary
-            
+            campaign (Dict[str, Any]): The campaign data to save.
+
         Returns:
-            Saved campaign dictionary
+            Dict[str, Any]: The saved campaign data.
         """
         pass

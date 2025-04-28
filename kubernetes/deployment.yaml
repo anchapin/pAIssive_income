@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paissive-income-app
+  labels:
+    app: paissive-income
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: paissive-income
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: paissive-income
+    spec:
+      containers:
+      - name: paissive-income-app
+        image: paissive-income:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        env:
+        - name: FLASK_ENV
+          value: "production"
+        - name: APP_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: paissive-income-config
+              key: app_version
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 2
+          successThreshold: 1
+          failureThreshold: 3
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+        - name: logs-volume
+          mountPath: /app/logs
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: paissive-income-data-pvc
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: paissive-income-logs-pvc
