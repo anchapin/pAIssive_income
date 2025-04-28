@@ -19,7 +19,7 @@ def test_content_template_init():
         name="Test Template",
         description="A test content template"
     )
-    
+
     # Check that the template has the expected attributes
     assert template.name == "Test Template"
     assert template.description == "A test content template"
@@ -36,7 +36,7 @@ def test_content_template_add_section():
         name="Test Template",
         description="A test content template"
     )
-    
+
     # Add a section
     section = template.add_section(
         name="Introduction",
@@ -45,11 +45,11 @@ def test_content_template_add_section():
         placeholder="Write an engaging introduction here...",
         required=True
     )
-    
+
     # Check that the section was added
     assert len(template.sections) == 1
     assert template.sections[0] == section
-    
+
     # Check that the section has the expected attributes
     assert "id" in section
     assert section["name"] == "Introduction"
@@ -63,9 +63,10 @@ def test_content_template_generate_content():
     """Test generate_content method of ContentTemplate."""
     template = ContentTemplate(
         name="Test Template",
-        description="A test content template"
+        description="A test content template",
+        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"]
     )
-    
+
     # Add sections
     template.add_section(
         name="Introduction",
@@ -74,7 +75,7 @@ def test_content_template_generate_content():
         placeholder="Write an engaging introduction here...",
         required=True
     )
-    
+
     template.add_section(
         name="Main Content",
         description="The main content section",
@@ -82,7 +83,7 @@ def test_content_template_generate_content():
         placeholder="Write the main content here...",
         required=True
     )
-    
+
     template.add_section(
         name="Conclusion",
         description="The conclusion section",
@@ -90,7 +91,7 @@ def test_content_template_generate_content():
         placeholder="Write a compelling conclusion here...",
         required=True
     )
-    
+
     # Generate content
     content = template.generate_content(
         topic="AI Tools for Small Businesses",
@@ -98,7 +99,7 @@ def test_content_template_generate_content():
         tone="informative",
         keywords=["AI", "small business", "productivity", "automation"]
     )
-    
+
     # Check that the content has the expected attributes
     assert "id" in content
     assert "template_id" in content
@@ -108,7 +109,7 @@ def test_content_template_generate_content():
     assert "keywords" in content
     assert "sections" in content
     assert "created_at" in content
-    
+
     # Check specific values
     assert content["template_id"] == template.id
     assert content["topic"] == "AI Tools for Small Businesses"
@@ -117,7 +118,7 @@ def test_content_template_generate_content():
     assert content["keywords"] == ["AI", "small business", "productivity", "automation"]
     assert isinstance(content["sections"], list)
     assert len(content["sections"]) == 3
-    
+
     # Check that each section has content
     for section in content["sections"]:
         assert "id" in section
@@ -133,7 +134,7 @@ def test_blog_post_template_init():
         name="Test Blog Post Template",
         description="A test blog post template"
     )
-    
+
     # Check that the template has the expected attributes
     assert template.name == "Test Blog Post Template"
     assert template.description == "A test blog post template"
@@ -142,7 +143,7 @@ def test_blog_post_template_init():
     assert hasattr(template, "updated_at")
     assert hasattr(template, "sections")
     assert isinstance(template.sections, list)
-    
+
     # Check that the default sections were added
     section_names = [section["name"] for section in template.sections]
     assert "Title" in section_names
@@ -156,9 +157,10 @@ def test_blog_post_template_generate_blog_post():
     """Test generate_blog_post method of BlogPostTemplate."""
     template = BlogPostTemplate(
         name="Test Blog Post Template",
-        description="A test blog post template"
+        description="A test blog post template",
+        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"]
     )
-    
+
     # Generate a blog post
     blog_post = template.generate_blog_post(
         topic="AI Tools for Small Businesses",
@@ -168,7 +170,7 @@ def test_blog_post_template_generate_blog_post():
         word_count=1000,
         include_images=True
     )
-    
+
     # Check that the blog post has the expected attributes
     assert "id" in blog_post
     assert "template_id" in blog_post
@@ -180,7 +182,7 @@ def test_blog_post_template_generate_blog_post():
     assert "include_images" in blog_post
     assert "sections" in blog_post
     assert "created_at" in blog_post
-    
+
     # Check specific values
     assert blog_post["template_id"] == template.id
     assert blog_post["topic"] == "AI Tools for Small Businesses"
@@ -190,7 +192,7 @@ def test_blog_post_template_generate_blog_post():
     assert blog_post["word_count"] == 1000
     assert blog_post["include_images"] is True
     assert isinstance(blog_post["sections"], list)
-    
+
     # Check that each section has content
     for section in blog_post["sections"]:
         assert "id" in section
@@ -207,7 +209,7 @@ def test_social_media_template_init():
         description="A test social media template",
         platform="instagram"
     )
-    
+
     # Check that the template has the expected attributes
     assert template.name == "Test Social Media Template"
     assert template.description == "A test social media template"
@@ -217,7 +219,7 @@ def test_social_media_template_init():
     assert hasattr(template, "updated_at")
     assert hasattr(template, "sections")
     assert isinstance(template.sections, list)
-    
+
     # Check that the default sections were added
     section_names = [section["name"] for section in template.sections]
     assert "Caption" in section_names
@@ -229,9 +231,10 @@ def test_social_media_template_generate_post():
     template = SocialMediaTemplate(
         name="Test Social Media Template",
         description="A test social media template",
-        platform="instagram"
+        platform="instagram",
+        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"]
     )
-    
+
     # Generate a social media post
     post = template.generate_post(
         topic="AI Tools for Small Businesses",
@@ -241,7 +244,7 @@ def test_social_media_template_generate_post():
         include_emoji=True,
         include_call_to_action=True
     )
-    
+
     # Check that the post has the expected attributes
     assert "id" in post
     assert "template_id" in post
@@ -254,7 +257,7 @@ def test_social_media_template_generate_post():
     assert "include_call_to_action" in post
     assert "sections" in post
     assert "created_at" in post
-    
+
     # Check specific values
     assert post["template_id"] == template.id
     assert post["platform"] == "instagram"
@@ -265,7 +268,7 @@ def test_social_media_template_generate_post():
     assert post["include_emoji"] is True
     assert post["include_call_to_action"] is True
     assert isinstance(post["sections"], list)
-    
+
     # Check that each section has content
     for section in post["sections"]:
         assert "id" in section
@@ -281,7 +284,7 @@ def test_email_newsletter_template_init():
         name="Test Email Newsletter Template",
         description="A test email newsletter template"
     )
-    
+
     # Check that the template has the expected attributes
     assert template.name == "Test Email Newsletter Template"
     assert template.description == "A test email newsletter template"
@@ -290,7 +293,7 @@ def test_email_newsletter_template_init():
     assert hasattr(template, "updated_at")
     assert hasattr(template, "sections")
     assert isinstance(template.sections, list)
-    
+
     # Check that the default sections were added
     section_names = [section["name"] for section in template.sections]
     assert "Subject Line" in section_names
@@ -305,9 +308,10 @@ def test_email_newsletter_template_generate_newsletter():
     """Test generate_newsletter method of EmailNewsletterTemplate."""
     template = EmailNewsletterTemplate(
         name="Test Email Newsletter Template",
-        description="A test email newsletter template"
+        description="A test email newsletter template",
+        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"]
     )
-    
+
     # Generate an email newsletter
     newsletter = template.generate_newsletter(
         topic="AI Tools for Small Businesses",
@@ -317,7 +321,7 @@ def test_email_newsletter_template_generate_newsletter():
         include_personalization=True,
         include_call_to_action=True
     )
-    
+
     # Check that the newsletter has the expected attributes
     assert "id" in newsletter
     assert "template_id" in newsletter
@@ -329,7 +333,7 @@ def test_email_newsletter_template_generate_newsletter():
     assert "include_call_to_action" in newsletter
     assert "sections" in newsletter
     assert "created_at" in newsletter
-    
+
     # Check specific values
     assert newsletter["template_id"] == template.id
     assert newsletter["topic"] == "AI Tools for Small Businesses"
@@ -339,7 +343,7 @@ def test_email_newsletter_template_generate_newsletter():
     assert newsletter["include_personalization"] is True
     assert newsletter["include_call_to_action"] is True
     assert isinstance(newsletter["sections"], list)
-    
+
     # Check that each section has content
     for section in newsletter["sections"]:
         assert "id" in section

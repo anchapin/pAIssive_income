@@ -234,7 +234,7 @@ class ContentOptimizer:
         # Create a placeholder for structure optimization
         self.results["optimization_steps"].append({
             "type": "structure",
-            "timestamp": datetime.datetime now().isoformat(),
+            "timestamp": datetime.datetime.now().isoformat(),
             "description": "Optimized content structure",
             "details": {
                 "improvements": [
