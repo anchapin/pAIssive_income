@@ -166,16 +166,16 @@ class SQLiteAdapter(DatabaseInterface):
         Raises:
             sqlite3.Error: If there's an issue with the database operation
         """
-        set_clause = ', '.join([f"{k} = ?" for k in data.keys()])
-        values = list(data.values())
+        set_clause = ', '.join([f"{k} = :{k}" for k in data.keys()])
+        combined_params = {**data}
         
         if params:
-            values.extend(list(params.values()))
+            combined_params.update(params)
         
         query = f"UPDATE {table} SET {set_clause} WHERE {condition}"
         
         try:
-            self.execute(query, tuple(values))
+            self.execute(query, combined_params)
             return self.cursor.rowcount
         except sqlite3.Error as e:
             logger.error(f"Error updating data: {e}")
