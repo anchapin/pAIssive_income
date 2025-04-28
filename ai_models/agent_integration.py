@@ -29,22 +29,22 @@ logger = logging.getLogger(__name__)
 class AgentModelProvider:
     """
     Provider for AI models used by agents.
-    
+
     This class serves as a bridge between the Agent Team module and the AI Models module,
     providing a way for different agent types (researcher, developer, etc.) to access
     appropriate AI models for their specific tasks. It implements a sophisticated model
     selection algorithm that considers both the agent type and task type when finding
     the most suitable model.
-    
+
     The provider maintains a mapping of agent-to-model assignments and can dynamically
     find models based on predefined preferences when no explicit assignment exists.
-    
+
     It also implements a robust fallback strategy to ensure that agents always have
     a model to use, even if their preferred models are not available.
     """
 
-    def __init__(self, model_manager: Optional[IModelManager] = None, 
-                fallback_enabled: bool = True, 
+    def __init__(self, model_manager: Optional[IModelManager] = None,
+                fallback_enabled: bool = True,
                 fallback_config: Optional[Dict] = None):
         """
         Initialize the agent model provider.
@@ -68,7 +68,7 @@ class AgentModelProvider:
         # Dictionary to store agent model assignments
         # Structure: {agent_type: {task_type: model_id}}
         self.agent_models: Dict[str, Dict[str, Any]] = {}
-        
+
         # Default fallback configuration if none provided
         default_fallback_config = {
             "max_attempts": 3,                 # Maximum number of fallback attempts
@@ -83,7 +83,7 @@ class AgentModelProvider:
                 "default": ["huggingface", "general-purpose"]
             }
         }
-        
+
         # Apply any custom fallback configuration
         if fallback_config:
             for key, value in fallback_config.items():
@@ -142,7 +142,7 @@ class AgentModelProvider:
                     agent_type=agent_type,
                     task_type=task_type
                 )
-                
+
                 if fallback_model_info:
                     # Try to load the fallback model
                     try:
@@ -159,7 +159,7 @@ class AgentModelProvider:
 
         # If we don't have a model assignment, find a suitable model
         model_info = self._find_suitable_model(agent_type, task_type)
-        
+
         # If no suitable model found, try fallback
         if not model_info and self.fallback_manager.fallback_enabled:
             logger.info(f"No suitable model found for agent {agent_type}, task {task_type}. Attempting fallback.")
@@ -186,7 +186,7 @@ class AgentModelProvider:
                     task_type=task_type,
                     strategy_override=FallbackStrategy.ANY_AVAILABLE
                 )
-                
+
                 if fallback_model_info:
                     try:
                         model = self.model_manager.load_model(fallback_model_info.id)
@@ -214,13 +214,13 @@ class AgentModelProvider:
         Find a suitable model for a specific agent and task.
 
         This algorithm implements a preference-based model selection strategy:
-        
+
         1. Define preference lists for both agent types and task types
         2. For the given agent_type and task_type, retrieve their specific preferences
         3. Find the intersection of preferences if both are provided (agent AND task preferences)
         4. Try to find models matching the combined preferences in order of priority
         5. Fall back to any available model if no matches found
-        
+
         This approach ensures that each agent gets a model that is optimized for both
         its general role (agent_type) and specific current task (task_type).
 
@@ -335,11 +335,104 @@ class AgentModelProvider:
             Dictionary of agent model assignments
         """
         return self.agent_models
-        
+
+    def get_model_with_fallback(self, agent_type: str, model_id: str, task_type: Optional[str] = None) -> Any:
+        """
+        Get a model with fallback support.
+
+        This method attempts to load the specified model, and if that fails,
+        it will try to find a fallback model based on the configured fallback strategy.
+
+        Args:
+            agent_type: Type of agent (researcher, developer, etc.)
+            model_id: ID of the model to load
+            task_type: Optional type of task (text-generation, embedding, etc.)
+
+        Returns:
+            Model instance
+
+        Raises:
+            ValueError: If no suitable model is found after exhausting all fallbacks
+        """
+        try:
+            # First try to load the specified model
+            return self.model_manager.load_model(model_id)
+        except Exception as e:
+            if not self.fallback_manager.fallback_enabled:
+                raise e
+
+            # Log the failure and continue to fallback mechanisms
+            logger.warning(
+                f"Failed to load model {model_id} for agent {agent_type}, task {task_type}: {str(e)}. "
+                f"Attempting fallback."
+            )
+
+            # Try to find a fallback model
+            fallback_model_info, event = self.fallback_manager.find_fallback_model(
+                original_model_id=model_id,
+                agent_type=agent_type,
+                task_type=task_type
+            )
+
+            if fallback_model_info:
+                # Try to load the fallback model
+                try:
+                    model = self.model_manager.load_model(fallback_model_info.id)
+                    # Update the agent's model assignment to use the fallback model
+                    if agent_type not in self.agent_models:
+                        self.agent_models[agent_type] = {}
+                    self.agent_models[agent_type][task_type or "default"] = fallback_model_info.id
+                    return model
+                except Exception as load_error:
+                    # Mark the fallback as unsuccessful
+                    if event:
+                        self.fallback_manager.track_fallback_event(event, was_successful=False)
+                    # Re-raise with additional context
+                    raise ValueError(f"Failed to load fallback model {fallback_model_info.id}: {str(load_error)}") from load_error
+
+            # If no fallback model found, raise an error
+            raise ValueError(f"No fallback model found for {model_id} after exhausting all options")
+
+    def model_has_capability(self, model_id: str, capability: str) -> bool:
+        """
+        Check if a model has a specific capability.
+
+        Args:
+            model_id: ID of the model to check
+            capability: Capability to check for
+
+        Returns:
+            True if the model has the capability, False otherwise
+        """
+        model_info = self.model_manager.get_model_info(model_id)
+        if not model_info:
+            return False
+
+        # Check if the model has the capability
+        if hasattr(model_info, "capabilities") and model_info.capabilities:
+            return capability in model_info.capabilities
+
+        return False
+
+    def get_assigned_model_id(self, agent_type: str, task_type: str) -> Optional[str]:
+        """
+        Get the ID of the model assigned to an agent for a specific task.
+
+        Args:
+            agent_type: Type of agent (researcher, developer, etc.)
+            task_type: Type of task (text-generation, embedding, etc.)
+
+        Returns:
+            Model ID or None if no model is assigned
+        """
+        if agent_type in self.agent_models and task_type in self.agent_models[agent_type]:
+            return self.agent_models[agent_type][task_type]
+        return None
+
     def configure_fallback(self, fallback_enabled: bool = True, fallback_config: Optional[Dict] = None) -> None:
         """
         Configure the fallback behavior.
-        
+
         Args:
             fallback_enabled: Whether fallback should be enabled
             fallback_config: Configuration options for fallback behavior
@@ -352,35 +445,35 @@ class AgentModelProvider:
         """
         # Update configuration through the FallbackManager
         config_params = {"fallback_enabled": fallback_enabled}
-        
+
         if fallback_config:
             # Map old config structure to the FallbackManager parameters
             if "default_strategy" in fallback_config:
                 config_params["default_strategy"] = fallback_config["default_strategy"]
-                
+
             if "max_attempts" in fallback_config:
                 config_params["max_attempts"] = fallback_config["max_attempts"]
-                
+
             if "default_model_id" in fallback_config:
                 config_params["default_model_id"] = fallback_config["default_model_id"]
-                
+
             if "fallback_preferences" in fallback_config:
                 config_params["fallback_preferences"] = fallback_config["fallback_preferences"]
-                
+
             if "logging_level" in fallback_config:
                 config_params["logging_level"] = fallback_config["logging_level"]
-            
+
         # Update the fallback manager configuration
         self.fallback_manager.configure(**config_params)
         logger.info(f"Fallback configuration updated. Enabled: {fallback_enabled}")
-        
+
     def set_default_fallback_model(self, model_id: str) -> None:
         """
         Set the default model to use as a fallback when no suitable models are found.
-        
+
         Args:
             model_id: ID of the model to use as default fallback
-            
+
         Raises:
             ValueError: If the model is not found
         """
@@ -388,15 +481,15 @@ class AgentModelProvider:
         model_info = self.model_manager.get_model_info(model_id)
         if not model_info:
             raise ValueError(f"Model with ID {model_id} not found")
-            
+
         # Configure the fallback manager
         self.fallback_manager.configure(default_model_id=model_id)
         logger.info(f"Set default fallback model to {model_id}")
-        
+
     def add_agent_fallback_preference(self, agent_type: str, model_types: List[str]) -> None:
         """
         Add fallback preferences for a specific agent type.
-        
+
         Args:
             agent_type: Type of agent to set preferences for
             model_types: List of model types in order of preference for fallbacks
@@ -404,26 +497,26 @@ class AgentModelProvider:
         # Update the fallback preferences in the manager
         fallback_preferences = self.fallback_manager.fallback_preferences.copy()
         fallback_preferences[agent_type] = model_types
-        
+
         self.fallback_manager.configure(fallback_preferences=fallback_preferences)
         logger.info(f"Set fallback preferences for agent {agent_type}: {model_types}")
-    
+
     def get_fallback_metrics(self) -> Dict[str, Dict[str, Any]]:
         """
         Get metrics about fallback effectiveness.
-        
+
         Returns:
             Dictionary mapping strategy names to their metrics
         """
         return self.fallback_manager.get_fallback_metrics()
-    
+
     def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
         """
         Get history of fallback events.
-        
+
         Args:
             limit: Maximum number of events to return (most recent first)
-            
+
         Returns:
             List of fallback events as dictionaries
         """
@@ -469,7 +562,7 @@ if __name__ == "__main__":
             "use_general_purpose_fallback": True
         }
     )
-    
+
     # Set a default fallback model
     try:
         all_models = manager.get_all_models()
@@ -477,7 +570,7 @@ if __name__ == "__main__":
             provider.set_default_fallback_model(all_models[0].id)
     except (IndexError, ValueError) as e:
         print(f"Couldn't set default fallback model: {e}")
-        
+
     # Print fallback metrics after some usage
     metrics = provider.get_fallback_metrics()
     print("\nFallback Metrics:")
