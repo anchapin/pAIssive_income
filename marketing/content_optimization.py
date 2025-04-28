@@ -745,7 +745,8 @@ class KeywordAnalyzer(SEOAnalyzer):
         placement_scores = []
 
         for keyword, data in self.results["keyword_placement"].items():
-            placement_scores.append(data["score"])
+            # Normalize placement score from 0-100 to 0-1
+            placement_scores.append(data["placement_score"] / 100.0)
 
         placement_score = sum(placement_scores) / len(placement_scores) if placement_scores else 0
 
@@ -794,8 +795,11 @@ class KeywordAnalyzer(SEOAnalyzer):
 
         # Check keyword placement
         for keyword, data in self.results["keyword_placement"].items():
+            # Get the locations dictionary
+            locations = data["locations"]
+
             # Check title
-            if not data["in_title"] and self.config.get("check_keyword_in_title", True):
+            if not locations["title"] and self.config.get("check_keyword_in_title", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -806,7 +810,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check headings
-            if not data["in_headings"] and self.config.get("check_keyword_in_headings", True):
+            if not locations["headings"] and self.config.get("check_keyword_in_headings", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -817,7 +821,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check first paragraph
-            if not data["in_first_paragraph"] and self.config.get("check_keyword_in_first_paragraph", True):
+            if not locations["first_paragraph"] and self.config.get("check_keyword_in_first_paragraph", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -828,7 +832,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check meta description
-            if not data["in_meta_description"] and self.config.get("check_keyword_in_meta_description", True):
+            if not locations["meta_description"] and self.config.get("check_keyword_in_meta_description", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -839,7 +843,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check URL
-            if not data["in_url"] and self.config.get("check_keyword_in_url", True):
+            if not locations["url"] and self.config.get("check_keyword_in_url", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -1997,7 +2001,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             # Calculate partial score based on how close to optimal
             flesch_score = self.results["readability_scores"]["flesch_reading_ease"]["score"]
             min_flesch = self.config["min_flesch_reading_ease"]
-            readability_score += 0.2 * (flesch_score / min_flesch) if min_flesh > 0 else 0
+            readability_score += 0.2 * (flesch_score / min_flesch) if min_flesch > 0 else 0
 
         # Score based on grade level
         target_grade = self.config["max_flesch_kincaid_grade"]
@@ -2092,8 +2096,18 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         avg_sentence_length = self.results["sentence_analysis"]["sentence_length"]["avg"]
         max_sentence_length = self.config["max_sentence_length"]
         long_sentence_percentage = self.results["sentence_analysis"]["sentence_length"]["long_percentage"]
+        is_sentence_length_optimal = self.results["sentence_analysis"]["sentence_length"]["is_optimal"]
 
-        if avg_sentence_length > max_sentence_length * 0.8:
+        if not is_sentence_length_optimal:
+            # Always add a recommendation if sentence length is not optimal
+            recommendations.append({
+                "id": str(uuid.uuid4()),
+                "type": "sentence_length",
+                "severity": "medium",
+                "message": f"Sentence length distribution is not optimal. Average length: {avg_sentence_length:.1f} words, Maximum recommended: {max_sentence_length} words.",
+                "suggestion": "Aim for a better mix of sentence lengths. Break longer sentences into shorter ones to improve readability."
+            })
+        elif avg_sentence_length > max_sentence_length * 0.8:
             recommendations.append({
                 "id": str(uuid.uuid4()),
                 "type": "sentence_length",
@@ -2139,8 +2153,18 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         avg_paragraph_length = self.results["paragraph_analysis"]["paragraph_length"]["avg"]
         max_paragraph_length = self.config["max_paragraph_length"]
         long_paragraph_percentage = self.results["paragraph_analysis"]["paragraph_length"]["long_percentage"]
+        is_paragraph_length_optimal = self.results["paragraph_analysis"]["paragraph_length"]["is_optimal"]
 
-        if avg_paragraph_length > max_paragraph_length * 0.8:
+        if not is_paragraph_length_optimal:
+            # Always add a recommendation if paragraph length is not optimal
+            recommendations.append({
+                "id": str(uuid.uuid4()),
+                "type": "paragraph_length",
+                "severity": "medium",
+                "message": f"Paragraph length distribution is not optimal. Average length: {avg_paragraph_length:.1f} words, Maximum recommended: {max_paragraph_length} words.",
+                "suggestion": "Aim for a better mix of paragraph lengths. Break longer paragraphs into shorter ones to improve readability."
+            })
+        elif avg_paragraph_length > max_paragraph_length * 0.8:
             recommendations.append({
                 "id": str(uuid.uuid4()),
                 "type": "paragraph_length",

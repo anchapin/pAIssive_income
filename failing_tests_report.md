@@ -7,9 +7,13 @@
 - Fixed floating-point precision issues in `calculate_opportunity_score`
 - Added edge case handling in `test_weight_influence` for all-zero factors
 
-### ✅ 2. Content Optimization Tests (Partial)
+### ✅ 2. Content Optimization Tests
 - Fixed `ReadabilityAnalyzer._calculate_gunning_fog()` method signature to accept the correct parameters
 - Fixed content dictionary strategy by changing `max_value` to `max_size` in `st.lists()`
+- Fixed typo in ReadabilityAnalyzer.get_score() (`min_flesh` → `min_flesch`)
+- Fixed KeywordAnalyzer.get_score() to use correct key `placement_score` instead of `score`
+- Fixed KeywordAnalyzer.get_recommendations() to access correct keys in the keyword_placement data structure
+- Fixed ReadabilityAnalyzer.get_recommendations() to always generate recommendations when sentence_length and paragraph_length are not optimal
 
 ### ✅ 3. Monetization Integration Test
 - Fixed `has_feature_access` method in SubscriptionManager to correctly check feature access for Free tier users
@@ -22,16 +26,20 @@
 
 ## Current Failing Tests (April 28, 2025)
 
-### 1. Content Optimization Tests (Remaining)
-- Error 1: `AttributeError: 'KeywordAnalyzer' object has no attribute '_extract_text_from_content'` - Missing method
-- Error 2: `NameError: name 'min_flesh' is not defined` - Typo in ReadabilityAnalyzer.get_score()
-- Affected tests:
+### 1. ✅ Content Optimization Tests (Fixed)
+- ✅ Fixed: `AttributeError: 'KeywordAnalyzer' object has no attribute '_extract_text_from_content'` - Method was already defined but needed to be accessed correctly
+- ✅ Fixed: `NameError: name 'min_flesh' is not defined` - Typo in ReadabilityAnalyzer.get_score() corrected to `min_flesch`
+- ✅ Fixed: KeywordAnalyzer.get_score() now uses correct key `placement_score` instead of `score`
+- ✅ Fixed: KeywordAnalyzer.get_recommendations() now accesses correct keys in the keyword_placement data structure
+- ✅ Fixed: ReadabilityAnalyzer.get_recommendations() now always generates recommendations when sentence_length and paragraph_length are not optimal
+- All tests now passing:
   - `test_default_config_validation`
   - `test_keyword_density_bounds`
   - `test_keyword_placement_consistency`
   - `test_readability_score_bounds`
   - `test_reading_level_consistency`
-  - (Several others)
+  - `test_recommendations_consistency`
+  - `test_score_reflects_density_and_placement`
 
 ### 2. Integration Tests
 
@@ -101,11 +109,13 @@ Several failures in `test_fallback_strategy.py`:
    - ✅ Update factor_weights_strategy() to use valid floating point ranges
    - ✅ Improve floating-point precision handling in calculate_opportunity_score()
 
-2. 🔄 **Fix Content Optimization Tests**
+2. ✅ **Fix Content Optimization Tests**
    - ✅ Fix parameters: change `max_value` to `max_size` in lists() calls
    - ✅ Fix parameter count in `_calculate_gunning_fog` method
-   - 🔄 Add missing `_extract_text_from_content` method to KeywordAnalyzer
-   - 🔄 Fix typo in ReadabilityAnalyzer.get_score() (`min_flesh` → `min_flesch`)
+   - ✅ Fix KeywordAnalyzer.get_score() to use correct key `placement_score` instead of `score`
+   - ✅ Fix KeywordAnalyzer.get_recommendations() to access correct keys in the keyword_placement data structure
+   - ✅ Fix ReadabilityAnalyzer.get_recommendations() to always generate recommendations when not optimal
+   - ✅ Fix typo in ReadabilityAnalyzer.get_score() (`min_flesh` → `min_flesch`)
 
 3. ✅ **Fix Monetization Integration Test**
    - ✅ Updated has_feature_access method in SubscriptionManager to correctly check free tier permissions
