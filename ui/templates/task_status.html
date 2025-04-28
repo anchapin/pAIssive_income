@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="task-status-container">
+    <h1>{{ task_name }} Progress</h1>
+    
+    <div id="task-status" class="task-status">
+        <div class="progress-container">
+            <div class="progress">
+                <div id="progress-bar" 
+                     class="progress-bar {{ 'bg-success' if status.state == 'SUCCESS' else 'bg-danger' if status.state == 'FAILURE' else 'progress-bar-striped progress-bar-animated bg-info' }}"
+                     role="progressbar" 
+                     style="width: {{ status.current }}%;" 
+                     aria-valuenow="{{ status.current }}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                    {{ status.current }}%
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-info">
+            <p id="status-message">{{ status.status }}</p>
+            <p id="task-state">State: <span class="badge {{ 'bg-success' if status.state == 'SUCCESS' else 'bg-danger' if status.state == 'FAILURE' else 'bg-info' }}">{{ status.state }}</span></p>
+        </div>
+        
+        {% if status.state not in ['SUCCESS', 'FAILURE'] %}
+        <div class="task-actions">
+            <button id="cancel-task" class="btn btn-danger">Cancel</button>
+        </div>
+        {% endif %}
+        
+        {% if status.state == 'FAILURE' %}
+        <div class="error-details">
+            <div class="alert alert-danger">
+                <h4>Error</h4>
+                <p>{{ status.error }}</p>
+            </div>
+            <a href="{{ url_for(request.endpoint.split('_')[0]) }}" class="btn btn-primary">Try Again</a>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if status.result %}
+    <div class="result-preview">
+        <h3>Partial Results</h3>
+        <pre>{{ status.result | tojson(indent=2) }}</pre>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    // Connect to Socket.IO server
+    const socket = io();
+    const taskId = "{{ task_id }}";
+    
+    // Handle connection
+    socket.on('connect', function() {
+        console.log('Connected to server');
+        
+        // Subscribe to task updates
+        socket.emit('subscribe', { task_id: taskId });
+    });
+    
+    // Handle disconnection
+    socket.on('disconnect', function() {
+        console.log('Disconnected from server');
+    });
+    
+    // Handle task updates
+    socket.on('task_update', function(data) {
+        console.log('Task update received:', data);
+        
+        // Update progress bar
+        const progressBar = document.getElementById('progress-bar');
+        if (progressBar) {
+            progressBar.style.width = data.current + '%';
+            progressBar.setAttribute('aria-valuenow', data.current);
+            progressBar.textContent = data.current + '%';
+            
+            // Update progress bar class based on state
+            if (data.state === 'SUCCESS') {
+                progressBar.className = 'progress-bar bg-success';
+            } else if (data.state === 'FAILURE') {
+                progressBar.className = 'progress-bar bg-danger';
+            } else {
+                progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-info';
+            }
+        }
+        
+        // Update status message
+        const statusMessage = document.getElementById('status-message');
+        if (statusMessage && data.status) {
+            statusMessage.textContent = data.status;
+        }
+        
+        // Update task state
+        const taskState = document.getElementById('task-state');
+        if (taskState) {
+            const badge = taskState.querySelector('span');
+            if (badge) {
+                badge.textContent = data.state;
+                
+                // Update badge class based on state
+                if (data.state === 'SUCCESS') {
+                    badge.className = 'badge bg-success';
+                } else if (data.state === 'FAILURE') {
+                    badge.className = 'badge bg-danger';
+                } else {
+                    badge.className = 'badge bg-info';
+                }
+            }
+        }
+        
+        // If task is completed, redirect to results page
+        if (data.state === 'SUCCESS') {
+            // Wait a moment for the user to see the 100% completion
+            setTimeout(function() {
+                // Extract the base endpoint from the current URL
+                const endpoint = '{{ request.endpoint.split("_")[0] }}';
+                window.location.href = '/' + endpoint + '/results';
+            }, 1500);
+        }
+        
+        // If task failed, show error and reload page
+        if (data.state === 'FAILURE') {
+            // Reload the page to show the error details
+            setTimeout(function() {
+                window.location.reload();
+            }, 1000);
+        }
+    });
+    
+    // Set up polling for task status as a fallback
+    const pollInterval = 2000; // 2 seconds
+    let pollTimer = null;
+    
+    function pollTaskStatus() {
+        fetch('/api/task/' + taskId)
+            .then(response => response.json())
+            .then(data => {
+                // Process the data as if it were a socket update
+                const event = new CustomEvent('task_update', { detail: data });
+                window.dispatchEvent(event);
+                
+                // If task is completed, stop polling
+                if (data.state === 'SUCCESS' || data.state === 'FAILURE') {
+                    clearInterval(pollTimer);
+                }
+            })
+            .catch(error => {
+                console.error('Error polling task status:', error);
+            });
+    }
+    
+    // Start polling after a short delay
+    setTimeout(function() {
+        pollTimer = setInterval(pollTaskStatus, pollInterval);
+    }, 5000);
+    
+    // Set up cancel button
+    const cancelButton = document.getElementById('cancel-task');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+            if (confirm('Are you sure you want to cancel this task?')) {
+                // Send cancellation request
+                fetch('/api/task/' + taskId + '/cancel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Task cancelled successfully');
+                        // Extract the base endpoint from the current URL
+                        const endpoint = '{{ request.endpoint.split("_")[0] }}';
+                        window.location.href = '/' + endpoint;
+                    } else {
+                        alert('Could not cancel task: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cancelling task:', error);
+                    alert('Error cancelling task: ' + error);
+                });
+            }
+        });
+    }
+    
+    // Clean up on page unload
+    window.addEventListener('beforeunload', function() {
+        // Unsubscribe from task updates
+        socket.emit('unsubscribe', { task_id: taskId });
+        
+        // Stop polling
+        if (pollTimer) {
+            clearInterval(pollTimer);
+        }
+    });
+</script>
+
+<style>
+    .task-status-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .task-status {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .progress-container {
+        margin-bottom: 20px;
+    }
+    
+    .progress {
+        height: 25px;
+    }
+    
+    .status-info {
+        margin-bottom: 20px;
+    }
+    
+    .task-actions {
+        margin-top: 20px;
+    }
+    
+    .result-preview {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .result-preview pre {
+        background-color: #eee;
+        padding: 10px;
+        border-radius: 5px;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+</style>
+{% endblock %}

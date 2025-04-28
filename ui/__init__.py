@@ -28,6 +28,14 @@ app = Flask(__name__,
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_key_' + str(uuid.uuid4()))
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
+# Initialize Celery
+from .celery_app import create_celery_app
+celery = create_celery_app(app)
+
+# Initialize SocketIO
+from .socketio_app import socketio, init_socketio
+init_socketio(app)
+
 # Import routes after app is created to avoid circular imports
 from . import routes
 

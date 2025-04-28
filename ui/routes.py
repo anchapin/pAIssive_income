@@ -23,6 +23,13 @@ from .errors import (
     UIError, RouteError, ServiceError, ValidationError,
     api_error_handler, handle_exception
 )
+from .tasks import (
+    analyze_niches, create_solution, create_monetization_strategy, 
+    create_marketing_campaign
+)
+from .task_manager import (
+    get_task_status, check_task_completion, store_task_id, get_task_id, cancel_task
+)
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -66,17 +73,55 @@ def niche_analysis():
 
 @app.route('/niche-analysis/run', methods=['POST'])
 def run_niche_analysis():
-    """Run niche analysis on selected market segments."""
+    """Run niche analysis on selected market segments as a background task."""
     # Get selected market segments from form
     market_segments = request.form.getlist('market_segments')
 
-    # Run niche analysis
-    niches = niche_analysis_service.analyze_niches(market_segments)
+    # Validate input
+    if not market_segments:
+        flash("Please select at least one market segment.", "error")
+        return redirect(url_for('niche_analysis'))
 
-    # Store results in session
-    session['niches'] = niches
+    try:
+        # Start background task
+        task = analyze_niches.delay(market_segments)
+        logger.info(f"Started niche analysis task {task.id}")
+        
+        # Store task ID in session
+        store_task_id(session, 'niche_analysis', task.id)
+        
+        # Redirect to task status page
+        return redirect(url_for('niche_analysis_status'))
+    except Exception as e:
+        logger.error(f"Error starting niche analysis task: {e}")
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('niche_analysis'))
 
-    return redirect(url_for('niche_results'))
+@app.route('/niche-analysis/status')
+def niche_analysis_status():
+    """Show status of niche analysis task."""
+    # Get task ID from session
+    task_id = get_task_id(session, 'niche_analysis')
+    if not task_id:
+        flash("No active niche analysis task found.", "error")
+        return redirect(url_for('niche_analysis'))
+    
+    # Get task status
+    status = get_task_status(task_id)
+    
+    # Check if task is completed
+    if status['state'] == 'SUCCESS':
+        # Store results in session
+        session['niches'] = status['result']['niches']
+        # Redirect to results page
+        return redirect(url_for('niche_results'))
+    
+    # Render status page
+    return render_template('task_status.html',
+                         title='Niche Analysis Progress',
+                         task_id=task_id,
+                         task_name='Niche Analysis',
+                         status=status)
 
 @app.route('/niche-analysis/results')
 def niche_results():
@@ -101,17 +146,55 @@ def developer():
 
 @app.route('/developer/solution', methods=['POST'])
 def develop_solution():
-    """Develop a solution for a selected niche."""
+    """Develop a solution for a selected niche as a background task."""
     # Get selected niche from form
     niche_id = request.form.get('niche_id')
 
-    # Develop solution
-    solution = developer_service.create_solution(niche_id)
+    # Validate input
+    if not niche_id:
+        flash("Please select a niche.", "error")
+        return redirect(url_for('developer'))
 
-    # Store results in session
-    session['solution'] = solution
+    try:
+        # Start background task
+        task = create_solution.delay(niche_id)
+        logger.info(f"Started solution development task {task.id}")
+        
+        # Store task ID in session
+        store_task_id(session, 'solution', task.id)
+        
+        # Redirect to task status page
+        return redirect(url_for('solution_status'))
+    except Exception as e:
+        logger.error(f"Error starting solution development task: {e}")
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('developer'))
 
-    return redirect(url_for('solution_results'))
+@app.route('/developer/status')
+def solution_status():
+    """Show status of solution development task."""
+    # Get task ID from session
+    task_id = get_task_id(session, 'solution')
+    if not task_id:
+        flash("No active solution development task found.", "error")
+        return redirect(url_for('developer'))
+    
+    # Get task status
+    status = get_task_status(task_id)
+    
+    # Check if task is completed
+    if status['state'] == 'SUCCESS':
+        # Store results in session
+        session['solution'] = status['result']
+        # Redirect to results page
+        return redirect(url_for('solution_results'))
+    
+    # Render status page
+    return render_template('task_status.html',
+                         title='Solution Development Progress',
+                         task_id=task_id,
+                         task_name='Solution Development',
+                         status=status)
 
 @app.route('/developer/results')
 def solution_results():
@@ -135,18 +218,56 @@ def monetization():
                           solutions=solutions)
 
 @app.route('/monetization/strategy', methods=['POST'])
-def create_monetization_strategy():
-    """Create a monetization strategy for a selected solution."""
+def create_monetization_strategy_route():
+    """Create a monetization strategy for a selected solution as a background task."""
     # Get selected solution from form
     solution_id = request.form.get('solution_id')
 
-    # Create monetization strategy
-    strategy = monetization_service.create_strategy(solution_id)
+    # Validate input
+    if not solution_id:
+        flash("Please select a solution.", "error")
+        return redirect(url_for('monetization'))
 
-    # Store results in session
-    session['monetization_strategy'] = strategy
+    try:
+        # Start background task
+        task = create_monetization_strategy.delay(solution_id)
+        logger.info(f"Started monetization strategy task {task.id}")
+        
+        # Store task ID in session
+        store_task_id(session, 'monetization', task.id)
+        
+        # Redirect to task status page
+        return redirect(url_for('monetization_status'))
+    except Exception as e:
+        logger.error(f"Error starting monetization strategy task: {e}")
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('monetization'))
 
-    return redirect(url_for('monetization_results'))
+@app.route('/monetization/status')
+def monetization_status():
+    """Show status of monetization strategy task."""
+    # Get task ID from session
+    task_id = get_task_id(session, 'monetization')
+    if not task_id:
+        flash("No active monetization strategy task found.", "error")
+        return redirect(url_for('monetization'))
+    
+    # Get task status
+    status = get_task_status(task_id)
+    
+    # Check if task is completed
+    if status['state'] == 'SUCCESS':
+        # Store results in session
+        session['monetization_strategy'] = status['result']
+        # Redirect to results page
+        return redirect(url_for('monetization_results'))
+    
+    # Render status page
+    return render_template('task_status.html',
+                         title='Monetization Strategy Progress',
+                         task_id=task_id,
+                         task_name='Monetization Strategy',
+                         status=status)
 
 @app.route('/monetization/results')
 def monetization_results():
@@ -170,18 +291,56 @@ def marketing():
                           solutions=solutions)
 
 @app.route('/marketing/campaign', methods=['POST'])
-def create_marketing_campaign():
-    """Create a marketing campaign for a selected solution."""
+def create_marketing_campaign_route():
+    """Create a marketing campaign for a selected solution as a background task."""
     # Get selected solution from form
     solution_id = request.form.get('solution_id')
 
-    # Create marketing campaign
-    campaign = marketing_service.create_campaign(solution_id)
+    # Validate input
+    if not solution_id:
+        flash("Please select a solution.", "error")
+        return redirect(url_for('marketing'))
 
-    # Store results in session
-    session['marketing_campaign'] = campaign
+    try:
+        # Start background task
+        task = create_marketing_campaign.delay(solution_id)
+        logger.info(f"Started marketing campaign task {task.id}")
+        
+        # Store task ID in session
+        store_task_id(session, 'marketing', task.id)
+        
+        # Redirect to task status page
+        return redirect(url_for('marketing_status'))
+    except Exception as e:
+        logger.error(f"Error starting marketing campaign task: {e}")
+        flash(f"An error occurred: {str(e)}", "error")
+        return redirect(url_for('marketing'))
 
-    return redirect(url_for('marketing_results'))
+@app.route('/marketing/status')
+def marketing_status():
+    """Show status of marketing campaign task."""
+    # Get task ID from session
+    task_id = get_task_id(session, 'marketing')
+    if not task_id:
+        flash("No active marketing campaign task found.", "error")
+        return redirect(url_for('marketing'))
+    
+    # Get task status
+    status = get_task_status(task_id)
+    
+    # Check if task is completed
+    if status['state'] == 'SUCCESS':
+        # Store results in session
+        session['marketing_campaign'] = status['result']
+        # Redirect to results page
+        return redirect(url_for('marketing_results'))
+    
+    # Render status page
+    return render_template('task_status.html',
+                         title='Marketing Campaign Progress',
+                         task_id=task_id,
+                         task_name='Marketing Campaign',
+                         status=status)
 
 @app.route('/marketing/results')
 def marketing_results():
@@ -199,6 +358,25 @@ def about():
     """Render the about page."""
     return render_template('about.html',
                           title='About pAIssive Income Framework')
+
+# Task management API endpoints
+@app.route('/api/task/<task_id>', methods=['GET'])
+def get_task(task_id):
+    """API endpoint to get task status."""
+    try:
+        status = get_task_status(task_id)
+        return jsonify(status)
+    except Exception as e:
+        return api_error_handler(e)
+
+@app.route('/api/task/<task_id>/cancel', methods=['POST'])
+def cancel_task_route(task_id):
+    """API endpoint to cancel a task."""
+    try:
+        result = cancel_task(task_id)
+        return jsonify({'success': result, 'message': 'Task cancelled' if result else 'Task could not be cancelled'})
+    except Exception as e:
+        return api_error_handler(e)
 
 # API routes
 @app.route('/api/niches', methods=['GET'])
