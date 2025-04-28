@@ -241,9 +241,9 @@ This document outlines the tasks identified in the comprehensive improvement pla
 ### 9.2 Enhanced Monetization Models
 - [x] Add support for usage-based pricing
 - [x] Add support for tiered pricing
-- [ ] Add support for metered billing
-- [ ] Add support for custom pricing rules
-- [ ] Add support for promotional pricing
+- [x] Add support for metered billing
+- [x] Add support for custom pricing rules
+- [x] Add support for promotional pricing
 
 ### 9.3 AI Model Fine-tuning
 - [ ] Add tools for collecting fine-tuning data
