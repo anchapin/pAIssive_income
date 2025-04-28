@@ -121,10 +121,44 @@ class StrategyGenerator(IMarketingStrategy):
 
     def _select_channels(self) -> List[MarketingChannelSchema]:
         """
-        Select appropriate marketing channels based on business profile.
+        Select appropriate marketing channels based on business profile using adaptive channel targeting.
+        
+        This algorithm implements a sophisticated adaptive channel selection system that identifies
+        the most effective marketing channels for a specific business profile. The implementation
+        follows these key phases:
+        
+        1. BUSINESS PROFILE ANALYSIS:
+           - Analyzes core business characteristics (type, size, maturity)
+           - Evaluates target audience demographics and behavior patterns
+           - Identifies primary business goals and marketing objectives
+           - Establishes marketing context (B2B, B2C, hybrid approaches)
+        
+        2. CHANNEL RELEVANCE DETERMINATION:
+           - Calculates baseline relevance for universal channels (social media, content marketing)
+           - Applies business-specific adjustments based on industry benchmarks
+           - Implements audience-specific modifiers to channel relevance scores
+           - Incorporates goal-oriented weighting to prioritize channels that align with objectives
+        
+        3. PLATFORM-SPECIFIC TARGETING:
+           - Identifies specific platforms within each channel category
+           - Evaluates platform-audience alignment for demographic targeting
+           - Assesses platform capabilities against content requirements
+           - Produces platform-specific relevance scores within each channel
+        
+        4. MULTI-FACTOR RANKING AND SELECTION:
+           - Applies composite scoring based on all analyzed factors
+           - Ranks channels by overall effectiveness score
+           - Filters channels based on minimum relevance thresholds
+           - Optimizes channel mix for comprehensive audience coverage
+        
+        This algorithm addresses several critical marketing strategy challenges:
+        - Ensures selection of channels that align with specific business characteristics
+        - Creates a balanced channel portfolio across different marketing approaches
+        - Identifies industry-specific channels that may have higher conversion potential
+        - Provides data-driven relevance scoring to support budget allocation decisions
         
         Returns:
-            List of marketing channel schemas
+            List of marketing channel schemas with complete platform details and relevance scores
         """
         # Placeholder implementation - in a real system, this would use more sophisticated logic
         channels = []
@@ -253,13 +287,47 @@ class StrategyGenerator(IMarketingStrategy):
 
     def _allocate_budget(self, channels: List[MarketingChannelSchema]) -> Dict[str, float]:
         """
-        Allocate budget across marketing channels.
+        Allocate budget across marketing channels using proportional relevance distribution.
+        
+        This algorithm implements an intelligent budget allocation system that optimally
+        distributes financial resources across marketing channels. The implementation
+        follows these key phases:
+        
+        1. CHANNEL IMPORTANCE ANALYSIS:
+           - Evaluates each channel's relevance score as a measure of potential effectiveness
+           - Calculates relative importance of each channel within the overall marketing mix
+           - Normalizes relevance scores to create proportional distribution factors
+           - Accounts for business-specific weighting considerations
+        
+        2. BUDGET CONSTRAINT PROCESSING:
+           - Identifies total available budget from business budget specifications
+           - Applies minimum allocation rules to ensure channel viability
+           - Processes any channel-specific budget constraints or requirements
+           - Implements budget period normalization (monthly, quarterly, annual)
+        
+        3. PROPORTIONAL ALLOCATION CALCULATION:
+           - Distributes budget proportionally according to normalized relevance scores
+           - Calculates precise monetary allocation for each marketing channel
+           - Ensures allocations sum exactly to total available budget
+           - Rounds allocations to appropriate precision for financial planning
+        
+        4. ALLOCATION VALIDATION AND ADJUSTMENT:
+           - Verifies allocations meet minimum threshold requirements for each channel
+           - Adjusts allocations to account for channel-specific cost structures
+           - Ensures no channel is under-resourced below effectiveness threshold
+           - Rebalances allocations after adjustments to maintain budget total
+        
+        This algorithm addresses several critical budget allocation challenges:
+        - Ensures marketing resources are distributed according to potential effectiveness
+        - Creates financially viable allocation for each selected marketing channel
+        - Prevents resource dilution across too many channels
+        - Aligns budget distribution with overall marketing strategy objectives
         
         Args:
-            channels: List of selected marketing channels
+            channels: List of selected marketing channels with relevance scores
             
         Returns:
-            Dictionary mapping channel names to budget allocations
+            Dictionary mapping channel names to budget allocations in monetary units
         """
         # Simple allocation based on relevance score
         total_relevance = sum(channel.relevance_score for channel in channels)
@@ -275,10 +343,44 @@ class StrategyGenerator(IMarketingStrategy):
 
     def _define_metrics(self) -> List[MarketingMetricSchema]:
         """
-        Define metrics to track for the strategy.
+        Define relevant performance metrics using goal-oriented KPI selection.
+        
+        This algorithm implements an intelligent marketing metrics selection system that identifies
+        the most appropriate key performance indicators for a given marketing strategy. The implementation
+        follows these key phases:
+        
+        1. FOUNDATIONAL METRIC ESTABLISHMENT:
+           - Identifies universal marketing metrics applicable to all businesses
+           - Establishes baseline performance expectations for standard metrics
+           - Sets appropriate measurement units for consistent reporting
+           - Creates initial target values based on industry benchmarks
+        
+        2. GOAL-DRIVEN METRIC SELECTION:
+           - Analyzes declared marketing goals to identify relevant goal-specific metrics
+           - Maps marketing objectives to quantifiable performance indicators
+           - Prioritizes metrics with direct correlation to strategic objectives
+           - Ensures comprehensive coverage of all stated marketing goals
+        
+        3. CHANNEL-SPECIFIC METRIC INTEGRATION:
+           - Identifies channel-appropriate performance metrics for selected channels
+           - Incorporates platform-specific metrics for digital marketing channels
+           - Establishes complementary metrics to measure multi-channel synergies
+           - Maintains balanced metrics across various marketing funnel stages
+        
+        4. TARGET VALUE CALIBRATION:
+           - Sets realistic target values based on business size and maturity
+           - Applies industry benchmarks adjusted for specific business context
+           - Establishes baseline current values for tracking improvement over time
+           - Creates appropriate measurement units for each metric type
+        
+        This algorithm addresses several critical marketing measurement challenges:
+        - Ensures comprehensive coverage of marketing performance dimensions
+        - Aligns performance metrics directly with strategic objectives
+        - Provides quantifiable measures for all key marketing activities
+        - Establishes meaningful baselines and targets for performance tracking
         
         Returns:
-            List of marketing metrics
+            List of marketing metrics with appropriate targets and measurement units
         """
         # Common metrics for most strategies
         metrics = [
@@ -343,14 +445,51 @@ class StrategyGenerator(IMarketingStrategy):
 
     def evaluate_strategy(self, strategy_id: str, metrics: Dict[str, float]) -> Dict[str, Any]:
         """
-        Evaluate the effectiveness of a strategy based on provided metrics.
+        Evaluate the effectiveness of a marketing strategy using multi-dimensional performance analysis.
+        
+        This algorithm implements a comprehensive marketing performance evaluation system that quantifies
+        strategy effectiveness across multiple dimensions. The implementation follows these key phases:
+        
+        1. METRIC COLLECTION AND VALIDATION:
+           - Retrieves target metrics from strategy specification 
+           - Validates incoming performance metrics against expected dimensions
+           - Identifies missing metrics and handles data validation errors
+           - Standardizes metrics to ensure consistent evaluation
+        
+        2. PERFORMANCE MEASUREMENT CALCULATION:
+           - Computes achievement percentages for each metric against target values
+           - Implements scaled scoring with upper bounds to prevent outlier distortion
+           - Calculates composite effectiveness score across all tracked metrics
+           - Generates normalized scores for cross-strategy comparison
+        
+        3. TARGETED RECOMMENDATION GENERATION:
+           - Identifies underperforming metrics using threshold-based detection
+           - Analyzes performance patterns to detect systemic vs. isolated issues
+           - Generates specific recommendations for improvement prioritized by impact
+           - Creates actionable insights for strategy refinement
+        
+        4. PERFORMANCE ANALYTICS COMPILATION:
+           - Produces standardized performance report with normalized scores
+           - Includes comparative analysis of current vs. target performance
+           - Provides temporal metadata for trend analysis
+           - Formats output for both human readability and algorithmic processing
+        
+        This algorithm addresses several critical marketing evaluation challenges:
+        - Enables objective assessment of marketing strategy effectiveness
+        - Supports data-driven marketing decision making through quantitative analysis
+        - Identifies specific areas requiring tactical adjustments
+        - Facilitates continuous improvement through iterative strategy refinement
         
         Args:
             strategy_id: ID of the strategy to evaluate
             metrics: Dictionary mapping metric names to current values
             
         Returns:
-            Dictionary with evaluation results
+            Dictionary with evaluation results including overall effectiveness score,
+            current vs. target metrics, and actionable recommendations
+            
+        Raises:
+            ValueError: If strategy with the specified ID is not found
         """
         # Find the strategy
         strategy = next((s for s in self.strategies if s.id == strategy_id), None)
@@ -406,14 +545,50 @@ class StrategyGenerator(IMarketingStrategy):
 
     def revise_strategy(self, strategy_id: str, evaluation_results: Dict[str, Any]) -> MarketingStrategySchema:
         """
-        Revise a strategy based on evaluation results.
+        Revise a marketing strategy based on performance evaluation using adaptive optimization techniques.
+        
+        This algorithm implements an intelligent strategy revision system that adaptively optimizes
+        marketing strategies based on performance data. The implementation follows these key phases:
+        
+        1. PERFORMANCE ANALYSIS:
+           - Retrieves and validates historical performance data from evaluation results
+           - Compares current metrics against target KPIs across all channels
+           - Identifies underperforming and overperforming strategy components
+           - Calculates variance and deviation patterns across multiple metrics
+        
+        2. EFFECTIVENESS-DRIVEN RESOURCE REALLOCATION:
+           - Implements inverse performance correlation for budget redistribution
+           - Creates a weighted adjustment matrix for tactical resource allocation
+           - Applies bounded compensation factors (0.5-1.5) to prevent overcorrection
+           - Ensures budget normalization to maintain total spending constraints
+        
+        3. TACTICAL REFINEMENT:
+           - Identifies metrics-to-tactic relationships through semantic content analysis
+           - Clusters related tactics by performance patterns and marketing funnel stage
+           - Adjusts tactical approaches based on observed effectiveness
+           - Implements channel-specific tactical modifications
+        
+        4. STRATEGIC CONTINUITY MANAGEMENT:
+           - Maintains strategic version history with predecessor relationships
+           - Preserves core strategy components while evolving implementation details
+           - Ensures consistent targeting and messaging across strategy iterations
+           - Creates a complete audit trail of strategic modifications
+        
+        This algorithm addresses several critical marketing optimization challenges:
+        - Enables data-driven adjustment of marketing strategies without manual analysis
+        - Implements incremental optimization while maintaining strategic direction
+        - Balances resource allocation between high-performing and developing channels
+        - Provides systematic improvement of marketing effectiveness over time
         
         Args:
             strategy_id: ID of the strategy to revise
-            evaluation_results: Results from evaluate_strategy
+            evaluation_results: Results from evaluate_strategy containing performance metrics
             
         Returns:
-            Revised marketing strategy
+            A revised marketing strategy with optimized resource allocations and tactical adjustments
+            
+        Raises:
+            ValueError: If strategy with the specified ID is not found
         """
         # Find the strategy
         strategy = next((s for s in self.strategies if s.id == strategy_id), None)

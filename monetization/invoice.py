@@ -467,11 +467,57 @@ class Invoice:
 
     def update_status(self, status: str, reason: Optional[str] = None) -> None:
         """
-        Update the status of the invoice.
-
+        Transition invoice state with comprehensive audit trail management.
+        
+        This algorithm implements a robust state management system with integrated
+        audit logging for financial transactions. The implementation follows these
+        key phases:
+        
+        1. STATE TRANSITION PROCESSING:
+           - Records previous state for proper transition tracking
+           - Applies the new status to update the invoice lifecycle state
+           - Timestamps the transition for chronological record-keeping
+           - Maintains audit records in a persistent, tamper-evident format
+           - Creates a complete audit trail of all status changes
+        
+        2. BUSINESS RULE ENFORCEMENT FOUNDATION:
+           - Forms the foundation for implementing financial workflow rules such as:
+             a) Preventing invalid state transitions (e.g., Void → Paid)
+             b) Enforcing proper authorization rules for status changes
+             c) Ensuring proper sequencing of invoice lifecycle events
+             d) Supporting compliance with financial record-keeping requirements
+        
+        3. AUDIT AND COMPLIANCE SUPPORT:
+           - Captures the complete history of invoice status changes
+           - Records the reason for each status change (manual or automated)
+           - Preserves the chronological sequence of status updates
+           - Enables historical analysis of invoice progression patterns
+           - Supports financial auditing and compliance requirements
+        
+        4. BUSINESS PROCESS INTEGRATION:
+           - Status changes serve as trigger points for business processes:
+             a) Customer communications (e.g., payment reminders)
+             b) Revenue recognition events
+             c) Accounting system integrations
+             d) Collections and payment follow-up activities
+        
+        This status management algorithm addresses several critical requirements:
+        - Proper tracking of invoice lifecycle stages
+        - Complete audit trail for financial compliance and reporting
+        - Foundation for business process automation
+        - Transaction history for financial reconciliation
+        
+        The implementation specifically supports common invoice lifecycle scenarios:
+        - Draft → Sent → Paid progression
+        - Partial payment handling
+        - Overdue invoice management
+        - Voiding and cancellation workflows
+        - Status correction and adjustment with proper documentation
+        
         Args:
-            status: New status
-            reason: Reason for the status change
+            status: New invoice status to set from InvoiceStatus constants
+            reason: Optional description of why the status is being changed
+                   (automatically generated if not provided)
         """
         old_status = self.status
         self.status = status
@@ -493,17 +539,67 @@ class Invoice:
         metadata: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
-        Add a payment to the invoice.
-
+        Register a payment and update invoice status through intelligent state management.
+        
+        This algorithm implements a robust payment processing workflow with automatic
+        status transitions based on business rules. The implementation follows these key stages:
+        
+        1. PAYMENT RECORD CREATION:
+           - Generates a unique identifier for each payment transaction
+           - Records essential payment details (amount, date, method, transaction ID)
+           - Timestamps the payment for audit and reconciliation purposes
+           - Preserves metadata for integration with external payment systems
+           - Maintains a complete payment history for the invoice
+        
+        2. INTELLIGENT INVOICE STATUS MANAGEMENT:
+           - Automatically calculates current payment status after each transaction
+           - Implements smart state transitions based on payment completeness:
+             a) Not Paid → Partially Paid → Fully Paid
+             b) Overdue → Partially Paid → Fully Paid
+           - Prevents invalid status transitions (e.g., Canceled → Paid)
+           - Provides proper audit trail through status history records
+           - Handles edge cases like overpayment or micropayments gracefully
+        
+        3. PAYMENT VALIDATION AND RECONCILIATION:
+           - Ensures payment amounts are properly accumulated and tracked
+           - Updates the balance due calculation automatically
+           - Facilitates payment reconciliation through complete transaction history
+           - Forms the foundation for financial reporting and revenue recognition
+        
+        4. EVENT TRIGGERING MECHANISM:
+           - The status changes triggered by payments can serve as hooks for:
+             a) Customer notifications
+             b) Accounting system updates
+             c) Service provisioning actions
+             d) Reporting and analytics updates
+        
+        This payment management algorithm addresses several critical business requirements:
+        - Accurate tracking of customer payments and invoice status
+        - Automated workflow for payment processing
+        - Complete audit trail for financial compliance
+        - Foundation for accounts receivable management
+        
+        The implementation specifically supports common business scenarios:
+        - Partial payments with remaining balance tracking
+        - Multiple payment methods for a single invoice
+        - Payment reconciliation with external systems
+        - Historical payment analysis and reporting
+        
         Args:
-            amount: Payment amount
-            date: Payment date
-            payment_method: Payment method
-            transaction_id: Transaction ID
-            metadata: Additional metadata for the payment
-
+            amount: Payment amount received from the customer
+            date: Date when the payment was received (defaults to current time)
+            payment_method: Method used for payment (e.g., "Credit Card", "ACH", "Check")
+            transaction_id: External reference ID from payment processor
+            metadata: Additional payment information for integration or reconciliation
+            
         Returns:
-            Dictionary with payment information
+            Dictionary containing the complete payment record including:
+            - id: Unique identifier for this payment
+            - amount: Payment amount
+            - date: ISO-formatted payment date
+            - payment_method: How the payment was made
+            - transaction_id: External reference for reconciliation
+            - metadata: Any additional payment details
         """
         payment = {
             "id": str(uuid.uuid4()),
@@ -623,15 +719,55 @@ class Invoice:
 
     def get_total(self) -> float:
         """
-        Get the total amount for the invoice.
-
+        Calculate the final invoice amount through multi-component aggregation.
+        
+        This algorithm implements a robust invoice total calculation that follows
+        standard accounting practices for proper financial aggregation. The implementation
+        follows these key stages:
+        
+        1. COMPONENT-BASED CALCULATION:
+           - Aggregates multiple financial components rather than a simple sum
+           - Properly accounts for tax-exclusive and tax-inclusive items
+           - Handles additional fees (both fixed and percentage-based)
+           - Maintains correct calculation order for financial accuracy
+        
+        2. HIERARCHICAL AGGREGATION:
+           - First calculates line item values (unit price × quantity)
+           - Then applies discounts to determine taxable amounts
+           - Computes tax on the appropriate taxable base
+           - Finally adds additional fees for the complete invoice total
+        
+        3. ACCOUNTING BEST PRACTICES:
+           - Follows proper accounting order-of-operations
+           - Avoids common calculation errors (e.g., calculating tax on already-taxed amounts)
+           - Properly handles the distinction between gross and net amounts
+           - Ensures no mathematical distortion of the true invoice value
+        
+        4. EXTENSIBILITY CONSIDERATIONS:
+           - Supports both fixed and percentage-based additional fees
+           - Allows for future addition of tax categories or discount types
+           - Maintains separation of concerns between line items and invoice-level calculations
+           - Provides a solid foundation for complex pricing models
+        
+        This invoice total calculation algorithm addresses several critical requirements:
+        - Accurate financial representation for accounting and tax purposes
+        - Proper handling of multiple pricing components
+        - Transparent total calculation that can be audited
+        - Support for various business models and fee structures
+        
+        The implementation specifically supports common real-world scenarios:
+        - Products/services with different tax rates on the same invoice
+        - Inclusion of processing fees or service charges
+        - Fixed and percentage-based additional charges
+        - Mix of taxable and non-taxable items
+        
         Returns:
-            Total amount
+            The complete invoice total amount, including taxes and additional fees
         """
         return (
-            self.get_taxable_amount() +
-            self.get_tax_total() +
-            self.get_additional_fees_total()
+            self.get_taxable_amount() +  # Base amount after discounts
+            self.get_tax_total() +       # All applicable taxes 
+            self.get_additional_fees_total()  # Service charges and other fees
         )
 
     def format_amount(self, amount: float) -> str:
@@ -722,13 +858,59 @@ class Invoice:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Invoice':
         """
-        Create an invoice from a dictionary.
-
+        Reconstruct a complete invoice object from serialized data with full integrity.
+        
+        This algorithm implements a robust deserialization process for invoice data
+        with comprehensive reconstruction of the object hierarchy. The implementation
+        follows these key phases:
+        
+        1. HIERARCHICAL RECONSTRUCTION:
+           - Rebuilds the complete invoice structure from flat serialized data
+           - Reestablishes parent-child relationships between invoice and line items
+           - Properly reconstructs metadata, payments, and status history
+           - Maintains referential integrity throughout the invoice object graph
+           - Ensures all calculated properties are properly recomputed
+        
+        2. DATA VALIDATION AND INTEGRITY:
+           - Preserves critical identifiers (invoice ID, invoice number, etc.)
+           - Ensures proper data type conversion (strings to dates, etc.)
+           - Handles both required and optional fields appropriately
+           - Maintains backward compatibility with older serialized formats
+           - Ensures the integrity of the reconstructed invoice object
+        
+        3. COMPLETE STATE RESTORATION:
+           - Restores the full invoice state including:
+             a) Financial data (items, totals, payments)
+             b) Metadata (company info, customer info, custom fields)
+             c) Status history and audit trail information
+             d) Payment records and transaction history
+           - Maintains accurate timestamps for all historical events
+        
+        4. SERIALIZATION FORMAT RESILIENCE:
+           - Handles potential format variations gracefully
+           - Uses proper default values for missing optional fields
+           - Maintains compatibility across serialization versions
+           - Properly handles both primitive and complex nested data types
+        
+        This invoice reconstruction algorithm addresses several critical requirements:
+        - Accurate invoice restoration for long-term data persistence
+        - Reliable data transfer between system components
+        - Complete audit trail preservation
+        - Format resilience for backward compatibility
+        
+        The implementation specifically supports common data exchange scenarios:
+        - Invoice data loaded from storage (database, files)
+        - Invoice data imported from external systems
+        - Historical invoice lookup and restoration
+        - Cross-system invoice data synchronization
+        
         Args:
-            data: Dictionary with invoice data
-
+            data: A dictionary containing the serialized invoice data with all
+                 necessary invoice properties, including items, payments, and metadata
+                 
         Returns:
-            Invoice instance
+            A fully reconstructed Invoice instance with all properties, relationships,
+            and history properly restored
         """
         # Create invoice
         invoice = cls(

@@ -27,6 +27,15 @@ logger = logging.getLogger(__name__)
 class AgentModelProvider:
     """
     Provider for AI models used by agents.
+    
+    This class serves as a bridge between the Agent Team module and the AI Models module,
+    providing a way for different agent types (researcher, developer, etc.) to access
+    appropriate AI models for their specific tasks. It implements a sophisticated model
+    selection algorithm that considers both the agent type and task type when finding
+    the most suitable model.
+    
+    The provider maintains a mapping of agent-to-model assignments and can dynamically
+    find models based on predefined preferences when no explicit assignment exists.
     """
 
     def __init__(self, model_manager: Optional[IModelManager] = None):
@@ -47,11 +56,19 @@ class AgentModelProvider:
         else:
             self.model_manager = model_manager
 
+        # Dictionary to store agent model assignments
+        # Structure: {agent_type: {task_type: model_id}}
         self.agent_models: Dict[str, Dict[str, Any]] = {}
 
     def get_model_for_agent(self, agent_type: str, task_type: Optional[str] = None) -> Any:
         """
         Get a model for a specific agent and task.
+
+        This method implements a multi-step model selection process:
+        1. Check if there's an explicit assignment for this agent and task
+        2. If not, find a suitable model based on agent and task preferences
+        3. Load the selected model
+        4. Record the assignment for future use
 
         Args:
             agent_type: Type of agent (researcher, developer, etc.)
@@ -89,6 +106,17 @@ class AgentModelProvider:
         """
         Find a suitable model for a specific agent and task.
 
+        This algorithm implements a preference-based model selection strategy:
+        
+        1. Define preference lists for both agent types and task types
+        2. For the given agent_type and task_type, retrieve their specific preferences
+        3. Find the intersection of preferences if both are provided (agent AND task preferences)
+        4. Try to find models matching the combined preferences in order of priority
+        5. Fall back to any available model if no matches found
+        
+        This approach ensures that each agent gets a model that is optimized for both
+        its general role (agent_type) and specific current task (task_type).
+
         Args:
             agent_type: Type of agent (researcher, developer, etc.)
             task_type: Optional type of task (text-generation, embedding, etc.)
@@ -100,6 +128,7 @@ class AgentModelProvider:
         all_models = self.model_manager.get_all_models()
 
         # Define model preferences for different agent types
+        # This maps agent types to a prioritized list of model types they prefer
         agent_preferences = {
             "researcher": ["huggingface", "llama"],
             "developer": ["huggingface", "llama"],
@@ -109,6 +138,7 @@ class AgentModelProvider:
         }
 
         # Define model preferences for different task types
+        # This maps task types to a prioritized list of model types best suited for them
         task_preferences = {
             "text-generation": ["huggingface", "llama"],
             "embedding": ["embedding"],
@@ -118,21 +148,26 @@ class AgentModelProvider:
         }
 
         # Get preferences for the specified agent type
+        # Use default preferences if agent_type is not found in the mapping
         agent_prefs = agent_preferences.get(agent_type, ["huggingface", "llama"])
 
         # Get preferences for the specified task type
+        # Only consider task preferences if a task_type was provided
         task_prefs = task_preferences.get(task_type, ["huggingface", "llama"]) if task_type else []
 
         # Combine preferences
+        # If task_prefs is not empty, find the intersection (preferences that satisfy both)
+        # Otherwise, just use the agent preferences
         combined_prefs = list(set(agent_prefs) & set(task_prefs)) if task_prefs else agent_prefs
 
         # Find a model that matches the preferences
+        # Try each preferred model type in order until a match is found
         for model_type in combined_prefs:
             models = self.model_manager.get_models_by_type(model_type)
             if models:
-                return models[0]
+                return models[0]  # Return the first model of the preferred type
 
-        # If no model matches the preferences, return any available model
+        # If no model matches the preferences, return any available model as fallback
         return all_models[0] if all_models else None
 
     def assign_model_to_agent(self, agent_type: str, model_id: str, task_type: Optional[str] = None) -> None:

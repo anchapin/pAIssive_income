@@ -103,6 +103,18 @@ def analyze_pruning(
     """
     Analyze the effects of pruning on a model.
     
+    This function performs a comprehensive analysis to quantify how model pruning 
+    affects key performance metrics. The analysis consists of several stages:
+    
+    1. Model loading: Both original and pruned models are loaded
+    2. Size analysis: Compare file size and memory footprint
+    3. Sparsity calculation: Measure the percentage of zero weights in each model
+    4. Inference speed measurement: Time the generation of text for both models
+    5. Output quality comparison: Calculate similarity between outputs of both models
+    
+    The comprehensive report enables data-driven decisions about pruning parameters
+    by quantifying the tradeoffs between model size, inference speed, and output quality.
+    
     Args:
         original_model_path: Path to the original model
         pruned_model_path: Path to the pruned model
@@ -112,7 +124,10 @@ def analyze_pruning(
         **kwargs: Additional parameters for generation
         
     Returns:
-        Dictionary with analysis results
+        Dictionary with analysis results containing:
+        - Original and pruned model statistics
+        - Comparison metrics (size reduction, speed improvement, etc.)
+        - Actual outputs for comparison
     """
     if not TORCH_AVAILABLE or not TRANSFORMERS_AVAILABLE:
         raise ImportError("PyTorch and Transformers are required for pruning analysis")
@@ -124,7 +139,7 @@ def analyze_pruning(
     original_tokenizer = AutoTokenizer.from_pretrained(original_model_path)
     original_model = AutoModelForCausalLM.from_pretrained(
         original_model_path,
-        device_map="auto"
+        device_map="auto"  # Automatically use best available device (CPU/GPU)
     )
     
     # Load pruned model and tokenizer
@@ -132,14 +147,17 @@ def analyze_pruning(
     pruned_tokenizer = AutoTokenizer.from_pretrained(pruned_model_path)
     pruned_model = AutoModelForCausalLM.from_pretrained(
         pruned_model_path,
-        device_map="auto"
+        device_map="auto"  # Automatically use best available device (CPU/GPU)
     )
     
-    # Generate input prompts
+    # Generate input prompts for testing model generation
+    # Either use the provided input text or default test prompts
     if input_text:
+        # Use the same input text for all samples to reduce variance
         prompts = [input_text] * num_samples
     else:
-        # Use default prompts
+        # Use a diverse set of default prompts to test different aspects
+        # of language generation (stories, facts, opinions, etc.)
         prompts = [
             "Once upon a time in a land far away,",
             "The quick brown fox jumps over the lazy dog.",
@@ -151,24 +169,27 @@ def analyze_pruning(
         # Limit to num_samples
         prompts = prompts[:num_samples]
         
-        # Duplicate if needed
+        # If we have fewer default prompts than requested samples,
+        # duplicate prompts to reach the required number
         while len(prompts) < num_samples:
             prompts.append(prompts[len(prompts) % len(prompts)])
     
-    # Analyze model size and sparsity
+    # STAGE 1: Analyze model size and sparsity
+    # This quantifies the memory/storage benefit of pruning
     original_size = _get_model_size(original_model)
     pruned_size = _get_model_size(pruned_model)
     original_sparsity = _calculate_model_sparsity(original_model)
     pruned_sparsity = _calculate_model_sparsity(pruned_model)
     
-    # Analyze generation speed and quality
+    # STAGE 2: Analyze generation speed and output quality
+    # This measures the performance impact and output quality changes
     original_times = []
     pruned_times = []
     original_outputs = []
     pruned_outputs = []
     
     for prompt in prompts:
-        # Generate with original model
+        # Generate text with original model and measure time
         start_time = time.time()
         original_output = _generate_text(original_model, original_tokenizer, prompt, max_tokens, **kwargs)
         original_time = time.time() - start_time
@@ -176,7 +197,7 @@ def analyze_pruning(
         original_times.append(original_time)
         original_outputs.append(original_output)
         
-        # Generate with pruned model
+        # Generate text with pruned model and measure time
         start_time = time.time()
         pruned_output = _generate_text(pruned_model, pruned_tokenizer, prompt, max_tokens, **kwargs)
         pruned_time = time.time() - start_time
@@ -184,12 +205,21 @@ def analyze_pruning(
         pruned_times.append(pruned_time)
         pruned_outputs.append(pruned_output)
     
-    # Calculate metrics
+    # STAGE 3: Calculate comparison metrics
+    # These derived metrics provide a clear picture of the pruning impact
+    
+    # Size reduction as a ratio and percentage
     size_reduction = 1.0 - (pruned_size / original_size)
+    
+    # Speed improvement as a ratio (>1.0 means faster)
+    # Using mean times to get a stable measurement across samples
     speed_improvement = np.mean(original_times) / np.mean(pruned_times)
+    
+    # Sparsity increase (percentage points of additional zeros)
     sparsity_increase = pruned_sparsity - original_sparsity
     
-    # Calculate output similarity
+    # STAGE 4: Calculate output similarity to measure quality degradation
+    # Higher similarity indicates less quality degradation from pruning
     similarities = []
     for orig, pruned in zip(original_outputs, pruned_outputs):
         similarity = _calculate_text_similarity(orig, pruned)
@@ -197,8 +227,10 @@ def analyze_pruning(
     
     avg_similarity = np.mean(similarities)
     
-    # Create analysis results
+    # STAGE 5: Compile comprehensive analysis results
+    # Structure the data for easy interpretation and visualization
     results = {
+        # Original model statistics
         "original_model": {
             "path": original_model_path,
             "size_mb": original_size,
@@ -206,6 +238,7 @@ def analyze_pruning(
             "avg_generation_time": np.mean(original_times),
             "outputs": original_outputs
         },
+        # Pruned model statistics
         "pruned_model": {
             "path": pruned_model_path,
             "size_mb": pruned_size,
@@ -213,20 +246,23 @@ def analyze_pruning(
             "avg_generation_time": np.mean(pruned_times),
             "outputs": pruned_outputs
         },
+        # Key comparison metrics
         "comparison": {
             "size_reduction": size_reduction,
-            "size_reduction_percent": size_reduction * 100,
+            "size_reduction_percent": size_reduction * 100,  # More intuitive percentage
             "speed_improvement": speed_improvement,
-            "speed_improvement_percent": (speed_improvement - 1) * 100,
+            "speed_improvement_percent": (speed_improvement - 1) * 100,  # Percentage speedup
             "sparsity_increase": sparsity_increase,
-            "sparsity_increase_percent": sparsity_increase * 100,
+            "sparsity_increase_percent": sparsity_increase * 100,  # Percentage point increase
             "output_similarity": avg_similarity,
-            "individual_similarities": similarities
+            "individual_similarities": similarities  # For detailed analysis
         },
+        # Preserve input data for reference
         "prompts": prompts
     }
     
-    # Try to get pruning info
+    # Add pruning configuration if available
+    # This helps track which pruning settings were used
     try:
         pruning_config_path = os.path.join(pruned_model_path, "pruning_config.json")
         if os.path.exists(pruning_config_path):
@@ -244,20 +280,32 @@ def _get_model_size(model) -> float:
     """
     Get the size of a model in megabytes.
     
+    This function calculates the in-memory size of a PyTorch model by:
+    1. Summing the size of all parameters (weights and biases)
+    2. Summing the size of all buffers (e.g., running stats in batch norm)
+    3. Converting the total size to megabytes
+    
+    The calculation accounts for both the number of elements and their data type sizes,
+    providing an accurate measure of the model's memory footprint.
+    
     Args:
         model: PyTorch model
         
     Returns:
         Size in megabytes
     """
+    # Calculate size of all parameters (weights and biases)
     param_size = 0
     for param in model.parameters():
+        # Number of elements * bytes per element
         param_size += param.nelement() * param.element_size()
     
+    # Calculate size of all buffers (running stats, etc.)
     buffer_size = 0
     for buffer in model.buffers():
         buffer_size += buffer.nelement() * buffer.element_size()
     
+    # Convert to megabytes
     size_mb = (param_size + buffer_size) / (1024 * 1024)
     return size_mb
 
@@ -266,29 +314,53 @@ def _calculate_model_sparsity(model) -> float:
     """
     Calculate the sparsity of a model.
     
+    Sparsity is the proportion of zero-valued parameters in a model's weight matrices.
+    Higher sparsity generally means better compression potential and faster inference
+    on hardware that supports sparse operations.
+    
+    This function:
+    1. Counts the total number of parameters in weight matrices (excluding biases)
+    2. Counts how many of those parameters are exactly zero
+    3. Calculates the ratio of zero parameters to total parameters
+    
+    Only weight matrices (dim > 1) are considered because:
+    - Biases are typically not pruned as they represent a small fraction of parameters
+    - Pruning biases can disproportionately affect model quality
+    
     Args:
         model: PyTorch model
         
     Returns:
-        Sparsity (0.0 to 1.0)
+        Sparsity as a float between 0.0 (dense) and 1.0 (completely sparse)
     """
     total_params = 0
     zero_params = 0
     
     for param in model.parameters():
         if param.dim() > 1:  # Only consider weight matrices, not biases
-            total_params += param.numel()
-            zero_params += (param == 0).sum().item()
+            total_params += param.numel()  # Total number of elements
+            zero_params += (param == 0).sum().item()  # Count zeros
     
     if total_params == 0:
-        return 0.0
+        return 0.0  # Avoid division by zero
     
-    return zero_params / total_params
+    return zero_params / total_params  # Sparsity ratio
 
 
 def _generate_text(model, tokenizer, prompt: str, max_tokens: int, **kwargs) -> str:
     """
     Generate text using a model.
+    
+    This function handles the text generation process with a given language model:
+    1. Tokenize the input prompt and move to the appropriate device
+    2. Set up generation parameters with smart defaults
+    3. Generate text without computing gradients (for efficiency)
+    4. Decode the generated token IDs back to text
+    
+    The generation is done with torch.no_grad() to:
+    - Improve inference speed
+    - Reduce memory usage
+    - Prevent accidental gradient accumulation
     
     Args:
         model: PyTorch model
@@ -298,25 +370,27 @@ def _generate_text(model, tokenizer, prompt: str, max_tokens: int, **kwargs) -> 
         **kwargs: Additional parameters for generation
         
     Returns:
-        Generated text
+        Generated text as a string
     """
+    # Tokenize input and move to model's device (CPU/GPU)
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     
-    # Set default generation parameters
+    # Set default generation parameters for reasonable output
     generation_kwargs = {
-        "max_new_tokens": max_tokens,
-        "temperature": 0.7,
-        "top_p": 0.9,
-        "do_sample": True
+        "max_new_tokens": max_tokens,  # Control length of generated text
+        "temperature": 0.7,            # Control randomness (higher = more random)
+        "top_p": 0.9,                  # Nucleus sampling parameter
+        "do_sample": True              # Use sampling instead of greedy decoding
     }
     
-    # Update with user-provided parameters
+    # Override defaults with any user-provided parameters
     generation_kwargs.update(kwargs)
     
-    # Generate
+    # Generate text without computing gradients (for efficiency)
     with torch.no_grad():
         outputs = model.generate(**inputs, **generation_kwargs)
     
+    # Decode the generated token IDs back to text and return
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 
@@ -324,21 +398,41 @@ def _calculate_text_similarity(text1: str, text2: str) -> float:
     """
     Calculate similarity between two texts.
     
+    This function implements a character-level Jaccard similarity metric:
+    - Fast and language-agnostic
+    - Works for comparing texts of different lengths
+    - Provides a normalized score between 0 (completely different) and 1 (identical)
+    
+    The Jaccard similarity is defined as the size of the intersection 
+    divided by the size of the union of the character sets. This method provides a
+    reasonable approximation of text similarity for the purpose of comparing
+    model outputs.
+    
+    For more sophisticated comparisons, consider using:
+    - BLEU or ROUGE scores for specific NLP tasks
+    - Embedding-based similarity for semantic comparison
+    - Edit distance for character-level differences
+    
     Args:
         text1: First text
         text2: Second text
         
     Returns:
-        Similarity score (0-1)
+        Similarity score between 0.0 (completely different) and 1.0 (identical)
     """
-    # Simple character-level Jaccard similarity
+    # Convert texts to sets of characters for Jaccard similarity
     set1 = set(text1)
     set2 = set(text2)
     
+    # Calculate intersection (characters in both texts)
     intersection = len(set1.intersection(set2))
+    
+    # Calculate union (unique characters across both texts)
     union = len(set1.union(set2))
     
+    # Handle edge case of empty texts
     if union == 0:
         return 0.0
     
+    # Jaccard similarity = intersection size / union size
     return intersection / union

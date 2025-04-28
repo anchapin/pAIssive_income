@@ -66,6 +66,22 @@ except ImportError:
 class ModelCache:
     """
     Cache for AI model responses to improve performance and reduce resource usage.
+    
+    This implementation provides a two-tiered caching system:
+    1. In-memory cache for fast access to frequently used items
+    2. Persistent file-based cache for longer-term storage
+    
+    The cache uses a deterministic hashing algorithm to generate unique keys based on:
+    - Model name
+    - Input text
+    - Model parameters
+    
+    This ensures identical requests get the same cached response, reducing 
+    computational load and improving response times. The system also handles:
+    - Thread safety with locks for concurrent access
+    - TTL (time-to-live) expiration for cache items
+    - LRU (least recently used) eviction policy for memory cache
+    - Automatic cleanup of invalid or expired cache entries
     """
 
     def __init__(self, cache_dir: str = ".cache", max_size: int = 1000, ttl: int = 86400):
@@ -80,7 +96,9 @@ class ModelCache:
         self.cache_dir = cache_dir
         self.max_size = max_size
         self.ttl = ttl
+        # The memory cache is a dictionary: {cache_key: {response, timestamp, metadata}}
         self.memory_cache = {}
+        # Use a thread lock to ensure thread safety for cache operations
         self.cache_lock = threading.Lock()
 
         # Create cache directory if it doesn't exist
@@ -90,6 +108,17 @@ class ModelCache:
     def _get_cache_key(self, model_name: str, input_text: str, params: Dict[str, Any]) -> str:
         """
         Generate a cache key from the model name, input text, and parameters.
+        
+        This method creates a deterministic hash that uniquely identifies a specific
+        model inference request based on all its inputs. The algorithm:
+        1. Converts parameters to a consistent string representation
+        2. Concatenates model name, input text, and parameters
+        3. Creates an MD5 hash of this string for a compact, fixed-length key
+        
+        Using a cryptographic hash function ensures:
+        - Uniformity: Even small changes in input produce different keys
+        - Determinism: Same inputs always produce the same key
+        - Fixed length: Keys have consistent length regardless of input size
 
         Args:
             model_name: Name of the model
@@ -100,9 +129,11 @@ class ModelCache:
             Cache key string
         """
         # Create a string representation of the parameters
+        # Sort the keys to ensure consistent ordering regardless of dict creation order
         params_str = json.dumps(params, sort_keys=True)
         
         # Create a hash of the input and parameters
+        # Using MD5 for speed and sufficient collision resistance for caching
         key = hashlib.md5(f"{model_name}:{input_text}:{params_str}".encode()).hexdigest()
         
         return key
@@ -122,6 +153,17 @@ class ModelCache:
     def get(self, model_name: str, input_text: str, params: Dict[str, Any]) -> Optional[Any]:
         """
         Get a cached response if available.
+        
+        This method implements the cache lookup strategy:
+        1. Generate a unique cache key for the request
+        2. First check memory cache (fast, but volatile)
+        3. If not in memory, check file cache (slower, but persistent)
+        4. In both cases, verify the cache item hasn't expired (TTL)
+        5. For file cache hits, load into memory cache for faster future access
+        6. Apply LRU eviction if memory cache exceeds max size
+        
+        The multi-tiered approach balances speed (memory) with persistence (file),
+        while the TTL mechanism ensures cached data doesn't become stale.
 
         Args:
             model_name: Name of the model
@@ -129,15 +171,15 @@ class ModelCache:
             params: Model parameters
 
         Returns:
-            Cached response or None if not found
+            Cached response or None if not found/expired
         """
         key = self._get_cache_key(model_name, input_text, params)
         
-        # Check memory cache first
+        # Check memory cache first (fast access)
         with self.cache_lock:
             if key in self.memory_cache:
                 cache_item = self.memory_cache[key]
-                # Check if the item is still valid
+                # Check if the item is still valid (not expired)
                 if time.time() - cache_item["timestamp"] < self.ttl:
                     logger.debug(f"Cache hit (memory): {key}")
                     return cache_item["response"]
@@ -145,21 +187,22 @@ class ModelCache:
                     # Remove expired item from memory cache
                     del self.memory_cache[key]
         
-        # Check file cache
+        # If not in memory cache or expired, check file cache
         cache_file = self._get_cache_file_path(key)
         if os.path.exists(cache_file):
             try:
                 with open(cache_file, 'r') as f:
                     cache_item = json.load(f)
                 
-                # Check if the item is still valid
+                # Check if the item is still valid (not expired)
                 if time.time() - cache_item["timestamp"] < self.ttl:
-                    # Add to memory cache
+                    # Add to memory cache for faster future access
                     with self.cache_lock:
                         self.memory_cache[key] = cache_item
-                        # Trim memory cache if needed
+                        
+                        # Implement LRU eviction if memory cache exceeds max size
                         if len(self.memory_cache) > self.max_size:
-                            # Remove oldest item
+                            # Find and remove the oldest item (lowest timestamp)
                             oldest_key = min(self.memory_cache.keys(), 
                                             key=lambda k: self.memory_cache[k]["timestamp"])
                             del self.memory_cache[oldest_key]
@@ -170,16 +213,28 @@ class ModelCache:
                     # Remove expired cache file
                     os.remove(cache_file)
             except (json.JSONDecodeError, KeyError) as e:
+                # Handle corrupted cache files
                 logger.warning(f"Error reading cache file {cache_file}: {e}")
                 # Remove corrupted cache file
                 os.remove(cache_file)
         
+        # Cache miss if execution reaches here
         logger.debug(f"Cache miss: {key}")
         return None
 
     def set(self, model_name: str, input_text: str, params: Dict[str, Any], response: Any) -> None:
         """
         Cache a model response.
+        
+        This method implements the cache storage strategy:
+        1. Generate a unique cache key for the request
+        2. Create a cache item with response data and metadata
+        3. Store in memory cache with thread safety
+        4. Implement LRU eviction if memory cache exceeds max size
+        5. Persist to file cache for longer-term storage
+        
+        The dual storage approach ensures fast access for frequently used items
+        while maintaining persistence across application restarts.
 
         Args:
             model_name: Name of the model
@@ -190,6 +245,7 @@ class ModelCache:
         key = self._get_cache_key(model_name, input_text, params)
         timestamp = time.time()
         
+        # Create cache item with response and metadata
         cache_item = {
             "model_name": model_name,
             "input_text": input_text,
@@ -198,17 +254,18 @@ class ModelCache:
             "timestamp": timestamp
         }
         
-        # Add to memory cache
+        # Add to memory cache with thread safety
         with self.cache_lock:
             self.memory_cache[key] = cache_item
-            # Trim memory cache if needed
+            
+            # Apply LRU eviction if memory cache exceeds max size
             if len(self.memory_cache) > self.max_size:
-                # Remove oldest item
+                # Find and remove the oldest item (lowest timestamp)
                 oldest_key = min(self.memory_cache.keys(), 
                                 key=lambda k: self.memory_cache[k]["timestamp"])
                 del self.memory_cache[oldest_key]
         
-        # Add to file cache
+        # Persist to file cache
         cache_file = self._get_cache_file_path(key)
         try:
             with open(cache_file, 'w') as f:
@@ -220,18 +277,31 @@ class ModelCache:
     def clear(self, older_than: Optional[int] = None) -> int:
         """
         Clear the cache.
+        
+        This method provides cache maintenance with two modes:
+        1. Complete clear: Remove all cache items (memory and file)
+        2. Age-based clear: Remove only items older than a specified time
+        
+        The age-based option is particularly useful for:
+        - Periodic cleanup of stale data
+        - Clearing only old data while preserving recent items
+        - Managing cache size without complete invalidation
+        
+        Thread safety is maintained through locks for memory cache operations.
 
         Args:
             older_than: Clear items older than this many seconds
+                       If None, clear all items
 
         Returns:
             Number of items cleared
         """
         count = 0
         
-        # Clear memory cache
+        # Clear memory cache with thread safety
         with self.cache_lock:
             if older_than is not None:
+                # Age-based clear for memory cache
                 current_time = time.time()
                 keys_to_remove = [
                     key for key, item in self.memory_cache.items()
@@ -241,6 +311,7 @@ class ModelCache:
                     del self.memory_cache[key]
                 count += len(keys_to_remove)
             else:
+                # Complete clear for memory cache
                 count += len(self.memory_cache)
                 self.memory_cache.clear()
         
@@ -250,12 +321,14 @@ class ModelCache:
                 file_path = os.path.join(self.cache_dir, filename)
                 try:
                     if older_than is not None:
-                        # Check file age
+                        # Age-based clear for file cache
+                        # Use file modification time as a proxy for cache item timestamp
                         file_time = os.path.getmtime(file_path)
                         if time.time() - file_time > older_than:
                             os.remove(file_path)
                             count += 1
                     else:
+                        # Complete clear for file cache
                         os.remove(file_path)
                         count += 1
                 except OSError as e:

@@ -314,47 +314,134 @@ class PricingRule:
     
     def calculate_cost(self, quantity: float) -> float:
         """
-        Calculate the cost for a quantity using this rule.
+        Calculate the cost for a quantity using this pricing rule's model.
+        
+        This algorithm implements a comprehensive billing calculation system that supports
+        multiple pricing models commonly used in SaaS and cloud services. The implementation
+        follows these key stages:
+        
+        1. MODEL-SPECIFIC CALCULATION STRATEGIES:
+           - Implements six distinct pricing models in a single unified method:
+             a) FLAT_RATE: Fixed cost regardless of usage (e.g., base subscription fee)
+             b) PER_UNIT: Simple linear pricing (e.g., $0.01 per API call)
+             c) TIERED: Threshold-based pricing where the entire quantity is priced at the 
+                tier rate that contains it (e.g., 0-1000 units at $10, 1001-10000 at $8)
+           d) GRADUATED: Volume-based pricing where each usage segment is priced at its
+              corresponding tier rate (e.g., first 1000 units at $10, next 9000 at $8)
+           e) PACKAGE: Bundle pricing with optional overage charges (e.g., $5 for 1000 units,
+              then $0.005 per unit after that)
+           f) CUSTOM: Extensible pricing using custom calculator functions
+           
+        2. TIERED PRICING LOGIC:
+           - For standard tiered pricing, finds the containing tier for the entire quantity
+           - Uses binary definition of tier membership (a quantity either belongs to a tier or not)
+           - Applies the tier's pricing to the entire quantity
+           - Maintains consistent business logic for threshold-based pricing models
+           
+        3. GRADUATED PRICING LOGIC:
+           - For graduated pricing, calculates costs across multiple tiers
+           - Applies different rates to different portions of the total quantity
+           - Aggregates costs from each tier segment
+           - Properly handles partial tier utilization at boundaries
+           
+        4. PACKAGE PRICING WITH OVERAGE:
+           - Implements the common "included quantity + overage" pricing pattern
+           - Handles cases both with and without overage pricing
+           - Accurately calculates overage only for usage beyond the package limit
+           
+        5. BOUNDARY CONDITION HANDLING:
+           - Enforces minimum and maximum cost constraints if specified
+           - Handles edge cases like zero quantity correctly
+           - Provides safeguards against incorrect pricing configurations
+           
+        The calculate_cost method is the computational core of the billing system and
+        enables flexible monetization strategies for various business models:
+        
+        - Usage-based services with predictable per-unit costs
+        - Volume discount systems where unit price decreases with usage
+        - Hybrid models combining base fees with usage components
+        - Packages with bundled units and overage charges
+        - Custom pricing for specialized business arrangements
+        
+        This implementation addresses common real-world billing requirements, including:
+        - Simple flat monthly fees (FLAT_RATE)
+        - Basic metered pricing (PER_UNIT)
+        - Volume discount thresholds (TIERED)
+        - Incremental discount bands (GRADUATED)
+        - Bundled offerings with included quantities (PACKAGE)
+        - Complex custom pricing logic (CUSTOM)
+        - Minimum spend requirements and spend caps
         
         Args:
-            quantity: Quantity to calculate cost for
+            quantity: The total unit quantity to calculate cost for. Can represent any
+                      measurable usage dimension such as API calls, minutes, GB, etc.
             
         Returns:
-            Cost for the quantity
+            The calculated cost based on the quantity and this rule's pricing model.
+            Returns 0.0 if no applicable pricing model is found or if the quantity
+            doesn't match the rule's criteria.
         """
+        # Initialize the cost accumulator
         cost = 0.0
         
+        # FLAT_RATE: Fixed cost regardless of usage
+        # This model applies a set fee regardless of the quantity used
+        # Example: Base subscription fee of $10/month regardless of usage
         if self.model == PricingModel.FLAT_RATE:
             cost = self.flat_fee
         
+        # PER_UNIT: Simple linear pricing
+        # This model multiplies the quantity by a fixed per-unit price
+        # Example: $0.01 per API call, so 100 calls = $1.00
         elif self.model == PricingModel.PER_UNIT:
             if self.price_per_unit is not None:
                 cost = quantity * self.price_per_unit
         
+        # TIERED: Threshold-based pricing
+        # In this model, the entire quantity is priced at the rate of the tier that contains it
+        # Example: 0-1000 units at $0.10/unit, 1001-10000 at $0.08/unit
+        #          900 units = $90 (all priced at $0.10)
+        #          1500 units = $120 (all priced at $0.08)
         elif self.model == PricingModel.TIERED:
             # Find the tier that contains the quantity
             for tier in self.tiers:
                 if tier.contains(quantity):
+                    # Calculate cost using that tier's pricing for the entire quantity
                     cost = tier.calculate_cost(quantity)
                     break
         
+        # GRADUATED: Volume-based pricing
+        # In this model, different portions of the quantity are priced at different tier rates
+        # Example: 0-1000 units at $0.10/unit, 1001-10000 at $0.08/unit
+        #          1500 units = $100 + $40 = $140 (first 1000 at $0.10, next 500 at $0.08)
         elif self.model == PricingModel.GRADUATED:
-            # Calculate cost for each tier up to the quantity
+            # Iterate through each tier and accumulate costs for portions of the quantity
             for tier in self.tiers:
-                cost += tier.calculate_cost(quantity, graduated=True)
+                # The tier's calculate_cost method handles partial tier calculation when graduated=True
+                tier_cost = tier.calculate_cost(quantity, graduated=True)
+                cost += tier_cost
         
+        # PACKAGE: Bundle pricing with optional overage
+        # This model provides a set quantity for a fixed price, with optional overage charges
+        # Example: $5 for 1000 units, then $0.005 per additional unit
         elif self.model == PricingModel.PACKAGE:
             if self.package is not None:
                 cost = self.package.calculate_cost(quantity)
         
+        # CUSTOM: Custom pricing logic
+        # This model allows for completely custom pricing calculations via a callback function
+        # Example: Special volume discounts, step functions, or other complex logic
         elif self.model == PricingModel.CUSTOM:
             if self.custom_calculator is not None:
                 cost = self.custom_calculator(quantity)
         
-        # Apply minimum and maximum costs
+        # Apply minimum cost constraint if specified
+        # This ensures the customer pays at least a minimum amount
         if cost < self.minimum_cost:
             cost = self.minimum_cost
         
+        # Apply maximum cost constraint if specified
+        # This implements a price ceiling or spend cap
         if self.maximum_cost is not None and cost > self.maximum_cost:
             cost = self.maximum_cost
         
@@ -526,15 +613,64 @@ class BillingCalculator:
         end_time: Optional[datetime] = None
     ) -> Dict[str, Any]:
         """
-        Calculate the cost for a customer's usage.
+        Calculate the cost for a customer's usage within a specified time period.
+        
+        This algorithm implements a comprehensive usage-based billing system that transforms
+        raw usage data into structured cost information organized by service dimensions.
+        The implementation follows these key phases:
+        
+        1. USAGE DATA COLLECTION AND AGGREGATION:
+           - Retrieves raw usage records from the usage tracking system
+           - Properly handles the specified time window boundaries
+           - Ensures all relevant usage records are included in the calculation
+           - Groups usage data by appropriate dimensions (metric, category, resource)
+           - Consolidates usage quantities across multiple records
+        
+        2. HIERARCHICAL COST CALCULATION:
+           - Processes usage at multiple granularity levels (metric → category → resource)
+           - Applies the most specific matching pricing rule for each usage group
+           - Ensures consistent handling of usage across different pricing models
+           - Maintains proper cost attribution for financial reporting
+           - Prevents double-counting or missing usage records
+        
+        3. STRUCTURED RESULT COMPOSITION:
+           - Creates a comprehensive billing breakdown for transparency
+           - Organizes costs in a hierarchical structure for easy analysis
+           - Includes all relevant metadata for audit and reporting purposes
+           - Maintains traceability from costs back to individual usage records
+           - Provides both summary totals and detailed line items
+        
+        The implementation specifically addresses several critical enterprise billing requirements:
+        - Accurate temporal boundary handling (billing periods, usage timestamps)
+        - Multi-dimensional usage tracking (services, features, resources)
+        - Complex pricing model application (tiered, graduated, package pricing)
+        - Detailed cost breakdowns for customer transparency
+        - Full audit trail from charges to usage events
+        
+        This algorithm forms the computational foundation for invoice generation, cost
+        reporting, and financial analytics in the monetization system.
         
         Args:
-            customer_id: ID of the customer
-            start_time: Start time for usage records
-            end_time: End time for usage records
+            customer_id: Unique identifier for the customer whose usage is being calculated
+            start_time: Beginning timestamp of the billing period (inclusive)
+            end_time: Ending timestamp of the billing period (exclusive)
             
         Returns:
-            Dictionary with usage cost details
+            A structured dictionary containing:
+            - customer_id: ID of the customer
+            - start_time: ISO formatted start time of the billing period
+            - end_time: ISO formatted end time of the billing period
+            - total_cost: Aggregate cost across all usage items
+            - items: List of cost items, each containing:
+                - metric: The usage metric (e.g., API_CALL, TOKEN)
+                - category: The usage category (e.g., INFERENCE, TRAINING)
+                - resource_type: The specific resource used (e.g., MODEL_GPT4)
+                - quantity: The total usage quantity
+                - cost: The calculated cost for this item
+                - records: List of usage record IDs contributing to this item
+        
+        Raises:
+            ValueError: If usage_tracker is not set or other required dependencies are missing
         """
         if self.usage_tracker is None:
             raise ValueError("Usage tracker is required to calculate usage cost")
@@ -618,12 +754,87 @@ class BillingCalculator:
         """
         Estimate the cost for estimated usage.
         
+        This algorithm implements a sophisticated cost estimation system that enables predictive 
+        billing analysis based on anticipated usage patterns. The implementation follows these 
+        key phases:
+        
+        1. USAGE PROJECTION PROCESSING:
+           - Takes structured usage estimates across multiple service dimensions
+           - Handles multi-metric and multi-category projections in a single calculation
+           - Processes arbitrarily complex usage matrices with nested dictionaries
+           - Preserves the hierarchical relationship between metrics and categories
+           - Provides a consistent interface for both simple and complex estimations
+        
+        2. COST PROJECTION CALCULATION:
+           - Applies the appropriate pricing rules to each usage estimate
+           - Properly matches pricing rules with specific metric/category combinations
+           - Ensures consistent pricing application across different estimation scenarios
+           - Retains the multi-dimensional nature of the cost structure
+           - Produces itemized cost projections for detailed analysis
+        
+        3. CONSOLIDATED RESULT CREATION:
+           - Assembles a comprehensive cost projection summary
+           - Preserves the full breakdown of individual cost components
+           - Calculates accurate total cost across all dimensions
+           - Returns a structured response suitable for presentation or further analysis
+           - Facilitates cost optimization through transparent itemization
+        
+        This algorithm serves several critical business functions:
+        - Budget planning and cost forecasting for customers
+        - "What-if" scenario analysis for usage pattern changes
+        - Cost optimization consulting for enterprise customers
+        - New feature financial impact assessment
+        - Tier upgrade recommendations for customers approaching usage thresholds
+        
+        The estimate_cost method is particularly valuable for enterprise customers with 
+        complex usage patterns across multiple service dimensions, enabling them to:
+        - Plan resource allocation across departments
+        - Forecast costs based on expected growth trends
+        - Compare different usage strategies for cost efficiency
+        - Understand cost implications of changing usage patterns
+        - Evaluate price elasticity for different service components
+        
         Args:
-            usage_estimates: Dictionary mapping metrics to dictionaries mapping
-                categories to quantities
+            usage_estimates: A nested dictionary structure with the following format:
+                {
+                    "metric1": {
+                        "category1": quantity1,
+                        "category2": quantity2,
+                        ...
+                    },
+                    "metric2": {
+                        "category1": quantity3,
+                        ...
+                    },
+                    ...
+                }
+                Where metrics are strings identifying the type of usage (e.g., "API_CALL"),
+                categories are strings identifying usage categories (e.g., "INFERENCE"),
+                and quantities are float values representing the estimated usage amount.
             
         Returns:
-            Dictionary with estimated cost details
+            A dictionary containing:
+            - total_cost: The aggregate projected cost across all metrics and categories
+            - items: A list of itemized cost projections, each containing:
+                - metric: The specific service metric
+                - category: The usage category for this estimate
+                - quantity: The projected usage quantity
+                - cost: The calculated cost for this specific item
+        
+        Example:
+            usage_estimates = {
+                "API_CALL": {"INFERENCE": 10000, "TRAINING": 5000},
+                "TOKEN": {"INFERENCE": 50000}
+            }
+            result = calculator.estimate_cost(usage_estimates)
+            # result = {
+            #     "total_cost": 135.0,
+            #     "items": [
+            #         {"metric": "API_CALL", "category": "INFERENCE", "quantity": 10000, "cost": 100.0},
+            #         {"metric": "API_CALL", "category": "TRAINING", "quantity": 5000, "cost": 25.0},
+            #         {"metric": "TOKEN", "category": "INFERENCE", "quantity": 50000, "cost": 10.0}
+            #     ]
+            # }
         """
         # Initialize result
         result = {
@@ -661,7 +872,7 @@ class BillingCalculator:
         category: Optional[str] = None,
         resource_type: Optional[str] = None,
         minimum_cost: float = 0.0,
-        maximum_cost: Optional[float] = None
+        maximum_cost: Optional[float) = None
     ) -> PricingRule:
         """
         Create a tiered pricing rule.

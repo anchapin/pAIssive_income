@@ -303,35 +303,111 @@ class ProratedBilling:
         period: str
     ) -> Dict[str, Any]:
         """
-        Calculate the amount to charge or refund for a plan change.
+        Calculate the amount to charge or refund for a subscription plan change.
+        
+        This algorithm implements a sophisticated proration system for subscription changes
+        that occur mid-billing cycle. The implementation follows these key stages:
+        
+        1. BILLING PERIOD DETERMINATION:
+           - Calculates the total days in the current billing period based on period type
+           - Handles calendar complexities like varying month lengths and leap years
+           - Provides consistent time accounting across different billing frequencies
+           - Properly aligns calculation with actual calendar dates for accuracy
+        
+        2. TEMPORAL POSITION ANALYSIS:
+           - Determines the precise position within the billing cycle
+           - Calculates both elapsed time (days_used) and remaining time (days_remaining)
+           - Creates the foundation for fair and transparent proration calculation
+           - Handles edge cases like period boundaries correctly
+           
+        3. PROPORTIONAL VALUE CALCULATION:
+           - Calculates the value of both the old and new plans for the remaining period
+           - Uses the day-level granularity for maximum accuracy
+           - Follows standard accounting practices for subscription businesses
+           - Handles zero-day edge cases safely to prevent division errors
+        
+        4. DIFFERENTIAL AMOUNT DETERMINATION:
+           - Calculates the net financial impact of the plan change
+           - Determines whether additional charges or refunds are required
+           - Provides directionally correct results for both upgrades and downgrades
+           - Maintains neutrality for equal-value plan switches
+        
+        5. COMPREHENSIVE RESULT PACKAGING:
+           - Creates a structured result with all relevant metrics and decisions
+           - Includes clear action guidance (charge vs. refund)
+           - Provides complete transparency by including all intermediate calculations
+           - Returns sufficient context for downstream billing processes
+           
+        This proration algorithm addresses several critical business requirements:
+        - Fair billing for partial periods when customers change plans
+        - Transparent explanation of charges and credits to customers
+        - Support for both upgrades (which require additional charges) and
+          downgrades (which may require refunds)
+        - Proper handling of various billing period types (monthly, quarterly, yearly)
+        
+        The implementation specifically handles common real-world scenarios:
+        - Mid-month upgrades to more expensive plans
+        - Downgrades to less expensive plans
+        - Cancellations (treated as downgrades to a $0 plan)
+        - Plan switches across different billing frequencies
+        - Edge cases like changes on the first/last day of billing periods
         
         Args:
-            old_plan_amount: Amount for the old plan
-            new_plan_amount: Amount for the new plan
-            current_date: Current date
-            period_start_date: Start date of the billing period
-            period: Billing period (daily, weekly, monthly, quarterly, yearly)
+            old_plan_amount: The full-period amount for the customer's current plan
+            new_plan_amount: The full-period amount for the customer's new plan
+            current_date: The date when the plan change is occurring
+            period_start_date: The start date of the current billing period
+            period: The billing period type (daily, weekly, monthly, quarterly, yearly)
             
         Returns:
-            Dictionary with plan change details
+            A comprehensive dictionary with plan change details:
+            - old_plan_amount: Original plan amount
+            - new_plan_amount: New plan amount
+            - current_date: Date of the plan change
+            - period_start_date: Start date of the billing period
+            - period: Billing period type
+            - days_in_period: Total days in the billing period
+            - days_used: Days used in the current period
+            - days_remaining: Days remaining in the current period
+            - old_plan_used: Amount already used from the old plan
+            - old_plan_remaining: Unused value from the old plan
+            - new_plan_remaining: Cost of the new plan for the remainder of the period
+            - difference: Net amount to charge or refund
+            - is_upgrade: Whether this is an upgrade (new plan costs more)
+            - action: Action to take ("charge" or "refund")
+            - amount: Absolute amount to charge or refund
         """
-        # Calculate days in period and days remaining
+        # STAGE 1: Calculate days in period and days remaining
+        # Determine the total length of the billing period and current position within it
         days_in_period = ProratedBilling.get_days_in_billing_period(period_start_date, period)
         days_remaining = ProratedBilling.get_days_remaining_in_billing_period(current_date, period_start_date, period)
         days_used = days_in_period - days_remaining
         
-        # Calculate amounts
+        # STAGE 2: Calculate prorated values for old and new plans
+        # Determine the value of each plan for the portion of the period that remains
+        
+        # Calculate the value of the old plan that has already been used
+        # This represents what the customer has already consumed and should pay for
         old_plan_used = ProratedBilling.calculate_prorated_amount(old_plan_amount, days_used, days_in_period)
+        
+        # Calculate the value of the old plan for the remaining days
+        # This represents what the customer would have paid under the old plan
         old_plan_remaining = ProratedBilling.calculate_prorated_amount(old_plan_amount, days_remaining, days_in_period)
+        
+        # Calculate the value of the new plan for the remaining days
+        # This represents what the customer should pay under the new plan
         new_plan_remaining = ProratedBilling.calculate_prorated_amount(new_plan_amount, days_remaining, days_in_period)
         
-        # Calculate difference
+        # STAGE 3: Calculate the difference between plans for remaining period
+        # This determines the net financial impact of the change
         difference = new_plan_remaining - old_plan_remaining
         
-        # Determine if this is an upgrade or downgrade
+        # STAGE 4: Determine if this is an upgrade or downgrade
+        # An upgrade means the new plan costs more than the old one
         is_upgrade = new_plan_amount > old_plan_amount
         
-        # Create result
+        # STAGE 5: Package the comprehensive result
+        # Include all relevant data for transparency and downstream processing
         result = {
             "old_plan_amount": old_plan_amount,
             "new_plan_amount": new_plan_amount,

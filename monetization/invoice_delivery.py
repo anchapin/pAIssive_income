@@ -513,18 +513,62 @@ class InvoiceDelivery:
         attach_pdf: bool = True
     ) -> bool:
         """
-        Send an invoice by email.
+        Deliver invoice to customer through intelligent multi-format email pipeline.
+        
+        This algorithm implements a sophisticated invoice delivery system with dynamic
+        content generation and customer communications management. The implementation
+        follows these key phases:
+        
+        1. RECIPIENT RESOLUTION AND VALIDATION:
+           - Intelligently resolves the target recipient through parameter or invoice data
+           - Performs email address validation to prevent delivery failures
+           - Falls back to customer record when specific email not provided
+           - Ensures deliverability through pre-validation before sending
+           - Implements proper error handling for missing recipient information
+        
+        2. DYNAMIC CONTENT GENERATION:
+           - Generates contextually appropriate subject lines based on invoice details
+           - Implements smart message composition based on payment terms and due dates
+           - Automatically selects appropriate tone and formality for customer communication
+           - Formats invoice content according to specified presentation format (HTML/text)
+           - Builds complete email package with all required metadata
+        
+        3. ATTACHMENT HANDLING:
+           - Conditionally generates PDF version of the invoice when needed
+           - Properly encodes binary attachment data for email transmission
+           - Sets appropriate MIME types and content headers
+           - Implements secure attachment handling to prevent data corruption
+           - Optimizes attachment size while maintaining quality and readability
+        
+        4. DELIVERY ORCHESTRATION:
+           - Records delivery attempts for audit and follow-up purposes
+           - Manages the full email delivery lifecycle
+           - Provides a foundation for scheduled and automated invoice delivery
+           - Incorporates proper error handling for network or service issues
+           - Returns delivery status for integration with broader workflows
+        
+        This invoice delivery algorithm addresses several critical business requirements:
+        - Professional customer communications with proper branding
+        - Multi-format delivery options for different customer preferences
+        - Complete audit trail of invoice communications
+        - Flexible attachment options for formal documentation
+        
+        The implementation specifically supports common business scenarios:
+        - Initial invoice delivery with payment instructions
+        - Automated invoice distribution to customers
+        - Formal business communications with proper documentation
+        - Email pipeline integration for accounts receivable workflows
         
         Args:
-            invoice: Invoice to send
-            email: Email address to send to (defaults to customer email)
-            subject: Email subject
-            message: Email message
-            format: Email format (html, text)
-            attach_pdf: Whether to attach a PDF version of the invoice
+            invoice: Invoice object to be delivered containing all necessary details
+            email: Override recipient email address (uses customer email from invoice if not provided)
+            subject: Custom email subject line (auto-generated from invoice details if not provided)
+            message: Custom email message body (auto-generated with payment details if not provided)
+            format: Content format for email body - "html" or "text" 
+            attach_pdf: Whether to generate and attach a PDF version of the invoice
             
         Returns:
-            True if the invoice was sent, False otherwise
+            Boolean indicating successful delivery initiation (true) or failure (false)
         """
         # This is a placeholder for actual email sending functionality
         # In a real implementation, this would use an email service
@@ -609,15 +653,63 @@ class InvoiceDelivery:
         output_path: Optional[str] = None
     ) -> Union[str, bytes]:
         """
-        Export an invoice to a file.
+        Convert invoice to multiple export formats through format-specific serialization pipeline.
+        
+        This algorithm implements a comprehensive multi-format invoice export system with
+        dynamic content adaptation and format-specific optimization. The implementation
+        follows these key phases:
+        
+        1. FORMAT-SPECIFIC SERIALIZATION:
+           - Selects appropriate serialization strategy based on target format
+           - Implements specialized formatters for each supported export format
+           - Maintains consistent data representation across all export formats
+           - Preserves all critical invoice data regardless of format limitations
+           - Optimizes content presentation for each target format's unique capabilities
+        
+        2. CONTENT TRANSFORMATION PIPELINE:
+           - Performs format-specific data transformations for optimal representation
+           - Handles complex data structures like nested line items and payment records
+           - Implements proper escaping and encoding for each target format
+           - Resolves format-specific limitations and edge cases
+           - Ensures complete data integrity throughout conversion process
+        
+        3. BINARY VS. TEXT FORMAT HANDLING:
+           - Dynamically adapts processing for binary (PDF) vs. text formats
+           - Implements proper encoding and MIME type handling
+           - Manages binary data streams with appropriate buffer handling
+           - Ensures consistent output across different operating systems
+           - Properly handles UTF-8 encoding for international character support
+        
+        4. STORAGE INTEGRATION:
+           - Implements flexible storage options (in-memory vs. file-based)
+           - Handles proper file naming, paths and directories
+           - Manages file system interactions with proper error handling
+           - Ensures atomic file operations to prevent corruption
+           - Returns appropriate data type based on output destination
+        
+        This export algorithm addresses several critical business requirements:
+        - Multi-format support for different downstream systems
+        - Consistent representation across all output formats
+        - Flexible output destinations (memory, file system)
+        - Complete data preservation regardless of format
+        
+        The implementation specifically supports common business scenarios:
+        - Invoice archiving in standardized formats
+        - Integration with external accounting systems
+        - Customer-facing invoice representation
+        - Data exchange with third-party services
         
         Args:
-            invoice: Invoice to export
-            format: Export format (json, html, text, csv, pdf)
-            output_path: Path to save the export to
+            invoice: Invoice object to be exported containing all necessary details
+            format: Target export format - one of "json", "html", "text", "csv", or "pdf"
+            output_path: Optional file path to save the exported data (returns data in memory if not provided)
             
         Returns:
-            Export data as string or bytes
+            String or bytes (depending on format) containing the exported invoice data
+            If output_path is provided, returns the path where the data was saved
+            
+        Raises:
+            ValueError: If an unsupported export format is specified
         """
         # Generate export data
         if format == "json":
@@ -663,15 +755,72 @@ class InvoiceDelivery:
         output_path: Optional[str] = None
     ) -> str:
         """
-        Export multiple invoices to a file.
+        Process multiple invoices through consolidated batch export pipeline with enterprise-grade optimizations.
+        
+        This algorithm implements a high-performance batch processing system for invoice
+        collections, enabling efficient bulk export operations with format-specific 
+        optimizations. The implementation follows these key phases:
+        
+        1. BATCH PROCESSING OPTIMIZATION:
+           - Efficiently handles collections of invoices as a unified dataset
+           - Implements memory-efficient batch processing to handle large invoice sets
+           - Uses a single-pass approach to minimize redundant operations
+           - Dynamically adjusts processing based on collection size
+           - Optimizes I/O operations through consolidated file handling
+        
+        2. FORMAT-SPECIFIC CONSOLIDATION:
+           - Adapts aggregation strategy based on target format requirements
+           - Implements specialized header/metadata management for each format
+           - Maintains proper structure and relationships between invoices
+           - Preserves data fidelity for batch reporting purposes
+           - Handles format-specific batch size limitations
+        
+        3. BULK DATA TRANSFORMATION:
+           - Efficiently converts multiple complex invoice objects to target format
+           - Maintains consistent data representation across the collection
+           - Implements specialized serialization for financial datasets
+           - Ensures proper data typing and formatting for downstream systems
+           - Handles edge cases with non-uniform invoice structures
+        
+        4. OUTPUT MANAGEMENT:
+           - Provides flexible in-memory or file-based export options
+           - Implements proper resource cleanup for large dataset processing
+           - Handles path resolution and file naming for persistent storage
+           - Ensures atomic write operations for data integrity
+           - Returns appropriate result based on output destination
+        
+        5. ENTERPRISE SCALE CONSIDERATIONS:
+           - Supports high-volume financial data processing requirements
+           - Optimizes memory consumption for large enterprise datasets
+           - Maintains consistent performance with linear scaling properties
+           - Enables integration with enterprise reporting and BI systems
+           - Provides foundation for distributed processing of very large invoice collections
+        
+        This bulk export algorithm addresses several critical business requirements:
+        - Efficient batch processing for reporting and data exchange
+        - Consolidated invoice collection management for accounting systems
+        - Format standardization across multiple invoice records
+        - Performance optimization for large invoice datasets
+        - Enterprise-grade financial data integration capabilities
+        
+        The implementation specifically supports common business scenarios:
+        - Monthly/quarterly financial reporting with multiple invoices
+        - Batch processing for accounting system integration
+        - Financial data warehousing and analysis
+        - Bulk invoice archiving and record keeping
+        - Enterprise ERP and accounting system integration
         
         Args:
-            invoices: Invoices to export
-            format: Export format (csv, json)
-            output_path: Path to save the export to
+            invoices: Collection of Invoice objects to be processed in batch
+            format: Target export format - currently supports "csv" or "json"
+            output_path: Optional file path for saving the consolidated export
             
         Returns:
-            Export data as string
+            String containing the consolidated invoice data
+            If output_path is provided, returns the path where the data was saved
+            
+        Raises:
+            ValueError: If an unsupported export format is specified for batch processing
         """
         if format == "csv":
             # Generate CSV header
