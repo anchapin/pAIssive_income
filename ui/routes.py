@@ -18,13 +18,12 @@ from interfaces.ui_interfaces import (
     IAgentTeamService, INicheAnalysisService, IDeveloperService,
     IMonetizationService, IMarketingService
 )
-from service_initialization import get_service
 from .errors import (
     UIError, RouteError, ServiceError, ValidationError,
     api_error_handler, handle_exception
 )
 from .tasks import (
-    analyze_niches, create_solution, create_monetization_strategy, 
+    analyze_niches, create_solution, create_monetization_strategy,
     create_marketing_campaign
 )
 from .task_manager import (
@@ -34,12 +33,28 @@ from .task_manager import (
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Services
-agent_team_service = get_service(IAgentTeamService)
-niche_analysis_service = get_service(INicheAnalysisService)
-developer_service = get_service(IDeveloperService)
-monetization_service = get_service(IMonetizationService)
-marketing_service = get_service(IMarketingService)
+# Services - these will be initialized later
+agent_team_service = None
+niche_analysis_service = None
+developer_service = None
+monetization_service = None
+marketing_service = None
+
+def init_services():
+    """Initialize services from the dependency container."""
+    global agent_team_service, niche_analysis_service, developer_service, monetization_service, marketing_service
+
+    # Import here to avoid circular imports
+    from service_initialization import get_service
+
+    # Initialize services
+    agent_team_service = get_service(IAgentTeamService)
+    niche_analysis_service = get_service(INicheAnalysisService)
+    developer_service = get_service(IDeveloperService)
+    monetization_service = get_service(IMonetizationService)
+    marketing_service = get_service(IMarketingService)
+
+    logger.info("UI services initialized")
 
 # Home route
 @app.route('/')
@@ -86,10 +101,10 @@ def run_niche_analysis():
         # Start background task
         task = analyze_niches.delay(market_segments)
         logger.info(f"Started niche analysis task {task.id}")
-        
+
         # Store task ID in session
         store_task_id(session, 'niche_analysis', task.id)
-        
+
         # Redirect to task status page
         return redirect(url_for('niche_analysis_status'))
     except Exception as e:
@@ -105,17 +120,17 @@ def niche_analysis_status():
     if not task_id:
         flash("No active niche analysis task found.", "error")
         return redirect(url_for('niche_analysis'))
-    
+
     # Get task status
     status = get_task_status(task_id)
-    
+
     # Check if task is completed
     if status['state'] == 'SUCCESS':
         # Store results in session
         session['niches'] = status['result']['niches']
         # Redirect to results page
         return redirect(url_for('niche_results'))
-    
+
     # Render status page
     return render_template('task_status.html',
                          title='Niche Analysis Progress',
@@ -159,10 +174,10 @@ def develop_solution():
         # Start background task
         task = create_solution.delay(niche_id)
         logger.info(f"Started solution development task {task.id}")
-        
+
         # Store task ID in session
         store_task_id(session, 'solution', task.id)
-        
+
         # Redirect to task status page
         return redirect(url_for('solution_status'))
     except Exception as e:
@@ -178,17 +193,17 @@ def solution_status():
     if not task_id:
         flash("No active solution development task found.", "error")
         return redirect(url_for('developer'))
-    
+
     # Get task status
     status = get_task_status(task_id)
-    
+
     # Check if task is completed
     if status['state'] == 'SUCCESS':
         # Store results in session
         session['solution'] = status['result']
         # Redirect to results page
         return redirect(url_for('solution_results'))
-    
+
     # Render status page
     return render_template('task_status.html',
                          title='Solution Development Progress',
@@ -232,10 +247,10 @@ def create_monetization_strategy_route():
         # Start background task
         task = create_monetization_strategy.delay(solution_id)
         logger.info(f"Started monetization strategy task {task.id}")
-        
+
         # Store task ID in session
         store_task_id(session, 'monetization', task.id)
-        
+
         # Redirect to task status page
         return redirect(url_for('monetization_status'))
     except Exception as e:
@@ -251,17 +266,17 @@ def monetization_status():
     if not task_id:
         flash("No active monetization strategy task found.", "error")
         return redirect(url_for('monetization'))
-    
+
     # Get task status
     status = get_task_status(task_id)
-    
+
     # Check if task is completed
     if status['state'] == 'SUCCESS':
         # Store results in session
         session['monetization_strategy'] = status['result']
         # Redirect to results page
         return redirect(url_for('monetization_results'))
-    
+
     # Render status page
     return render_template('task_status.html',
                          title='Monetization Strategy Progress',
@@ -305,10 +320,10 @@ def create_marketing_campaign_route():
         # Start background task
         task = create_marketing_campaign.delay(solution_id)
         logger.info(f"Started marketing campaign task {task.id}")
-        
+
         # Store task ID in session
         store_task_id(session, 'marketing', task.id)
-        
+
         # Redirect to task status page
         return redirect(url_for('marketing_status'))
     except Exception as e:
@@ -324,17 +339,17 @@ def marketing_status():
     if not task_id:
         flash("No active marketing campaign task found.", "error")
         return redirect(url_for('marketing'))
-    
+
     # Get task status
     status = get_task_status(task_id)
-    
+
     # Check if task is completed
     if status['state'] == 'SUCCESS':
         # Store results in session
         session['marketing_campaign'] = status['result']
         # Redirect to results page
         return redirect(url_for('marketing_results'))
-    
+
     # Render status page
     return render_template('task_status.html',
                          title='Marketing Campaign Progress',

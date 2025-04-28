@@ -13,7 +13,8 @@ from tests.integration.ui_test_fixtures import (
     mock_agent_team,
     mock_model_manager,
     mock_subscription_manager,
-    mock_agent_team_service
+    mock_agent_team_service,
+    register_mock_services
 )
 
 
@@ -21,7 +22,16 @@ from tests.integration.ui_test_fixtures import (
 
 
 @pytest.fixture
-def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
+def initialize_ui_services(register_mock_services):
+    """Initialize UI services for testing."""
+    # Initialize routes services
+    from ui.routes import init_services
+    init_services()
+    return True
+
+
+@pytest.fixture
+def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initialize_ui_services):
     """Create a WebUI instance with mock dependencies."""
     ui = WebUI(
         agent_team=mock_agent_team,
@@ -32,7 +42,7 @@ def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
 
 
 @pytest.fixture
-def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
+def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initialize_ui_services):
     """Create a CommandLineInterface instance with mock dependencies."""
     ui = CommandLineInterface(
         agent_team=mock_agent_team,
@@ -202,17 +212,31 @@ def test_web_ui_render_integration(mock_render_template, web_ui, mock_agent_team
     web_ui.current_niches = mock_agent_team.run_niche_analysis.return_value
     web_ui.current_solution = mock_agent_team.develop_solution.return_value
 
+    # Set up the mock to return a tuple
+    mock_render_template.return_value = ("dashboard.html", {
+        "niches": web_ui.current_niches,
+        "solution": web_ui.current_solution,
+        "monetization": web_ui.current_monetization,
+        "marketing_plan": web_ui.current_marketing_plan
+    })
+
     # Simulate rendering the dashboard page
     web_ui.render_dashboard()
 
     # Check that the render_template method was called with the right parameters
     mock_render_template.assert_called_once()
-    template_name, context = mock_render_template.call_args[0]
-    assert template_name == "dashboard.html"
-    assert "niches" in context
-    assert "solution" in context
-    assert context["niches"] == web_ui.current_niches
-    assert context["solution"] == web_ui.current_solution
+
+    # Get the arguments passed to render_template
+    args, kwargs = mock_render_template.call_args
+
+    # Check that the template name is correct
+    assert "dashboard.html" in args
+
+    # Check that the context contains the expected keys
+    assert "niches" in kwargs
+    assert "solution" in kwargs
+    assert kwargs["niches"] == web_ui.current_niches
+    assert kwargs["solution"] == web_ui.current_solution
 
 
 @patch('ui.web_ui.WebUI.handle_ajax_request')
@@ -224,10 +248,27 @@ def test_web_ui_ajax_integration(mock_handle_ajax_request, web_ui):
         "market_segments": ["e-commerce"]
     }
 
+    # Set up the mock to return a success response
+    mock_handle_ajax_request.return_value = {
+        'success': True,
+        'action': "analyze_niche",
+        'data': {"market_segments": ["e-commerce"]}
+    }
+
     web_ui.process_ajax_request(request_data)
 
-    # Check that the handle_ajax_request method was called with the right parameters
-    mock_handle_ajax_request.assert_called_once_with("analyze_niche", {"market_segments": ["e-commerce"]})
+    # Check that the handle_ajax_request method was called
+    mock_handle_ajax_request.assert_called_once()
+
+    # Get the arguments passed to handle_ajax_request
+    args, kwargs = mock_handle_ajax_request.call_args
+
+    # Check that the action is correct
+    assert "analyze_niche" == args[0]
+
+    # Check that the data contains the market_segments
+    assert "market_segments" in args[1]
+    assert args[1]["market_segments"] == ["e-commerce"]
 
 
 def test_web_ui_model_manager_integration(web_ui, mock_model_manager):

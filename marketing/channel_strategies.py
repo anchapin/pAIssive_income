@@ -56,6 +56,7 @@ class ChannelStrategy:
         self.tactics = []
         self.metrics = []
         self.resources = []
+        self.channels = []
 
     def add_tactic(self, name: str, description: str, priority: str = "medium") -> None:
         """
@@ -125,6 +126,62 @@ class ChannelStrategy:
             "created_at": self.created_at
         }
 
+    def add_channel(
+        self,
+        name: str,
+        audience: List[str],
+        description: str,
+        tiers_focus: List[str],
+        cost_efficiency: float,
+        primary_metrics: List[str]
+    ) -> None:
+        """
+        Add a channel to the strategy.
+
+        Args:
+            name: Name of the channel
+            audience: Target audience for this channel
+            description: Description of the channel
+            tiers_focus: List of tiers this channel focuses on
+            cost_efficiency: Cost efficiency score (0.0 to 1.0)
+            primary_metrics: List of primary metrics for this channel
+        """
+        self.channels.append({
+            "id": str(uuid.uuid4()),
+            "name": name,
+            "audience": audience,
+            "description": description,
+            "tiers_focus": tiers_focus,
+            "cost_efficiency": cost_efficiency,
+            "primary_metrics": primary_metrics
+        })
+
+    def calculate_budget_allocation(self, total_budget: float) -> Dict[str, float]:
+        """
+        Calculate budget allocation across channels based on cost efficiency.
+
+        Args:
+            total_budget: Total budget to allocate
+
+        Returns:
+            Dictionary mapping channel names to budget amounts
+        """
+        if not self.channels:
+            return {}
+
+        # Calculate allocation based on cost efficiency
+        total_efficiency = sum(channel["cost_efficiency"] for channel in self.channels)
+        allocations = {}
+
+        for channel in self.channels:
+            if total_efficiency > 0:
+                allocation = (channel["cost_efficiency"] / total_efficiency) * total_budget
+            else:
+                allocation = total_budget / len(self.channels)
+            allocations[channel["name"]] = allocation
+
+        return allocations
+
     def get_full_strategy(self) -> Dict[str, Any]:
         """
         Get the full channel strategy.
@@ -142,6 +199,7 @@ class ChannelStrategy:
             "tactics": self.tactics,
             "metrics": self.metrics,
             "resources": self.resources,
+            "channels": self.channels,
             "budget": self.budget,
             "timeline": self.timeline,
             "created_at": self.created_at
