@@ -1,13 +1,27 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, g
 from flask_cors import CORS
 import os
 import json
 import sys
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Add the project root to the path so we can import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import project modules
+from users.models import UserCreate, UserUpdate
+from users.services import authenticate_user, create_user, update_user, get_user_by_id, list_users
+from users.auth import create_session_for_user
+from users.middleware import authenticate, require_permission, audit_log
+from users.permissions import PERMISSION_LEVELS
+
 from niche_analysis.market_analyzer import MarketAnalyzer
 from niche_analysis.problem_identifier import ProblemIdentifier
 from niche_analysis.opportunity_scorer import OpportunityScorer
@@ -21,14 +35,6 @@ from common_utils.validation import (
 
 app = Flask(__name__, static_folder='react_frontend/build')
 CORS(app)  # Enable CORS for all routes
-
-# Mock user data for demo purposes
-MOCK_USERS = {
-    "user1": {"id": "user1", "username": "demo", "email": "demo@example.com", "name": "Demo User"}
-}
-
-# Mock session management
-ACTIVE_SESSIONS = {}
 
 # Serve React frontend
 @app.route('/', defaults={'path': ''})
@@ -126,55 +132,133 @@ NICHE_ANALYSIS_SCHEMA = {
 @app.route('/api/auth/login', methods=['POST'])
 @sanitize_input
 @validate_request(LOGIN_SCHEMA)
+@audit_log("login", "user")
 def login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
     
-    # Demo auth - in production, this would check credentials properly
-    if username == "demo" and password == "password":
-        user = MOCK_USERS["user1"]
-        # In a real app, you'd generate a secure token
-        ACTIVE_SESSIONS["session1"] = user["id"]
-        return jsonify(user), 200
+    # Authenticate user
+    user = authenticate_user(username, password)
+    if user:
+        # Create session
+        session_data = create_session_for_user(user)
+        return jsonify(session_data), 200
     
     return jsonify({"error": "Authentication Error", "message": "Invalid credentials"}), 401
 
+
 @app.route('/api/auth/logout', methods=['POST'])
+@authenticate
+@audit_log("logout", "user")
 def logout():
-    # In a real app, you'd invalidate the session token
+    # In a real production app, you would invalidate the JWT token
+    # For now, we just return a success message
     return jsonify({"message": "Logged out successfully"}), 200
+
 
 @app.route('/api/auth/register', methods=['POST'])
 @sanitize_input
 @validate_request(REGISTER_SCHEMA)
+@audit_log("register", "user")
 def register():
-    data = request.json
-    # In a real app, you'd validate and store user data
-    return jsonify(MOCK_USERS["user1"]), 201
+    try:
+        data = request.json
+        user_data = UserCreate(
+            username=data.get('username'),
+            email=data.get('email'),
+            name=data.get('name'),
+            password=data.get('password')
+        )
+        
+        # Create user with default 'user' role
+        user = create_user(user_data)
+        
+        # Create session
+        session_data = create_session_for_user(user)
+        return jsonify(session_data), 201
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
+    except Exception as e:
+        logger.error(f"User registration error: {str(e)}")
+        return jsonify({"error": "Server Error", "message": "Registration failed"}), 500
+
 
 @app.route('/api/user/profile', methods=['GET'])
+@authenticate
 def get_profile():
-    # In a real app, you'd get the user ID from the session token
-    user_id = ACTIVE_SESSIONS.get("session1")
-    if user_id:
-        return jsonify(MOCK_USERS[user_id]), 200
-    return jsonify({"error": "Authentication Error", "message": "Not authenticated"}), 401
+    # The user object is attached to the request by the authenticate middleware
+    user = g.user
+    
+    # Create session data which includes the public user data
+    session_data = create_session_for_user(user)
+    return jsonify(session_data['user']), 200
+
 
 @app.route('/api/user/profile', methods=['PUT'])
+@authenticate
 @sanitize_input
 @validate_request(PROFILE_UPDATE_SCHEMA)
+@audit_log("update", "user_profile")
 def update_profile():
-    user_id = ACTIVE_SESSIONS.get("session1")
-    if not user_id:
-        return jsonify({"error": "Authentication Error", "message": "Not authenticated"}), 401
-    
-    data = request.json
-    # In a real app, you'd update the user's profile
-    return jsonify(MOCK_USERS["user1"]), 200
+    try:
+        data = request.json
+        user_data = UserUpdate(
+            email=data.get('email'),
+            name=data.get('name')
+        )
+        
+        # Update user
+        user = update_user(g.user_id, user_data)
+        if not user:
+            return jsonify({"error": "Not Found", "message": "User not found"}), 404
+        
+        # Create session data which includes the public user data
+        session_data = create_session_for_user(user)
+        return jsonify(session_data['user']), 200
+    except ValueError as e:
+        return jsonify({"error": "Validation Error", "message": str(e)}), 400
+    except Exception as e:
+        logger.error(f"User profile update error: {str(e)}")
+        return jsonify({"error": "Server Error", "message": "Profile update failed"}), 500
+
+
+# User management (admin only)
+@app.route('/api/users', methods=['GET'])
+@authenticate
+@require_permission('user:view')
+def get_users():
+    try:
+        skip = request.args.get('skip', default=0, type=int)
+        limit = request.args.get('limit', default=100, type=int)
+        
+        users = list_users(skip=skip, limit=limit)
+        return jsonify(users), 200
+    except Exception as e:
+        logger.error(f"List users error: {str(e)}")
+        return jsonify({"error": "Server Error", "message": "Failed to retrieve users"}), 500
+
+
+@app.route('/api/users/<user_id>', methods=['GET'])
+@authenticate
+@require_permission('user:view')
+def get_user(user_id):
+    try:
+        user = get_user_by_id(user_id)
+        if not user:
+            return jsonify({"error": "Not Found", "message": "User not found"}), 404
+            
+        # Create a public user object without sensitive data
+        session_data = create_session_for_user(user)
+        return jsonify(session_data['user']), 200
+    except Exception as e:
+        logger.error(f"Get user error: {str(e)}")
+        return jsonify({"error": "Server Error", "message": "Failed to retrieve user"}), 500
+
 
 # Niche Analysis endpoints
 @app.route('/api/niche-analysis/segments', methods=['GET'])
+@authenticate
 def get_market_segments():
     # Mock data - in production, this would come from a database
     segments = [
@@ -194,9 +278,13 @@ def get_market_segments():
     ]
     return jsonify(segments), 200
 
+
 @app.route('/api/niche-analysis/analyze', methods=['POST'])
+@authenticate
+@require_permission('niche:create')
 @sanitize_input
 @validate_request(NICHE_ANALYSIS_SCHEMA)
+@audit_log("analyze", "niche")
 def analyze_niches():
     data = request.json
     segment_ids = data.get('segments', [])
@@ -209,7 +297,10 @@ def analyze_niches():
     except Exception as e:
         return jsonify({"error": "Processing Error", "message": f"Analysis failed: {str(e)}"}), 500
 
+
 @app.route('/api/niche-analysis/results/<analysis_id>', methods=['GET'])
+@authenticate
+@require_permission('niche:view')
 def get_niche_results(analysis_id):
     # Validate the analysis_id format 
     # (simple validation for demo purposes - in production you'd check if it exists in database)
@@ -267,8 +358,11 @@ def get_niche_results(analysis_id):
     }
     return jsonify(results), 200
 
+
 # Developer endpoints
 @app.route('/api/developer/niches', methods=['GET'])
+@authenticate
+@require_permission('solution:view')
 def get_niches():
     # Mock data - these would normally be from past niche analyses
     niches = [
@@ -293,7 +387,10 @@ def get_niches():
     ]
     return jsonify(niches), 200
 
+
 @app.route('/api/developer/templates', methods=['GET'])
+@authenticate
+@require_permission('solution:view')
 def get_templates():
     # Mock data for solution templates
     templates = [
@@ -324,9 +421,13 @@ def get_templates():
     ]
     return jsonify(templates), 200
 
+
 @app.route('/api/developer/solution', methods=['POST'])
+@authenticate
+@require_permission('solution:create')
 @sanitize_input
 @validate_request(SOLUTION_GENERATION_SCHEMA)
+@audit_log("create", "solution")
 def generate_solution():
     data = request.json
     niche_id = data.get('nicheId')
@@ -340,7 +441,10 @@ def generate_solution():
     except Exception as e:
         return jsonify({"error": "Processing Error", "message": f"Solution generation failed: {str(e)}"}), 500
 
+
 @app.route('/api/developer/solutions/<solution_id>', methods=['GET'])
+@authenticate
+@require_permission('solution:view')
 def get_solution_details(solution_id):
     try:
         # Validate the solution_id format
@@ -397,7 +501,10 @@ def get_solution_details(solution_id):
     except ValueError:
         return jsonify({"error": "Validation Error", "message": "Invalid solution ID format"}), 400
 
+
 @app.route('/api/developer/solutions', methods=['GET'])
+@authenticate
+@require_permission('solution:view')
 def get_all_solutions():
     # Mock data for all solutions
     solutions = [
@@ -412,8 +519,10 @@ def get_all_solutions():
     ]
     return jsonify(solutions), 200
 
+
 # Monetization endpoints
 @app.route('/api/monetization/solutions', methods=['GET'])
+@authenticate
 def get_monetization_solutions():
     # Mock data - normally these would be solutions from the developer module
     solutions = [
@@ -425,6 +534,7 @@ def get_monetization_solutions():
         }
     ]
     return jsonify(solutions), 200
+
 
 @app.route('/api/monetization/strategy', methods=['POST'])
 @sanitize_input
@@ -441,6 +551,7 @@ def generate_monetization_strategy():
         return jsonify({"strategyId": strategy_id, "message": "Strategy generated successfully"}), 201
     except Exception as e:
         return jsonify({"error": "Processing Error", "message": f"Strategy generation failed: {str(e)}"}), 500
+
 
 @app.route('/api/monetization/strategy/<strategy_id>', methods=['GET'])
 def get_strategy_details(strategy_id):
@@ -524,6 +635,7 @@ def get_strategy_details(strategy_id):
     except ValueError:
         return jsonify({"error": "Validation Error", "message": "Invalid strategy ID format"}), 400
 
+
 @app.route('/api/monetization/strategies', methods=['GET'])
 def get_all_strategies():
     # Mock data for all monetization strategies
@@ -539,8 +651,10 @@ def get_all_strategies():
     ]
     return jsonify(strategies), 200
 
+
 # Marketing endpoints
 @app.route('/api/marketing/solutions', methods=['GET'])
+@authenticate
 def get_marketing_solutions():
     # Mock data - normally these would be solutions from the developer module
     solutions = [
@@ -552,6 +666,7 @@ def get_marketing_solutions():
         }
     ]
     return jsonify(solutions), 200
+
 
 @app.route('/api/marketing/audience-personas', methods=['GET'])
 def get_audience_personas():
@@ -565,6 +680,7 @@ def get_audience_personas():
     ]
     return jsonify(personas), 200
 
+
 @app.route('/api/marketing/channels', methods=['GET'])
 def get_marketing_channels():
     # Mock marketing channels
@@ -576,6 +692,7 @@ def get_marketing_channels():
         { "id": 5, "name": "Community Engagement", "platforms": ["Reddit", "Discord", "Forums", "Q&A Sites"] }
     ]
     return jsonify(channels), 200
+
 
 @app.route('/api/marketing/campaign', methods=['POST'])
 @sanitize_input
@@ -593,6 +710,7 @@ def generate_marketing_campaign():
         return jsonify({"campaignId": campaign_id, "message": "Campaign generated successfully"}), 201
     except Exception as e:
         return jsonify({"error": "Processing Error", "message": f"Campaign generation failed: {str(e)}"}), 500
+
 
 @app.route('/api/marketing/campaign/<campaign_id>', methods=['GET'])
 def get_campaign_details(campaign_id):
@@ -649,6 +767,7 @@ def get_campaign_details(campaign_id):
     except ValueError:
         return jsonify({"error": "Validation Error", "message": "Invalid campaign ID format"}), 400
 
+
 @app.route('/api/marketing/campaigns', methods=['GET'])
 def get_all_campaigns():
     # Mock data for all marketing campaigns
@@ -663,6 +782,7 @@ def get_all_campaigns():
         }
     ]
     return jsonify(campaigns), 200
+
 
 # Dashboard endpoints
 @app.route('/api/dashboard/overview', methods=['GET'])
@@ -701,6 +821,7 @@ def get_dashboard_overview():
     }
     return jsonify(overview), 200
 
+
 @app.route('/api/dashboard/revenue', methods=['GET'])
 def get_revenue_stats():
     # Mock revenue statistics
@@ -716,6 +837,7 @@ def get_revenue_stats():
         ]
     }
     return jsonify(revenue), 200
+
 
 @app.route('/api/dashboard/subscribers', methods=['GET'])
 def get_subscriber_stats():
@@ -738,6 +860,7 @@ def get_subscriber_stats():
     }
     return jsonify(subscribers), 200
 
+
 # Global error handler for validation errors
 @app.errorhandler(Exception)
 def handle_exception(e):
@@ -752,6 +875,7 @@ def handle_exception(e):
         "error": "Server Error",
         "message": "An unexpected error occurred"
     }), 500
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

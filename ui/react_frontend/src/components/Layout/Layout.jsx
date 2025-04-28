@@ -1,20 +1,28 @@
 import React, { useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
+import {
+  Box,
+  Drawer,
+  AppBar,
+  Toolbar,
+  List,
+  Typography,
+  Divider,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Avatar,
+  Badge,
+  Button,
+  Tooltip
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import HomeIcon from '@mui/icons-material/Home';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SearchIcon from '@mui/icons-material/Search';
@@ -23,7 +31,16 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import InfoIcon from '@mui/icons-material/Info';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import LogoutIcon from '@mui/icons-material/Logout';
+import LoginIcon from '@mui/icons-material/Login';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAppContext } from '../../context/AppContext';
+import { AuthGuard } from '../auth';
 
 const drawerWidth = 240;
 
@@ -74,20 +91,26 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const navigationItems = [
   { text: 'Home', path: '/', icon: <HomeIcon /> },
-  { text: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-  { text: 'Niche Analysis', path: '/niche-analysis', icon: <SearchIcon /> },
-  { text: 'Developer', path: '/developer', icon: <CodeIcon /> },
-  { text: 'Monetization', path: '/monetization', icon: <MonetizationOnIcon /> },
-  { text: 'Marketing', path: '/marketing', icon: <CampaignIcon /> },
-  { text: 'User Engagement', path: '/user-engagement', icon: <BarChartIcon /> },
+  { text: 'Dashboard', path: '/dashboard', icon: <DashboardIcon />, requireAuth: true },
+  { text: 'Niche Analysis', path: '/niche-analysis', icon: <SearchIcon />, requireAuth: true },
+  { text: 'Developer', path: '/developer', icon: <CodeIcon />, requireAuth: true },
+  { text: 'Monetization', path: '/monetization', icon: <MonetizationOnIcon />, requireAuth: true },
+  { text: 'Marketing', path: '/marketing', icon: <CampaignIcon />, requireAuth: true },
+  { text: 'User Engagement', path: '/user-engagement', icon: <BarChartIcon />, requireAuth: true },
   { text: 'About', path: '/about', icon: <InfoIcon /> },
 ];
 
 export default function Layout({ children }) {
   const theme = useTheme();
+  const { isAuthenticated, user, logout, darkMode, dispatch } = useAppContext();
   const [open, setOpen] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isMenuOpen = Boolean(anchorEl);
+  const isNotificationsOpen = Boolean(notificationsAnchorEl);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -97,9 +120,107 @@ export default function Layout({ children }) {
     setOpen(false);
   };
 
-  const handleNavigation = (path) => {
+  const handleNavigate = (path) => {
     navigate(path);
   };
+
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleNotificationsOpen = (event) => {
+    setNotificationsAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationsClose = () => {
+    setNotificationsAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    handleMenuClose();
+    await logout();
+    navigate('/login');
+  };
+
+  const handleNavigateToProfile = () => {
+    handleMenuClose();
+    navigate('/profile');
+  };
+
+  const handleToggleDarkMode = () => {
+    dispatch({ type: 'TOGGLE_DARK_MODE' });
+  };
+
+  // User menu - only visible when authenticated
+  const userMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      id="user-menu"
+      keepMounted
+      open={isMenuOpen}
+      onClose={handleMenuClose}
+      PaperProps={{
+        elevation: 2,
+        sx: { minWidth: 180 }
+      }}
+      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+    >
+      <MenuItem onClick={handleNavigateToProfile}>
+        <ListItemIcon>
+          <AccountCircleIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="Profile" />
+      </MenuItem>
+      
+      <MenuItem onClick={handleToggleDarkMode}>
+        <ListItemIcon>
+          {darkMode ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+        </ListItemIcon>
+        <ListItemText primary={darkMode ? "Light Mode" : "Dark Mode"} />
+      </MenuItem>
+      
+      <Divider />
+      
+      <MenuItem onClick={handleLogout}>
+        <ListItemIcon>
+          <LogoutIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="Logout" />
+      </MenuItem>
+    </Menu>
+  );
+
+  // Notifications menu
+  const notificationsMenu = (
+    <Menu
+      anchorEl={notificationsAnchorEl}
+      id="notifications-menu"
+      keepMounted
+      open={isNotificationsOpen}
+      onClose={handleNotificationsClose}
+      PaperProps={{
+        elevation: 2,
+        sx: { minWidth: 300, maxHeight: 400 }
+      }}
+      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+    >
+      <MenuItem disabled>
+        <Typography variant="subtitle1">Notifications</Typography>
+      </MenuItem>
+      <Divider />
+      <MenuItem onClick={handleNotificationsClose}>
+        <Typography variant="body2" color="text.secondary">
+          No new notifications
+        </Typography>
+      </MenuItem>
+    </Menu>
+  );
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -114,11 +235,90 @@ export default function Layout({ children }) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             pAIssive Income Framework
           </Typography>
+          
+          {/* Right side of toolbar */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {isAuthenticated ? (
+              <>
+                {/* Dark Mode Toggle */}
+                <Tooltip title={darkMode ? "Light Mode" : "Dark Mode"}>
+                  <IconButton color="inherit" onClick={handleToggleDarkMode}>
+                    {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+                  </IconButton>
+                </Tooltip>
+
+                {/* Notifications */}
+                <Tooltip title="Notifications">
+                  <IconButton 
+                    color="inherit"
+                    onClick={handleNotificationsOpen}
+                    aria-label="show notifications"
+                  >
+                    <Badge badgeContent={0} color="error">
+                      <NotificationsIcon />
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
+
+                {/* User Profile Menu */}
+                <Tooltip title="Account">
+                  <IconButton
+                    edge="end"
+                    aria-label="account of current user"
+                    aria-controls="user-menu"
+                    aria-haspopup="true"
+                    onClick={handleProfileMenuOpen}
+                    color="inherit"
+                    sx={{ ml: 1 }}
+                  >
+                    <Avatar 
+                      sx={{ 
+                        width: 32, 
+                        height: 32, 
+                        bgcolor: 'primary.main',
+                        fontSize: '0.875rem'
+                      }}
+                    >
+                      {user?.name?.charAt(0) || user?.username?.charAt(0) || 'U'}
+                    </Avatar>
+                  </IconButton>
+                </Tooltip>
+              </>
+            ) : (
+              <>
+                {/* Dark Mode Toggle */}
+                <Tooltip title={darkMode ? "Light Mode" : "Dark Mode"}>
+                  <IconButton color="inherit" onClick={handleToggleDarkMode}>
+                    {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+                  </IconButton>
+                </Tooltip>
+
+                {/* Login / Register buttons */}
+                <Button
+                  color="inherit"
+                  startIcon={<LoginIcon />}
+                  onClick={() => navigate('/login')}
+                  sx={{ ml: 1 }}
+                >
+                  Login
+                </Button>
+                <Button
+                  color="inherit"
+                  startIcon={<PersonAddIcon />}
+                  onClick={() => navigate('/register')}
+                  sx={{ ml: 1 }}
+                >
+                  Register
+                </Button>
+              </>
+            )}
+          </Box>
         </Toolbar>
       </AppBarStyled>
+      
       <Drawer
         sx={{
           width: drawerWidth,
@@ -140,26 +340,37 @@ export default function Layout({ children }) {
         <Divider />
         <List>
           {navigationItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton 
-                selected={location.pathname === item.path}
-                onClick={() => handleNavigation(item.path)}
-              >
-                <ListItemIcon>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
+            <AuthGuard 
+              key={item.text} 
+              requireAuth={item.requireAuth || false}
+              fallback={null}
+            >
+              <ListItem disablePadding>
+                <ListItemButton 
+                  selected={location.pathname === item.path}
+                  onClick={() => handleNavigate(item.path)}
+                >
+                  <ListItemIcon>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </ListItemButton>
+              </ListItem>
+            </AuthGuard>
           ))}
         </List>
       </Drawer>
+      
       <Main open={open}>
         <DrawerHeader />
         <div className="content-wrapper">
           {children}
         </div>
       </Main>
+      
+      {/* Render menus */}
+      {userMenu}
+      {notificationsMenu}
     </Box>
   );
 }
