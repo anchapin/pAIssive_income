@@ -125,3 +125,4 @@ example_project_plan.json
 # OS specific
 .DS_Store
 Thumbs.db
+node_modules

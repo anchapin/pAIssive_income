@@ -76,13 +76,47 @@ The framework has identified several promising niches for AI-powered tools:
 
 ### Web Interface
 
-1. Start the web interface:
+#### Modern React UI (Recommended)
+
+The framework now includes a modern React-based user interface with a Flask API backend.
+
+1. Start both the React development server and Flask API server with a single command:
 
    ```python
-   python run_ui.py
+   python ui/run_ui.py
    ```
 
-2. Open your web browser and navigate to `http://localhost:5000`
+   This script will:
+   - Start the Flask API server on port 5000
+   - Install React dependencies if needed
+   - Start the React development server on port 3000
+   - Open your web browser automatically
+
+2. If the browser doesn't open automatically, navigate to `http://localhost:3000`
+
+3. For development purposes, you can also run the components separately:
+
+   ```bash
+   # Start just the Flask API server
+   python ui/api_server.py
+
+   # Start just the React development server (from the react_frontend directory)
+   cd ui/react_frontend
+   npm install  # Only needed the first time
+   npm start
+   ```
+
+#### Legacy Web Interface
+
+The original web interface is still available:
+
+1. Start the legacy web interface:
+
+   ```python
+   python run_ui.py --legacy
+   ```
+
+2. Open your browser and navigate to `http://localhost:5000`
 
 3. Use the web interface to:
    - Analyze niches
@@ -113,6 +147,7 @@ Running the main script generates a complete project plan including:
 ## Requirements
 
 - Python 3.8+
+- Node.js 14.0+ (for modern UI)
 - Dependencies listed in each module's README
 
 ## Documentation
