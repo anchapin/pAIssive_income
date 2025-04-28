@@ -8,6 +8,7 @@ import logging
 from typing import Any
 
 from ..config import APIConfig
+from ..version_manager import VersionManager
 
 # Set up logging
 logging.basicConfig(
@@ -27,18 +28,19 @@ except ImportError:
     FASTAPI_AVAILABLE = False
 
 
-def setup_middleware(app: Any, config: APIConfig) -> None:
+def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManager = None) -> None:
     """
     Set up middleware for the API server.
-    
+
     Args:
         app: FastAPI application
         config: API configuration
+        version_manager: Optional version manager for version middleware
     """
     if not FASTAPI_AVAILABLE:
         logger.warning("FastAPI is required for middleware setup")
         return
-    
+
     # Add CORS middleware
     if config.enable_cors:
         app.add_middleware(
@@ -48,17 +50,22 @@ def setup_middleware(app: Any, config: APIConfig) -> None:
             allow_methods=["*"],
             allow_headers=["*"],
         )
-    
+
     # Add GZip middleware
     if config.enable_gzip:
         app.add_middleware(GZipMiddleware, minimum_size=1000)
-    
+
     # Add authentication middleware
     if config.enable_auth:
         from .auth import setup_auth_middleware
         setup_auth_middleware(app, config)
-    
+
     # Add rate limiting middleware
     if config.enable_rate_limit:
         from .rate_limit import setup_rate_limit_middleware
         setup_rate_limit_middleware(app, config)
+
+    # Add version middleware if version manager is provided
+    if version_manager is not None:
+        from .version import setup_version_middleware
+        setup_version_middleware(app, config, version_manager)
