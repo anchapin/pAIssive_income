@@ -362,7 +362,13 @@ class KeywordAnalyzer(SEOAnalyzer):
         self.results["keyword_density"] = self._analyze_keyword_density()
 
         # Analyze keyword placement
-        self.results["keyword_placement"] = self._analyze_keyword_placement()
+        placement_results = self._analyze_keyword_placement()
+
+        # Add score key for compatibility with tests
+        for keyword, data in placement_results.items():
+            data["score"] = data["placement_score"]
+
+        self.results["keyword_placement"] = placement_results
 
         # Calculate overall score
         self.results["overall_score"] = self.get_score()
@@ -505,35 +511,35 @@ class KeywordAnalyzer(SEOAnalyzer):
         Extract all text from the content for analysis.
 
         Returns:
-            Combined text from all content sections
+            Extracted text as a string
         """
-        text_parts = []
+        text = ""
 
         # Add title
         if "title" in self.content:
-            text_parts.append(self.content["title"])
+            text += self.content["title"] + " "
 
         # Add meta description
         if "meta_description" in self.content:
-            text_parts.append(self.content["meta_description"])
+            text += self.content["meta_description"] + " "
 
         # Add introduction
         if "introduction" in self.content:
-            text_parts.append(self.content["introduction"])
+            text += self.content["introduction"] + " "
 
-        # Add section content
-        for section in self.content.get("sections", []):
-            if "title" in section:
-                text_parts.append(section["title"])
-            if "content" in section:
-                text_parts.append(section["content"])
+        # Add sections
+        if "sections" in self.content:
+            for section in self.content["sections"]:
+                if "title" in section:
+                    text += section["title"] + " "
+                if "content" in section:
+                    text += section["content"] + " "
 
         # Add conclusion
         if "conclusion" in self.content:
-            text_parts.append(self.content["conclusion"])
+            text += self.content["conclusion"] + " "
 
-        # Join all parts with spaces
-        return " ".join(text_parts)
+        return text
 
     def _extract_first_paragraph(self) -> str:
         """
@@ -567,6 +573,40 @@ class KeywordAnalyzer(SEOAnalyzer):
         # Implementation depends on content structure
         # Placeholder implementation:
         return [image.get("alt", "") for image in self.content.get("images", [])]
+
+    def _tokenize_text(self, text: str) -> List[str]:
+        """
+        Tokenize text into words.
+
+        Args:
+            text: Text to tokenize
+
+        Returns:
+            List of words
+        """
+        # Remove punctuation
+        text = re.sub(r'[^\w\s]', '', text.lower())
+
+        # Split on whitespace
+        return text.split()
+
+    def _count_keyword_occurrences(self, text: str, keyword: str) -> int:
+        """
+        Count occurrences of a keyword in text.
+
+        Args:
+            text: Text to search in
+            keyword: Keyword to count
+
+        Returns:
+            Number of occurrences
+        """
+        # Convert to lowercase for case-insensitive matching
+        text = text.lower()
+        keyword = keyword.lower()
+
+        # Count occurrences
+        return text.count(keyword)
 
     def _contains_keyword(self, text: str, keyword: str) -> bool:
         """
@@ -665,7 +705,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         placement_scores = []
 
         for keyword, data in self.results["keyword_placement"].items():
-            placement_scores.append(data["placement_score"] / 100.0)  # Convert to 0-1 scale
+            placement_scores.append(data["score"])
 
         placement_score = sum(placement_scores) / len(placement_scores) if placement_scores else 0
 
@@ -715,7 +755,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         # Check keyword placement
         for keyword, data in self.results["keyword_placement"].items():
             # Check title
-            if not data["in_title"] and self.config.get("check_keyword_in_title", True):
+            if "locations" in data and not data["locations"].get("title", False) and self.config.get("check_keyword_in_title", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -726,7 +766,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check headings
-            if not data["in_headings"] and self.config.get("check_keyword_in_headings", True):
+            if "locations" in data and not data["locations"].get("headings", False) and self.config.get("check_keyword_in_headings", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -737,7 +777,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check first paragraph
-            if not data["in_first_paragraph"] and self.config.get("check_keyword_in_first_paragraph", True):
+            if "locations" in data and not data["locations"].get("first_paragraph", False) and self.config.get("check_keyword_in_first_paragraph", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -748,7 +788,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check meta description
-            if not data["in_meta_description"] and self.config.get("check_keyword_in_meta_description", True):
+            if "locations" in data and not data["locations"].get("meta_description", False) and self.config.get("check_keyword_in_meta_description", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
@@ -759,7 +799,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 })
 
             # Check URL
-            if not data["in_url"] and self.config.get("check_keyword_in_url", True):
+            if "locations" in data and not data["locations"].get("url", False) and self.config.get("check_keyword_in_url", True):
                 recommendations.append({
                     "id": str(uuid.uuid4()),
                     "type": "keyword_placement",
