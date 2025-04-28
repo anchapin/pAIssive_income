@@ -13,7 +13,8 @@ from .routes import (
     ai_models_router,
     agent_team_router,
     user_router,
-    dashboard_router
+    dashboard_router,
+    api_key_router
 )
 
 __all__ = [
@@ -29,4 +30,5 @@ __all__ = [
     'agent_team_router',
     'user_router',
     'dashboard_router',
+    'api_key_router',
 ]

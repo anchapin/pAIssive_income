@@ -10,6 +10,9 @@ The API module is organized into the following components:
 2. **Routes**: Route handlers for each core service
 3. **Schemas**: Pydantic models for request and response validation
 4. **Middleware**: Middleware components for authentication, rate limiting, etc.
+5. **Models**: Data models for the API
+6. **Repositories**: Data storage and retrieval
+7. **Services**: Business logic
 
 ## Getting Started
 
@@ -60,9 +63,50 @@ The API server supports the following command-line options:
 
 Once the server is running, you can access the API documentation at:
 
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-- OpenAPI JSON: http://localhost:8000/openapi.json
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+- OpenAPI JSON: `http://localhost:8000/openapi.json`
+
+## Authentication
+
+The API supports two authentication methods:
+
+### API Key Authentication
+
+API keys provide a simple way to authenticate with the API. To use API key authentication:
+
+1. Create an API key through the API key management endpoints
+2. Include the API key in the `X-API-Key` header in your requests
+
+Example:
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/user/profile" -H "X-API-Key: your-api-key"
+```
+
+### JWT Authentication
+
+JWT (JSON Web Token) authentication provides a more secure way to authenticate with the API. To use JWT authentication:
+
+1. Log in using the `/api/v1/user/login` endpoint to get a JWT token
+2. Include the JWT token in the `Authorization` header in your requests
+
+Example:
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/user/profile" -H "Authorization: Bearer your-jwt-token"
+```
+
+## API Key Management
+
+The API provides endpoints for managing API keys:
+
+- `POST /api/v1/api-keys`: Create a new API key
+- `GET /api/v1/api-keys`: Get all API keys for the current user
+- `GET /api/v1/api-keys/{api_key_id}`: Get an API key by ID
+- `PUT /api/v1/api-keys/{api_key_id}`: Update an API key
+- `DELETE /api/v1/api-keys/{api_key_id}`: Delete an API key
+- `POST /api/v1/api-keys/{api_key_id}/revoke`: Revoke an API key
 
 ## API Endpoints
 

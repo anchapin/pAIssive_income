@@ -12,6 +12,7 @@ from .agent_team import *
 from .user import *
 from .dashboard import *
 from .common import *
+from .api_key import *
 
 __all__ = [
     # Common schemas
@@ -19,7 +20,7 @@ __all__ = [
     'SuccessResponse',
     'PaginatedResponse',
     'IdResponse',
-    
+
     # Niche Analysis schemas
     'NicheAnalysisRequest',
     'NicheAnalysisResponse',
@@ -27,7 +28,7 @@ __all__ = [
     'MarketSegmentResponse',
     'ProblemResponse',
     'OpportunityResponse',
-    
+
     # Monetization schemas
     'SubscriptionModelRequest',
     'SubscriptionModelResponse',
@@ -35,7 +36,7 @@ __all__ = [
     'FeatureResponse',
     'RevenueProjectionRequest',
     'RevenueProjectionResponse',
-    
+
     # Marketing schemas
     'MarketingStrategyRequest',
     'MarketingStrategyResponse',
@@ -43,20 +44,27 @@ __all__ = [
     'ChannelResponse',
     'ContentTemplateResponse',
     'ContentCalendarResponse',
-    
+
     # AI Models schemas
     'ModelInfoResponse',
     'ModelDownloadRequest',
     'ModelDownloadResponse',
     'InferenceRequest',
     'InferenceResponse',
-    
+
+    # API Key schemas
+    'APIKeyCreate',
+    'APIKeyResponse',
+    'APIKeyCreatedResponse',
+    'APIKeyUpdate',
+    'APIKeyList',
+
     # Agent Team schemas
     'AgentTeamRequest',
     'AgentTeamResponse',
     'AgentResponse',
     'WorkflowResponse',
-    
+
     # User schemas
     'UserRequest',
     'UserResponse',
@@ -64,7 +72,7 @@ __all__ = [
     'LoginResponse',
     'RegisterRequest',
     'RegisterResponse',
-    
+
     # Dashboard schemas
     'DashboardOverviewResponse',
     'RevenueStatsResponse',

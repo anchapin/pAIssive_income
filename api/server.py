@@ -20,7 +20,8 @@ from .routes import (
     ai_models_router,
     agent_team_router,
     user_router,
-    dashboard_router
+    dashboard_router,
+    api_key_router
 )
 
 # Set up logging
@@ -359,6 +360,14 @@ class APIServer:
                 dashboard_router,
                 prefix=f"{api_prefix}/dashboard",
                 tags=[f"Dashboard {version_tag}"]
+            )
+
+        # Add API key routes
+        if self.config.enable_auth:
+            self.app.include_router(
+                api_key_router,
+                prefix=f"{api_prefix}",
+                tags=[f"API Keys {version_tag}"]
             )
 
     def _setup_version_info_routes(self) -> None:
