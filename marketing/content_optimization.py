@@ -234,7 +234,7 @@ class ContentOptimizer:
         # Create a placeholder for structure optimization
         self.results["optimization_steps"].append({
             "type": "structure",
-            "timestamp": datetime.datetime.now().isoformat(),
+            "timestamp": datetime.datetime now().isoformat(),
             "description": "Optimized content structure",
             "details": {
                 "improvements": [
@@ -628,6 +628,136 @@ class KeywordAnalyzer(SEOAnalyzer):
                 nltk.data.find('corpora/stopwords')
             except LookupError:
                 nltk.download('stopwords')
+                
+    def _extract_text_from_content(self) -> str:
+        """
+        Extract text from content for analysis.
+
+        This method merges all text fields from the content dictionary into a single
+        string for comprehensive keyword analysis. It looks for common content fields
+        including:
+        - title
+        - meta_description
+        - introduction/overview
+        - body/content sections
+        - conclusion
+        - features and benefits descriptions
+        - testimonials and quotes
+
+        Returns:
+            Consolidated text from all relevant content fields
+        """
+        text = ""
+
+        # Extract title
+        if "title" in self.content:
+            text += self.content["title"] + "\n\n"
+            
+        # Extract meta description
+        if "meta_description" in self.content:
+            text += self.content["meta_description"] + "\n\n"
+
+        # Add introduction
+        if "introduction" in self.content:
+            text += self.content["introduction"] + "\n\n"
+
+        # Add sections
+        if "sections" in self.content:
+            for section in self.content["sections"]:
+                if "title" in section:
+                    text += section["title"] + "\n"
+                if "content" in section:
+                    text += section["content"] + "\n\n"
+
+        # Add conclusion
+        if "conclusion" in self.content:
+            text += self.content["conclusion"] + "\n\n"
+
+        # Add overview (for product descriptions)
+        if "overview" in self.content:
+            text += self.content["overview"] + "\n\n"
+
+        # Add features (for product descriptions)
+        if "features" in self.content:
+            for feature in self.content["features"]:
+                if "name" in feature:
+                    text += feature["name"] + "\n"
+                if "description" in feature:
+                    text += feature["description"] + "\n\n"
+
+        # Add benefits (for product descriptions)
+        if "benefits" in self.content:
+            for benefit in self.content["benefits"]:
+                if "title" in benefit:
+                    text += benefit["title"] + "\n"
+                if "description" in benefit:
+                    text += benefit["description"] + "\n\n"
+
+        # Add testimonials
+        if "testimonials" in self.content:
+            for testimonial in self.content["testimonials"]:
+                if "text" in testimonial:
+                    text += testimonial["text"] + "\n\n"
+
+        # Add body content (generic field)
+        if "content" in self.content:
+            text += self.content["content"] + "\n\n"
+
+        return text
+
+    def _tokenize_text(self, text: str) -> List[str]:
+        """
+        Tokenize text into words.
+
+        Args:
+            text: Text to tokenize
+
+        Returns:
+            List of words
+        """
+        if NLTK_AVAILABLE:
+            # Use NLTK for word tokenization
+            words = word_tokenize(text.lower())
+            
+            # Remove stopwords if available
+            try:
+                stop_words = set(stopwords.words('english'))
+                words = [word for word in words if word.isalnum() and word not in stop_words]
+            except:
+                # If stopwords not available, just filter non-alphanumeric
+                words = [word for word in words if word.isalnum()]
+        else:
+            # Simple word tokenization
+            # Remove punctuation
+            text = re.sub(r'[^\w\s]', '', text.lower())
+            
+            # Split on whitespace
+            words = text.split()
+            
+        return words
+
+    def _count_keyword_occurrences(self, text: str, keyword: str) -> int:
+        """
+        Count occurrences of a keyword in text.
+
+        Args:
+            text: Text to analyze
+            keyword: Keyword to count
+
+        Returns:
+            Number of keyword occurrences
+        """
+        # Convert to lowercase for case-insensitive matching
+        text_lower = text.lower()
+        keyword_lower = keyword.lower()
+        
+        # Create a regex pattern with word boundaries to match exact words
+        pattern = r'\b' + re.escape(keyword_lower) + r'\b'
+        
+        # Count occurrences
+        occurrences = len(re.findall(pattern, text_lower))
+        
+        return occurrences
 
     def set_keywords(self, keywords: List[str]) -> None:
         """
@@ -961,7 +1091,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         placement_scores = []
 
         for keyword, data in self.results["keyword_placement"].items():
-            placement_scores.append(data["score"])
+            placement_scores.append(data["placement_score"])
 
         placement_score = sum(placement_scores) / len(placement_scores) if placement_scores else 0
 
@@ -1176,10 +1306,29 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         """
         Extract text from content for analysis.
 
+        This method merges all text fields from the content dictionary into a single
+        string for comprehensive keyword analysis. It looks for common content fields
+        including:
+        - title
+        - meta_description
+        - introduction/overview
+        - body/content sections
+        - conclusion
+        - features and benefits descriptions
+        - testimonials and quotes
+
         Returns:
-            Extracted text
+            Consolidated text from all relevant content fields
         """
         text = ""
+
+        # Extract title
+        if "title" in self.content:
+            text += self.content["title"] + "\n\n"
+            
+        # Extract meta description
+        if "meta_description" in self.content:
+            text += self.content["meta_description"] + "\n\n"
 
         # Add introduction
         if "introduction" in self.content:
@@ -1188,6 +1337,8 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Add sections
         if "sections" in self.content:
             for section in self.content["sections"]:
+                if "title" in section:
+                    text += section["title"] + "\n"
                 if "content" in section:
                     text += section["content"] + "\n\n"
 
@@ -1202,93 +1353,30 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Add features (for product descriptions)
         if "features" in self.content:
             for feature in self.content["features"]:
+                if "name" in feature:
+                    text += feature["name"] + "\n"
                 if "description" in feature:
                     text += feature["description"] + "\n\n"
 
         # Add benefits (for product descriptions)
         if "benefits" in self.content:
             for benefit in self.content["benefits"]:
+                if "title" in benefit:
+                    text += benefit["title"] + "\n"
                 if "description" in benefit:
                     text += benefit["description"] + "\n\n"
 
-        # Add executive summary (for case studies)
-        if "executive_summary" in self.content:
-            text += self.content["executive_summary"] + "\n\n"
+        # Add testimonials
+        if "testimonials" in self.content:
+            for testimonial in self.content["testimonials"]:
+                if "text" in testimonial:
+                    text += testimonial["text"] + "\n\n"
 
-        # Add challenge (for case studies)
-        if "challenge" in self.content:
-            text += self.content["challenge"] + "\n\n"
-
-        # Add solution (for case studies)
-        if "solution" in self.content:
-            text += self.content["solution"] + "\n\n"
-
-        # Add implementation (for case studies)
-        if "implementation" in self.content:
-            text += self.content["implementation"] + "\n\n"
-
-        # Add results (for case studies)
-        if "results" in self.content:
-            text += self.content["results"] + "\n\n"
-
-        # Add testimonial (for case studies)
-        if "testimonial" in self.content:
-            text += self.content["testimonial"] + "\n\n"
+        # Add body content (generic field)
+        if "content" in self.content:
+            text += self.content["content"] + "\n\n"
 
         return text
-
-    def analyze(self) -> Dict[str, Any]:
-        """
-        Analyze the content for readability.
-
-        Returns:
-            Dictionary with analysis results
-        """
-        # Validate content
-        is_valid, errors = self.validate_content()
-
-        if not is_valid:
-            raise ValueError(f"Invalid content: {', '.join(errors)}")
-
-        # Extract text
-        text = self._extract_text_from_content()
-
-        # Initialize results
-        self.results = {
-            "id": str(uuid.uuid4()),
-            "timestamp": datetime.datetime.now().isoformat(),
-            "content_id": self.content.get("id", "unknown"),
-            "text_statistics": {},
-            "readability_scores": {},
-            "sentence_analysis": {},
-            "paragraph_analysis": {},
-            "style_analysis": {},
-            "overall_score": 0.0,
-            "recommendations": []
-        }
-
-        # Analyze text statistics
-        self.results["text_statistics"] = self._analyze_text_statistics(text)
-
-        # Analyze readability scores
-        self.results["readability_scores"] = self._analyze_readability_scores(text)
-
-        # Analyze sentence structure
-        self.results["sentence_analysis"] = self._analyze_sentence_structure(text)
-
-        # Analyze paragraph structure
-        self.results["paragraph_analysis"] = self._analyze_paragraph_structure(text)
-
-        # Analyze writing style
-        self.results["style_analysis"] = self._analyze_writing_style(text)
-
-        # Calculate overall score
-        self.results["overall_score"] = self.get_score()
-
-        # Generate recommendations
-        self.results["recommendations"] = self.get_recommendations()
-
-        return self.results
 
     def _get_sentences(self, text: str) -> List[str]:
         """
@@ -1680,7 +1768,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Clamp score to 0-18 range
         return max(0, min(18, score))
 
-    def _calculate_gunning_fog(self, text: str) -> float:
+    def _calculate_gunning_fog(self, avg_words_per_sentence: float, complex_word_percentage: float) -> float:
         """
         Calculate the Gunning Fog Index for the text.
 
@@ -1707,7 +1795,8 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         For general audiences, a fog index of 12 or below is recommended.
 
         Args:
-            text: Text to analyze
+            avg_words_per_sentence: Average words per sentence
+            complex_word_percentage: Percentage of complex words
 
         Returns:
             Gunning Fog Index (representing years of formal education needed)
@@ -2129,8 +2218,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Find adverbs
         adverbs = re.findall(adverb_pattern, text, re.IGNORECASE)
 
-        # Count adverbs
-        adverb_count = len(adverbs)
+        # Count adverbs        adverb_count = len(adverbs)
 
         # Get words
         words = self._get_words(text)

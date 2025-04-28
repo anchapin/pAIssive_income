@@ -152,7 +152,7 @@ def content_dict_strategy(draw, with_keywords=True):
         slug_words = draw(st.lists(
             st.sampled_from(SAMPLE_WORDS + keyword_candidates),
             min_size=2,
-            max_value=6
+            max_size=6
         ))
         seo_data = {
             "slug": "-".join(slug_words).lower(),

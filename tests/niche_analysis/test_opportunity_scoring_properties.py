@@ -37,33 +37,46 @@ def factor_weights_strategy(draw):
     The weights are generated to ensure they sum to 1.0, which is a common
     constraint in weighted scoring systems.
     """
-    # Generate weights that sum to 1.0
-    w1 = draw(st.floats(min_value=0.05, max_value=0.5))
-    remaining = 1.0 - w1
-    w2 = draw(st.floats(min_value=0.05, max_value=remaining-0.1))
-    remaining -= w2
-    w3 = draw(st.floats(min_value=0.05, max_value=remaining-0.05))
-    remaining -= w3
-    w4 = draw(st.floats(min_value=0.05, max_value=remaining-0.05))
-    remaining -= w4
-    w5 = draw(st.floats(min_value=0.05, max_value=remaining-0.05))
-    remaining -= w5
-    w6 = remaining
+    # Use a different approach: generate 5 random values between 0 and 1,
+    # sort them, and use the differences as weights
     
-    weights = {
-        "market_size": w1,
-        "growth_rate": w2,
-        "competition": w3,
-        "problem_severity": w4,
-        "solution_feasibility": w5,
-        "monetization_potential": w6
-    }
+    # Generate 5 random points between 0 and 1
+    points = sorted([0.0] + [draw(st.floats(min_value=0.0, max_value=1.0)) for _ in range(5)] + [1.0])
     
-    # Ensure weights sum to 1.0 (within floating-point precision)
-    sum_weights = sum(weights.values())
-    assert abs(sum_weights - 1.0) < 1e-10, f"Weights sum to {sum_weights}, not 1.0"
+    # Use the gaps between points as the 6 weights
+    weights = [points[i+1] - points[i] for i in range(6)]
     
-    return weights
+    # Ensure minimum weight of 0.05 for each factor
+    if any(w < 0.05 for w in weights):
+        # If any weight is too small, use a simpler distribution
+        remaining = 0.7  # Reserve 0.3 for minimum weights (6 * 0.05)
+        weights = [0.05] * 6  # Start with minimum weight for each factor
+        
+        # Distribute the remaining 0.7 among the 6 factors
+        for i in range(6):
+            # Each factor gets a share of the remaining weight
+            extra = draw(st.floats(min_value=0.0, max_value=remaining))
+            weights[i] += extra
+            remaining -= extra
+        
+        # Add any remaining weight to the last factor
+        weights[5] += remaining
+    
+    # Create the weights dictionary
+    factor_names = ["market_size", "growth_rate", "competition", 
+                   "problem_severity", "solution_feasibility", "monetization_potential"]
+    factor_weights = dict(zip(factor_names, weights))
+    
+    # Verify weights sum to 1.0 (with floating point tolerance)
+    epsilon = 1e-9
+    sum_weights = sum(factor_weights.values())
+    assert abs(sum_weights - 1.0) < epsilon, f"Weights sum to {sum_weights}, not 1.0"
+    
+    # Verify all weights are at least 0.05
+    for name, weight in factor_weights.items():
+        assert weight >= 0.05 - epsilon, f"{name} has weight {weight}, less than 0.05"
+    
+    return factor_weights
 
 
 def analyze_factor(factor_name, value):
@@ -108,7 +121,8 @@ def calculate_opportunity_score(factors, weights):
         )
     
     # The overall score is the sum of weighted scores
-    overall_score = weighted_sum
+    # Handle floating-point precision - ensure score is at most 1.0
+    overall_score = min(1.0, weighted_sum)
     
     # Create the factors object from raw values
     factors_obj = FactorsSchema(**factors)
@@ -297,6 +311,10 @@ class TestOpportunityScoringAlgorithmProperties:
     )
     def test_weight_influence(self, factors, weights1, weights2):
         """Test that weights influence the score appropriately."""
+        # Skip the test if all factors are zero - weights don't matter in this case
+        if all(v == 0.0 for v in factors.values()):
+            return
+            
         score1 = calculate_opportunity_score(factors, weights1).overall_score
         score2 = calculate_opportunity_score(factors, weights2).overall_score
         
