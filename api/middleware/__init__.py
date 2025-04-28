@@ -9,6 +9,7 @@ from .rate_limit import RateLimitMiddleware
 from .cors import CORSMiddleware
 from .version import VersionMiddleware
 from .analytics import AnalyticsMiddleware
+from .query_params import QueryParamsMiddleware, setup_query_params_middleware
 from .setup import setup_middleware
 
 __all__ = [
@@ -17,5 +18,7 @@ __all__ = [
     'CORSMiddleware',
     'VersionMiddleware',
     'AnalyticsMiddleware',
+    'QueryParamsMiddleware',
+    'setup_query_params_middleware',
     'setup_middleware',
 ]

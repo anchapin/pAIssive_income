@@ -47,8 +47,14 @@ from ..schemas.niche_analysis import (
     BulkNicheDeleteRequest,
     BulkNicheDeleteResponse
 )
-from ..schemas.common import ErrorResponse, SuccessResponse, IdResponse, PaginatedResponse
+from ..schemas.common import (
+    ErrorResponse, SuccessResponse, IdResponse, PaginatedResponse,
+    SortDirection, FilterOperator, FilterParam, SortParam, QueryParams
+)
 from ..schemas.bulk_operations import BulkOperationStats, BulkOperationError
+
+# Import utilities
+from ..utils.query_params import QueryParams as QueryParamsUtil, apply_pagination, apply_filtering, apply_sorting
 
 # Create router
 if FASTAPI_AVAILABLE:
@@ -249,23 +255,35 @@ if FASTAPI_AVAILABLE:
             500: {"model": ErrorResponse, "description": "Internal server error"}
         },
         summary="Get all niches",
-        description="Get a list of all niches"
+        description="Get a list of all niches with pagination, filtering, and sorting"
     )
     async def get_all_niches(
-        page: int = Query(1, description="Page number"),
-        page_size: int = Query(10, description="Page size"),
-        segment: Optional[str] = Query(None, description="Filter by market segment")
+        request: Any = Depends(),
+        page: int = Query(1, description="Page number", ge=1),
+        page_size: int = Query(10, description="Page size", ge=1, le=100),
+        sort_by: Optional[str] = Query(None, description="Field to sort by"),
+        sort_dir: SortDirection = Query(SortDirection.ASC, description="Sort direction"),
+        segment: Optional[str] = Query(None, description="Filter by market segment"),
+        name: Optional[str] = Query(None, description="Filter by name (contains)"),
+        min_score: Optional[float] = Query(None, description="Filter by minimum opportunity score", ge=0, le=1),
+        max_score: Optional[float] = Query(None, description="Filter by maximum opportunity score", ge=0, le=1)
     ):
         """
-        Get a list of all niches.
+        Get a list of all niches with pagination, filtering, and sorting.
 
         Args:
+            request: FastAPI request
             page: Page number
             page_size: Page size
+            sort_by: Field to sort by
+            sort_dir: Sort direction
             segment: Filter by market segment
+            name: Filter by name (contains)
+            min_score: Filter by minimum opportunity score
+            max_score: Filter by maximum opportunity score
 
         Returns:
-            List of niches
+            Paginated list of niches
         """
         try:
             # Check if niche analysis module is available
@@ -309,19 +327,83 @@ if FASTAPI_AVAILABLE:
                     problems=[],
                     opportunities=[],
                     created_at=datetime.now()
+                ),
+                NicheResponse(
+                    id="4",
+                    name="AI video editing assistant",
+                    description="AI tools for video editing",
+                    market_segment="Content Creation",
+                    opportunity_score=0.82,
+                    problems=[],
+                    opportunities=[],
+                    created_at=datetime.now()
+                ),
+                NicheResponse(
+                    id="5",
+                    name="AI-powered market research",
+                    description="AI tools for market research",
+                    market_segment="Marketing",
+                    opportunity_score=0.79,
+                    problems=[],
+                    opportunities=[],
+                    created_at=datetime.now()
                 )
             ]
 
-            # Filter by segment if specified
-            if segment:
-                niches = [niche for niche in niches if niche.market_segment == segment]
+            # Create query parameters
+            filters = {}
+            filter_operators = {}
 
-            return PaginatedResponse(
-                items=niches,
-                total=len(niches),
+            # Add filters based on query parameters
+            if segment:
+                filters["market_segment"] = segment
+                filter_operators["market_segment"] = FilterOperator.EQ
+
+            if name:
+                filters["name"] = name
+                filter_operators["name"] = FilterOperator.CONTAINS
+
+            if min_score is not None:
+                filters["opportunity_score_min"] = min_score
+                filter_operators["opportunity_score_min"] = FilterOperator.GTE
+
+            if max_score is not None:
+                filters["opportunity_score_max"] = max_score
+                filter_operators["opportunity_score_max"] = FilterOperator.LTE
+
+            query_params = QueryParamsUtil(
                 page=page,
                 page_size=page_size,
-                pages=(len(niches) + page_size - 1) // page_size
+                sort_by=sort_by,
+                sort_dir=sort_dir,
+                filters=filters,
+                filter_operators=filter_operators
+            )
+
+            # Define a custom field getter for our NicheResponse objects
+            def field_getter(item, field):
+                if field == "opportunity_score_min" or field == "opportunity_score_max":
+                    return item.opportunity_score
+                return getattr(item, field, None)
+
+            # Apply filtering
+            filtered_niches = apply_filtering(niches, query_params, field_getter)
+
+            # Apply sorting
+            sorted_niches = apply_sorting(filtered_niches, query_params, field_getter)
+
+            # Apply pagination
+            paginated_niches, total = apply_pagination(sorted_niches, query_params)
+
+            # Calculate total pages
+            total_pages = (total + query_params.page_size - 1) // query_params.page_size
+
+            return PaginatedResponse(
+                items=paginated_niches,
+                total=total,
+                page=query_params.page,
+                page_size=query_params.page_size,
+                pages=total_pages
             )
 
         except Exception as e:

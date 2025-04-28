@@ -74,3 +74,32 @@ def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManage
     if config.enable_analytics:
         from .analytics import AnalyticsMiddleware
         AnalyticsMiddleware(app)
+
+    # Add query parameters middleware
+    from .query_params import setup_query_params_middleware
+
+    # Define allowed sort and filter fields for each endpoint
+    allowed_sort_fields = {
+        "/api/v1/niche-analysis/niches": ["name", "market_segment", "opportunity_score", "created_at"],
+        "/api/v1/monetization/subscription-models": ["name", "type", "created_at"],
+        "/api/v1/marketing/campaigns": ["name", "status", "start_date", "end_date"],
+        "/api/v1/ai-models/models": ["name", "type", "size", "created_at"],
+        "/api/v1/agent-team/agents": ["name", "role", "status", "created_at"],
+        "/api/v1/users": ["username", "email", "created_at", "last_login"],
+    }
+
+    allowed_filter_fields = {
+        "/api/v1/niche-analysis/niches": ["name", "market_segment", "opportunity_score"],
+        "/api/v1/monetization/subscription-models": ["name", "type", "solution_id"],
+        "/api/v1/marketing/campaigns": ["name", "status", "channel"],
+        "/api/v1/ai-models/models": ["name", "type", "provider"],
+        "/api/v1/agent-team/agents": ["name", "role", "status"],
+        "/api/v1/users": ["username", "email", "status"],
+    }
+
+    setup_query_params_middleware(
+        app,
+        allowed_sort_fields=allowed_sort_fields,
+        allowed_filter_fields=allowed_filter_fields,
+        max_page_size=config.max_page_size
+    )

@@ -4,7 +4,8 @@ Common schemas for the API server.
 This module provides common Pydantic models for API request and response validation.
 """
 
-from typing import Dict, List, Optional, Any, Generic, TypeVar
+from typing import Dict, List, Optional, Any, Generic, TypeVar, Union
+from enum import Enum
 from pydantic import BaseModel, Field
 
 # Define generic type variable
@@ -28,6 +29,53 @@ class IdResponse(BaseModel):
     """ID response model."""
     id: str = Field(..., description="Resource ID")
     message: Optional[str] = Field(None, description="Success message")
+
+
+class SortDirection(str, Enum):
+    """Sort direction enum."""
+    ASC = "asc"
+    DESC = "desc"
+
+
+class FilterOperator(str, Enum):
+    """Filter operator enum."""
+    EQ = "eq"  # Equal
+    NEQ = "neq"  # Not equal
+    GT = "gt"  # Greater than
+    GTE = "gte"  # Greater than or equal
+    LT = "lt"  # Less than
+    LTE = "lte"  # Less than or equal
+    CONTAINS = "contains"  # Contains (string)
+    STARTS_WITH = "startswith"  # Starts with (string)
+    ENDS_WITH = "endswith"  # Ends with (string)
+    IN = "in"  # In list
+    NOT_IN = "notin"  # Not in list
+
+
+class FilterParam(BaseModel):
+    """Filter parameter model."""
+    field: str = Field(..., description="Field to filter by")
+    operator: FilterOperator = Field(FilterOperator.EQ, description="Filter operator")
+    value: Any = Field(..., description="Filter value")
+
+
+class SortParam(BaseModel):
+    """Sort parameter model."""
+    field: str = Field(..., description="Field to sort by")
+    direction: SortDirection = Field(SortDirection.ASC, description="Sort direction")
+
+
+class PaginationParams(BaseModel):
+    """Pagination parameters model."""
+    page: int = Field(1, description="Page number", ge=1)
+    page_size: int = Field(10, description="Number of items per page", ge=1, le=100)
+
+
+class QueryParams(BaseModel):
+    """Query parameters model."""
+    pagination: PaginationParams = Field(default_factory=PaginationParams, description="Pagination parameters")
+    sort: Optional[SortParam] = Field(None, description="Sort parameters")
+    filters: List[FilterParam] = Field(default_factory=list, description="Filter parameters")
 
 
 class PaginatedResponse(BaseModel, Generic[T]):

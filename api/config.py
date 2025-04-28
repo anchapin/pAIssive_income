@@ -203,6 +203,12 @@ class APIConfig:
     enable_user: bool = True
     enable_dashboard: bool = True
 
+    # Pagination, filtering, and sorting configuration
+    max_page_size: int = 100  # Maximum number of items per page
+    default_page_size: int = 10  # Default number of items per page
+    enable_advanced_filtering: bool = True  # Enable advanced filtering
+    enable_advanced_sorting: bool = True  # Enable advanced sorting
+
     # Logging configuration
     log_level: str = "INFO"
     log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
