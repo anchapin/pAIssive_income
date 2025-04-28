@@ -98,13 +98,16 @@ class MongoDBAdapter(DatabaseInterface):
             # Parse the query to determine if it's a command or a collection operation
             if query.startswith('{') and query.endswith('}'):
                 # It's a raw command in JSON format
-                command = json.loads(query)
+                try:
+                    command = json.loads(query)
+                except json.JSONDecodeError as e:
+                    raise ValueError(f"Invalid JSON command: {e}")
                 return self.db.command(command)
             else:
                 # It's a simplified format like "collection_name:operation"
                 parts = query.split(':', 1)
-                if len(parts) != 2:
-                    raise ValueError("Query format should be 'collection:operation'")
+                if len(parts) != 2 or not all(parts):
+                    raise ValueError("Query format should be 'collection:operation' with non-empty parts")
                 
                 collection_name, operation = parts
                 collection = self.db[collection_name]

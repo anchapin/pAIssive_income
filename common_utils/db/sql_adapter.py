@@ -138,14 +138,13 @@ class SQLiteAdapter(DatabaseInterface):
         Raises:
             sqlite3.Error: If there's an issue with the database operation
         """
-        placeholders = ', '.join(['?' for _ in data])
+        placeholders = ', '.join([f":{key}" for key in data.keys()])
         columns = ', '.join(data.keys())
-        values = tuple(data.values())
         
         query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
         
         try:
-            self.execute(query, values)
+            self.execute(query, data)
             return self.cursor.lastrowid
         except sqlite3.Error as e:
             logger.error(f"Error inserting data: {e}")
