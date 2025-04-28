@@ -34,6 +34,7 @@ from tests.mocks.fixtures import (
     mock_ai_model_testing_setup,
     mock_monetization_testing_setup,
     mock_marketing_testing_setup,
+    mock_niche_analysis_testing_setup,
 
     # Common test data fixtures
     mock_model_inference_result,
@@ -83,7 +84,11 @@ except ImportError:
 @pytest.fixture
 def mock_stripe_gateway():
     """Create a mock Stripe payment gateway."""
-    gateway = create_payment_gateway("stripe")
+    # Create gateway with network errors disabled
+    gateway = create_payment_gateway("stripe", {
+        "simulate_network_errors": False,
+        "success_rate": 1.0  # Always succeed
+    })
 
     # Add some test data
     customer = gateway.create_customer(

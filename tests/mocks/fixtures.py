@@ -8,9 +8,10 @@ making it easier to use mocks consistently across tests.
 import os
 import pytest
 import tempfile
+import json
 from typing import Dict, Any, Optional
 from unittest.mock import MagicMock, patch
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Import our mock implementations
 from .mock_model_providers import (
@@ -342,6 +343,14 @@ def mock_hf_hub_with_models():
         "pipeline_tag": "text-generation"
     })
 
+    mock_huggingface_hub.add_repo({
+        "id": "bert-base-uncased",
+        "downloads": 900000,
+        "likes": 4000,
+        "tags": ["fill-mask", "pytorch"],
+        "pipeline_tag": "fill-mask"
+    })
+
     # Add common files
     import json
 
@@ -355,6 +364,17 @@ def mock_hf_hub_with_models():
             "n_embd": 768,
             "n_layer": 12,
             "n_head": 12
+        })
+    )
+
+    mock_huggingface_hub.add_file(
+        repo_id="bert-base-uncased",
+        file_path="config.json",
+        content=json.dumps({
+            "model_type": "bert",
+            "hidden_size": 768,
+            "num_attention_heads": 12,
+            "num_hidden_layers": 12
         })
     )
 
@@ -749,7 +769,7 @@ def mock_marketing_campaign_data():
         "content_calendar": [
             {
                 "date": (datetime.now().replace(day=1) +
-                        datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
+                        timedelta(days=7)).strftime("%Y-%m-%d"),
                 "channel": "Email",
                 "title": "Introducing Our New AI-Powered Feature",
                 "content_type": "Product announcement",
@@ -757,7 +777,7 @@ def mock_marketing_campaign_data():
             },
             {
                 "date": (datetime.now().replace(day=1) +
-                        datetime.timedelta(days=9)).strftime("%Y-%m-%d"),
+                        timedelta(days=9)).strftime("%Y-%m-%d"),
                 "channel": "LinkedIn",
                 "title": "How Our Tool Saved Client X 10 Hours Per Week",
                 "content_type": "Case study",
@@ -819,6 +839,11 @@ def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_mod
 
     # Create a temporary directory for file operations
     temp_dir = tempfile.mkdtemp(prefix="ai_model_test_")
+
+    # Add generate method to model providers
+    for provider_name, provider in patch_model_providers.items():
+        if not hasattr(provider, 'generate'):
+            provider.generate = lambda text, **kwargs: "This is a mock response generated for: " + text
 
     return {
         "http": patch_requests,
@@ -958,8 +983,16 @@ def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis
         "identify niches": json.dumps(mock_niche_analysis_data["niches"]),
         "analyze market": "The market shows significant growth potential.",
         "competition analysis": "The competition level varies by niche.",
-        "target audience": "The primary target audience consists of knowledge workers and small businesses."
+        "target audience": "The primary target audience consists of knowledge workers and small businesses.",
+        "analyze market trends": "Market analysis shows positive growth trends in AI inventory management.",
+        "identify target audience": "The target audience is primarily e-commerce businesses and retail chains.",
+        "evaluate competition": "Competition analysis reveals 3 major competitors with basic AI features."
     }
+
+    # Add generate method to model providers if not already present
+    for provider_name, provider in patch_model_providers.items():
+        if not hasattr(provider, 'generate'):
+            provider.generate = lambda text, **kwargs: f"This is a mock response for: {text}"
 
     # Create a temporary directory for file operations
     temp_dir = tempfile.mkdtemp(prefix="niche_analysis_test_")

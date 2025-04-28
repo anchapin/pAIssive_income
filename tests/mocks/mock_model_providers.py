@@ -113,6 +113,13 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 "owned_by": "openai"
             },
             {
+                "id": "gpt-4-turbo",
+                "name": "GPT-4 Turbo",
+                "capabilities": ["text-generation", "chat", "function-calling"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            },
+            {
                 "id": "text-embedding-ada-002",
                 "name": "Text Embedding Ada 002",
                 "capabilities": ["embeddings"],
@@ -127,6 +134,12 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 "owned_by": "openai"
             }
         ])
+
+        # Set up custom responses for specific prompts
+        self.config["custom_responses"] = self.config.get("custom_responses", {
+            "analyze market trends": "Market analysis shows positive growth trends.",
+            "market trends": "Market analysis shows positive growth trends."
+        })
 
         # Mock responses for each endpoint
         self.mock_responses = {

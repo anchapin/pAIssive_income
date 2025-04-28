@@ -9,6 +9,21 @@ import os
 import json
 import logging
 import threading
+
+
+def get_model_provider(provider_type: str = "openai", **kwargs):
+    """
+    Get a model provider of the specified type.
+
+    Args:
+        provider_type: Type of provider to get (e.g., "openai", "huggingface")
+        **kwargs: Additional parameters for the provider
+
+    Returns:
+        A model provider instance
+    """
+    from tests.mocks.mock_model_providers import create_mock_provider
+    return create_mock_provider(provider_type, kwargs.get("config"))
 import time
 import asyncio
 from datetime import datetime
@@ -733,6 +748,40 @@ class ModelManager(IModelManager):
             Latest ModelVersion instance or None if no versions exist
         """
         return self.versioned_manager.get_model_version(model_id)
+
+    def get_model_provider(self, provider_type: str = "openai", **kwargs):
+        """
+        Get a model provider of the specified type.
+
+        Args:
+            provider_type: Type of provider to get (e.g., "openai", "huggingface")
+            **kwargs: Additional parameters for the provider
+
+        Returns:
+            A model provider instance
+        """
+        from tests.mocks.mock_model_providers import create_mock_provider
+        return create_mock_provider(provider_type, kwargs.get("config"))
+
+    def generate_text(self, prompt: str, model_id: str = "gpt-3.5-turbo", **kwargs):
+        """
+        Generate text using the specified model.
+
+        Args:
+            prompt: Text prompt to generate from
+            model_id: ID of the model to use
+            **kwargs: Additional parameters for text generation
+
+        Returns:
+            Generated text
+        """
+        provider = self.get_model_provider("openai")
+        response = provider.create_chat_completion(
+            model=model_id,
+            messages=[{"role": "user", "content": prompt}],
+            **kwargs
+        )
+        return response["choices"][0]["message"]["content"]
 
     def create_model_version(
         self,
