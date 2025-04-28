@@ -17,4 +17,17 @@ from .webhook import (
     WebhookDeliveryList
 )
 
+# Import bulk operation schemas
+from .bulk_operations import (
+    BulkOperationStats,
+    BulkOperationError,
+    BulkResponse,
+    BulkCreateRequest,
+    BulkCreateResponse,
+    BulkUpdateRequest,
+    BulkUpdateResponse,
+    BulkDeleteRequest,
+    BulkDeleteResponse
+)
+
 # Import other schema modules as needed
