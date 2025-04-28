@@ -13,16 +13,6 @@ from typing import Dict, Any, Optional, List, Union, Type, Tuple
 from .config import APIConfig, APIVersion
 from .middleware import setup_middleware
 from .version_manager import VersionManager
-from .routes import (
-    niche_analysis_router,
-    monetization_router,
-    marketing_router,
-    ai_models_router,
-    agent_team_router,
-    user_router,
-    dashboard_router,
-    api_key_router
-)
 
 # Set up logging
 logging.basicConfig(
@@ -305,21 +295,35 @@ class APIServer:
     def _setup_version_routes(self, version: APIVersion) -> None:
         """
         Set up routes for a specific API version.
-
+        
         Args:
             version: API version to set up routes for
         """
-        api_prefix = f"{self.config.prefix}/{version}"
-        version_tag = f"v{version}"
-
-        # Add module-specific routes
+        # Import routers
+        from .routes.niche_analysis_router import niche_analysis_router
+        from .routes.monetization_router import monetization_router
+        from .routes.marketing_router import marketing_router
+        from .routes.ai_models_router import ai_models_router
+        from .routes.agent_team_router import agent_team_router
+        from .routes.user_router import user_router
+        from .routes.dashboard_router import dashboard_router
+        from .routes.api_key_router import api_key_router
+        from .routes.webhook_router import webhook_router
+        
+        # Get API prefix for this version
+        api_prefix = f"{self.config.prefix}/{version.value}"
+        
+        # Get version tag for OpenAPI docs
+        version_tag = f"v{version.value}"
+        
+        # Include routers based on configuration
         if self.config.enable_niche_analysis:
             self.app.include_router(
                 niche_analysis_router,
                 prefix=f"{api_prefix}/niche-analysis",
                 tags=[f"Niche Analysis {version_tag}"]
             )
-
+            
         if self.config.enable_monetization:
             self.app.include_router(
                 monetization_router,
@@ -366,8 +370,16 @@ class APIServer:
         if self.config.enable_auth:
             self.app.include_router(
                 api_key_router,
-                prefix=f"{api_prefix}",
+                prefix=f"{api_prefix}/api-keys",
                 tags=[f"API Keys {version_tag}"]
+            )
+            
+        # Include webhook router
+        if webhook_router:
+            self.app.include_router(
+                webhook_router,
+                prefix=f"{api_prefix}/webhooks",
+                tags=[f"Webhooks {version_tag}"]
             )
 
     def _setup_version_info_routes(self) -> None:

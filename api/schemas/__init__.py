@@ -1,80 +1,20 @@
 """
-Schemas for the API server.
+API schema definitions.
 
-This module provides Pydantic models for API request and response validation.
+This module contains Pydantic models for API requests and responses.
 """
 
-from .niche_analysis import *
-from .monetization import *
-from .marketing import *
-from .ai_models import *
-from .agent_team import *
-from .user import *
-from .dashboard import *
-from .common import *
-from .api_key import *
+# Re-export schemas for easier imports
+from .webhook import (
+    WebhookEventType,
+    WebhookDeliveryStatus,
+    WebhookCreate,
+    WebhookUpdate,
+    WebhookResponse,
+    WebhookList,
+    WebhookDeliveryAttempt,
+    WebhookDeliveryResponse,
+    WebhookDeliveryList
+)
 
-__all__ = [
-    # Common schemas
-    'ErrorResponse',
-    'SuccessResponse',
-    'PaginatedResponse',
-    'IdResponse',
-
-    # Niche Analysis schemas
-    'NicheAnalysisRequest',
-    'NicheAnalysisResponse',
-    'NicheResponse',
-    'MarketSegmentResponse',
-    'ProblemResponse',
-    'OpportunityResponse',
-
-    # Monetization schemas
-    'SubscriptionModelRequest',
-    'SubscriptionModelResponse',
-    'PricingTierResponse',
-    'FeatureResponse',
-    'RevenueProjectionRequest',
-    'RevenueProjectionResponse',
-
-    # Marketing schemas
-    'MarketingStrategyRequest',
-    'MarketingStrategyResponse',
-    'PersonaResponse',
-    'ChannelResponse',
-    'ContentTemplateResponse',
-    'ContentCalendarResponse',
-
-    # AI Models schemas
-    'ModelInfoResponse',
-    'ModelDownloadRequest',
-    'ModelDownloadResponse',
-    'InferenceRequest',
-    'InferenceResponse',
-
-    # API Key schemas
-    'APIKeyCreate',
-    'APIKeyResponse',
-    'APIKeyCreatedResponse',
-    'APIKeyUpdate',
-    'APIKeyList',
-
-    # Agent Team schemas
-    'AgentTeamRequest',
-    'AgentTeamResponse',
-    'AgentResponse',
-    'WorkflowResponse',
-
-    # User schemas
-    'UserRequest',
-    'UserResponse',
-    'LoginRequest',
-    'LoginResponse',
-    'RegisterRequest',
-    'RegisterResponse',
-
-    # Dashboard schemas
-    'DashboardOverviewResponse',
-    'RevenueStatsResponse',
-    'SubscriberStatsResponse',
-]
+# Import other schema modules as needed
