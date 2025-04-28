@@ -10,6 +10,10 @@ from .model_config import ModelConfig
 from .agent_integration import AgentModelProvider
 from .model_downloader import ModelDownloader, DownloadTask, DownloadProgress
 from .performance_monitor import PerformanceMonitor, InferenceTracker, InferenceMetrics, ModelPerformanceReport
+from .batch_inference import (
+    BatchInferenceProcessor, BatchInferenceRequest, BatchInferenceResult,
+    generate_text_batch, generate_embeddings_batch
+)
 
 # Import model types
 from .model_types import ONNXModel, QuantizedModel, VisionModel, AudioModel
@@ -96,6 +100,13 @@ __all__ = [
     'InferenceTracker',
     'InferenceMetrics',
     'ModelPerformanceReport',
+    
+    # Batch processing
+    'BatchInferenceProcessor',
+    'BatchInferenceRequest',
+    'BatchInferenceResult',
+    'generate_text_batch',
+    'generate_embeddings_batch',
 
     # Model types
     'ONNXModel',
