@@ -92,3 +92,45 @@ class AnalyticsSummaryResponse(BaseModel):
     unique_users: int = Field(..., description="Number of unique users")
     unique_api_keys: int = Field(..., description="Number of unique API keys")
     top_endpoints: List[EndpointStatsResponse] = Field(..., description="Top endpoints by request count")
+
+
+class EndpointRealTimeMetrics(BaseModel):
+    """Schema for real-time metrics for a specific endpoint."""
+    request_count: int = Field(..., description="Number of requests")
+    error_count: int = Field(..., description="Number of errors")
+    error_rate: float = Field(..., description="Error rate")
+    avg_response_time: float = Field(..., description="Average response time in milliseconds")
+    requests_per_minute: float = Field(..., description="Requests per minute")
+
+
+class RealTimeMetricsResponse(BaseModel):
+    """Schema for real-time API metrics."""
+    request_count: int = Field(..., description="Total number of requests")
+    error_count: int = Field(..., description="Total number of errors")
+    error_rate: float = Field(..., description="Error rate")
+    avg_response_time: float = Field(..., description="Average response time in milliseconds")
+    p95_response_time: float = Field(..., description="95th percentile response time in milliseconds")
+    requests_per_minute: float = Field(..., description="Requests per minute")
+    endpoints: Dict[str, EndpointRealTimeMetrics] = Field(..., description="Metrics by endpoint")
+    timestamp: str = Field(..., description="Timestamp of the metrics")
+
+
+class AlertResponse(BaseModel):
+    """Schema for API alert."""
+    title: str = Field(..., description="Alert title")
+    message: str = Field(..., description="Alert message")
+    timestamp: str = Field(..., description="Alert timestamp")
+    data: Dict[str, Any] = Field(..., description="Alert data")
+
+
+class AlertThresholdRequest(BaseModel):
+    """Schema for setting alert thresholds."""
+    metric: str = Field(..., description="Metric name (error_rate, response_time, requests_per_minute)")
+    threshold: float = Field(..., description="Threshold value")
+
+
+class AlertThresholdResponse(BaseModel):
+    """Schema for alert threshold response."""
+    metric: str = Field(..., description="Metric name")
+    threshold: float = Field(..., description="Threshold value")
+    message: str = Field(..., description="Success message")

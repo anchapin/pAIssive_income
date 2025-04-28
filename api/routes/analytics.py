@@ -31,7 +31,11 @@ from ..schemas.analytics import (
     EndpointStatsResponse,
     UserStatsResponse,
     ApiKeyStatsResponse,
-    AnalyticsSummaryResponse
+    AnalyticsSummaryResponse,
+    RealTimeMetricsResponse,
+    AlertResponse,
+    AlertThresholdRequest,
+    AlertThresholdResponse
 )
 from ..schemas.common import ErrorResponse, SuccessResponse
 
@@ -51,10 +55,10 @@ else:
 async def get_summary(days: int = Query(30, description="Number of days to include")):
     """
     Get a summary of API usage statistics.
-    
+
     Args:
         days: Number of days to include
-        
+
     Returns:
         API usage summary
     """
@@ -84,7 +88,7 @@ async def get_requests(
 ):
     """
     Get detailed statistics for API requests.
-    
+
     Args:
         endpoint: Filter by endpoint
         version: Filter by API version
@@ -94,7 +98,7 @@ async def get_requests(
         days: Number of days to include
         limit: Maximum number of records to return
         offset: Number of records to skip
-        
+
     Returns:
         List of request statistics
     """
@@ -124,10 +128,10 @@ async def get_requests(
 async def get_endpoint_stats(days: int = Query(30, description="Number of days to include")):
     """
     Get statistics for each API endpoint.
-    
+
     Args:
         days: Number of days to include
-        
+
     Returns:
         List of endpoint statistics
     """
@@ -151,11 +155,11 @@ async def get_user_stats(
 ):
     """
     Get statistics for API usage by users.
-    
+
     Args:
         days: Number of days to include
         user_id: Filter by user ID
-        
+
     Returns:
         List of user statistics
     """
@@ -179,11 +183,11 @@ async def get_api_key_stats(
 ):
     """
     Get statistics for API usage by API keys.
-    
+
     Args:
         days: Number of days to include
         api_key_id: Filter by API key ID
-        
+
     Returns:
         List of API key statistics
     """
@@ -209,14 +213,14 @@ async def export_requests_csv(
 ):
     """
     Export detailed API request data to CSV format.
-    
+
     Args:
         endpoint: Filter by endpoint
         version: Filter by API version
         user_id: Filter by user ID
         api_key_id: Filter by API key ID
         days: Number of days to include
-        
+
     Returns:
         CSV file
     """
@@ -228,11 +232,11 @@ async def export_requests_csv(
             user_id=user_id,
             api_key_id=api_key_id
         )
-        
+
         # Generate filename
         date_str = datetime.now().strftime("%Y%m%d")
         filename = f"api_requests_{date_str}.csv"
-        
+
         # Return CSV file
         return StreamingResponse(
             iter([csv_data]),
@@ -252,20 +256,20 @@ async def export_requests_csv(
 async def export_metrics_csv(days: int = Query(30, description="Number of days to include")):
     """
     Export daily aggregated metrics to CSV format.
-    
+
     Args:
         days: Number of days to include
-        
+
     Returns:
         CSV file
     """
     try:
         csv_data = analytics_service.export_metrics_csv(days=days)
-        
+
         # Generate filename
         date_str = datetime.now().strftime("%Y%m%d")
         filename = f"api_metrics_{date_str}.csv"
-        
+
         # Return CSV file
         return StreamingResponse(
             iter([csv_data]),
@@ -274,6 +278,60 @@ async def export_metrics_csv(days: int = Query(30, description="Number of days t
         )
     except Exception as e:
         logger.error(f"Error exporting metrics to CSV: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get(
+    "/real-time",
+    response_model=RealTimeMetricsResponse,
+    summary="Get real-time API metrics",
+    description="Get real-time metrics for API usage in the last few minutes"
+)
+async def get_real_time_metrics(minutes: int = Query(5, description="Number of minutes to include")):
+    """
+    Get real-time metrics for API usage in the last few minutes.
+
+    Args:
+        minutes: Number of minutes to include
+
+    Returns:
+        Real-time metrics
+    """
+    try:
+        metrics = analytics_service.get_real_time_metrics(minutes)
+        # Add timestamp to metrics
+        metrics["timestamp"] = datetime.now().isoformat()
+        return metrics
+    except Exception as e:
+        logger.error(f"Error getting real-time metrics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post(
+    "/alerts/thresholds",
+    response_model=AlertThresholdResponse,
+    summary="Set alert threshold",
+    description="Set a threshold for a specific metric that will trigger alerts when exceeded"
+)
+async def set_alert_threshold(threshold: AlertThresholdRequest):
+    """
+    Set a threshold for a specific metric that will trigger alerts when exceeded.
+
+    Args:
+        threshold: Alert threshold request
+
+    Returns:
+        Alert threshold response
+    """
+    try:
+        analytics_service.set_alert_threshold(threshold.metric, threshold.threshold)
+        return {
+            "metric": threshold.metric,
+            "threshold": threshold.threshold,
+            "message": f"Alert threshold for {threshold.metric} set to {threshold.threshold}"
+        }
+    except Exception as e:
+        logger.error(f"Error setting alert threshold: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -286,10 +344,10 @@ async def export_metrics_csv(days: int = Query(30, description="Number of days t
 async def cleanup_data(days: int = Query(365, description="Number of days to keep")):
     """
     Remove analytics data older than the specified number of days.
-    
+
     Args:
         days: Number of days to keep
-        
+
     Returns:
         Success response
     """
