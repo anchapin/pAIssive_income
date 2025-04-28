@@ -10,8 +10,9 @@ import json
 import logging
 import threading
 import time
+import asyncio
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple, Coroutine
 from dataclasses import dataclass
 from pathlib import Path
 import importlib.util
@@ -679,7 +680,46 @@ class ModelManager(IModelManager):
 
     def load_model(self, model_id: str, version: str = None, **kwargs) -> Any:
         """
-        Load a model.
+        Load a model (synchronous version).
+
+        This is a wrapper around load_model_async that runs the async function in the event loop.
+        
+        Args:
+            model_id: ID of the model to load
+            version: Optional version of the model to load
+            **kwargs: Additional parameters for model loading
+
+        Returns:
+            Loaded model instance
+
+        Raises:
+            ModelNotFoundError: If the model is not found
+            ModelLoadError: If the model cannot be loaded
+            ValidationError: If the model type is not supported
+        """
+        # Check if the model is already loaded for quick return
+        if model_id in self.loaded_models:
+            return self.loaded_models[model_id]
+            
+        # If we're already in an event loop, use it
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                return asyncio.run_coroutine_threadsafe(
+                    self.load_model_async(model_id, version, **kwargs), 
+                    loop
+                ).result()
+            else:
+                return loop.run_until_complete(
+                    self.load_model_async(model_id, version, **kwargs)
+                )
+        # If no event loop is available, create a new one
+        except RuntimeError:
+            return asyncio.run(self.load_model_async(model_id, version, **kwargs))
+
+    async def load_model_async(self, model_id: str, version: str = None, **kwargs) -> Any:
+        """
+        Load a model asynchronously.
 
         Args:
             model_id: ID of the model to load
@@ -697,7 +737,11 @@ class ModelManager(IModelManager):
         # If version is specified, use versioned model manager
         if version:
             try:
-                return self.versioned_manager.load_model_version(model_id, version, **kwargs)
+                # Run in a thread pool executor since versioned_manager's methods are synchronous
+                return await asyncio.get_event_loop().run_in_executor(
+                    None, 
+                    lambda: self.versioned_manager.load_model_version(model_id, version, **kwargs)
+                )
             except ValueError as e:
                 raise ModelNotFoundError(
                     message=str(e),
@@ -721,13 +765,13 @@ class ModelManager(IModelManager):
 
         try:
             if model_info.type == "huggingface":
-                model = self._load_huggingface_model(model_info, **kwargs)
+                model = await self._load_huggingface_model_async(model_info, **kwargs)
             elif model_info.type == "llama":
-                model = self._load_llama_model(model_info, **kwargs)
+                model = await self._load_llama_model_async(model_info, **kwargs)
             elif model_info.type == "embedding":
-                model = self._load_embedding_model(model_info, **kwargs)
+                model = await self._load_embedding_model_async(model_info, **kwargs)
             elif model_info.type == "onnx":
-                model = self._load_onnx_model(model_info, **kwargs)
+                model = await self._load_onnx_model_async(model_info, **kwargs)
             else:
                 raise ValidationError(
                     message=f"Unsupported model type: {model_info.type}",
@@ -764,7 +808,128 @@ class ModelManager(IModelManager):
                 details={"model_type": model_info.type, "model_path": model_info.path},
                 original_exception=e
             )
+
+    async def _load_huggingface_model_async(self, model_info: ModelInfo, **kwargs) -> Any:
+        """
+        Load a Hugging Face model asynchronously.
+        
+        Args:
+            model_info: Information about the model
+            **kwargs: Additional parameters for model loading
             
+        Returns:
+            Loaded model instance
+            
+        Raises:
+            ModelLoadError: If the model cannot be loaded
+        """
+        # Run the CPU-intensive model loading in a thread pool
+        loop = asyncio.get_event_loop()
+        try:
+            return await loop.run_in_executor(
+                None, 
+                lambda: self._load_huggingface_model(model_info, **kwargs)
+            )
+        except Exception as e:
+            # Convert any exceptions to ModelLoadError
+            logger.error(f"Error loading Hugging Face model {model_info.name} asynchronously: {e}")
+            raise ModelLoadError(
+                message=f"Failed to load Hugging Face model {model_info.name} asynchronously: {e}",
+                model_id=model_info.id,
+                details={"model_type": model_info.type, "model_path": model_info.path},
+                original_exception=e
+            )
+
+    async def _load_llama_model_async(self, model_info: ModelInfo, **kwargs) -> Any:
+        """
+        Load a Llama model asynchronously.
+        
+        Args:
+            model_info: Information about the model
+            **kwargs: Additional parameters for model loading
+            
+        Returns:
+            Loaded model instance
+            
+        Raises:
+            ModelLoadError: If the model cannot be loaded
+        """
+        # Run the CPU-intensive model loading in a thread pool
+        loop = asyncio.get_event_loop()
+        try:
+            return await loop.run_in_executor(
+                None, 
+                lambda: self._load_llama_model(model_info, **kwargs)
+            )
+        except Exception as e:
+            logger.error(f"Error loading Llama model {model_info.name} asynchronously: {e}")
+            raise ModelLoadError(
+                message=f"Failed to load Llama model {model_info.name} asynchronously: {e}",
+                model_id=model_info.id,
+                details={"model_type": model_info.type, "model_path": model_info.path},
+                original_exception=e
+            )
+
+    async def _load_embedding_model_async(self, model_info: ModelInfo, **kwargs) -> Any:
+        """
+        Load an embedding model asynchronously.
+        
+        Args:
+            model_info: Information about the model
+            **kwargs: Additional parameters for model loading
+            
+        Returns:
+            Loaded model instance
+            
+        Raises:
+            ModelLoadError: If the model cannot be loaded
+        """
+        # Run the CPU-intensive model loading in a thread pool
+        loop = asyncio.get_event_loop()
+        try:
+            return await loop.run_in_executor(
+                None, 
+                lambda: self._load_embedding_model(model_info, **kwargs)
+            )
+        except Exception as e:
+            logger.error(f"Error loading embedding model {model_info.name} asynchronously: {e}")
+            raise ModelLoadError(
+                message=f"Failed to load embedding model {model_info.name} asynchronously: {e}",
+                model_id=model_info.id,
+                details={"model_type": model_info.type, "model_path": model_info.path},
+                original_exception=e
+            )
+
+    async def _load_onnx_model_async(self, model_info: ModelInfo, **kwargs) -> Any:
+        """
+        Load an ONNX model asynchronously.
+        
+        Args:
+            model_info: Information about the model
+            **kwargs: Additional parameters for model loading
+            
+        Returns:
+            Loaded model instance
+            
+        Raises:
+            ModelLoadError: If the model cannot be loaded
+        """
+        # Run the CPU-intensive model loading in a thread pool
+        loop = asyncio.get_event_loop()
+        try:
+            return await loop.run_in_executor(
+                None, 
+                lambda: self._load_onnx_model(model_info, **kwargs)
+            )
+        except Exception as e:
+            logger.error(f"Error loading ONNX model {model_info.name} asynchronously: {e}")
+            raise ModelLoadError(
+                message=f"Failed to load ONNX model {model_info.name} asynchronously: {e}",
+                model_id=model_info.id,
+                details={"model_type": model_info.type, "model_path": model_info.path},
+                original_exception=e
+            )
+
     def get_model_versions(self, model_id: str) -> List[ModelVersion]:
         """
         Get all versions of a model.

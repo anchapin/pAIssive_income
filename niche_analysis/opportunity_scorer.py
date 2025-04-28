@@ -7,6 +7,7 @@ from typing import Dict, List, Any, Optional
 import uuid
 import hashlib
 import json
+import asyncio
 from datetime import datetime
 from .schemas import (
     OpportunityScoreSchema, OpportunityComparisonSchema,
@@ -17,6 +18,9 @@ from .schemas import (
 
 # Import the centralized caching service
 from common_utils.caching import default_cache
+
+# Import async utilities
+from ai_models.async_utils import run_in_thread
 
 
 class OpportunityScorer:
@@ -60,6 +64,9 @@ class OpportunityScorer:
         
         # Cache TTL in seconds (24 hours by default)
         self.cache_ttl = 86400
+        
+        # Lock for concurrent access to shared resources
+        self._lock = asyncio.Lock()
 
     def score_opportunity(self, niche: str, market_data: Dict[str, Any], problems: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
@@ -180,6 +187,216 @@ class OpportunityScorer:
         
         return result
 
+    async def score_opportunity_async(self, niche: str, market_data: Dict[str, Any], problems: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Asynchronously score a niche opportunity based on market data and identified problems.
+
+        This method is the asynchronous version of score_opportunity() that doesn't block the
+        main event loop during potentially time-consuming operations.
+
+        Args:
+            niche: The name of the niche to score
+            market_data: Dictionary containing market analysis data
+            problems: List of dictionaries containing problem data
+
+        Returns:
+            Dictionary containing the opportunity score results
+        """
+        # Generate a cache key based on inputs
+        cache_key = self._generate_cache_key(niche, market_data, problems)
+        
+        # Try to get from cache first
+        cached_result = await run_in_thread(
+            default_cache.get, 
+            cache_key, 
+            namespace="opportunity_scores"
+        )
+        if cached_result is not None:
+            return cached_result
+            
+        # Run the scoring operation asynchronously to avoid blocking
+        # We'll use run_in_thread to run the CPU-intensive scoring in a separate thread
+        result = await run_in_thread(
+            self._score_opportunity_internal,
+            niche, 
+            market_data,
+            problems, 
+            cache_key
+        )
+        
+        return result
+        
+    def _score_opportunity_internal(self, niche: str, market_data: Dict[str, Any], 
+                                   problems: List[Dict[str, Any]], cache_key: str) -> Dict[str, Any]:
+        """
+        Internal method that performs the actual opportunity scoring.
+        
+        This is used by both the synchronous and asynchronous versions of score_opportunity.
+        
+        Args:
+            niche: The name of the niche to score
+            market_data: Dictionary containing market analysis data
+            problems: List of dictionaries containing problem data
+            cache_key: Pre-generated cache key
+            
+        Returns:
+            Dictionary containing the opportunity score results
+        """
+        # Calculate factor scores
+        market_size_score = self._score_market_size(market_data.get("market_size", "unknown"))
+        growth_rate_score = self._score_growth_rate(market_data.get("growth_rate", "unknown"))
+        competition_score = self._score_competition(market_data.get("competition", "unknown"))
+        problem_severity_score = self._score_problem_severity(problems)
+        solution_feasibility_score = self._score_solution_feasibility(niche, problems)
+        monetization_potential_score = self._score_monetization_potential(niche, market_data, problems)
+        
+        # Create factor scores schema objects
+        factor_scores = {
+            "market_size": FactorScoreSchema(
+                score=market_size_score,
+                weight=self.weights["market_size"],
+                weighted_score=market_size_score * self.weights["market_size"],
+                analysis=self._analyze_market_size(market_size_score)
+            ),
+            "growth_rate": FactorScoreSchema(
+                score=growth_rate_score,
+                weight=self.weights["growth_rate"],
+                weighted_score=growth_rate_score * self.weights["growth_rate"],
+                analysis=self._analyze_growth_rate(growth_rate_score)
+            ),
+            "competition": FactorScoreSchema(
+                score=competition_score,
+                weight=self.weights["competition"],
+                weighted_score=competition_score * self.weights["competition"],
+                analysis=self._analyze_competition(competition_score)
+            ),
+            "problem_severity": FactorScoreSchema(
+                score=problem_severity_score,
+                weight=self.weights["problem_severity"],
+                weighted_score=problem_severity_score * self.weights["problem_severity"],
+                analysis=self._analyze_problem_severity(problem_severity_score)
+            ),
+            "solution_feasibility": FactorScoreSchema(
+                score=solution_feasibility_score,
+                weight=self.weights["solution_feasibility"],
+                weighted_score=solution_feasibility_score * self.weights["solution_feasibility"],
+                analysis=self._analyze_solution_feasibility(solution_feasibility_score)
+            ),
+            "monetization_potential": FactorScoreSchema(
+                score=monetization_potential_score,
+                weight=self.weights["monetization_potential"],
+                weighted_score=monetization_potential_score * self.weights["monetization_potential"],
+                analysis=self._analyze_monetization_potential(monetization_potential_score)
+            )
+        }
+        
+        # Calculate the overall score (sum of weighted scores)
+        overall_score = sum(
+            score.weighted_score for score in factor_scores.values()
+        )
+        
+        # Create the factors schema
+        factors = FactorsSchema(
+            market_size=market_size_score,
+            growth_rate=growth_rate_score,
+            competition=competition_score,
+            problem_severity=problem_severity_score,
+            solution_feasibility=solution_feasibility_score,
+            monetization_potential=monetization_potential_score
+        )
+        
+        # Generate assessment and recommendations based on score
+        assessment, recommendations = self._generate_assessment_and_recommendations(
+            overall_score, factor_scores, niche
+        )
+        
+        # Create the full opportunity score object
+        opportunity_score = OpportunityScoreSchema(
+            id=str(uuid.uuid4()),
+            niche=niche,
+            score=overall_score,
+            overall_score=overall_score,
+            opportunity_assessment=assessment,
+            factor_scores=FactorScoresSchema(**factor_scores),
+            factors=factors,
+            recommendations=recommendations,
+            timestamp=datetime.now().isoformat()
+        )
+        
+        # Convert to dictionary for API compatibility
+        result = opportunity_score.dict()
+        
+        # Cache the result
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace="opportunity_scores")
+        
+        return result
+
+    async def score_opportunities_batch_async(self, niches: List[str], market_data_list: List[Dict[str, Any]], 
+                                            problems_list: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """
+        Score multiple opportunities in parallel asynchronously.
+        
+        This method processes multiple opportunity scoring tasks concurrently, which can
+        significantly improve performance when scoring many opportunities.
+        
+        Args:
+            niches: List of niche names to score
+            market_data_list: List of market data dictionaries corresponding to each niche
+            problems_list: List of problem lists corresponding to each niche
+            
+        Returns:
+            List of opportunity score dictionaries
+        """
+        # Validate input lengths match
+        if not (len(niches) == len(market_data_list) == len(problems_list)):
+            raise ValueError("Input lists must have the same length")
+        
+        # Create tasks for each opportunity scoring operation
+        tasks = []
+        for i in range(len(niches)):
+            tasks.append(self.score_opportunity_async(
+                niches[i], 
+                market_data_list[i], 
+                problems_list[i]
+            ))
+        
+        # Run all tasks concurrently and gather results
+        results = await asyncio.gather(*tasks)
+        
+        return results
+        
+    async def analyze_and_compare_opportunities_async(self, niches: List[str], 
+                                                   market_data_list: List[Dict[str, Any]], 
+                                                   problems_list: List[List[Dict[str, Any]]]) -> Dict[str, Any]:
+        """
+        Score multiple opportunities and compare them in one operation asynchronously.
+        
+        This method combines scoring and comparison into a single asynchronous operation.
+        
+        Args:
+            niches: List of niche names to score
+            market_data_list: List of market data dictionaries corresponding to each niche
+            problems_list: List of problem lists corresponding to each niche
+            
+        Returns:
+            Dictionary containing both individual scores and comparison results
+        """
+        # First score all opportunities in parallel
+        opportunity_scores = await self.score_opportunities_batch_async(
+            niches, 
+            market_data_list, 
+            problems_list
+        )
+        
+        # Then compare the opportunities
+        comparison = await self.compare_opportunities_async(opportunity_scores)
+        
+        # Return both individual scores and comparison
+        return {
+            "individual_scores": opportunity_scores,
+            "comparison": comparison
+        }
+        
     def compare_opportunities(self, opportunities: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Compare multiple opportunities to identify the most promising ones.
@@ -280,6 +497,23 @@ class OpportunityScorer:
         
         return result
 
+    async def compare_opportunities_async(self, opportunities: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Asynchronously compare multiple opportunities to identify the most promising ones.
+
+        This method is the asynchronous version of compare_opportunities and should be used
+        in an async context. It performs the same ranking and analysis but doesn't block
+        the event loop.
+
+        Args:
+            opportunities: List of opportunity dictionaries from score_opportunity
+
+        Returns:
+            Dictionary containing the comparison results
+        """
+        async with self._lock:
+            return await run_in_thread(self.compare_opportunities, opportunities)
+            
     def get_scoring_factors(self) -> List[str]:
         """
         Get a list of scoring factors used by the OpportunityScorer.
@@ -289,6 +523,15 @@ class OpportunityScorer:
         """
         return list(self.weights.keys())
         
+    async def get_scoring_factors_async(self) -> List[str]:
+        """
+        Asynchronously get a list of scoring factors used by the OpportunityScorer.
+
+        Returns:
+            List of scoring factor names
+        """
+        return self.weights.keys()
+            
     def _generate_cache_key(self, niche: str, market_data: Dict[str, Any], problems: List[Dict[str, Any]]) -> str:
         """
         Generate a cache key for opportunity scoring results.
@@ -383,6 +626,18 @@ class OpportunityScorer:
             # a mapping of niches to cache keys. For now, we clear all.
             return default_cache.clear(namespace="opportunity_scores")
             
+    async def invalidate_opportunity_cache_async(self, niche: Optional[str] = None) -> bool:
+        """
+        Asynchronously invalidate cached opportunity scores.
+        
+        Args:
+            niche: Optional niche name to invalidate. If None, invalidates all cached scores.
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        return await run_in_thread(self.invalidate_opportunity_cache, niche)
+            
     def invalidate_comparison_cache(self) -> bool:
         """
         Invalidate all cached opportunity comparisons.
@@ -392,6 +647,15 @@ class OpportunityScorer:
         """
         return default_cache.clear(namespace="opportunity_comparisons")
 
+    async def invalidate_comparison_cache_async(self) -> bool:
+        """
+        Asynchronously invalidate all cached opportunity comparisons.
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        return await run_in_thread(self.invalidate_comparison_cache)
+        
     def _score_market_size(self, market_size: str) -> float:
         """
         Score the market size factor.

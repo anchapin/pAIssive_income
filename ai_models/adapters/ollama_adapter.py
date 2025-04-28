@@ -9,7 +9,9 @@ import os
 import json
 import logging
 import time
-from typing import Dict, List, Any, Optional, Union, Generator, Tuple
+import asyncio
+import aiohttp
+from typing import Dict, List, Any, Optional, Union, Generator, AsyncGenerator, Tuple
 import threading
 
 from .base_adapter import BaseModelAdapter
@@ -28,6 +30,14 @@ try:
 except ImportError:
     logger.warning("Requests not available. Ollama adapter will not work.")
     REQUESTS_AVAILABLE = False
+
+# Check for aiohttp availability for async operations
+try:
+    import aiohttp
+    AIOHTTP_AVAILABLE = True
+except ImportError:
+    logger.warning("aiohttp not available. Async operations will not work.")
+    AIOHTTP_AVAILABLE = False
 
 
 class OllamaAdapter(BaseModelAdapter):
@@ -61,7 +71,8 @@ class OllamaAdapter(BaseModelAdapter):
         self.timeout = timeout
         self.kwargs = kwargs
         self.session = requests.Session()
-
+        self._async_session = None
+        
         # Check if Ollama is running
         self._check_ollama_status()
 
@@ -759,6 +770,465 @@ class OllamaAdapter(BaseModelAdapter):
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error copying model {source_model} to {target_model}: {e}")
+            raise
+
+    async def connect_async(self, **kwargs) -> bool:
+        """
+        Connect to the adapter asynchronously.
+
+        Args:
+            **kwargs: Connection parameters
+
+        Returns:
+            True if successful, False otherwise
+        """
+        if not AIOHTTP_AVAILABLE:
+            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
+            
+        try:
+            # Create async session if needed
+            if self._async_session is None:
+                self._async_session = aiohttp.ClientSession()
+                
+            # Try to connect to the Ollama API
+            async with self._async_session.get(f"{self.base_url}", timeout=5) as response:
+                if response.status != 200:
+                    logger.warning(f"Ollama returned status code {response.status}")
+                    self._connected = False
+                    return False
+
+            self._connected = True
+            return True
+        except Exception as e:
+            logger.error(f"Failed to connect to Ollama asynchronously: {e}")
+            self._connected = False
+            return False
+
+    async def disconnect_async(self) -> bool:
+        """
+        Disconnect from the adapter asynchronously.
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            if self._async_session is not None:
+                await self._async_session.close()
+                self._async_session = None
+            self._connected = False
+            return True
+        except Exception as e:
+            logger.error(f"Error disconnecting from Ollama asynchronously: {e}")
+            return False
+
+    async def list_models_async(self) -> List[Dict[str, Any]]:
+        """
+        List available models in Ollama asynchronously.
+
+        Returns:
+            List of model information dictionaries
+        """
+        if not AIOHTTP_AVAILABLE:
+            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
+            
+        # Create async session if needed
+        if self._async_session is None:
+            self._async_session = aiohttp.ClientSession()
+            
+        try:
+            async with self._async_session.get(
+                f"{self.base_url}/api/tags",
+                timeout=self.timeout
+            ) as response:
+                response.raise_for_status()
+                data = await response.json()
+                return data.get("models", [])
+
+        except aiohttp.ClientError as e:
+            logger.error(f"Error listing models asynchronously: {e}")
+            raise
+
+    async def get_models_async(self) -> List[Dict[str, Any]]:
+        """
+        Get available models from the adapter asynchronously.
+
+        Returns:
+            List of model dictionaries
+        """
+        try:
+            models = await self.list_models_async()
+
+            # Transform the model data to a standard format
+            standardized_models = []
+            for model in models:
+                standardized_models.append({
+                    "id": model.get("name", ""),
+                    "name": model.get("name", "").split(":")[0],
+                    "description": f"Ollama model: {model.get('name', '')}",
+                    "type": "llm",
+                    "size": model.get("size", 0),
+                    "modified_at": model.get("modified_at", ""),
+                    "adapter": "ollama"
+                })
+
+            return standardized_models
+
+        except Exception as e:
+            logger.error(f"Failed to get models from Ollama asynchronously: {e}")
+            return []
+
+    async def get_model_info_async(self, model_name: str) -> Dict[str, Any]:
+        """
+        Get information about a specific model asynchronously.
+
+        Args:
+            model_name: Name of the model
+
+        Returns:
+            Dictionary with model information
+        """
+        if not AIOHTTP_AVAILABLE:
+            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
+            
+        # Create async session if needed
+        if self._async_session is None:
+            self._async_session = aiohttp.ClientSession()
+            
+        try:
+            async with self._async_session.post(
+                f"{self.base_url}/api/show",
+                json={"name": model_name},
+                timeout=self.timeout
+            ) as response:
+                response.raise_for_status()
+                return await response.json()
+
+        except aiohttp.ClientError as e:
+            logger.error(f"Error getting model info for {model_name} asynchronously: {e}")
+            raise
+
+    async def generate_text_async(
+        self,
+        model_name: str,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        temperature: float = 0.7,
+        top_p: float = 0.9,
+        top_k: int = 40,
+        max_tokens: int = 2048,
+        stop: Optional[List[str]] = None,
+        stream: bool = False,
+        **kwargs
+    ) -> Union[str, AsyncGenerator[str, None]]:
+        """
+        Generate text using an Ollama model asynchronously.
+
+        Args:
+            model_name: Name of the model
+            prompt: Input prompt
+            system_prompt: Optional system prompt
+            temperature: Temperature for sampling
+            top_p: Top-p sampling parameter
+            top_k: Top-k sampling parameter
+            max_tokens: Maximum number of tokens to generate
+            stop: Optional list of stop sequences
+            stream: Whether to stream the response
+            **kwargs: Additional parameters for generation
+
+        Returns:
+            Generated text or an async generator yielding text chunks if streaming
+        """
+        if not AIOHTTP_AVAILABLE:
+            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
+            
+        # Create async session if needed
+        if self._async_session is None:
+            self._async_session = aiohttp.ClientSession()
+            
+        # Prepare request data
+        request_data = {
+            "model": model_name,
+            "prompt": prompt,
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k,
+            "num_predict": max_tokens,
+            "stream": stream
+        }
+
+        # Add system prompt if provided
+        if system_prompt:
+            request_data["system"] = system_prompt
+
+        # Add stop sequences if provided
+        if stop:
+            request_data["stop"] = stop
+
+        # Add any additional parameters
+        for key, value in kwargs.items():
+            if key not in request_data:
+                request_data[key] = value
+
+        try:
+            if stream:
+                return self._generate_text_stream_async(request_data)
+            else:
+                return await self._generate_text_sync_async(request_data)
+
+        except aiohttp.ClientError as e:
+            logger.error(f"Error generating text with {model_name} asynchronously: {e}")
+            raise
+
+    async def _generate_text_sync_async(self, request_data: Dict[str, Any]) -> str:
+        """
+        Generate text synchronously but using async API.
+
+        Args:
+            request_data: Request data for the API
+
+        Returns:
+            Generated text
+        """
+        # Create async session if needed
+        if self._async_session is None:
+            self._async_session = aiohttp.ClientSession()
+            
+        async with self._async_session.post(
+            f"{self.base_url}/api/generate",
+            json=request_data,
+            timeout=self.timeout
+        ) as response:
+            response.raise_for_status()
+            data = await response.json()
+            return data.get("response", "")
+
+    async def _generate_text_stream_async(self, request_data: Dict[str, Any]) -> AsyncGenerator[str, None]:
+        """
+        Generate text as an async stream.
+
+        Args:
+            request_data: Request data for the API
+
+        Returns:
+            Async generator yielding text chunks
+        """
+        # Create async session if needed
+        if self._async_session is None:
+            self._async_session = aiohttp.ClientSession()
+            
+        async with self._async_session.post(
+            f"{self.base_url}/api/generate",
+            json=request_data,
+            timeout=self.timeout
+        ) as response:
+            response.raise_for_status()
+            
+            # Process the stream line by line
+            async for line in response.content:
+                if line:
+                    try:
+                        data = json.loads(line)
+                        if "response" in data:
+                            yield data["response"]
+
+                        # Check if this is the last chunk
+                        if data.get("done", False):
+                            break
+
+                    except json.JSONDecodeError:
+                        logger.warning(f"Could not decode JSON: {line}")
+
+    async def chat_async(
+        self,
+        model_name: str,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        top_p: float = 0.9,
+        top_k: int = 40,
+        max_tokens: int = 2048,
+        stop: Optional[List[str]] = None,
+        stream: bool = False,
+        **kwargs
+    ) -> Union[Dict[str, Any], AsyncGenerator[Dict[str, Any], None]]:
+        """
+        Chat with an Ollama model asynchronously.
+
+        Args:
+            model_name: Name of the model
+            messages: List of message dictionaries with "role" and "content" keys
+            temperature: Temperature for sampling
+            top_p: Top-p sampling parameter
+            top_k: Top-k sampling parameter
+            max_tokens: Maximum number of tokens to generate
+            stop: Optional list of stop sequences
+            stream: Whether to stream the response
+            **kwargs: Additional parameters for chat
+
+        Returns:
+            Response dictionary or an async generator yielding response dictionaries if streaming
+        """
+        # Prepare request data
+        request_data = {
+            "model": model_name,
+            "messages": messages,
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k,
+            "num_predict": max_tokens,
+            "stream": stream
+        }
+
+        # Add stop sequences if provided
+        if stop:
+            request_data["stop"] = stop
+
+        # Add any additional parameters
+        for key, value in kwargs.items():
+            if key not in request_data:
+                request_data[key] = value
+
+        try:
+            if stream:
+                return self._chat_stream_async(request_data)
+            else:
+                return await self._chat_sync_async(request_data)
+
+        except aiohttp.ClientError as e:
+            logger.error(f"Error chatting with {model_name} asynchronously: {e}")
+            raise
+
+    async def _chat_sync_async(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Chat synchronously but using async API.
+
+        Args:
+            request_data: Request data for the API
+
+        Returns:
+            Response dictionary
+        """
+        # Create async session if needed
+        if self._async_session is None:
+            self._async_session = aiohttp.ClientSession()
+            
+        async with self._async_session.post(
+            f"{self.base_url}/api/chat",
+            json=request_data,
+            timeout=self.timeout
+        ) as response:
+            response.raise_for_status()
+            return await response.json()
+
+    async def _chat_stream_async(self, request_data: Dict[str, Any]) -> AsyncGenerator[Dict[str, Any], None]:
+        """
+        Chat as an async stream.
+
+        Args:
+            request_data: Request data for the API
+
+        Returns:
+            Async generator yielding response dictionaries
+        """
+        # Create async session if needed
+        if self._async_session is None:
+            self._async_session = aiohttp.ClientSession()
+            
+        async with self._async_session.post(
+            f"{self.base_url}/api/chat",
+            json=request_data,
+            timeout=self.timeout
+        ) as response:
+            response.raise_for_status()
+            
+            # Process the stream line by line
+            async for line in response.content:
+                if line:
+                    try:
+                        data = json.loads(line)
+                        yield data
+
+                        # Check if this is the last chunk
+                        if data.get("done", False):
+                            break
+
+                    except json.JSONDecodeError:
+                        logger.warning(f"Could not decode JSON: {line}")
+
+    async def create_embedding_async(
+        self,
+        model_name: str,
+        prompt: str,
+        **kwargs
+    ) -> List[float]:
+        """
+        Create an embedding for a text asynchronously.
+
+        Args:
+            model_name: Name of the model
+            prompt: Input text
+            **kwargs: Additional parameters for embedding
+
+        Returns:
+            List of embedding values
+        """
+        # Prepare request data
+        request_data = {
+            "model": model_name,
+            "prompt": prompt
+        }
+
+        # Add any additional parameters
+        for key, value in kwargs.items():
+            if key not in request_data:
+                request_data[key] = value
+
+        try:
+            async with self._async_session.post(
+                f"{self.base_url}/api/embeddings",
+                json=request_data,
+                timeout=self.timeout
+            ) as response:
+                response.raise_for_status()
+                data = await response.json()
+                return data.get("embedding", [])
+
+        except aiohttp.ClientError as e:
+            logger.error(f"Error creating embedding with {model_name} asynchronously: {e}")
+            raise
+
+    async def pull_model_async(
+        self,
+        model_name: str,
+        insecure: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Pull a model from the Ollama library asynchronously.
+
+        Args:
+            model_name: Name of the model
+            insecure: Whether to allow insecure connections
+
+        Returns:
+            Dictionary with pull status
+        """
+        # Prepare request data
+        request_data = {
+            "name": model_name,
+            "insecure": insecure
+        }
+
+        try:
+            async with self._async_session.post(
+                f"{self.base_url}/api/pull",
+                json=request_data,
+                timeout=None  # No timeout for model pulling
+            ) as response:
+                response.raise_for_status()
+
+                return {"status": "success", "model": model_name}
+
+        except aiohttp.ClientError as e:
+            logger.error(f"Error pulling model {model_name} asynchronously: {e}")
             raise
 
 
