@@ -9,7 +9,7 @@ from .strategy_generator import StrategyGenerator
 from .channel_strategies import ChannelStrategy
 from .content_generators import ContentGenerator
 from .content_generator_impl import ConcreteContentGenerator
-from .content_optimization import ContentOptimizer
+from .content_optimization import ContentOptimizer, KeywordAnalyzer, ReadabilityAnalyzer, SEOAnalyzer
 from .content_templates import ContentTemplate
 from .style_adjuster import StyleAdjuster
 from .tone_analyzer import ToneAnalyzer
@@ -31,6 +31,9 @@ __all__ = [
     'ContentGenerator',
     'ConcreteContentGenerator',
     'ContentOptimizer',
+    'KeywordAnalyzer',
+    'ReadabilityAnalyzer',
+    'SEOAnalyzer',
     'ContentTemplate',
     'StyleAdjuster',
     'ToneAnalyzer',

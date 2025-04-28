@@ -32,337 +32,6 @@ from .content_generators import ContentGenerator
 from .tone_analyzer import ToneAnalyzer
 
 
-class ContentOptimizer:
-    """
-    Class for optimizing marketing content.
-
-    This class provides methods for optimizing content for SEO, readability,
-    and tone/style.
-    """
-
-    def __init__(
-        self,
-        content: Optional[Dict[str, Any]] = None,
-        config: Optional[Dict[str, Any]] = None
-    ):
-        """
-        Initialize a content optimizer.
-
-        Args:
-            content: Optional content to optimize
-            config: Optional configuration dictionary
-        """
-        self.id = str(uuid.uuid4())
-        self.content = content
-        self.config = config or self.get_default_config()
-        self.created_at = datetime.datetime.now().isoformat()
-        self.results = None
-
-    def get_default_config(self) -> Dict[str, Any]:
-        """
-        Get the default configuration for the content optimizer.
-
-        Returns:
-            Default configuration dictionary
-        """
-        return {
-            "seo_optimization": True,
-            "readability_optimization": True,
-            "tone_optimization": True,
-            "keyword_optimization": True,
-            "structure_optimization": True,
-            "image_optimization": True,
-            "link_optimization": True,
-            "meta_optimization": True,
-            "timestamp": datetime.datetime.now().isoformat()
-        }
-
-    def optimize(self, content: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """
-        Optimize the content.
-
-        Args:
-            content: Optional content to optimize
-
-        Returns:
-            Optimized content
-        """
-        if content:
-            self.content = content
-
-        if not self.content:
-            raise ValueError("No content provided")
-
-        # Initialize results
-        self.results = {
-            "id": str(uuid.uuid4()),
-            "timestamp": datetime.datetime.now().isoformat(),
-            "content_id": self.content.get("id", "unknown"),
-            "original_content": self.content,
-            "optimized_content": self.content.copy(),
-            "optimization_steps": [],
-            "metrics": {
-                "seo_score": 0.0,
-                "readability_score": 0.0,
-                "tone_score": 0.0,
-                "overall_score": 0.0
-            }
-        }
-
-        # Perform optimizations
-        if self.config.get("seo_optimization", True):
-            self._optimize_seo()
-
-        if self.config.get("readability_optimization", True):
-            self._optimize_readability()
-
-        if self.config.get("tone_optimization", True):
-            self._optimize_tone()
-
-        if self.config.get("keyword_optimization", True):
-            self._optimize_keywords()
-
-        if self.config.get("structure_optimization", True):
-            self._optimize_structure()
-
-        if self.config.get("image_optimization", True):
-            self._optimize_images()
-
-        if self.config.get("link_optimization", True):
-            self._optimize_links()
-
-        if self.config.get("meta_optimization", True):
-            self._optimize_meta()
-
-        # Calculate overall score
-        self._calculate_overall_score()
-
-        return self.results["optimized_content"]
-
-    def _optimize_seo(self) -> None:
-        """
-        Optimize content for SEO.
-        """
-        # Create a placeholder for SEO optimization
-        # In a real implementation, this would use the SEOAnalyzer class
-        self.results["optimization_steps"].append({
-            "type": "seo",
-            "timestamp": datetime.datetime.now().isoformat(),
-            "description": "Optimized content for SEO",
-            "details": {
-                "before_score": 0.5,
-                "after_score": 0.8,
-                "improvements": [
-                    "Added keywords to title",
-                    "Improved meta description",
-                    "Added alt text to images"
-                ]
-            }
-        })
-
-        # Update SEO score
-        self.results["metrics"]["seo_score"] = 0.8
-
-    def _optimize_readability(self) -> None:
-        """
-        Optimize content for readability.
-        """
-        # Create a placeholder for readability optimization
-        self.results["optimization_steps"].append({
-            "type": "readability",
-            "timestamp": datetime.datetime.now().isoformat(),
-            "description": "Optimized content for readability",
-            "details": {
-                "before_score": 0.6,
-                "after_score": 0.85,
-                "improvements": [
-                    "Shortened sentences",
-                    "Simplified vocabulary",
-                    "Improved paragraph structure"
-                ]
-            }
-        })
-
-        # Update readability score
-        self.results["metrics"]["readability_score"] = 0.85
-
-    def _optimize_tone(self) -> None:
-        """
-        Optimize content tone and style.
-        """
-        # Create a placeholder for tone optimization
-        self.results["optimization_steps"].append({
-            "type": "tone",
-            "timestamp": datetime.datetime.now().isoformat(),
-            "description": "Optimized content tone and style",
-            "details": {
-                "before_score": 0.7,
-                "after_score": 0.9,
-                "improvements": [
-                    "Adjusted tone to match brand voice",
-                    "Made language more conversational",
-                    "Added emotional appeal"
-                ]
-            }
-        })
-
-        # Update tone score
-        self.results["metrics"]["tone_score"] = 0.9
-
-    def _optimize_keywords(self) -> None:
-        """
-        Optimize keyword usage in content.
-        """
-        # Create a placeholder for keyword optimization
-        self.results["optimization_steps"].append({
-            "type": "keywords",
-            "timestamp": datetime.datetime.now().isoformat(),
-            "description": "Optimized keyword usage",
-            "details": {
-                "improvements": [
-                    "Adjusted keyword density",
-                    "Added keywords to headings",
-                    "Improved keyword placement"
-                ]
-            }
-        })
-
-    def _optimize_structure(self) -> None:
-        """
-        Optimize content structure.
-        """
-        # Create a placeholder for structure optimization
-        self.results["optimization_steps"].append({
-            "type": "structure",
-            "timestamp": datetime.datetime.now().isoformat(),
-            "description": "Optimized content structure",
-            "details": {
-                "improvements": [
-                    "Added more headings",
-                    "Improved heading hierarchy",
-                    "Added bullet points for readability"
-                ]
-            }
-        })
-
-    def _optimize_images(self) -> None:
-        """
-        Optimize images in content.
-        """
-        # Create a placeholder for image optimization
-        self.results["optimization_steps"].append({
-            "type": "images",
-            "timestamp": datetime.datetime.now().isoformat(),
-            "description": "Optimized images",
-            "details": {
-                "improvements": [
-                    "Added alt text to all images",
-                    "Suggested image compression",
-                    "Improved image placement"
-                ]
-            }
-        })
-
-    def _optimize_links(self) -> None:
-        """
-        Optimize links in content.
-        """
-        # Create a placeholder for link optimization
-        self.results["optimization_steps"].append({
-            "type": "links",
-            "timestamp": datetime.datetime.now().isoformat(),
-            "description": "Optimized links",
-            "details": {
-                "improvements": [
-                    "Added internal links",
-                    "Improved anchor text",
-                    "Added external authority links"
-                ]
-            }
-        })
-
-    def _optimize_meta(self) -> None:
-        """
-        Optimize meta information.
-        """
-        # Create a placeholder for meta optimization
-        self.results["optimization_steps"].append({
-            "type": "meta",
-            "timestamp": datetime.datetime.now().isoformat(),
-            "description": "Optimized meta information",
-            "details": {
-                "improvements": [
-                    "Improved meta description",
-                    "Added meta keywords",
-                    "Optimized social sharing metadata"
-                ]
-            }
-        })
-
-    def _calculate_overall_score(self) -> None:
-        """
-        Calculate the overall optimization score.
-        """
-        # Calculate weighted average of individual scores
-        scores = [
-            self.results["metrics"]["seo_score"],
-            self.results["metrics"]["readability_score"],
-            self.results["metrics"]["tone_score"]
-        ]
-
-        self.results["metrics"]["overall_score"] = sum(scores) / len(scores)
-
-    def get_recommendations(self) -> List[Dict[str, Any]]:
-        """
-        Get content optimization recommendations.
-
-        Returns:
-            List of recommendation dictionaries
-        """
-        if not self.results:
-            return []
-
-        recommendations = []
-
-        # Extract recommendations from optimization steps
-        for step in self.results["optimization_steps"]:
-            if "details" in step and "improvements" in step["details"]:
-                for improvement in step["details"]["improvements"]:
-                    recommendations.append({
-                        "type": step["type"],
-                        "description": improvement,
-                        "priority": "high" if step["type"] in ["seo", "readability"] else "medium"
-                    })
-
-        return recommendations
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the content optimizer to a dictionary.
-
-        Returns:
-            Dictionary representation of the content optimizer
-        """
-        return {
-            "id": self.id,
-            "config": self.config,
-            "created_at": self.created_at,
-            "results": self.results
-        }
-
-    def to_json(self, indent: int = 2) -> str:
-        """
-        Convert the content optimizer to a JSON string.
-
-        Args:
-            indent: Number of spaces for indentation
-
-        Returns:
-            JSON string representation of the content optimizer
-        """
-        return json.dumps(self.to_dict(), indent=indent)
-
-
 class SEOAnalyzer(ABC):
     """
     Abstract base class for SEO analyzers.
@@ -628,136 +297,6 @@ class KeywordAnalyzer(SEOAnalyzer):
                 nltk.data.find('corpora/stopwords')
             except LookupError:
                 nltk.download('stopwords')
-                
-    def _extract_text_from_content(self) -> str:
-        """
-        Extract text from content for analysis.
-
-        This method merges all text fields from the content dictionary into a single
-        string for comprehensive keyword analysis. It looks for common content fields
-        including:
-        - title
-        - meta_description
-        - introduction/overview
-        - body/content sections
-        - conclusion
-        - features and benefits descriptions
-        - testimonials and quotes
-
-        Returns:
-            Consolidated text from all relevant content fields
-        """
-        text = ""
-
-        # Extract title
-        if "title" in self.content:
-            text += self.content["title"] + "\n\n"
-            
-        # Extract meta description
-        if "meta_description" in self.content:
-            text += self.content["meta_description"] + "\n\n"
-
-        # Add introduction
-        if "introduction" in self.content:
-            text += self.content["introduction"] + "\n\n"
-
-        # Add sections
-        if "sections" in self.content:
-            for section in self.content["sections"]:
-                if "title" in section:
-                    text += section["title"] + "\n"
-                if "content" in section:
-                    text += section["content"] + "\n\n"
-
-        # Add conclusion
-        if "conclusion" in self.content:
-            text += self.content["conclusion"] + "\n\n"
-
-        # Add overview (for product descriptions)
-        if "overview" in self.content:
-            text += self.content["overview"] + "\n\n"
-
-        # Add features (for product descriptions)
-        if "features" in self.content:
-            for feature in self.content["features"]:
-                if "name" in feature:
-                    text += feature["name"] + "\n"
-                if "description" in feature:
-                    text += feature["description"] + "\n\n"
-
-        # Add benefits (for product descriptions)
-        if "benefits" in self.content:
-            for benefit in self.content["benefits"]:
-                if "title" in benefit:
-                    text += benefit["title"] + "\n"
-                if "description" in benefit:
-                    text += benefit["description"] + "\n\n"
-
-        # Add testimonials
-        if "testimonials" in self.content:
-            for testimonial in self.content["testimonials"]:
-                if "text" in testimonial:
-                    text += testimonial["text"] + "\n\n"
-
-        # Add body content (generic field)
-        if "content" in self.content:
-            text += self.content["content"] + "\n\n"
-
-        return text
-
-    def _tokenize_text(self, text: str) -> List[str]:
-        """
-        Tokenize text into words.
-
-        Args:
-            text: Text to tokenize
-
-        Returns:
-            List of words
-        """
-        if NLTK_AVAILABLE:
-            # Use NLTK for word tokenization
-            words = word_tokenize(text.lower())
-            
-            # Remove stopwords if available
-            try:
-                stop_words = set(stopwords.words('english'))
-                words = [word for word in words if word.isalnum() and word not in stop_words]
-            except:
-                # If stopwords not available, just filter non-alphanumeric
-                words = [word for word in words if word.isalnum()]
-        else:
-            # Simple word tokenization
-            # Remove punctuation
-            text = re.sub(r'[^\w\s]', '', text.lower())
-            
-            # Split on whitespace
-            words = text.split()
-            
-        return words
-
-    def _count_keyword_occurrences(self, text: str, keyword: str) -> int:
-        """
-        Count occurrences of a keyword in text.
-
-        Args:
-            text: Text to analyze
-            keyword: Keyword to count
-
-        Returns:
-            Number of keyword occurrences
-        """
-        # Convert to lowercase for case-insensitive matching
-        text_lower = text.lower()
-        keyword_lower = keyword.lower()
-        
-        # Create a regex pattern with word boundaries to match exact words
-        pattern = r'\b' + re.escape(keyword_lower) + r'\b'
-        
-        # Count occurrences
-        occurrences = len(re.findall(pattern, text_lower))
-        
-        return occurrences
 
     def set_keywords(self, keywords: List[str]) -> None:
         """
@@ -936,6 +475,162 @@ class KeywordAnalyzer(SEOAnalyzer):
         # Initialize placement analysis
         placement_analysis = {}
 
+    def _extract_first_paragraph(self) -> str:
+        """
+        Extract the first paragraph from the content.
+
+        Returns:
+            First paragraph text
+        """
+        # Try to get first paragraph from introduction
+        if "introduction" in self.content:
+            paragraphs = self.content["introduction"].split("\n\n")
+            if paragraphs:
+                return paragraphs[0]
+
+        # Try to get first paragraph from sections
+        if "sections" in self.content and self.content["sections"]:
+            first_section = self.content["sections"][0]
+            if "content" in first_section:
+                paragraphs = first_section["content"].split("\n\n")
+                if paragraphs:
+                    return paragraphs[0]
+
+        return ""
+
+    def _extract_headings(self) -> List[str]:
+        """
+        Extract headings from the content.
+
+        Returns:
+            List of headings
+        """
+        headings = []
+
+        # Add section titles
+        if "sections" in self.content:
+            for section in self.content["sections"]:
+                if "title" in section:
+                    headings.append(section["title"])
+
+        return headings
+
+    def _extract_image_alt_texts(self) -> List[str]:
+        """
+        Extract image alt texts from the content.
+
+        Returns:
+            List of image alt texts
+        """
+        alt_texts = []
+
+        # Check if images are in the content
+        if "images" in self.content:
+            for image in self.content["images"]:
+                if "alt_text" in image:
+                    alt_texts.append(image["alt_text"])
+
+        return alt_texts
+
+    def _contains_keyword(self, text: str, keyword: str) -> bool:
+        """
+        Check if text contains a keyword.
+
+        Args:
+            text: Text to check
+            keyword: Keyword to look for
+
+        Returns:
+            True if keyword is found, False otherwise
+        """
+        if not text or not keyword:
+            return False
+
+        # Convert to lowercase for case-insensitive matching
+        text_lower = text.lower()
+        keyword_lower = keyword.lower()
+
+        # Create a regex pattern with word boundaries
+        pattern = r'\b' + re.escape(keyword_lower) + r'\b'
+
+        # Check if keyword is found
+        return bool(re.search(pattern, text_lower))
+
+    def _calculate_placement_score(self, locations: Dict[str, bool]) -> float:
+        """
+        Calculate placement score based on location weights.
+
+        Args:
+            locations: Dictionary mapping locations to boolean presence indicator
+
+        Returns:
+            Placement score between 0 and 1
+        """
+        # Define weights for each location
+        weights = {
+            "title": 0.3,
+            "meta_description": 0.2,
+            "first_paragraph": 0.2,
+            "headings": 0.15,
+            "url": 0.1,
+            "alt_texts": 0.05
+        }
+
+        # Calculate weighted score
+        score = 0.0
+
+        for location, present in locations.items():
+            if present and location in weights:
+                score += weights[location]
+
+        return score
+
+    def _generate_placement_recommendations(self, locations: Dict[str, bool], keyword: str) -> List[Dict[str, str]]:
+        """
+        Generate placement recommendations based on location analysis.
+
+        Args:
+            locations: Dictionary mapping locations to boolean presence indicator
+            keyword: Keyword being analyzed
+
+        Returns:
+            List of recommendation dictionaries
+        """
+        recommendations = []
+
+        # Check each location and generate recommendations for missing placements
+        if not locations.get("title", False) and self.config.get("check_keyword_in_title", True):
+            recommendations.append({
+                "location": "title",
+                "message": f"Include keyword '{keyword}' in the title for better SEO."
+            })
+
+        if not locations.get("meta_description", False) and self.config.get("check_keyword_in_meta_description", True):
+            recommendations.append({
+                "location": "meta_description",
+                "message": f"Include keyword '{keyword}' in the meta description for better visibility in search results."
+            })
+
+        if not locations.get("first_paragraph", False) and self.config.get("check_keyword_in_first_paragraph", True):
+            recommendations.append({
+                "location": "first_paragraph",
+                "message": f"Include keyword '{keyword}' in the first paragraph to establish relevance early."
+            })
+
+        if not locations.get("headings", False) and self.config.get("check_keyword_in_headings", True):
+            recommendations.append({
+                "location": "headings",
+                "message": f"Include keyword '{keyword}' in at least one heading for better topic structure."
+            })
+
+        if not locations.get("url", False) and self.config.get("check_keyword_in_url", True):
+            recommendations.append({
+                "location": "url",
+                "message": f"Include keyword '{keyword}' in the URL slug for better search indexing."
+            })
+
+        return recommendations
+
         for keyword in self.keywords:
             # Check keyword presence in each location
             locations = {
@@ -1091,7 +786,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         placement_scores = []
 
         for keyword, data in self.results["keyword_placement"].items():
-            placement_scores.append(data["placement_score"])
+            placement_scores.append(data["score"])
 
         placement_score = sum(placement_scores) / len(placement_scores) if placement_scores else 0
 
@@ -1306,29 +1001,10 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         """
         Extract text from content for analysis.
 
-        This method merges all text fields from the content dictionary into a single
-        string for comprehensive keyword analysis. It looks for common content fields
-        including:
-        - title
-        - meta_description
-        - introduction/overview
-        - body/content sections
-        - conclusion
-        - features and benefits descriptions
-        - testimonials and quotes
-
         Returns:
-            Consolidated text from all relevant content fields
+            Extracted text
         """
         text = ""
-
-        # Extract title
-        if "title" in self.content:
-            text += self.content["title"] + "\n\n"
-            
-        # Extract meta description
-        if "meta_description" in self.content:
-            text += self.content["meta_description"] + "\n\n"
 
         # Add introduction
         if "introduction" in self.content:
@@ -1337,8 +1013,6 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Add sections
         if "sections" in self.content:
             for section in self.content["sections"]:
-                if "title" in section:
-                    text += section["title"] + "\n"
                 if "content" in section:
                     text += section["content"] + "\n\n"
 
@@ -1353,30 +1027,93 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Add features (for product descriptions)
         if "features" in self.content:
             for feature in self.content["features"]:
-                if "name" in feature:
-                    text += feature["name"] + "\n"
                 if "description" in feature:
                     text += feature["description"] + "\n\n"
 
         # Add benefits (for product descriptions)
         if "benefits" in self.content:
             for benefit in self.content["benefits"]:
-                if "title" in benefit:
-                    text += benefit["title"] + "\n"
                 if "description" in benefit:
                     text += benefit["description"] + "\n\n"
 
-        # Add testimonials
-        if "testimonials" in self.content:
-            for testimonial in self.content["testimonials"]:
-                if "text" in testimonial:
-                    text += testimonial["text"] + "\n\n"
+        # Add executive summary (for case studies)
+        if "executive_summary" in self.content:
+            text += self.content["executive_summary"] + "\n\n"
 
-        # Add body content (generic field)
-        if "content" in self.content:
-            text += self.content["content"] + "\n\n"
+        # Add challenge (for case studies)
+        if "challenge" in self.content:
+            text += self.content["challenge"] + "\n\n"
+
+        # Add solution (for case studies)
+        if "solution" in self.content:
+            text += self.content["solution"] + "\n\n"
+
+        # Add implementation (for case studies)
+        if "implementation" in self.content:
+            text += self.content["implementation"] + "\n\n"
+
+        # Add results (for case studies)
+        if "results" in self.content:
+            text += self.content["results"] + "\n\n"
+
+        # Add testimonial (for case studies)
+        if "testimonial" in self.content:
+            text += self.content["testimonial"] + "\n\n"
 
         return text
+
+    def analyze(self) -> Dict[str, Any]:
+        """
+        Analyze the content for readability.
+
+        Returns:
+            Dictionary with analysis results
+        """
+        # Validate content
+        is_valid, errors = self.validate_content()
+
+        if not is_valid:
+            raise ValueError(f"Invalid content: {', '.join(errors)}")
+
+        # Extract text
+        text = self._extract_text_from_content()
+
+        # Initialize results
+        self.results = {
+            "id": str(uuid.uuid4()),
+            "timestamp": datetime.datetime.now().isoformat(),
+            "content_id": self.content.get("id", "unknown"),
+            "text_statistics": {},
+            "readability_scores": {},
+            "sentence_analysis": {},
+            "paragraph_analysis": {},
+            "style_analysis": {},
+            "overall_score": 0.0,
+            "recommendations": []
+        }
+
+        # Analyze text statistics
+        self.results["text_statistics"] = self._analyze_text_statistics(text)
+
+        # Analyze readability scores
+        self.results["readability_scores"] = self._analyze_readability_scores(text)
+
+        # Analyze sentence structure
+        self.results["sentence_analysis"] = self._analyze_sentence_structure(text)
+
+        # Analyze paragraph structure
+        self.results["paragraph_analysis"] = self._analyze_paragraph_structure(text)
+
+        # Analyze writing style
+        self.results["style_analysis"] = self._analyze_writing_style(text)
+
+        # Calculate overall score
+        self.results["overall_score"] = self.get_score()
+
+        # Generate recommendations
+        self.results["recommendations"] = self.get_recommendations()
+
+        return self.results
 
     def _get_sentences(self, text: str) -> List[str]:
         """
@@ -1768,7 +1505,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Clamp score to 0-18 range
         return max(0, min(18, score))
 
-    def _calculate_gunning_fog(self, avg_words_per_sentence: float, complex_word_percentage: float) -> float:
+    def _calculate_gunning_fog(self, text: str) -> float:
         """
         Calculate the Gunning Fog Index for the text.
 
@@ -1795,8 +1532,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         For general audiences, a fog index of 12 or below is recommended.
 
         Args:
-            avg_words_per_sentence: Average words per sentence
-            complex_word_percentage: Percentage of complex words
+            text: Text to analyze
 
         Returns:
             Gunning Fog Index (representing years of formal education needed)
@@ -2218,7 +1954,8 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Find adverbs
         adverbs = re.findall(adverb_pattern, text, re.IGNORECASE)
 
-        # Count adverbs        adverb_count = len(adverbs)
+        # Count adverbs
+        adverb_count = len(adverbs)
 
         # Get words
         words = self._get_words(text)
