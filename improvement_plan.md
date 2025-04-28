@@ -236,11 +236,11 @@ This document outlines the tasks identified in the comprehensive improvement pla
 - [x] Add campaign tracking features
 - [x] Add ROI analysis tools
 - [x] Add content performance analytics
-- [ ] Add social media integration
+- [x] Add social media integration
 
 ### 9.2 Enhanced Monetization Models
-- [ ] Add support for usage-based pricing
-- [ ] Add support for tiered pricing
+- [x] Add support for usage-based pricing
+- [x] Add support for tiered pricing
 - [ ] Add support for metered billing
 - [ ] Add support for custom pricing rules
 - [ ] Add support for promotional pricing

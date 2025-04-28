@@ -36,6 +36,15 @@ from .billing_calculator import PricingModel, PricingTier, PricingPackage, Prici
 from .tiered_pricing import VolumeDiscount, TieredPricingRule, TieredPricingCalculator
 from .prorated_billing import ProratedBilling
 
+# Import usage-based pricing
+from .usage_based_pricing import UsageBasedPricing
+from .usage_pricing_strategies import (
+    PayAsYouGoPricing,
+    TieredUsagePricing,
+    ConsumptionBasedPricing,
+    HybridUsagePricing
+)
+
 # Import invoice generation
 from .invoice import Invoice, InvoiceItem, InvoiceStatus
 from .invoice_manager import InvoiceManager
@@ -92,6 +101,13 @@ __all__ = [
     'TieredPricingRule',
     'TieredPricingCalculator',
     'ProratedBilling',
+
+    # Usage-based pricing
+    'UsageBasedPricing',
+    'PayAsYouGoPricing',
+    'TieredUsagePricing',
+    'ConsumptionBasedPricing',
+    'HybridUsagePricing',
 
     # Invoice generation
     'Invoice',

@@ -1,7 +1,7 @@
 """
 Marketing module for the pAIssive Income project.
 
-This module provides functionality for generating and managing marketing 
+This module provides functionality for generating and managing marketing
 strategies, tactics, and content for niche AI tools.
 """
 
@@ -15,6 +15,7 @@ from .tone_analyzer import ToneAnalyzer
 from .user_personas import PersonaCreator
 from .ab_testing import ABTesting, ABTest
 from .content_performance import ContentPerformanceAnalyzer
+from .social_media_integration import SocialMediaIntegration
 from .schemas import (
     BusinessType, BusinessSize, BillingPeriod, TimeframeUnit,
     ChannelType, PriorityLevel, DifficultyLevel,
@@ -22,7 +23,11 @@ from .schemas import (
     ConfigSchema, MarketingTacticSchema, MetricSchema, ContentItemSchema,
     ContentCalendarSchema, PersonaSchema, ChannelAnalysisSchema,
     MarketingPlanSchema, MarketingStrategyInputSchema, MarketingStrategyResultsSchema,
-    AudienceAnalysisSchema, BusinessAnalysisSchema
+    AudienceAnalysisSchema, BusinessAnalysisSchema,
+    # Social Media schemas
+    SocialMediaPlatform, SocialMediaConnectionSchema, SocialMediaAuthSchema,
+    SocialMediaPostSchema, SocialMediaAnalyticsSchema, SocialMediaCampaignSchema,
+    AudienceInsightSchema, ContentVisibility, PostScheduleType
 )
 
 __all__ = [
@@ -37,6 +42,7 @@ __all__ = [
     'ABTesting',
     'ABTest',
     'ContentPerformanceAnalyzer',
+    'SocialMediaIntegration',
     # Schema exports
     'BusinessType',
     'BusinessSize',
@@ -60,5 +66,15 @@ __all__ = [
     'MarketingStrategyInputSchema',
     'MarketingStrategyResultsSchema',
     'AudienceAnalysisSchema',
-    'BusinessAnalysisSchema'
+    'BusinessAnalysisSchema',
+    # Social Media exports
+    'SocialMediaPlatform',
+    'SocialMediaConnectionSchema',
+    'SocialMediaAuthSchema',
+    'SocialMediaPostSchema',
+    'SocialMediaAnalyticsSchema',
+    'SocialMediaCampaignSchema',
+    'AudienceInsightSchema',
+    'ContentVisibility',
+    'PostScheduleType'
 ]
