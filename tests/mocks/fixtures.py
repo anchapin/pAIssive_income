@@ -27,7 +27,7 @@ from .mock_http import MockResponse, mock_requests
 from .mock_huggingface_hub import mock_huggingface_hub, MockRepoInfo, HfHubHTTPError
 
 from .mock_external_apis import (
-    MockHuggingFaceAPI, 
+    MockHuggingFaceAPI,
     MockPaymentAPI,
     MockEmailAPI,
     MockStorageAPI,
@@ -41,10 +41,10 @@ from .mock_external_apis import (
 def mock_openai_provider(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock OpenAI provider for testing.
-    
+
     Args:
         config: Optional configuration for the mock provider
-    
+
     Returns:
         A mock OpenAI provider instance
     """
@@ -55,10 +55,10 @@ def mock_openai_provider(config: Optional[Dict[str, Any]] = None):
 def mock_ollama_provider(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock Ollama provider for testing.
-    
+
     Args:
         config: Optional configuration for the mock provider
-    
+
     Returns:
         A mock Ollama provider instance
     """
@@ -69,10 +69,10 @@ def mock_ollama_provider(config: Optional[Dict[str, Any]] = None):
 def mock_lmstudio_provider(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock LM Studio provider for testing.
-    
+
     Args:
         config: Optional configuration for the mock provider
-    
+
     Returns:
         A mock LM Studio provider instance
     """
@@ -83,10 +83,10 @@ def mock_lmstudio_provider(config: Optional[Dict[str, Any]] = None):
 def mock_huggingface_provider(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock Hugging Face provider for testing.
-    
+
     Args:
         config: Optional configuration for the mock provider
-    
+
     Returns:
         A mock Hugging Face provider instance
     """
@@ -97,10 +97,10 @@ def mock_huggingface_provider(config: Optional[Dict[str, Any]] = None):
 def mock_local_model_provider(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock local model provider (like llama.cpp) for testing.
-    
+
     Args:
         config: Optional configuration for the mock provider
-    
+
     Returns:
         A mock local model provider instance
     """
@@ -111,10 +111,10 @@ def mock_local_model_provider(config: Optional[Dict[str, Any]] = None):
 def mock_onnx_provider(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock ONNX model provider for testing.
-    
+
     Args:
         config: Optional configuration for the mock provider
-    
+
     Returns:
         A mock ONNX provider instance
     """
@@ -125,10 +125,10 @@ def mock_onnx_provider(config: Optional[Dict[str, Any]] = None):
 def patch_model_providers(monkeypatch):
     """
     Patch all model providers with mock implementations.
-    
+
     Args:
         monkeypatch: pytest's monkeypatch fixture
-    
+
     Returns:
         A dictionary of mock provider instances
     """
@@ -140,20 +140,17 @@ def patch_model_providers(monkeypatch):
         "local": MockLocalModelProvider(),
         "onnx": MockONNXProvider()
     }
-    
+
     # Define a function to return the appropriate mock provider
     def mock_get_model_provider(provider_type, *args, **kwargs):
         return mock_providers.get(provider_type.lower(), mock_providers["openai"])
-    
-    # Apply the patch to model_manager
-    monkeypatch.setattr('ai_models.model_manager.get_model_provider', mock_get_model_provider)
-    
-    # Apply the patch to adapters if available
+
+    # Apply the patch to adapters
     try:
-        monkeypatch.setattr('ai_models.adapters.adapter_factory.get_adapter', mock_get_model_provider)
+        monkeypatch.setattr('ai_models.adapters.adapter_factory.adapter_factory.create_adapter', mock_get_model_provider)
     except (ImportError, AttributeError):
         pass
-    
+
     return mock_providers
 
 
@@ -163,7 +160,7 @@ def patch_model_providers(monkeypatch):
 def mock_http():
     """
     Create a mock HTTP requests interface for testing.
-    
+
     Returns:
         A mock requests interface instance
     """
@@ -175,12 +172,12 @@ def mock_http():
 def mock_http_with_common_responses():
     """
     Create a mock HTTP requests interface with common API responses pre-configured.
-    
+
     Returns:
         A mock requests interface instance with common responses
     """
     mock_requests.reset()
-    
+
     # Add mock response for OpenAI API
     mock_requests.add_response(
         "https://api.openai.com/v1/chat/completions",
@@ -200,7 +197,7 @@ def mock_http_with_common_responses():
         },
         method="POST"
     )
-    
+
     mock_requests.add_response(
         "https://api.openai.com/v1/embeddings",
         {
@@ -220,7 +217,7 @@ def mock_http_with_common_responses():
         },
         method="POST"
     )
-    
+
     # Add mock response for Ollama API
     mock_requests.add_response(
         "http://localhost:11434/api/generate",
@@ -232,7 +229,7 @@ def mock_http_with_common_responses():
         },
         method="POST"
     )
-    
+
     mock_requests.add_response(
         "http://localhost:11434/api/chat",
         {
@@ -246,7 +243,7 @@ def mock_http_with_common_responses():
         },
         method="POST"
     )
-    
+
     # Add mock response for LM Studio API
     mock_requests.add_response(
         "http://localhost:1234/v1/chat/completions",
@@ -266,7 +263,7 @@ def mock_http_with_common_responses():
         },
         method="POST"
     )
-    
+
     return mock_requests
 
 
@@ -274,16 +271,16 @@ def mock_http_with_common_responses():
 def patch_requests(monkeypatch):
     """
     Patch the requests library with our mock implementation.
-    
+
     Args:
         monkeypatch: pytest's monkeypatch fixture
-        
+
     Returns:
         The mock requests object
     """
     # Reset the mock requests
     mock_requests.reset()
-    
+
     # Patch all the commonly used requests functions
     monkeypatch.setattr('requests.get', mock_requests.get)
     monkeypatch.setattr('requests.post', mock_requests.post)
@@ -294,7 +291,7 @@ def patch_requests(monkeypatch):
     monkeypatch.setattr('requests.options', mock_requests.options)
     monkeypatch.setattr('requests.request', mock_requests.request)
     monkeypatch.setattr('requests.session', mock_requests.session)
-    
+
     return mock_requests
 
 
@@ -302,7 +299,7 @@ def patch_requests(monkeypatch):
 def mock_hf_hub():
     """
     Create a mock Hugging Face Hub instance for testing.
-    
+
     Returns:
         A mock Hugging Face Hub instance
     """
@@ -314,12 +311,12 @@ def mock_hf_hub():
 def mock_hf_hub_with_models():
     """
     Create a mock Hugging Face Hub instance with common models pre-configured.
-    
+
     Returns:
         A mock Hugging Face Hub instance with common models
     """
     mock_huggingface_hub.reset()
-    
+
     # Add common repositories
     mock_huggingface_hub.add_repo({
         "id": "gpt2",
@@ -328,7 +325,7 @@ def mock_hf_hub_with_models():
         "tags": ["text-generation", "pytorch"],
         "pipeline_tag": "text-generation"
     })
-    
+
     mock_huggingface_hub.add_repo({
         "id": "sentence-transformers/all-MiniLM-L6-v2",
         "downloads": 500000,
@@ -336,7 +333,7 @@ def mock_hf_hub_with_models():
         "tags": ["sentence-similarity", "pytorch"],
         "pipeline_tag": "feature-extraction"
     })
-    
+
     mock_huggingface_hub.add_repo({
         "id": "mistralai/Mistral-7B-v0.1",
         "downloads": 800000,
@@ -344,10 +341,10 @@ def mock_hf_hub_with_models():
         "tags": ["text-generation", "pytorch"],
         "pipeline_tag": "text-generation"
     })
-    
+
     # Add common files
     import json
-    
+
     mock_huggingface_hub.add_file(
         repo_id="gpt2",
         file_path="config.json",
@@ -360,7 +357,7 @@ def mock_hf_hub_with_models():
             "n_head": 12
         })
     )
-    
+
     mock_huggingface_hub.add_file(
         repo_id="sentence-transformers/all-MiniLM-L6-v2",
         file_path="config.json",
@@ -371,7 +368,7 @@ def mock_hf_hub_with_models():
             "num_hidden_layers": 6
         })
     )
-    
+
     return mock_huggingface_hub
 
 
@@ -379,25 +376,25 @@ def mock_hf_hub_with_models():
 def patch_huggingface_hub(monkeypatch):
     """
     Patch the huggingface_hub library with our mock implementation.
-    
+
     Args:
         monkeypatch: pytest's monkeypatch fixture
-        
+
     Returns:
         The mock huggingface_hub object
     """
     # Reset the mock huggingface_hub
     mock_huggingface_hub.reset()
-    
+
     # Patch the huggingface_hub functions
     monkeypatch.setattr('huggingface_hub.hf_hub_download', mock_huggingface_hub.hf_hub_download)
     monkeypatch.setattr('huggingface_hub.snapshot_download', mock_huggingface_hub.snapshot_download)
     monkeypatch.setattr('huggingface_hub.list_models', mock_huggingface_hub.list_models)
     monkeypatch.setattr('huggingface_hub.login', mock_huggingface_hub.login)
-    
+
     # Patch the HfHubHTTPError exception
     monkeypatch.setattr('huggingface_hub.utils.HfHubHTTPError', HfHubHTTPError)
-    
+
     return mock_huggingface_hub
 
 
@@ -405,10 +402,10 @@ def patch_huggingface_hub(monkeypatch):
 def mock_huggingface_api(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock Hugging Face API for testing.
-    
+
     Args:
         config: Optional configuration for the mock API
-    
+
     Returns:
         A mock Hugging Face API instance
     """
@@ -419,10 +416,10 @@ def mock_huggingface_api(config: Optional[Dict[str, Any]] = None):
 def mock_payment_api(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock payment API for testing.
-    
+
     Args:
         config: Optional configuration for the mock API
-    
+
     Returns:
         A mock payment API instance
     """
@@ -433,10 +430,10 @@ def mock_payment_api(config: Optional[Dict[str, Any]] = None):
 def mock_email_api(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock email API for testing.
-    
+
     Args:
         config: Optional configuration for the mock API
-    
+
     Returns:
         A mock email API instance
     """
@@ -447,10 +444,10 @@ def mock_email_api(config: Optional[Dict[str, Any]] = None):
 def mock_storage_api(config: Optional[Dict[str, Any]] = None):
     """
     Create a mock storage API for testing.
-    
+
     Args:
         config: Optional configuration for the mock API
-    
+
     Returns:
         A mock storage API instance
     """
@@ -461,10 +458,10 @@ def mock_storage_api(config: Optional[Dict[str, Any]] = None):
 def patch_external_apis(monkeypatch):
     """
     Patch all external APIs with mock implementations.
-    
+
     Args:
         monkeypatch: pytest's monkeypatch fixture
-    
+
     Returns:
         A dictionary of mock API instances
     """
@@ -474,28 +471,28 @@ def patch_external_apis(monkeypatch):
         "email": MockEmailAPI(),
         "storage": MockStorageAPI()
     }
-    
+
     # Patch HuggingFace Hub if available
     try:
         monkeypatch.setattr('huggingface_hub.HfApi', lambda: mock_apis["huggingface"])
-        monkeypatch.setattr('huggingface_hub.hf_hub_download', 
+        monkeypatch.setattr('huggingface_hub.hf_hub_download',
                           lambda model_id, *args, **kwargs: mock_apis["huggingface"].download_model(model_id, "mock_path"))
     except (ImportError, AttributeError):
         pass
-    
+
     # Patch other external APIs based on project structure
     # These paths would need to be adjusted based on the actual project structure
     try:
         # Example patches for payment processing
-        monkeypatch.setattr('monetization.payment_method_manager.create_payment_client', 
+        monkeypatch.setattr('monetization.payment_method_manager.create_payment_client',
                           lambda *args, **kwargs: mock_apis["payment"])
-        
+
         # Example patches for email services
-        monkeypatch.setattr('marketing.content_generators.get_email_client', 
+        monkeypatch.setattr('marketing.content_generators.get_email_client',
                           lambda *args, **kwargs: mock_apis["email"])
     except (ImportError, AttributeError):
         pass
-    
+
     return mock_apis
 
 
@@ -505,7 +502,7 @@ def patch_external_apis(monkeypatch):
 def mock_model_inference_result():
     """
     Create a mock model inference result.
-    
+
     Returns:
         A dictionary representing a model inference result
     """
@@ -532,7 +529,7 @@ def mock_model_inference_result():
 def mock_chat_completion_result():
     """
     Create a mock chat completion result.
-    
+
     Returns:
         A dictionary representing a chat completion result
     """
@@ -563,7 +560,7 @@ def mock_chat_completion_result():
 def mock_embedding_result():
     """
     Create a mock embedding result.
-    
+
     Returns:
         A dictionary representing an embedding result
     """
@@ -588,13 +585,13 @@ def mock_embedding_result():
 def mock_subscription_data():
     """
     Create mock subscription data.
-    
+
     Returns:
         A dictionary representing subscription data
     """
     now = datetime.now()
     timestamp = int(now.timestamp())
-    
+
     return {
         "customer": {
             "id": f"cus_test_{timestamp}",
@@ -632,7 +629,7 @@ def mock_subscription_data():
 def mock_niche_analysis_data():
     """
     Create mock niche analysis data.
-    
+
     Returns:
         A dictionary representing niche analysis results
     """
@@ -700,7 +697,7 @@ def mock_niche_analysis_data():
 def mock_marketing_campaign_data():
     """
     Create mock marketing campaign data.
-    
+
     Returns:
         A dictionary representing marketing campaign data
     """
@@ -751,7 +748,7 @@ def mock_marketing_campaign_data():
         ],
         "content_calendar": [
             {
-                "date": (datetime.now().replace(day=1) + 
+                "date": (datetime.now().replace(day=1) +
                         datetime.timedelta(days=7)).strftime("%Y-%m-%d"),
                 "channel": "Email",
                 "title": "Introducing Our New AI-Powered Feature",
@@ -759,7 +756,7 @@ def mock_marketing_campaign_data():
                 "status": "Draft"
             },
             {
-                "date": (datetime.now().replace(day=1) + 
+                "date": (datetime.now().replace(day=1) +
                         datetime.timedelta(days=9)).strftime("%Y-%m-%d"),
                 "channel": "LinkedIn",
                 "title": "How Our Tool Saved Client X 10 Hours Per Week",
@@ -776,15 +773,15 @@ def mock_marketing_campaign_data():
 def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_model_providers):
     """
     Create a complete setup for AI model testing.
-    
+
     This fixture combines multiple fixtures to create a comprehensive
     testing environment for AI model integrations.
-    
+
     Args:
         patch_requests: The patched requests library
         patch_huggingface_hub: The patched huggingface_hub library
         patch_model_providers: The patched model providers
-        
+
     Returns:
         A dictionary containing all the mock objects
     """
@@ -807,22 +804,22 @@ def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_mod
         },
         method="POST"
     )
-    
+
     # Set up mock Hugging Face models
     patch_huggingface_hub.add_repo({
         "id": "gpt2",
         "pipeline_tag": "text-generation"
     })
-    
+
     patch_huggingface_hub.add_file(
         repo_id="gpt2",
         file_path="config.json",
         content='{"model_type": "gpt2"}'
     )
-    
+
     # Create a temporary directory for file operations
     temp_dir = tempfile.mkdtemp(prefix="ai_model_test_")
-    
+
     return {
         "http": patch_requests,
         "huggingface_hub": patch_huggingface_hub,
@@ -835,14 +832,14 @@ def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_mod
 def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
     """
     Create a complete setup for monetization testing.
-    
+
     This fixture provides a comprehensive testing environment
     for monetization-related functionality.
-    
+
     Args:
         patch_requests: The patched requests library
         mock_subscription_data: Mock subscription data
-        
+
     Returns:
         A dictionary containing all the mock objects
     """
@@ -858,7 +855,7 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
         method="POST",
         status_code=200
     )
-    
+
     patch_requests.add_response(
         "https://api.stripe.com/v1/subscriptions",
         {
@@ -870,10 +867,10 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
         method="POST",
         status_code=200
     )
-    
+
     # Create a temporary directory for file operations
     temp_dir = tempfile.mkdtemp(prefix="monetization_test_")
-    
+
     # Create mock database
     mock_db = {
         "customers": [mock_subscription_data["customer"]],
@@ -881,7 +878,7 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
         "payment_methods": [mock_subscription_data["payment_method"]],
         "invoices": []
     }
-    
+
     return {
         "http": patch_requests,
         "temp_dir": temp_dir,
@@ -894,14 +891,14 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
 def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
     """
     Create a complete setup for marketing testing.
-    
+
     This fixture provides a comprehensive testing environment
     for marketing-related functionality.
-    
+
     Args:
         patch_requests: The patched requests library
         mock_marketing_campaign_data: Mock marketing campaign data
-        
+
     Returns:
         A dictionary containing all the mock objects
     """
@@ -912,7 +909,7 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
         method="POST",
         status_code=202
     )
-    
+
     # Set up mock social media API responses
     patch_requests.add_response(
         "https://api.twitter.com/2/tweets",
@@ -920,17 +917,17 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
         method="POST",
         status_code=201
     )
-    
+
     patch_requests.add_response(
         "https://api.linkedin.com/v2/ugcPosts",
         {"id": "urn:li:share:1234567890"},
         method="POST",
         status_code=201
     )
-    
+
     # Create a temporary directory for file operations
     temp_dir = tempfile.mkdtemp(prefix="marketing_test_")
-    
+
     return {
         "http": patch_requests,
         "temp_dir": temp_dir,
@@ -942,20 +939,20 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
 def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis_data):
     """
     Create a complete setup for niche analysis testing.
-    
+
     This fixture provides a comprehensive testing environment
     for niche analysis-related functionality.
-    
+
     Args:
         patch_model_providers: The patched model providers
         mock_niche_analysis_data: Mock niche analysis data
-        
+
     Returns:
         A dictionary containing all the mock objects
     """
     # Configure the OpenAI provider to return appropriate responses
     openai_provider = patch_model_providers["openai"]
-    
+
     # Set up custom responses for different prompts
     openai_provider.config["custom_responses"] = {
         "identify niches": json.dumps(mock_niche_analysis_data["niches"]),
@@ -963,10 +960,10 @@ def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis
         "competition analysis": "The competition level varies by niche.",
         "target audience": "The primary target audience consists of knowledge workers and small businesses."
     }
-    
+
     # Create a temporary directory for file operations
     temp_dir = tempfile.mkdtemp(prefix="niche_analysis_test_")
-    
+
     return {
         "model_providers": patch_model_providers,
         "temp_dir": temp_dir,

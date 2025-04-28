@@ -217,7 +217,7 @@ def _register_ui_services(container: DependencyContainer) -> None:
     # Register agent team service
     container.register(
         IAgentTeamService,
-        lambda: AgentTeamService(),
+        lambda: AgentTeamService(agent_team=container.resolve(IAgentTeam)),
         singleton=True
     )
 

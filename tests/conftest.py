@@ -13,15 +13,29 @@ from typing import Dict, Any, Optional
 
 # Import our centralized mock fixtures
 from tests.mocks.fixtures import (
-    mock_openai_provider, 
+    # Model provider fixtures
+    mock_openai_provider,
     mock_ollama_provider,
     mock_lmstudio_provider,
     patch_model_providers,
+
+    # HTTP and external API fixtures
+    mock_http_with_common_responses,
+    mock_hf_hub_with_models,
+    patch_requests,
+    patch_huggingface_hub,
     mock_huggingface_api,
     mock_payment_api,
     mock_email_api,
     mock_storage_api,
     patch_external_apis,
+
+    # Complete test scenario fixtures
+    mock_ai_model_testing_setup,
+    mock_monetization_testing_setup,
+    mock_marketing_testing_setup,
+
+    # Common test data fixtures
     mock_model_inference_result,
     mock_embedding_result,
     mock_subscription_data,
@@ -70,13 +84,13 @@ except ImportError:
 def mock_stripe_gateway():
     """Create a mock Stripe payment gateway."""
     gateway = create_payment_gateway("stripe")
-    
+
     # Add some test data
     customer = gateway.create_customer(
         email="test@example.com",
         name="Test Customer"
     )
-    
+
     # Create a payment method
     payment_method = gateway.create_payment_method(
         customer_id=customer["id"],
@@ -88,7 +102,7 @@ def mock_stripe_gateway():
             "cvc": "123"
         }
     )
-    
+
     # Create a plan
     plan = gateway.create_plan(
         name="Test Plan",
@@ -96,14 +110,14 @@ def mock_stripe_gateway():
         interval="month",
         amount=9.99
     )
-    
+
     # Create a subscription
     subscription = gateway.create_subscription(
         customer_id=customer["id"],
         plan_id=plan["id"],
         payment_method_id=payment_method["id"]
     )
-    
+
     return gateway
 
 
@@ -117,7 +131,7 @@ def mock_paypal_gateway():
 def mock_model_manager():
     """Create a mock model manager with predefined models."""
     mock_manager = MagicMock()
-    
+
     # Define available models
     mock_manager.list_models.return_value = [
         {
@@ -145,19 +159,19 @@ def mock_model_manager():
             "provider": "lmstudio"
         }
     ]
-    
+
     # Mock the get_model_info method
     def get_model_info(model_id):
         for model in mock_manager.list_models():
             if model["id"] == model_id:
                 return model
         return None
-    
+
     mock_manager.get_model_info.side_effect = get_model_info
-    
+
     # Mock the load_model method
     mock_manager.load_model.return_value = MagicMock()
-    
+
     return mock_manager
 
 
@@ -314,19 +328,19 @@ def mock_test_niche():
 def patch_payment_processor(monkeypatch):
     """
     Patch the payment processor with a mock implementation.
-    
+
     Args:
         monkeypatch: pytest's monkeypatch fixture
-        
+
     Returns:
         A mock stripe gateway instance
     """
     mock_gateway = create_payment_gateway("stripe")
-    
+
     # Define a function to return the mock gateway
     def mock_get_payment_gateway(*args, **kwargs):
         return mock_gateway
-    
+
     # Apply the patch
     if hasattr(monkeypatch, 'setattr'):
         try:
@@ -334,7 +348,7 @@ def patch_payment_processor(monkeypatch):
             monkeypatch.setattr('monetization.payment_processor.get_payment_gateway', mock_get_payment_gateway)
         except (ImportError, AttributeError):
             pass  # Module might not exist yet
-    
+
     return mock_gateway
 
 
@@ -342,19 +356,19 @@ def patch_payment_processor(monkeypatch):
 def patch_model_provider(monkeypatch):
     """
     Patch the model provider with a mock implementation.
-    
+
     Args:
         monkeypatch: pytest's monkeypatch fixture
-        
+
     Returns:
         A mock OpenAI provider instance
     """
     mock_provider = create_mock_provider("openai")
-    
+
     # Define a function to return the mock provider
     def mock_get_model_provider(*args, **kwargs):
         return mock_provider
-    
+
     # Apply the patch
     if hasattr(monkeypatch, 'setattr'):
         try:
@@ -362,5 +376,23 @@ def patch_model_provider(monkeypatch):
             monkeypatch.setattr('ai_models.model_manager.get_model_provider', mock_get_model_provider)
         except (ImportError, AttributeError):
             pass  # Module might not exist yet
-    
+
     return mock_provider
+
+
+@pytest.fixture
+def temp_dir(tmpdir):
+    """
+    Create a temporary directory for tests.
+
+    Args:
+        tmpdir: pytest's tmpdir fixture
+
+    Returns:
+        Path to the temporary directory
+    """
+    # Create a temporary directory
+    temp_path = tmpdir.mkdir("test_temp_dir")
+
+    # Return the path as a string
+    return str(temp_path)

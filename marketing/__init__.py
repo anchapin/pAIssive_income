@@ -1,7 +1,7 @@
 """
 Marketing module for the pAIssive Income project.
 
-This module provides functionality for generating and managing marketing 
+This module provides functionality for generating and managing marketing
 strategies, tactics, and content for niche AI tools.
 """
 
@@ -13,6 +13,7 @@ from .content_templates import ContentTemplate
 from .style_adjuster import StyleAdjuster
 from .tone_analyzer import ToneAnalyzer
 from .user_personas import PersonaCreator
+from .marketing_plan import MarketingPlan
 from .schemas import (
     BusinessType, BusinessSize, BillingPeriod, TimeframeUnit,
     ChannelType, PriorityLevel, DifficultyLevel,
@@ -32,6 +33,7 @@ __all__ = [
     'StyleAdjuster',
     'ToneAnalyzer',
     'PersonaCreator',
+    'MarketingPlan',
     # Schema exports
     'BusinessType',
     'BusinessSize',

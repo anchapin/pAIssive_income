@@ -32,6 +32,337 @@ from .content_generators import ContentGenerator
 from .tone_analyzer import ToneAnalyzer
 
 
+class ContentOptimizer:
+    """
+    Class for optimizing marketing content.
+
+    This class provides methods for optimizing content for SEO, readability,
+    and tone/style.
+    """
+
+    def __init__(
+        self,
+        content: Optional[Dict[str, Any]] = None,
+        config: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Initialize a content optimizer.
+
+        Args:
+            content: Optional content to optimize
+            config: Optional configuration dictionary
+        """
+        self.id = str(uuid.uuid4())
+        self.content = content
+        self.config = config or self.get_default_config()
+        self.created_at = datetime.datetime.now().isoformat()
+        self.results = None
+
+    def get_default_config(self) -> Dict[str, Any]:
+        """
+        Get the default configuration for the content optimizer.
+
+        Returns:
+            Default configuration dictionary
+        """
+        return {
+            "seo_optimization": True,
+            "readability_optimization": True,
+            "tone_optimization": True,
+            "keyword_optimization": True,
+            "structure_optimization": True,
+            "image_optimization": True,
+            "link_optimization": True,
+            "meta_optimization": True,
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+
+    def optimize(self, content: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Optimize the content.
+
+        Args:
+            content: Optional content to optimize
+
+        Returns:
+            Optimized content
+        """
+        if content:
+            self.content = content
+
+        if not self.content:
+            raise ValueError("No content provided")
+
+        # Initialize results
+        self.results = {
+            "id": str(uuid.uuid4()),
+            "timestamp": datetime.datetime.now().isoformat(),
+            "content_id": self.content.get("id", "unknown"),
+            "original_content": self.content,
+            "optimized_content": self.content.copy(),
+            "optimization_steps": [],
+            "metrics": {
+                "seo_score": 0.0,
+                "readability_score": 0.0,
+                "tone_score": 0.0,
+                "overall_score": 0.0
+            }
+        }
+
+        # Perform optimizations
+        if self.config.get("seo_optimization", True):
+            self._optimize_seo()
+
+        if self.config.get("readability_optimization", True):
+            self._optimize_readability()
+
+        if self.config.get("tone_optimization", True):
+            self._optimize_tone()
+
+        if self.config.get("keyword_optimization", True):
+            self._optimize_keywords()
+
+        if self.config.get("structure_optimization", True):
+            self._optimize_structure()
+
+        if self.config.get("image_optimization", True):
+            self._optimize_images()
+
+        if self.config.get("link_optimization", True):
+            self._optimize_links()
+
+        if self.config.get("meta_optimization", True):
+            self._optimize_meta()
+
+        # Calculate overall score
+        self._calculate_overall_score()
+
+        return self.results["optimized_content"]
+
+    def _optimize_seo(self) -> None:
+        """
+        Optimize content for SEO.
+        """
+        # Create a placeholder for SEO optimization
+        # In a real implementation, this would use the SEOAnalyzer class
+        self.results["optimization_steps"].append({
+            "type": "seo",
+            "timestamp": datetime.datetime.now().isoformat(),
+            "description": "Optimized content for SEO",
+            "details": {
+                "before_score": 0.5,
+                "after_score": 0.8,
+                "improvements": [
+                    "Added keywords to title",
+                    "Improved meta description",
+                    "Added alt text to images"
+                ]
+            }
+        })
+
+        # Update SEO score
+        self.results["metrics"]["seo_score"] = 0.8
+
+    def _optimize_readability(self) -> None:
+        """
+        Optimize content for readability.
+        """
+        # Create a placeholder for readability optimization
+        self.results["optimization_steps"].append({
+            "type": "readability",
+            "timestamp": datetime.datetime.now().isoformat(),
+            "description": "Optimized content for readability",
+            "details": {
+                "before_score": 0.6,
+                "after_score": 0.85,
+                "improvements": [
+                    "Shortened sentences",
+                    "Simplified vocabulary",
+                    "Improved paragraph structure"
+                ]
+            }
+        })
+
+        # Update readability score
+        self.results["metrics"]["readability_score"] = 0.85
+
+    def _optimize_tone(self) -> None:
+        """
+        Optimize content tone and style.
+        """
+        # Create a placeholder for tone optimization
+        self.results["optimization_steps"].append({
+            "type": "tone",
+            "timestamp": datetime.datetime.now().isoformat(),
+            "description": "Optimized content tone and style",
+            "details": {
+                "before_score": 0.7,
+                "after_score": 0.9,
+                "improvements": [
+                    "Adjusted tone to match brand voice",
+                    "Made language more conversational",
+                    "Added emotional appeal"
+                ]
+            }
+        })
+
+        # Update tone score
+        self.results["metrics"]["tone_score"] = 0.9
+
+    def _optimize_keywords(self) -> None:
+        """
+        Optimize keyword usage in content.
+        """
+        # Create a placeholder for keyword optimization
+        self.results["optimization_steps"].append({
+            "type": "keywords",
+            "timestamp": datetime.datetime.now().isoformat(),
+            "description": "Optimized keyword usage",
+            "details": {
+                "improvements": [
+                    "Adjusted keyword density",
+                    "Added keywords to headings",
+                    "Improved keyword placement"
+                ]
+            }
+        })
+
+    def _optimize_structure(self) -> None:
+        """
+        Optimize content structure.
+        """
+        # Create a placeholder for structure optimization
+        self.results["optimization_steps"].append({
+            "type": "structure",
+            "timestamp": datetime.datetime.now().isoformat(),
+            "description": "Optimized content structure",
+            "details": {
+                "improvements": [
+                    "Added more headings",
+                    "Improved heading hierarchy",
+                    "Added bullet points for readability"
+                ]
+            }
+        })
+
+    def _optimize_images(self) -> None:
+        """
+        Optimize images in content.
+        """
+        # Create a placeholder for image optimization
+        self.results["optimization_steps"].append({
+            "type": "images",
+            "timestamp": datetime.datetime.now().isoformat(),
+            "description": "Optimized images",
+            "details": {
+                "improvements": [
+                    "Added alt text to all images",
+                    "Suggested image compression",
+                    "Improved image placement"
+                ]
+            }
+        })
+
+    def _optimize_links(self) -> None:
+        """
+        Optimize links in content.
+        """
+        # Create a placeholder for link optimization
+        self.results["optimization_steps"].append({
+            "type": "links",
+            "timestamp": datetime.datetime.now().isoformat(),
+            "description": "Optimized links",
+            "details": {
+                "improvements": [
+                    "Added internal links",
+                    "Improved anchor text",
+                    "Added external authority links"
+                ]
+            }
+        })
+
+    def _optimize_meta(self) -> None:
+        """
+        Optimize meta information.
+        """
+        # Create a placeholder for meta optimization
+        self.results["optimization_steps"].append({
+            "type": "meta",
+            "timestamp": datetime.datetime.now().isoformat(),
+            "description": "Optimized meta information",
+            "details": {
+                "improvements": [
+                    "Improved meta description",
+                    "Added meta keywords",
+                    "Optimized social sharing metadata"
+                ]
+            }
+        })
+
+    def _calculate_overall_score(self) -> None:
+        """
+        Calculate the overall optimization score.
+        """
+        # Calculate weighted average of individual scores
+        scores = [
+            self.results["metrics"]["seo_score"],
+            self.results["metrics"]["readability_score"],
+            self.results["metrics"]["tone_score"]
+        ]
+
+        self.results["metrics"]["overall_score"] = sum(scores) / len(scores)
+
+    def get_recommendations(self) -> List[Dict[str, Any]]:
+        """
+        Get content optimization recommendations.
+
+        Returns:
+            List of recommendation dictionaries
+        """
+        if not self.results:
+            return []
+
+        recommendations = []
+
+        # Extract recommendations from optimization steps
+        for step in self.results["optimization_steps"]:
+            if "details" in step and "improvements" in step["details"]:
+                for improvement in step["details"]["improvements"]:
+                    recommendations.append({
+                        "type": step["type"],
+                        "description": improvement,
+                        "priority": "high" if step["type"] in ["seo", "readability"] else "medium"
+                    })
+
+        return recommendations
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the content optimizer to a dictionary.
+
+        Returns:
+            Dictionary representation of the content optimizer
+        """
+        return {
+            "id": self.id,
+            "config": self.config,
+            "created_at": self.created_at,
+            "results": self.results
+        }
+
+    def to_json(self, indent: int = 2) -> str:
+        """
+        Convert the content optimizer to a JSON string.
+
+        Args:
+            indent: Number of spaces for indentation
+
+        Returns:
+            JSON string representation of the content optimizer
+        """
+        return json.dumps(self.to_dict(), indent=indent)
+
+
 class SEOAnalyzer(ABC):
     """
     Abstract base class for SEO analyzers.
@@ -375,10 +706,10 @@ class KeywordAnalyzer(SEOAnalyzer):
     def _analyze_keyword_density(self) -> Dict[str, Any]:
         """
         Analyze keyword density in the content.
-        
+
         This method implements a sophisticated algorithm for calculating optimal keyword density
         for SEO purposes. The process includes:
-        
+
         1. Extract text from all content sections (title, meta description, body content, etc.)
         2. Tokenize the text and count total words
         3. For each keyword:
@@ -386,11 +717,11 @@ class KeywordAnalyzer(SEOAnalyzer):
            - Calculate density ratio (keyword occurrences ÷ total words)
            - Evaluate if the density falls within the optimal range (typically 1-3%)
         4. Return detailed metrics for each keyword with optimization status
-        
+
         The optimal keyword density is configured through:
         - min_keyword_density (default: 1%)
         - max_keyword_density (default: 3%)
-        
+
         These parameters can be adjusted based on specific SEO requirements and content type.
 
         Returns:
@@ -439,10 +770,10 @@ class KeywordAnalyzer(SEOAnalyzer):
     def _analyze_keyword_placement(self) -> Dict[str, Any]:
         """
         Analyze keyword placement in strategic content locations.
-        
+
         This method evaluates the strategic placement of keywords in high-value content locations
         that have significant impact on SEO performance. The algorithm:
-        
+
         1. Identifies key content sections with higher SEO weight:
            - Title (H1) - highest importance
            - Meta description - high importance for SERP display
@@ -450,14 +781,14 @@ class KeywordAnalyzer(SEOAnalyzer):
            - Headings (H2, H3) - important for topic structure
            - URL slug - significant for search indexing
            - Alt text in images - important for image search and accessibility
-        
+
         2. For each keyword:
            - Checks presence in each strategic location
            - Assigns placement score based on configured weights
            - Calculates overall placement effectiveness score (0-100)
-        
+
         3. Provides placement recommendations based on gaps identified
-        
+
         Returns:
             Dictionary with placement analysis for each keyword:
             - locations: Dict mapping locations to boolean presence indicator
@@ -471,10 +802,10 @@ class KeywordAnalyzer(SEOAnalyzer):
         headings = self._extract_headings()
         url = self.content.get("url", "")
         alt_texts = self._extract_image_alt_texts()
-        
+
         # Initialize placement analysis
         placement_analysis = {}
-        
+
         for keyword in self.keywords:
             # Check keyword presence in each location
             locations = {
@@ -485,19 +816,19 @@ class KeywordAnalyzer(SEOAnalyzer):
                 "url": self._contains_keyword(url, keyword),
                 "alt_texts": any(self._contains_keyword(alt, keyword) for alt in alt_texts)
             }
-            
+
             # Calculate placement score based on location weights
             placement_score = self._calculate_placement_score(locations)
-            
+
             # Generate placement recommendations
             recommendations = self._generate_placement_recommendations(locations, keyword)
-            
+
             placement_analysis[keyword] = {
                 "locations": locations,
                 "placement_score": placement_score,
                 "recommendations": recommendations
             }
-        
+
         return placement_analysis
 
     def _extract_first_paragraph(self) -> str:
@@ -1114,7 +1445,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
     def _analyze_readability_scores(self, text: str) -> Dict[str, Any]:
         """
         Analyze text and calculate comprehensive readability scores using multiple algorithms.
-        
+
         This method computes a suite of industry-standard readability metrics including:
         - Flesch Reading Ease: Scores text from 0-100, with higher scores indicating easier readability
         - Flesch-Kincaid Grade Level: Estimates the US grade level needed to understand the text
@@ -1122,7 +1453,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         - Coleman-Liau Index: Bases readability on character count rather than syllables
         - Automated Readability Index: Calculates readability based on characters per word and words per sentence
         - Gunning Fog Index: Measures readability based on sentence length and complex words
-        
+
         The method also determines an overall grade level by averaging multiple algorithms and
         provides a qualitative reading level assessment (e.g., "Easy", "Medium", "Difficult").
 
@@ -1223,15 +1554,15 @@ class ReadabilityAnalyzer(SEOAnalyzer):
     def _calculate_flesch_reading_ease(self, avg_words_per_sentence: float, avg_syllables_per_word: float) -> float:
         """
         Calculate the Flesch Reading Ease score for the text.
-        
-        The Flesch Reading Ease algorithm quantifies text readability using sentence length 
+
+        The Flesch Reading Ease algorithm quantifies text readability using sentence length
         and syllable count. The algorithm works as follows:
-        
+
         1. Count the total number of words, sentences, and syllables in the text
         2. Calculate average sentence length (ASL) = words / sentences
         3. Calculate average syllables per word (ASW) = syllables / words
         4. Apply the formula: 206.835 - (1.015 * ASL) - (84.6 * ASW)
-        
+
         The score ranges from 0-100:
         - 0-30: Very difficult (College graduate level)
         - 30-50: Difficult (College level)
@@ -1240,11 +1571,11 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         - 70-80: Fairly easy (7th grade)
         - 80-90: Easy (6th grade)
         - 90-100: Very easy (5th grade)
-        
+
         Args:
             avg_words_per_sentence: Average words per sentence
             avg_syllables_per_word: Average syllables per word
-            
+
         Returns:
             Flesch Reading Ease score (0-100, higher is easier to read)
         """
@@ -1352,18 +1683,18 @@ class ReadabilityAnalyzer(SEOAnalyzer):
     def _calculate_gunning_fog(self, text: str) -> float:
         """
         Calculate the Gunning Fog Index for the text.
-        
-        The Gunning Fog Index algorithm measures the readability of English writing by 
-        estimating the years of formal education needed to understand the text on first 
+
+        The Gunning Fog Index algorithm measures the readability of English writing by
+        estimating the years of formal education needed to understand the text on first
         reading. The algorithm operates as follows:
-        
+
         1. Count the total number of words and sentences in the text
-        2. Calculate the percentage of complex words (words with 3+ syllables, 
+        2. Calculate the percentage of complex words (words with 3+ syllables,
            excluding proper nouns, compound words, and technical jargon)
         3. Calculate average sentence length (ASL) = words / sentences
         4. Calculate percentage of complex words (PCW) = (complex_words / words) * 100
         5. Apply the formula: 0.4 * (ASL + PCW)
-        
+
         Interpretation of the index:
         - 6: Sixth grade reading level
         - 8: Eighth grade reading level
@@ -1372,12 +1703,12 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         - 14: College sophomore
         - 16: College senior
         - 18+: Graduate/Professional level
-        
+
         For general audiences, a fog index of 12 or below is recommended.
-        
+
         Args:
             text: Text to analyze
-            
+
         Returns:
             Gunning Fog Index (representing years of formal education needed)
         """

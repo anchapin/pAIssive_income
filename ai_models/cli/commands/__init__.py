@@ -12,6 +12,7 @@ from .optimize import OptimizeCommand
 from .benchmark import BenchmarkCommand
 from .deploy import DeployCommand
 from .validate import ValidateCommand
+from .version import VersionCommand
 
 __all__ = [
     'DownloadCommand',
@@ -23,4 +24,5 @@ __all__ = [
     'BenchmarkCommand',
     'DeployCommand',
     'ValidateCommand',
+    'VersionCommand',
 ]

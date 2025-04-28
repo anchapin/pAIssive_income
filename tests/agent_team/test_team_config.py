@@ -112,32 +112,76 @@ def test_develop_solution(mock_developer_class):
     mock_developer.design_solution.return_value = {
         "id": "solution1",
         "name": "Solution 1",
-        "features": ["feature1", "feature2"],
+        "description": "A solution for the niche",
+        "features": [
+            {
+                "id": "feature1",
+                "name": "Feature 1",
+                "description": "Description of feature 1",
+                "complexity": "medium",
+                "development_cost": "medium",
+                "value_proposition": "Value of feature 1"
+            },
+            {
+                "id": "feature2",
+                "name": "Feature 2",
+                "description": "Description of feature 2",
+                "complexity": "low",
+                "development_cost": "low",
+                "value_proposition": "Value of feature 2"
+            }
+        ],
+        "market_data": {
+            "target_audience": "Target audience",
+            "market_size": "medium",
+            "competition": "low"
+        }
     }
     mock_developer_class.return_value = mock_developer
 
     # Create a team
     team = AgentTeam("Test Team")
 
-    # Create a mock niche
+    # Create a mock niche that conforms to the NicheSchema
     niche = {
         "id": "niche1",
         "name": "Niche 1",
         "market_segment": "e-commerce",
+        "description": "A niche in e-commerce",
         "opportunity_score": 0.8,
+        "market_data": {
+            "market_size": "medium",
+            "growth_rate": "high",
+            "competition": "low"
+        },
+        "problems": [
+            {
+                "id": "problem1",
+                "name": "Problem 1",
+                "description": "Description of problem 1",
+                "severity": "high"
+            }
+        ]
     }
 
     # Develop a solution
     result = team.develop_solution(niche)
 
     # Check that the developer's design_solution method was called
-    mock_developer.design_solution.assert_called_once_with(niche)
+    # We can't use assert_called_once_with because the niche object is modified
+    # by the develop_solution method before it's passed to design_solution
+    assert mock_developer.design_solution.call_count == 1
+    call_args = mock_developer.design_solution.call_args[0][0]
+    assert call_args['id'] == niche['id']
+    assert call_args['name'] == niche['name']
+    assert call_args['market_segment'] == niche['market_segment']
 
     # Check that the result is the return value from design_solution
     assert result == mock_developer.design_solution.return_value
     assert result["name"] == "Solution 1"
-    assert "feature1" in result["features"]
-    assert "feature2" in result["features"]
+    assert len(result["features"]) == 2
+    assert result["features"][0]["id"] == "feature1"
+    assert result["features"][1]["id"] == "feature2"
 
 
 @patch('agent_team.team_config.MonetizationAgent')
