@@ -7,6 +7,7 @@ This service provides methods for interacting with the Marketing Agent module.
 import logging
 import os
 import json
+from datetime import datetime
 from typing import Dict, List, Any, Optional
 import uuid
 
