@@ -94,6 +94,13 @@ class DiskCache(CacheBackend):
                 
                 # Initialize access_count if not present
                 if "access_count" not in metadata:
+                    metadata["access_count"] = 0
+                
+                # Update access count and time
+                metadata["access_count"] += 1
+                metadata["last_access_time"] = time.time()
+                self._save_metadata(key, metadata)
+                
                 self.stats["hits"] += 1
                 self._save_stats()
                 return value
