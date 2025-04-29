@@ -337,11 +337,21 @@ def sanitize_path(path_str: str) -> str:
 
     # Convert to Path object and resolve to absolute path
     try:
-        path = Path(path_str).resolve()
-        # Normalize drive letter to lowercase
+        # Get current working directory as base
+        current_dir = os.getcwd()
+        
+        # Create absolute path based on the input
+        if os.path.isabs(path_str):
+            path = Path(path_str).resolve()
+        else:
+            # For relative paths, join with current directory first
+            path = Path(os.path.join(current_dir, path_str)).resolve()
+        
+        # Normalize drive letter to lowercase on Windows
         result = str(path)
         if len(result) >= 2 and result[1] == ':':
             result = result[0].lower() + result[1:]
+        
         return result
     except Exception:
         return ""
