@@ -167,9 +167,10 @@ class CacheService:
             }
 
         # Get the value from the cache
+        # Use the same operation ('set') as in the set method to ensure we're looking up the correct key
         result = self.cache_manager.get(
             model_id=namespace,
-            operation='get',
+            operation='set',
             inputs=key
         )
 
@@ -195,9 +196,10 @@ class CacheService:
         Returns:
             True if the value was deleted, False otherwise
         """
+        # Use the same operation ('set') as in the set method to ensure we're deleting the correct key
         return self.cache_manager.delete(
             model_id=namespace,
-            operation='delete',
+            operation='set',
             inputs=key
         )
 
@@ -220,9 +222,9 @@ class CacheService:
                 'clears': 0
             }
 
-        # The CacheManager doesn't have a method to clear by model_id,
-        # so we'll just clear all caches and reset stats for this namespace
-        success = self.cache_manager.clear()
+        # Use the CacheManager's clear_namespace method to clear only keys for this namespace
+        # This avoids clearing the entire cache when only one namespace needs to be cleared
+        success = self.cache_manager.clear_namespace(namespace)
 
         # Update stats
         if success:
