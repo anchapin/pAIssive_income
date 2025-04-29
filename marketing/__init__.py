@@ -21,6 +21,9 @@ from .style_adjuster import StyleAdjuster
 from .tone_analyzer import ToneAnalyzer
 from .user_personas import PersonaCreator
 from .marketing_plan import MarketingPlan
+from .ab_testing import ABTesting, ABTest
+from .content_performance import ContentPerformanceAnalyzer
+from .social_media_integration import SocialMediaIntegration
 from .schemas import (
     BusinessType, BusinessSize, BillingPeriod, TimeframeUnit,
     ChannelType, PriorityLevel, DifficultyLevel,
@@ -28,7 +31,11 @@ from .schemas import (
     ConfigSchema, MarketingTacticSchema, MetricSchema, ContentItemSchema,
     ContentCalendarSchema, PersonaSchema, ChannelAnalysisSchema,
     MarketingPlanSchema, MarketingStrategyInputSchema, MarketingStrategyResultsSchema,
-    AudienceAnalysisSchema, BusinessAnalysisSchema
+    AudienceAnalysisSchema, BusinessAnalysisSchema,
+    # Social Media schemas
+    SocialMediaPlatform, SocialMediaConnectionSchema, SocialMediaAuthSchema,
+    SocialMediaPostSchema, SocialMediaAnalyticsSchema, SocialMediaCampaignSchema,
+    AudienceInsightSchema, ContentVisibility, PostScheduleType
 )
 
 __all__ = [
@@ -49,6 +56,10 @@ __all__ = [
     'ToneAnalyzer',
     'PersonaCreator',
     'MarketingPlan',
+    'ABTesting',
+    'ABTest',
+    'ContentPerformanceAnalyzer',
+    'SocialMediaIntegration',
     # Schema exports
     'BusinessType',
     'BusinessSize',
@@ -72,5 +83,15 @@ __all__ = [
     'MarketingStrategyInputSchema',
     'MarketingStrategyResultsSchema',
     'AudienceAnalysisSchema',
-    'BusinessAnalysisSchema'
+    'BusinessAnalysisSchema',
+    # Social Media exports
+    'SocialMediaPlatform',
+    'SocialMediaConnectionSchema',
+    'SocialMediaAuthSchema',
+    'SocialMediaPostSchema',
+    'SocialMediaAnalyticsSchema',
+    'SocialMediaCampaignSchema',
+    'AudienceInsightSchema',
+    'ContentVisibility',
+    'PostScheduleType'
 ]

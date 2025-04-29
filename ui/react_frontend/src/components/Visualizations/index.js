@@ -13,3 +13,8 @@ export { default as CustomerLifetimeValueGauge } from './CustomerLifetimeValueGa
 export { default as ConversionFunnelChart } from './ConversionFunnelChart';
 export { default as CohortRetentionChart } from './CohortRetentionChart';
 export { default as UserActivityChart } from './UserActivityChart';
+
+// API Analytics Visualization Components
+export { default as ApiUsageLineChart } from './ApiUsageLineChart';
+export { default as ApiEndpointBarChart } from './ApiEndpointBarChart';
+export { default as ApiStatusPieChart } from './ApiStatusPieChart';
