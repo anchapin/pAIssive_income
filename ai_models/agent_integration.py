@@ -359,7 +359,7 @@ class AgentModelProvider:
         try:
             # First try to load the specified model
             return self.model_manager.load_model(model_id)
-        except ModelLoadError as e:
+        except Exception as e:
             if not self.fallback_manager.fallback_enabled:
                 raise e
 
@@ -395,6 +395,43 @@ class AgentModelProvider:
             # If no fallback model found, raise an error
             raise ValueError(f"No fallback model found for {model_id} after exhausting all options")
 
+    def configure_fallback(self, fallback_enabled: bool = True, fallback_config: Optional[Dict] = None) -> None:
+        """
+        Configure fallback behavior.
+
+        Args:
+            fallback_enabled: Whether fallback mechanisms should be enabled
+            fallback_config: Optional configuration for fallback behavior
+        """
+        # Default fallback configuration if none provided
+        default_fallback_config = {
+            "max_attempts": 3,  # Maximum number of fallback attempts
+            "default_model_id": None,  # Global fallback model ID
+            "logging_level": logging.INFO,  # Logging level for fallback events
+            "use_general_purpose_fallback": True,  # Use general purpose models as fallbacks
+            "fallback_preferences": {  # Fallback preferences for different agent types
+                "researcher": ["huggingface", "llama", "general-purpose"],
+                "developer": ["huggingface", "llama", "general-purpose"],
+                "monetization": ["huggingface", "general-purpose"],
+                "marketing": ["huggingface", "general-purpose"],
+                "default": ["huggingface", "general-purpose"]
+            }
+        }
+
+        # Apply any custom fallback configuration
+        if fallback_config:
+            for key, value in fallback_config.items():
+                default_fallback_config[key] = value
+
+        # Update the fallback manager
+        self.fallback_manager.fallback_enabled = fallback_enabled
+        self.fallback_manager.max_attempts = default_fallback_config["max_attempts"]
+        self.fallback_manager.default_model_id = default_fallback_config["default_model_id"]
+        self.fallback_manager.fallback_preferences = default_fallback_config["fallback_preferences"]
+        self.fallback_manager.logging_level = default_fallback_config["logging_level"]
+
+        logger.info(f"Updated fallback configuration. Enabled: {fallback_enabled}")
+
     def model_has_capability(self, model_id: str, capability: str) -> bool:
         """
         Check if a model has a specific capability.
@@ -410,119 +447,7 @@ class AgentModelProvider:
         if not model_info:
             return False
 
-        # Check if the model has the capability
-        if hasattr(model_info, "capabilities") and model_info.capabilities:
-            return capability in model_info.capabilities
-
-        return False
-
-    def get_assigned_model_id(self, agent_type: str, task_type: str) -> Optional[str]:
-        """
-        Get the ID of the model assigned to an agent for a specific task.
-
-        Args:
-            agent_type: Type of agent (researcher, developer, etc.)
-            task_type: Type of task (text-generation, embedding, etc.)
-
-        Returns:
-            Model ID or None if no model is assigned
-        """
-        if agent_type in self.agent_models and task_type in self.agent_models[agent_type]:
-            return self.agent_models[agent_type][task_type]
-        return None
-
-    def configure_fallback(self, fallback_enabled: bool = True, fallback_config: Optional[Dict] = None) -> None:
-        """
-        Configure the fallback behavior.
-
-        Args:
-            fallback_enabled: Whether fallback should be enabled
-            fallback_config: Configuration options for fallback behavior
-                - default_strategy: Default fallback strategy
-                - max_attempts: Maximum number of fallback attempts
-                - default_model_id: ID of the default fallback model
-                - fallback_preferences: Mapping of agent types to model type preferences
-                - logging_level: Logging level for fallback events
-                - use_general_purpose_fallback: Whether to use any model as a last resort
-        """
-        # Update configuration through the FallbackManager
-        config_params = {"fallback_enabled": fallback_enabled}
-
-        if fallback_config:
-            # Map old config structure to the FallbackManager parameters
-            if "default_strategy" in fallback_config:
-                config_params["default_strategy"] = fallback_config["default_strategy"]
-
-            if "max_attempts" in fallback_config:
-                config_params["max_attempts"] = fallback_config["max_attempts"]
-
-            if "default_model_id" in fallback_config:
-                config_params["default_model_id"] = fallback_config["default_model_id"]
-
-            if "fallback_preferences" in fallback_config:
-                config_params["fallback_preferences"] = fallback_config["fallback_preferences"]
-
-            if "logging_level" in fallback_config:
-                config_params["logging_level"] = fallback_config["logging_level"]
-
-        # Update the fallback manager configuration
-        self.fallback_manager.configure(**config_params)
-        logger.info(f"Fallback configuration updated. Enabled: {fallback_enabled}")
-
-    def set_default_fallback_model(self, model_id: str) -> None:
-        """
-        Set the default model to use as a fallback when no suitable models are found.
-
-        Args:
-            model_id: ID of the model to use as default fallback
-
-        Raises:
-            ValueError: If the model is not found
-        """
-        # Check if the model exists
-        model_info = self.model_manager.get_model_info(model_id)
-        if not model_info:
-            raise ValueError(f"Model with ID {model_id} not found")
-
-        # Configure the fallback manager
-        self.fallback_manager.configure(default_model_id=model_id)
-        logger.info(f"Set default fallback model to {model_id}")
-
-    def add_agent_fallback_preference(self, agent_type: str, model_types: List[str]) -> None:
-        """
-        Add fallback preferences for a specific agent type.
-
-        Args:
-            agent_type: Type of agent to set preferences for
-            model_types: List of model types in order of preference for fallbacks
-        """
-        # Update the fallback preferences in the manager
-        fallback_preferences = self.fallback_manager.fallback_preferences.copy()
-        fallback_preferences[agent_type] = model_types
-
-        self.fallback_manager.configure(fallback_preferences=fallback_preferences)
-        logger.info(f"Set fallback preferences for agent {agent_type}: {model_types}")
-
-    def get_fallback_metrics(self) -> Dict[str, Dict[str, Any]]:
-        """
-        Get metrics about fallback effectiveness.
-
-        Returns:
-            Dictionary mapping strategy names to their metrics
-        """
-        return self.fallback_manager.get_fallback_metrics()
-
-    def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """
-        Get history of fallback events.
-
-        Args:
-            limit: Maximum number of events to return (most recent first)
-
-        Returns:
-            List of fallback events as dictionaries
-        """
-        return self.fallback_manager.get_fallback_history(limit)
+        return capability in model_info.capabilities
 
 
 # Example usage
