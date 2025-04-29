@@ -332,6 +332,10 @@ class TestOpportunityScoringAlgorithmProperties:
         if all(v == 0.0 for v in factors.values()):
             return
 
+        # Skip if all factors have the same value - weights won't make a difference
+        if len(set(factors.values())) == 1:
+            return
+
         # Create a simplified test case with controlled weights
         # This ensures we're testing exactly what we want without relying on random generation
 
