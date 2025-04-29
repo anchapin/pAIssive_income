@@ -6,6 +6,12 @@ strategies, tactics, and content for niche AI tools.
 """
 
 from .strategy_generator import StrategyGenerator
+from .concrete_strategy_generator import (
+    DefaultStrategyGenerator,
+    ContentMarketingStrategyGenerator,
+    SocialMediaStrategyGenerator,
+    EmailMarketingStrategyGenerator
+)
 from .channel_strategies import ChannelStrategy
 from .content_generators import ContentGenerator
 from .content_generator_impl import ConcreteContentGenerator
@@ -27,6 +33,10 @@ from .schemas import (
 
 __all__ = [
     'StrategyGenerator',
+    'DefaultStrategyGenerator',
+    'ContentMarketingStrategyGenerator',
+    'SocialMediaStrategyGenerator',
+    'EmailMarketingStrategyGenerator',
     'ChannelStrategy',
     'ContentGenerator',
     'ConcreteContentGenerator',
