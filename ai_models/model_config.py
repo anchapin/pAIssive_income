@@ -167,17 +167,8 @@ class ModelConfig(IModelConfig):
                 
                 # Convert public field names to private ones
                 private_dict = {
-                    "_models_dir": validated_dict["models_dir"],
-                    "_cache_dir": validated_dict["cache_dir"],
-                    "_max_threads": validated_dict["max_threads"],
-                    "_auto_discover": validated_dict["auto_discover"],
-                    "cache_enabled": validated_dict["cache_enabled"],
-                    "cache_ttl": validated_dict["cache_ttl"],
-                    "max_cache_size": validated_dict["max_cache_size"],
-                    "default_device": validated_dict["default_device"],
-                    "model_sources": validated_dict["model_sources"],
-                    "default_text_model": validated_dict["default_text_model"],
-                    "default_embedding_model": validated_dict["default_embedding_model"]
+                    f"_{key}" if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"} else key: value
+                    for key, value in validated_dict.items()
                 }
                 
                 return cls(**private_dict)
@@ -196,17 +187,8 @@ class ModelConfig(IModelConfig):
                 print(f"Warning: Pydantic validation skipped for {config_path}")
                 # Convert public field names to private ones for direct loading
                 private_dict = {
-                    "_models_dir": config_dict["models_dir"],
-                    "_cache_dir": config_dict["cache_dir"],
-                    "_max_threads": config_dict["max_threads"],
-                    "_auto_discover": config_dict["auto_discover"],
-                    "cache_enabled": config_dict["cache_enabled"],
-                    "cache_ttl": config_dict["cache_ttl"],
-                    "max_cache_size": config_dict["max_cache_size"],
-                    "default_device": config_dict["default_device"],
-                    "model_sources": config_dict["model_sources"],
-                    "default_text_model": config_dict["default_text_model"],
-                    "default_embedding_model": config_dict["default_embedding_model"]
+                    f"_{key}" if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"} else key: value
+                    for key, value in config_dict.items()
                 }
                 return cls(**private_dict)
                 
