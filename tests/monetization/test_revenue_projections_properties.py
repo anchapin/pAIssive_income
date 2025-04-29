@@ -20,7 +20,7 @@ churn_rates = st.floats(min_value=0.001, max_value=0.5)
 months = st.integers(min_value=1, max_value=36)
 growth_rates = st.floats(min_value=-0.1, max_value=0.5)
 acquisition_costs = st.floats(min_value=1.0, max_value=1000.0)
-average_revenues = st.floats(min_value=1.0, max_size=200.0)
+average_revenues = st.floats(min_value=1.0, max_value=200.0)
 gross_margins = st.floats(min_value=0.1, max_value=0.9)
 
 # Strategy for generating tier distributions
