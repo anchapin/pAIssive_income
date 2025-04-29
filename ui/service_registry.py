@@ -19,9 +19,9 @@ def register_ui_services():
     from .services.developer_service import DeveloperService
     from .services.monetization_service import MonetizationService
     from .services.marketing_service import MarketingService
-    
+
     container = get_container()
-    
+
     # Register agent team service
     container.register(
         IAgentTeamService,
@@ -70,3 +70,16 @@ def get_service(service_type: Type) -> Any:
     """
     container = get_container()
     return container.resolve(service_type)
+
+def get_ui_service(service_type: Type) -> Any:
+    """
+    Get a UI service from the dependency container.
+    This is a specialized service locator function for UI services.
+
+    Args:
+        service_type: Type of UI service to get (should be one of the UI interface types)
+
+    Returns:
+        UI service instance
+    """
+    return get_service(service_type)
