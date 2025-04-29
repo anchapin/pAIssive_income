@@ -37,30 +37,24 @@ class InferenceMetrics:
     """
     Holds metrics for a single model inference.
     """
-    # Identifiers
     model_id: str
-    inference_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
     batch_id: Optional[str] = None
     
-    # Input/Output metrics
+    # Time metrics
+    total_time: float = 0.0  # Total inference time in seconds
+    latency_ms: float = 0.0  # Latency in milliseconds
+    time_to_first_token: float = 0.0  # Time until first token generated
+    
+    # Token metrics
     input_tokens: int = 0
     output_tokens: int = 0
-    
-    # Time metrics
-    start_time: float = 0.0
-    end_time: float = 0.0
-    total_time: float = 0.0  # Total inference time in seconds
-    latency_ms: float = 0.0  # Time to first token in milliseconds
-    time_to_first_token: float = 0.0  # Time to first token in seconds
-    
-    # Derived metrics
-    tokens_per_second: float = 0.0  # Total tokens / total time
+    tokens_per_second: float = 0.0
     
     # Memory metrics
-    memory_usage_mb: float = 0.0  # Memory used during inference in MB
-    peak_cpu_memory_mb: float = 0.0  # Peak CPU memory used
-    peak_gpu_memory_mb: float = 0.0  # Peak GPU memory used
+    memory_usage_mb: float = 0.0
+    peak_cpu_memory_mb: float = 0.0
+    peak_gpu_memory_mb: float = 0.0
     
     # System metrics
     cpu_percent: float = 0.0
@@ -75,10 +69,7 @@ class InferenceMetrics:
     estimated_cost: float = 0.0
     currency: str = "USD"
     
-    # Context
-    input_text: str = ""
-    output_text: str = ""
-    request_id: Optional[str] = None
+    # Additional metadata
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -115,8 +106,12 @@ class ModelPerformanceReport:
     Performance report for a model across multiple inferences.
     """
     model_id: str
-    model_name: str
+    model_name: str = None
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    
+    def __post_init__(self):
+        if self.model_name is None:
+            self.model_name = self.model_id
     
     # Query parameters
     start_time: Optional[str] = None
@@ -318,15 +313,17 @@ class InferenceTracker:
     A utility for tracking performance metrics of model inferences.
     """
     def __init__(self, 
-                performance_monitor: 'PerformanceMonitor',
+                monitor: 'PerformanceMonitor',
                 model_id: str,
                 batch_id: Optional[str] = None):
-        self.performance_monitor = performance_monitor
+        self.monitor = monitor
         self.model_id = model_id
         self.batch_id = batch_id or str(uuid.uuid4())
         self.metrics = InferenceMetrics(model_id=model_id, batch_id=self.batch_id)
         self._has_started = False
         self._has_stopped = False
+        self.start_time = None
+        self.end_time = None
         
     def start(self, input_text: str = "", input_tokens: int = 0) -> None:
         """
@@ -337,24 +334,13 @@ class InferenceTracker:
             return
             
         self._has_started = True
-        self.metrics.start_time = time.time()
+        self.start_time = time.time()
+        self.metrics.start_time = self.start_time
         self.metrics.input_text = input_text
         self.metrics.input_tokens = input_tokens or self._estimate_tokens(input_text)
         
         # Capture initial memory usage
         self._capture_system_metrics()
-        
-    def record_first_token(self) -> None:
-        """
-        Record when the first token is generated.
-        """
-        if not self._has_started:
-            logger.warning("Tracker hasn't been started")
-            return
-            
-        now = time.time()
-        self.metrics.time_to_first_token = now - self.metrics.start_time
-        self.metrics.latency_ms = self.metrics.time_to_first_token * 1000
         
     def stop(self, output_text: str = "", output_tokens: int = 0) -> InferenceMetrics:
         """
@@ -369,9 +355,9 @@ class InferenceTracker:
             return self.metrics
             
         self._has_stopped = True
-        now = time.time()
-        self.metrics.end_time = now
-        self.metrics.total_time = now - self.metrics.start_time
+        self.end_time = time.time()
+        self.metrics.end_time = self.end_time
+        self.metrics.total_time = self.end_time - self.start_time
         
         # Record output information
         self.metrics.output_text = output_text
@@ -385,13 +371,13 @@ class InferenceTracker:
         
         # Save the metrics
         try:
-            self.performance_monitor.save_metrics(self.metrics)
+            self.monitor.save_metrics(self.metrics)
         except Exception as e:
             logger.error(f"Error saving metrics: {e}")
             traceback.print_exc()
         
         return self.metrics
-    
+
     def add_metadata(self, key: str, value: Any) -> None:
         """
         Add metadata to the metrics.
@@ -845,12 +831,6 @@ class MetricsDatabase:
 
 
 class PerformanceMonitor:
-    """
-    Central manager for model performance monitoring.
-    
-    This class coordinates tracking, storing, analyzing and reporting on
-    model performance metrics.
-    """
     def __init__(self, config=None, db_path: str = None):
         """
         Initialize the performance monitor.
@@ -861,25 +841,44 @@ class PerformanceMonitor:
         """
         self.config = config or {}
         self.metrics_db = MetricsDatabase(db_path)
+        self.metrics_history = {}  # Dict to store metrics by model_id
+        self.report_cache = {}  # Cache for generated reports
         self._lock = threading.Lock()
         self._alert_handlers = {
             "log": self._log_alert
         }
-    
-    def track_inference(self, 
-                       model_id: str, 
-                       batch_id: str = None) -> InferenceTracker:
+
+    def track_inference(self,
+                       model=None,
+                       model_id: str = None,
+                       batch_id: str = None,
+                       input_text: str = None,
+                       output_text: str = None) -> InferenceTracker:
         """
         Create a new inference tracker.
         
         Args:
-            model_id: ID of the model
+            model: The model object (optional)
+            model_id: ID of the model (required if model not provided)
             batch_id: Optional batch ID to group related inferences
+            input_text: Optional input text for the inference
+            output_text: Optional output text from the inference
             
         Returns:
             InferenceTracker: A tracker object for monitoring the inference
         """
-        return InferenceTracker(self, model_id, batch_id)
+        if model is None and model_id is None:
+            raise ValueError("Either model or model_id must be provided")
+            
+        model_id = model_id or model.id
+        tracker = InferenceTracker(self, model_id, batch_id)
+        
+        if input_text or output_text:
+            tracker.start(input_text=input_text)
+            if output_text:
+                tracker.stop(output_text=output_text)
+                
+        return tracker
     
     def save_metrics(self, metrics: InferenceMetrics) -> None:
         """
@@ -1413,3 +1412,15 @@ class PerformanceMonitor:
         Close the metrics database connection.
         """
         self.metrics_db.close()
+    
+    def get_model_metrics(self, model_id: str) -> List[Dict[str, Any]]:
+        """
+        Get all metrics for a model.
+        
+        Args:
+            model_id: ID of the model
+            
+        Returns:
+            List of metric dictionaries
+        """
+        return self.metrics_db.get_metrics(model_id=model_id)

@@ -107,64 +107,47 @@ Several failures in `test_fallback_strategy.py` have been fixed:
 - Fixed: Updated import statement to use the correct module for `ModelInfo` class
 - Fixed: Updated patch target to correctly mock `datetime` in the right module
 
-## Current Failing Tests (April 28, 2025)
+## Current Failing Tests (May 1, 2025)
 
-### 1. Marketing Module Schema Issues
-- **Problem**: Missing schema classes in `marketing/schemas.py`
-  - `ImportError: cannot import name 'TimeframeSchema' from 'marketing.schemas'`
-  - The `TimeframeSchema` class is referenced in `marketing/__init__.py` but is not defined in the schemas file
-  - This affects all marketing-related tests including user personas, content templates, and strategy generator tests
-  - Additional missing schemas include: `ConfigSchema`, `MetricSchema`, `ContentItemSchema`, `ContentCalendarSchema`, `PersonaSchema`, `ChannelAnalysisSchema`, `MarketingPlanSchema`, `MarketingStrategyInputSchema`, `MarketingStrategyResultsSchema`, `AudienceAnalysisSchema`, `BusinessAnalysisSchema`
+### 1. Performance Monitor Issues
+- **Problem**: Missing attributes and incorrect implementation in `InferenceTracker` and `PerformanceMonitor`
+  - `AssertionError: assert False` when checking for `input_tokens` attribute in `InferenceTracker`
+  - `AssertionError: assert 0.0 > 0` in `test_inference_tracker_start_stop`
+  - `AssertionError: assert 0 == 2` in `test_performance_monitor_generate_report`
+- **Required fix**: Update the `InferenceTracker` class to include all required attributes and fix the implementation of `PerformanceMonitor` methods
 
-### 2. Model Configuration Issues
-- **Problem**: Parameter mismatch in `ModelConfig` constructor
-  - `ModelConfig.__init__() got an unexpected keyword argument 'models_dir'`
-  - This affects model downloader and model configuration tests
-- **Required fix**: Update the `ModelConfig` class to accept the `models_dir` parameter
+### 2. Strategy Generator Implementation Issues
+- **Problem**: `StrategyGenerator` is an abstract class without concrete implementations
+  - `TypeError: Can't instantiate abstract class StrategyGenerator without an implementation for abstract methods 'channel_type', 'create_strategy', 'description', 'get_full_strategy', 'get_metrics', 'get_tactics', 'name'`
+  - This affects all strategy generator tests
+- **Required fix**: Implement concrete subclasses of `StrategyGenerator` or provide default implementations for the abstract methods
 
-### 3. Performance Monitor Issues
-- **Problem**: Missing attributes and parameter mismatches in Performance Monitor classes
-  - `AttributeError: 'PerformanceMonitor' object has no attribute 'metrics_history'`
-  - `TypeError: InferenceTracker.__init__() got an unexpected keyword argument 'monitor'`
-  - `TypeError: ModelPerformanceReport.__init__() missing 1 required positional argument: 'model_name'`
-- **Required fix**: Update Performance Monitor classes to include required attributes and parameter handling
+### 3. Opportunity Scoring Algorithm Issues
+- **Problem**: Inconsistencies in weight influence calculations
+  - `AssertionError: assert 0.5249999999999999 > 0.5249999999999999` in `test_weight_influence`
+- **Required fix**: Fix the weight influence calculation to ensure different weights produce different scores
 
-### 4. Opportunity Scoring Properties Test Issues
-- **Problem**: Test assertion failures in weight influence test
-  - `AssertionError: assert 0.44375000000000003 > 0.459375`
-- **Required fix**: Review and fix the opportunity scoring algorithm or update test assertions
-
-### 5. Revenue Projection Test Issues
-- **Problem**: Inconsistencies in revenue projections
-  - `AssertionError: assert 81012.22 >= (270100.9 * 0.3)`
-  - `AssertionError: assert 0 >= (3 - 2)`
-- **Required fix**: Review and fix the monthly-to-annual revenue conversion calculations
-
-### 6. Monetization-Solution Integration Test Issues
-- **Problem**: Key error in tier revenue calculation
-  - `KeyError: 'Free'` when accessing `month["tier_revenue"]["Free"]`
-- **Required fix**: Ensure all tiers, especially the "Free" tier, are properly included in revenue calculations
+### 4. UI Service Registry Issues
+- **Problem**: Missing `get_ui_service` function in `ui.service_registry`
+  - `ImportError: cannot import name 'get_ui_service' from 'ui.service_registry'`
+  - This affects all UI integration tests
+- **Required fix**: Implement the `get_ui_service` function in the `ui.service_registry` module
 
 ## Implementation Priority
 
-1. **Fix Marketing Schema Issues**
-   - Add the missing `TimeframeSchema` and other schema classes to `marketing/schemas.py`
-   - This will resolve the majority of failing tests related to the marketing module
+1. **Fix Performance Monitor Issues**
+   - Update the `InferenceTracker` class to include all required attributes
+   - Fix the implementation of `PerformanceMonitor` methods to correctly track and report metrics
+   - This will resolve the failing tests in `test_performance_monitor.py`
 
-2. **Fix Model Configuration Issues**
-   - Update the `ModelConfig` class to handle the `models_dir` parameter
-   - This will fix the model downloader and configuration tests
+2. **Fix Strategy Generator Implementation**
+   - Either implement concrete subclasses of `StrategyGenerator` or provide default implementations for the abstract methods
+   - This will resolve the failing tests in `test_strategy_generator.py`
 
-3. **Fix Performance Monitor Issues**
-   - Add the `metrics_history` attribute to the `PerformanceMonitor` class
-   - Update the `InferenceTracker` constructor to handle the correct parameters
-   - Add the `model_name` parameter to the `ModelPerformanceReport` constructor
+3. **Fix Opportunity Scoring Algorithm**
+   - Update the weight influence calculation to ensure different weights produce different scores
+   - This will resolve the failing test in `test_opportunity_scoring_properties.py`
 
-4. **Fix Monetization-Solution Integration Issues**
-   - Ensure the "Free" tier is properly included in revenue calculations
-
-5. **Fix Revenue Projection Calculation Issues**
-   - Review and fix the monthly-to-annual conversion logic
-
-6. **Fix Opportunity Scoring Properties Issues**
-   - Review and update the weight influence test or algorithm
+4. **Fix UI Service Registry**
+   - Implement the `get_ui_service` function in the `ui.service_registry` module
+   - This will resolve the failing tests in `test_ui_integration.py`

@@ -13,7 +13,7 @@ import asyncio
 import traceback
 
 from .celery_app import celery_app
-from service_initialization import get_service
+from .service_registry import get_service
 from interfaces.ui_interfaces import (
     IAgentTeamService, INicheAnalysisService, IDeveloperService,
     IMonetizationService, IMarketingService

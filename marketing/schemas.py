@@ -11,6 +11,30 @@ from datetime import datetime
 from enum import Enum
 
 
+# Enums
+class PriorityLevel(str, Enum):
+    """Enum for priority levels."""
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+    CRITICAL = "critical"
+
+
+class ReadingLevel(str, Enum):
+    """Enum for reading levels."""
+    BEGINNER = "beginner"
+    INTERMEDIATE = "intermediate"
+    ADVANCED = "advanced"
+
+
+class ContentFormat(str, Enum):
+    """Enum for content formats."""
+    MARKDOWN = "markdown"
+    HTML = "html"
+    PLAIN_TEXT = "plain_text"
+    RICH_TEXT = "rich_text"
+
+
 class BusinessType(str, Enum):
     """Enum for business types."""
     SAAS = "saas"
@@ -78,103 +102,42 @@ class ChannelCategory(str, Enum):
     OTHER = "other"
 
 
-class MarketingChannelSchema(BaseModel):
-    """Pydantic model for marketing channel."""
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the channel")
-    name: str = Field(..., description="Name of the channel")
-    category: ChannelCategory = Field(default=ChannelCategory.OTHER, description="Category of the channel")
-    description: str = Field(..., description="Description of the channel")
-    cost_structure: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Cost structure information"
-    )
-    audience_demographics: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Typical audience demographics"
-    )
-    typical_roi: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Typical ROI information"
-    )
-    best_practices: List[str] = Field(
-        default_factory=list,
-        description="Best practices for this channel"
-    )
-    metrics: List[str] = Field(
-        default_factory=list,
-        description="Key metrics for this channel"
-    )
-    implementation_difficulty: DifficultyLevel = Field(
-        DifficultyLevel.MEDIUM,
-        description="Difficulty level of implementation"
-    )
-    time_to_results: str = Field(
-        default="medium-term",
-        description="Typical time to see results"
-    )
-    scalability: float = Field(
-        default=0.5,
-        description="Scalability score (0.0 to 1.0)",
-        ge=0.0,
-        le=1.0
-    )
-    required_resources: List[str] = Field(
-        default_factory=list,
-        description="Required resources for implementation"
-    )
-    # Additional fields used in strategy_generator.py
-    platforms: List[str] = Field(
-        default_factory=list,
-        description="Platforms within this channel"
-    )
-    relevance_score: float = Field(
-        default=0.5,
-        description="Relevance score for this channel (0.0 to 1.0)",
-        ge=0.0,
-        le=1.0
-    )
+# Base schemas that don't depend on other schemas
+class ConfigSchema(BaseModel):
+    """Schema for general configuration settings."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str = Field(...)
+    description: str = Field(...)
+    settings: Dict[str, Any] = Field(default_factory=dict)
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
+    updated_at: Optional[str] = Field(default=None)
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
-class MarketingTacticSchema(BaseModel):
-    """Pydantic model for marketing tactic."""
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the tactic")
-    name: str = Field(..., description="Name of the tactic")
-    channel_name: str = Field(..., description="Name of the channel this tactic belongs to")
-    description: str = Field(..., description="Description of the tactic")
-    expected_impact: float = Field(
-        default=0.5,
-        description="Expected impact score (0.0 to 1.0)",
-        ge=0.0,
-        le=1.0
-    )
-    timeframe: str = Field(
-        default="medium-term",
-        description="Timeframe for results (e.g., 'short-term', 'medium-term', 'long-term')"
-    )
-    resources_required: List[str] = Field(
-        default_factory=list,
-        description="Resources required for implementation"
-    )
-    estimated_cost: float = Field(
-        default=0.0,
-        description="Estimated cost for implementation"
-    )
-
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+class TimeframeSchema(BaseModel):
+    """Schema for timeframe specifications."""
+    value: int = Field(..., description="The numeric value of the timeframe", gt=0)
+    unit: TimeframeUnit = Field(..., description="The unit of the timeframe")
+    
+    model_config = ConfigDict(extra="allow")
+    
+    def __str__(self) -> str:
+        """Return a string representation of the timeframe."""
+        return f"{self.value} {self.unit.value}"
 
 
-class MarketingMetricSchema(BaseModel):
-    """Pydantic model for marketing metric."""
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the metric")
-    name: str = Field(..., description="Name of the metric")
-    description: str = Field(..., description="Description of the metric")
-    target_value: float = Field(..., description="Target value for the metric")
-    current_value: float = Field(default=0.0, description="Current value of the metric")
-    unit: str = Field(..., description="Unit of measurement (e.g., 'percentage', 'USD', 'visitors/month')")
+class MetricSchema(BaseModel):
+    """Schema for marketing metrics."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str = Field(...)
+    description: str = Field(...)
+    value: float = Field(...)
+    unit: str = Field(...)
+    target: Optional[float] = Field(default=None)
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
 class DemographicsSchema(BaseModel):
@@ -200,7 +163,17 @@ class DemographicsSchema(BaseModel):
         description="Education level (e.g., high school, college, graduate)"
     )
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
+
+
+class BudgetSchema(BaseModel):
+    """Pydantic model for marketing budget."""
+    total_amount: float = Field(..., description="Total budget amount")
+    timeframe: str = Field(default="monthly", description="Budget timeframe (e.g., 'monthly', 'quarterly', 'annual')")
+    allocation_strategy: Optional[str] = Field(default=None, description="Strategy for budget allocation")
+    constraints: List[str] = Field(default_factory=list, description="Budget constraints")
+
+    model_config = ConfigDict(extra="allow")
 
 
 class TargetAudienceSchema(BaseModel):
@@ -211,72 +184,51 @@ class TargetAudienceSchema(BaseModel):
     pain_points: List[str] = Field(default_factory=list, description="Pain points of the target audience")
     goals: List[str] = Field(default_factory=list, description="Goals of the target audience")
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
-class BudgetSchema(BaseModel):
-    """Pydantic model for marketing budget."""
-    total_amount: float = Field(..., description="Total budget amount")
-    timeframe: str = Field(default="monthly", description="Budget timeframe (e.g., 'monthly', 'quarterly', 'annual')")
-    allocation_strategy: Optional[str] = Field(default=None, description="Strategy for budget allocation")
-    constraints: List[str] = Field(default_factory=list, description="Budget constraints")
+# Content-related schemas
+class ContentItemSchema(BaseModel):
+    """Schema for content calendar items."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str = Field(...)
+    description: str = Field(...)
+    content_type: str = Field(...)
+    channel: str = Field(...)
+    publish_date: str = Field(...)
+    status: str = Field(default="draft")
+    assigned_to: Optional[str] = Field(default=None)
+    priority: PriorityLevel = Field(default=PriorityLevel.MEDIUM)
+    keywords: List[str] = Field(default_factory=list)
+    notes: Optional[str] = Field(default=None)
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
-
-
-class MarketingStrategySchema(BaseModel):
-    """Pydantic model for marketing strategy."""
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the strategy")
-    name: str = Field(..., description="Name of the strategy")
-    business_type: str = Field(..., description="Type of business")
-    business_size: str = Field(..., description="Size of business")
-    goals: List[str] = Field(..., description="Marketing goals")
-    target_audience: TargetAudienceSchema = Field(default_factory=TargetAudienceSchema, description="Target audience")
-    budget: BudgetSchema = Field(..., description="Marketing budget")
-    channels: List[MarketingChannelSchema] = Field(default_factory=list, description="Marketing channels")
-    tactics: List[MarketingTacticSchema] = Field(default_factory=list, description="Marketing tactics")
-    allocated_budget: Dict[str, float] = Field(default_factory=dict, description="Budget allocation by channel")
-    metrics: List[MarketingMetricSchema] = Field(default_factory=list, description="Marketing metrics")
-    created_at: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Creation timestamp")
-    updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
-    previous_version_id: Optional[str] = Field(default=None, description="ID of the previous version")
-
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
-class PriorityLevel(str, Enum):
-    """Enum for priority levels."""
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
-    CRITICAL = "critical"
+class ContentCalendarSchema(BaseModel):
+    """Schema for content calendars."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str = Field(...)
+    description: str = Field(...)
+    start_date: str = Field(...)
+    end_date: str = Field(...)
+    items: List[ContentItemSchema] = Field(default_factory=list)
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
+    updated_at: Optional[str] = Field(default=None)
 
-
-class ReadingLevel(str, Enum):
-    """Enum for reading levels."""
-    BEGINNER = "beginner"
-    INTERMEDIATE = "intermediate"
-    ADVANCED = "advanced"
-
-
-class ContentFormat(str, Enum):
-    """Enum for content formats."""
-    MARKDOWN = "markdown"
-    HTML = "html"
-    PLAIN_TEXT = "plain_text"
-    RICH_TEXT = "rich_text"
+    model_config = ConfigDict(extra="allow")
 
 
 class ContentTemplateSchema(BaseModel):
     """Base schema for content templates."""
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the template")
-    title: str = Field(..., description="Title of the template")
-    description: str = Field(..., description="Description of the template")
-    target_persona: Dict[str, Any] = Field(..., description="Target persona for the content")
-    created_at: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Creation timestamp")
-    updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str = Field(...)
+    description: str = Field(...)
+    target_persona: Dict[str, Any] = Field(...)
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
+    updated_at: Optional[str] = Field(default=None)
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
 class BlogPostTemplateSchema(ContentTemplateSchema):
@@ -289,7 +241,7 @@ class BlogPostTemplateSchema(ContentTemplateSchema):
     topics: List[str] = Field(..., description="Topics covered in the blog post")
     target_reading_level: ReadingLevel = Field(default=ReadingLevel.INTERMEDIATE, description="Target reading level")
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
 class SocialMediaTemplateSchema(ContentTemplateSchema):
@@ -301,7 +253,7 @@ class SocialMediaTemplateSchema(ContentTemplateSchema):
     include_link: bool = Field(default=True, description="Whether to include a link")
     character_limit: Optional[int] = Field(default=None, description="Character limit for the post")
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
 class EmailNewsletterTemplateSchema(ContentTemplateSchema):
@@ -314,7 +266,7 @@ class EmailNewsletterTemplateSchema(ContentTemplateSchema):
     include_social_links: bool = Field(default=True, description="Whether to include social links")
     include_call_to_action: bool = Field(default=True, description="Whether to include a call to action")
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
 class GeneratedBlogPostSchema(BaseModel):
@@ -333,7 +285,7 @@ class GeneratedBlogPostSchema(BaseModel):
     featured_image: Dict[str, Any] = Field(..., description="Featured image information")
     seo_data: Dict[str, Any] = Field(..., description="SEO data for the blog post")
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
 class GeneratedSocialMediaPostSchema(BaseModel):
@@ -349,7 +301,7 @@ class GeneratedSocialMediaPostSchema(BaseModel):
     call_to_action: Optional[str] = Field(default=None, description="Call to action")
     optimal_posting_times: Optional[List[str]] = Field(default=None, description="Optimal posting times")
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
 class GeneratedEmailNewsletterSchema(BaseModel):
@@ -367,7 +319,7 @@ class GeneratedEmailNewsletterSchema(BaseModel):
     links: Optional[List[Dict[str, Any]]] = Field(default=None, description="Links to include in the email")
     spam_score: Optional[float] = Field(default=None, description="Spam score of the email")
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
+    model_config = ConfigDict(extra="allow")
 
 
 class ContentGeneratorConfigSchema(BaseModel):
@@ -399,14 +351,194 @@ class ContentGeneratorConfigSchema(BaseModel):
     content_expertise: float = Field(default=0.8, description="Content expertise (0.0 to 1.0)", ge=0.0, le=1.0)
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Configuration timestamp")
 
-    model_config = ConfigDict(extra="allow")  # Allow extra fieldsclass TimeframeSchema(BaseModel):
-    """Schema for timeframe specifications."""
-    value: int = Field(..., description="The numeric value of the timeframe", gt=0)
-    unit: TimeframeUnit = Field(..., description="The unit of the timeframe")
-    
     model_config = ConfigDict(extra="allow")
-    
-    def __str__(self) -> str:
-        """Return a string representation of the timeframe."""
-        return f"{self.value} {self.unit.value}"
+
+
+class MarketingChannelSchema(BaseModel):
+    """Pydantic model for marketing channel."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the channel")
+    name: str = Field(..., description="Name of the channel")
+    category: ChannelCategory = Field(default=ChannelCategory.OTHER, description="Category of the channel")
+    description: str = Field(..., description="Description of the channel")
+    cost_structure: Dict[str, Any] = Field(default_factory=dict, description="Cost structure information")
+    audience_demographics: Dict[str, Any] = Field(default_factory=dict, description="Typical audience demographics")
+    typical_roi: Optional[Dict[str, Any]] = Field(None, description="Typical ROI information")
+    best_practices: List[str] = Field(default_factory=list, description="Best practices for this channel")
+    metrics: List[str] = Field(default_factory=list, description="Key metrics for this channel")
+    implementation_difficulty: DifficultyLevel = Field(DifficultyLevel.MEDIUM, description="Difficulty level of implementation")
+    time_to_results: str = Field(default="medium-term", description="Typical time to see results")
+    scalability: float = Field(default=0.5, description="Scalability score (0.0 to 1.0)", ge=0.0, le=1.0)
+    required_resources: List[str] = Field(default_factory=list, description="Required resources for implementation")
+    platforms: List[str] = Field(default_factory=list, description="Platforms within this channel")
+    relevance_score: float = Field(default=0.5, description="Relevance score for this channel (0.0 to 1.0)", ge=0.0, le=1.0)
+
+    model_config = ConfigDict(extra="allow")
+
+
+class MarketingTacticSchema(BaseModel):
+    """Pydantic model for marketing tactic."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the tactic")
+    name: str = Field(..., description="Name of the tactic")
+    channel_name: str = Field(..., description="Name of the channel this tactic belongs to")
+    description: str = Field(..., description="Description of the tactic")
+    expected_impact: float = Field(default=0.5, description="Expected impact score (0.0 to 1.0)", ge=0.0, le=1.0)
+    timeframe: str = Field(default="medium-term", description="Timeframe for results")
+    resources_required: List[str] = Field(default_factory=list, description="Resources required for implementation")
+    estimated_cost: float = Field(default=0.0, description="Estimated cost for implementation")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class MarketingMetricSchema(BaseModel):
+    """Pydantic model for marketing metric."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the metric")
+    name: str = Field(..., description="Name of the metric")
+    description: str = Field(..., description="Description of the metric")
+    target_value: float = Field(..., description="Target value for the metric")
+    current_value: float = Field(default=0.0, description="Current value of the metric")
+    unit: str = Field(..., description="Unit of measurement")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class MarketingStrategySchema(BaseModel):
+    """Pydantic model for marketing strategy."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the strategy")
+    name: str = Field(..., description="Name of the strategy")
+    business_type: str = Field(..., description="Type of business")
+    business_size: str = Field(..., description="Size of business")
+    goals: List[str] = Field(..., description="Marketing goals")
+    target_audience: TargetAudienceSchema = Field(default_factory=TargetAudienceSchema, description="Target audience")
+    budget: BudgetSchema = Field(..., description="Marketing budget")
+    channels: List[MarketingChannelSchema] = Field(default_factory=list, description="Marketing channels")
+    tactics: List[MarketingTacticSchema] = Field(default_factory=list, description="Marketing tactics")
+    allocated_budget: Dict[str, float] = Field(default_factory=dict, description="Budget allocation by channel")
+    metrics: List[MarketingMetricSchema] = Field(default_factory=list, description="Marketing metrics")
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Creation timestamp")
+    updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
+    previous_version_id: Optional[str] = Field(default=None, description="ID of the previous version")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class MarketingStrategyInputSchema(BaseModel):
+    """Schema for marketing strategy inputs."""
+    business_type: BusinessType = Field(..., description="Type of business")
+    business_size: BusinessSize = Field(..., description="Size of business")
+    business_goals: List[str] = Field(..., description="Business goals")
+    target_audience: TargetAudienceSchema = Field(..., description="Target audience")
+    budget: BudgetSchema = Field(..., description="Marketing budget")
+    timeframe: TimeframeSchema = Field(..., description="Strategy timeframe")
+    current_channels: Optional[List[str]] = Field(default=None, description="Current marketing channels")
+    industry: str = Field(..., description="Business industry")
+    location: Optional[str] = Field(default=None, description="Business location")
+    unique_selling_points: List[str] = Field(..., description="Unique selling points")
+    competitors: Optional[List[str]] = Field(default=None, description="Competitor names")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class MarketingStrategyResultsSchema(BaseModel):
+    """Schema for marketing strategy results."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the results")
+    strategy_id: str = Field(..., description="ID of the strategy")
+    metrics: List[MetricSchema] = Field(default_factory=list, description="Results metrics")
+    roi: float = Field(..., description="Return on investment")
+    achievements: List[str] = Field(default_factory=list, description="Achievements")
+    challenges: List[str] = Field(default_factory=list, description="Challenges faced")
+    lessons_learned: List[str] = Field(default_factory=list, description="Lessons learned")
+    recommendations: List[str] = Field(default_factory=list, description="Recommendations for future")
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Results timestamp")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class MarketingPlanSchema(BaseModel):
+    """Schema for marketing plans."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the plan")
+    name: str = Field(..., description="Name of the plan")
+    description: str = Field(..., description="Description of the plan")
+    start_date: str = Field(..., description="Start date of the plan")
+    end_date: str = Field(..., description="End date of the plan")
+    goals: List[str] = Field(..., description="Goals of the plan")
+    strategies: List[MarketingStrategySchema] = Field(default_factory=list, description="Strategies for the plan")
+    budget: BudgetSchema = Field(..., description="Budget for the plan")
+    metrics: List[MetricSchema] = Field(default_factory=list, description="Metrics for the plan")
+    content_calendar: Optional[ContentCalendarSchema] = Field(default=None, description="Content calendar for the plan")
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Creation timestamp")
+    updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class PersonaSchema(BaseModel):
+    """Schema for user personas."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the persona")
+    name: str = Field(..., description="Name of the persona")
+    description: str = Field(..., description="Description of the persona")
+    demographics: DemographicsSchema = Field(default_factory=DemographicsSchema, description="Demographics of the persona")
+    goals: List[str] = Field(..., description="Goals of the persona")
+    pain_points: List[str] = Field(..., description="Pain points of the persona")
+    behaviors: List[str] = Field(..., description="Behaviors of the persona")
+    motivations: List[str] = Field(..., description="Motivations of the persona")
+    preferences: Dict[str, Any] = Field(default_factory=dict, description="Preferences of the persona")
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Creation timestamp")
+    updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class ChannelAnalysisSchema(BaseModel):
+    """Schema for channel analysis."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the analysis")
+    channel_name: str = Field(..., description="Name of the channel")
+    metrics: List[MetricSchema] = Field(default_factory=list, description="Metrics for the channel")
+    strengths: List[str] = Field(default_factory=list, description="Strengths of the channel")
+    weaknesses: List[str] = Field(default_factory=list, description="Weaknesses of the channel")
+    opportunities: List[str] = Field(default_factory=list, description="Opportunities for the channel")
+    threats: List[str] = Field(default_factory=list, description="Threats for the channel")
+    recommendations: List[str] = Field(default_factory=list, description="Recommendations for the channel")
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Analysis timestamp")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class AudienceAnalysisSchema(BaseModel):
+    """Schema for audience analysis."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the analysis")
+    segment_name: str = Field(..., description="Name of the audience segment")
+    demographics: DemographicsSchema = Field(..., description="Demographics of the audience")
+    size: Optional[int] = Field(default=None, description="Size of the audience")
+    interests: List[str] = Field(default_factory=list, description="Interests of the audience")
+    behaviors: List[str] = Field(default_factory=list, description="Behaviors of the audience")
+    pain_points: List[str] = Field(default_factory=list, description="Pain points of the audience")
+    goals: List[str] = Field(default_factory=list, description="Goals of the audience")
+    channels: List[str] = Field(default_factory=list, description="Preferred channels of the audience")
+    engagement_metrics: Dict[str, Any] = Field(default_factory=dict, description="Engagement metrics")
+    conversion_metrics: Dict[str, Any] = Field(default_factory=dict, description="Conversion metrics")
+    recommendations: List[str] = Field(default_factory=list, description="Recommendations for this audience")
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Analysis timestamp")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class BusinessAnalysisSchema(BaseModel):
+    """Schema for business analysis."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the analysis")
+    business_name: str = Field(..., description="Name of the business")
+    business_type: BusinessType = Field(..., description="Type of business")
+    business_size: BusinessSize = Field(..., description="Size of business")
+    industry: str = Field(..., description="Business industry")
+    location: Optional[str] = Field(default=None, description="Business location")
+    strengths: List[str] = Field(default_factory=list, description="Business strengths")
+    weaknesses: List[str] = Field(default_factory=list, description="Business weaknesses")
+    opportunities: List[str] = Field(default_factory=list, description="Business opportunities")
+    threats: List[str] = Field(default_factory=list, description="Business threats")
+    unique_selling_points: List[str] = Field(default_factory=list, description="Unique selling points")
+    competitors: List[Dict[str, Any]] = Field(default_factory=list, description="Competitor analysis")
+    market_position: Dict[str, Any] = Field(default_factory=dict, description="Market position analysis")
+    recommendations: List[str] = Field(default_factory=list, description="Recommendations for the business")
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Analysis timestamp")
+
+    model_config = ConfigDict(extra="allow")
 

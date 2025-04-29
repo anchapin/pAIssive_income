@@ -7,34 +7,23 @@ used by the project, including dependency injection setup.
 
 import os
 import logging
-from typing import Dict, Any, Optional, Type
+from typing import Dict, Any, Optional
 
 from dependency_container import get_container, DependencyContainer
 from interfaces.agent_interfaces import IAgentTeam, IAgentProfile, IResearchAgent
-from interfaces.model_interfaces import IModelManager, IModelConfig, IModelAdapter
+from interfaces.model_interfaces import IModelManager, IModelConfig
 from interfaces.niche_interfaces import INicheAnalyzer
 from interfaces.monetization_interfaces import IMonetizationCalculator
 from interfaces.marketing_interfaces import IMarketingStrategy
-from interfaces.ui_interfaces import (
-    IAgentTeamService, INicheAnalysisService, IDeveloperService,
-    IMonetizationService, IMarketingService
-)
 
 from agent_team import AgentTeam, ResearchAgent, AgentProfile
-
 from ai_models.model_manager import ModelManager
 from ai_models.model_config import ModelConfig
 from ai_models.adapters import get_adapter_factory
-
 from niche_analysis.niche_analyzer import NicheAnalyzer
 from monetization.calculator import MonetizationCalculator
 from marketing.strategy_generator import StrategyGenerator
-
-from ui.services.agent_team_service import AgentTeamService
-from ui.services.niche_analysis_service import NicheAnalysisService
-from ui.services.developer_service import DeveloperService
-from ui.services.monetization_service import MonetizationService
-from ui.services.marketing_service import MarketingService
+from ui.service_registry import register_ui_services
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -71,7 +60,7 @@ def initialize_services(config: Optional[Dict[str, Any]] = None) -> DependencyCo
     _register_marketing(container)
 
     # Register UI services
-    _register_ui_services(container)
+    register_ui_services()
 
     logger.info("All services initialized and registered")
     return container
@@ -205,62 +194,3 @@ def _register_marketing(container: DependencyContainer) -> None:
     )
 
     logger.info("Registered marketing services")
-
-
-def _register_ui_services(container: DependencyContainer) -> None:
-    """
-    Register UI services in the dependency container.
-
-    Args:
-        container: Dependency container
-    """
-    # Register agent team service
-    container.register(
-        IAgentTeamService,
-        lambda: AgentTeamService(agent_team=container.resolve(IAgentTeam)),
-        singleton=True
-    )
-
-    # Register niche analysis service
-    container.register(
-        INicheAnalysisService,
-        lambda: NicheAnalysisService(),
-        singleton=True
-    )
-
-    # Register developer service
-    container.register(
-        IDeveloperService,
-        lambda: DeveloperService(),
-        singleton=True
-    )
-
-    # Register monetization service
-    container.register(
-        IMonetizationService,
-        lambda: MonetizationService(),
-        singleton=True
-    )
-
-    # Register marketing service
-    container.register(
-        IMarketingService,
-        lambda: MarketingService(),
-        singleton=True
-    )
-
-    logger.info("Registered UI services")
-
-
-def get_service(service_type: Type) -> Any:
-    """
-    Get a service from the dependency container.
-
-    Args:
-        service_type: Type of service to get
-
-    Returns:
-        Service instance
-    """
-    container = get_container()
-    return container.resolve(service_type)

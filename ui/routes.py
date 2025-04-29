@@ -14,10 +14,6 @@ import uuid
 import traceback
 
 from . import app
-from interfaces.ui_interfaces import (
-    IAgentTeamService, INicheAnalysisService, IDeveloperService,
-    IMonetizationService, IMarketingService
-)
 from .errors import (
     UIError, RouteError, ServiceError, ValidationError,
     api_error_handler, handle_exception
@@ -45,14 +41,18 @@ def init_services():
     global agent_team_service, niche_analysis_service, developer_service, monetization_service, marketing_service
 
     # Import here to avoid circular imports
-    from service_initialization import get_service
+    from .service_registry import get_ui_service
+    from interfaces.ui_interfaces import (
+        IAgentTeamService, INicheAnalysisService, IDeveloperService,
+        IMonetizationService, IMarketingService
+    )
 
     # Initialize services
-    agent_team_service = get_service(IAgentTeamService)
-    niche_analysis_service = get_service(INicheAnalysisService)
-    developer_service = get_service(IDeveloperService)
-    monetization_service = get_service(IMonetizationService)
-    marketing_service = get_service(IMarketingService)
+    agent_team_service = get_ui_service(IAgentTeamService)
+    niche_analysis_service = get_ui_service(INicheAnalysisService)
+    developer_service = get_ui_service(IDeveloperService)
+    monetization_service = get_ui_service(IMonetizationService)
+    marketing_service = get_ui_service(IMarketingService)
 
     logger.info("UI services initialized")
 

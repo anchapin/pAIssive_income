@@ -44,9 +44,7 @@ class ModelConfig(IModelConfig):
     default_embedding_model: str = "all-MiniLM-L6-v2"
 
     def __post_init__(self):
-        """
-        Create necessary directories after initialization.
-        """
+        """Create necessary directories after initialization."""
         os.makedirs(self.models_dir, exist_ok=True)
         os.makedirs(self.cache_dir, exist_ok=True)
 
@@ -99,8 +97,8 @@ class ModelConfig(IModelConfig):
         Returns:
             Dictionary representation of the configuration
         """
-        # Convert to dict but replace underscore-prefixed attributes with their property names
-        result = {
+        # Convert to dict but use property names instead of private field names
+        return {
             "models_dir": self.models_dir,
             "cache_dir": self.cache_dir,
             "cache_enabled": self.cache_enabled,
@@ -113,7 +111,6 @@ class ModelConfig(IModelConfig):
             "default_text_model": self.default_text_model,
             "default_embedding_model": self.default_embedding_model
         }
-        return result
 
     def to_json(self, indent: int = 2) -> str:
         """
@@ -168,7 +165,22 @@ class ModelConfig(IModelConfig):
                 # This ensures all values are properly validated and default values are applied
                 validated_dict = validated_config.model_dump()
                 
-                return cls(**validated_dict)
+                # Convert public field names to private ones
+                private_dict = {
+                    "_models_dir": validated_dict["models_dir"],
+                    "_cache_dir": validated_dict["cache_dir"],
+                    "_max_threads": validated_dict["max_threads"],
+                    "_auto_discover": validated_dict["auto_discover"],
+                    "cache_enabled": validated_dict["cache_enabled"],
+                    "cache_ttl": validated_dict["cache_ttl"],
+                    "max_cache_size": validated_dict["max_cache_size"],
+                    "default_device": validated_dict["default_device"],
+                    "model_sources": validated_dict["model_sources"],
+                    "default_text_model": validated_dict["default_text_model"],
+                    "default_embedding_model": validated_dict["default_embedding_model"]
+                }
+                
+                return cls(**private_dict)
                 
             except ValidationError as e:
                 error_messages = []
@@ -182,7 +194,21 @@ class ModelConfig(IModelConfig):
             except ImportError:
                 # Fallback if Pydantic isn't available
                 print(f"Warning: Pydantic validation skipped for {config_path}")
-                return cls(**config_dict)
+                # Convert public field names to private ones for direct loading
+                private_dict = {
+                    "_models_dir": config_dict["models_dir"],
+                    "_cache_dir": config_dict["cache_dir"],
+                    "_max_threads": config_dict["max_threads"],
+                    "_auto_discover": config_dict["auto_discover"],
+                    "cache_enabled": config_dict["cache_enabled"],
+                    "cache_ttl": config_dict["cache_ttl"],
+                    "max_cache_size": config_dict["max_cache_size"],
+                    "default_device": config_dict["default_device"],
+                    "model_sources": config_dict["model_sources"],
+                    "default_text_model": config_dict["default_text_model"],
+                    "default_embedding_model": config_dict["default_embedding_model"]
+                }
+                return cls(**private_dict)
                 
         except Exception as e:
             # If there's an error loading the config, raise a more informative error
