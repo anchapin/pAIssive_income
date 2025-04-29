@@ -94,6 +94,13 @@ class DiskCache(CacheBackend):
                 
                 # Initialize access_count if not present
                 if "access_count" not in metadata:
+                    metadata["access_count"] = 0
+                
+                # Update access count and time
+                metadata["access_count"] += 1
+                metadata["last_access_time"] = time.time()
+                self._save_metadata(key, metadata)
+                
                 self.stats["hits"] += 1
                 self._save_stats()
                 return value
@@ -132,22 +139,29 @@ class DiskCache(CacheBackend):
             if ttl is not None:
                 expiration_time = time.time() + ttl
             
-            # If key exists, preserve access count
+            # Always start with access_count of 0 for new items
+            # Only preserve access count if key exists and we're updating
             access_count = 0
-            try:
-                if self.exists(key):
+            if self.exists(key):
+                try:
                     old_metadata = self._load_metadata(key)
-                    access_count = old_metadata.get("access_count", 0)
-            except (IOError, json.JSONDecodeError):
-                pass
+                    if self.eviction_policy == "lfu":
+                        # For LFU, preserve the access count
+                        access_count = old_metadata.get("access_count", 0)
+                    else:
+                        # For other policies, reset access count on update
+                        access_count = 0
+                except (IOError, json.JSONDecodeError):
+                    pass
             
             # Create metadata
+            current_time = time.time()
             metadata = {
                 "key": key,
                 "expiration_time": expiration_time,
                 "access_count": access_count,
-                "last_access_time": time.time(),
-                "creation_time": time.time()
+                "last_access_time": current_time,
+                "creation_time": current_time if not self.exists(key) else self._load_metadata(key).get("creation_time", current_time)
             }
             
             # Save value and metadata
@@ -524,10 +538,19 @@ class DiskCache(CacheBackend):
                     )
                 
                 elif self.eviction_policy == "lfu":
-                    # Least Frequently Used
+                    # Least Frequently Used - First by access count, then by creation time
+                    def get_score(k):
+                        metadata = self._load_metadata(k)
+                        count = metadata.get("access_count", 0)
+                        # Creation time is used as a tiebreaker - older items are evicted first
+                        creation_time = metadata.get("creation_time", float('inf'))
+                        # Return tuple of (count, creation_time) for comparison
+                        # Python will compare tuples element by element
+                        return (count, -creation_time)  # Negative creation_time so older items are evicted first
+                    
                     key_to_evict = min(
                         keys,
-                        key=lambda k: self._load_metadata(k).get("access_count", 0)
+                        key=get_score
                     )
                 
                 elif self.eviction_policy == "fifo":

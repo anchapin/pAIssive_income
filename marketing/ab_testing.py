@@ -434,17 +434,17 @@ class ABTest:
                 ctr_p_value, ctr_is_significant = self._calculate_significance(
                     control_variant, variant, "click_through_rate")
                     
-                # Calculate significance for overall conversion rate
-                # Use impression-based conversion rate (conversions/impressions)
+                # Calculate significance for conversion rate
+                # Use Fisher's exact test for conversion significance
                 control_conv = control_variant["metrics"]["conversions"]
                 control_imp = control_variant["metrics"]["impressions"]
                 variant_conv = variant["metrics"]["conversions"]
                 variant_imp = variant["metrics"]["impressions"]
                 
-                # Use Fisher's exact test for overall conversion significance
-                # Create contingency table
-                table = [[control_conv, control_imp - control_conv],
-                        [variant_conv, variant_imp - variant_conv]]
+                # Create contingency table - order is important for one-sided test
+                # We put variant first because we want alternative='greater' to test if variant > control
+                table = [[variant_conv, variant_imp - variant_conv],
+                        [control_conv, control_imp - control_conv]]
                 # Use one-tailed Fisher's exact test
                 odds_ratio, conv_p_value = stats.fisher_exact(table, alternative='greater')
                 
@@ -474,7 +474,7 @@ class ABTest:
                       (variant_conv/variant_imp >= control_conv/control_imp)):
                     variant_analysis["is_better_than_control"] = True
                     analysis["has_significant_results"] = True
-        
+    
             analysis["variants"].append(variant_analysis)
         
         # Determine recommended winner
@@ -515,10 +515,30 @@ class ABTest:
         # If no winning variant specified, try to determine one from analysis
         if not winning_variant_id:
             try:
+                # First try statistical analysis
                 analysis = self.analyze_test()
                 winning_variant_id = analysis.get("recommended_winner")
-            except InsufficientDataError:
-                # If not enough data, default to control variant
+                
+                # If no statistically significant winner, pick best performing variant
+                if not winning_variant_id:
+                    control_variant = next((v for v in self.variants if v.get("is_control", False)), None)
+                    if control_variant:
+                        control_rate = control_variant["metrics"]["clicks"] / control_variant["metrics"]["impressions"]
+                        best_rate = control_rate
+                        best_variant = control_variant
+                        
+                        # Find variant with best CTR
+                        for variant in self.variants:
+                            if not variant.get("is_control", False):
+                                rate = variant["metrics"]["clicks"] / variant["metrics"]["impressions"]
+                                if rate > best_rate:
+                                    best_rate = rate
+                                    best_variant = variant
+                        
+                        winning_variant_id = best_variant["id"]
+            
+            except (InsufficientDataError, ZeroDivisionError):
+                # If not enough data or error in calculation, default to control variant
                 control_variant = next((v for v in self.variants if v.get("is_control", False)), None)
                 if control_variant:
                     winning_variant_id = control_variant["id"]
