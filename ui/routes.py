@@ -14,17 +14,12 @@ import uuid
 import traceback
 
 from . import app
-from interfaces.ui_interfaces import (
-    IAgentTeamService, INicheAnalysisService, IDeveloperService,
-    IMonetizationService, IMarketingService
-)
-from service_initialization import get_service
 from .errors import (
     UIError, RouteError, ServiceError, ValidationError,
     api_error_handler, handle_exception
 )
 from .tasks import (
-    analyze_niches, create_solution, create_monetization_strategy, 
+    analyze_niches, create_solution, create_monetization_strategy,
     create_marketing_campaign
 )
 from .task_manager import (
@@ -34,12 +29,32 @@ from .task_manager import (
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Services
-agent_team_service = get_service(IAgentTeamService)
-niche_analysis_service = get_service(INicheAnalysisService)
-developer_service = get_service(IDeveloperService)
-monetization_service = get_service(IMonetizationService)
-marketing_service = get_service(IMarketingService)
+# Services - these will be initialized later
+agent_team_service = None
+niche_analysis_service = None
+developer_service = None
+monetization_service = None
+marketing_service = None
+
+def init_services():
+    """Initialize services from the dependency container."""
+    global agent_team_service, niche_analysis_service, developer_service, monetization_service, marketing_service
+
+    # Import here to avoid circular imports
+    from .service_registry import get_ui_service
+    from interfaces.ui_interfaces import (
+        IAgentTeamService, INicheAnalysisService, IDeveloperService,
+        IMonetizationService, IMarketingService
+    )
+
+    # Initialize services
+    agent_team_service = get_ui_service(IAgentTeamService)
+    niche_analysis_service = get_ui_service(INicheAnalysisService)
+    developer_service = get_ui_service(IDeveloperService)
+    monetization_service = get_ui_service(IMonetizationService)
+    marketing_service = get_ui_service(IMarketingService)
+
+    logger.info("UI services initialized")
 
 # Home route
 @app.route('/')
@@ -74,22 +89,21 @@ def niche_analysis():
 @app.route('/niche-analysis/run', methods=['POST'])
 def run_niche_analysis():
     """Run niche analysis on selected market segments as a background task."""
-    # Get selected market segments from form
-    market_segments = request.form.getlist('market_segments')
-
-    # Validate input
-    if not market_segments:
-        flash("Please select at least one market segment.", "error")
-        return redirect(url_for('niche_analysis'))
+    from .validation_schemas import NicheAnalysisRequest
+    from .validators import validate_form_data
+    
+    # Validate input using Pydantic schema
+    validated_data = validate_form_data(NicheAnalysisRequest)
+    market_segments = validated_data.market_segments
 
     try:
         # Start background task
         task = analyze_niches.delay(market_segments)
         logger.info(f"Started niche analysis task {task.id}")
-        
+
         # Store task ID in session
         store_task_id(session, 'niche_analysis', task.id)
-        
+
         # Redirect to task status page
         return redirect(url_for('niche_analysis_status'))
     except Exception as e:
@@ -105,17 +119,17 @@ def niche_analysis_status():
     if not task_id:
         flash("No active niche analysis task found.", "error")
         return redirect(url_for('niche_analysis'))
-    
+
     # Get task status
     status = get_task_status(task_id)
-    
+
     # Check if task is completed
     if status['state'] == 'SUCCESS':
         # Store results in session
         session['niches'] = status['result']['niches']
         # Redirect to results page
         return redirect(url_for('niche_results'))
-    
+
     # Render status page
     return render_template('task_status.html',
                          title='Niche Analysis Progress',
@@ -147,22 +161,21 @@ def developer():
 @app.route('/developer/solution', methods=['POST'])
 def develop_solution():
     """Develop a solution for a selected niche as a background task."""
-    # Get selected niche from form
-    niche_id = request.form.get('niche_id')
-
-    # Validate input
-    if not niche_id:
-        flash("Please select a niche.", "error")
-        return redirect(url_for('developer'))
+    from .validation_schemas import DeveloperSolutionRequest
+    from .validators import validate_form_data
+    
+    # Validate input using Pydantic schema
+    validated_data = validate_form_data(DeveloperSolutionRequest)
+    niche_id = validated_data.niche_id
 
     try:
         # Start background task
         task = create_solution.delay(niche_id)
         logger.info(f"Started solution development task {task.id}")
-        
+
         # Store task ID in session
         store_task_id(session, 'solution', task.id)
-        
+
         # Redirect to task status page
         return redirect(url_for('solution_status'))
     except Exception as e:
@@ -178,17 +191,17 @@ def solution_status():
     if not task_id:
         flash("No active solution development task found.", "error")
         return redirect(url_for('developer'))
-    
+
     # Get task status
     status = get_task_status(task_id)
-    
+
     # Check if task is completed
     if status['state'] == 'SUCCESS':
         # Store results in session
         session['solution'] = status['result']
         # Redirect to results page
         return redirect(url_for('solution_results'))
-    
+
     # Render status page
     return render_template('task_status.html',
                          title='Solution Development Progress',
@@ -220,22 +233,21 @@ def monetization():
 @app.route('/monetization/strategy', methods=['POST'])
 def create_monetization_strategy_route():
     """Create a monetization strategy for a selected solution as a background task."""
-    # Get selected solution from form
-    solution_id = request.form.get('solution_id')
-
-    # Validate input
-    if not solution_id:
-        flash("Please select a solution.", "error")
-        return redirect(url_for('monetization'))
+    from .validation_schemas import MonetizationStrategyRequest
+    from .validators import validate_form_data
+    
+    # Validate input using Pydantic schema
+    validated_data = validate_form_data(MonetizationStrategyRequest)
+    solution_id = validated_data.solution_id
 
     try:
         # Start background task
         task = create_monetization_strategy.delay(solution_id)
         logger.info(f"Started monetization strategy task {task.id}")
-        
+
         # Store task ID in session
         store_task_id(session, 'monetization', task.id)
-        
+
         # Redirect to task status page
         return redirect(url_for('monetization_status'))
     except Exception as e:
@@ -251,17 +263,17 @@ def monetization_status():
     if not task_id:
         flash("No active monetization strategy task found.", "error")
         return redirect(url_for('monetization'))
-    
+
     # Get task status
     status = get_task_status(task_id)
-    
+
     # Check if task is completed
     if status['state'] == 'SUCCESS':
         # Store results in session
         session['monetization_strategy'] = status['result']
         # Redirect to results page
         return redirect(url_for('monetization_results'))
-    
+
     # Render status page
     return render_template('task_status.html',
                          title='Monetization Strategy Progress',
@@ -293,22 +305,21 @@ def marketing():
 @app.route('/marketing/campaign', methods=['POST'])
 def create_marketing_campaign_route():
     """Create a marketing campaign for a selected solution as a background task."""
-    # Get selected solution from form
-    solution_id = request.form.get('solution_id')
-
-    # Validate input
-    if not solution_id:
-        flash("Please select a solution.", "error")
-        return redirect(url_for('marketing'))
+    from .validation_schemas import MarketingCampaignRequest
+    from .validators import validate_form_data
+    
+    # Validate input using Pydantic schema
+    validated_data = validate_form_data(MarketingCampaignRequest)
+    solution_id = validated_data.solution_id
 
     try:
         # Start background task
         task = create_marketing_campaign.delay(solution_id)
         logger.info(f"Started marketing campaign task {task.id}")
-        
+
         # Store task ID in session
         store_task_id(session, 'marketing', task.id)
-        
+
         # Redirect to task status page
         return redirect(url_for('marketing_status'))
     except Exception as e:
@@ -324,17 +335,17 @@ def marketing_status():
     if not task_id:
         flash("No active marketing campaign task found.", "error")
         return redirect(url_for('marketing'))
-    
+
     # Get task status
     status = get_task_status(task_id)
-    
+
     # Check if task is completed
     if status['state'] == 'SUCCESS':
         # Store results in session
         session['marketing_campaign'] = status['result']
         # Redirect to results page
         return redirect(url_for('marketing_results'))
-    
+
     # Render status page
     return render_template('task_status.html',
                          title='Marketing Campaign Progress',
@@ -388,8 +399,22 @@ def health_check():
 @app.route('/api/task/<task_id>', methods=['GET'])
 def get_task(task_id):
     """API endpoint to get task status."""
+    from .validators import sanitize_input
+    
     try:
-        status = get_task_status(task_id)
+        # Sanitize the task_id to prevent injection attacks
+        sanitized_task_id = sanitize_input(task_id)
+        
+        # Validate the task_id format (basic UUID validation)
+        try:
+            uuid.UUID(sanitized_task_id)
+        except ValueError:
+            raise ValidationError(
+                message="Invalid task ID format",
+                validation_errors=[{"field": "task_id", "error": "Task ID must be a valid UUID"}]
+            )
+            
+        status = get_task_status(sanitized_task_id)
         return jsonify(status)
     except Exception as e:
         return api_error_handler(e)
@@ -397,8 +422,22 @@ def get_task(task_id):
 @app.route('/api/task/<task_id>/cancel', methods=['POST'])
 def cancel_task_route(task_id):
     """API endpoint to cancel a task."""
+    from .validators import sanitize_input
+    
     try:
-        result = cancel_task(task_id)
+        # Sanitize the task_id to prevent injection attacks
+        sanitized_task_id = sanitize_input(task_id)
+        
+        # Validate the task_id format (basic UUID validation)
+        try:
+            uuid.UUID(sanitized_task_id)
+        except ValueError:
+            raise ValidationError(
+                message="Invalid task ID format",
+                validation_errors=[{"field": "task_id", "error": "Task ID must be a valid UUID"}]
+            )
+            
+        result = cancel_task(sanitized_task_id)
         return jsonify({'success': result, 'message': 'Task cancelled' if result else 'Task could not be cancelled'})
     except Exception as e:
         return api_error_handler(e)
@@ -407,8 +446,20 @@ def cancel_task_route(task_id):
 @app.route('/api/niches', methods=['GET'])
 def api_get_niches():
     """API endpoint to get niches."""
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+    
     try:
-        niches = niche_analysis_service.get_niches()
+        # Validate query parameters
+        params = validate_query_params(ApiQueryParams)
+        
+        # Get niches with pagination and sorting
+        niches = niche_analysis_service.get_niches(
+            limit=params.limit,
+            offset=params.offset,
+            sort_by=params.sort_by,
+            sort_order=params.sort_order
+        )
         return jsonify(niches)
     except Exception as e:
         return api_error_handler(e)
@@ -416,8 +467,20 @@ def api_get_niches():
 @app.route('/api/solutions', methods=['GET'])
 def api_get_solutions():
     """API endpoint to get solutions."""
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+    
     try:
-        solutions = developer_service.get_solutions()
+        # Validate query parameters
+        params = validate_query_params(ApiQueryParams)
+        
+        # Get solutions with pagination and sorting
+        solutions = developer_service.get_solutions(
+            limit=params.limit,
+            offset=params.offset,
+            sort_by=params.sort_by,
+            sort_order=params.sort_order
+        )
         return jsonify(solutions)
     except Exception as e:
         return api_error_handler(e)
@@ -425,8 +488,20 @@ def api_get_solutions():
 @app.route('/api/monetization-strategies', methods=['GET'])
 def api_get_monetization_strategies():
     """API endpoint to get monetization strategies."""
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+    
     try:
-        strategies = monetization_service.get_strategies()
+        # Validate query parameters
+        params = validate_query_params(ApiQueryParams)
+        
+        # Get strategies with pagination and sorting
+        strategies = monetization_service.get_strategies(
+            limit=params.limit,
+            offset=params.offset,
+            sort_by=params.sort_by,
+            sort_order=params.sort_order
+        )
         return jsonify(strategies)
     except Exception as e:
         return api_error_handler(e)
@@ -434,8 +509,20 @@ def api_get_monetization_strategies():
 @app.route('/api/marketing-campaigns', methods=['GET'])
 def api_get_marketing_campaigns():
     """API endpoint to get marketing campaigns."""
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+    
     try:
-        campaigns = marketing_service.get_campaigns()
+        # Validate query parameters
+        params = validate_query_params(ApiQueryParams)
+        
+        # Get campaigns with pagination and sorting
+        campaigns = marketing_service.get_campaigns(
+            limit=params.limit,
+            offset=params.offset,
+            sort_by=params.sort_by,
+            sort_order=params.sort_order
+        )
         return jsonify(campaigns)
     except Exception as e:
         return api_error_handler(e)

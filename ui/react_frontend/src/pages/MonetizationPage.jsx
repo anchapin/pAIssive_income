@@ -30,6 +30,13 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+// Import our visualization components
+import {
+  UserGrowthLineChart,
+  RevenueAreaChart,
+  TierRevenueStackedBarChart,
+  CustomerLifetimeValueGauge
+} from '../components/Visualizations';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -66,6 +73,9 @@ const MonetizationPage = () => {
   const [includeEnterpriseCustomTier, setIncludeEnterpriseCustomTier] = useState(true);
   const [subscriptionModel, setSubscriptionModel] = useState('monthly');
   const [annualDiscountPercent, setAnnualDiscountPercent] = useState(20);
+  const [projectionMonths, setProjectionMonths] = useState(36);
+  const [growthRate, setGrowthRate] = useState(5); // 5% monthly growth rate
+  const [projectionViewIndex, setProjectionViewIndex] = useState(0);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -82,6 +92,10 @@ const MonetizationPage = () => {
   const handleGenerate = () => {
     // In a real app, this would call the backend to generate the pricing strategy
     console.log('Generate clicked');
+  };
+
+  const handleProjectionViewChange = (event, newValue) => {
+    setProjectionViewIndex(newValue);
   };
 
   const mockSubscriptionTiers = [
@@ -131,8 +145,8 @@ const MonetizationPage = () => {
       billingCycle: subscriptionModel,
       features: [
         'Everything in Professional',
-        'Dedicated support',
         'Custom integrations',
+        'Dedicated support',
         'SLA guarantees',
         'Onboarding assistance'
       ],
@@ -143,23 +157,109 @@ const MonetizationPage = () => {
 
   const visibleTiers = mockSubscriptionTiers.filter(tier => tier.visible);
 
-  // Calculate projected revenue
-  const mockUsers = [50, 120, 250, 450, 800, 1200];
-  const conversionRate = 0.05;
-  const avgRetentionMonths = 9;
+  // Enhanced mock data for visualizations
+  const generateMockUserProjections = () => {
+    const projections = [];
+    let totalUsers = 50; // Initial users
+    let freeUsers = 50;
+    let paidUsers = 0;
+    const monthlyAcquisition = 50; // New users per month
+    const monthlyConversion = 0.1; // 10% of free users convert to paid each month
+    const monthlyChurn = 0.05; // 5% churn rate
+    
+    for (let month = 1; month <= projectionMonths; month++) {
+      // Add new users
+      const newUsers = monthlyAcquisition * Math.pow(1 + growthRate / 100, month - 1);
+      
+      // Calculate conversions
+      const conversions = Math.floor(freeUsers * monthlyConversion);
+      
+      // Calculate churn
+      const paidChurn = Math.floor(paidUsers * monthlyChurn);
+      const freeChurn = Math.floor(freeUsers * monthlyChurn);
+      
+      // Update totals
+      paidUsers = paidUsers + conversions - paidChurn;
+      freeUsers = freeUsers + newUsers - conversions - freeChurn;
+      totalUsers = freeUsers + paidUsers;
+      
+      projections.push({
+        month,
+        total_users: Math.floor(totalUsers),
+        free_users: Math.floor(freeUsers),
+        paid_users: Math.floor(paidUsers),
+        new_users: Math.floor(newUsers),
+        churned_users: Math.floor(paidChurn + freeChurn)
+      });
+    }
+    
+    return projections;
+  };
   
-  const revenueProjections = mockUsers.map(userCount => {
-    const paidUsers = Math.floor(userCount * conversionRate);
+  const generateMockRevenueProjections = (userProjections) => {
+    return userProjections.map(month => {
+      // Distribute paid users across tiers
+      const basicUsers = Math.floor(month.paid_users * 0.6);
+      const proUsers = Math.floor(month.paid_users * 0.3);
+      const enterpriseUsers = month.paid_users - basicUsers - proUsers;
+      
+      // Calculate monthly revenue by tier
+      const basicRevenue = basicUsers * basePrice;
+      const proRevenue = proUsers * (basePrice * 2.5);
+      const enterpriseRevenue = enterpriseUsers * (basePrice * 5);
+      
+      const totalRevenue = basicRevenue + proRevenue + enterpriseRevenue;
+      const previousCumulative = month.month > 1 ? 
+        mockRevenueProjections[month.month - 2].cumulative_revenue : 0;
+      
+      return {
+        ...month,
+        tier_users: {
+          'Basic': basicUsers,
+          'Professional': proUsers,
+          'Enterprise': enterpriseUsers
+        },
+        tier_revenue: {
+          'Basic': basicRevenue,
+          'Professional': proRevenue,
+          'Enterprise': enterpriseRevenue
+        },
+        total_revenue: totalRevenue,
+        cumulative_revenue: previousCumulative + totalRevenue
+      };
+    });
+  };
+  
+  // Generate mock user projections
+  const mockUserProjections = generateMockUserProjections();
+  
+  // Generate mock revenue projections based on user projections
+  const mockRevenueProjections = generateMockRevenueProjections(mockUserProjections);
+  
+  // Generate mock lifetime value data
+  const mockLifetimeValueData = {
+    average_revenue_per_user: (basePrice * 0.6) + (basePrice * 2.5 * 0.3) + (basePrice * 5 * 0.1),
+    churn_rate: 0.05,
+    average_lifetime_months: 1 / 0.05, // 1/churn_rate
+    one_year_value: ((basePrice * 0.6) + (basePrice * 2.5 * 0.3) + (basePrice * 5 * 0.1)) * 12,
+    three_year_value: ((basePrice * 0.6) + (basePrice * 2.5 * 0.3) + (basePrice * 5 * 0.1)) * 36,
+    five_year_value: ((basePrice * 0.6) + (basePrice * 2.5 * 0.3) + (basePrice * 5 * 0.1)) * 60,
+    lifetime_value: ((basePrice * 0.6) + (basePrice * 2.5 * 0.3) + (basePrice * 5 * 0.1)) * (1 / 0.05)
+  };
+  
+  // Calculate simplified projections for the table view
+  const tableProjections = [50, 120, 250, 450, 800, 1200].map(userCount => {
+    const paidUsers = Math.floor(userCount * 0.05);
     const basicUsers = Math.floor(paidUsers * 0.6);
     const proUsers = Math.floor(paidUsers * 0.35);
     const enterpriseUsers = Math.floor(paidUsers * 0.05);
     
     const monthlyRevenue = (basicUsers * basePrice) + 
-                          (proUsers * basePrice * 2.5) + 
-                          (enterpriseUsers * basePrice * 5);
-                          
+                        (proUsers * basePrice * 2.5) + 
+                        (enterpriseUsers * basePrice * 5);
+                        
     const annualRevenue = monthlyRevenue * 12;
-    const lifetimeValue = monthlyRevenue * avgRetentionMonths;
+    const lifetimeValue = monthlyRevenue * 20; // 20 months average lifetime
     
     return {
       userCount,
@@ -413,10 +513,129 @@ const MonetizationPage = () => {
       
       <TabPanel value={tabValue} index={2}>
         <Grid container spacing={3}>
+          {/* Revenue projection configuration */}
           <Grid item xs={12}>
             <Item>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} md={4}>
+                  <Typography id="projection-months-slider" gutterBottom>
+                    Projection Months: {projectionMonths}
+                  </Typography>
+                  <Slider
+                    value={projectionMonths}
+                    onChange={(e, value) => setProjectionMonths(value)}
+                    aria-labelledby="projection-months-slider"
+                    valueLabelDisplay="auto"
+                    step={6}
+                    marks={[
+                      { value: 12, label: '12m' },
+                      { value: 24, label: '24m' },
+                      { value: 36, label: '36m' },
+                      { value: 48, label: '48m' },
+                      { value: 60, label: '60m' }
+                    ]}
+                    min={12}
+                    max={60}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={4}>
+                  <Typography id="growth-rate-slider" gutterBottom>
+                    Monthly Growth Rate: {growthRate}%
+                  </Typography>
+                  <Slider
+                    value={growthRate}
+                    onChange={(e, value) => setGrowthRate(value)}
+                    aria-labelledby="growth-rate-slider"
+                    valueLabelDisplay="auto"
+                    step={1}
+                    marks={[
+                      { value: 0, label: '0%' },
+                      { value: 5, label: '5%' },
+                      { value: 10, label: '10%' },
+                      { value: 20, label: '20%' }
+                    ]}
+                    min={0}
+                    max={20}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={4}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleGenerate}
+                    startIcon={<MonetizationOnIcon />}
+                    fullWidth
+                  >
+                    Generate Projections
+                  </Button>
+                </Grid>
+              </Grid>
+            </Item>
+          </Grid>
+          
+          {/* Visualization selectors */}
+          <Grid item xs={12}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+              <Tabs 
+                value={projectionViewIndex} 
+                onChange={handleProjectionViewChange} 
+                aria-label="revenue projection visualizations"
+                variant="scrollable"
+                scrollButtons="auto"
+              >
+                <Tab label="User Growth" />
+                <Tab label="Revenue Growth" />
+                <Tab label="Revenue by Tier" />
+                <Tab label="Customer LTV" />
+                <Tab label="Tabular Data" />
+              </Tabs>
+            </Box>
+          </Grid>
+          
+          {/* Visualizations */}
+          <Grid item xs={12}>
+            <Item sx={{ display: projectionViewIndex === 0 ? 'block' : 'none' }}>
+              <UserGrowthLineChart 
+                data={mockUserProjections} 
+                title="User Growth Over Time" 
+                height={500}
+              />
+            </Item>
+            
+            <Item sx={{ display: projectionViewIndex === 1 ? 'block' : 'none' }}>
+              <RevenueAreaChart 
+                data={mockRevenueProjections} 
+                title="Revenue Growth Over Time" 
+                height={500}
+                milestones={[
+                  { month: 6, label: "6 Months" },
+                  { month: 12, label: "1 Year" },
+                  { month: 24, label: "2 Years" }
+                ]}
+              />
+            </Item>
+            
+            <Item sx={{ display: projectionViewIndex === 2 ? 'block' : 'none' }}>
+              <TierRevenueStackedBarChart 
+                data={mockRevenueProjections} 
+                title="Revenue by Subscription Tier" 
+                height={500}
+              />
+            </Item>
+            
+            <Item sx={{ display: projectionViewIndex === 3 ? 'block' : 'none' }}>
+              <CustomerLifetimeValueGauge 
+                data={mockLifetimeValueData} 
+                title="Customer Lifetime Value Analysis" 
+                height={500}
+              />
+            </Item>
+            
+            <Item sx={{ display: projectionViewIndex === 4 ? 'block' : 'none' }}>
               <Typography variant="h6" gutterBottom>
-                Revenue Projections
+                Revenue Projections - Tabular Data
               </Typography>
               
               <TableContainer>
@@ -431,7 +650,7 @@ const MonetizationPage = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {revenueProjections.map((row, index) => (
+                    {tableProjections.map((row, index) => (
                       <TableRow key={index}>
                         <TableCell>{row.userCount}</TableCell>
                         <TableCell>{row.paidUsers}</TableCell>
@@ -446,11 +665,77 @@ const MonetizationPage = () => {
               
               <Box mt={3} textAlign="center">
                 <Typography variant="subtitle2" color="text.secondary">
-                  Note: These projections are based on an estimated {(conversionRate * 100).toFixed(1)}% conversion rate 
-                  and {avgRetentionMonths}-month average retention.
+                  Note: These projections are based on an estimated 5% conversion rate 
+                  and 20-month average retention.
                 </Typography>
               </Box>
             </Item>
+          </Grid>
+          
+          {/* Summary metrics */}
+          <Grid item xs={12}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card>
+                  <CardContent>
+                    <Typography color="text.secondary" gutterBottom>
+                      Projected Users (Year 3)
+                    </Typography>
+                    <Typography variant="h4">
+                      {mockUserProjections[mockUserProjections.length - 1]?.total_users.toLocaleString()}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <Card>
+                  <CardContent>
+                    <Typography color="text.secondary" gutterBottom>
+                      Projected Monthly Revenue (Year 3)
+                    </Typography>
+                    <Typography variant="h4">
+                      ${mockRevenueProjections[mockRevenueProjections.length - 1]?.total_revenue.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <Card>
+                  <CardContent>
+                    <Typography color="text.secondary" gutterBottom>
+                      Projected Cumulative Revenue
+                    </Typography>
+                    <Typography variant="h4">
+                      ${mockRevenueProjections[mockRevenueProjections.length - 1]?.cumulative_revenue.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <Card>
+                  <CardContent>
+                    <Typography color="text.secondary" gutterBottom>
+                      Customer Lifetime Value
+                    </Typography>
+                    <Typography variant="h4">
+                      ${mockLifetimeValueData.lifetime_value.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </TabPanel>

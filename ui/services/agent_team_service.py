@@ -22,18 +22,28 @@ class AgentTeamService(BaseService, IAgentTeamService):
     Service for interacting with the Agent Team module.
     """
 
-    def __init__(self):
-        """Initialize the Agent Team service."""
+    def __init__(self, agent_team=None):
+        """
+        Initialize the Agent Team service.
+
+        Args:
+            agent_team: Optional AgentTeam instance
+        """
         super().__init__()
         self.projects_file = 'projects.json'
+        self.agent_team = agent_team
 
-        # Import the AgentTeam class
-        try:
-            from agent_team import AgentTeam
+        # Check if agent team is available
+        if agent_team is not None:
             self.agent_team_available = True
-        except ImportError:
-            logger.warning("Agent Team module not available. Using mock data.")
-            self.agent_team_available = False
+        else:
+            # Try to import the AgentTeam class
+            try:
+                from agent_team import AgentTeam
+                self.agent_team_available = True
+            except ImportError:
+                logger.warning("Agent Team module not available. Using mock data.")
+                self.agent_team_available = False
 
     def create_project(self, project_name: str, config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """

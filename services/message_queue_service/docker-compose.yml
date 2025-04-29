@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: paissive_income_rabbitmq
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI port
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+    networks:
+      - paissive_income_network
+
+networks:
+  paissive_income_network:
+    driver: bridge
+
+volumes:
+  rabbitmq_data:

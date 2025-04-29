@@ -370,10 +370,13 @@ class ContentTemplate:
                 outline = self.generate_outline()
             except ValidationError as e:
                 # Add more context to the validation error
+                field = getattr(e, 'field', None)
+                validation_errors = getattr(e, 'validation_errors', None)
+
                 raise ValidationError(
                     message=f"Cannot generate content: {e.message}",
-                    field=e.field,
-                    validation_errors=e.validation_errors,
+                    field=field,
+                    validation_errors=validation_errors,
                     original_exception=e
                 )
 

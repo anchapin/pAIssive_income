@@ -22,6 +22,7 @@ class SubscriptionStatus:
     UNPAID = "unpaid"
     CANCELED = "canceled"
     EXPIRED = "expired"
+    PAUSED = "paused"
 
 
 class Subscription:
@@ -350,6 +351,15 @@ class Subscription:
             True if the subscription is unpaid, False otherwise
         """
         return self.status == SubscriptionStatus.UNPAID
+
+    def is_paused(self) -> bool:
+        """
+        Check if the subscription is paused.
+
+        Returns:
+            True if the subscription is paused, False otherwise
+        """
+        return self.status == SubscriptionStatus.PAUSED
 
     def get_days_until_renewal(self) -> int:
         """

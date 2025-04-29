@@ -16,6 +16,196 @@ from .errors import (
 logger = logging.getLogger(__name__)
 
 
+class ChannelStrategy:
+    """
+    Base class for all marketing channel strategies.
+    This class provides a common interface for all channel-specific strategies.
+    """
+
+    def __init__(
+        self,
+        name: str = "",
+        description: str = "",
+        channel_type: str = "generic",
+        target_audience: Optional[Dict[str, Any]] = None,
+        goals: Optional[List[str]] = None,
+        budget: Optional[float] = None,
+        timeline: Optional[str] = None,
+    ):
+        """
+        Initialize a channel strategy.
+
+        Args:
+            name: Name of the channel strategy
+            description: Description of the channel strategy
+            channel_type: Type of channel (e.g., "social_media", "content", "email")
+            target_audience: The target audience for this strategy
+            goals: List of marketing goals (e.g., "brand awareness", "lead generation")
+            budget: Optional budget for this strategy
+            timeline: Optional timeline for implementation
+        """
+        self.id = str(uuid.uuid4())
+        self.name = name
+        self.description = description
+        self.channel_type = channel_type
+        self.target_audience = target_audience or {}
+        self.goals = goals or []
+        self.budget = budget
+        self.timeline = timeline
+        self.created_at = datetime.now().isoformat()
+        self.tactics = []
+        self.metrics = []
+        self.resources = []
+        self.channels = []
+
+    def add_tactic(self, name: str, description: str, priority: str = "medium") -> None:
+        """
+        Add a tactic to the channel strategy.
+
+        Args:
+            name: Name of the tactic
+            description: Description of the tactic
+            priority: Priority level ("high", "medium", "low")
+        """
+        self.tactics.append({
+            "id": str(uuid.uuid4()),
+            "name": name,
+            "description": description,
+            "priority": priority
+        })
+
+    def add_metric(self, name: str, description: str, target: Optional[str] = None) -> None:
+        """
+        Add a metric to track for this channel strategy.
+
+        Args:
+            name: Name of the metric
+            description: Description of the metric
+            target: Optional target value for this metric
+        """
+        self.metrics.append({
+            "id": str(uuid.uuid4()),
+            "name": name,
+            "description": description,
+            "target": target
+        })
+
+    def add_resource(self, name: str, description: str, cost: Optional[float] = None) -> None:
+        """
+        Add a resource required for this channel strategy.
+
+        Args:
+            name: Name of the resource
+            description: Description of the resource
+            cost: Optional cost of the resource
+        """
+        self.resources.append({
+            "id": str(uuid.uuid4()),
+            "name": name,
+            "description": description,
+            "cost": cost
+        })
+
+    def get_summary(self) -> Dict[str, Any]:
+        """
+        Get a summary of the channel strategy.
+
+        Returns:
+            Dictionary with strategy summary
+        """
+        return {
+            "id": self.id,
+            "name": self.name,
+            "channel_type": self.channel_type,
+            "goals": self.goals,
+            "tactics_count": len(self.tactics),
+            "metrics_count": len(self.metrics),
+            "resources_count": len(self.resources),
+            "budget": self.budget,
+            "timeline": self.timeline,
+            "created_at": self.created_at
+        }
+
+    def add_channel(
+        self,
+        name: str,
+        audience: List[str],
+        description: str,
+        tiers_focus: List[str],
+        cost_efficiency: float,
+        primary_metrics: List[str]
+    ) -> None:
+        """
+        Add a channel to the strategy.
+
+        Args:
+            name: Name of the channel
+            audience: Target audience for this channel
+            description: Description of the channel
+            tiers_focus: List of tiers this channel focuses on
+            cost_efficiency: Cost efficiency score (0.0 to 1.0)
+            primary_metrics: List of primary metrics for this channel
+        """
+        self.channels.append({
+            "id": str(uuid.uuid4()),
+            "name": name,
+            "audience": audience,
+            "description": description,
+            "tiers_focus": tiers_focus,
+            "cost_efficiency": cost_efficiency,
+            "primary_metrics": primary_metrics
+        })
+
+    def calculate_budget_allocation(self, total_budget: float) -> Dict[str, float]:
+        """
+        Calculate budget allocation across channels based on cost efficiency.
+
+        Args:
+            total_budget: Total budget to allocate
+
+        Returns:
+            Dictionary mapping channel names to budget amounts
+        """
+        if not self.channels:
+            return {}
+
+        # Calculate allocation based on cost efficiency
+        total_efficiency = sum(channel["cost_efficiency"] for channel in self.channels)
+        allocations = {}
+
+        for channel in self.channels:
+            if total_efficiency > 0:
+                allocation = (channel["cost_efficiency"] / total_efficiency) * total_budget
+            else:
+                allocation = total_budget / len(self.channels)
+            allocations[channel["name"]] = allocation
+
+        return allocations
+
+    def get_full_strategy(self) -> Dict[str, Any]:
+        """
+        Get the full channel strategy.
+
+        Returns:
+            Dictionary with complete strategy details
+        """
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "channel_type": self.channel_type,
+            "target_audience": self.target_audience,
+            "goals": self.goals,
+            "tactics": self.tactics,
+            "metrics": self.metrics,
+            "resources": self.resources,
+            "channels": self.channels,
+            "budget": self.budget,
+            "timeline": self.timeline,
+            "created_at": self.created_at
+        }
+
+
 class MarketingStrategy:
     """
     Base class for all marketing channel strategies.

@@ -36,16 +36,16 @@ __all__ = [
 
 class ContentGenerationError(MarketingError):
     """Error raised when there's an issue with content generation."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         content_type: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the content generation error.
-        
+
         Args:
             message: Human-readable error message
             content_type: Type of content that caused the error
@@ -54,7 +54,7 @@ class ContentGenerationError(MarketingError):
         details = kwargs.pop("details", {})
         if content_type:
             details["content_type"] = content_type
-        
+
         super().__init__(
             message=message,
             code="content_generation_error",
@@ -65,16 +65,16 @@ class ContentGenerationError(MarketingError):
 
 class StrategyGenerationError(MarketingError):
     """Error raised when there's an issue with marketing strategy generation."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         strategy_type: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the strategy generation error.
-        
+
         Args:
             message: Human-readable error message
             strategy_type: Type of strategy that caused the error
@@ -83,7 +83,7 @@ class StrategyGenerationError(MarketingError):
         details = kwargs.pop("details", {})
         if strategy_type:
             details["strategy_type"] = strategy_type
-        
+
         super().__init__(
             message=message,
             code="strategy_generation_error",
@@ -94,16 +94,16 @@ class StrategyGenerationError(MarketingError):
 
 class ChannelStrategyError(MarketingError):
     """Error raised when there's an issue with a marketing channel strategy."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         channel: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the channel strategy error.
-        
+
         Args:
             message: Human-readable error message
             channel: Marketing channel that caused the error
@@ -112,7 +112,7 @@ class ChannelStrategyError(MarketingError):
         details = kwargs.pop("details", {})
         if channel:
             details["channel"] = channel
-        
+
         super().__init__(
             message=message,
             code="channel_strategy_error",
@@ -123,16 +123,16 @@ class ChannelStrategyError(MarketingError):
 
 class ContentTemplateError(MarketingError):
     """Error raised when there's an issue with a content template."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         template_type: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the content template error.
-        
+
         Args:
             message: Human-readable error message
             template_type: Type of template that caused the error
@@ -141,10 +141,13 @@ class ContentTemplateError(MarketingError):
         details = kwargs.pop("details", {})
         if template_type:
             details["template_type"] = template_type
-        
+
+        # Only set code if it's not already provided in kwargs
+        if 'code' not in kwargs:
+            kwargs['code'] = "content_template_error"
+
         super().__init__(
             message=message,
-            code="content_template_error",
             details=details,
             **kwargs
         )
@@ -152,16 +155,16 @@ class ContentTemplateError(MarketingError):
 
 class ContentOptimizationError(MarketingError):
     """Error raised when there's an issue with content optimization."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         optimization_type: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the content optimization error.
-        
+
         Args:
             message: Human-readable error message
             optimization_type: Type of optimization that caused the error
@@ -170,7 +173,7 @@ class ContentOptimizationError(MarketingError):
         details = kwargs.pop("details", {})
         if optimization_type:
             details["optimization_type"] = optimization_type
-        
+
         super().__init__(
             message=message,
             code="content_optimization_error",
@@ -181,16 +184,16 @@ class ContentOptimizationError(MarketingError):
 
 class UserPersonaError(MarketingError):
     """Error raised when there's an issue with user persona creation or analysis."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         persona_name: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the user persona error.
-        
+
         Args:
             message: Human-readable error message
             persona_name: Name of the persona that caused the error
@@ -199,7 +202,7 @@ class UserPersonaError(MarketingError):
         details = kwargs.pop("details", {})
         if persona_name:
             details["persona_name"] = persona_name
-        
+
         super().__init__(
             message=message,
             code="user_persona_error",
@@ -210,16 +213,16 @@ class UserPersonaError(MarketingError):
 
 class MarketingCampaignError(MarketingError):
     """Error raised when there's an issue with a marketing campaign."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         campaign_id: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the marketing campaign error.
-        
+
         Args:
             message: Human-readable error message
             campaign_id: ID of the campaign that caused the error
@@ -228,10 +231,89 @@ class MarketingCampaignError(MarketingError):
         details = kwargs.pop("details", {})
         if campaign_id:
             details["campaign_id"] = campaign_id
-        
+
         super().__init__(
             message=message,
             code="marketing_campaign_error",
             details=details,
             **kwargs
         )
+
+
+class PlatformNotSupportedError(Exception):
+    """Exception raised when a social media platform is not supported."""
+    
+    def __init__(self, platform: str):
+        self.platform = platform
+        super().__init__(f"Social media platform '{platform}' is not supported")
+
+
+class PlatformNotFoundError(Exception):
+    """Exception raised when a social media platform connection is not found."""
+    
+    def __init__(self, platform_id: str):
+        self.platform_id = platform_id
+        super().__init__(f"Social media platform with ID '{platform_id}' not found")
+
+
+class AuthenticationError(Exception):
+    """Exception raised when authentication with a social media platform fails."""
+    
+    def __init__(self, platform: str, message: str = "Authentication failed"):
+        self.platform = platform
+        self.message = message
+        super().__init__(f"{message} for platform '{platform}'")
+
+
+class PostNotFoundError(Exception):
+    """Exception raised when a social media post is not found."""
+    
+    def __init__(self, platform_id: str, post_id: str):
+        self.platform_id = platform_id
+        self.post_id = post_id
+        super().__init__(f"Post with ID '{post_id}' not found on platform '{platform_id}'")
+
+
+class ContentValidationError(Exception):
+    """Exception raised when social media content validation fails."""
+    
+    def __init__(self, platform: str, message: str):
+        self.platform = platform
+        self.message = message
+        super().__init__(f"Content validation failed for platform '{platform}': {message}")
+
+
+class PostingError(Exception):
+    """Exception raised when posting to a social media platform fails."""
+    
+    def __init__(self, platform: str, message: str):
+        self.platform = platform
+        self.message = message
+        super().__init__(f"Failed to post to platform '{platform}': {message}")
+
+
+class DeletionError(Exception):
+    """Exception raised when deleting a post from a social media platform fails."""
+    
+    def __init__(self, platform: str, post_id: str, message: str):
+        self.platform = platform
+        self.post_id = post_id
+        self.message = message
+        super().__init__(f"Failed to delete post '{post_id}' from platform '{platform}': {message}")
+
+
+class SchedulingError(Exception):
+    """Exception raised when scheduling a post or campaign fails."""
+    
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(f"Failed to schedule content: {message}")
+
+
+class NotSupportedError(Exception):
+    """Exception raised when a feature is not supported by a platform."""
+    
+    def __init__(self, platform: str, feature: str):
+        self.platform = platform
+        self.feature = feature
+        super().__init__(f"Feature '{feature}' is not supported by platform '{platform}'")

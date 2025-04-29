@@ -5,7 +5,8 @@ This module provides a comprehensive system for managing and using local AI mode
 for various tasks such as content generation, data analysis, and more.
 """
 
-from .model_manager import ModelManager, ModelInfo
+from .model_manager import ModelManager
+from .model_base_types import ModelInfo
 from .model_config import ModelConfig
 from .agent_integration import AgentModelProvider
 from .model_downloader import ModelDownloader, DownloadTask, DownloadProgress
@@ -15,7 +16,7 @@ from .batch_inference import (
     generate_text_batch, generate_embeddings_batch
 )
 
-# Import model types
+# Import specialized model types
 from .model_types import ONNXModel, QuantizedModel, VisionModel, AudioModel
 
 # Import adapters
@@ -100,7 +101,7 @@ __all__ = [
     'InferenceTracker',
     'InferenceMetrics',
     'ModelPerformanceReport',
-    
+
     # Batch processing
     'BatchInferenceProcessor',
     'BatchInferenceRequest',

@@ -1,18 +1,29 @@
 """
 Marketing module for the pAIssive Income project.
 
-This module provides functionality for generating and managing marketing 
+This module provides functionality for generating and managing marketing
 strategies, tactics, and content for niche AI tools.
 """
 
 from .strategy_generator import StrategyGenerator
+from .concrete_strategy_generator import (
+    DefaultStrategyGenerator,
+    ContentMarketingStrategyGenerator,
+    SocialMediaStrategyGenerator,
+    EmailMarketingStrategyGenerator
+)
 from .channel_strategies import ChannelStrategy
 from .content_generators import ContentGenerator
-from .content_optimization import ContentOptimizer
+from .content_generator_impl import ConcreteContentGenerator
+from .content_optimization import KeywordAnalyzer, ReadabilityAnalyzer, SEOAnalyzer
 from .content_templates import ContentTemplate
 from .style_adjuster import StyleAdjuster
 from .tone_analyzer import ToneAnalyzer
 from .user_personas import PersonaCreator
+from .marketing_plan import MarketingPlan
+from .ab_testing import ABTesting, ABTest
+from .content_performance import ContentPerformanceAnalyzer
+from .social_media_integration import SocialMediaIntegration
 from .schemas import (
     BusinessType, BusinessSize, BillingPeriod, TimeframeUnit,
     ChannelType, PriorityLevel, DifficultyLevel,
@@ -20,18 +31,35 @@ from .schemas import (
     ConfigSchema, MarketingTacticSchema, MetricSchema, ContentItemSchema,
     ContentCalendarSchema, PersonaSchema, ChannelAnalysisSchema,
     MarketingPlanSchema, MarketingStrategyInputSchema, MarketingStrategyResultsSchema,
-    AudienceAnalysisSchema, BusinessAnalysisSchema
+    AudienceAnalysisSchema, BusinessAnalysisSchema,
+    # Social Media schemas
+    SocialMediaPlatform, SocialMediaConnectionSchema, SocialMediaAuthSchema,
+    SocialMediaPostSchema, SocialMediaAnalyticsSchema, SocialMediaCampaignSchema,
+    AudienceInsightSchema, ContentVisibility, PostScheduleType
 )
 
 __all__ = [
     'StrategyGenerator',
+    'DefaultStrategyGenerator',
+    'ContentMarketingStrategyGenerator',
+    'SocialMediaStrategyGenerator',
+    'EmailMarketingStrategyGenerator',
     'ChannelStrategy',
     'ContentGenerator',
-    'ContentOptimizer',
+    'ConcreteContentGenerator',
+
+    'KeywordAnalyzer',
+    'ReadabilityAnalyzer',
+    'SEOAnalyzer',
     'ContentTemplate',
     'StyleAdjuster',
     'ToneAnalyzer',
     'PersonaCreator',
+    'MarketingPlan',
+    'ABTesting',
+    'ABTest',
+    'ContentPerformanceAnalyzer',
+    'SocialMediaIntegration',
     # Schema exports
     'BusinessType',
     'BusinessSize',
@@ -55,5 +83,15 @@ __all__ = [
     'MarketingStrategyInputSchema',
     'MarketingStrategyResultsSchema',
     'AudienceAnalysisSchema',
-    'BusinessAnalysisSchema'
+    'BusinessAnalysisSchema',
+    # Social Media exports
+    'SocialMediaPlatform',
+    'SocialMediaConnectionSchema',
+    'SocialMediaAuthSchema',
+    'SocialMediaPostSchema',
+    'SocialMediaAnalyticsSchema',
+    'SocialMediaCampaignSchema',
+    'AudienceInsightSchema',
+    'ContentVisibility',
+    'PostScheduleType'
 ]

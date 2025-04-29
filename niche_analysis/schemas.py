@@ -5,7 +5,7 @@ This module provides Pydantic models for data validation in the niche analysis m
 """
 
 from typing import Dict, List, Any, Optional, Union, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
 

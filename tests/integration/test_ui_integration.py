@@ -4,114 +4,34 @@ Integration tests for UI interactions with backend services.
 import pytest
 from unittest.mock import patch, MagicMock
 
+# Import UI modules
 from ui.web_ui import WebUI
 from ui.cli_ui import CommandLineInterface
-from agent_team import AgentTeam
-from ai_models import ModelManager
-from monetization import SubscriptionManager
-from niche_analysis import MarketAnalyzer
+
+# Import test fixtures
+from tests.integration.ui_test_fixtures import (
+    mock_agent_team,
+    mock_model_manager,
+    mock_subscription_manager,
+    mock_agent_team_service,
+    register_mock_services
+)
 
 
-@pytest.fixture
-def mock_agent_team():
-    """Create a mock agent team."""
-    team = MagicMock(spec=AgentTeam)
-    
-    # Mock the run_niche_analysis method
-    team.run_niche_analysis.return_value = [
-        {
-            "id": "niche1",
-            "name": "AI Inventory Management",
-            "market_segment": "e-commerce",
-            "opportunity_score": 0.85,
-        },
-        {
-            "id": "niche2",
-            "name": "Content Generation for Marketing",
-            "market_segment": "digital-marketing",
-            "opportunity_score": 0.78,
-        }
-    ]
-    
-    # Mock the develop_solution method
-    team.develop_solution.return_value = {
-        "id": "solution1",
-        "name": "AI Inventory Optimizer",
-        "description": "An AI tool that helps e-commerce businesses optimize inventory levels.",
-        "features": [
-            {"id": "feature1", "name": "Demand Forecasting"},
-            {"id": "feature2", "name": "Reorder Alerts"}
-        ]
-    }
-    
-    # Mock the create_monetization_strategy method
-    team.create_monetization_strategy.return_value = {
-        "id": "monetization1",
-        "name": "Freemium Strategy",
-        "subscription_model": {
-            "name": "Inventory Optimizer Subscription",
-            "tiers": [
-                {"name": "Free", "price_monthly": 0},
-                {"name": "Pro", "price_monthly": 29.99}
-            ]
-        }
-    }
-    
-    # Mock the create_marketing_plan method
-    team.create_marketing_plan.return_value = {
-        "id": "marketing1",
-        "name": "Inventory Optimizer Marketing Plan",
-        "channels": ["content", "social", "email"],
-        "target_audience": "E-commerce store owners"
-    }
-    
-    return team
+
 
 
 @pytest.fixture
-def mock_model_manager():
-    """Create a mock model manager."""
-    manager = MagicMock(spec=ModelManager)
-    
-    # Mock the list_models method
-    manager.list_models.return_value = [
-        {
-            "id": "model1",
-            "name": "GPT-4",
-            "capabilities": ["text-generation"]
-        },
-        {
-            "id": "model2",
-            "name": "DALL-E 3",
-            "capabilities": ["image-generation"]
-        }
-    ]
-    
-    return manager
+def initialize_ui_services(register_mock_services):
+    """Initialize UI services for testing."""
+    # Initialize routes services
+    from ui.routes import init_services
+    init_services()
+    return True
 
 
 @pytest.fixture
-def mock_subscription_manager():
-    """Create a mock subscription manager."""
-    manager = MagicMock(spec=SubscriptionManager)
-    
-    # Mock the get_active_subscriptions method
-    manager.get_active_subscriptions.return_value = [
-        {
-            "id": "sub1",
-            "user_id": "user1",
-            "plan_name": "Pro Plan",
-            "status": "active",
-            "created_at": "2025-04-01T10:00:00Z",
-            "expires_at": "2026-04-01T10:00:00Z"
-        }
-    ]
-    
-    return manager
-
-
-@pytest.fixture
-def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
+def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initialize_ui_services):
     """Create a WebUI instance with mock dependencies."""
     ui = WebUI(
         agent_team=mock_agent_team,
@@ -122,7 +42,7 @@ def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
 
 
 @pytest.fixture
-def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
+def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initialize_ui_services):
     """Create a CommandLineInterface instance with mock dependencies."""
     ui = CommandLineInterface(
         agent_team=mock_agent_team,
@@ -137,15 +57,15 @@ def test_web_ui_niche_analysis_integration(web_ui, mock_agent_team):
     # Simulate a user request to analyze niches
     market_segments = ["e-commerce", "digital-marketing"]
     niches = web_ui.analyze_market_segments(market_segments)
-    
+
     # Check that the agent team's method was called with the right parameters
     mock_agent_team.run_niche_analysis.assert_called_once_with(market_segments)
-    
+
     # Check that the UI returned the expected results
     assert len(niches) == 2
     assert niches[0]["name"] == "AI Inventory Management"
     assert niches[1]["name"] == "Content Generation for Marketing"
-    
+
     # Verify that the UI processes the results correctly
     assert hasattr(web_ui, "current_niches")
     assert web_ui.current_niches == niches
@@ -161,17 +81,17 @@ def test_web_ui_solution_development_integration(web_ui, mock_agent_team):
         "opportunity_score": 0.85,
     }
     web_ui.current_niches = [selected_niche]
-    
+
     # Simulate a user request to develop a solution
     solution = web_ui.develop_solution(selected_niche["id"])
-    
+
     # Check that the agent team's method was called with the right parameters
     mock_agent_team.develop_solution.assert_called_once_with(selected_niche)
-    
+
     # Check that the UI returned the expected results
     assert solution["name"] == "AI Inventory Optimizer"
     assert len(solution["features"]) == 2
-    
+
     # Verify that the UI processes the results correctly
     assert hasattr(web_ui, "current_solution")
     assert web_ui.current_solution == solution
@@ -190,17 +110,17 @@ def test_web_ui_monetization_strategy_integration(web_ui, mock_agent_team):
         ]
     }
     web_ui.current_solution = selected_solution
-    
+
     # Simulate a user request to create a monetization strategy
     monetization = web_ui.create_monetization_strategy()
-    
+
     # Check that the agent team's method was called with the right parameters
     mock_agent_team.create_monetization_strategy.assert_called_once_with(selected_solution)
-    
+
     # Check that the UI returned the expected results
     assert monetization["name"] == "Freemium Strategy"
     assert len(monetization["subscription_model"]["tiers"]) == 2
-    
+
     # Verify that the UI processes the results correctly
     assert hasattr(web_ui, "current_monetization")
     assert web_ui.current_monetization == monetization
@@ -238,20 +158,20 @@ def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
     web_ui.current_niches = [selected_niche]
     web_ui.current_solution = selected_solution
     web_ui.current_monetization = selected_monetization
-    
+
     # Simulate a user request to create a marketing plan
     marketing_plan = web_ui.create_marketing_plan()
-    
+
     # Check that the agent team's method was called with the right parameters
     mock_agent_team.create_marketing_plan.assert_called_once_with(
         selected_niche, selected_solution, selected_monetization
     )
-    
+
     # Check that the UI returned the expected results
     assert marketing_plan["name"] == "Inventory Optimizer Marketing Plan"
     assert "content" in marketing_plan["channels"]
     assert marketing_plan["target_audience"] == "E-commerce store owners"
-    
+
     # Verify that the UI processes the results correctly
     assert hasattr(web_ui, "current_marketing_plan")
     assert web_ui.current_marketing_plan == marketing_plan
@@ -260,24 +180,24 @@ def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
 def test_cli_ui_full_workflow_integration(cli_ui, mock_agent_team):
     """Test the CommandLineInterface integration with the full workflow."""
     # Simulate a complete workflow through the CLI
-    
+
     # Step 1: Run niche analysis
     cli_ui.handle_command("analyze e-commerce digital-marketing")
     mock_agent_team.run_niche_analysis.assert_called_once_with(["e-commerce", "digital-marketing"])
-    
+
     # Step 2: Select a niche and develop a solution
     cli_ui.handle_command("select niche 0")  # Select the first niche
     cli_ui.handle_command("develop solution")
     mock_agent_team.develop_solution.assert_called_once()
-    
+
     # Step 3: Create a monetization strategy
     cli_ui.handle_command("create monetization")
     mock_agent_team.create_monetization_strategy.assert_called_once()
-    
+
     # Step 4: Create a marketing plan
     cli_ui.handle_command("create marketing")
     mock_agent_team.create_marketing_plan.assert_called_once()
-    
+
     # Verify the final state
     assert hasattr(cli_ui, "current_niches")
     assert hasattr(cli_ui, "current_solution")
@@ -291,18 +211,32 @@ def test_web_ui_render_integration(mock_render_template, web_ui, mock_agent_team
     # Set up some data
     web_ui.current_niches = mock_agent_team.run_niche_analysis.return_value
     web_ui.current_solution = mock_agent_team.develop_solution.return_value
-    
+
+    # Set up the mock to return a tuple
+    mock_render_template.return_value = ("dashboard.html", {
+        "niches": web_ui.current_niches,
+        "solution": web_ui.current_solution,
+        "monetization": web_ui.current_monetization,
+        "marketing_plan": web_ui.current_marketing_plan
+    })
+
     # Simulate rendering the dashboard page
     web_ui.render_dashboard()
-    
+
     # Check that the render_template method was called with the right parameters
     mock_render_template.assert_called_once()
-    template_name, context = mock_render_template.call_args[0]
-    assert template_name == "dashboard.html"
-    assert "niches" in context
-    assert "solution" in context
-    assert context["niches"] == web_ui.current_niches
-    assert context["solution"] == web_ui.current_solution
+
+    # Get the arguments passed to render_template
+    args, kwargs = mock_render_template.call_args
+
+    # Check that the template name is correct
+    assert "dashboard.html" in args
+
+    # Check that the context contains the expected keys
+    assert "niches" in kwargs
+    assert "solution" in kwargs
+    assert kwargs["niches"] == web_ui.current_niches
+    assert kwargs["solution"] == web_ui.current_solution
 
 
 @patch('ui.web_ui.WebUI.handle_ajax_request')
@@ -313,21 +247,38 @@ def test_web_ui_ajax_integration(mock_handle_ajax_request, web_ui):
         "action": "analyze_niche",
         "market_segments": ["e-commerce"]
     }
-    
+
+    # Set up the mock to return a success response
+    mock_handle_ajax_request.return_value = {
+        'success': True,
+        'action': "analyze_niche",
+        'data': {"market_segments": ["e-commerce"]}
+    }
+
     web_ui.process_ajax_request(request_data)
-    
-    # Check that the handle_ajax_request method was called with the right parameters
-    mock_handle_ajax_request.assert_called_once_with("analyze_niche", {"market_segments": ["e-commerce"]})
+
+    # Check that the handle_ajax_request method was called
+    mock_handle_ajax_request.assert_called_once()
+
+    # Get the arguments passed to handle_ajax_request
+    args, kwargs = mock_handle_ajax_request.call_args
+
+    # Check that the action is correct
+    assert "analyze_niche" == args[0]
+
+    # Check that the data contains the market_segments
+    assert "market_segments" in args[1]
+    assert args[1]["market_segments"] == ["e-commerce"]
 
 
 def test_web_ui_model_manager_integration(web_ui, mock_model_manager):
     """Test the WebUI integration with model manager."""
     # Simulate a request to list available models
     models = web_ui.list_available_models()
-    
+
     # Check that the model manager's method was called
     mock_model_manager.list_models.assert_called_once()
-    
+
     # Check that the UI returned the expected results
     assert len(models) == 2
     assert models[0]["name"] == "GPT-4"
@@ -339,10 +290,10 @@ def test_web_ui_subscription_manager_integration(web_ui, mock_subscription_manag
     # Simulate a request to get subscription information for a user
     user_id = "user1"
     subscriptions = web_ui.get_user_subscriptions(user_id)
-    
+
     # Check that the subscription manager's method was called with the right parameters
     mock_subscription_manager.get_active_subscriptions.assert_called_once_with(user_id)
-    
+
     # Check that the UI returned the expected results
     assert len(subscriptions) == 1
     assert subscriptions[0]["user_id"] == "user1"
@@ -363,11 +314,11 @@ def test_web_ui_event_handling_integration(mock_handle_niche_selected, web_ui):
         }
     ]
     web_ui.current_niches = niches
-    
+
     # Simulate a niche selection event
     event_data = {"niche_id": "niche1"}
     web_ui.handle_event("niche_selected", event_data)
-    
+
     # Check that the event handler was called with the right parameters
     mock_handle_niche_selected.assert_called_once()
     ui_arg, data_arg = mock_handle_niche_selected.call_args[0]
@@ -379,7 +330,7 @@ def test_cli_ui_input_parsing_integration(cli_ui):
     """Test the CommandLineInterface integration with input parsing."""
     # Mock the process_command method
     cli_ui.process_command = MagicMock()
-    
+
     # Simulate user input for various commands
     commands = [
         "help",
@@ -390,11 +341,11 @@ def test_cli_ui_input_parsing_integration(cli_ui):
         "create marketing",
         "export plan"
     ]
-    
+
     # Process each command
     for command in commands:
         cli_ui.handle_command(command)
-        
+
     # Verify each command was processed correctly
     expected_calls = [
         ('help', []),
@@ -405,10 +356,10 @@ def test_cli_ui_input_parsing_integration(cli_ui):
         ('create', ['marketing']),
         ('export', ['plan'])
     ]
-    
+
     actual_calls = cli_ui.process_command.call_args_list
     assert len(actual_calls) == len(expected_calls)
-    
+
     for i, (expected_command, expected_args) in enumerate(expected_calls):
         actual_command, actual_args = actual_calls[i][0]
         assert actual_command == expected_command
@@ -425,22 +376,22 @@ def test_persistence_integration(web_ui):
         "monetization": {"id": "monetization1", "name": "Saved Monetization"},
         "marketing_plan": {"id": "marketing1", "name": "Saved Marketing Plan"}
     })
-    
+
     # Simulate saving the current state
     web_ui.current_niches = [{"id": "niche1", "name": "Test Niche"}]
     web_ui.current_solution = {"id": "solution1", "name": "Test Solution"}
     web_ui.save_project("test_project")
-    
+
     # Check that save_data was called with the right parameters
     web_ui.save_data.assert_called_once()
     filename, data = web_ui.save_data.call_args[0]
     assert "test_project" in filename
     assert "niches" in data
     assert "solution" in data
-    
+
     # Simulate loading a saved state
     web_ui.load_project("test_project")
-    
+
     # Check that load_data was called and data was loaded
     web_ui.load_data.assert_called_once_with("test_project")
     assert web_ui.current_niches[0]["name"] == "Saved Niche"

@@ -6,13 +6,13 @@ from unittest.mock import patch, MagicMock
 import datetime
 import uuid
 
-from marketing.strategy_generator import StrategyGenerator
+from marketing.concrete_strategy_generator import DefaultStrategyGenerator
 
 
 @pytest.fixture
 def strategy_generator():
-    """Create a StrategyGenerator instance for testing."""
-    generator = StrategyGenerator(
+    """Create a DefaultStrategyGenerator instance for testing."""
+    generator = DefaultStrategyGenerator(
         business_type="saas",
         goals=["brand_awareness", "lead_generation"],
         target_audience={
@@ -36,8 +36,8 @@ def strategy_generator():
 
 
 def test_strategy_generator_init():
-    """Test StrategyGenerator initialization."""
-    generator = StrategyGenerator(
+    """Test DefaultStrategyGenerator initialization."""
+    generator = DefaultStrategyGenerator(
         business_type="saas",
         goals=["brand_awareness", "lead_generation"]
     )
@@ -49,8 +49,9 @@ def test_strategy_generator_init():
     assert hasattr(generator, "created_at")
     assert hasattr(generator, "target_audience")
     assert hasattr(generator, "budget")
-    assert hasattr(generator, "timeframe")
-    assert hasattr(generator, "config")
+    assert hasattr(generator, "name")
+    assert hasattr(generator, "description")
+    assert hasattr(generator, "channel_type")
 
 
 def test_validate_business_type(strategy_generator):
