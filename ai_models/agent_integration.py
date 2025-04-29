@@ -17,6 +17,8 @@ from .model_config import ModelConfig
 from dependency_container import get_container
 # Import the fallback manager classes
 from .fallbacks import FallbackManager, FallbackStrategy, FallbackEvent
+# Import specific error types
+from errors import ModelError, ModelLoadError
 
 # Set up logging
 logging.basicConfig(
@@ -357,7 +359,7 @@ class AgentModelProvider:
         try:
             # First try to load the specified model
             return self.model_manager.load_model(model_id)
-        except Exception as e:
+        except ModelLoadError as e:
             if not self.fallback_manager.fallback_enabled:
                 raise e
 
