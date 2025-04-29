@@ -70,11 +70,11 @@ class CacheManager:
         if not self.config.should_cache(model_id, operation):
             return None
 
-        # Generate cache key
-        key = generate_cache_key(model_id, operation, inputs, parameters)
+        # Generate cache key - use str() to ensure consistent key format
+        key = str(generate_cache_key(model_id, operation, inputs, parameters))
 
         # Get value from cache
-        return self.backend.get(str(key))
+        return self.backend.get(key)
 
     def set(
         self,
@@ -102,15 +102,15 @@ class CacheManager:
         if not self.config.should_cache(model_id, operation):
             return False
 
-        # Generate cache key
-        key = generate_cache_key(model_id, operation, inputs, parameters)
+        # Generate cache key - use str() to ensure consistent key format
+        key = str(generate_cache_key(model_id, operation, inputs, parameters))
 
         # Use default TTL if not specified
         if ttl is None:
             ttl = self.config.ttl
 
         # Set value in cache
-        return self.backend.set(str(key), value, ttl)
+        return self.backend.set(key, value, ttl)
 
     def delete(
         self,
@@ -131,11 +131,11 @@ class CacheManager:
         Returns:
             True if successful, False otherwise
         """
-        # Generate cache key
-        key = generate_cache_key(model_id, operation, inputs, parameters)
+        # Generate cache key - use str() to ensure consistent key format
+        key = str(generate_cache_key(model_id, operation, inputs, parameters))
 
         # Delete value from cache
-        return self.backend.delete(str(key))
+        return self.backend.delete(key)
 
     def exists(
         self,

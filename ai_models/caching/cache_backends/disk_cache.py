@@ -78,30 +78,27 @@ class DiskCache(CacheBackend):
                 self._save_stats()
                 return None
             
-            # Load metadata
-            metadata = self._load_metadata(key)
-            
-            # Check if expired
-            if metadata.get("expiration_time") is not None and time.time() > metadata["expiration_time"]:
-                self.delete(key)
-                self.stats["misses"] += 1
-                self._save_stats()
-                return None
-            
-            # Load value
             try:
+                # Load metadata first
+                metadata = self._load_metadata(key)
+                
+                # Check if expired
+                if metadata.get("expiration_time") is not None and time.time() > metadata["expiration_time"]:
+                    self.delete(key)
+                    self.stats["misses"] += 1
+                    self._save_stats()
+                    return None
+                
+                # Load value
                 value = self._load_value(key)
                 
-                # Update access statistics
-                metadata["access_count"] += 1
-                metadata["last_access_time"] = time.time()
-                self._save_metadata(key, metadata)
-                
+                # Initialize access_count if not present
+                if "access_count" not in metadata:
                 self.stats["hits"] += 1
                 self._save_stats()
                 return value
             
-            except Exception as e:
+            except Exception:
                 self.stats["misses"] += 1
                 self._save_stats()
                 return None
@@ -124,20 +121,31 @@ class DiskCache(CacheBackend):
             True if successful, False otherwise
         """
         with self.lock:
-            # Check if we need to evict an item
-            if self.max_size is not None and self.get_size() >= self.max_size and not self.exists(key):
-                self._evict_item()
+            # Check if we need to evict an item first - BEFORE setting the new item
+            if self.max_size is not None and not self.exists(key):
+                current_size = self.get_size()
+                if current_size >= self.max_size:
+                    self._evict_item()
             
             # Calculate expiration time
             expiration_time = None
             if ttl is not None:
                 expiration_time = time.time() + ttl
             
+            # If key exists, preserve access count
+            access_count = 0
+            try:
+                if self.exists(key):
+                    old_metadata = self._load_metadata(key)
+                    access_count = old_metadata.get("access_count", 0)
+            except (IOError, json.JSONDecodeError):
+                pass
+            
             # Create metadata
             metadata = {
                 "key": key,
                 "expiration_time": expiration_time,
-                "access_count": 0,
+                "access_count": access_count,
                 "last_access_time": time.time(),
                 "creation_time": time.time()
             }
@@ -151,7 +159,7 @@ class DiskCache(CacheBackend):
                 self._save_stats()
                 return True
             
-            except Exception as e:
+            except Exception:
                 return False
     
     def delete(self, key: str) -> bool:
@@ -273,23 +281,25 @@ class DiskCache(CacheBackend):
         Returns:
             List of keys
         """
-        with self.lock:
-            # Remove expired items
-            self._remove_expired_items()
+        keys = []
+        
+        # List all metadata files to get the actual keys
+        for filename in os.listdir(self.metadata_dir):
+            if not filename.endswith(".json") or filename == "stats.json":
+                continue
             
-            # Get all metadata files
-            keys = []
-            for item in os.listdir(self.metadata_dir):
-                if item.endswith(".json") and item != "stats.json":
-                    key = item[:-5]  # Remove .json extension
-                    keys.append(key)
-            
-            if pattern is None:
-                return keys
-            
-            # Filter keys by pattern
-            regex = re.compile(pattern)
-            return [key for key in keys if regex.match(key)]
+            try:
+                metadata_path = os.path.join(self.metadata_dir, filename)
+                with open(metadata_path, 'r') as f:
+                    metadata = json.load(f)
+                    if "key" in metadata:
+                        key = metadata["key"]
+                        if pattern is None or re.match(pattern, key):
+                            keys.append(key)
+            except (IOError, json.JSONDecodeError):
+                continue
+        
+        return keys
     
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -500,60 +510,80 @@ class DiskCache(CacheBackend):
         """
         Evict an item from the cache based on the eviction policy.
         """
-        keys = self.get_keys()
-        if not keys:
-            return
-        
-        if self.eviction_policy == "lru":
-            # Least Recently Used
-            key_to_evict = None
-            min_access_time = float('inf')
+        with self.lock:
+            keys = self.get_keys()
+            if not keys:
+                return
             
-            for key in keys:
-                metadata = self._load_metadata(key)
-                if metadata["last_access_time"] < min_access_time:
-                    min_access_time = metadata["last_access_time"]
-                    key_to_evict = key
-        
-        elif self.eviction_policy == "lfu":
-            # Least Frequently Used
-            key_to_evict = None
-            min_access_count = float('inf')
+            try:
+                if self.eviction_policy == "lru":
+                    # Least Recently Used
+                    key_to_evict = min(
+                        keys,
+                        key=lambda k: self._load_metadata(k).get("last_access_time", 0)
+                    )
+                
+                elif self.eviction_policy == "lfu":
+                    # Least Frequently Used
+                    key_to_evict = min(
+                        keys,
+                        key=lambda k: self._load_metadata(k).get("access_count", 0)
+                    )
+                
+                elif self.eviction_policy == "fifo":
+                    # First In First Out
+                    key_to_evict = min(
+                        keys,
+                        key=lambda k: self._load_metadata(k).get("creation_time", 0)
+                    )
+                
+                else:
+                    # Default to LRU
+                    key_to_evict = min(
+                        keys,
+                        key=lambda k: self._load_metadata(k).get("last_access_time", 0)
+                    )
+                
+                if key_to_evict:
+                    # Delete both value and metadata files
+                    self.delete(key_to_evict)
+                    self.stats["evictions"] += 1
+                    self._save_stats()
             
-            for key in keys:
-                metadata = self._load_metadata(key)
-                if metadata["access_count"] < min_access_count:
-                    min_access_count = metadata["access_count"]
-                    key_to_evict = key
-        
-        elif self.eviction_policy == "fifo":
-            # First In First Out
-            key_to_evict = None
-            min_creation_time = float('inf')
-            
-            for key in keys:
-                metadata = self._load_metadata(key)
-                if metadata["creation_time"] < min_creation_time:
-                    min_creation_time = metadata["creation_time"]
-                    key_to_evict = key
-        
-        else:
-            # Default to LRU
-            key_to_evict = keys[0]
-        
-        if key_to_evict:
-            self.delete(key_to_evict)
-            self.stats["evictions"] += 1
-            self._save_stats()
+            except Exception:
+                # If there's any error, just delete the first key
+                self.delete(keys[0])
+                self.stats["evictions"] += 1
+                self._save_stats()
     
     def _remove_expired_items(self) -> None:
         """
         Remove expired items from the cache.
         """
-        keys = self.get_keys()
-        current_time = time.time()
-        
-        for key in keys:
-            metadata = self._load_metadata(key)
-            if metadata.get("expiration_time") is not None and current_time > metadata["expiration_time"]:
-                self.delete(key)
+        with self.lock:
+            current_time = time.time()
+            
+            # List all metadata files
+            for filename in os.listdir(self.metadata_dir):
+                if not filename.endswith(".json") or filename == "stats.json":
+                    continue
+                
+                metadata_path = os.path.join(self.metadata_dir, filename)
+                try:
+                    with open(metadata_path, 'r') as f:
+                        metadata = json.load(f)
+                    
+                    expiration_time = metadata.get("expiration_time")
+                    if expiration_time is not None and current_time > expiration_time:
+                        # Get the key and delete both value and metadata
+                        key = metadata.get("key")
+                        if key:
+                            self.delete(key)
+                            self.stats["evictions"] += 1
+                            self._save_stats()
+                except (IOError, json.JSONDecodeError):
+                    # Remove corrupted metadata files
+                    try:
+                        os.remove(metadata_path)
+                    except OSError:
+                        pass
