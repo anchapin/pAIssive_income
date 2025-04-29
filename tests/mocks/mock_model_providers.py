@@ -21,7 +21,7 @@ class MockBaseModelProvider:
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
         Initialize the mock model provider.
-        
+
         Args:
             config: Optional configuration for the mock provider
         """
@@ -39,7 +39,7 @@ class MockBaseModelProvider:
                 "name": "GPT-4 Turbo",
                 "capabilities": ["text-generation", "chat"],
                 "created": int(datetime.now().timestamp()),
-                "owned_by": "mock-provider" 
+                "owned_by": "mock-provider"
             },
             {
                 "id": "dall-e-3",
@@ -56,7 +56,7 @@ class MockBaseModelProvider:
                 "owned_by": "mock-provider"
             }
         ])
-        
+
         # Set up success rates
         self.success_rate = self.config.get("success_rate", 0.95)
         self.latency_range = self.config.get("latency_range", (100, 500))  # ms
@@ -66,10 +66,10 @@ class MockBaseModelProvider:
             "invalid_request": "The request is not valid for this model.",
             "context_length": "The context length exceeds the model's limit."
         })
-        
+
         # Track call history for assertions
         self.call_history = []
-    
+
     def record_call(self, method_name: str, **kwargs):
         """Record a method call for testing assertions."""
         self.call_history.append({
@@ -77,7 +77,7 @@ class MockBaseModelProvider:
             "timestamp": datetime.now().isoformat(),
             "args": kwargs
         })
-    
+
     def get_call_history(self, method_name: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get the call history, optionally filtered by method name."""
         if method_name:
@@ -95,7 +95,52 @@ class MockOpenAIProvider(MockBaseModelProvider):
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the mock OpenAI provider."""
         super().__init__(config)
-        
+
+        # Default available models
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "gpt-3.5-turbo",
+                "name": "GPT-3.5 Turbo",
+                "capabilities": ["text-generation", "chat", "function-calling"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            },
+            {
+                "id": "gpt-4",
+                "name": "GPT-4",
+                "capabilities": ["text-generation", "chat", "function-calling"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            },
+            {
+                "id": "gpt-4-turbo",
+                "name": "GPT-4 Turbo",
+                "capabilities": ["text-generation", "chat", "function-calling"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            },
+            {
+                "id": "text-embedding-ada-002",
+                "name": "Text Embedding Ada 002",
+                "capabilities": ["embeddings"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            },
+            {
+                "id": "dall-e-3",
+                "name": "DALL-E 3",
+                "capabilities": ["image-generation"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            }
+        ])
+
+        # Set up custom responses for specific prompts
+        self.config["custom_responses"] = self.config.get("custom_responses", {
+            "analyze market trends": "Market analysis shows positive growth trends.",
+            "market trends": "Market analysis shows positive growth trends."
+        })
+
         # Mock responses for each endpoint
         self.mock_responses = {
             "chat_completion": {
@@ -162,23 +207,23 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 ]
             }
         }
-    
+
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
         return self.available_models
-    
+
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
         self.record_call("get_model_info", model_id=model_id)
-        
+
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
                 return model
-        
+
         return None
-    
+
     def create_completion(
         self,
         model: str,
@@ -198,21 +243,21 @@ class MockOpenAIProvider(MockBaseModelProvider):
             stream=stream,
             **kwargs
         )
-        
+
         # Check if model exists
         if not any(m["id"] == model for m in self.available_models):
             raise ValueError(self.error_messages["invalid_model"])
-        
+
         response = self.mock_responses["text_completion"].copy()
         response["model"] = model
-        
+
         # If a custom response is provided for this specific prompt, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in prompt:
                 response["choices"][0]["text"] = custom_response
                 break
-        
+
         # Simulate streaming if requested
         if stream:
             def generate_stream():
@@ -233,11 +278,11 @@ class MockOpenAIProvider(MockBaseModelProvider):
                             }
                         ]
                     }
-            
+
             return generate_stream()
-        
+
         return response
-    
+
     def create_chat_completion(
         self,
         model: str,
@@ -257,28 +302,28 @@ class MockOpenAIProvider(MockBaseModelProvider):
             stream=stream,
             **kwargs
         )
-        
+
         # Check if model exists
         if not any(m["id"] == model for m in self.available_models):
             raise ValueError(self.error_messages["invalid_model"])
-        
+
         response = self.mock_responses["chat_completion"].copy()
         response["model"] = model
-        
+
         # Extract the user's message for matching custom responses
         user_message = ""
         for message in messages:
             if message.get("role") == "user":
                 user_message = message.get("content", "")
                 break
-        
+
         # If a custom response is provided for this specific message, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in user_message:
                 response["choices"][0]["message"]["content"] = custom_response
                 break
-        
+
         # Simulate streaming if requested
         if stream:
             def generate_stream():
@@ -301,11 +346,11 @@ class MockOpenAIProvider(MockBaseModelProvider):
                             }
                         ]
                     }
-            
+
             return generate_stream()
-        
+
         return response
-    
+
     def create_embedding(
         self,
         model: str,
@@ -319,15 +364,15 @@ class MockOpenAIProvider(MockBaseModelProvider):
             input=input,
             **kwargs
         )
-        
+
         # Check if model exists and has embedding capability
         model_info = self.get_model_info(model)
         if not model_info or "embeddings" not in model_info.get("capabilities", []):
             raise ValueError(self.error_messages["invalid_model"])
-        
+
         response = self.mock_responses["embeddings"].copy()
         response["model"] = model
-        
+
         # Handle list of inputs
         if isinstance(input, list):
             response["data"] = []
@@ -340,9 +385,9 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 })
             response["usage"]["prompt_tokens"] = sum(len(text.split()) for text in input)
             response["usage"]["total_tokens"] = response["usage"]["prompt_tokens"]
-        
+
         return response
-    
+
     def create_image(
         self,
         prompt: str,
@@ -360,17 +405,17 @@ class MockOpenAIProvider(MockBaseModelProvider):
             n=n,
             **kwargs
         )
-        
+
         # Use DALL-E 3 as default model if none specified
         model = model or "dall-e-3"
-        
+
         # Check if model exists and has image generation capability
         model_info = self.get_model_info(model)
         if not model_info or "image-generation" not in model_info.get("capabilities", []):
             raise ValueError(self.error_messages["invalid_model"])
-        
+
         response = self.mock_responses["images"].copy()
-        
+
         # Generate multiple images if requested
         if n > 1:
             response["data"] = []
@@ -379,17 +424,17 @@ class MockOpenAIProvider(MockBaseModelProvider):
                     "url": f"https://mock-url.com/image_{i}.png",
                     "b64_json": None
                 })
-        
+
         return response
 
 
 class MockOllamaProvider(MockBaseModelProvider):
     """Mock implementation of Ollama API."""
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the mock Ollama provider."""
         super().__init__(config)
-        
+
         # Override available models for Ollama
         self.available_models = self.config.get("available_models", [
             {
@@ -414,7 +459,7 @@ class MockOllamaProvider(MockBaseModelProvider):
                 "size": 4032639651
             }
         ])
-        
+
         # Mock responses
         self.mock_responses = {
             "completion": {
@@ -430,23 +475,23 @@ class MockOllamaProvider(MockBaseModelProvider):
                 "eval_duration": 504010000
             }
         }
-    
+
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
         return {"models": self.available_models}
-    
+
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
         self.record_call("get_model_info", model_id=model_id)
-        
+
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
                 return model
-        
+
         return None
-    
+
     def generate(
         self,
         model: str,
@@ -466,21 +511,21 @@ class MockOllamaProvider(MockBaseModelProvider):
             stream=stream,
             **kwargs
         )
-        
+
         # Check if model exists
         if not any(m["id"] == model for m in self.available_models):
             raise ValueError(f"Model {model} not found")
-        
+
         response = self.mock_responses["completion"].copy()
         response["model"] = model
-        
+
         # If a custom response is provided for this specific prompt, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in prompt:
                 response["response"] = custom_response
                 break
-        
+
         # Simulate streaming if requested
         if stream:
             def generate_stream():
@@ -493,11 +538,11 @@ class MockOllamaProvider(MockBaseModelProvider):
                     chunk["response"] = word + " "
                     chunk["done"] = done
                     yield chunk
-            
+
             return generate_stream()
-        
+
         return response
-    
+
     def chat(
         self,
         model: str,
@@ -517,28 +562,28 @@ class MockOllamaProvider(MockBaseModelProvider):
             stream=stream,
             **kwargs
         )
-        
+
         # Check if model exists
         if not any(m["id"] == model for m in self.available_models):
             raise ValueError(f"Model {model} not found")
-        
+
         response = self.mock_responses["completion"].copy()
         response["model"] = model
-        
+
         # Extract the user's message for matching custom responses
         user_message = ""
         for message in messages:
             if message.get("role") == "user":
                 user_message = message.get("content", "")
                 break
-        
+
         # If a custom response is provided for this specific message, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in user_message:
                 response["response"] = custom_response
                 break
-        
+
         # Simulate streaming if requested
         if stream:
             def generate_stream():
@@ -551,19 +596,19 @@ class MockOllamaProvider(MockBaseModelProvider):
                     chunk["response"] = word + " "
                     chunk["done"] = done
                     yield chunk
-            
+
             return generate_stream()
-        
+
         return response
 
 
 class MockLMStudioProvider(MockBaseModelProvider):
     """Mock implementation of LM Studio API."""
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the mock LM Studio provider."""
         super().__init__(config)
-        
+
         # Override available models for LM Studio
         self.available_models = self.config.get("available_models", [
             {
@@ -574,7 +619,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
                 "owned_by": "user"
             }
         ])
-        
+
         # Mock responses - LM Studio uses OpenAI compatible API
         self.mock_responses = {
             "completion": {
@@ -607,7 +652,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
                 ]
             }
         }
-    
+
     def list_models(self) -> Dict[str, Any]:
         """List available models."""
         self.record_call("list_models")
@@ -615,7 +660,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
             "data": self.available_models,
             "object": "list"
         }
-    
+
     def create_completion(
         self,
         model: str,
@@ -635,17 +680,17 @@ class MockLMStudioProvider(MockBaseModelProvider):
             stream=stream,
             **kwargs
         )
-        
+
         response = self.mock_responses["completion"].copy()
         response["model"] = model
-        
+
         # If a custom response is provided for this specific prompt, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in prompt:
                 response["choices"][0]["text"] = custom_response
                 break
-        
+
         # Simulate streaming if requested
         if stream:
             def generate_stream():
@@ -666,11 +711,11 @@ class MockLMStudioProvider(MockBaseModelProvider):
                             }
                         ]
                     }
-            
+
             return generate_stream()
-        
+
         return response
-    
+
     def create_chat_completion(
         self,
         model: str,
@@ -690,24 +735,24 @@ class MockLMStudioProvider(MockBaseModelProvider):
             stream=stream,
             **kwargs
         )
-        
+
         response = self.mock_responses["chat_completion"].copy()
         response["model"] = model
-        
+
         # Extract the user's message for matching custom responses
         user_message = ""
         for message in messages:
             if message.get("role") == "user":
                 user_message = message.get("content", "")
                 break
-        
+
         # If a custom response is provided for this specific message, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in user_message:
                 response["choices"][0]["message"]["content"] = custom_response
                 break
-        
+
         # Simulate streaming if requested
         if stream:
             def generate_stream():
@@ -730,19 +775,19 @@ class MockLMStudioProvider(MockBaseModelProvider):
                             }
                         ]
                     }
-            
+
             return generate_stream()
-        
+
         return response
 
 
 class MockHuggingFaceProvider(MockBaseModelProvider):
     """Mock implementation of Hugging Face API."""
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the mock Hugging Face provider."""
         super().__init__(config)
-        
+
         # Override available models for Hugging Face
         self.available_models = self.config.get("available_models", [
             {
@@ -774,7 +819,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                 "pipeline_tag": "feature-extraction"
             }
         ])
-        
+
         # Mock responses
         self.mock_responses = {
             "text_generation": {
@@ -817,23 +862,23 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             ],
             "embeddings": np.random.rand(1, 384).tolist()  # Common embedding size for MiniLM
         }
-    
+
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
         return self.available_models
-    
+
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
         self.record_call("get_model_info", model_id=model_id)
-        
+
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
                 return model
-        
+
         return None
-    
+
     def text_generation(
         self,
         model_id: str,
@@ -851,23 +896,23 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             temperature=temperature,
             **kwargs
         )
-        
+
         # Check if model exists and has text generation capability
         model_info = self.get_model_info(model_id)
         if not model_info or "text-generation" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support text generation")
-        
+
         response = self.mock_responses["text_generation"].copy()
-        
+
         # If a custom response is provided for this specific text, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in text:
                 response["generated_text"] = custom_response
                 break
-        
+
         return [response]
-    
+
     def text2text_generation(
         self,
         model_id: str,
@@ -883,23 +928,23 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             max_length=max_length,
             **kwargs
         )
-        
+
         # Check if model exists and has text2text generation capability
         model_info = self.get_model_info(model_id)
         if not model_info or "text2text-generation" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support text2text generation")
-        
+
         response = self.mock_responses["text2text_generation"].copy()
-        
+
         # If a custom response is provided for this specific text, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in text:
                 response["generated_text"] = custom_response
                 break
-        
+
         return [response]
-    
+
     def summarization(
         self,
         model_id: str,
@@ -917,23 +962,23 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             min_length=min_length,
             **kwargs
         )
-        
+
         # Check if model exists and has summarization capability
         model_info = self.get_model_info(model_id)
         if not model_info or "summarization" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support summarization")
-        
+
         response = self.mock_responses["summarization"].copy()
-        
+
         # If a custom response is provided for this specific text, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in text:
                 response["summary_text"] = custom_response
                 break
-        
+
         return [response]
-    
+
     def translation(
         self,
         model_id: str,
@@ -951,23 +996,23 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             tgt_lang=tgt_lang,
             **kwargs
         )
-        
+
         # Check if model exists and has translation capability
         model_info = self.get_model_info(model_id)
         if not model_info or "translation" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support translation")
-        
+
         response = self.mock_responses["translation"].copy()
-        
+
         # If a custom response is provided for this specific text, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in text:
                 response["translation_text"] = custom_response
                 break
-        
+
         return [response]
-    
+
     def text_classification(
         self,
         model_id: str,
@@ -981,16 +1026,16 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             text=text,
             **kwargs
         )
-        
+
         # Check if model exists and has text classification capability
         model_info = self.get_model_info(model_id)
         if not model_info or "text-classification" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support text classification")
-        
+
         response = self.mock_responses["text_classification"].copy()
-        
+
         return response
-    
+
     def token_classification(
         self,
         model_id: str,
@@ -1004,16 +1049,16 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             text=text,
             **kwargs
         )
-        
+
         # Check if model exists and has token classification capability
         model_info = self.get_model_info(model_id)
         if not model_info or "token-classification" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support token classification")
-        
+
         response = self.mock_responses["token_classification"].copy()
-        
+
         return response
-    
+
     def embedding(
         self,
         model_id: str,
@@ -1027,15 +1072,15 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             text=text,
             **kwargs
         )
-        
+
         # Check if model exists and has embedding capability
         model_info = self.get_model_info(model_id)
         if not model_info or "embedding" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support embeddings")
-        
+
         # Get base embedding from mock responses
         base_embedding = np.array(self.mock_responses["embeddings"])
-        
+
         # Handle list of inputs
         if isinstance(text, list):
             # Create slightly different embeddings for each text
@@ -1053,11 +1098,11 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
 class MockLocalModelProvider(MockBaseModelProvider):
     """Mock implementation of local model inference (like llama.cpp)."""
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the mock Local Model provider."""
         super().__init__(config)
-        
+
         # Override available models
         self.available_models = self.config.get("available_models", [
             {
@@ -1101,7 +1146,7 @@ class MockLocalModelProvider(MockBaseModelProvider):
                 "quantization": "q4_k_m"
             }
         ])
-        
+
         # Mock responses
         self.mock_responses = {
             "completion": {
@@ -1124,23 +1169,23 @@ class MockLocalModelProvider(MockBaseModelProvider):
                 }
             }
         }
-    
+
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
         return self.available_models
-    
+
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
         self.record_call("get_model_info", model_id=model_id)
-        
+
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
                 return model
-        
+
         return None
-    
+
     def generate_completion(
         self,
         model_id: str,
@@ -1160,20 +1205,20 @@ class MockLocalModelProvider(MockBaseModelProvider):
             stream=stream,
             **kwargs
         )
-        
+
         # Check if model exists
         if not any(m["id"] == model_id for m in self.available_models):
             raise ValueError(f"Model {model_id} not found")
-        
+
         response = self.mock_responses["completion"].copy()
-        
+
         # If a custom response is provided for this specific prompt, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in prompt:
                 response["text"] = custom_response
                 break
-        
+
         # Simulate streaming if requested
         if stream:
             def generate_stream():
@@ -1185,11 +1230,11 @@ class MockLocalModelProvider(MockBaseModelProvider):
                     if i == len(words) - 1:
                         chunk["stop"] = True
                     yield chunk
-            
+
             return generate_stream()
-        
+
         return response
-    
+
     def generate_chat_completion(
         self,
         model_id: str,
@@ -1209,28 +1254,28 @@ class MockLocalModelProvider(MockBaseModelProvider):
             stream=stream,
             **kwargs
         )
-        
+
         # Check if model exists and has chat capability
         model_info = self.get_model_info(model_id)
         if not model_info or "chat" not in model_info.get("capabilities", []):
             raise ValueError(f"Model {model_id} not found or does not support chat")
-        
+
         response = self.mock_responses["completion"].copy()
-        
+
         # Extract the user's message for matching custom responses
         user_message = ""
         for message in messages:
             if message.get("role") == "user":
                 user_message = message.get("content", "")
                 break
-        
+
         # If a custom response is provided for this specific message, use it
         custom_responses = self.config.get("custom_responses", {})
         for pattern, custom_response in custom_responses.items():
             if pattern in user_message:
                 response["text"] = custom_response
                 break
-        
+
         # Simulate streaming if requested
         if stream:
             def generate_stream():
@@ -1242,19 +1287,19 @@ class MockLocalModelProvider(MockBaseModelProvider):
                     if i == len(words) - 1:
                         chunk["stop"] = True
                     yield chunk
-            
+
             return generate_stream()
-        
+
         return response
 
 
 class MockONNXProvider(MockBaseModelProvider):
     """Mock implementation of ONNX model inference."""
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the mock ONNX provider."""
         super().__init__(config)
-        
+
         # Override available models
         self.available_models = self.config.get("available_models", [
             {
@@ -1279,7 +1324,7 @@ class MockONNXProvider(MockBaseModelProvider):
                 "path": "/path/to/gpt2.onnx"
             }
         ])
-        
+
         # Mock responses
         self.mock_responses = {
             "text_classification": {
@@ -1302,23 +1347,23 @@ class MockONNXProvider(MockBaseModelProvider):
                 "generated_text": self.config.get("default_completion", "This is a mock response from the ONNX model.")
             }
         }
-    
+
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
         return self.available_models
-    
+
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
         self.record_call("get_model_info", model_id=model_id)
-        
+
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
                 return model
-        
+
         return None
-    
+
     def run_inference(
         self,
         model_id: str,
@@ -1332,15 +1377,15 @@ class MockONNXProvider(MockBaseModelProvider):
             inputs=inputs,
             **kwargs
         )
-        
+
         # Check if model exists
         model_info = self.get_model_info(model_id)
         if not model_info:
             raise ValueError(f"Model {model_id} not found")
-        
+
         # Get capabilities
         capabilities = model_info.get("capabilities", [])
-        
+
         if "text-classification" in capabilities:
             return self.mock_responses["text_classification"].copy()
         elif "feature-extraction" in capabilities:
@@ -1355,8 +1400,8 @@ class MockONNXProvider(MockBaseModelProvider):
 
 # Helper function to create the appropriate mock provider
 def create_mock_provider(provider_type: str, config: Optional[Dict[str, Any]] = None) -> Union[
-    MockOpenAIProvider, 
-    MockOllamaProvider, 
+    MockOpenAIProvider,
+    MockOllamaProvider,
     MockLMStudioProvider,
     MockHuggingFaceProvider,
     MockLocalModelProvider,
@@ -1364,11 +1409,11 @@ def create_mock_provider(provider_type: str, config: Optional[Dict[str, Any]] = 
 ]:
     """
     Create a mock provider of the specified type.
-    
+
     Args:
         provider_type: Type of provider to create
         config: Optional configuration for the provider
-        
+
     Returns:
         A mock provider instance
     """
@@ -1380,9 +1425,9 @@ def create_mock_provider(provider_type: str, config: Optional[Dict[str, Any]] = 
         "local": MockLocalModelProvider,
         "onnx": MockONNXProvider
     }
-    
+
     provider_class = providers.get(provider_type.lower())
     if not provider_class:
         raise ValueError(f"Unknown provider type: {provider_type}")
-    
+
     return provider_class(config)

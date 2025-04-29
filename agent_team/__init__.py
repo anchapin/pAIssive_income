@@ -11,12 +11,27 @@ from .schemas import (
     AgentProfileSchema, NicheSchema, SolutionSchema, MonetizationStrategySchema,
     MarketingPlanSchema, FeedbackItemSchema, ProjectStateSchema
 )
+from .agent_profiles import (
+    AgentProfile, ResearchAgent, DeveloperAgent,
+    MonetizationAgent, MarketingAgent, FeedbackAgent
+)
 
 __all__ = [
+    # Team configuration
     'AgentTeam',
     'TeamConfigSchema',
     'ModelSettingsSchema',
     'WorkflowSettingsSchema',
+
+    # Agent profiles
+    'AgentProfile',
+    'ResearchAgent',
+    'DeveloperAgent',
+    'MonetizationAgent',
+    'MarketingAgent',
+    'FeedbackAgent',
+
+    # Project schemas
     'AgentProfileSchema',
     'NicheSchema',
     'SolutionSchema',

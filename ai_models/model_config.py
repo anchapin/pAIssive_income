@@ -44,9 +44,7 @@ class ModelConfig(IModelConfig):
     default_embedding_model: str = "all-MiniLM-L6-v2"
 
     def __post_init__(self):
-        """
-        Create necessary directories after initialization.
-        """
+        """Create necessary directories after initialization."""
         os.makedirs(self.models_dir, exist_ok=True)
         os.makedirs(self.cache_dir, exist_ok=True)
 
@@ -99,8 +97,8 @@ class ModelConfig(IModelConfig):
         Returns:
             Dictionary representation of the configuration
         """
-        # Convert to dict but replace underscore-prefixed attributes with their property names
-        result = {
+        # Convert to dict but use property names instead of private field names
+        return {
             "models_dir": self.models_dir,
             "cache_dir": self.cache_dir,
             "cache_enabled": self.cache_enabled,
@@ -113,7 +111,6 @@ class ModelConfig(IModelConfig):
             "default_text_model": self.default_text_model,
             "default_embedding_model": self.default_embedding_model
         }
-        return result
 
     def to_json(self, indent: int = 2) -> str:
         """
@@ -146,17 +143,58 @@ class ModelConfig(IModelConfig):
 
         Returns:
             ModelConfig instance
+            
+        Raises:
+            ValueError: If the configuration file is invalid or cannot be loaded
         """
         if not os.path.exists(config_path):
             return cls()
 
         try:
+            # Load raw config from file
             config_dict = load_from_json_file(config_path)
-            return cls(**config_dict)
+            
+            # Validate using Pydantic schema
+            try:
+                from pydantic import ValidationError
+                
+                # Use the Pydantic schema to validate the config
+                validated_config = ModelConfigSchema.model_validate(config_dict)
+                
+                # Convert back to dict for creating the ModelConfig instance
+                # This ensures all values are properly validated and default values are applied
+                validated_dict = validated_config.model_dump()
+                
+                # Convert public field names to private ones
+                private_dict = {
+                    f"_{key}" if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"} else key: value
+                    for key, value in validated_dict.items()
+                }
+                
+                return cls(**private_dict)
+                
+            except ValidationError as e:
+                error_messages = []
+                for error in e.errors():
+                    field_path = ".".join(str(loc) for loc in error["loc"])
+                    error_messages.append(f"{field_path}: {error['msg']}")
+                
+                error_str = "\n".join(error_messages)
+                raise ValueError(f"Invalid configuration in {config_path}:\n{error_str}")
+                
+            except ImportError:
+                # Fallback if Pydantic isn't available
+                print(f"Warning: Pydantic validation skipped for {config_path}")
+                # Convert public field names to private ones for direct loading
+                private_dict = {
+                    f"_{key}" if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"} else key: value
+                    for key, value in config_dict.items()
+                }
+                return cls(**private_dict)
+                
         except Exception as e:
-            # If there's an error loading the config, return the default
-            print(f"Error loading config from {config_path}: {e}")
-            return cls()
+            # If there's an error loading the config, raise a more informative error
+            raise ValueError(f"Failed to load configuration from {config_path}: {e}")
 
     @classmethod
     def get_default_config_path(cls) -> str:

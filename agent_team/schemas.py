@@ -5,7 +5,7 @@ This module provides Pydantic models for data validation in the Agent Team modul
 """
 
 from typing import Dict, List, Any, Optional, Union, Literal
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 
 
@@ -19,9 +19,7 @@ class ModelSettingSchema(BaseModel):
         le=1.0
     )
     
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields for future model-specific parameters
+    model_config = ConfigDict(extra="allow")  # Allow extra fields for future model-specific parameters
 
 
 class ModelSettingsSchema(BaseModel):
@@ -32,9 +30,7 @@ class ModelSettingsSchema(BaseModel):
     marketing: ModelSettingSchema
     feedback: ModelSettingSchema
     
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields for future agents
+    model_config = ConfigDict(extra="allow")  # Allow extra fields for future agents
 
 
 class WorkflowSettingsSchema(BaseModel):
@@ -48,9 +44,7 @@ class WorkflowSettingsSchema(BaseModel):
         description="Whether review is required before progressing"
     )
     
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields for future workflow settings
+    model_config = ConfigDict(extra="allow")  # Allow extra fields for future workflow settings
 
 
 class TeamConfigSchema(BaseModel):
@@ -64,9 +58,7 @@ class TeamConfigSchema(BaseModel):
         description="Workflow settings"
     )
     
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields for future configuration options
+    model_config = ConfigDict(extra="allow")  # Allow extra fields for future configuration options
 
 
 class AgentProfileSchema(BaseModel):
@@ -111,9 +103,7 @@ class NicheSchema(BaseModel):
         description="Competition analysis for the niche"
     )
     
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class TechnologyStackSchema(BaseModel):
@@ -132,7 +122,8 @@ class FeatureSchema(BaseModel):
     priority: str = Field(..., description="Priority of the feature (high, medium, low)")
     complexity: Optional[str] = Field(None, description="Complexity of the feature")
     
-    @validator('priority')
+    @field_validator('priority')
+    @classmethod
     def validate_priority(cls, v):
         """Validate that priority is one of the allowed values."""
         if v.lower() not in ['high', 'medium', 'low']:
@@ -157,9 +148,7 @@ class SolutionSchema(BaseModel):
         description="Implementation plan for the solution"
     )
     
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class PricingTierSchema(BaseModel):
@@ -169,7 +158,8 @@ class PricingTierSchema(BaseModel):
     billing_period: str = Field(..., description="Billing period")
     features: List[str] = Field(..., description="Features included in this tier")
     
-    @validator('billing_period')
+    @field_validator('billing_period')
+    @classmethod
     def validate_billing_period(cls, v):
         """Validate that billing period is one of the allowed values."""
         if v.lower() not in ['monthly', 'quarterly', 'yearly', 'one-time']:
@@ -201,9 +191,7 @@ class MonetizationStrategySchema(BaseModel):
         description="Revenue projections"
     )
     
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class MarketingChannelSchema(BaseModel):
@@ -231,9 +219,7 @@ class MarketingPlanSchema(BaseModel):
         description="Launch plan"
     )
     
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class FeedbackItemSchema(BaseModel):
@@ -287,6 +273,4 @@ class ProjectStateSchema(BaseModel):
     created_at: str = Field(..., description="Creation timestamp")
     updated_at: str = Field(..., description="Last update timestamp")
     
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
