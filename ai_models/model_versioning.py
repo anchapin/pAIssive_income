@@ -296,9 +296,33 @@ class ModelVersionRegistry:
 
         Args:
             version: ModelVersion to register
+
+        Raises:
+            ValueError: If version already exists or there are conflicts
         """
         model_id = version.model_id
         version_str = version.version
+
+        # Check if version already exists
+        if (model_id in self.versions and 
+            version_str in self.versions[model_id]):
+            existing = self.versions[model_id][version_str]
+            
+            # Same version string but different content is a conflict
+            if existing.hash_value != version.hash_value:
+                raise ValueError(f"Version {version_str} already exists with different content")
+                
+            # Same version string with different features is a conflict
+            if set(existing.features) != set(version.features):
+                raise ValueError(f"Version {version_str} already exists with different features")
+                
+            # Same version string with different metadata is a conflict
+            if existing.metadata != version.metadata:
+                raise ValueError(f"Version {version_str} already exists with different metadata")
+                
+            # If we get here, it's an identical version - just log and return
+            logger.info(f"Version {version_str} already registered with identical content")
+            return
 
         # Add to registry
         if model_id not in self.versions:

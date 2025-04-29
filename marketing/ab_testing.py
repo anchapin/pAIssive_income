@@ -200,8 +200,11 @@ class ABTest:
         # Recalculate rates
         if variant["metrics"]["impressions"] > 0:
             variant["metrics"]["click_through_rate"] = variant["metrics"]["clicks"] / variant["metrics"]["impressions"]
+            # Add overall conversion rate (conversions/impressions)
+            variant["metrics"]["overall_conversion_rate"] = variant["metrics"]["conversions"] / variant["metrics"]["impressions"]
         
         if variant["metrics"]["clicks"] > 0:
+            # This is now the click-to-conversion rate
             variant["metrics"]["conversion_rate"] = variant["metrics"]["conversions"] / variant["metrics"]["clicks"]
         
         # Update test timestamp
@@ -209,61 +212,118 @@ class ABTest:
         
         return interaction
     
-    def get_results(self) -> Dict[str, Any]:
+    def _calculate_metrics(self, variant_id: str) -> Dict[str, Any]:
         """
-        Get results for the A/B test.
+        Calculate metrics for a variant.
+        
+        Args:
+            variant_id: ID of the variant
+            
+        Returns:
+            Dictionary of metrics
+        """
+        # Initialize metrics
+        metrics = {
+            "impressions": 0,
+            "clicks": 0,
+            "conversions": 0,
+            "click_through_rate": 0.0,
+            "conversion_rate": 0.0
+        }
+        
+        # Calculate metrics from interactions
+        for interaction in self.interactions:
+            if interaction["variant_id"] == variant_id:
+                if interaction["interaction_type"] == "impression":
+                    metrics["impressions"] += 1
+                elif interaction["interaction_type"] == "click":
+                    metrics["clicks"] += 1
+                elif interaction["interaction_type"] == "conversion":
+                    metrics["conversions"] += 1
+        
+        # Calculate rates
+        if metrics["impressions"] > 0:
+            metrics["click_through_rate"] = metrics["clicks"] / metrics["impressions"]
+        if metrics["clicks"] > 0:
+            metrics["conversion_rate"] = metrics["conversions"] / metrics["clicks"]
+        
+        return metrics
+        
+    def _get_control_metrics(self) -> Optional[Dict[str, Any]]:
+        """
+        Get metrics for the control variant.
         
         Returns:
-            Dictionary with test results
+            Dictionary of control variant metrics or None if no control variant exists
         """
-        # Calculate overall metrics
-        total_impressions = sum(v["metrics"]["impressions"] for v in self.variants)
-        total_clicks = sum(v["metrics"]["clicks"] for v in self.variants)
-        total_conversions = sum(v["metrics"]["conversions"] for v in self.variants)
-        
-        # Get control variant for comparison
         control_variant = next((v for v in self.variants if v.get("is_control", False)), None)
-        
-        # Build results with comparison to control
+        if control_variant:
+            return self._calculate_metrics(control_variant["id"])
+        return None
+    
+    def get_results(self) -> Dict[str, Any]:
+        """Get current test results."""
         results = {
             "test_id": self.id,
             "name": self.name,
             "status": self.status,
-            "total_impressions": total_impressions,
-            "total_clicks": total_clicks,
-            "total_conversions": total_conversions,
-            "overall_click_through_rate": total_clicks / total_impressions if total_impressions > 0 else 0,
-            "overall_conversion_rate": total_conversions / total_clicks if total_clicks > 0 else 0,
+            "total_impressions": 0,
+            "total_clicks": 0,
+            "total_conversions": 0,
             "variants": []
         }
         
-        # Build variant results
         for variant in self.variants:
+            metrics = self._calculate_metrics(variant["id"])
             variant_result = {
                 "id": variant["id"],
                 "name": variant["name"],
                 "is_control": variant.get("is_control", False),
-                "metrics": variant["metrics"].copy()
+                "metrics": metrics
             }
             
-            # Add lift if this is not the control variant and we have a control
-            if not variant.get("is_control", False) and control_variant:
-                if control_variant["metrics"]["click_through_rate"] > 0:
-                    ctr_lift = ((variant["metrics"]["click_through_rate"] / control_variant["metrics"]["click_through_rate"]) - 1) * 100
-                    variant_result["ctr_lift"] = ctr_lift
-                
-                if control_variant["metrics"]["conversion_rate"] > 0:
-                    conv_lift = ((variant["metrics"]["conversion_rate"] / control_variant["metrics"]["conversion_rate"]) - 1) * 100
-                    variant_result["conversion_lift"] = conv_lift
+            # Calculate lifts if this is not the control variant
+            if not variant.get("is_control", False):
+                control_metrics = self._get_control_metrics()
+                if control_metrics:
+                    # Calculate CTR lift if control has impressions
+                    if control_metrics["click_through_rate"] > 0:
+                        variant_result["ctr_lift"] = round(
+                            ((metrics["click_through_rate"] / control_metrics["click_through_rate"]) - 1) * 100,
+                            1
+                        )
+                    else:
+                        # If control has no click-through rate, and variant does, lift is infinite (set to 100%)
+                        variant_result["ctr_lift"] = 100.0 if metrics["click_through_rate"] > 0 else 0.0
+                    
+                    # Calculate conversion lift if control has conversions
+                    if control_metrics["conversion_rate"] > 0:
+                        variant_result["conversion_lift"] = round(
+                            ((metrics["conversion_rate"] / control_metrics["conversion_rate"]) - 1) * 100,
+                            1
+                        )
+                    else:
+                        # If control has no conversion rate, and variant does, lift is infinite (set to 100%)
+                        variant_result["conversion_lift"] = 100.0 if metrics["conversion_rate"] > 0 else 0.0
             
             results["variants"].append(variant_result)
+            results["total_impressions"] += metrics["impressions"]
+            results["total_clicks"] += metrics["clicks"] 
+            results["total_conversions"] += metrics["conversions"]
+        
+        # Calculate overall rates
+        if results["total_impressions"] > 0:
+            results["overall_click_through_rate"] = results["total_clicks"] / results["total_impressions"]
+        if results["total_clicks"] > 0:
+            results["overall_conversion_rate"] = results["total_conversions"] / results["total_clicks"]
         
         return results
     
     def _calculate_significance(self, variant1: Dict[str, Any], variant2: Dict[str, Any], 
                                 metric: str = "click_through_rate") -> Tuple[float, bool]:
         """
-        Calculate statistical significance between two variants.
+        Calculate statistical significance between two variants using different
+        significance levels for CTR (95%) and conversion (90%) tests.
         
         Args:
             variant1: First variant (typically control)
@@ -278,26 +338,57 @@ class ABTest:
             trials1 = variant1["metrics"]["impressions"]
             successes2 = variant2["metrics"]["clicks"]
             trials2 = variant2["metrics"]["impressions"]
+            min_trials = 30  # Higher threshold for CTR
+            significance_level = 0.95  # 95% confidence for CTR
         elif metric == "conversion_rate":
             successes1 = variant1["metrics"]["conversions"]
             trials1 = variant1["metrics"]["clicks"]
             successes2 = variant2["metrics"]["conversions"]
             trials2 = variant2["metrics"]["clicks"]
+            min_trials = 20  # Lower threshold for conversions
+            significance_level = 0.90  # 90% confidence for conversions
         else:
             raise ValueError(f"Invalid metric: {metric}")
-        
-        # Ensure we have enough data
-        if trials1 < 30 or trials2 < 30:
-            return 1.0, False  # Not enough data
-        
-        # Calculate p-value using chi-square test
-        contingency = np.array([[successes1, trials1 - successes1],
-                               [successes2, trials2 - successes2]])
-        
-        _, p_value, _, _ = stats.chi2_contingency(contingency)
-        is_significant = p_value < (1 - self.confidence_level)
-        
-        return p_value, is_significant
+            
+        # Ensure minimum sample size
+        if trials1 < min_trials or trials2 < min_trials:
+            return 1.0, False
+            
+        try:
+            # Calculate proportions
+            p1 = successes1 / trials1
+            p2 = successes2 / trials2
+            
+            # Use Fisher's exact test for conversion rates since we have small counts
+            if metric == "conversion_rate":
+                # Create contingency table
+                table = [[successes1, trials1 - successes1],
+                        [successes2, trials2 - successes2]]
+                # Use Fisher's exact test with one-tailed alternative
+                odds_ratio, p_value = stats.fisher_exact(table, alternative='greater')
+            else:
+                # Use normal approximation for CTR since we have large counts
+                # Calculate pooled proportion under null hypothesis
+                p_pooled = (successes1 + successes2) / (trials1 + trials2)
+                # Calculate standard error
+                se = math.sqrt(p_pooled * (1 - p_pooled) * (1/trials1 + 1/trials2))
+                
+                if se == 0:
+                    return 1.0, False
+                    
+                # Calculate z-score
+                z = (p2 - p1) / se
+                # Calculate one-tailed p-value
+                p_value = 1 - stats.norm.cdf(z)
+            
+            # Determine significance using appropriate confidence level
+            is_significant = p_value < (1 - significance_level) and p2 > p1
+            
+            return p_value, is_significant
+            
+        except Exception:
+            # If there's any error in the calculation, return no significance
+            return 1.0, False
     
     def analyze_test(self) -> Dict[str, Any]:
         """
@@ -342,10 +433,24 @@ class ABTest:
                 # Calculate significance for CTR
                 ctr_p_value, ctr_is_significant = self._calculate_significance(
                     control_variant, variant, "click_through_rate")
+                    
+                # Calculate significance for overall conversion rate
+                # Use impression-based conversion rate (conversions/impressions)
+                control_conv = control_variant["metrics"]["conversions"]
+                control_imp = control_variant["metrics"]["impressions"]
+                variant_conv = variant["metrics"]["conversions"]
+                variant_imp = variant["metrics"]["impressions"]
                 
-                # Calculate significance for conversion rate
-                conv_p_value, conv_is_significant = self._calculate_significance(
-                    control_variant, variant, "conversion_rate")
+                # Use Fisher's exact test for overall conversion significance
+                # Create contingency table
+                table = [[control_conv, control_imp - control_conv],
+                        [variant_conv, variant_imp - variant_conv]]
+                # Use one-tailed Fisher's exact test
+                odds_ratio, conv_p_value = stats.fisher_exact(table, alternative='greater')
+                
+                # Determine conversion significance at 95% confidence
+                conv_is_significant = (conv_p_value < 0.05 and 
+                                     (variant_conv/variant_imp > control_conv/control_imp))
                 
                 variant_analysis = {
                     "id": variant["id"],
@@ -359,44 +464,34 @@ class ABTest:
                     "is_better_than_control": False
                 }
                 
-                # Calculate if this variant is better than control
-                if (variant["metrics"]["conversion_rate"] > control_variant["metrics"]["conversion_rate"] and 
-                    conv_is_significant) or (variant["metrics"]["click_through_rate"] > 
-                                            control_variant["metrics"]["click_through_rate"] and 
-                                            ctr_is_significant):
+                # A variant is better than control if either:
+                # 1. Overall conversion rate is significantly better
+                # 2. CTR is significantly better and conversion rate is at least as good
+                if conv_is_significant:
                     variant_analysis["is_better_than_control"] = True
                     analysis["has_significant_results"] = True
-            
+                elif (ctr_is_significant and 
+                      (variant_conv/variant_imp >= control_conv/control_imp)):
+                    variant_analysis["is_better_than_control"] = True
+                    analysis["has_significant_results"] = True
+        
             analysis["variants"].append(variant_analysis)
         
         # Determine recommended winner
         if analysis["has_significant_results"]:
-            # Find variant with highest significant conversion rate
             best_variant = None
-            best_rate = control_variant["metrics"]["conversion_rate"]
+            best_conv_rate = control_variant["metrics"]["conversions"] / control_variant["metrics"]["impressions"]
             
             for variant in analysis["variants"]:
                 if not variant["is_control"]:
-                    if (variant.get("conversion_is_significant", False) and 
-                        variant["metrics"]["conversion_rate"] > best_rate):
+                    conv_rate = variant["metrics"]["conversions"] / variant["metrics"]["impressions"]
+                    if (variant.get("is_better_than_control", False) and 
+                        conv_rate > best_conv_rate):
                         best_variant = variant
-                        best_rate = variant["metrics"]["conversion_rate"]
+                        best_conv_rate = conv_rate
             
             if best_variant:
                 analysis["recommended_winner"] = best_variant["id"]
-            else:
-                # If no significant conversion rate, try CTR
-                best_rate = control_variant["metrics"]["click_through_rate"]
-                
-                for variant in analysis["variants"]:
-                    if not variant["is_control"]:
-                        if (variant.get("ctr_is_significant", False) and 
-                            variant["metrics"]["click_through_rate"] > best_rate):
-                            best_variant = variant
-                            best_rate = variant["metrics"]["click_through_rate"]
-                
-                if best_variant:
-                    analysis["recommended_winner"] = best_variant["id"]
         
         return analysis
     

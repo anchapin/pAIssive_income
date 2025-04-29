@@ -449,6 +449,22 @@ class AgentModelProvider:
 
         return capability in model_info.capabilities
 
+    def get_assigned_model_id(self, agent_type: str, task_type: Optional[str] = None) -> Optional[str]:
+        """
+        Get the currently assigned model ID for an agent and task type.
+        
+        Args:
+            agent_type: Type of agent (researcher, developer, etc.)
+            task_type: Optional type of task (text-generation, embedding, etc.)
+            
+        Returns:
+            Assigned model ID or None if no model is assigned
+        """
+        if agent_type not in self.agent_models:
+            return None
+            
+        return self.agent_models[agent_type].get(task_type or "default")
+
 
 # Example usage
 if __name__ == "__main__":

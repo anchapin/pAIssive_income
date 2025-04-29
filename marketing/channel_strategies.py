@@ -5,7 +5,7 @@ Provides templates for marketing strategies across different channels.
 
 from typing import Dict, List, Any, Optional
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 from .errors import (
@@ -341,18 +341,20 @@ class MarketingStrategy:
     def create_plan(
         self,
         niche: str,
-        target_audience: str,
+        target_audience: Any,
         budget: float,
-        timeline: str
+        timeline: str,
+        goals: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Create a marketing plan for a specific niche and target audience.
 
         Args:
             niche: The niche market to target
-            target_audience: Description of the target audience
+            target_audience: Description of the target audience (string or dict)
             budget: Budget for the marketing plan
             timeline: Timeline for the marketing plan
+            goals: Optional dictionary of primary and secondary goals
 
         Returns:
             Marketing plan dictionary
@@ -360,27 +362,111 @@ class MarketingStrategy:
         # Create a unique ID for the plan
         plan_id = str(uuid.uuid4())
 
-        # Generate default channels based on the niche
-        channels = [
-            {"name": "Content Marketing", "description": "Create valuable content to attract and engage the target audience"},
-            {"name": "Social Media", "description": "Use social media to promote content and engage with the audience"},
-            {"name": "Email Marketing", "description": "Build an email list and nurture leads through email campaigns"}
-        ]
+        # Use target_audience as is if it's a string, otherwise keep dict structure
+        target_audience_info = target_audience
 
-        # Generate default goals
-        goals = [
-            "Build brand awareness",
-            "Generate leads",
-            "Increase website traffic",
-            "Establish authority in the niche"
-        ]
+        # Convert goals dict to list if provided, or use default goals
+        if goals and isinstance(goals, dict):
+            plan_goals = [goals["primary"]] + goals["secondary"]
+        else:
+            plan_goals = ["lead_generation", "brand_awareness", "customer_retention"]
+
+        # Calculate audience characteristics for fit scoring
+        audience_characteristics = {}
+        if isinstance(target_audience, dict):
+            if "demographics" in target_audience:
+                audience_characteristics = target_audience["demographics"]
+        
+        # Generate default channels based on the budget and calculate priority scores
+        channels = []
+        if budget <= 1000:
+            channels.extend([
+                {
+                    "name": "Content Marketing",
+                    "type": "content_marketing",
+                    "description": "Create valuable content to attract and engage the target audience",
+                    "budget_allocation": budget * 0.4,
+                    "priority_score": 0.9,  # High priority for content marketing in low budget
+                    "focus": "lead_generation",
+                    "audience_fit_score": self._calculate_audience_fit("content_marketing", audience_characteristics)
+                },
+                {
+                    "name": "Social Media (Organic)",
+                    "type": "social_media_organic",
+                    "description": "Use organic social media to promote content and engage with the audience",
+                    "budget_allocation": budget * 0.3,
+                    "priority_score": 0.8,  # High priority for organic social
+                    "focus": "brand_awareness",
+                    "audience_fit_score": self._calculate_audience_fit("social_media_organic", audience_characteristics)
+                },
+                {
+                    "name": "Email Marketing",
+                    "type": "email_marketing",
+                    "description": "Build an email list and nurture leads through email campaigns",
+                    "budget_allocation": budget * 0.3,
+                    "priority_score": 0.7,  # Medium-high priority for email
+                    "focus": "customer_retention",
+                    "audience_fit_score": self._calculate_audience_fit("email_marketing", audience_characteristics)
+                }
+            ])
+        else:
+            channels.extend([
+                {
+                    "name": "Content Marketing",
+                    "type": "content_marketing",
+                    "description": "Create valuable content to attract and engage the target audience",
+                    "budget_allocation": budget * 0.3,
+                    "priority_score": 0.9,  # High priority for content marketing
+                    "focus": "lead_generation",
+                    "audience_fit_score": self._calculate_audience_fit("content_marketing", audience_characteristics)
+                },
+                {
+                    "name": "Social Media (Paid)",
+                    "type": "social_media_paid",
+                    "description": "Use paid social media advertising to reach target audience",
+                    "budget_allocation": budget * 0.25,
+                    "priority_score": 0.85,  # High priority for paid social
+                    "focus": "brand_awareness",
+                    "audience_fit_score": self._calculate_audience_fit("social_media_paid", audience_characteristics)
+                },
+                {
+                    "name": "Email Marketing",
+                    "type": "email_marketing",
+                    "description": "Build an email list and nurture leads through email campaigns",
+                    "budget_allocation": budget * 0.2,
+                    "priority_score": 0.8,  # High priority for email
+                    "focus": "lead_generation",
+                    "audience_fit_score": self._calculate_audience_fit("email_marketing", audience_characteristics)
+                },
+                {
+                    "name": "Paid Advertising",
+                    "type": "paid_advertising",
+                    "description": "Use paid advertising to reach target audience",
+                    "budget_allocation": budget * 0.15,
+                    "priority_score": 0.75,  # Medium-high priority for paid ads
+                    "focus": "lead_generation",
+                    "audience_fit_score": self._calculate_audience_fit("paid_advertising", audience_characteristics)
+                },
+                {
+                    "name": "Influencer Marketing",
+                    "type": "influencer_marketing",
+                    "description": "Partner with influencers to reach target audience",
+                    "budget_allocation": budget * 0.1,
+                    "priority_score": 0.7,  # Medium priority for influencer marketing
+                    "focus": "brand_awareness",
+                    "audience_fit_score": self._calculate_audience_fit("influencer_marketing", audience_characteristics)
+                }
+            ])
+
+        # Sort channels by priority score
+        channels.sort(key=lambda x: x["priority_score"], reverse=True)
 
         # Generate default metrics
         metrics = [
             {"name": "Website Traffic", "description": "Number of visitors to the website", "target": "1000 visitors per month"},
             {"name": "Lead Generation", "description": "Number of new leads generated", "target": "100 leads per month"},
             {"name": "Conversion Rate", "description": "Percentage of visitors who become leads", "target": "10%"},
-            {"name": "Customer Acquisition Cost", "description": "Cost to acquire a new customer", "target": "$50 per customer"}
+            {"name": "Customer Acquisition Cost", "description": "Cost to acquire a new customer", "target": f"${budget/100} per customer"}
         ]
 
         # Create the plan
@@ -389,59 +475,303 @@ class MarketingStrategy:
             "name": f"Marketing Plan for {niche}",
             "description": f"A marketing plan targeting {target_audience} in the {niche} niche",
             "niche": niche,
-            "target_audience": target_audience,
+            "target_audience": target_audience_info,
             "budget": budget,
             "timeline": timeline,
             "channels": channels,
-            "goals": goals,
+            "goals": plan_goals,
             "metrics": metrics,
             "created_at": datetime.now().isoformat()
         }
 
         return plan
 
-    def get_full_strategy(self) -> Dict[str, Any]:
+    def _calculate_audience_fit(self, channel_type: str, audience_characteristics: Dict[str, Any]) -> float:
         """
-        Get the full marketing strategy.
+        Calculate how well a channel fits with the target audience characteristics.
+        
+        Args:
+            channel_type: The type of marketing channel
+            audience_characteristics: Dictionary of audience characteristics
 
         Returns:
-            Dictionary with complete strategy details
-
-        Raises:
-            ChannelStrategyError: If there's an issue getting the strategy
+            Fit score between 0 and 1
         """
-        try:
-            strategy = {
-                "id": self.id,
-                "name": self.name,
-                "description": self.description,
-                "channel_type": self.channel_type,
-                "target_persona": self.target_persona,
-                "goals": self.goals,
-                "tactics": self.tactics,
-                "content_recommendations": self.content_recommendations,
-                "engagement_strategies": self.engagement_strategies,
-                "metrics": self.metrics,
-                "budget": self.budget,
-                "budget_allocation": self.budget_allocation,
-                "timeline": self.timeline,
-                "created_at": self.created_at
+        base_score = 0.5  # Default medium fit
+        
+        if not audience_characteristics:
+            return base_score
+            
+        # Channel-specific scoring logic
+        if channel_type == "content_marketing":
+            # Content marketing works well for educated, professional audiences
+            if audience_characteristics.get("industry") in ["retail", "technology", "professional_services"]:
+                base_score += 0.2
+            if audience_characteristics.get("business_size") in ["1-50 employees", "51-200 employees"]:
+                base_score += 0.1
+                
+        elif channel_type in ["social_media_organic", "social_media_paid"]:
+            # Social media works well for younger audiences and B2C
+            if audience_characteristics.get("age", "").startswith(("20", "30", "40")):
+                base_score += 0.2
+            if audience_characteristics.get("industry") in ["retail", "consumer_goods", "entertainment"]:
+                base_score += 0.2
+                
+        elif channel_type == "email_marketing":
+            # Email marketing works well for B2B and professional audiences
+            if audience_characteristics.get("business_size"):  # Any business size indicates B2B
+                base_score += 0.2
+            if audience_characteristics.get("industry") in ["technology", "professional_services", "finance"]:
+                base_score += 0.2
+                
+        elif channel_type == "paid_advertising":
+            # Paid advertising works well when targeting specific demographics
+            if len(audience_characteristics) >= 3:  # More targeting options available
+                base_score += 0.3
+                
+        elif channel_type == "influencer_marketing":
+            # Influencer marketing works well for consumer brands and younger audiences
+            if audience_characteristics.get("age", "").startswith(("20", "30")):
+                base_score += 0.2
+            if audience_characteristics.get("industry") in ["fashion", "lifestyle", "consumer_goods"]:
+                base_score += 0.2
+        
+        # Ensure score stays between 0 and 1
+        return min(max(base_score, 0.0), 1.0)
+
+    def create_integrated_campaign(
+        self,
+        name: str,
+        channels: List[str],
+        timeline: Dict[str, str],
+        budget: float,
+        main_goal: str
+    ) -> Dict[str, Any]:
+        """
+        Create an integrated marketing campaign across multiple channels.
+
+        Args:
+            name: Name of the campaign
+            channels: List of channels to use
+            timeline: Dictionary with campaign phases and durations
+            budget: Budget for the campaign
+            main_goal: Primary goal of the campaign
+
+        Returns:
+            Campaign dictionary
+        """
+        campaign_id = str(uuid.uuid4())
+        
+        # Initialize phases
+        phases = []
+        current_date = datetime.now()
+
+        for phase_name, duration in timeline.items():
+            # Calculate phase dates
+            if duration.endswith("weeks"):
+                weeks = int(duration.split()[0])
+                phase_end = current_date + timedelta(weeks=weeks)
+            else:
+                # Default to days if not specified
+                days = int(duration.split()[0])
+                phase_end = current_date + timedelta(days=days)
+
+            # Create channel actions for each phase
+            channel_actions = []
+            message_theme = f"{main_goal.replace('_', ' ').title()} - {phase_name.replace('_', ' ').title()}"
+            
+            phase_budget = budget / len(timeline)  # Split budget evenly across phases
+            
+            for channel in channels:
+                channel_budget = phase_budget / len(channels)  # Split phase budget evenly across channels
+                
+                action = {
+                    "channel": channel,
+                    "timing": duration,
+                    "message_theme": message_theme,
+                    "budget_allocation": channel_budget,
+                    "coordination_points": [
+                        "Content consistency",
+                        "Timing alignment",
+                        "Cross-promotion",
+                        "Message synchronization"
+                    ],
+                    "key_metrics": self._get_channel_metrics(channel),
+                    "status": "planned"
+                }
+                channel_actions.append(action)
+            
+            phases.append({
+                "name": phase_name,
+                "duration": duration,
+                "channel_actions": channel_actions,
+                "timeline": {
+                    "start": current_date.isoformat(),
+                    "end": phase_end.isoformat()
+                },
+                "goals": {
+                    "primary": main_goal,
+                    "secondary": ["brand_consistency", "channel_synergy"]
+                }
+            })
+            
+            # Update current_date for next phase
+            current_date = phase_end
+
+        campaign = {
+            "id": campaign_id,
+            "name": name,
+            "channels": channels,
+            "phases": phases,
+            "total_budget": budget,
+            "main_goal": main_goal,
+            "status": "draft",
+            "created_at": datetime.now().isoformat(),
+            "metrics": {
+                "overall_roi": None,
+                "channel_performance": {},
+                "cross_channel_impact": {}
             }
+        }
 
-            logger.info(f"Retrieved full strategy for: {self.name}")
-            return strategy
+        return campaign
 
-        except Exception as e:
-            # Handle unexpected errors
-            error = handle_exception(
-                e,
-                error_class=ChannelStrategyError,
-                message=f"Failed to get full strategy for: {self.name}",
-                channel=self.channel_type,
-                reraise=True,
-                log_level=logging.ERROR
+    def _get_channel_metrics(self, channel: str) -> List[str]:
+        """Get relevant metrics for a specific channel."""
+        common_metrics = ["ROI", "Conversion Rate"]
+        
+        channel_specific_metrics = {
+            "social_media": [
+                "Engagement Rate",
+                "Reach",
+                "Share of Voice"
+            ],
+            "email": [
+                "Open Rate",
+                "Click-through Rate",
+                "List Growth Rate"
+            ],
+            "content": [
+                "Page Views",
+                "Time on Page",
+                "Bounce Rate"
+            ],
+            "paid_ads": [
+                "Cost per Click",
+                "Cost per Acquisition",
+                "Click-through Rate"
+            ]
+        }
+        
+        # Clean channel name to match keys
+        channel_key = channel.replace("_marketing", "")
+        if channel_key in channel_specific_metrics:
+            return common_metrics + channel_specific_metrics[channel_key]
+        return common_metrics
+
+    def calculate_channel_metrics(self, performance_data: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Calculate metrics for each marketing channel based on performance data.
+
+        Args:
+            performance_data: Dictionary containing performance data for each channel
+
+        Returns:
+            Dictionary with calculated metrics
+        """
+        metrics = {}
+        channel_rankings = []
+
+        for channel, data in performance_data.items():
+            channel_metrics = {}
+            
+            # Calculate ROI
+            if "spend" in data and "revenue" in data:
+                roi = (data["revenue"] - data["spend"]) / data["spend"]
+                channel_metrics["roi"] = roi
+            
+            # Calculate CPA (Cost per Acquisition)
+            if "spend" in data and "conversions" in data:
+                cpa = data["spend"] / data["conversions"]
+                channel_metrics["cpa"] = cpa
+            
+            # Calculate CPC (Cost per Click)
+            if "spend" in data and "clicks" in data:
+                cpc = data["spend"] / data["clicks"]
+                channel_metrics["cpc"] = cpc
+            
+            # Calculate CTR (Click-through Rate)
+            if "clicks" in data and "impressions" in data:
+                ctr = data["clicks"] / data["impressions"]
+                channel_metrics["ctr"] = ctr
+            
+            # Calculate Conversion Rate
+            if "clicks" in data and "conversions" in data:
+                conversion_rate = data["conversions"] / data["clicks"]
+                channel_metrics["conversion_rate"] = conversion_rate
+            
+            # Calculate channel-specific metrics
+            if channel == "email_marketing" and "opens" in data and "sends" in data:
+                open_rate = data["opens"] / data["sends"]
+                channel_metrics["open_rate"] = open_rate
+            
+            metrics[channel] = channel_metrics
+            
+            # Calculate efficiency score for ranking
+            efficiency_score = (
+                channel_metrics.get("roi", 0) * 0.4 +
+                (1 / channel_metrics.get("cpa", float("inf"))) * 0.3 +
+                channel_metrics.get("conversion_rate", 0) * 0.3
             )
-            return {}  # This line won't be reached due to reraise=True
+            
+            channel_rankings.append({
+                "channel": channel,
+                "roi": channel_metrics.get("roi"),
+                "efficiency_score": efficiency_score
+            })
+        
+        # Sort rankings by efficiency score
+        channel_rankings.sort(key=lambda x: x["efficiency_score"], reverse=True)
+        metrics["channel_rankings"] = channel_rankings
+
+        # Add cross-channel impact analysis
+        metrics["cross_channel_impact"] = self._analyze_cross_channel_impact(performance_data)
+
+        return metrics
+
+    def _analyze_cross_channel_impact(self, performance_data: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+        """Analyze the impact of channels on each other."""
+        impact_analysis = {}
+        
+        # Calculate total conversions and revenue
+        total_conversions = sum(
+            data.get("conversions", 0) 
+            for data in performance_data.values()
+        )
+        total_revenue = sum(
+            data.get("revenue", 0) 
+            for data in performance_data.values()
+        )
+        
+        # Calculate contribution percentages
+        for channel, data in performance_data.items():
+            if total_conversions > 0 and "conversions" in data:
+                conversion_share = data["conversions"] / total_conversions
+            else:
+                conversion_share = 0
+                
+            if total_revenue > 0 and "revenue" in data:
+                revenue_share = data["revenue"] / total_revenue
+            else:
+                revenue_share = 0
+                
+            impact_analysis[channel] = {
+                "conversion_share": conversion_share,
+                "revenue_share": revenue_share,
+                "efficiency_ratio": revenue_share / conversion_share if conversion_share > 0 else 0
+            }
+        
+        return impact_analysis
 
 
 class ContentMarketingStrategy(MarketingStrategy):
