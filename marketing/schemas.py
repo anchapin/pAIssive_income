@@ -119,9 +119,9 @@ class TimeframeSchema(BaseModel):
     """Schema for timeframe specifications."""
     value: int = Field(..., description="The numeric value of the timeframe", gt=0)
     unit: TimeframeUnit = Field(..., description="The unit of the timeframe")
-    
+
     model_config = ConfigDict(extra="allow")
-    
+
     def __str__(self) -> str:
         """Return a string representation of the timeframe."""
         return f"{self.value} {self.unit.value}"
@@ -553,10 +553,8 @@ class EmailContentSchema(BaseModel):
     include_unsubscribe: bool = Field(True, description="Whether to include unsubscribe link")
     footer_text: Optional[str] = Field(None, description="Text for the email footer")
     template_id: Optional[str] = Field(None, description="ID of the email template to use")
-    
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class SocialMediaPostSchema(BaseModel):
@@ -572,10 +570,8 @@ class SocialMediaPostSchema(BaseModel):
     schedule_type: PostScheduleType = Field(PostScheduleType.NOW, description="Posting schedule type")
     schedule_time: Optional[datetime] = Field(None, description="Scheduled posting time")
     targeting: Optional[Dict[str, Any]] = Field(None, description="Audience targeting parameters")
-    
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields for platform-specific post parameters
+
+    model_config = ConfigDict(extra="allow")  # Allow extra fields for platform-specific post parameters
 
 
 class SocialMediaAnalyticsMetricSchema(BaseModel):
@@ -586,9 +582,7 @@ class SocialMediaAnalyticsMetricSchema(BaseModel):
     change_percent: Optional[float] = Field(None, description="Percent change from previous period")
     benchmark: Optional[Union[int, float, str]] = Field(None, description="Benchmark value for comparison")
 
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class SocialMediaAnalyticsSchema(BaseModel):
@@ -601,9 +595,7 @@ class SocialMediaAnalyticsSchema(BaseModel):
     aggregates: Dict[str, Union[int, float, str]] = Field(..., description="Aggregate values for metrics")
     insights: List[Dict[str, Any]] = Field(default_factory=list, description="Insights derived from analytics")
 
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class SocialMediaCampaignSchema(BaseModel):
@@ -620,10 +612,8 @@ class SocialMediaCampaignSchema(BaseModel):
     status: str = Field("draft", description="Campaign status")
     scheduled_posts: Dict[str, List[str]] = Field(default_factory=dict, description="Scheduled post IDs by platform")
     tags: List[str] = Field(default_factory=list, description="Campaign tags")
-    
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class AudienceInsightSchema(BaseModel):
@@ -636,10 +626,8 @@ class AudienceInsightSchema(BaseModel):
     engagement_metrics: Optional[Dict[str, Any]] = Field(None, description="Engagement metrics")
     active_times: Optional[Dict[str, Any]] = Field(None, description="Active times data")
     insights: List[Dict[str, Any]] = Field(default_factory=list, description="Insights derived from audience data")
-    
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class SocialMediaPlatform(str, Enum):
@@ -681,9 +669,7 @@ class SocialMediaAuthSchema(BaseModel):
     oauth_verifier: Optional[str] = Field(None, description="OAuth verifier for the platform")
     user_id: Optional[str] = Field(None, description="User ID on the platform")
 
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields for platform-specific auth details
+    model_config = ConfigDict(extra="allow")  # Allow extra fields for platform-specific auth details
 
 
 class SocialMediaConnectionSchema(BaseModel):
@@ -699,9 +685,7 @@ class SocialMediaConnectionSchema(BaseModel):
     settings: Dict[str, Any] = Field(default_factory=dict, description="Platform-specific settings")
     capabilities: List[str] = Field(..., description="Supported capabilities for this connection")
 
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class MarketingChannelSchema(BaseModel):
@@ -716,6 +700,4 @@ class MarketingChannelSchema(BaseModel):
     metrics: List[str] = Field(default_factory=list, description="Metrics tracked for this channel")
     best_practices: List[str] = Field(default_factory=list, description="Best practices for this channel")
 
-    class Config:
-        """Configuration for the model."""
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
