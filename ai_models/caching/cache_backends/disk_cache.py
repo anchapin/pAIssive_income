@@ -565,7 +565,9 @@ class DiskCache(CacheBackend):
                     self.stats["evictions"] += 1
                     self._save_stats()
             
-            except Exception:
+            except Exception as e:
+                import logging
+                logging.exception("Error during cache eviction. Falling back to deleting the first key.")
                 if keys:
                     # If there's any error, just delete the first key
                     self.delete(keys[0])
