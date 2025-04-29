@@ -386,16 +386,17 @@ class ProblemIdentifier:
             )
 
         required_fields = ["id", "name", "description", "severity"]
-        for field in required_fields:
-            if field not in problem:
-                raise ValidationError(
-                    message=f"Problem missing required field: {field}",
-                    field=field,
-                    validation_errors=[{
-                        "field": field,
-                        "error": "Required field missing"
-                    }]
-                )
+        missing_fields = [field for field in required_fields if field not in problem]
+        
+        if missing_fields:
+            raise ValidationError(
+                message=f"Problem is missing required fields: {', '.join(missing_fields)}",
+                field="problem",
+                validation_errors=[{
+                    "field": field,
+                    "error": "Required field missing"
+                } for field in missing_fields]
+            )
 
         # Use the severity provided in the problem
         severity = problem["severity"].lower()
