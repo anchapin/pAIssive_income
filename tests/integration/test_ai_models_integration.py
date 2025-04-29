@@ -2,7 +2,7 @@
 Integration tests for the AI Models module.
 """
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 
 from ai_models import ModelManager, ModelConfig, AgentModelProvider, PerformanceMonitor
 from agent_team import AgentTeam
@@ -229,7 +229,7 @@ def test_model_fallback_integration(mock_model_manager):
             self.type = type
             self.capabilities = capabilities
 
-    # Mock the get_model_info method for the fallback model
+    # Mock the get_model_info method for both primary and fallback models
     fallback_model_info = MockModelInfo(
         id="fallback_model",
         name="Fallback Model",
@@ -237,20 +237,33 @@ def test_model_fallback_integration(mock_model_manager):
         capabilities=["text-generation"]
     )
 
-    # Configure the mocks
-    # First call to load_model fails, second call returns the fallback model
-    mock_model_manager.load_model.side_effect = [
-        Exception("Model loading failed"),
-        fallback_model
-    ]
+    primary_model_info = MockModelInfo(
+        id="primary_model",
+        name="Primary Model",
+        type="huggingface",
+        capabilities=["text-generation"]
+    )
 
-    # get_model_info should return the fallback model info for "fallback_model"
+    # Configure the mocks
     def get_model_info_side_effect(model_id):
         if model_id == "fallback_model":
             return fallback_model_info
+        elif model_id == "primary_model":
+            return primary_model_info
         return None
 
     mock_model_manager.get_model_info.side_effect = get_model_info_side_effect
+    mock_model_manager.get_all_models.return_value = [primary_model_info, fallback_model_info]
+    
+    # Set up load_model to fail for primary but succeed for fallback
+    def load_model_side_effect(model_id):
+        if model_id == "primary_model":
+            raise Exception("Model loading failed")
+        elif model_id == "fallback_model":
+            return fallback_model
+        raise Exception(f"Unknown model: {model_id}")
+
+    mock_model_manager.load_model.side_effect = load_model_side_effect
 
     # Create a model provider with fallback configured
     provider = AgentModelProvider(mock_model_manager)
@@ -264,11 +277,12 @@ def test_model_fallback_integration(mock_model_manager):
     # Attempt to get the model, which should trigger the fallback
     model = provider.get_model_with_fallback("researcher", "primary_model", "text-generation")
 
-    # Check that the load_model method was called at least once
-    # The actual fallback mechanism might use a different ID than what we expect
-    # due to the internal implementation of the fallback strategy
-    assert mock_model_manager.load_model.call_count >= 1
-    mock_model_manager.load_model.assert_any_call("primary_model")
+    # Check that the load_model method was called for both models
+    assert mock_model_manager.load_model.call_count == 2
+    mock_model_manager.load_model.assert_has_calls([
+        call("primary_model"),
+        call("fallback_model")
+    ])
 
     # Check that the fallback model was returned
     assert model == fallback_model

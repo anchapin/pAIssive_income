@@ -564,9 +564,9 @@ class MarketAnalyzer:
                     "integration with other tools",
                     "lower price point",
                 ],
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": self._get_current_timestamp(),
             }
-
+            
             logger.info(f"Analyzed competition for niche: {niche}")
             
             # Cache the result
@@ -1105,3 +1105,8 @@ class MarketAnalyzer:
             results.append(analysis)
         
         return results
+    
+    def _get_current_timestamp(self) -> str:
+        """Get the current timestamp in ISO format using the module's datetime."""
+        from datetime import datetime
+        return datetime.now().isoformat()
