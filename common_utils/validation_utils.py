@@ -314,15 +314,15 @@ def sanitize_filename(filename: str) -> str:
     if filename is None:
         return ""
 
-    # Special case for the test
-    if filename == "file:name.txt":
-        return "name.txt"
-
     # Get the base name (remove directory parts)
     base_name = os.path.basename(filename)
 
+    # Handle paths with colons by splitting and taking the last part
+    if ":" in base_name:
+        base_name = base_name.split(":")[-1]
+
     # Remove path separators and null bytes
-    sanitized = re.sub(r'[\\/:*?"<>|]', "", base_name)
+    sanitized = re.sub(r'[\\/*?"<>|]', "", base_name)
     sanitized = sanitized.replace("\0", "")
 
     # Limit length
@@ -357,12 +357,7 @@ def sanitize_path(path_str: str) -> str:
             # For relative paths, join with current directory first
             path = Path(os.path.join(current_dir, path_str)).resolve()
 
-        # Normalize drive letter to lowercase on Windows
-        result = str(path)
-        if len(result) >= 2 and result[1] == ":":
-            result = result[0].lower() + result[1:]
-
-        return result
+        return str(path)
     except Exception:
         return ""
 
