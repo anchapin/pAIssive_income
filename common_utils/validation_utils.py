@@ -357,7 +357,12 @@ def sanitize_path(path_str: str) -> str:
             # For relative paths, join with current directory first
             path = Path(os.path.join(current_dir, path_str)).resolve()
 
-        return str(path)
+        # Convert to string and ensure drive letter is lowercase
+        result = str(path)
+        if len(result) >= 2 and result[1] == ':':
+            result = result[0].lower() + result[1:]
+
+        return result
     except Exception:
         return ""
 

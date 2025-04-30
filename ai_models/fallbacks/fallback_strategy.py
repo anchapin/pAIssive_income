@@ -163,6 +163,7 @@ class FallbackManager:
         required_capabilities: Optional[List[str]] = None,
         strategy_override: Optional[FallbackStrategy] = None,
     ) -> Tuple[Optional[IModelInfo], Optional[FallbackEvent]]:
+        """Find a fallback model using configured strategies."""
         if not self.fallback_enabled:
             self.logger.info("Fallback is disabled, not attempting model fallback")
             return None, None
@@ -171,82 +172,75 @@ class FallbackManager:
         original_model_info = None
         if original_model_id:
             try:
-                original_model_info = self.model_manager.get_model_info(
-                    original_model_id
-                )
+                original_model_info = self.model_manager.get_model_info(original_model_id)
             except ModelNotFoundError:
                 pass
 
         # Build the list of strategies to try
+        strategies_to_try = []
+
         if strategy_override is not None and strategy_override != FallbackStrategy.NONE:
-            # When a strategy is overridden, just use that strategy
+            # When a strategy is overridden, use only that strategy
             strategies_to_try = [strategy_override]
         elif self.default_strategy == FallbackStrategy.NONE:
             # If configured to not use fallbacks, don't try any strategies
             return None, None
         else:
-            # Define the standard cascade sequence
-            strategies_to_try = []
+            # Always start with default strategy
+            strategies_to_try.append(self.default_strategy)
 
-            # Always start with the default strategy
-            if self.default_strategy != FallbackStrategy.NONE:
-                strategies_to_try.append(self.default_strategy)
-
-            # If we have an original model, add model-based strategies
+            # If this isn't a strategy override request, use the normal cascade
             if original_model_info:
-                if FallbackStrategy.SIMILAR_MODEL not in strategies_to_try:
+                # After default, first try the explicitly requested strategy
+                if self.default_strategy != FallbackStrategy.SIMILAR_MODEL:
                     strategies_to_try.append(FallbackStrategy.SIMILAR_MODEL)
-                if FallbackStrategy.MODEL_TYPE not in strategies_to_try:
+                if self.default_strategy != FallbackStrategy.MODEL_TYPE:
                     strategies_to_try.append(FallbackStrategy.MODEL_TYPE)
+                if self.default_strategy != FallbackStrategy.SIZE_TIER:
+                    strategies_to_try.append(FallbackStrategy.SIZE_TIER)
 
-            # If we have capabilities, add capability strategy right after default
-            if (
-                required_capabilities
-                and FallbackStrategy.CAPABILITY_BASED not in strategies_to_try
-            ):
-                default_index = (
-                    strategies_to_try.index(self.default_strategy)
-                    if self.default_strategy in strategies_to_try
-                    else 0
-                )
-                strategies_to_try.insert(
-                    default_index + 1, FallbackStrategy.CAPABILITY_BASED
-                )
+            # Add capability strategy if we have required capabilities
+            if required_capabilities and FallbackStrategy.CAPABILITY_BASED not in strategies_to_try:
+                strategies_to_try.append(FallbackStrategy.CAPABILITY_BASED)
+
+            # Add specified list if we have agent type
+            if agent_type and FallbackStrategy.SPECIFIED_LIST not in strategies_to_try:
+                strategies_to_try.append(FallbackStrategy.SPECIFIED_LIST)
 
             # Always include ANY_AVAILABLE as a last resort
             if FallbackStrategy.ANY_AVAILABLE not in strategies_to_try:
                 strategies_to_try.append(FallbackStrategy.ANY_AVAILABLE)
 
+        # Try each strategy in sequence until we find a model
         reason = "Primary model selection failed"
         attempts = 0
         last_event = None
 
-        # Try each strategy in sequence until we find a model
         for current_strategy in strategies_to_try:
             attempts += 1
-            self.logger.info(
-                f"Trying fallback strategy: {current_strategy.value} (attempt {attempts})"
-            )
+            self.logger.info(f"Trying fallback strategy: {current_strategy.value} (attempt {attempts})")
 
-            fallback_model = None
-
-            # Execute the selected fallback strategy
-            if current_strategy == FallbackStrategy.DEFAULT:
-                fallback_model = self._apply_default_model_strategy()
-            elif current_strategy == FallbackStrategy.SIMILAR_MODEL:
-                fallback_model = self._apply_similar_model_strategy(original_model_info)
-            elif current_strategy == FallbackStrategy.MODEL_TYPE:
-                fallback_model = self._apply_model_type_strategy(
-                    original_model_info, agent_type, task_type
-                )
-            elif current_strategy == FallbackStrategy.ANY_AVAILABLE:
-                fallback_model = self._apply_any_available_strategy()
-            elif current_strategy == FallbackStrategy.SPECIFIED_LIST:
-                fallback_model = self._apply_specified_list_strategy(agent_type)
-            elif current_strategy == FallbackStrategy.SIZE_TIER:
-                fallback_model = self._apply_size_tier_strategy(original_model_info)
-            elif current_strategy == FallbackStrategy.CAPABILITY_BASED:
-                fallback_model = self._apply_capability_strategy(required_capabilities)
+            try:
+                # Execute the selected fallback strategy
+                if current_strategy == FallbackStrategy.DEFAULT:
+                    fallback_model = self._apply_default_model_strategy()
+                elif current_strategy == FallbackStrategy.SIMILAR_MODEL:
+                    fallback_model = self._apply_similar_model_strategy(original_model_info)
+                elif current_strategy == FallbackStrategy.MODEL_TYPE:
+                    fallback_model = self._apply_model_type_strategy(original_model_info, agent_type, task_type)
+                elif current_strategy == FallbackStrategy.ANY_AVAILABLE:
+                    fallback_model = self._apply_any_available_strategy()
+                elif current_strategy == FallbackStrategy.SPECIFIED_LIST:
+                    fallback_model = self._apply_specified_list_strategy(agent_type)
+                elif current_strategy == FallbackStrategy.SIZE_TIER:
+                    fallback_model = self._apply_size_tier_strategy(original_model_info)
+                elif current_strategy == FallbackStrategy.CAPABILITY_BASED:
+                    fallback_model = self._apply_capability_strategy(required_capabilities)
+                else:
+                    fallback_model = None
+            except Exception as e:
+                self.logger.warning(f"Strategy {current_strategy.value} failed with error: {str(e)}")
+                fallback_model = None
 
             # Create and track the attempt
             event = FallbackEvent(
@@ -258,12 +252,8 @@ class FallbackManager:
                 strategy_used=current_strategy,
                 details={
                     "attempts": attempts,
-                    "original_model_type": (
-                        original_model_info.type if original_model_info else None
-                    ),
-                    "fallback_model_type": (
-                        fallback_model.type if fallback_model else None
-                    ),
+                    "original_model_type": original_model_info.type if original_model_info else None,
+                    "fallback_model_type": fallback_model.type if fallback_model else None,
                     "success": fallback_model is not None,
                 },
             )
@@ -276,13 +266,9 @@ class FallbackManager:
             if fallback_model:
                 return fallback_model, event
 
-            self.logger.warning(
-                f"Strategy {current_strategy.value} failed to find a fallback model"
-            )
+            self.logger.warning(f"Strategy {current_strategy.value} failed to find a fallback model")
 
-        self.logger.warning(
-            f"No fallback model found after trying {attempts} strategies"
-        )
+        self.logger.warning(f"No fallback model found after trying {attempts} strategies")
         return None, last_event
 
     def track_fallback_event(
@@ -425,17 +411,23 @@ class FallbackManager:
         if not candidates:
             return None
 
-        # If dealing with GPT-4, prefer GPT-3.5-turbo as it's most similar
+        # If dealing with GPT-4, prefer GPT-3.5-turbo specifically
         if original_model.id == "gpt-4":
             gpt35_models = [m for m in candidates if m.id == "gpt-3.5-turbo"]
             if gpt35_models:
+                # Always use GPT-3.5-turbo as it's known to be most similar to GPT-4
                 return gpt35_models[0]
+            return None  # If GPT-3.5-turbo isn't available, let MODEL_TYPE strategy handle it
 
         # If the original model has capabilities, try to find models with similar capabilities
+        # but only consider models of different types to allow MODEL_TYPE strategy to handle same-type models
         if hasattr(original_model, "capabilities") and original_model.capabilities:
-            # For each model, calculate a similarity score based on shared capabilities
+            # For each model of a different type, calculate similarity score
             scored_candidates = []
             for model in candidates:
+                if model.type == original_model.type:
+                    continue  # Skip same-type models to allow MODEL_TYPE strategy to handle them
+
                 if not hasattr(model, "capabilities") or not model.capabilities:
                     scored_candidates.append((model, 0))
                     continue
@@ -451,17 +443,11 @@ class FallbackManager:
             # Sort by score (highest first)
             scored_candidates.sort(key=lambda x: x[1], reverse=True)
 
-            # If we have a good match (>50% similarity), use it
-            if scored_candidates and scored_candidates[0][1] >= 0.5:
+            # If we have a good match (>80% similarity) of a different type, use it
+            if scored_candidates and scored_candidates[0][1] >= 0.8:
                 return scored_candidates[0][0]
 
-        # If no good capability match, try same type models
-        same_type_models = [m for m in candidates if m.type == original_model.type]
-        if same_type_models:
-            # Sort by ID to ensure consistent selection
-            same_type_models.sort(key=lambda x: x.id)
-            return same_type_models[0]
-
+        # No similar enough model found, let MODEL_TYPE strategy try
         return None
 
     def _apply_model_type_strategy(

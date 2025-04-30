@@ -57,9 +57,8 @@ class CacheManager:
         # Generate cache key object
         key = generate_cache_key(model_id, operation, inputs, parameters)
 
-        # Return the structured key that maintains namespace information
-        # Use colon as separator to maintain compatibility with tests
-        return f"{key.model_id}:{key.operation}:{key.input_hash}:{key.parameters_hash}"
+        # Create a composite key with strict component separation for uniqueness
+        return f"model:{key.model_id}|op:{key.operation}|in:{key.input_hash}|params:{key.parameters_hash}"
 
     def get(
         self,
@@ -197,10 +196,9 @@ class CacheManager:
         Returns:
             True if successful, False otherwise
         """
-        # Get all keys that start with the namespace
-        # The CacheKey format is "model_id:operation:input_hash:parameters_hash"
-        # We need to match keys where the model_id part exactly matches our namespace
-        pattern = f"^{re.escape(namespace)}:"
+        # The key format is "model:model_id|op:operation|in:input_hash|params:parameters_hash"
+        # Match keys where the model_id part exactly matches our namespace
+        pattern = f"^model:{re.escape(namespace)}\\|"
         keys = self.get_keys(pattern)
 
         if not keys:
