@@ -15,14 +15,14 @@ from .validate import ValidateCommand
 from .version import VersionCommand
 
 __all__ = [
-    'DownloadCommand',
-    'ListCommand',
-    'InfoCommand',
-    'ServeRESTCommand',
-    'ServeGRPCCommand',
-    'OptimizeCommand',
-    'BenchmarkCommand',
-    'DeployCommand',
-    'ValidateCommand',
-    'VersionCommand',
+    "DownloadCommand",
+    "ListCommand",
+    "InfoCommand",
+    "ServeRESTCommand",
+    "ServeGRPCCommand",
+    "OptimizeCommand",
+    "BenchmarkCommand",
+    "DeployCommand",
+    "ValidateCommand",
+    "VersionCommand",
 ]

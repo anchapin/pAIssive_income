@@ -35,7 +35,7 @@ class CustomPricingRule(PricingRule):
         resource_type: Optional[str] = None,
         minimum_cost: float = 0.0,
         maximum_cost: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a custom pricing rule.
@@ -57,7 +57,7 @@ class CustomPricingRule(PricingRule):
             resource_type=resource_type,
             minimum_cost=minimum_cost,
             maximum_cost=maximum_cost,
-            custom_calculator=self.calculate_custom_cost
+            custom_calculator=self.calculate_custom_cost,
         )
 
         self.name = name
@@ -104,7 +104,7 @@ class CustomPricingRule(PricingRule):
             "maximum_cost": self.maximum_cost,
             "metadata": self.metadata,
             "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "updated_at": self.updated_at.isoformat(),
         }
 
     def to_dict(self) -> Dict[str, Any]:
@@ -115,19 +115,21 @@ class CustomPricingRule(PricingRule):
             Dictionary representation of the custom pricing rule
         """
         result = super().to_dict()
-        result.update({
-            "id": self.id,
-            "name": self.name,
-            "description": self.description,
-            "metadata": self.metadata,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-            "rule_type": self.__class__.__name__
-        })
+        result.update(
+            {
+                "id": self.id,
+                "name": self.name,
+                "description": self.description,
+                "metadata": self.metadata,
+                "created_at": self.created_at.isoformat(),
+                "updated_at": self.updated_at.isoformat(),
+                "rule_type": self.__class__.__name__,
+            }
+        )
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'CustomPricingRule':
+    def from_dict(cls, data: Dict[str, Any]) -> "CustomPricingRule":
         """
         Create a custom pricing rule from a dictionary.
 
@@ -140,12 +142,14 @@ class CustomPricingRule(PricingRule):
         instance = cls(
             metric=data["metric"],
             name=data.get("name", "Custom Pricing Rule"),
-            description=data.get("description", "Custom pricing rule with specialized logic"),
+            description=data.get(
+                "description", "Custom pricing rule with specialized logic"
+            ),
             category=data.get("category"),
             resource_type=data.get("resource_type"),
             minimum_cost=data.get("minimum_cost", 0.0),
             maximum_cost=data.get("maximum_cost"),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
         if "id" in data:
@@ -174,7 +178,7 @@ class CustomPricingCalculator:
     def __init__(
         self,
         billing_calculator: Optional[BillingCalculator] = None,
-        custom_rules: Optional[List[CustomPricingRule]] = None
+        custom_rules: Optional[List[CustomPricingRule]] = None,
     ):
         """
         Initialize a custom pricing calculator.
@@ -212,7 +216,7 @@ class CustomPricingCalculator:
 
                 # Also remove from billing calculator
                 for j, bc_rule in enumerate(self.billing_calculator.pricing_rules):
-                    if hasattr(bc_rule, 'id') and bc_rule.id == rule_id:
+                    if hasattr(bc_rule, "id") and bc_rule.id == rule_id:
                         self.billing_calculator.pricing_rules.pop(j)
                         break
 
@@ -240,7 +244,7 @@ class CustomPricingCalculator:
         self,
         metric: str,
         category: Optional[str] = None,
-        resource_type: Optional[str] = None
+        resource_type: Optional[str] = None,
     ) -> List[CustomPricingRule]:
         """
         Get custom pricing rules for a metric.
@@ -267,7 +271,7 @@ class CustomPricingCalculator:
         quantity: float,
         category: Optional[str] = None,
         resource_type: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None
+        context: Optional[Dict[str, Any]] = None,
     ) -> float:
         """
         Calculate the cost for a quantity using custom pricing rules.
@@ -283,11 +287,15 @@ class CustomPricingCalculator:
             Cost for the quantity
         """
         # Get matching rules
-        matching_rules = self.get_custom_rules_for_metric(metric, category, resource_type)
+        matching_rules = self.get_custom_rules_for_metric(
+            metric, category, resource_type
+        )
 
         if not matching_rules:
             # No custom rules, use standard billing calculator
-            return self.billing_calculator.calculate_cost(metric, quantity, category, resource_type)
+            return self.billing_calculator.calculate_cost(
+                metric, quantity, category, resource_type
+            )
 
         # Use the first matching custom rule
         # In a more complex implementation, we might want to combine rules or use a priority system
@@ -312,16 +320,14 @@ class CustomPricingCalculator:
         Returns:
             Dictionary representation of the custom pricing calculator
         """
-        return {
-            "custom_rules": [rule.to_dict() for rule in self.custom_rules]
-        }
+        return {"custom_rules": [rule.to_dict() for rule in self.custom_rules]}
 
     @classmethod
     def from_dict(
         cls,
         data: Dict[str, Any],
-        billing_calculator: Optional[BillingCalculator] = None
-    ) -> 'CustomPricingCalculator':
+        billing_calculator: Optional[BillingCalculator] = None,
+    ) -> "CustomPricingCalculator":
         """
         Create a custom pricing calculator from a dictionary.
 
@@ -367,7 +373,7 @@ class TimeBasedPricingRule(CustomPricingRule):
         resource_type: Optional[str] = None,
         minimum_cost: float = 0.0,
         maximum_cost: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a time-based pricing rule.
@@ -401,13 +407,15 @@ class TimeBasedPricingRule(CustomPricingRule):
             resource_type=resource_type,
             minimum_cost=minimum_cost,
             maximum_cost=maximum_cost,
-            metadata=metadata
+            metadata=metadata,
         )
 
         self.time_rates = time_rates
         self.default_rate = default_rate
 
-    def calculate_custom_cost(self, quantity: float, timestamp: Optional[datetime] = None) -> float:
+    def calculate_custom_cost(
+        self, quantity: float, timestamp: Optional[datetime] = None
+    ) -> float:
         """
         Calculate the cost based on the time of usage.
 
@@ -531,14 +539,13 @@ class TimeBasedPricingRule(CustomPricingRule):
             Dictionary representation of the time-based pricing rule
         """
         result = super().to_dict()
-        result.update({
-            "time_rates": self.time_rates,
-            "default_rate": self.default_rate
-        })
+        result.update(
+            {"time_rates": self.time_rates, "default_rate": self.default_rate}
+        )
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'TimeBasedPricingRule':
+    def from_dict(cls, data: Dict[str, Any]) -> "TimeBasedPricingRule":
         """
         Create a time-based pricing rule from a dictionary.
 
@@ -553,12 +560,14 @@ class TimeBasedPricingRule(CustomPricingRule):
             time_rates=data.get("time_rates", {}),
             default_rate=data.get("default_rate", 0.0),
             name=data.get("name", "Time-Based Pricing"),
-            description=data.get("description", "Pricing based on time of day or day of week"),
+            description=data.get(
+                "description", "Pricing based on time of day or day of week"
+            ),
             category=data.get("category"),
             resource_type=data.get("resource_type"),
             minimum_cost=data.get("minimum_cost", 0.0),
             maximum_cost=data.get("maximum_cost"),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
         if "id" in data:
@@ -592,7 +601,7 @@ class SeasonalPricingRule(CustomPricingRule):
         resource_type: Optional[str] = None,
         minimum_cost: float = 0.0,
         maximum_cost: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a seasonal pricing rule.
@@ -628,7 +637,7 @@ class SeasonalPricingRule(CustomPricingRule):
             resource_type=resource_type,
             minimum_cost=minimum_cost,
             maximum_cost=maximum_cost,
-            metadata=metadata
+            metadata=metadata,
         )
 
         self.seasonal_rates = seasonal_rates
@@ -639,16 +648,11 @@ class SeasonalPricingRule(CustomPricingRule):
             "winter": [12, 1, 2],
             "spring": [3, 4, 5],
             "summer": [6, 7, 8],
-            "fall": [9, 10, 11]
+            "fall": [9, 10, 11],
         }
 
         # Define quarters
-        self.quarters = {
-            1: [1, 2, 3],
-            2: [4, 5, 6],
-            3: [7, 8, 9],
-            4: [10, 11, 12]
-        }
+        self.quarters = {1: [1, 2, 3], 2: [4, 5, 6], 3: [7, 8, 9], 4: [10, 11, 12]}
 
         # Define holidays (month, day, duration in days)
         self.holidays = {
@@ -657,10 +661,12 @@ class SeasonalPricingRule(CustomPricingRule):
             "newyear": (1, 1, 1),
             "independenceday": (7, 4, 1),
             "laborday": (9, 1, 3),  # 1st Monday of September (approximate)
-            "memorialday": (5, 31, 3)  # Last Monday of May (approximate)
+            "memorialday": (5, 31, 3),  # Last Monday of May (approximate)
         }
 
-    def calculate_custom_cost(self, quantity: float, timestamp: Optional[datetime] = None) -> float:
+    def calculate_custom_cost(
+        self, quantity: float, timestamp: Optional[datetime] = None
+    ) -> float:
         """
         Calculate the cost based on the season.
 
@@ -779,14 +785,13 @@ class SeasonalPricingRule(CustomPricingRule):
             Dictionary representation of the seasonal pricing rule
         """
         result = super().to_dict()
-        result.update({
-            "seasonal_rates": self.seasonal_rates,
-            "default_rate": self.default_rate
-        })
+        result.update(
+            {"seasonal_rates": self.seasonal_rates, "default_rate": self.default_rate}
+        )
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'SeasonalPricingRule':
+    def from_dict(cls, data: Dict[str, Any]) -> "SeasonalPricingRule":
         """
         Create a seasonal pricing rule from a dictionary.
 
@@ -806,7 +811,7 @@ class SeasonalPricingRule(CustomPricingRule):
             resource_type=data.get("resource_type"),
             minimum_cost=data.get("minimum_cost", 0.0),
             maximum_cost=data.get("maximum_cost"),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
         if "id" in data:
@@ -840,7 +845,7 @@ class CustomerSegmentPricingRule(CustomPricingRule):
         resource_type: Optional[str] = None,
         minimum_cost: float = 0.0,
         maximum_cost: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a customer segment pricing rule.
@@ -883,7 +888,7 @@ class CustomerSegmentPricingRule(CustomPricingRule):
             resource_type=resource_type,
             minimum_cost=minimum_cost,
             maximum_cost=maximum_cost,
-            metadata=metadata
+            metadata=metadata,
         )
 
         self.segment_rates = segment_rates
@@ -893,7 +898,7 @@ class CustomerSegmentPricingRule(CustomPricingRule):
         self,
         quantity: float,
         customer_id: Optional[str] = None,
-        customer_data: Optional[Dict[str, Any]] = None
+        customer_data: Optional[Dict[str, Any]] = None,
     ) -> float:
         """
         Calculate the cost based on the customer segment.
@@ -934,7 +939,9 @@ class CustomerSegmentPricingRule(CustomPricingRule):
         # Return default rate if no pattern matches
         return self.default_rate
 
-    def matches_segment_pattern(self, pattern: str, customer_data: Dict[str, Any]) -> bool:
+    def matches_segment_pattern(
+        self, pattern: str, customer_data: Dict[str, Any]
+    ) -> bool:
         """
         Check if customer data matches a segment pattern.
 
@@ -1038,14 +1045,13 @@ class CustomerSegmentPricingRule(CustomPricingRule):
             Dictionary representation of the customer segment pricing rule
         """
         result = super().to_dict()
-        result.update({
-            "segment_rates": self.segment_rates,
-            "default_rate": self.default_rate
-        })
+        result.update(
+            {"segment_rates": self.segment_rates, "default_rate": self.default_rate}
+        )
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'CustomerSegmentPricingRule':
+    def from_dict(cls, data: Dict[str, Any]) -> "CustomerSegmentPricingRule":
         """
         Create a customer segment pricing rule from a dictionary.
 
@@ -1065,7 +1071,7 @@ class CustomerSegmentPricingRule(CustomPricingRule):
             resource_type=data.get("resource_type"),
             minimum_cost=data.get("minimum_cost", 0.0),
             maximum_cost=data.get("maximum_cost"),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
         if "id" in data:
@@ -1099,7 +1105,7 @@ class ConditionalPricingRule(CustomPricingRule):
         resource_type: Optional[str] = None,
         minimum_cost: float = 0.0,
         maximum_cost: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a conditional pricing rule.
@@ -1148,16 +1154,14 @@ class ConditionalPricingRule(CustomPricingRule):
             resource_type=resource_type,
             minimum_cost=minimum_cost,
             maximum_cost=maximum_cost,
-            metadata=metadata
+            metadata=metadata,
         )
 
         self.conditions = conditions
         self.default_rate = default_rate
 
     def calculate_custom_cost(
-        self,
-        quantity: float,
-        context: Optional[Dict[str, Any]] = None
+        self, quantity: float, context: Optional[Dict[str, Any]] = None
     ) -> float:
         """
         Calculate the cost based on conditions.
@@ -1179,7 +1183,9 @@ class ConditionalPricingRule(CustomPricingRule):
         # Calculate cost
         return quantity * rate
 
-    def get_rate_for_conditions(self, quantity: float, context: Dict[str, Any]) -> float:
+    def get_rate_for_conditions(
+        self, quantity: float, context: Dict[str, Any]
+    ) -> float:
         """
         Get the rate applicable based on conditions.
 
@@ -1210,7 +1216,9 @@ class ConditionalPricingRule(CustomPricingRule):
         # Return default rate if no condition matches
         return self.default_rate
 
-    def prepare_eval_context(self, quantity: float, context: Dict[str, Any]) -> Dict[str, Any]:
+    def prepare_eval_context(
+        self, quantity: float, context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Prepare the evaluation context for condition expressions.
 
@@ -1222,12 +1230,7 @@ class ConditionalPricingRule(CustomPricingRule):
             Prepared evaluation context
         """
         # Start with a clean context
-        eval_context = {
-            "quantity": quantity,
-            "customer": {},
-            "time": {},
-            "usage": {}
-        }
+        eval_context = {"quantity": quantity, "customer": {}, "time": {}, "usage": {}}
 
         # Add customer data
         if "customer" in context:
@@ -1247,7 +1250,7 @@ class ConditionalPricingRule(CustomPricingRule):
                 "month": now.month,
                 "year": now.year,
                 "weekday": now.isoweekday(),
-                "is_weekend": now.isoweekday() >= 6
+                "is_weekend": now.isoweekday() >= 6,
             }
 
         # Add usage data
@@ -1269,7 +1272,7 @@ class ConditionalPricingRule(CustomPricingRule):
         """
         # Replace variable references with dictionary lookups
         # For example, replace "customer.tier" with "context['customer']['tier']"
-        pattern = r'(customer|time|usage)\.([a-zA-Z_][a-zA-Z0-9_]*)'
+        pattern = r"(customer|time|usage)\.([a-zA-Z_][a-zA-Z0-9_]*)"
 
         def replace_var(match):
             category, attr = match.groups()
@@ -1296,14 +1299,13 @@ class ConditionalPricingRule(CustomPricingRule):
             Dictionary representation of the conditional pricing rule
         """
         result = super().to_dict()
-        result.update({
-            "conditions": self.conditions,
-            "default_rate": self.default_rate
-        })
+        result.update(
+            {"conditions": self.conditions, "default_rate": self.default_rate}
+        )
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ConditionalPricingRule':
+    def from_dict(cls, data: Dict[str, Any]) -> "ConditionalPricingRule":
         """
         Create a conditional pricing rule from a dictionary.
 
@@ -1323,7 +1325,7 @@ class ConditionalPricingRule(CustomPricingRule):
             resource_type=data.get("resource_type"),
             minimum_cost=data.get("minimum_cost", 0.0),
             maximum_cost=data.get("maximum_cost"),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
         if "id" in data:
@@ -1357,7 +1359,7 @@ class FormulaBasedPricingRule(CustomPricingRule):
         resource_type: Optional[str] = None,
         minimum_cost: float = 0.0,
         maximum_cost: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a formula-based pricing rule.
@@ -1400,7 +1402,7 @@ class FormulaBasedPricingRule(CustomPricingRule):
             resource_type=resource_type,
             minimum_cost=minimum_cost,
             maximum_cost=maximum_cost,
-            metadata=metadata
+            metadata=metadata,
         )
 
         self.formula = formula
@@ -1423,9 +1425,7 @@ class FormulaBasedPricingRule(CustomPricingRule):
             raise ValueError(f"Invalid formula '{self.formula}': {e}")
 
     def calculate_custom_cost(
-        self,
-        quantity: float,
-        context: Optional[Dict[str, Any]] = None
+        self, quantity: float, context: Optional[Dict[str, Any]] = None
     ) -> float:
         """
         Calculate the cost using the formula.
@@ -1444,9 +1444,7 @@ class FormulaBasedPricingRule(CustomPricingRule):
         return self.evaluate_formula(quantity, variables)
 
     def prepare_variables(
-        self,
-        quantity: float,
-        context: Optional[Dict[str, Any]] = None
+        self, quantity: float, context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Prepare variables for formula evaluation.
@@ -1507,15 +1505,13 @@ class FormulaBasedPricingRule(CustomPricingRule):
             "log": math.log,
             "log10": math.log10,
             "exp": math.exp,
-
             # Trigonometric functions
             "sin": math.sin,
             "cos": math.cos,
             "tan": math.tan,
-
             # Constants
             "pi": math.pi,
-            "e": math.e
+            "e": math.e,
         }
 
         # Add variables to the environment
@@ -1540,14 +1536,11 @@ class FormulaBasedPricingRule(CustomPricingRule):
             Dictionary representation of the formula-based pricing rule
         """
         result = super().to_dict()
-        result.update({
-            "formula": self.formula,
-            "variables": self.variables
-        })
+        result.update({"formula": self.formula, "variables": self.variables})
         return result
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'FormulaBasedPricingRule':
+    def from_dict(cls, data: Dict[str, Any]) -> "FormulaBasedPricingRule":
         """
         Create a formula-based pricing rule from a dictionary.
 
@@ -1562,12 +1555,14 @@ class FormulaBasedPricingRule(CustomPricingRule):
             formula=data.get("formula", "q * 0.01"),
             variables=data.get("variables", {}),
             name=data.get("name", "Formula-Based Pricing"),
-            description=data.get("description", "Pricing based on mathematical formulas"),
+            description=data.get(
+                "description", "Pricing based on mathematical formulas"
+            ),
             category=data.get("category"),
             resource_type=data.get("resource_type"),
             minimum_cost=data.get("minimum_cost", 0.0),
             maximum_cost=data.get("maximum_cost"),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
         if "id" in data:
@@ -1591,10 +1586,10 @@ if __name__ == "__main__":
             "weekday:1-5": 0.01,  # $0.01 per API call on weekdays
             "weekend:6-7": 0.005,  # $0.005 per API call on weekends
             "hour:9-17": 0.015,  # $0.015 per API call during business hours
-            "hour:0-8,18-23": 0.008  # $0.008 per API call during non-business hours
+            "hour:0-8,18-23": 0.008,  # $0.008 per API call during non-business hours
         },
         default_rate=0.01,
-        category=UsageCategory.INFERENCE
+        category=UsageCategory.INFERENCE,
     )
 
     # Create a seasonal pricing rule
@@ -1603,10 +1598,10 @@ if __name__ == "__main__":
         seasonal_rates={
             "winter": 0.05,  # $0.05 per GB in winter
             "summer": 0.03,  # $0.03 per GB in summer
-            "holiday:christmas": 0.02  # $0.02 per GB during Christmas
+            "holiday:christmas": 0.02,  # $0.02 per GB during Christmas
         },
         default_rate=0.04,
-        category=UsageCategory.STORAGE
+        category=UsageCategory.STORAGE,
     )
 
     # Create a customer segment pricing rule
@@ -1617,10 +1612,10 @@ if __name__ == "__main__":
             "tier:premium": 0.0015,  # $0.0015 per token for premium tier
             "tier:enterprise": 0.001,  # $0.001 per token for enterprise tier
             "industry:education": 0.0012,  # $0.0012 per token for education industry
-            "age:0-30": 0.0018  # $0.0018 per token for new customers
+            "age:0-30": 0.0018,  # $0.0018 per token for new customers
         },
         default_rate=0.002,
-        category=UsageCategory.INFERENCE
+        category=UsageCategory.INFERENCE,
     )
 
     # Create a conditional pricing rule
@@ -1629,19 +1624,19 @@ if __name__ == "__main__":
         conditions=[
             {
                 "condition": "quantity > 100 and customer.tier == 'premium'",
-                "rate": 0.08  # $0.08 per hour for premium customers with high usage
+                "rate": 0.08,  # $0.08 per hour for premium customers with high usage
             },
             {
                 "condition": "time.is_weekend and usage.total > 1000",
-                "rate": 0.06  # $0.06 per hour on weekends with high total usage
+                "rate": 0.06,  # $0.06 per hour on weekends with high total usage
             },
             {
                 "condition": "customer.industry == 'research' and time.hour >= 22",
-                "rate": 0.05  # $0.05 per hour for research customers during late hours
-            }
+                "rate": 0.05,  # $0.05 per hour for research customers during late hours
+            },
         ],
         default_rate=0.1,  # $0.1 per hour by default
-        category=UsageCategory.COMPUTE
+        category=UsageCategory.COMPUTE,
     )
 
     # Create a formula-based pricing rule
@@ -1652,9 +1647,9 @@ if __name__ == "__main__":
             "base_fee": 5.0,  # $5.00 base fee
             "rate": 0.1,  # $0.10 per GB
             "volume_discount": 0.2,  # 20% maximum volume discount
-            "discount_threshold": 100.0  # Discount threshold at 100 GB
+            "discount_threshold": 100.0,  # Discount threshold at 100 GB
         },
-        category=UsageCategory.NETWORK
+        category=UsageCategory.NETWORK,
     )
 
     # Create a custom pricing calculator
@@ -1669,16 +1664,12 @@ if __name__ == "__main__":
 
     # Calculate cost for API calls
     api_cost = calculator.calculate_cost(
-        metric=UsageMetric.API_CALL,
-        quantity=100,
-        category=UsageCategory.INFERENCE
+        metric=UsageMetric.API_CALL, quantity=100, category=UsageCategory.INFERENCE
     )
 
     # Calculate cost for storage
     storage_cost = calculator.calculate_cost(
-        metric=UsageMetric.STORAGE,
-        quantity=10,
-        category=UsageCategory.STORAGE
+        metric=UsageMetric.STORAGE, quantity=10, category=UsageCategory.STORAGE
     )
 
     # Calculate cost for tokens with customer data
@@ -1686,7 +1677,13 @@ if __name__ == "__main__":
         metric=UsageMetric.TOKEN,
         quantity=1000,
         category=UsageCategory.INFERENCE,
-        context={"customer": {"tier": "premium", "industry": "education", "created_at": "2023-01-01T00:00:00"}}
+        context={
+            "customer": {
+                "tier": "premium",
+                "industry": "education",
+                "created_at": "2023-01-01T00:00:00",
+            }
+        },
     )
 
     # Calculate cost for compute time with complex context
@@ -1697,15 +1694,13 @@ if __name__ == "__main__":
         context={
             "customer": {"tier": "premium", "industry": "research"},
             "time": {"hour": 23, "is_weekend": True},
-            "usage": {"total": 1500}
-        }
+            "usage": {"total": 1500},
+        },
     )
 
     # Calculate cost for bandwidth with formula
     bandwidth_cost = calculator.calculate_cost(
-        metric=UsageMetric.BANDWIDTH,
-        quantity=50,
-        category=UsageCategory.NETWORK
+        metric=UsageMetric.BANDWIDTH, quantity=50, category=UsageCategory.NETWORK
     )
 
     print(f"API call cost: ${api_cost:.2f}")

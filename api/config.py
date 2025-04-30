@@ -15,6 +15,7 @@ class RateLimitStrategy(str, Enum):
 
     This enum defines the available rate limiting strategies.
     """
+
     FIXED = "fixed"  # Fixed number of requests per time period
     TOKEN_BUCKET = "token_bucket"  # Token bucket algorithm
     LEAKY_BUCKET = "leaky_bucket"  # Leaky bucket algorithm
@@ -27,6 +28,7 @@ class RateLimitScope(str, Enum):
 
     This enum defines the available scopes for rate limiting.
     """
+
     GLOBAL = "global"  # Global rate limit for all clients
     IP = "ip"  # Rate limit per IP address
     API_KEY = "api_key"  # Rate limit per API key
@@ -40,6 +42,7 @@ class WebhookEventType(str, Enum):
 
     This enum defines the available webhook event types.
     """
+
     NICHE_ANALYSIS_CREATED = "niche_analysis.created"
     NICHE_ANALYSIS_UPDATED = "niche_analysis.updated"
     NICHE_ANALYSIS_DELETED = "niche_analysis.deleted"
@@ -66,11 +69,12 @@ class APIVersion(str, Enum):
     This enum defines the available API versions. When adding a new version,
     add it to the end of the list to maintain the order for the latest_version property.
     """
+
     V1 = "v1"
     V2 = "v2"
 
     @classmethod
-    def latest_version(cls) -> 'APIVersion':
+    def latest_version(cls) -> "APIVersion":
         """
         Get the latest API version.
 
@@ -98,6 +102,7 @@ class APIConfig:
     """
     Configuration for the API server.
     """
+
     # Basic configuration
     host: str = "0.0.0.0"
     port: int = 8000
@@ -105,7 +110,9 @@ class APIConfig:
 
     # API configuration
     version: APIVersion = APIVersion.latest_version()  # Default to latest version
-    active_versions: List[APIVersion] = field(default_factory=lambda: list(APIVersion))  # All versions active by default
+    active_versions: List[APIVersion] = field(
+        default_factory=lambda: list(APIVersion)
+    )  # All versions active by default
     prefix: str = "/api"
     docs_url: str = "/docs"
     openapi_url: str = "/openapi.json"
@@ -122,7 +129,9 @@ class APIConfig:
     # Versioning configuration
     enable_version_header: bool = True  # Add API version to response headers
     version_header_name: str = "X-API-Version"
-    enable_version_deprecation_header: bool = True  # Add deprecation notice to response headers
+    enable_version_deprecation_header: bool = (
+        True  # Add deprecation notice to response headers
+    )
     deprecation_header_name: str = "X-API-Deprecated"
     sunset_header_name: str = "X-API-Sunset-Date"
 
@@ -148,7 +157,9 @@ class APIConfig:
     )
 
     # Analytics configuration
-    analytics_db_path: Optional[str] = None  # Path to analytics database (None for default)
+    analytics_db_path: Optional[str] = (
+        None  # Path to analytics database (None for default)
+    )
     analytics_retention_days: int = 365  # Number of days to retain analytics data
     analytics_dashboard_enabled: bool = True  # Enable analytics dashboard
     analytics_dashboard_path: str = "/analytics"  # Path to analytics dashboard
@@ -173,12 +184,14 @@ class APIConfig:
     rate_limit_cost_factor: float = 1.0  # Default cost factor for expensive endpoints
 
     # Rate limit tiers (requests per minute)
-    rate_limit_tiers: Dict[str, int] = field(default_factory=lambda: {
-        "default": 100,
-        "basic": 300,
-        "premium": 1000,
-        "unlimited": 0  # 0 means no limit
-    })
+    rate_limit_tiers: Dict[str, int] = field(
+        default_factory=lambda: {
+            "default": 100,
+            "basic": 300,
+            "premium": 1000,
+            "unlimited": 0,  # 0 means no limit
+        }
+    )
 
     # Endpoint-specific rate limits
     endpoint_rate_limits: Dict[str, int] = field(default_factory=dict)

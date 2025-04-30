@@ -1,6 +1,7 @@
 """
 Tests for the AgentTeam class.
 """
+
 import os
 import json
 import pytest
@@ -23,12 +24,12 @@ def mock_config_file(temp_dir):
         "workflow": {
             "auto_progression": True,
             "review_required": False,
-        }
+        },
     }
 
     config_path = os.path.join(temp_dir, "test_config.json")
 
-    with open(config_path, 'w') as f:
+    with open(config_path, "w") as f:
         json.dump(config, f)
 
     return config_path
@@ -69,7 +70,7 @@ def test_agent_team_init_with_config(mock_config_file):
     assert team.config["model_settings"]["researcher"]["temperature"] == 0.5
 
 
-@patch('agent_team.team_config.ResearchAgent')
+@patch("agent_team.team_config.ResearchAgent")
 def test_run_niche_analysis(mock_researcher_class):
     """Test run_niche_analysis method."""
     # Mock the ResearchAgent.analyze_market_segments method
@@ -95,7 +96,9 @@ def test_run_niche_analysis(mock_researcher_class):
     result = team.run_niche_analysis(["e-commerce", "content creation"])
 
     # Check that the researcher's analyze_market_segments method was called
-    mock_researcher.analyze_market_segments.assert_called_once_with(["e-commerce", "content creation"])
+    mock_researcher.analyze_market_segments.assert_called_once_with(
+        ["e-commerce", "content creation"]
+    )
 
     # Check that the result is the return value from analyze_market_segments
     assert result == mock_researcher.analyze_market_segments.return_value
@@ -104,7 +107,7 @@ def test_run_niche_analysis(mock_researcher_class):
     assert result[1]["name"] == "Niche 2"
 
 
-@patch('agent_team.team_config.DeveloperAgent')
+@patch("agent_team.team_config.DeveloperAgent")
 def test_develop_solution(mock_developer_class):
     """Test develop_solution method."""
     # Mock the DeveloperAgent.design_solution method
@@ -120,7 +123,7 @@ def test_develop_solution(mock_developer_class):
                 "description": "Description of feature 1",
                 "complexity": "medium",
                 "development_cost": "medium",
-                "value_proposition": "Value of feature 1"
+                "value_proposition": "Value of feature 1",
             },
             {
                 "id": "feature2",
@@ -128,14 +131,14 @@ def test_develop_solution(mock_developer_class):
                 "description": "Description of feature 2",
                 "complexity": "low",
                 "development_cost": "low",
-                "value_proposition": "Value of feature 2"
-            }
+                "value_proposition": "Value of feature 2",
+            },
         ],
         "market_data": {
             "target_audience": "Target audience",
             "market_size": "medium",
-            "competition": "low"
-        }
+            "competition": "low",
+        },
     }
     mock_developer_class.return_value = mock_developer
 
@@ -152,16 +155,16 @@ def test_develop_solution(mock_developer_class):
         "market_data": {
             "market_size": "medium",
             "growth_rate": "high",
-            "competition": "low"
+            "competition": "low",
         },
         "problems": [
             {
                 "id": "problem1",
                 "name": "Problem 1",
                 "description": "Description of problem 1",
-                "severity": "high"
+                "severity": "high",
             }
-        ]
+        ],
     }
 
     # Develop a solution
@@ -172,9 +175,9 @@ def test_develop_solution(mock_developer_class):
     # by the develop_solution method before it's passed to design_solution
     assert mock_developer.design_solution.call_count == 1
     call_args = mock_developer.design_solution.call_args[0][0]
-    assert call_args['id'] == niche['id']
-    assert call_args['name'] == niche['name']
-    assert call_args['market_segment'] == niche['market_segment']
+    assert call_args["id"] == niche["id"]
+    assert call_args["name"] == niche["name"]
+    assert call_args["market_segment"] == niche["market_segment"]
 
     # Check that the result is the return value from design_solution
     assert result == mock_developer.design_solution.return_value
@@ -184,7 +187,7 @@ def test_develop_solution(mock_developer_class):
     assert result["features"][1]["id"] == "feature2"
 
 
-@patch('agent_team.team_config.MonetizationAgent')
+@patch("agent_team.team_config.MonetizationAgent")
 def test_create_monetization_strategy(mock_monetization_class):
     """Test create_monetization_strategy method."""
     # Mock the MonetizationAgent.create_strategy method
@@ -224,7 +227,7 @@ def test_create_monetization_strategy(mock_monetization_class):
     assert "enterprise" in result["subscription_model"]["tiers"]
 
 
-@patch('agent_team.team_config.MarketingAgent')
+@patch("agent_team.team_config.MarketingAgent")
 def test_create_marketing_plan(mock_marketing_class):
     """Test create_marketing_plan method."""
     # Mock the MarketingAgent.create_plan method

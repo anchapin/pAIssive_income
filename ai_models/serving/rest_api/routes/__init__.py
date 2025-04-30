@@ -13,11 +13,11 @@ from .health import router as health_router
 from .metrics import router as metrics_router
 
 __all__ = [
-    'text_generation_router',
-    'text_classification_router',
-    'embedding_router',
-    'image_router',
-    'audio_router',
-    'health_router',
-    'metrics_router',
+    "text_generation_router",
+    "text_classification_router",
+    "embedding_router",
+    "image_router",
+    "audio_router",
+    "health_router",
+    "metrics_router",
 ]

@@ -12,12 +12,12 @@ from .gptq_quantizer import GPTQQuantizer
 from .utils import quantize_model, analyze_quantization
 
 __all__ = [
-    'Quantizer',
-    'QuantizationConfig',
-    'QuantizationMethod',
-    'BitsAndBytesQuantizer',
-    'AWQQuantizer',
-    'GPTQQuantizer',
-    'quantize_model',
-    'analyze_quantization',
+    "Quantizer",
+    "QuantizationConfig",
+    "QuantizationMethod",
+    "BitsAndBytesQuantizer",
+    "AWQQuantizer",
+    "GPTQQuantizer",
+    "quantize_model",
+    "analyze_quantization",
 ]

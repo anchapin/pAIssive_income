@@ -10,7 +10,8 @@ from typing import Dict, List, Any, Optional, Union
 
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from interfaces.model_interfaces import IModelAdapter
 from errors import ModelError, handle_exception
 
@@ -110,11 +111,8 @@ class BaseModelAdapter(IModelAdapter):
         # Create a ModelError with the appropriate message and details
         model_error = ModelError(
             message=error_message,
-            details={
-                "adapter": self.name,
-                **kwargs
-            },
-            original_exception=error
+            details={"adapter": self.name, **kwargs},
+            original_exception=error,
         )
 
         # Log and raise the error

@@ -11,14 +11,15 @@ import logging
 import time
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from ai_models import ModelDownloader, DownloadProgress, ModelManager, ModelInfo
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -43,15 +44,18 @@ def main():
             "pending": "⏳",
             "downloading": "📥",
             "completed": "✅",
-            "failed": "❌"
+            "failed": "❌",
         }
 
         emoji = status_emoji.get(progress.status, "⏳")
 
         if progress.status == "downloading":
-            print(f"\r{emoji} Status: {progress.status}, Progress: {progress.percentage:.1f}%, "
-                  f"Speed: {progress.speed / 1024 / 1024:.2f} MB/s, "
-                  f"ETA: {progress.eta:.1f}s", end="")
+            print(
+                f"\r{emoji} Status: {progress.status}, Progress: {progress.percentage:.1f}%, "
+                f"Speed: {progress.speed / 1024 / 1024:.2f} MB/s, "
+                f"ETA: {progress.eta:.1f}s",
+                end="",
+            )
         else:
             print(f"\n{emoji} Status: {progress.status}")
 
@@ -61,28 +65,29 @@ def main():
     # Search for models on Hugging Face Hub
     print("\nSearching for models on Hugging Face Hub...")
     try:
-        models = downloader.search_huggingface_models(
-            query="gpt2",
-            limit=5
-        )
+        models = downloader.search_huggingface_models(query="gpt2", limit=5)
 
         print("\nSearch Results:")
         for i, model in enumerate(models):
-            print(f"{i+1}. {model['id']} (Downloads: {model['downloads']}, Likes: {model['likes']})")
+            print(
+                f"{i+1}. {model['id']} (Downloads: {model['downloads']}, Likes: {model['likes']})"
+            )
 
         # Ask the user which model to download
         if models:
-            print("\nDownloading a small file from the first model for demonstration...")
+            print(
+                "\nDownloading a small file from the first model for demonstration..."
+            )
             model_to_download = models[0]
 
             # Download just the config file for demonstration
             print(f"\nDownloading config.json from {model_to_download['id']}...")
             task = downloader.download_from_huggingface(
-                model_id=model_to_download['id'],
+                model_id=model_to_download["id"],
                 file_name="config.json",
                 callback=progress_callback,
                 auto_register=True,
-                description=f"Model from {model_to_download['id']} (auto-registered)"
+                description=f"Model from {model_to_download['id']} (auto-registered)",
             )
 
             # Wait for the download to complete
@@ -96,7 +101,9 @@ def main():
                 all_models = manager.get_all_models()
                 print(f"\nAll registered models after download ({len(all_models)}):")
                 for model in all_models:
-                    print(f"- {model.name} (Type: {model.type}, Format: {model.format})")
+                    print(
+                        f"- {model.name} (Type: {model.type}, Format: {model.format})"
+                    )
             else:
                 print(f"\nDownload failed: {task.progress.error}")
 
@@ -107,16 +114,20 @@ def main():
     print("\nDownloading a file from a URL...")
     try:
         # Use a small file for demonstration
-        url = "https://raw.githubusercontent.com/huggingface/transformers/main/README.md"
+        url = (
+            "https://raw.githubusercontent.com/huggingface/transformers/main/README.md"
+        )
 
         task = downloader.download_from_url(
             url=url,
             model_id="example-url-download",
             model_type="other",
-            destination=os.path.join(downloader.config.models_dir, "example-url-download.md"),
+            destination=os.path.join(
+                downloader.config.models_dir, "example-url-download.md"
+            ),
             callback=progress_callback,
             auto_register=True,
-            description="Example URL download (auto-registered)"
+            description="Example URL download (auto-registered)",
         )
 
         # Wait for the download to complete

@@ -17,6 +17,7 @@ from dataclasses import dataclass
 @dataclass
 class MockRepoInfo:
     """Mock repository information."""
+
     id: str
     sha: str = ""
     created_at: datetime = None
@@ -47,6 +48,7 @@ class MockRepoInfo:
         # Set SHA if not provided
         if not self.sha:
             import hashlib
+
             self.sha = hashlib.sha256(self.id.encode()).hexdigest()
 
 
@@ -90,7 +92,9 @@ class MockHuggingFaceHub:
         self.repos[repo_info.id] = repo_info
 
         # Automatically add to models or datasets
-        if repo_info.pipeline_tag or any(tag in repo_info.tags for tag in ["model", "text-generation", "fill-mask"]):
+        if repo_info.pipeline_tag or any(
+            tag in repo_info.tags for tag in ["model", "text-generation", "fill-mask"]
+        ):
             self.models[repo_info.id] = repo_info
         elif "dataset" in repo_info.tags:
             self.datasets[repo_info.id] = repo_info
@@ -103,7 +107,7 @@ class MockHuggingFaceHub:
         repo_id: str,
         file_path: str,
         content: Union[bytes, str, Dict[str, Any]],
-        file_size: Optional[int] = None
+        file_size: Optional[int] = None,
     ) -> None:
         """
         Add a file to a repository in the mock Hugging Face Hub.
@@ -120,9 +124,9 @@ class MockHuggingFaceHub:
 
         # Convert content to bytes
         if isinstance(content, dict):
-            content = json.dumps(content).encode('utf-8')
+            content = json.dumps(content).encode("utf-8")
         elif isinstance(content, str):
-            content = content.encode('utf-8')
+            content = content.encode("utf-8")
 
         # Determine file size if not provided
         if file_size is None:
@@ -132,7 +136,7 @@ class MockHuggingFaceHub:
         self.files[f"{repo_id}/{file_path}"] = {
             "content": content,
             "size": file_size,
-            "last_modified": datetime.now()
+            "last_modified": datetime.now(),
         }
 
         # Create the file in the temp directory
@@ -176,7 +180,7 @@ class MockHuggingFaceHub:
         legacy_cache_layout: bool = False,
         local_dir: Optional[str] = None,
         local_dir_use_symlinks: bool = True,
-        **kwargs
+        **kwargs,
     ) -> str:
         """
         Mock downloading a file from Hugging Face Hub.
@@ -257,7 +261,7 @@ class MockHuggingFaceHub:
         ignore_patterns: Optional[Union[List[str], str]] = None,
         local_dir: Optional[str] = None,
         local_dir_use_symlinks: bool = True,
-        **kwargs
+        **kwargs,
     ) -> str:
         """
         Mock downloading a snapshot of a repository from Hugging Face Hub.
@@ -294,7 +298,9 @@ class MockHuggingFaceHub:
             raise ValueError(f"Authentication required for repository {repo_id}")
 
         # Determine destination path
-        dest_dir = local_dir or os.path.join(cache_dir or self.temp_dir, repo_id.replace("/", "--"), revision)
+        dest_dir = local_dir or os.path.join(
+            cache_dir or self.temp_dir, repo_id.replace("/", "--"), revision
+        )
         os.makedirs(dest_dir, exist_ok=True)
 
         # Copy all files
@@ -304,12 +310,18 @@ class MockHuggingFaceHub:
         # Calculate total size first
         for file_key, file_info in self.files.items():
             if file_key.startswith(repo_id + "/"):
-                file_path = file_key[len(repo_id) + 1:]
+                file_path = file_key[len(repo_id) + 1 :]
 
                 # Check patterns
-                if allow_patterns and not any(self._match_pattern(file_path, pattern) for pattern in allow_patterns):
+                if allow_patterns and not any(
+                    self._match_pattern(file_path, pattern)
+                    for pattern in allow_patterns
+                ):
                     continue
-                if ignore_patterns and any(self._match_pattern(file_path, pattern) for pattern in ignore_patterns):
+                if ignore_patterns and any(
+                    self._match_pattern(file_path, pattern)
+                    for pattern in ignore_patterns
+                ):
                     continue
 
                 total_size += file_info["size"]
@@ -317,12 +329,18 @@ class MockHuggingFaceHub:
         # Now copy files
         for file_key, file_info in self.files.items():
             if file_key.startswith(repo_id + "/"):
-                file_path = file_key[len(repo_id) + 1:]
+                file_path = file_key[len(repo_id) + 1 :]
 
                 # Check patterns
-                if allow_patterns and not any(self._match_pattern(file_path, pattern) for pattern in allow_patterns):
+                if allow_patterns and not any(
+                    self._match_pattern(file_path, pattern)
+                    for pattern in allow_patterns
+                ):
                     continue
-                if ignore_patterns and any(self._match_pattern(file_path, pattern) for pattern in ignore_patterns):
+                if ignore_patterns and any(
+                    self._match_pattern(file_path, pattern)
+                    for pattern in ignore_patterns
+                ):
                     continue
 
                 # Create destination file
@@ -352,7 +370,7 @@ class MockHuggingFaceHub:
         task: str = None,
         limit: int = 10000,
         full: bool = True,
-        **kwargs
+        **kwargs,
     ) -> List[MockRepoInfo]:
         """
         Mock listing models from Hugging Face Hub.
@@ -382,9 +400,11 @@ class MockHuggingFaceHub:
             if search:
                 search_lower = search.lower()
                 # More lenient search that checks if search term is in any part of the model ID
-                if not (search_lower in model_id.lower() or
-                       search_lower in model_info.author.lower() or
-                       any(search_lower in tag.lower() for tag in model_info.tags)):
+                if not (
+                    search_lower in model_id.lower()
+                    or search_lower in model_info.author.lower()
+                    or any(search_lower in tag.lower() for tag in model_info.tags)
+                ):
                     continue
 
             if tags:
@@ -416,6 +436,7 @@ class MockHuggingFaceHub:
             True if the path matches the pattern, False otherwise
         """
         import fnmatch
+
         return fnmatch.fnmatch(path, pattern)
 
 
@@ -449,26 +470,27 @@ mock_huggingface_hub = MockHuggingFaceHub()
 # Example usage
 if __name__ == "__main__":
     # Add a repository
-    mock_huggingface_hub.add_repo({
-        "id": "user/model",
-        "downloads": 1000,
-        "likes": 50,
-        "tags": ["text-generation", "gpt"],
-        "pipeline_tag": "text-generation"
-    })
+    mock_huggingface_hub.add_repo(
+        {
+            "id": "user/model",
+            "downloads": 1000,
+            "likes": 50,
+            "tags": ["text-generation", "gpt"],
+            "pipeline_tag": "text-generation",
+        }
+    )
 
     # Add a file
     mock_huggingface_hub.add_file(
         repo_id="user/model",
         file_path="config.json",
-        content=json.dumps({"model_type": "gpt", "vocab_size": 50257})
+        content=json.dumps({"model_type": "gpt", "vocab_size": 50257}),
     )
 
     # Download a file
     try:
         file_path = mock_huggingface_hub.hf_hub_download(
-            repo_id="user/model",
-            filename="config.json"
+            repo_id="user/model", filename="config.json"
         )
         print(f"Downloaded file to {file_path}")
 

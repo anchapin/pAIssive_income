@@ -10,11 +10,24 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from common_utils.validation_utils import (
-    is_valid_email, is_valid_url, is_valid_uuid, is_valid_phone,
-    is_valid_username, is_valid_password, is_valid_slug, is_valid_json,
-    is_valid_date, is_valid_file_path, is_valid_file, is_valid_directory,
-    sanitize_string, sanitize_html, sanitize_filename, sanitize_path,
-    validate_and_sanitize_input, validate_config_file
+    is_valid_email,
+    is_valid_url,
+    is_valid_uuid,
+    is_valid_phone,
+    is_valid_username,
+    is_valid_password,
+    is_valid_slug,
+    is_valid_json,
+    is_valid_date,
+    is_valid_file_path,
+    is_valid_file,
+    is_valid_directory,
+    sanitize_string,
+    sanitize_html,
+    sanitize_filename,
+    sanitize_path,
+    validate_and_sanitize_input,
+    validate_config_file,
 )
 
 
@@ -216,8 +229,14 @@ class TestValidationUtils(unittest.TestCase):
     def test_sanitize_string(self):
         """Test sanitize_string function."""
         # Test sanitization
-        self.assertEqual(sanitize_string("<script>alert('XSS')</script>"), "&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;")
-        self.assertEqual(sanitize_string('"><script>alert("XSS")</script>'), "&quot;&gt;&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;")
+        self.assertEqual(
+            sanitize_string("<script>alert('XSS')</script>"),
+            "&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;",
+        )
+        self.assertEqual(
+            sanitize_string('"><script>alert("XSS")</script>'),
+            "&quot;&gt;&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;",
+        )
         self.assertEqual(sanitize_string("Normal string"), "Normal string")
         self.assertEqual(sanitize_string(""), "")
         self.assertEqual(sanitize_string(None), "")
@@ -225,8 +244,13 @@ class TestValidationUtils(unittest.TestCase):
     def test_sanitize_html(self):
         """Test sanitize_html function."""
         # Test sanitization
-        self.assertEqual(sanitize_html("<script>alert('XSS')</script>"), "&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;")
-        self.assertEqual(sanitize_html("<b>Bold text</b>"), "&lt;b&gt;Bold text&lt;/b&gt;")
+        self.assertEqual(
+            sanitize_html("<script>alert('XSS')</script>"),
+            "&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;",
+        )
+        self.assertEqual(
+            sanitize_html("<b>Bold text</b>"), "&lt;b&gt;Bold text&lt;/b&gt;"
+        )
         self.assertEqual(sanitize_html("Normal string"), "Normal string")
         self.assertEqual(sanitize_html(""), "")
         self.assertEqual(sanitize_html(None), "")
@@ -241,7 +265,7 @@ class TestValidationUtils(unittest.TestCase):
         self.assertEqual(sanitize_filename("file:name.txt"), "name.txt")
         self.assertEqual(sanitize_filename("file*name.txt"), "filename.txt")
         self.assertEqual(sanitize_filename("file?name.txt"), "filename.txt")
-        self.assertEqual(sanitize_filename("file\"name.txt"), "filename.txt")
+        self.assertEqual(sanitize_filename('file"name.txt'), "filename.txt")
         self.assertEqual(sanitize_filename("file<name.txt"), "filename.txt")
         self.assertEqual(sanitize_filename("file>name.txt"), "filename.txt")
         self.assertEqual(sanitize_filename("file|name.txt"), "filename.txt")
@@ -253,8 +277,13 @@ class TestValidationUtils(unittest.TestCase):
         # Test sanitization
         current_dir = os.getcwd()
         self.assertEqual(sanitize_path("."), current_dir)
-        self.assertEqual(sanitize_path("./file.txt"), os.path.join(current_dir, "file.txt"))
-        self.assertEqual(sanitize_path("../file.txt"), os.path.normpath(os.path.join(current_dir, "..", "file.txt")))
+        self.assertEqual(
+            sanitize_path("./file.txt"), os.path.join(current_dir, "file.txt")
+        )
+        self.assertEqual(
+            sanitize_path("../file.txt"),
+            os.path.normpath(os.path.join(current_dir, "..", "file.txt")),
+        )
         self.assertEqual(sanitize_path(""), "")
         self.assertEqual(sanitize_path(None), "")
 
@@ -263,28 +292,37 @@ class TestValidationUtils(unittest.TestCase):
         # Test validation and sanitization
         # Valid input
         self.assertEqual(
-            validate_and_sanitize_input("user@example.com", is_valid_email, sanitize_string),
-            "user@example.com"
+            validate_and_sanitize_input(
+                "user@example.com", is_valid_email, sanitize_string
+            ),
+            "user@example.com",
         )
 
         # Invalid input
         with self.assertRaises(ValueError):
-            validate_and_sanitize_input("invalid-email", is_valid_email, sanitize_string)
+            validate_and_sanitize_input(
+                "invalid-email", is_valid_email, sanitize_string
+            )
 
         # Custom error message
         with self.assertRaises(ValueError) as cm:
-            validate_and_sanitize_input("invalid-email", is_valid_email, sanitize_string, "Custom error message")
+            validate_and_sanitize_input(
+                "invalid-email", is_valid_email, sanitize_string, "Custom error message"
+            )
         self.assertEqual(str(cm.exception), "Custom error message")
 
     def test_validate_config_file(self):
         """Test validate_config_file function."""
+
         # Define a Pydantic model for testing
         class TestConfig(BaseModel):
             name: str = Field(..., min_length=1)
             value: int = Field(..., ge=0)
 
         # Create a temporary config file
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".json"
+        ) as temp_file:
             # Valid config
             json.dump({"name": "test", "value": 42}, temp_file)
             temp_file_path = temp_file.name

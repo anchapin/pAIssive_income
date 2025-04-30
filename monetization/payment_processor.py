@@ -12,7 +12,9 @@ import uuid
 import json
 
 
-def get_payment_gateway(gateway_type: str = "stripe", config: Optional[Dict[str, Any]] = None):
+def get_payment_gateway(
+    gateway_type: str = "stripe", config: Optional[Dict[str, Any]] = None
+):
     """
     Get a payment gateway of the specified type.
 
@@ -24,6 +26,7 @@ def get_payment_gateway(gateway_type: str = "stripe", config: Optional[Dict[str,
         A payment gateway instance
     """
     from tests.mocks.mock_payment_apis import create_payment_gateway
+
     return create_payment_gateway(gateway_type, config)
 
 
@@ -53,7 +56,7 @@ class PaymentProcessor(ABC):
         currency: str,
         payment_method_id: str,
         description: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Process a payment.
@@ -75,7 +78,7 @@ class PaymentProcessor(ABC):
         self,
         payment_id: str,
         amount: Optional[float] = None,
-        reason: Optional[str] = None
+        reason: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Refund a payment.
@@ -109,7 +112,7 @@ class PaymentProcessor(ABC):
         customer_id: Optional[str] = None,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """
         List payments.
@@ -130,7 +133,7 @@ class PaymentProcessor(ABC):
         self,
         email: str,
         name: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a customer.
@@ -164,7 +167,7 @@ class PaymentProcessor(ABC):
         customer_id: str,
         email: Optional[str] = None,
         name: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Update a customer.
@@ -199,7 +202,7 @@ class PaymentProcessor(ABC):
         customer_id: str,
         payment_type: str,
         payment_details: Dict[str, Any],
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a payment method.
@@ -230,9 +233,7 @@ class PaymentProcessor(ABC):
 
     @abstractmethod
     def list_payment_methods(
-        self,
-        customer_id: str,
-        payment_type: Optional[str] = None
+        self, customer_id: str, payment_type: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         List payment methods for a customer.
@@ -251,7 +252,7 @@ class PaymentProcessor(ABC):
         self,
         payment_method_id: str,
         payment_details: Dict[str, Any],
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Update a payment method.
@@ -285,7 +286,7 @@ class PaymentProcessor(ABC):
         customer_id: str,
         plan_id: str,
         payment_method_id: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a subscription.
@@ -320,7 +321,7 @@ class PaymentProcessor(ABC):
         subscription_id: str,
         plan_id: Optional[str] = None,
         payment_method_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Update a subscription.
@@ -338,9 +339,7 @@ class PaymentProcessor(ABC):
 
     @abstractmethod
     def cancel_subscription(
-        self,
-        subscription_id: str,
-        cancel_at_period_end: bool = True
+        self, subscription_id: str, cancel_at_period_end: bool = True
     ) -> Dict[str, Any]:
         """
         Cancel a subscription.
@@ -360,7 +359,7 @@ class PaymentProcessor(ABC):
         customer_id: Optional[str] = None,
         plan_id: Optional[str] = None,
         status: Optional[str] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """
         List subscriptions.
@@ -393,7 +392,7 @@ class PaymentProcessor(ABC):
             "GBP": "£",
             "JPY": "¥",
             "CAD": "C$",
-            "AUD": "A$"
+            "AUD": "A$",
         }
 
         symbol = currency_symbols.get(currency, currency)
@@ -475,13 +474,45 @@ class PaymentProcessor(ABC):
         # Check for common card types based on prefix
         if card_number.startswith("4"):
             return "Visa"
-        elif card_number.startswith(("51", "52", "53", "54", "55")) or card_number.startswith(("2221", "2222", "2223", "2224", "2225", "2226", "2227", "2228", "2229", "223", "224", "225", "226", "227", "228", "229", "23", "24", "25", "26", "270", "271", "2720")):
+        elif card_number.startswith(
+            ("51", "52", "53", "54", "55")
+        ) or card_number.startswith(
+            (
+                "2221",
+                "2222",
+                "2223",
+                "2224",
+                "2225",
+                "2226",
+                "2227",
+                "2228",
+                "2229",
+                "223",
+                "224",
+                "225",
+                "226",
+                "227",
+                "228",
+                "229",
+                "23",
+                "24",
+                "25",
+                "26",
+                "270",
+                "271",
+                "2720",
+            )
+        ):
             return "Mastercard"
         elif card_number.startswith(("34", "37")):
             return "American Express"
-        elif card_number.startswith(("300", "301", "302", "303", "304", "305", "36", "38")):
+        elif card_number.startswith(
+            ("300", "301", "302", "303", "304", "305", "36", "38")
+        ):
             return "Diners Club"
-        elif card_number.startswith(("6011", "644", "645", "646", "647", "648", "649", "65")):
+        elif card_number.startswith(
+            ("6011", "644", "645", "646", "647", "648", "649", "65")
+        ):
             return "Discover"
         elif card_number.startswith(("35")):
             return "JCB"
@@ -499,7 +530,7 @@ class PaymentProcessor(ABC):
             "id": self.id,
             "name": self.name,
             "type": self.__class__.__name__,
-            "created_at": self.created_at.isoformat()
+            "created_at": self.created_at.isoformat(),
         }
 
     def __str__(self) -> str:

@@ -3,7 +3,7 @@ Marketing Agent for the pAIssive Income project.
 Specializes in marketing strategies and user acquisition.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import uuid
 from datetime import datetime
 
@@ -25,8 +25,13 @@ class MarketingAgent:
         self.name = "Marketing Agent"
         self.description = "Specializes in marketing strategies and user acquisition"
         self.model_settings = team.config["model_settings"]["marketing"]
-    
-    def create_plan(self, niche: Dict[str, Any], solution: Dict[str, Any], monetization: Dict[str, Any]) -> Dict[str, Any]:
+
+    def create_plan(
+        self,
+        niche: Dict[str, Any],
+        solution: Dict[str, Any],
+        monetization: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """
         Create a marketing plan for a specific solution.
 
@@ -40,13 +45,18 @@ class MarketingAgent:
         """
         # Create the marketing plan
         plan = self._create_marketing_plan(niche, solution, monetization)
-        
+
         # Store the marketing plan in the team's project state
         self.team.project_state["marketing_plan"] = plan
-        
+
         return plan
-    
-    def _create_marketing_plan(self, niche: Dict[str, Any], solution: Dict[str, Any], monetization: Dict[str, Any]) -> Dict[str, Any]:
+
+    def _create_marketing_plan(
+        self,
+        niche: Dict[str, Any],
+        solution: Dict[str, Any],
+        monetization: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """
         Create a detailed marketing plan for a specific solution.
 
@@ -60,7 +70,7 @@ class MarketingAgent:
         """
         # In a real implementation, this would use AI to create the plan
         # For now, we'll return a placeholder implementation based on the niche, solution, and monetization
-        
+
         # Generate user personas based on the niche and solution
         user_personas = [
             {
@@ -79,7 +89,11 @@ class MarketingAgent:
                     "price_sensitivity": "medium",
                     "decision_making": "rational",
                 },
-                "preferred_channels": ["linkedin", "industry forums", "professional networks"],
+                "preferred_channels": [
+                    "linkedin",
+                    "industry forums",
+                    "professional networks",
+                ],
             },
             {
                 "id": str(uuid.uuid4()),
@@ -100,7 +114,7 @@ class MarketingAgent:
                 "preferred_channels": ["youtube", "reddit", "twitter", "discord"],
             },
         ]
-        
+
         # Generate marketing channels based on the user personas
         marketing_channels = [
             {
@@ -148,7 +162,7 @@ class MarketingAgent:
                 "timeline": "3-6 months",
             },
         ]
-        
+
         # Generate marketing campaigns based on the solution and monetization
         marketing_campaigns = [
             {
@@ -169,7 +183,11 @@ class MarketingAgent:
                 "id": str(uuid.uuid4()),
                 "name": "Free Trial Promotion",
                 "description": f"Promote free trial of {solution['name']}",
-                "channels": [marketing_channels[0]["id"], marketing_channels[1]["id"], marketing_channels[3]["id"]],
+                "channels": [
+                    marketing_channels[0]["id"],
+                    marketing_channels[1]["id"],
+                    marketing_channels[3]["id"],
+                ],
                 "budget": "$2,000 - $3,000",
                 "duration": "ongoing",
                 "goals": {
@@ -193,7 +211,7 @@ class MarketingAgent:
                 "timeline": "quarterly",
             },
         ]
-        
+
         # Generate content strategy based on the niche and solution
         content_strategy = {
             "blog_posts": [
@@ -223,7 +241,7 @@ class MarketingAgent:
                 "Re-engagement sequence for inactive users",
             ],
         }
-        
+
         # Generate growth strategy based on the monetization
         growth_strategy = {
             "user_acquisition": {
@@ -256,7 +274,7 @@ class MarketingAgent:
                 ],
             },
         }
-        
+
         return {
             "id": str(uuid.uuid4()),
             "solution_id": solution["id"],
@@ -277,10 +295,22 @@ class MarketingAgent:
                 },
             },
             "metrics_and_kpis": {
-                "acquisition_metrics": ["website visitors", "free trial signups", "conversion rate"],
-                "engagement_metrics": ["active users", "feature usage", "session duration"],
+                "acquisition_metrics": [
+                    "website visitors",
+                    "free trial signups",
+                    "conversion rate",
+                ],
+                "engagement_metrics": [
+                    "active users",
+                    "feature usage",
+                    "session duration",
+                ],
                 "retention_metrics": ["churn rate", "renewal rate", "lifetime value"],
-                "revenue_metrics": ["monthly recurring revenue", "annual recurring revenue", "average revenue per user"],
+                "revenue_metrics": [
+                    "monthly recurring revenue",
+                    "annual recurring revenue",
+                    "average revenue per user",
+                ],
             },
             "timeline": {
                 "pre_launch": "1 month",
@@ -299,8 +329,10 @@ class MarketingAgent:
             },
             "timestamp": datetime.now().isoformat(),
         }
-    
-    def generate_content_ideas(self, niche: Dict[str, Any], solution: Dict[str, Any]) -> List[Dict[str, Any]]:
+
+    def generate_content_ideas(
+        self, niche: Dict[str, Any], solution: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """
         Generate content ideas for marketing a specific solution.
 
@@ -313,14 +345,14 @@ class MarketingAgent:
         """
         # In a real implementation, this would use AI to generate content ideas
         # For now, we'll return a placeholder implementation
-        
+
         content_types = ["blog_post", "video", "social_media", "email", "webinar"]
-        
+
         content_ideas = []
-        
+
         for i in range(10):  # Generate 10 content ideas
             content_type = content_types[i % len(content_types)]
-            
+
             if content_type == "blog_post":
                 title = f"How to Solve {niche['problem_areas'][i % len(niche['problem_areas'])]} in {niche['name']}"
                 description = f"A detailed guide on solving {niche['problem_areas'][i % len(niche['problem_areas'])]} using {solution['name']}"
@@ -336,19 +368,27 @@ class MarketingAgent:
             elif content_type == "webinar":
                 title = f"Mastering {niche['name']}: Advanced Techniques with {solution['name']}"
                 description = f"A webinar on advanced techniques for {niche['name']} using {solution['name']}"
-            
-            content_ideas.append({
-                "id": str(uuid.uuid4()),
-                "type": content_type,
-                "title": title,
-                "description": description,
-                "target_audience": "professionals" if i % 2 == 0 else "enthusiasts",
-                "goal": "education" if i % 3 == 0 else "conversion" if i % 3 == 1 else "awareness",
-                "estimated_impact": "high" if i % 3 == 0 else "medium" if i % 3 == 1 else "low",
-            })
-        
+
+            content_ideas.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": content_type,
+                    "title": title,
+                    "description": description,
+                    "target_audience": "professionals" if i % 2 == 0 else "enthusiasts",
+                    "goal": (
+                        "education"
+                        if i % 3 == 0
+                        else "conversion" if i % 3 == 1 else "awareness"
+                    ),
+                    "estimated_impact": (
+                        "high" if i % 3 == 0 else "medium" if i % 3 == 1 else "low"
+                    ),
+                }
+            )
+
         return content_ideas
-    
+
     def __str__(self) -> str:
         """String representation of the Marketing Agent."""
         return f"{self.name}: {self.description}"

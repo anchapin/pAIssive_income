@@ -9,14 +9,14 @@ from typing import Optional, List, Dict, Any
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 try:
     import strawberry
     from strawberry.types import Info
+
     STRAWBERRY_AVAILABLE = True
 except ImportError:
     logger.warning("Strawberry GraphQL is required for GraphQL resolvers")
@@ -24,24 +24,32 @@ except ImportError:
 
 if STRAWBERRY_AVAILABLE:
     from ..schemas.niche_analysis import (
-        NicheType, MarketSegmentType, ProblemType, OpportunityType,
-        NicheAnalysisInput, NicheInput, MarketSegmentInput, ProblemInput
+        NicheType,
+        MarketSegmentType,
+        ProblemType,
+        OpportunityType,
+        NicheAnalysisInput,
+        NicheInput,
+        MarketSegmentInput,
+        ProblemInput,
     )
-    
+
     @strawberry.type
     class NicheAnalysisQuery:
         """Niche analysis query resolvers."""
-        
+
         @strawberry.field
-        async def niches(self, info: Info, limit: Optional[int] = 10, offset: Optional[int] = 0) -> List[NicheType]:
+        async def niches(
+            self, info: Info, limit: Optional[int] = 10, offset: Optional[int] = 0
+        ) -> List[NicheType]:
             """
             Get a list of niches.
-            
+
             Args:
                 info: GraphQL resolver info
                 limit: Maximum number of niches to return
                 offset: Number of niches to skip
-                
+
             Returns:
                 List of niches
             """
@@ -50,7 +58,7 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Niche analysis service not available")
                 return []
-            
+
             # Get niches from service
             try:
                 niches = await service.get_niches(limit=limit, offset=offset)
@@ -62,24 +70,28 @@ if STRAWBERRY_AVAILABLE:
                         market_size=niche.market_size,
                         growth_rate=niche.growth_rate,
                         competition_level=niche.competition_level,
-                        created_at=niche.created_at.isoformat() if niche.created_at else None,
-                        updated_at=niche.updated_at.isoformat() if niche.updated_at else None
+                        created_at=(
+                            niche.created_at.isoformat() if niche.created_at else None
+                        ),
+                        updated_at=(
+                            niche.updated_at.isoformat() if niche.updated_at else None
+                        ),
                     )
                     for niche in niches
                 ]
             except Exception as e:
                 logger.error(f"Error getting niches: {str(e)}")
                 return []
-        
+
         @strawberry.field
         async def niche(self, info: Info, id: str) -> Optional[NicheType]:
             """
             Get a niche by ID.
-            
+
             Args:
                 info: GraphQL resolver info
                 id: Niche ID
-                
+
             Returns:
                 Niche if found, None otherwise
             """
@@ -88,13 +100,13 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Niche analysis service not available")
                 return None
-            
+
             # Get niche from service
             try:
                 niche = await service.get_niche(id)
                 if not niche:
                     return None
-                
+
                 return NicheType(
                     id=str(niche.id),
                     name=niche.name,
@@ -102,25 +114,34 @@ if STRAWBERRY_AVAILABLE:
                     market_size=niche.market_size,
                     growth_rate=niche.growth_rate,
                     competition_level=niche.competition_level,
-                    created_at=niche.created_at.isoformat() if niche.created_at else None,
-                    updated_at=niche.updated_at.isoformat() if niche.updated_at else None
+                    created_at=(
+                        niche.created_at.isoformat() if niche.created_at else None
+                    ),
+                    updated_at=(
+                        niche.updated_at.isoformat() if niche.updated_at else None
+                    ),
                 )
             except Exception as e:
                 logger.error(f"Error getting niche: {str(e)}")
                 return None
-        
+
         @strawberry.field
-        async def opportunities(self, info: Info, niche_id: Optional[str] = None, 
-                              limit: Optional[int] = 10, offset: Optional[int] = 0) -> List[OpportunityType]:
+        async def opportunities(
+            self,
+            info: Info,
+            niche_id: Optional[str] = None,
+            limit: Optional[int] = 10,
+            offset: Optional[int] = 0,
+        ) -> List[OpportunityType]:
             """
             Get a list of opportunities.
-            
+
             Args:
                 info: GraphQL resolver info
                 niche_id: Filter by niche ID
                 limit: Maximum number of opportunities to return
                 offset: Number of opportunities to skip
-                
+
             Returns:
                 List of opportunities
             """
@@ -129,15 +150,13 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Niche analysis service not available")
                 return []
-            
+
             # Get opportunities from service
             try:
                 opportunities = await service.get_opportunities(
-                    niche_id=niche_id, 
-                    limit=limit, 
-                    offset=offset
+                    niche_id=niche_id, limit=limit, offset=offset
                 )
-                
+
                 return [
                     OpportunityType(
                         id=str(opp.id),
@@ -149,28 +168,34 @@ if STRAWBERRY_AVAILABLE:
                         market_potential=opp.market_potential,
                         feasibility=opp.feasibility,
                         profitability=opp.profitability,
-                        created_at=opp.created_at.isoformat() if opp.created_at else None,
-                        updated_at=opp.updated_at.isoformat() if opp.updated_at else None
+                        created_at=(
+                            opp.created_at.isoformat() if opp.created_at else None
+                        ),
+                        updated_at=(
+                            opp.updated_at.isoformat() if opp.updated_at else None
+                        ),
                     )
                     for opp in opportunities
                 ]
             except Exception as e:
                 logger.error(f"Error getting opportunities: {str(e)}")
                 return []
-    
+
     @strawberry.type
     class NicheAnalysisMutation:
         """Niche analysis mutation resolvers."""
-        
+
         @strawberry.mutation
-        async def create_niche_analysis(self, info: Info, input: NicheAnalysisInput) -> Optional[NicheType]:
+        async def create_niche_analysis(
+            self, info: Info, input: NicheAnalysisInput
+        ) -> Optional[NicheType]:
             """
             Create a new niche analysis.
-            
+
             Args:
                 info: GraphQL resolver info
                 input: Niche analysis input
-                
+
             Returns:
                 Created niche if successful, None otherwise
             """
@@ -179,7 +204,7 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Niche analysis service not available")
                 return None
-            
+
             # Create niche analysis
             try:
                 niche = await service.create_niche_analysis(
@@ -187,9 +212,9 @@ if STRAWBERRY_AVAILABLE:
                     description=input.description,
                     market_size=input.market_size,
                     growth_rate=input.growth_rate,
-                    competition_level=input.competition_level
+                    competition_level=input.competition_level,
                 )
-                
+
                 return NicheType(
                     id=str(niche.id),
                     name=niche.name,
@@ -197,23 +222,29 @@ if STRAWBERRY_AVAILABLE:
                     market_size=niche.market_size,
                     growth_rate=niche.growth_rate,
                     competition_level=niche.competition_level,
-                    created_at=niche.created_at.isoformat() if niche.created_at else None,
-                    updated_at=niche.updated_at.isoformat() if niche.updated_at else None
+                    created_at=(
+                        niche.created_at.isoformat() if niche.created_at else None
+                    ),
+                    updated_at=(
+                        niche.updated_at.isoformat() if niche.updated_at else None
+                    ),
                 )
             except Exception as e:
                 logger.error(f"Error creating niche analysis: {str(e)}")
                 return None
-        
+
         @strawberry.mutation
-        async def update_niche(self, info: Info, id: str, input: NicheInput) -> Optional[NicheType]:
+        async def update_niche(
+            self, info: Info, id: str, input: NicheInput
+        ) -> Optional[NicheType]:
             """
             Update a niche.
-            
+
             Args:
                 info: GraphQL resolver info
                 id: Niche ID
                 input: Niche input
-                
+
             Returns:
                 Updated niche if successful, None otherwise
             """
@@ -222,7 +253,7 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Niche analysis service not available")
                 return None
-            
+
             # Update niche
             try:
                 niche = await service.update_niche(
@@ -231,12 +262,12 @@ if STRAWBERRY_AVAILABLE:
                     description=input.description,
                     market_size=input.market_size,
                     growth_rate=input.growth_rate,
-                    competition_level=input.competition_level
+                    competition_level=input.competition_level,
                 )
-                
+
                 if not niche:
                     return None
-                
+
                 return NicheType(
                     id=str(niche.id),
                     name=niche.name,
@@ -244,22 +275,26 @@ if STRAWBERRY_AVAILABLE:
                     market_size=niche.market_size,
                     growth_rate=niche.growth_rate,
                     competition_level=niche.competition_level,
-                    created_at=niche.created_at.isoformat() if niche.created_at else None,
-                    updated_at=niche.updated_at.isoformat() if niche.updated_at else None
+                    created_at=(
+                        niche.created_at.isoformat() if niche.created_at else None
+                    ),
+                    updated_at=(
+                        niche.updated_at.isoformat() if niche.updated_at else None
+                    ),
                 )
             except Exception as e:
                 logger.error(f"Error updating niche: {str(e)}")
                 return None
-        
+
         @strawberry.mutation
         async def delete_niche(self, info: Info, id: str) -> bool:
             """
             Delete a niche.
-            
+
             Args:
                 info: GraphQL resolver info
                 id: Niche ID
-                
+
             Returns:
                 True if successful, False otherwise
             """
@@ -268,7 +303,7 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Niche analysis service not available")
                 return False
-            
+
             # Delete niche
             try:
                 success = await service.delete_niche(id)

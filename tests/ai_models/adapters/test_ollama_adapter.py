@@ -1,6 +1,7 @@
 """
 Tests for the OllamaAdapter class.
 """
+
 import pytest
 from unittest.mock import MagicMock, patch
 
@@ -14,7 +15,7 @@ def test_ollama_adapter_implements_interface():
     assert isinstance(adapter, IModelAdapter)
 
 
-@patch('ai_models.adapters.ollama_adapter.requests.Session')
+@patch("ai_models.adapters.ollama_adapter.requests.Session")
 def test_ollama_adapter_connect(mock_session):
     """Test the connect method."""
     # Mock the session
@@ -27,7 +28,7 @@ def test_ollama_adapter_connect(mock_session):
     mock_session_instance.get.return_value = mock_response
 
     # Create the adapter with _check_ollama_status mocked to avoid the initial call
-    with patch.object(OllamaAdapter, '_check_ollama_status'):
+    with patch.object(OllamaAdapter, "_check_ollama_status"):
         adapter = OllamaAdapter(base_url="http://localhost:11434")
 
         # Reset the mock to clear the call history
@@ -39,10 +40,12 @@ def test_ollama_adapter_connect(mock_session):
         # Verify the result
         assert result is True
         assert adapter._connected is True
-        mock_session_instance.get.assert_called_once_with("http://localhost:11434", timeout=5)
+        mock_session_instance.get.assert_called_once_with(
+            "http://localhost:11434", timeout=5
+        )
 
 
-@patch('ai_models.adapters.ollama_adapter.requests.Session')
+@patch("ai_models.adapters.ollama_adapter.requests.Session")
 def test_ollama_adapter_disconnect(mock_session):
     """Test the disconnect method."""
     # Mock the session
@@ -50,7 +53,7 @@ def test_ollama_adapter_disconnect(mock_session):
     mock_session.return_value = mock_session_instance
 
     # Create the adapter with _check_ollama_status mocked to avoid the initial call
-    with patch.object(OllamaAdapter, '_check_ollama_status'):
+    with patch.object(OllamaAdapter, "_check_ollama_status"):
         adapter = OllamaAdapter(base_url="http://localhost:11434")
 
         # Test the disconnect method
@@ -62,7 +65,7 @@ def test_ollama_adapter_disconnect(mock_session):
         mock_session_instance.close.assert_called_once()
 
 
-@patch('ai_models.adapters.ollama_adapter.requests.Session')
+@patch("ai_models.adapters.ollama_adapter.requests.Session")
 def test_ollama_adapter_get_models(mock_session):
     """Test the get_models method."""
     # Mock the session
@@ -77,19 +80,19 @@ def test_ollama_adapter_get_models(mock_session):
             {
                 "name": "llama2:latest",
                 "size": 3791730298,
-                "modified_at": "2023-10-10T12:34:56Z"
+                "modified_at": "2023-10-10T12:34:56Z",
             },
             {
                 "name": "mistral:latest",
                 "size": 4289147034,
-                "modified_at": "2023-10-11T12:34:56Z"
-            }
+                "modified_at": "2023-10-11T12:34:56Z",
+            },
         ]
     }
     mock_session_instance.get.return_value = mock_response
 
     # Create the adapter with _check_ollama_status mocked to avoid the initial call
-    with patch.object(OllamaAdapter, '_check_ollama_status'):
+    with patch.object(OllamaAdapter, "_check_ollama_status"):
         adapter = OllamaAdapter(base_url="http://localhost:11434")
 
         # Reset the mock to clear the call history
@@ -109,6 +112,5 @@ def test_ollama_adapter_get_models(mock_session):
         assert models[1]["type"] == "llm"
         assert models[1]["adapter"] == "ollama"
         mock_session_instance.get.assert_called_with(
-            "http://localhost:11434/api/tags",
-            timeout=60
+            "http://localhost:11434/api/tags", timeout=60
         )

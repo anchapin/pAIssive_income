@@ -37,6 +37,7 @@ class InferenceMetrics:
     """
     Holds metrics for a single model inference.
     """
+
     model_id: str
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
     batch_id: Optional[str] = None
@@ -113,6 +114,7 @@ class ModelPerformanceReport:
     """
     Performance report for a model across multiple inferences.
     """
+
     model_id: str
     model_name: str = None
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
@@ -185,6 +187,7 @@ class ModelComparisonReport:
     """
     Report comparing the performance of multiple models.
     """
+
     title: str
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
     comparison_metrics: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -204,7 +207,9 @@ class ModelComparisonReport:
         """
         for metric in key_metrics:
             # Determine if lower is better (time metrics) or higher is better (throughput)
-            lower_is_better = ("time" in metric or "latency" in metric or "memory" in metric)
+            lower_is_better = (
+                "time" in metric or "latency" in metric or "memory" in metric
+            )
 
             # Find the best value
             values = []
@@ -238,13 +243,16 @@ class ModelComparisonReport:
                         # Negative: current is better (higher)
                         percent_diff = (best_value - current_value) / best_value * 100
 
-                    self.comparison_metrics[model_key][f"{metric}_percent_diff"] = percent_diff
+                    self.comparison_metrics[model_key][
+                        f"{metric}_percent_diff"
+                    ] = percent_diff
 
 
 class AlertConfig:
     """
     Configuration for performance metric alerts.
     """
+
     def __init__(
         self,
         model_id: str,
@@ -252,7 +260,7 @@ class AlertConfig:
         threshold_value: float,
         is_upper_bound: bool = True,
         cooldown_minutes: int = 60,
-        notification_channels: List[str] = None
+        notification_channels: List[str] = None,
     ):
         self.model_id = model_id
         self.metric_name = metric_name
@@ -271,11 +279,13 @@ class AlertConfig:
             "is_upper_bound": self.is_upper_bound,
             "cooldown_minutes": self.cooldown_minutes,
             "notification_channels": self.notification_channels,
-            "last_triggered": self.last_triggered.isoformat() if self.last_triggered else None
+            "last_triggered": (
+                self.last_triggered.isoformat() if self.last_triggered else None
+            ),
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'AlertConfig':
+    def from_dict(cls, data: Dict[str, Any]) -> "AlertConfig":
         """Create from dictionary."""
         alert = cls(
             model_id=data["model_id"],
@@ -283,7 +293,7 @@ class AlertConfig:
             threshold_value=data["threshold_value"],
             is_upper_bound=data.get("is_upper_bound", True),
             cooldown_minutes=data.get("cooldown_minutes", 60),
-            notification_channels=data.get("notification_channels", ["log"])
+            notification_channels=data.get("notification_channels", ["log"]),
         )
         if data.get("last_triggered"):
             alert.last_triggered = datetime.fromisoformat(data["last_triggered"])
@@ -320,10 +330,13 @@ class InferenceTracker:
     """
     A utility for tracking performance metrics of model inferences.
     """
-    def __init__(self,
-                monitor: 'PerformanceMonitor',
-                model_id: str,
-                batch_id: Optional[str] = None):
+
+    def __init__(
+        self,
+        monitor: "PerformanceMonitor",
+        model_id: str,
+        batch_id: Optional[str] = None,
+    ):
         self.monitor = monitor
         self.model_id = model_id
         self.batch_id = batch_id or str(uuid.uuid4())
@@ -413,6 +426,7 @@ class InferenceTracker:
         # In a real implementation, this would use process-specific metrics
         try:
             import psutil
+
             process = psutil.Process(os.getpid())
             memory_info = process.memory_info()
             memory_mb = memory_info.rss / (1024 * 1024)  # Convert bytes to MB
@@ -429,7 +443,10 @@ class InferenceTracker:
         except ImportError:
             # psutil not available, use generic memory info
             import resource
-            memory_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # kB to MB
+
+            memory_mb = (
+                resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+            )  # kB to MB
 
             if is_start:
                 self.memory_usage_start = memory_mb
@@ -466,6 +483,7 @@ class MetricsDatabase:
     """
     Manages storage and retrieval of performance metrics in SQLite.
     """
+
     def __init__(self, db_path: str = None):
         """
         Initialize the metrics database.
@@ -494,24 +512,30 @@ class MetricsDatabase:
         cursor = self.conn.cursor()
 
         # Check if the schema version table exists
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT name FROM sqlite_master
             WHERE type='table' AND name='schema_version'
-        """)
+        """
+        )
 
         if not cursor.fetchone():
             # Create schema version table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE schema_version (
                     version TEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
-            cursor.execute("INSERT INTO schema_version (version) VALUES (?)",
-                          (DB_SCHEMA_VERSION,))
+            """
+            )
+            cursor.execute(
+                "INSERT INTO schema_version (version) VALUES (?)", (DB_SCHEMA_VERSION,)
+            )
 
             # Create tables
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE inference_metrics (
                     id TEXT PRIMARY KEY,
                     model_id TEXT NOT NULL,
@@ -536,15 +560,23 @@ class MetricsDatabase:
                     request_id TEXT,
                     metadata TEXT
                 )
-            """)
+            """
+            )
 
             # Create indexes
-            cursor.execute("CREATE INDEX idx_inference_model_id ON inference_metrics(model_id)")
-            cursor.execute("CREATE INDEX idx_inference_timestamp ON inference_metrics(timestamp)")
-            cursor.execute("CREATE INDEX idx_inference_batch_id ON inference_metrics(batch_id)")
+            cursor.execute(
+                "CREATE INDEX idx_inference_model_id ON inference_metrics(model_id)"
+            )
+            cursor.execute(
+                "CREATE INDEX idx_inference_timestamp ON inference_metrics(timestamp)"
+            )
+            cursor.execute(
+                "CREATE INDEX idx_inference_batch_id ON inference_metrics(batch_id)"
+            )
 
             # Create alerts table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE alert_configs (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     model_id TEXT NOT NULL,
@@ -556,10 +588,12 @@ class MetricsDatabase:
                     last_triggered TEXT,
                     UNIQUE(model_id, metric_name)
                 )
-            """)
+            """
+            )
 
             # Create alert history table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE alert_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     model_id TEXT NOT NULL,
@@ -569,7 +603,8 @@ class MetricsDatabase:
                     triggered_at TEXT NOT NULL,
                     message TEXT
                 )
-            """)
+            """
+            )
 
             self.conn.commit()
 
@@ -586,7 +621,8 @@ class MetricsDatabase:
         metadata_json = json.dumps(metrics.metadata) if metrics.metadata else "{}"
 
         # Insert the metrics
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT OR REPLACE INTO inference_metrics (
                 id, model_id, batch_id, timestamp,
                 input_tokens, output_tokens,
@@ -598,38 +634,42 @@ class MetricsDatabase:
                 estimated_cost, currency,
                 request_id, metadata
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            metrics.inference_id,
-            metrics.model_id,
-            metrics.batch_id,
-            metrics.timestamp,
-            metrics.input_tokens,
-            metrics.output_tokens,
-            metrics.total_time,
-            metrics.latency_ms,
-            metrics.time_to_first_token,
-            metrics.tokens_per_second,
-            metrics.memory_usage_mb,
-            metrics.peak_cpu_memory_mb,
-            metrics.peak_gpu_memory_mb,
-            metrics.cpu_percent,
-            metrics.gpu_percent,
-            metrics.perplexity,
-            metrics.bleu_score,
-            metrics.rouge_score,
-            metrics.estimated_cost,
-            metrics.currency,
-            metrics.request_id,
-            metadata_json
-        ))
+        """,
+            (
+                metrics.inference_id,
+                metrics.model_id,
+                metrics.batch_id,
+                metrics.timestamp,
+                metrics.input_tokens,
+                metrics.output_tokens,
+                metrics.total_time,
+                metrics.latency_ms,
+                metrics.time_to_first_token,
+                metrics.tokens_per_second,
+                metrics.memory_usage_mb,
+                metrics.peak_cpu_memory_mb,
+                metrics.peak_gpu_memory_mb,
+                metrics.cpu_percent,
+                metrics.gpu_percent,
+                metrics.perplexity,
+                metrics.bleu_score,
+                metrics.rouge_score,
+                metrics.estimated_cost,
+                metrics.currency,
+                metrics.request_id,
+                metadata_json,
+            ),
+        )
 
         self.conn.commit()
 
-    def get_metrics(self,
-                   model_id: str = None,
-                   batch_id: str = None,
-                   time_range: Tuple[datetime, datetime] = None,
-                   limit: int = 1000) -> List[Dict[str, Any]]:
+    def get_metrics(
+        self,
+        model_id: str = None,
+        batch_id: str = None,
+        time_range: Tuple[datetime, datetime] = None,
+        limit: int = 1000,
+    ) -> List[Dict[str, Any]]:
         """
         Get metrics from the database.
 
@@ -698,21 +738,28 @@ class MetricsDatabase:
         notification_channels = json.dumps(alert_config.notification_channels)
 
         # Insert or update
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT OR REPLACE INTO alert_configs (
                 model_id, metric_name, threshold_value,
                 is_upper_bound, cooldown_minutes, notification_channels,
                 last_triggered
             ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
-            alert_config.model_id,
-            alert_config.metric_name,
-            alert_config.threshold_value,
-            1 if alert_config.is_upper_bound else 0,
-            alert_config.cooldown_minutes,
-            notification_channels,
-            alert_config.last_triggered.isoformat() if alert_config.last_triggered else None
-        ))
+        """,
+            (
+                alert_config.model_id,
+                alert_config.metric_name,
+                alert_config.threshold_value,
+                1 if alert_config.is_upper_bound else 0,
+                alert_config.cooldown_minutes,
+                notification_channels,
+                (
+                    alert_config.last_triggered.isoformat()
+                    if alert_config.last_triggered
+                    else None
+                ),
+            ),
+        )
 
         self.conn.commit()
 
@@ -755,23 +802,27 @@ class MetricsDatabase:
                 threshold_value=data["threshold_value"],
                 is_upper_bound=bool(data["is_upper_bound"]),
                 cooldown_minutes=data["cooldown_minutes"],
-                notification_channels=notification_channels
+                notification_channels=notification_channels,
             )
 
             # Set last_triggered
             if data["last_triggered"]:
-                alert_config.last_triggered = datetime.fromisoformat(data["last_triggered"])
+                alert_config.last_triggered = datetime.fromisoformat(
+                    data["last_triggered"]
+                )
 
             results.append(alert_config)
 
         return results
 
-    def save_alert_history(self,
-                         model_id: str,
-                         metric_name: str,
-                         threshold_value: float,
-                         actual_value: float,
-                         message: str = None) -> None:
+    def save_alert_history(
+        self,
+        model_id: str,
+        metric_name: str,
+        threshold_value: float,
+        actual_value: float,
+        message: str = None,
+    ) -> None:
         """
         Save an alert event to the alert history.
 
@@ -784,26 +835,28 @@ class MetricsDatabase:
         """
         cursor = self.conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO alert_history (
                 model_id, metric_name, threshold_value,
                 actual_value, triggered_at, message
             ) VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            model_id,
-            metric_name,
-            threshold_value,
-            actual_value,
-            datetime.now().isoformat(),
-            message
-        ))
+        """,
+            (
+                model_id,
+                metric_name,
+                threshold_value,
+                actual_value,
+                datetime.now().isoformat(),
+                message,
+            ),
+        )
 
         self.conn.commit()
 
-    def get_alert_history(self,
-                        model_id: str = None,
-                        days: int = 7,
-                        limit: int = 100) -> List[Dict[str, Any]]:
+    def get_alert_history(
+        self, model_id: str = None, days: int = 7, limit: int = 100
+    ) -> List[Dict[str, Any]]:
         """
         Get alert history from the database.
 
@@ -855,8 +908,9 @@ class MetricsDatabase:
         cursor = self.conn.cursor()
         threshold_date = (datetime.now() - timedelta(days=days)).isoformat()
 
-        cursor.execute("DELETE FROM inference_metrics WHERE timestamp < ?",
-                     (threshold_date,))
+        cursor.execute(
+            "DELETE FROM inference_metrics WHERE timestamp < ?", (threshold_date,)
+        )
         count = cursor.rowcount
         self.conn.commit()
 
@@ -864,7 +918,7 @@ class MetricsDatabase:
 
     def close(self) -> None:
         """Close the database connection."""
-        if hasattr(self, 'conn'):
+        if hasattr(self, "conn"):
             self.conn.close()
 
 
@@ -882,16 +936,16 @@ class PerformanceMonitor:
         self.metrics_history = {}  # Dict to store metrics by model_id
         self.report_cache = {}  # Cache for generated reports
         self._lock = threading.Lock()
-        self._alert_handlers = {
-            "log": self._log_alert
-        }
+        self._alert_handlers = {"log": self._log_alert}
 
-    def track_inference(self,
-                       model=None,
-                       model_id: str = None,
-                       batch_id: str = None,
-                       input_text: str = None,
-                       output_text: str = None) -> InferenceMetrics:
+    def track_inference(
+        self,
+        model=None,
+        model_id: str = None,
+        batch_id: str = None,
+        input_text: str = None,
+        output_text: str = None,
+    ) -> InferenceMetrics:
         """
         Track a model inference and return metrics.
 
@@ -940,7 +994,7 @@ class PerformanceMonitor:
             start_time=start_time,
             end_time=end_time,
             total_time=end_time - start_time,
-            latency_ms=(end_time - start_time) * 1000  # Convert to milliseconds
+            latency_ms=(end_time - start_time) * 1000,  # Convert to milliseconds
         )
 
         # Save to history
@@ -1000,7 +1054,7 @@ class PerformanceMonitor:
                     metric_name=alert_config.metric_name,
                     threshold_value=alert_config.threshold_value,
                     actual_value=metric_value,
-                    message=alert_msg
+                    message=alert_msg,
                 )
 
                 # Mark as triggered
@@ -1035,12 +1089,14 @@ class PerformanceMonitor:
         """
         self._alert_handlers[channel] = handler_func
 
-    def generate_report(self,
-                       model_id: str,
-                       model_name: str = None,
-                       time_range: Tuple[datetime, datetime] = None,
-                       batch_id: str = None,
-                       include_metrics: bool = False) -> ModelPerformanceReport:
+    def generate_report(
+        self,
+        model_id: str,
+        model_name: str = None,
+        time_range: Tuple[datetime, datetime] = None,
+        batch_id: str = None,
+        include_metrics: bool = False,
+    ) -> ModelPerformanceReport:
         """
         Generate a performance report for a model.
 
@@ -1062,23 +1118,18 @@ class PerformanceMonitor:
         else:
             # Fall back to database if no in-memory metrics
             metrics_data = self.metrics_db.get_metrics(
-                model_id=model_id,
-                time_range=time_range,
-                batch_id=batch_id,
-                limit=10000
+                model_id=model_id, time_range=time_range, batch_id=batch_id, limit=10000
             )
 
         if not metrics_data:
             logger.warning(f"No metrics found for model {model_id}")
             return ModelPerformanceReport(
-                model_id=model_id,
-                model_name=model_name or model_id
+                model_id=model_id, model_name=model_name or model_id
             )
 
         # Create report
         report = ModelPerformanceReport(
-            model_id=model_id,
-            model_name=model_name or model_id
+            model_id=model_id, model_name=model_name or model_id
         )
 
         # Set time range
@@ -1119,7 +1170,11 @@ class PerformanceMonitor:
         if latency_values:
             report.avg_latency_ms = statistics.mean(latency_values)
 
-        ttft_values = [m["time_to_first_token"] for m in metrics_data if m["time_to_first_token"] > 0]
+        ttft_values = [
+            m["time_to_first_token"]
+            for m in metrics_data
+            if m["time_to_first_token"] > 0
+        ]
         if ttft_values:
             report.avg_time_to_first_token = statistics.mean(ttft_values)
 
@@ -1129,23 +1184,33 @@ class PerformanceMonitor:
 
         if report.num_inferences > 0:
             report.avg_input_tokens = report.total_input_tokens / report.num_inferences
-            report.avg_output_tokens = report.total_output_tokens / report.num_inferences
+            report.avg_output_tokens = (
+                report.total_output_tokens / report.num_inferences
+            )
 
-        tokens_per_second = [m["tokens_per_second"] for m in metrics_data if m["tokens_per_second"] > 0]
+        tokens_per_second = [
+            m["tokens_per_second"] for m in metrics_data if m["tokens_per_second"] > 0
+        ]
         if tokens_per_second:
             report.avg_tokens_per_second = statistics.mean(tokens_per_second)
 
         # Memory metrics
-        memory_values = [m["memory_usage_mb"] for m in metrics_data if m["memory_usage_mb"] > 0]
+        memory_values = [
+            m["memory_usage_mb"] for m in metrics_data if m["memory_usage_mb"] > 0
+        ]
         if memory_values:
             report.avg_memory_usage_mb = statistics.mean(memory_values)
             report.max_memory_usage_mb = max(memory_values)
 
-        cpu_memory_values = [m["peak_cpu_memory_mb"] for m in metrics_data if m["peak_cpu_memory_mb"] > 0]
+        cpu_memory_values = [
+            m["peak_cpu_memory_mb"] for m in metrics_data if m["peak_cpu_memory_mb"] > 0
+        ]
         if cpu_memory_values:
             report.avg_peak_cpu_memory_mb = statistics.mean(cpu_memory_values)
 
-        gpu_memory_values = [m["peak_gpu_memory_mb"] for m in metrics_data if m["peak_gpu_memory_mb"] > 0]
+        gpu_memory_values = [
+            m["peak_gpu_memory_mb"] for m in metrics_data if m["peak_gpu_memory_mb"] > 0
+        ]
         if gpu_memory_values:
             report.avg_peak_gpu_memory_mb = statistics.mean(gpu_memory_values)
 
@@ -1159,7 +1224,9 @@ class PerformanceMonitor:
             report.avg_gpu_percent = statistics.mean(gpu_values)
 
         # Quality metrics
-        perplexity_values = [m["perplexity"] for m in metrics_data if m["perplexity"] > 0]
+        perplexity_values = [
+            m["perplexity"] for m in metrics_data if m["perplexity"] > 0
+        ]
         if perplexity_values:
             report.avg_perplexity = statistics.mean(perplexity_values)
 
@@ -1174,7 +1241,9 @@ class PerformanceMonitor:
         # Cost metrics
         report.total_estimated_cost = sum(m["estimated_cost"] for m in metrics_data)
         if report.num_inferences > 0 and report.total_estimated_cost > 0:
-            report.avg_cost_per_inference = report.total_estimated_cost / report.num_inferences
+            report.avg_cost_per_inference = (
+                report.total_estimated_cost / report.num_inferences
+            )
             # Use consistent currency across all metrics
             currencies = {m["currency"] for m in metrics_data if m["currency"]}
             if len(currencies) == 1:
@@ -1186,11 +1255,13 @@ class PerformanceMonitor:
 
         return report
 
-    def compare_models(self,
-                      model_ids: List[str],
-                      model_names: List[str] = None,
-                      title: str = "Model Comparison",
-                      time_range: Tuple[datetime, datetime] = None) -> ModelComparisonReport:
+    def compare_models(
+        self,
+        model_ids: List[str],
+        model_names: List[str] = None,
+        title: str = "Model Comparison",
+        time_range: Tuple[datetime, datetime] = None,
+    ) -> ModelComparisonReport:
         """
         Compare performance across multiple models.
 
@@ -1208,53 +1279,66 @@ class PerformanceMonitor:
         # Generate reports for each model
         model_names = model_names or model_ids
         if len(model_names) < len(model_ids):
-            model_names = model_names + model_ids[len(model_names):]
+            model_names = model_names + model_ids[len(model_names) :]
 
         metrics_to_compare = [
-            "avg_inference_time", "median_inference_time",
-            "min_inference_time", "max_inference_time",
-            "avg_latency_ms", "avg_time_to_first_token",
-            "avg_tokens_per_second", "avg_memory_usage_mb",
-            "avg_cpu_percent", "avg_gpu_percent",
-            "avg_perplexity", "avg_bleu_score", "avg_rouge_score"
+            "avg_inference_time",
+            "median_inference_time",
+            "min_inference_time",
+            "max_inference_time",
+            "avg_latency_ms",
+            "avg_time_to_first_token",
+            "avg_tokens_per_second",
+            "avg_memory_usage_mb",
+            "avg_cpu_percent",
+            "avg_gpu_percent",
+            "avg_perplexity",
+            "avg_bleu_score",
+            "avg_rouge_score",
         ]
 
         for idx, model_id in enumerate(model_ids):
             # Generate a report for this model
             model_name = model_names[idx] if idx < len(model_names) else model_id
             report = self.generate_report(
-                model_id=model_id,
-                model_name=model_name,
-                time_range=time_range
+                model_id=model_id, model_name=model_name, time_range=time_range
             )
 
             # Add to comparison metrics
             comparison.comparison_metrics[model_id] = {
                 "model_name": model_name,
-                "num_inferences": report.num_inferences
+                "num_inferences": report.num_inferences,
             }
 
             # Add selected metrics
             for metric in metrics_to_compare:
                 if hasattr(report, metric) and getattr(report, metric) > 0:
-                    comparison.comparison_metrics[model_id][metric] = getattr(report, metric)
+                    comparison.comparison_metrics[model_id][metric] = getattr(
+                        report, metric
+                    )
 
         # Calculate percent differences
-        comparison.calculate_percent_differences([
-            "avg_inference_time", "avg_latency_ms",
-            "avg_tokens_per_second", "avg_memory_usage_mb",
-            "avg_time_to_first_token"
-        ])
+        comparison.calculate_percent_differences(
+            [
+                "avg_inference_time",
+                "avg_latency_ms",
+                "avg_tokens_per_second",
+                "avg_memory_usage_mb",
+                "avg_time_to_first_token",
+            ]
+        )
 
         return comparison
 
-    def set_alert_threshold(self,
-                           model_id: str,
-                           metric_name: str,
-                           threshold_value: float,
-                           is_upper_bound: bool = True,
-                           cooldown_minutes: int = 60,
-                           notification_channels: List[str] = None) -> None:
+    def set_alert_threshold(
+        self,
+        model_id: str,
+        metric_name: str,
+        threshold_value: float,
+        is_upper_bound: bool = True,
+        cooldown_minutes: int = 60,
+        notification_channels: List[str] = None,
+    ) -> None:
         """
         Set an alert threshold for a model metric.
 
@@ -1273,7 +1357,7 @@ class PerformanceMonitor:
             threshold_value=threshold_value,
             is_upper_bound=is_upper_bound,
             cooldown_minutes=cooldown_minutes,
-            notification_channels=notification_channels or ["log"]
+            notification_channels=notification_channels or ["log"],
         )
 
         self.metrics_db.save_alert_config(alert_config)
@@ -1290,9 +1374,9 @@ class PerformanceMonitor:
         """
         return self.metrics_db.get_alert_configs(model_id=model_id)
 
-    def get_alert_history(self,
-                         model_id: str = None,
-                         days: int = 7) -> List[Dict[str, Any]]:
+    def get_alert_history(
+        self, model_id: str = None, days: int = 7
+    ) -> List[Dict[str, Any]]:
         """
         Get alert history.
 
@@ -1305,11 +1389,13 @@ class PerformanceMonitor:
         """
         return self.metrics_db.get_alert_history(model_id=model_id, days=days)
 
-    def visualize_metrics(self,
-                        model_id: str,
-                        metric_names: List[str] = None,
-                        days: int = 30,
-                        save_path: str = None) -> List[str]:
+    def visualize_metrics(
+        self,
+        model_id: str,
+        metric_names: List[str] = None,
+        days: int = 30,
+        save_path: str = None,
+    ) -> List[str]:
         """
         Visualize model performance metrics.
 
@@ -1327,10 +1413,16 @@ class PerformanceMonitor:
             import pandas as pd
             from matplotlib.dates import DateFormatter
         except ImportError:
-            logger.error("Visualization requires matplotlib and pandas. Install with: pip install matplotlib pandas")
+            logger.error(
+                "Visualization requires matplotlib and pandas. Install with: pip install matplotlib pandas"
+            )
             return []
 
-        metric_names = metric_names or ["latency_ms", "tokens_per_second", "memory_usage_mb"]
+        metric_names = metric_names or [
+            "latency_ms",
+            "tokens_per_second",
+            "memory_usage_mb",
+        ]
 
         # Get metrics
         end_time = datetime.now()
@@ -1338,13 +1430,13 @@ class PerformanceMonitor:
         time_range = (start_time, end_time)
 
         metrics_data = self.metrics_db.get_metrics(
-            model_id=model_id,
-            time_range=time_range,
-            limit=10000
+            model_id=model_id, time_range=time_range, limit=10000
         )
 
         if not metrics_data:
-            logger.warning(f"No metrics found for model {model_id} in the last {days} days")
+            logger.warning(
+                f"No metrics found for model {model_id} in the last {days} days"
+            )
             return []
 
         # Convert to pandas DataFrame
@@ -1386,8 +1478,12 @@ class PerformanceMonitor:
                     from scipy import stats
 
                     # Convert timestamps to numbers for correlation
-                    x = np.array([(t - df["timestamp"].min()).total_seconds()
-                                for t in df["timestamp"]])
+                    x = np.array(
+                        [
+                            (t - df["timestamp"].min()).total_seconds()
+                            for t in df["timestamp"]
+                        ]
+                    )
                     y = df[metric_name].values
 
                     # Calculate trend line
@@ -1395,8 +1491,13 @@ class PerformanceMonitor:
                     trend_y = intercept + slope * x
 
                     # Add trend line to plot
-                    plt.plot(df["timestamp"], trend_y, "r--", alpha=0.7,
-                            label=f"Trend (r={r_value:.2f})")
+                    plt.plot(
+                        df["timestamp"],
+                        trend_y,
+                        "r--",
+                        alpha=0.7,
+                        label=f"Trend (r={r_value:.2f})",
+                    )
                     plt.legend()
 
                     # Add trend information to title
@@ -1419,11 +1520,13 @@ class PerformanceMonitor:
 
         return generated_files
 
-    def export_metrics_csv(self,
-                         model_id: str,
-                         time_range: Tuple[datetime, datetime] = None,
-                         batch_id: str = None,
-                         filename: str = None) -> str:
+    def export_metrics_csv(
+        self,
+        model_id: str,
+        time_range: Tuple[datetime, datetime] = None,
+        batch_id: str = None,
+        filename: str = None,
+    ) -> str:
         """
         Export metrics to a CSV file.
 
@@ -1441,7 +1544,7 @@ class PerformanceMonitor:
             model_id=model_id,
             time_range=time_range,
             batch_id=batch_id,
-            limit=100000  # Higher limit for exports
+            limit=100000,  # Higher limit for exports
         )
 
         if not metrics_data:

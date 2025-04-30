@@ -15,8 +15,7 @@ from ..errors import HTTPStatus, create_error_response
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -24,6 +23,7 @@ logger = logging.getLogger(__name__)
 try:
     from fastapi import APIRouter, HTTPException, Depends, Query, Path, Body
     from fastapi.responses import JSONResponse
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for API routes")
@@ -45,16 +45,28 @@ from ..schemas.niche_analysis import (
     BulkNicheUpdateRequest,
     BulkNicheUpdateResponse,
     BulkNicheDeleteRequest,
-    BulkNicheDeleteResponse
+    BulkNicheDeleteResponse,
 )
 from ..schemas.common import (
-    ErrorResponse, SuccessResponse, IdResponse, PaginatedResponse,
-    SortDirection, FilterOperator, FilterParam, SortParam, QueryParams
+    ErrorResponse,
+    SuccessResponse,
+    IdResponse,
+    PaginatedResponse,
+    SortDirection,
+    FilterOperator,
+    FilterParam,
+    SortParam,
+    QueryParams,
 )
 from ..schemas.bulk_operations import BulkOperationStats, BulkOperationError
 
 # Import utilities
-from ..utils.query_params import QueryParams as QueryParamsUtil, apply_pagination, apply_filtering, apply_sorting
+from ..utils.query_params import (
+    QueryParams as QueryParamsUtil,
+    apply_pagination,
+    apply_filtering,
+    apply_sorting,
+)
 
 # Create router
 if FASTAPI_AVAILABLE:
@@ -64,7 +76,13 @@ else:
 
 # Try to import niche analysis module
 try:
-    from niche_analysis import MarketAnalyzer, ProblemIdentifier, OpportunityScorer, NicheAnalyzer
+    from niche_analysis import (
+        MarketAnalyzer,
+        ProblemIdentifier,
+        OpportunityScorer,
+        NicheAnalyzer,
+    )
+
     NICHE_ANALYSIS_AVAILABLE = True
 except ImportError:
     logger.warning("Niche Analysis module not available")
@@ -73,16 +91,17 @@ except ImportError:
 
 # Define route handlers
 if FASTAPI_AVAILABLE:
+
     @router.post(
         "/analyze",
         response_model=IdResponse,
         responses={
             202: {"description": "Analysis started"},
             400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Start a niche analysis",
-        description="Start a niche analysis for the specified market segments"
+        description="Start a niche analysis for the specified market segments",
     )
     async def analyze_niches(request: NicheAnalysisRequest):
         """
@@ -101,7 +120,7 @@ if FASTAPI_AVAILABLE:
                 raise BaseError(
                     message="Niche Analysis module not available",
                     code="module_unavailable",
-                    http_status=HTTPStatus.SERVICE_UNAVAILABLE
+                    http_status=HTTPStatus.SERVICE_UNAVAILABLE,
                 )
 
             # Generate analysis ID
@@ -110,10 +129,7 @@ if FASTAPI_AVAILABLE:
             # Here we would start the actual analysis
             # For now, just return the analysis ID
 
-            return IdResponse(
-                id=analysis_id,
-                message="Analysis started"
-            )
+            return IdResponse(id=analysis_id, message="Analysis started")
 
         except BaseError as e:
             # Let the global error handler handle BaseError exceptions
@@ -126,7 +142,7 @@ if FASTAPI_AVAILABLE:
                 message=f"Analysis failed: {str(e)}",
                 code="analysis_error",
                 http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-                original_exception=e
+                original_exception=e,
             )
 
     @router.get(
@@ -134,14 +150,14 @@ if FASTAPI_AVAILABLE:
         response_model=PaginatedResponse[NicheAnalysisResponse],
         responses={
             200: {"description": "List of niche analyses"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Get all niche analyses",
-        description="Get a list of all niche analyses"
+        description="Get a list of all niche analyses",
     )
     async def get_all_analyses(
         page: int = Query(1, description="Page number"),
-        page_size: int = Query(10, description="Page size")
+        page_size: int = Query(10, description="Page size"),
     ):
         """
         Get a list of all niche analyses.
@@ -157,8 +173,7 @@ if FASTAPI_AVAILABLE:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
                 raise HTTPException(
-                    status_code=500,
-                    detail="Niche Analysis module not available"
+                    status_code=500, detail="Niche Analysis module not available"
                 )
 
             # Here we would get the actual analyses
@@ -169,22 +184,17 @@ if FASTAPI_AVAILABLE:
                 analysis_id="analysis123",
                 segments=["Content Creation", "Software Development"],
                 niches=[],
-                created_at=datetime.now()
+                created_at=datetime.now(),
             )
 
             return PaginatedResponse(
-                items=[analysis],
-                total=1,
-                page=page,
-                page_size=page_size,
-                pages=1
+                items=[analysis], total=1, page=page, page_size=page_size, pages=1
             )
 
         except Exception as e:
             logger.error(f"Error getting niche analyses: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting niche analyses: {str(e)}"
+                status_code=500, detail=f"Error getting niche analyses: {str(e)}"
             )
 
     @router.get(
@@ -193,14 +203,12 @@ if FASTAPI_AVAILABLE:
         responses={
             200: {"description": "Niche analysis details"},
             404: {"model": ErrorResponse, "description": "Analysis not found"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Get niche analysis details",
-        description="Get details of a specific niche analysis"
+        description="Get details of a specific niche analysis",
     )
-    async def get_analysis(
-        analysis_id: str = Path(..., description="Analysis ID")
-    ):
+    async def get_analysis(analysis_id: str = Path(..., description="Analysis ID")):
         """
         Get details of a specific niche analysis.
 
@@ -214,8 +222,7 @@ if FASTAPI_AVAILABLE:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
                 raise HTTPException(
-                    status_code=500,
-                    detail="Niche Analysis module not available"
+                    status_code=500, detail="Niche Analysis module not available"
                 )
 
             # Here we would get the actual analysis
@@ -223,8 +230,7 @@ if FASTAPI_AVAILABLE:
 
             if analysis_id != "analysis123":
                 raise HTTPException(
-                    status_code=404,
-                    detail=f"Analysis not found: {analysis_id}"
+                    status_code=404, detail=f"Analysis not found: {analysis_id}"
                 )
 
             # Create mock analysis
@@ -232,7 +238,7 @@ if FASTAPI_AVAILABLE:
                 analysis_id=analysis_id,
                 segments=["Content Creation", "Software Development"],
                 niches=[],
-                created_at=datetime.now()
+                created_at=datetime.now(),
             )
 
             return analysis
@@ -243,8 +249,7 @@ if FASTAPI_AVAILABLE:
         except Exception as e:
             logger.error(f"Error getting niche analysis: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting niche analysis: {str(e)}"
+                status_code=500, detail=f"Error getting niche analysis: {str(e)}"
             )
 
     @router.get(
@@ -252,21 +257,27 @@ if FASTAPI_AVAILABLE:
         response_model=PaginatedResponse[NicheResponse],
         responses={
             200: {"description": "List of niches"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Get all niches",
-        description="Get a list of all niches with pagination, filtering, and sorting"
+        description="Get a list of all niches with pagination, filtering, and sorting",
     )
     async def get_all_niches(
         request: Any = Depends(),
         page: int = Query(1, description="Page number", ge=1),
         page_size: int = Query(10, description="Page size", ge=1, le=100),
         sort_by: Optional[str] = Query(None, description="Field to sort by"),
-        sort_dir: SortDirection = Query(SortDirection.ASC, description="Sort direction"),
+        sort_dir: SortDirection = Query(
+            SortDirection.ASC, description="Sort direction"
+        ),
         segment: Optional[str] = Query(None, description="Filter by market segment"),
         name: Optional[str] = Query(None, description="Filter by name (contains)"),
-        min_score: Optional[float] = Query(None, description="Filter by minimum opportunity score", ge=0, le=1),
-        max_score: Optional[float] = Query(None, description="Filter by maximum opportunity score", ge=0, le=1)
+        min_score: Optional[float] = Query(
+            None, description="Filter by minimum opportunity score", ge=0, le=1
+        ),
+        max_score: Optional[float] = Query(
+            None, description="Filter by maximum opportunity score", ge=0, le=1
+        ),
     ):
         """
         Get a list of all niches with pagination, filtering, and sorting.
@@ -289,8 +300,7 @@ if FASTAPI_AVAILABLE:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
                 raise HTTPException(
-                    status_code=500,
-                    detail="Niche Analysis module not available"
+                    status_code=500, detail="Niche Analysis module not available"
                 )
 
             # Here we would get the actual niches
@@ -306,7 +316,7 @@ if FASTAPI_AVAILABLE:
                     opportunity_score=0.87,
                     problems=[],
                     opportunities=[],
-                    created_at=datetime.now()
+                    created_at=datetime.now(),
                 ),
                 NicheResponse(
                     id="2",
@@ -316,7 +326,7 @@ if FASTAPI_AVAILABLE:
                     opportunity_score=0.92,
                     problems=[],
                     opportunities=[],
-                    created_at=datetime.now()
+                    created_at=datetime.now(),
                 ),
                 NicheResponse(
                     id="3",
@@ -326,7 +336,7 @@ if FASTAPI_AVAILABLE:
                     opportunity_score=0.75,
                     problems=[],
                     opportunities=[],
-                    created_at=datetime.now()
+                    created_at=datetime.now(),
                 ),
                 NicheResponse(
                     id="4",
@@ -336,7 +346,7 @@ if FASTAPI_AVAILABLE:
                     opportunity_score=0.82,
                     problems=[],
                     opportunities=[],
-                    created_at=datetime.now()
+                    created_at=datetime.now(),
                 ),
                 NicheResponse(
                     id="5",
@@ -346,8 +356,8 @@ if FASTAPI_AVAILABLE:
                     opportunity_score=0.79,
                     problems=[],
                     opportunities=[],
-                    created_at=datetime.now()
-                )
+                    created_at=datetime.now(),
+                ),
             ]
 
             # Create query parameters
@@ -377,7 +387,7 @@ if FASTAPI_AVAILABLE:
                 sort_by=sort_by,
                 sort_dir=sort_dir,
                 filters=filters,
-                filter_operators=filter_operators
+                filter_operators=filter_operators,
             )
 
             # Define a custom field getter for our NicheResponse objects
@@ -403,14 +413,13 @@ if FASTAPI_AVAILABLE:
                 total=total,
                 page=query_params.page,
                 page_size=query_params.page_size,
-                pages=total_pages
+                pages=total_pages,
             )
 
         except Exception as e:
             logger.error(f"Error getting niches: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting niches: {str(e)}"
+                status_code=500, detail=f"Error getting niches: {str(e)}"
             )
 
     @router.get(
@@ -419,14 +428,12 @@ if FASTAPI_AVAILABLE:
         responses={
             200: {"description": "Niche details"},
             404: {"model": ErrorResponse, "description": "Niche not found"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Get niche details",
-        description="Get details of a specific niche"
+        description="Get details of a specific niche",
     )
-    async def get_niche(
-        niche_id: str = Path(..., description="Niche ID")
-    ):
+    async def get_niche(niche_id: str = Path(..., description="Niche ID")):
         """
         Get details of a specific niche.
 
@@ -442,7 +449,7 @@ if FASTAPI_AVAILABLE:
                 raise BaseError(
                     message="Niche Analysis module not available",
                     code="module_unavailable",
-                    http_status=HTTPStatus.SERVICE_UNAVAILABLE
+                    http_status=HTTPStatus.SERVICE_UNAVAILABLE,
                 )
 
             # Here we would get the actual niche
@@ -453,7 +460,7 @@ if FASTAPI_AVAILABLE:
                     message=f"Niche not found: {niche_id}",
                     code="niche_not_found",
                     http_status=HTTPStatus.NOT_FOUND,
-                    details={"niche_id": niche_id}
+                    details={"niche_id": niche_id},
                 )
 
             # Create mock niche
@@ -466,7 +473,7 @@ if FASTAPI_AVAILABLE:
                     opportunity_score=0.87,
                     problems=[],
                     opportunities=[],
-                    created_at=datetime.now()
+                    created_at=datetime.now(),
                 )
             elif niche_id == "2":
                 niche = NicheResponse(
@@ -477,7 +484,7 @@ if FASTAPI_AVAILABLE:
                     opportunity_score=0.92,
                     problems=[],
                     opportunities=[],
-                    created_at=datetime.now()
+                    created_at=datetime.now(),
                 )
             else:
                 niche = NicheResponse(
@@ -488,7 +495,7 @@ if FASTAPI_AVAILABLE:
                     opportunity_score=0.75,
                     problems=[],
                     opportunities=[],
-                    created_at=datetime.now()
+                    created_at=datetime.now(),
                 )
 
             return niche
@@ -504,7 +511,7 @@ if FASTAPI_AVAILABLE:
                 message=f"Error getting niche: {str(e)}",
                 code="niche_retrieval_error",
                 http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-                original_exception=e
+                original_exception=e,
             )
 
     @router.get(
@@ -512,14 +519,14 @@ if FASTAPI_AVAILABLE:
         response_model=PaginatedResponse[MarketSegmentResponse],
         responses={
             200: {"description": "List of market segments"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Get all market segments",
-        description="Get a list of all market segments"
+        description="Get a list of all market segments",
     )
     async def get_all_segments(
         page: int = Query(1, description="Page number"),
-        page_size: int = Query(10, description="Page size")
+        page_size: int = Query(10, description="Page size"),
     ):
         """
         Get a list of all market segments.
@@ -535,8 +542,7 @@ if FASTAPI_AVAILABLE:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
                 raise HTTPException(
-                    status_code=500,
-                    detail="Niche Analysis module not available"
+                    status_code=500, detail="Niche Analysis module not available"
                 )
 
             # Here we would get the actual market segments
@@ -552,7 +558,10 @@ if FASTAPI_AVAILABLE:
                     growth_rate=0.15,
                     competition_level="Medium",
                     barriers_to_entry="Medium",
-                    target_audience={"primary": "Content creators", "secondary": "Marketers"}
+                    target_audience={
+                        "primary": "Content creators",
+                        "secondary": "Marketers",
+                    },
                 ),
                 MarketSegmentResponse(
                     id="2",
@@ -562,7 +571,10 @@ if FASTAPI_AVAILABLE:
                     growth_rate=0.12,
                     competition_level="High",
                     barriers_to_entry="High",
-                    target_audience={"primary": "Developers", "secondary": "IT professionals"}
+                    target_audience={
+                        "primary": "Developers",
+                        "secondary": "IT professionals",
+                    },
                 ),
                 MarketSegmentResponse(
                     id="3",
@@ -572,8 +584,11 @@ if FASTAPI_AVAILABLE:
                     growth_rate=0.08,
                     competition_level="High",
                     barriers_to_entry="High",
-                    target_audience={"primary": "Financial analysts", "secondary": "Investors"}
-                )
+                    target_audience={
+                        "primary": "Financial analysts",
+                        "secondary": "Investors",
+                    },
+                ),
             ]
 
             return PaginatedResponse(
@@ -581,14 +596,13 @@ if FASTAPI_AVAILABLE:
                 total=len(segments),
                 page=page,
                 page_size=page_size,
-                pages=(len(segments) + page_size - 1) // page_size
+                pages=(len(segments) + page_size - 1) // page_size,
             )
 
         except Exception as e:
             logger.error(f"Error getting market segments: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting market segments: {str(e)}"
+                status_code=500, detail=f"Error getting market segments: {str(e)}"
             )
 
     # Bulk operation endpoints
@@ -598,11 +612,11 @@ if FASTAPI_AVAILABLE:
         responses={
             201: {"description": "Niches created successfully"},
             400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Create multiple niches in bulk",
         description="Create multiple niches in a single request for improved performance",
-        status_code=201
+        status_code=201,
     )
     async def create_niches_bulk(request: BulkNicheCreateRequest):
         """
@@ -618,8 +632,7 @@ if FASTAPI_AVAILABLE:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
                 raise HTTPException(
-                    status_code=500,
-                    detail="Niche Analysis module not available"
+                    status_code=500, detail="Niche Analysis module not available"
                 )
 
             # Start timing the operation
@@ -639,7 +652,7 @@ if FASTAPI_AVAILABLE:
                     opportunity_score=0.85,  # Mock score
                     problems=[],  # Would process item.problems in real implementation
                     opportunities=[],  # Would process item.opportunities in real implementation
-                    created_at=datetime.now()
+                    created_at=datetime.now(),
                 )
 
             # Process all items
@@ -651,11 +664,11 @@ if FASTAPI_AVAILABLE:
                     niche = await create_niche(item)
                     created_niches.append(niche)
                 except Exception as e:
-                    errors.append(BulkOperationError(
-                        index=i,
-                        error_code="CREATION_FAILED",
-                        error_message=str(e)
-                    ))
+                    errors.append(
+                        BulkOperationError(
+                            index=i, error_code="CREATION_FAILED", error_message=str(e)
+                        )
+                    )
 
             # Calculate stats
             processing_time_ms = (time.time() - start_time) * 1000
@@ -663,7 +676,7 @@ if FASTAPI_AVAILABLE:
                 total_items=len(request.items),
                 successful_items=len(created_niches),
                 failed_items=len(errors),
-                processing_time_ms=processing_time_ms
+                processing_time_ms=processing_time_ms,
             )
 
             # Return response
@@ -671,14 +684,13 @@ if FASTAPI_AVAILABLE:
                 items=created_niches,
                 errors=errors,
                 stats=stats,
-                operation_id=str(uuid.uuid4())
+                operation_id=str(uuid.uuid4()),
             )
 
         except Exception as e:
             logger.error(f"Error in bulk niche creation: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Bulk operation failed: {str(e)}"
+                status_code=500, detail=f"Bulk operation failed: {str(e)}"
             )
 
     @router.put(
@@ -687,10 +699,10 @@ if FASTAPI_AVAILABLE:
         responses={
             200: {"description": "Niches updated successfully"},
             400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Update multiple niches in bulk",
-        description="Update multiple niches in a single request for improved performance"
+        description="Update multiple niches in a single request for improved performance",
     )
     async def update_niches_bulk(request: BulkNicheUpdateRequest):
         """
@@ -706,8 +718,7 @@ if FASTAPI_AVAILABLE:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
                 raise HTTPException(
-                    status_code=500,
-                    detail="Niche Analysis module not available"
+                    status_code=500, detail="Niche Analysis module not available"
                 )
 
             # Start timing the operation
@@ -720,20 +731,21 @@ if FASTAPI_AVAILABLE:
                 niche_id = item.get("id")
                 if niche_id not in ["1", "2", "3"]:
                     raise HTTPException(
-                        status_code=404,
-                        detail=f"Niche not found: {niche_id}"
+                        status_code=404, detail=f"Niche not found: {niche_id}"
                     )
 
                 # Create a mock updated niche
                 return NicheResponse(
                     id=niche_id,
                     name=item.get("name", f"Updated Niche {niche_id}"),
-                    description=item.get("description", f"Updated description for niche {niche_id}"),
+                    description=item.get(
+                        "description", f"Updated description for niche {niche_id}"
+                    ),
                     market_segment=item.get("market_segment", "Content Creation"),
                     opportunity_score=0.85,
                     problems=[],
                     opportunities=[],
-                    created_at=datetime.now()
+                    created_at=datetime.now(),
                 )
 
             # Process all items
@@ -745,12 +757,14 @@ if FASTAPI_AVAILABLE:
                     niche = await update_niche(item)
                     updated_niches.append(niche)
                 except Exception as e:
-                    errors.append(BulkOperationError(
-                        index=i,
-                        error_code="UPDATE_FAILED",
-                        error_message=str(e),
-                        item_id=item.get("id")
-                    ))
+                    errors.append(
+                        BulkOperationError(
+                            index=i,
+                            error_code="UPDATE_FAILED",
+                            error_message=str(e),
+                            item_id=item.get("id"),
+                        )
+                    )
 
             # Calculate stats
             processing_time_ms = (time.time() - start_time) * 1000
@@ -758,7 +772,7 @@ if FASTAPI_AVAILABLE:
                 total_items=len(request.items),
                 successful_items=len(updated_niches),
                 failed_items=len(errors),
-                processing_time_ms=processing_time_ms
+                processing_time_ms=processing_time_ms,
             )
 
             # Return response
@@ -766,14 +780,13 @@ if FASTAPI_AVAILABLE:
                 items=updated_niches,
                 errors=errors,
                 stats=stats,
-                operation_id=str(uuid.uuid4())
+                operation_id=str(uuid.uuid4()),
             )
 
         except Exception as e:
             logger.error(f"Error in bulk niche update: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Bulk operation failed: {str(e)}"
+                status_code=500, detail=f"Bulk operation failed: {str(e)}"
             )
 
     @router.delete(
@@ -782,10 +795,10 @@ if FASTAPI_AVAILABLE:
         responses={
             200: {"description": "Niches deleted successfully"},
             400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Delete multiple niches in bulk",
-        description="Delete multiple niches in a single request for improved performance"
+        description="Delete multiple niches in a single request for improved performance",
     )
     async def delete_niches_bulk(request: BulkNicheDeleteRequest):
         """
@@ -801,8 +814,7 @@ if FASTAPI_AVAILABLE:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
                 raise HTTPException(
-                    status_code=500,
-                    detail="Niche Analysis module not available"
+                    status_code=500, detail="Niche Analysis module not available"
                 )
 
             # Start timing the operation
@@ -814,8 +826,7 @@ if FASTAPI_AVAILABLE:
                 # For now, check if the ID exists in our mock data
                 if niche_id not in ["1", "2", "3"]:
                     raise HTTPException(
-                        status_code=404,
-                        detail=f"Niche not found: {niche_id}"
+                        status_code=404, detail=f"Niche not found: {niche_id}"
                     )
 
                 # Return the ID of the deleted niche
@@ -830,12 +841,14 @@ if FASTAPI_AVAILABLE:
                     deleted_id = await delete_niche(niche_id)
                     deleted_ids.append(deleted_id)
                 except Exception as e:
-                    errors.append(BulkOperationError(
-                        index=i,
-                        error_code="DELETION_FAILED",
-                        error_message=str(e),
-                        item_id=niche_id
-                    ))
+                    errors.append(
+                        BulkOperationError(
+                            index=i,
+                            error_code="DELETION_FAILED",
+                            error_message=str(e),
+                            item_id=niche_id,
+                        )
+                    )
 
             # Calculate stats
             processing_time_ms = (time.time() - start_time) * 1000
@@ -843,7 +856,7 @@ if FASTAPI_AVAILABLE:
                 total_items=len(request.ids),
                 successful_items=len(deleted_ids),
                 failed_items=len(errors),
-                processing_time_ms=processing_time_ms
+                processing_time_ms=processing_time_ms,
             )
 
             # Return response
@@ -851,12 +864,11 @@ if FASTAPI_AVAILABLE:
                 deleted_ids=deleted_ids,
                 errors=errors,
                 stats=stats,
-                operation_id=str(uuid.uuid4())
+                operation_id=str(uuid.uuid4()),
             )
 
         except Exception as e:
             logger.error(f"Error in bulk niche deletion: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Bulk operation failed: {str(e)}"
+                status_code=500, detail=f"Bulk operation failed: {str(e)}"
             )

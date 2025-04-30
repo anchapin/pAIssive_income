@@ -8,7 +8,7 @@ from .service import AnalyticsService, analytics_service
 from .database import AnalyticsDatabase
 
 __all__ = [
-    'AnalyticsService',
-    'AnalyticsDatabase',
-    'analytics_service',
+    "AnalyticsService",
+    "AnalyticsDatabase",
+    "analytics_service",
 ]

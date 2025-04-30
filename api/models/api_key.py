@@ -19,16 +19,16 @@ class APIKey:
     """
     Model for API key.
     """
-    
+
     # API key prefix length
     PREFIX_LENGTH = 8
-    
+
     # API key format
     KEY_PREFIX = "sk_"
-    
+
     # API key length (not including prefix)
     KEY_LENGTH = 32
-    
+
     def __init__(
         self,
         name: str,
@@ -39,11 +39,11 @@ class APIKey:
         id: Optional[str] = None,
         created_at: Optional[datetime] = None,
         last_used_at: Optional[datetime] = None,
-        is_active: bool = True
+        is_active: bool = True,
     ):
         """
         Initialize an API key.
-        
+
         Args:
             name: Name of the API key
             description: Description of the API key
@@ -64,118 +64,118 @@ class APIKey:
         self.created_at = created_at or datetime.utcnow()
         self.last_used_at = last_used_at
         self.is_active = is_active
-        
+
         # Key-related fields (set when generating a key)
         self.key = None
         self.prefix = None
         self.key_hash = None
-    
+
     @classmethod
     def generate_key(cls) -> str:
         """
         Generate a new API key.
-        
+
         Returns:
             API key string
         """
         # Generate random key
         key = secrets.token_hex(cls.KEY_LENGTH)
-        
+
         # Add prefix
         return f"{cls.KEY_PREFIX}{key}"
-    
+
     @classmethod
     def get_prefix(cls, key: str) -> str:
         """
         Get the prefix of an API key.
-        
+
         Args:
             key: API key
-            
+
         Returns:
             API key prefix
         """
         # Remove the key prefix (e.g., "sk_")
-        key_without_prefix = key[len(cls.KEY_PREFIX):]
-        
+        key_without_prefix = key[len(cls.KEY_PREFIX) :]
+
         # Return the first PREFIX_LENGTH characters
         return f"{cls.KEY_PREFIX}{key_without_prefix[:cls.PREFIX_LENGTH]}"
-    
+
     @classmethod
     def hash_key(cls, key: str) -> str:
         """
         Hash an API key for secure storage.
-        
+
         Args:
             key: API key
-            
+
         Returns:
             Hashed API key
         """
         # Use SHA-256 for hashing
         return hashlib.sha256(key.encode()).hexdigest()
-    
+
     def create_key(self) -> str:
         """
         Create a new API key for this instance.
-        
+
         Returns:
             API key string
         """
         # Generate key
         self.key = self.generate_key()
-        
+
         # Set prefix
         self.prefix = self.get_prefix(self.key)
-        
+
         # Hash key for storage
         self.key_hash = self.hash_key(self.key)
-        
+
         return self.key
-    
+
     def verify_key(self, key: str) -> bool:
         """
         Verify if a key matches this API key.
-        
+
         Args:
             key: API key to verify
-            
+
         Returns:
             True if the key matches, False otherwise
         """
         # Hash the provided key
         key_hash = self.hash_key(key)
-        
+
         # Compare with stored hash
         return key_hash == self.key_hash
-    
+
     def is_valid(self) -> bool:
         """
         Check if the API key is valid (not expired and active).
-        
+
         Returns:
             True if the API key is valid, False otherwise
         """
         # Check if the key is active
         if not self.is_active:
             return False
-        
+
         # Check if the key has expired
         if self.expires_at and datetime.utcnow() > self.expires_at:
             return False
-        
+
         return True
-    
+
     def update_last_used(self) -> None:
         """
         Update the last used timestamp.
         """
         self.last_used_at = datetime.utcnow()
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert the API key to a dictionary.
-        
+
         Returns:
             Dictionary representation of the API key
         """
@@ -190,17 +190,17 @@ class APIKey:
             "scopes": self.scopes,
             "user_id": self.user_id,
             "is_active": self.is_active,
-            "key_hash": self.key_hash
+            "key_hash": self.key_hash,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'APIKey':
+    def from_dict(cls, data: Dict[str, Any]) -> "APIKey":
         """
         Create an API key from a dictionary.
-        
+
         Args:
             data: Dictionary representation of the API key
-            
+
         Returns:
             API key instance
         """
@@ -213,11 +213,11 @@ class APIKey:
             id=data["id"],
             created_at=data["created_at"],
             last_used_at=data.get("last_used_at"),
-            is_active=data.get("is_active", True)
+            is_active=data.get("is_active", True),
         )
-        
+
         # Set key-related fields
         api_key.prefix = data.get("prefix")
         api_key.key_hash = data.get("key_hash")
-        
+
         return api_key

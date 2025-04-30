@@ -28,7 +28,7 @@ from tests.mocks.fixtures import (
     mock_embedding_result,
     mock_subscription_data,
     mock_niche_analysis_data,
-    mock_marketing_campaign_data
+    mock_marketing_campaign_data,
 )
 
 
@@ -36,7 +36,7 @@ from tests.mocks.fixtures import (
 def api_config() -> APIConfig:
     """
     Create a test API configuration.
-    
+
     Returns:
         Test API configuration
     """
@@ -66,7 +66,7 @@ def api_config() -> APIConfig:
         enable_agent_team=True,
         enable_user=True,
         enable_dashboard=True,
-        enable_analytics=True
+        enable_analytics=True,
     )
 
 
@@ -74,10 +74,10 @@ def api_config() -> APIConfig:
 def api_server(api_config: APIConfig) -> APIServer:
     """
     Create a test API server.
-    
+
     Args:
         api_config: Test API configuration
-    
+
     Returns:
         Test API server
     """
@@ -88,10 +88,10 @@ def api_server(api_config: APIConfig) -> APIServer:
 def api_client(api_server: APIServer) -> TestClient:
     """
     Create a test client for the API server.
-    
+
     Args:
         api_server: Test API server
-    
+
     Returns:
         Test client
     """
@@ -102,14 +102,14 @@ def api_client(api_server: APIServer) -> TestClient:
 def api_headers() -> Dict[str, str]:
     """
     Create headers for API requests.
-    
+
     Returns:
         Headers for API requests
     """
     return {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-API-Key": "test-api-key"
+        "X-API-Key": "test-api-key",
     }
 
 
@@ -117,10 +117,10 @@ def api_headers() -> Dict[str, str]:
 def api_auth_headers(api_headers: Dict[str, str]) -> Dict[str, str]:
     """
     Create headers for authenticated API requests.
-    
+
     Args:
         api_headers: Base API headers
-    
+
     Returns:
         Headers for authenticated API requests
     """

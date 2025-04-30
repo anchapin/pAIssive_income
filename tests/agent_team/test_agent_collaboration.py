@@ -1,6 +1,7 @@
 """
 Tests for agent collaboration, learning, and specialization features.
 """
+
 import pytest
 from unittest.mock import patch, MagicMock
 import json
@@ -26,7 +27,7 @@ def mock_team():
         "workflow": {
             "auto_progression": False,
             "review_required": True,
-        }
+        },
     }
     mock_team.project_state = {
         "identified_niches": [],
@@ -48,7 +49,7 @@ def test_agent_information_sharing(mock_team):
         "name": "Test Niche",
         "description": "A test niche market",
         "market_size": 1000000,
-        "competition_level": "medium"
+        "competition_level": "medium",
     }
 
     # Set up mock agents
@@ -60,15 +61,17 @@ def test_agent_information_sharing(mock_team):
     mock_team.researcher = researcher
 
     # Mock the researcher's analyze_user_problems method
-    researcher.analyze_user_problems = MagicMock(return_value=[
-        {
-            "id": "problem1",
-            "name": "Test Problem",
-            "description": "A test problem",
-            "severity": "high",
-            "priority": "high"
-        }
-    ])
+    researcher.analyze_user_problems = MagicMock(
+        return_value=[
+            {
+                "id": "problem1",
+                "name": "Test Problem",
+                "description": "A test problem",
+                "severity": "high",
+                "priority": "high",
+            }
+        ]
+    )
 
     # Test that developer can use researcher's analysis
     solution = developer.design_solution(niche)
@@ -94,20 +97,22 @@ def test_agent_conflict_resolution(mock_team):
                 "name": "Complex Feature",
                 "technical_complexity": "high",
                 "development_time": "4 weeks",
-                "priority": "high"
+                "priority": "high",
             }
-        ]
+        ],
     }
 
     # Mock the developer's assessment
     developer.assess_feature_complexity = MagicMock(return_value="high")
 
     # Mock the marketing agent's market assessment
-    marketing.assess_market_needs = MagicMock(return_value={
-        "urgency": "high",
-        "value_proposition": "strong",
-        "time_to_market": "critical"
-    })
+    marketing.assess_market_needs = MagicMock(
+        return_value={
+            "urgency": "high",
+            "value_proposition": "strong",
+            "time_to_market": "critical",
+        }
+    )
 
     # Mock the adjust_solution_priority method since it doesn't exist in the DeveloperAgent class
     # Define a function that will call our mocked methods
@@ -127,7 +132,9 @@ def test_agent_conflict_resolution(mock_team):
         return adjusted
 
     # Assign our mock function
-    developer.adjust_solution_priority = MagicMock(side_effect=mock_adjust_solution_priority)
+    developer.adjust_solution_priority = MagicMock(
+        side_effect=mock_adjust_solution_priority
+    )
 
     # Test conflict resolution through priority alignment
     mock_team.developer = developer
@@ -155,11 +162,7 @@ def test_agent_collaborative_decision_making(mock_team):
     mock_team.marketing = marketing
 
     # Create test data
-    niche = {
-        "id": "test-niche",
-        "name": "Test Niche",
-        "market_size": 1000000
-    }
+    niche = {"id": "test-niche", "name": "Test Niche", "market_size": 1000000}
 
     # Mock agent assessments
     researcher.assess_market_potential = MagicMock(return_value=0.8)
@@ -170,11 +173,13 @@ def test_agent_collaborative_decision_making(mock_team):
     mock_team.project_state["selected_niche"] = niche
 
     # All agents should contribute to the final decision
-    go_ahead = all([
-        researcher.assess_market_potential(niche) > 0.6,
-        developer.assess_technical_feasibility(niche) > 0.6,
-        marketing.assess_market_readiness(niche) > 0.6
-    ])
+    go_ahead = all(
+        [
+            researcher.assess_market_potential(niche) > 0.6,
+            developer.assess_technical_feasibility(niche) > 0.6,
+            marketing.assess_market_readiness(niche) > 0.6,
+        ]
+    )
 
     assert go_ahead is True
     researcher.assess_market_potential.assert_called_once_with(niche)
@@ -191,15 +196,15 @@ def test_agent_learning_from_feedback(mock_team):
             "type": "feature_request",
             "content": "Need better error handling",
             "priority": "high",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         },
         {
             "id": "feedback2",
             "type": "bug_report",
             "content": "System crashes under heavy load",
             "priority": "high",
-            "timestamp": datetime.now().isoformat()
-        }
+            "timestamp": datetime.now().isoformat(),
+        },
     ]
 
     # Add feedback to project state
@@ -210,10 +215,12 @@ def test_agent_learning_from_feedback(mock_team):
     mock_team.developer = developer
 
     # Mock learning process
-    developer.learn_from_feedback = MagicMock(return_value={
-        "learned_patterns": ["error_handling", "performance"],
-        "updated_priorities": ["stability", "scalability"]
-    })
+    developer.learn_from_feedback = MagicMock(
+        return_value={
+            "learned_patterns": ["error_handling", "performance"],
+            "updated_priorities": ["stability", "scalability"],
+        }
+    )
 
     # Test learning from feedback
     learning_result = developer.learn_from_feedback(feedback_items)
@@ -231,7 +238,7 @@ def test_agent_knowledge_retention(mock_team):
     knowledge_data = {
         "common_issues": ["error_handling", "performance"],
         "successful_patterns": ["modular_design", "early_testing"],
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
     # Create developer agent
@@ -258,7 +265,7 @@ def test_agent_domain_specialization(mock_team):
     domain_knowledge = {
         "common_features": ["shopping_cart", "payment_processing"],
         "best_practices": ["secure_transactions", "inventory_management"],
-        "specific_requirements": ["pci_compliance", "order_tracking"]
+        "specific_requirements": ["pci_compliance", "order_tracking"],
     }
 
     # Create developer agent
@@ -284,7 +291,7 @@ def test_agent_cross_domain_problem_solving(mock_team):
         "id": "problem1",
         "domain": "e-commerce",
         "type": "performance",
-        "description": "Slow checkout process"
+        "description": "Slow checkout process",
     }
 
     # Create agents
@@ -292,15 +299,16 @@ def test_agent_cross_domain_problem_solving(mock_team):
     marketing = MarketingAgent(team=mock_team)
 
     # Mock cross-domain analysis
-    developer.analyze_technical_aspect = MagicMock(return_value={
-        "bottleneck": "database_queries",
-        "solution": "query_optimization"
-    })
+    developer.analyze_technical_aspect = MagicMock(
+        return_value={
+            "bottleneck": "database_queries",
+            "solution": "query_optimization",
+        }
+    )
 
-    marketing.analyze_user_impact = MagicMock(return_value={
-        "user_frustration": "high",
-        "potential_loss": "significant"
-    })
+    marketing.analyze_user_impact = MagicMock(
+        return_value={"user_frustration": "high", "potential_loss": "significant"}
+    )
 
     # Test cross-domain problem solving
     technical_analysis = developer.analyze_technical_aspect(problem)
@@ -309,7 +317,7 @@ def test_agent_cross_domain_problem_solving(mock_team):
     # Combine insights from both domains
     solution = {
         "technical_solution": technical_analysis["solution"],
-        "priority": "high" if user_impact["user_frustration"] == "high" else "medium"
+        "priority": "high" if user_impact["user_frustration"] == "high" else "medium",
     }
 
     # Verify cross-domain problem solving

@@ -25,33 +25,87 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "saas": {
             "name": "SaaS",
             "description": "Software as a Service",
-            "typical_channels": ["content_marketing", "email_marketing", "social_media", "seo", "ppc"],
-            "typical_goals": ["lead_generation", "customer_acquisition", "retention", "brand_awareness"]
+            "typical_channels": [
+                "content_marketing",
+                "email_marketing",
+                "social_media",
+                "seo",
+                "ppc",
+            ],
+            "typical_goals": [
+                "lead_generation",
+                "customer_acquisition",
+                "retention",
+                "brand_awareness",
+            ],
         },
         "ecommerce": {
             "name": "E-commerce",
             "description": "Online retail",
-            "typical_channels": ["social_media", "email_marketing", "ppc", "affiliate_marketing", "influencer_marketing"],
-            "typical_goals": ["sales", "conversion_rate", "average_order_value", "customer_acquisition"]
+            "typical_channels": [
+                "social_media",
+                "email_marketing",
+                "ppc",
+                "affiliate_marketing",
+                "influencer_marketing",
+            ],
+            "typical_goals": [
+                "sales",
+                "conversion_rate",
+                "average_order_value",
+                "customer_acquisition",
+            ],
         },
         "service": {
             "name": "Service",
             "description": "Professional services",
-            "typical_channels": ["content_marketing", "email_marketing", "social_media", "seo", "referral_marketing"],
-            "typical_goals": ["lead_generation", "brand_awareness", "thought_leadership", "customer_acquisition"]
+            "typical_channels": [
+                "content_marketing",
+                "email_marketing",
+                "social_media",
+                "seo",
+                "referral_marketing",
+            ],
+            "typical_goals": [
+                "lead_generation",
+                "brand_awareness",
+                "thought_leadership",
+                "customer_acquisition",
+            ],
         },
         "content_creator": {
             "name": "Content Creator",
             "description": "Content creation and monetization",
-            "typical_channels": ["social_media", "content_marketing", "email_marketing", "influencer_marketing"],
-            "typical_goals": ["audience_growth", "engagement", "monetization", "brand_awareness"]
+            "typical_channels": [
+                "social_media",
+                "content_marketing",
+                "email_marketing",
+                "influencer_marketing",
+            ],
+            "typical_goals": [
+                "audience_growth",
+                "engagement",
+                "monetization",
+                "brand_awareness",
+            ],
         },
         "local_business": {
             "name": "Local Business",
             "description": "Brick and mortar business",
-            "typical_channels": ["local_seo", "social_media", "email_marketing", "direct_mail", "events"],
-            "typical_goals": ["foot_traffic", "local_awareness", "customer_acquisition", "loyalty"]
-        }
+            "typical_channels": [
+                "local_seo",
+                "social_media",
+                "email_marketing",
+                "direct_mail",
+                "events",
+            ],
+            "typical_goals": [
+                "foot_traffic",
+                "local_awareness",
+                "customer_acquisition",
+                "loyalty",
+            ],
+        },
     }
 
     # Valid marketing goals
@@ -59,57 +113,145 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "brand_awareness": {
             "name": "Brand Awareness",
             "description": "Increase awareness of the brand",
-            "recommended_channels": ["social_media", "content_marketing", "influencer_marketing", "pr"],
-            "typical_metrics": ["reach", "impressions", "brand_mentions", "social_media_followers"]
+            "recommended_channels": [
+                "social_media",
+                "content_marketing",
+                "influencer_marketing",
+                "pr",
+            ],
+            "typical_metrics": [
+                "reach",
+                "impressions",
+                "brand_mentions",
+                "social_media_followers",
+            ],
         },
         "lead_generation": {
             "name": "Lead Generation",
             "description": "Generate new leads",
-            "recommended_channels": ["content_marketing", "email_marketing", "ppc", "social_media"],
-            "typical_metrics": ["leads_generated", "conversion_rate", "cost_per_lead", "lead_quality"]
+            "recommended_channels": [
+                "content_marketing",
+                "email_marketing",
+                "ppc",
+                "social_media",
+            ],
+            "typical_metrics": [
+                "leads_generated",
+                "conversion_rate",
+                "cost_per_lead",
+                "lead_quality",
+            ],
         },
         "customer_acquisition": {
             "name": "Customer Acquisition",
             "description": "Acquire new customers",
-            "recommended_channels": ["ppc", "email_marketing", "content_marketing", "social_media"],
-            "typical_metrics": ["new_customers", "customer_acquisition_cost", "conversion_rate"]
+            "recommended_channels": [
+                "ppc",
+                "email_marketing",
+                "content_marketing",
+                "social_media",
+            ],
+            "typical_metrics": [
+                "new_customers",
+                "customer_acquisition_cost",
+                "conversion_rate",
+            ],
         },
         "retention": {
             "name": "Retention",
             "description": "Retain existing customers",
-            "recommended_channels": ["email_marketing", "content_marketing", "social_media", "customer_service"],
-            "typical_metrics": ["retention_rate", "churn_rate", "customer_lifetime_value"]
+            "recommended_channels": [
+                "email_marketing",
+                "content_marketing",
+                "social_media",
+                "customer_service",
+            ],
+            "typical_metrics": [
+                "retention_rate",
+                "churn_rate",
+                "customer_lifetime_value",
+            ],
         },
         "sales": {
             "name": "Sales",
             "description": "Increase sales",
-            "recommended_channels": ["ppc", "email_marketing", "social_media", "affiliate_marketing"],
-            "typical_metrics": ["revenue", "conversion_rate", "average_order_value", "return_on_ad_spend"]
+            "recommended_channels": [
+                "ppc",
+                "email_marketing",
+                "social_media",
+                "affiliate_marketing",
+            ],
+            "typical_metrics": [
+                "revenue",
+                "conversion_rate",
+                "average_order_value",
+                "return_on_ad_spend",
+            ],
         },
         "engagement": {
             "name": "Engagement",
             "description": "Increase engagement with the brand",
-            "recommended_channels": ["social_media", "content_marketing", "email_marketing", "events"],
-            "typical_metrics": ["engagement_rate", "time_on_site", "comments", "shares"]
+            "recommended_channels": [
+                "social_media",
+                "content_marketing",
+                "email_marketing",
+                "events",
+            ],
+            "typical_metrics": [
+                "engagement_rate",
+                "time_on_site",
+                "comments",
+                "shares",
+            ],
         },
         "thought_leadership": {
             "name": "Thought Leadership",
             "description": "Establish thought leadership in the industry",
-            "recommended_channels": ["content_marketing", "social_media", "pr", "speaking_engagements"],
-            "typical_metrics": ["content_shares", "speaking_engagements", "media_mentions", "industry_recognition"]
+            "recommended_channels": [
+                "content_marketing",
+                "social_media",
+                "pr",
+                "speaking_engagements",
+            ],
+            "typical_metrics": [
+                "content_shares",
+                "speaking_engagements",
+                "media_mentions",
+                "industry_recognition",
+            ],
         },
         "audience_growth": {
             "name": "Audience Growth",
             "description": "Grow the audience",
-            "recommended_channels": ["social_media", "content_marketing", "influencer_marketing", "collaborations"],
-            "typical_metrics": ["followers", "subscribers", "audience_growth_rate", "reach"]
+            "recommended_channels": [
+                "social_media",
+                "content_marketing",
+                "influencer_marketing",
+                "collaborations",
+            ],
+            "typical_metrics": [
+                "followers",
+                "subscribers",
+                "audience_growth_rate",
+                "reach",
+            ],
         },
         "monetization": {
             "name": "Monetization",
             "description": "Monetize content or audience",
-            "recommended_channels": ["affiliate_marketing", "sponsored_content", "product_sales", "memberships"],
-            "typical_metrics": ["revenue", "revenue_per_user", "conversion_rate", "average_order_value"]
-        }
+            "recommended_channels": [
+                "affiliate_marketing",
+                "sponsored_content",
+                "product_sales",
+                "memberships",
+            ],
+            "typical_metrics": [
+                "revenue",
+                "revenue_per_user",
+                "conversion_rate",
+                "average_order_value",
+            ],
+        },
     }
 
     # Marketing channels data
@@ -117,42 +259,79 @@ class DefaultStrategyGenerator(StrategyGenerator):
         "content_marketing": {
             "name": "Content Marketing",
             "description": "Creating and sharing valuable content to attract and engage a target audience",
-            "formats": ["blog_posts", "videos", "podcasts", "infographics", "ebooks", "webinars"],
-            "metrics": ["traffic", "engagement", "leads", "conversions", "time_on_page"],
+            "formats": [
+                "blog_posts",
+                "videos",
+                "podcasts",
+                "infographics",
+                "ebooks",
+                "webinars",
+            ],
+            "metrics": [
+                "traffic",
+                "engagement",
+                "leads",
+                "conversions",
+                "time_on_page",
+            ],
             "difficulty": "medium",
             "time_investment": "high",
             "cost_range": "low_to_medium",
-            "best_for": ["brand_awareness", "lead_generation", "thought_leadership"]
+            "best_for": ["brand_awareness", "lead_generation", "thought_leadership"],
         },
         "social_media": {
             "name": "Social Media Marketing",
             "description": "Using social media platforms to connect with the audience and build the brand",
-            "formats": ["posts", "stories", "reels", "live_videos", "groups", "communities"],
+            "formats": [
+                "posts",
+                "stories",
+                "reels",
+                "live_videos",
+                "groups",
+                "communities",
+            ],
             "metrics": ["followers", "engagement", "reach", "clicks", "conversions"],
             "difficulty": "medium",
             "time_investment": "high",
             "cost_range": "low_to_high",
-            "best_for": ["brand_awareness", "engagement", "community_building"]
+            "best_for": ["brand_awareness", "engagement", "community_building"],
         },
         "email_marketing": {
             "name": "Email Marketing",
             "description": "Sending targeted emails to prospects and customers",
-            "formats": ["newsletters", "promotional_emails", "automated_sequences", "transactional_emails"],
-            "metrics": ["open_rate", "click_rate", "conversion_rate", "unsubscribe_rate", "revenue"],
+            "formats": [
+                "newsletters",
+                "promotional_emails",
+                "automated_sequences",
+                "transactional_emails",
+            ],
+            "metrics": [
+                "open_rate",
+                "click_rate",
+                "conversion_rate",
+                "unsubscribe_rate",
+                "revenue",
+            ],
             "difficulty": "medium",
             "time_investment": "medium",
             "cost_range": "low_to_medium",
-            "best_for": ["lead_nurturing", "customer_retention", "sales"]
+            "best_for": ["lead_nurturing", "customer_retention", "sales"],
         },
         "seo": {
             "name": "Search Engine Optimization",
             "description": "Optimizing website content to rank higher in search engine results",
             "formats": ["on_page_seo", "off_page_seo", "technical_seo", "local_seo"],
-            "metrics": ["rankings", "organic_traffic", "backlinks", "domain_authority", "conversions"],
+            "metrics": [
+                "rankings",
+                "organic_traffic",
+                "backlinks",
+                "domain_authority",
+                "conversions",
+            ],
             "difficulty": "high",
             "time_investment": "high",
             "cost_range": "medium_to_high",
-            "best_for": ["organic_traffic", "brand_visibility", "lead_generation"]
+            "best_for": ["organic_traffic", "brand_visibility", "lead_generation"],
         },
         "ppc": {
             "name": "Pay-Per-Click Advertising",
@@ -162,17 +341,23 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "difficulty": "medium",
             "time_investment": "medium",
             "cost_range": "medium_to_high",
-            "best_for": ["immediate_traffic", "lead_generation", "sales"]
+            "best_for": ["immediate_traffic", "lead_generation", "sales"],
         },
         "influencer_marketing": {
             "name": "Influencer Marketing",
             "description": "Partnering with influencers to promote products or services",
             "formats": ["sponsored_posts", "reviews", "collaborations", "takeovers"],
-            "metrics": ["reach", "engagement", "conversions", "brand_mentions", "user_generated_content"],
+            "metrics": [
+                "reach",
+                "engagement",
+                "conversions",
+                "brand_mentions",
+                "user_generated_content",
+            ],
             "difficulty": "medium",
             "time_investment": "medium",
             "cost_range": "medium_to_high",
-            "best_for": ["brand_awareness", "credibility", "reaching_new_audiences"]
+            "best_for": ["brand_awareness", "credibility", "reaching_new_audiences"],
         },
         "affiliate_marketing": {
             "name": "Affiliate Marketing",
@@ -182,38 +367,63 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "difficulty": "medium",
             "time_investment": "medium",
             "cost_range": "low_to_medium",
-            "best_for": ["sales", "reaching_new_audiences", "performance_based_marketing"]
+            "best_for": [
+                "sales",
+                "reaching_new_audiences",
+                "performance_based_marketing",
+            ],
         },
         "pr": {
             "name": "Public Relations",
             "description": "Managing the spread of information between an organization and the public",
             "formats": ["press_releases", "media_outreach", "interviews", "events"],
-            "metrics": ["media_mentions", "reach", "sentiment", "website_traffic", "backlinks"],
+            "metrics": [
+                "media_mentions",
+                "reach",
+                "sentiment",
+                "website_traffic",
+                "backlinks",
+            ],
             "difficulty": "high",
             "time_investment": "high",
             "cost_range": "medium_to_high",
-            "best_for": ["brand_awareness", "credibility", "reputation_management"]
+            "best_for": ["brand_awareness", "credibility", "reputation_management"],
         },
         "events": {
             "name": "Event Marketing",
             "description": "Creating or participating in events to promote products or services",
-            "formats": ["conferences", "webinars", "workshops", "trade_shows", "meetups"],
+            "formats": [
+                "conferences",
+                "webinars",
+                "workshops",
+                "trade_shows",
+                "meetups",
+            ],
             "metrics": ["attendees", "leads", "engagement", "conversions", "feedback"],
             "difficulty": "high",
             "time_investment": "high",
             "cost_range": "medium_to_high",
-            "best_for": ["networking", "lead_generation", "brand_experience"]
+            "best_for": ["networking", "lead_generation", "brand_experience"],
         },
         "direct_mail": {
             "name": "Direct Mail",
             "description": "Sending physical mail to prospects and customers",
             "formats": ["postcards", "letters", "catalogs", "brochures", "samples"],
-            "metrics": ["response_rate", "conversion_rate", "cost_per_acquisition", "roi"],
+            "metrics": [
+                "response_rate",
+                "conversion_rate",
+                "cost_per_acquisition",
+                "roi",
+            ],
             "difficulty": "medium",
             "time_investment": "medium",
             "cost_range": "medium_to_high",
-            "best_for": ["local_businesses", "high_value_products", "personalized_outreach"]
-        }
+            "best_for": [
+                "local_businesses",
+                "high_value_products",
+                "personalized_outreach",
+            ],
+        },
     }
 
     def __init__(
@@ -228,7 +438,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
         description: str = "A comprehensive marketing strategy for your business",
         channel_type: str = "multi_channel",
         timeframe: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize a DefaultStrategyGenerator.
@@ -253,7 +463,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
             target_audience=target_audience,
             budget=budget,
             agent_team=agent_team,
-            **kwargs
+            **kwargs,
         )
         self._name = name
         self._description = description
@@ -274,7 +484,9 @@ class DefaultStrategyGenerator(StrategyGenerator):
         """Get the channel type."""
         return self._channel_type
 
-    def create_strategy(self, target_persona: Dict[str, Any], goals: List[str]) -> Dict[str, Any]:
+    def create_strategy(
+        self, target_persona: Dict[str, Any], goals: List[str]
+    ) -> Dict[str, Any]:
         """
         Create a marketing strategy.
 
@@ -362,7 +574,9 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         # Check if business type is valid
         if self.business_type.lower() not in self.BUSINESS_TYPES:
-            errors.append(f"Invalid business type: {self.business_type}. Must be one of: {', '.join(self.BUSINESS_TYPES.keys())}")
+            errors.append(
+                f"Invalid business type: {self.business_type}. Must be one of: {', '.join(self.BUSINESS_TYPES.keys())}"
+            )
             return False, errors
 
         return True, errors
@@ -382,9 +596,13 @@ class DefaultStrategyGenerator(StrategyGenerator):
             return False, errors
 
         # Check if each goal is valid
-        invalid_goals = [goal for goal in self.goals if goal.lower() not in self.MARKETING_GOALS]
+        invalid_goals = [
+            goal for goal in self.goals if goal.lower() not in self.MARKETING_GOALS
+        ]
         if invalid_goals:
-            errors.append(f"Invalid goals: {', '.join(invalid_goals)}. Valid goals are: {', '.join(self.MARKETING_GOALS.keys())}")
+            errors.append(
+                f"Invalid goals: {', '.join(invalid_goals)}. Valid goals are: {', '.join(self.MARKETING_GOALS.keys())}"
+            )
             return False, errors
 
         return True, errors
@@ -417,11 +635,13 @@ class DefaultStrategyGenerator(StrategyGenerator):
             audience_fit,
             goal_alignment,
             budget_fit,
-            roi_analysis
+            roi_analysis,
         )
 
         # Generate channel recommendations
-        channel_recommendations = self._generate_channel_recommendations(prioritized_channels)
+        channel_recommendations = self._generate_channel_recommendations(
+            prioritized_channels
+        )
 
         # Return the complete analysis
         return {
@@ -433,7 +653,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "budget_fit": budget_fit,
             "roi_analysis": roi_analysis,
             "prioritized_channels": prioritized_channels,
-            "channel_recommendations": channel_recommendations
+            "channel_recommendations": channel_recommendations,
         }
 
     def _analyze_channel_effectiveness(self) -> Dict[str, Any]:
@@ -456,21 +676,25 @@ class DefaultStrategyGenerator(StrategyGenerator):
             goal_alignment = self._calculate_channel_goal_alignment_score(channel)
 
             # Calculate difficulty adjustment
-            difficulty_adjustment = self._calculate_difficulty_adjustment(channel_data.get("difficulty", "medium"))
+            difficulty_adjustment = self._calculate_difficulty_adjustment(
+                channel_data.get("difficulty", "medium")
+            )
 
             # Calculate time adjustment
-            time_adjustment = self._calculate_time_adjustment(channel_data.get("time_investment", "medium"))
+            time_adjustment = self._calculate_time_adjustment(
+                channel_data.get("time_investment", "medium")
+            )
 
             # Calculate metrics effectiveness
             metrics_effectiveness = self._analyze_channel_metrics_effectiveness(channel)
 
             # Calculate overall score
             overall_score = (
-                base_score * 0.2 +
-                business_alignment * 0.3 +
-                goal_alignment * 0.3 +
-                difficulty_adjustment * 0.1 +
-                time_adjustment * 0.1
+                base_score * 0.2
+                + business_alignment * 0.3
+                + goal_alignment * 0.3
+                + difficulty_adjustment * 0.1
+                + time_adjustment * 0.1
             ) * metrics_effectiveness["avg_effectiveness"]
 
             # Determine effectiveness level
@@ -495,14 +719,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "effectiveness_level": effectiveness_level,
                 "best_for": channel_data.get("best_for", []),
                 "formats": channel_data.get("formats", []),
-                "metrics": channel_data.get("metrics", [])
+                "metrics": channel_data.get("metrics", []),
             }
 
         # Sort channels by overall score
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in effectiveness_scores.items()],
             key=lambda x: x["overall_score"],
-            reverse=True
+            reverse=True,
         )
 
         # Get top channels
@@ -510,13 +734,15 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         # Get highly effective channels
         highly_effective = [
-            channel for channel, data in effectiveness_scores.items()
+            channel
+            for channel, data in effectiveness_scores.items()
             if data["effectiveness_level"] == "high"
         ]
 
         # Get moderately effective channels
         moderately_effective = [
-            channel for channel, data in effectiveness_scores.items()
+            channel
+            for channel, data in effectiveness_scores.items()
             if data["effectiveness_level"] == "medium"
         ]
 
@@ -525,7 +751,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "sorted_channels": sorted_channels,
             "top_channels": top_channels,
             "highly_effective": highly_effective,
-            "moderately_effective": moderately_effective
+            "moderately_effective": moderately_effective,
         }
 
     def _analyze_channel_metrics_effectiveness(self, channel: str) -> Dict[str, Any]:
@@ -545,7 +771,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "conversion": 0.5,
             "retention": 0.4,
             "reach": 0.8,
-            "cost_efficiency": 0.6
+            "cost_efficiency": 0.6,
         }
 
         # Adjust metrics based on business type
@@ -558,22 +784,16 @@ class DefaultStrategyGenerator(StrategyGenerator):
         avg_effectiveness = sum(metrics.values()) / len(metrics)
 
         # Identify top metrics
-        top_metrics = [
-            metric for metric, value in metrics.items()
-            if value >= 0.7
-        ]
+        top_metrics = [metric for metric, value in metrics.items() if value >= 0.7]
 
         # Identify weak metrics
-        weak_metrics = [
-            metric for metric, value in metrics.items()
-            if value < 0.5
-        ]
+        weak_metrics = [metric for metric, value in metrics.items() if value < 0.5]
 
         return {
             "metrics": metrics,
             "avg_effectiveness": avg_effectiveness,
             "top_metrics": top_metrics,
-            "weak_metrics": weak_metrics
+            "weak_metrics": weak_metrics,
         }
 
     def _calculate_channel_base_score(self, channel: str) -> float:
@@ -637,7 +857,9 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 alignment_scores.append(0.3)
 
         # Average the alignment scores
-        return sum(alignment_scores) / len(alignment_scores) if alignment_scores else 0.5
+        return (
+            sum(alignment_scores) / len(alignment_scores) if alignment_scores else 0.5
+        )
 
     def _calculate_difficulty_adjustment(self, difficulty: str) -> float:
         """
@@ -677,7 +899,9 @@ class DefaultStrategyGenerator(StrategyGenerator):
         else:
             return 0.8  # Default to medium
 
-    def _adjust_metrics_for_business_type(self, metrics: Dict[str, float], channel: str) -> Dict[str, float]:
+    def _adjust_metrics_for_business_type(
+        self, metrics: Dict[str, float], channel: str
+    ) -> Dict[str, float]:
         """
         Adjust metrics based on business type.
 
@@ -715,7 +939,9 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         return adjusted_metrics
 
-    def _adjust_metrics_for_goals(self, metrics: Dict[str, float], channel: str) -> Dict[str, float]:
+    def _adjust_metrics_for_goals(
+        self, metrics: Dict[str, float], channel: str
+    ) -> Dict[str, float]:
         """
         Adjust metrics based on marketing goals.
 
@@ -789,14 +1015,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "interest_fit": interest_fit,
                 "behavior_fit": behavior_fit,
                 "overall_fit": overall_fit,
-                "fit_level": fit_level
+                "fit_level": fit_level,
             }
 
         # Sort channels by overall fit
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in audience_fit_scores.items()],
             key=lambda x: x["overall_fit"],
-            reverse=True
+            reverse=True,
         )
 
         # Get top channels
@@ -804,13 +1030,15 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         # Get high fit channels
         high_fit_channels = [
-            channel for channel, data in audience_fit_scores.items()
+            channel
+            for channel, data in audience_fit_scores.items()
             if data["fit_level"] == "high"
         ]
 
         # Get medium fit channels
         medium_fit_channels = [
-            channel for channel, data in audience_fit_scores.items()
+            channel
+            for channel, data in audience_fit_scores.items()
             if data["fit_level"] == "medium"
         ]
 
@@ -819,7 +1047,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "sorted_channels": sorted_channels,
             "top_channels": top_channels,
             "high_fit_channels": high_fit_channels,
-            "medium_fit_channels": medium_fit_channels
+            "medium_fit_channels": medium_fit_channels,
         }
 
     def _analyze_channel_goal_alignment(self) -> Dict[str, Any]:
@@ -856,14 +1084,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 channel_scores[channel] = {
                     "channel": channel_data["name"],
                     "alignment_score": alignment_score,
-                    "alignment_level": alignment_level
+                    "alignment_level": alignment_level,
                 }
 
             # Sort channels by alignment score
             sorted_channels = sorted(
                 [{"channel": k, **v} for k, v in channel_scores.items()],
                 key=lambda x: x["alignment_score"],
-                reverse=True
+                reverse=True,
             )
 
             # Get top channels
@@ -874,7 +1102,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "goal": goal_data.get("name", goal),
                 "description": goal_data.get("description", ""),
                 "channel_scores": channel_scores,
-                "top_channels": top_channels
+                "top_channels": top_channels,
             }
 
         # Calculate overall alignment for each channel
@@ -884,10 +1112,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
             goal_scores = {}
 
             for goal, goal_score in goal_alignment_scores.items():
-                goal_scores[goal] = goal_score["channel_scores"][channel]["alignment_score"]
+                goal_scores[goal] = goal_score["channel_scores"][channel][
+                    "alignment_score"
+                ]
 
             # Calculate average alignment
-            avg_alignment = sum(goal_scores.values()) / len(goal_scores) if goal_scores else 0
+            avg_alignment = (
+                sum(goal_scores.values()) / len(goal_scores) if goal_scores else 0
+            )
 
             # Determine alignment level
             if avg_alignment >= 0.7:
@@ -902,14 +1134,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "channel": channel_data["name"],
                 "avg_alignment": avg_alignment,
                 "goal_scores": goal_scores,
-                "alignment_level": alignment_level
+                "alignment_level": alignment_level,
             }
 
         # Sort channels by average alignment
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in overall_alignment.items()],
             key=lambda x: x["avg_alignment"],
-            reverse=True
+            reverse=True,
         )
 
         # Get top channels
@@ -918,7 +1150,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
         return {
             "goal_alignment_scores": goal_alignment_scores,
             "overall_alignment": overall_alignment,
-            "top_channels_overall": top_channels
+            "top_channels_overall": top_channels,
         }
 
     def _analyze_channel_budget_fit(self) -> Dict[str, Any]:
@@ -976,14 +1208,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "estimated_cost": estimated_cost,
                 "budget_percentage": budget_percentage,
                 "budget_fit": budget_fit,
-                "affordability": affordability
+                "affordability": affordability,
             }
 
         # Sort channels by budget fit
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in budget_fit_scores.items()],
             key=lambda x: x["budget_fit"],
-            reverse=True
+            reverse=True,
         )
 
         # Get top channels
@@ -991,19 +1223,22 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         # Get affordable channels
         affordable_channels = [
-            channel for channel, data in budget_fit_scores.items()
+            channel
+            for channel, data in budget_fit_scores.items()
             if data["affordability"] == "affordable"
         ]
 
         # Get moderate channels
         moderate_channels = [
-            channel for channel, data in budget_fit_scores.items()
+            channel
+            for channel, data in budget_fit_scores.items()
             if data["affordability"] == "moderate"
         ]
 
         # Get expensive channels
         expensive_channels = [
-            channel for channel, data in budget_fit_scores.items()
+            channel
+            for channel, data in budget_fit_scores.items()
             if data["affordability"] == "expensive"
         ]
 
@@ -1013,7 +1248,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "top_channels": top_channels,
             "affordable_channels": affordable_channels,
             "moderate_channels": moderate_channels,
-            "expensive_channels": expensive_channels
+            "expensive_channels": expensive_channels,
         }
 
     def _analyze_channel_roi(self) -> Dict[str, Any]:
@@ -1047,14 +1282,14 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "estimated_cost": 1000.0,  # Placeholder value
                 "potential_revenue": 2500.0,  # Placeholder value
                 "roi": 2.5,  # Placeholder value
-                "confidence": 0.6  # Placeholder value
+                "confidence": 0.6,  # Placeholder value
             }
 
         # Sort channels by ROI score
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in roi_scores.items()],
             key=lambda x: x["roi_score"],
-            reverse=True
+            reverse=True,
         )
 
         # Get top channels
@@ -1062,13 +1297,15 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         # Get high ROI channels
         high_roi_channels = [
-            channel for channel, data in roi_scores.items()
+            channel
+            for channel, data in roi_scores.items()
             if data["roi_level"] == "high"
         ]
 
         # Get medium ROI channels
         medium_roi_channels = [
-            channel for channel, data in roi_scores.items()
+            channel
+            for channel, data in roi_scores.items()
             if data["roi_level"] == "medium"
         ]
 
@@ -1077,7 +1314,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "sorted_channels": sorted_channels,
             "top_channels": top_channels,
             "high_roi_channels": high_roi_channels,
-            "medium_roi_channels": medium_roi_channels
+            "medium_roi_channels": medium_roi_channels,
         }
 
     def _prioritize_channels(
@@ -1086,7 +1323,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
         audience_fit: Dict[str, Any],
         goal_alignment: Dict[str, Any],
         budget_fit: Dict[str, Any],
-        roi_analysis: Dict[str, Any]
+        roi_analysis: Dict[str, Any],
     ) -> Dict[str, Any]:
         """
         Prioritize channels based on multiple factors.
@@ -1106,18 +1343,24 @@ class DefaultStrategyGenerator(StrategyGenerator):
 
         for channel, channel_data in self.MARKETING_CHANNELS.items():
             # Get scores from each analysis
-            effectiveness_score = channel_effectiveness["effectiveness_scores"][channel]["overall_score"]
-            audience_fit_score = audience_fit["audience_fit_scores"][channel]["overall_fit"]
-            goal_alignment_score = goal_alignment["overall_alignment"][channel]["avg_alignment"]
+            effectiveness_score = channel_effectiveness["effectiveness_scores"][
+                channel
+            ]["overall_score"]
+            audience_fit_score = audience_fit["audience_fit_scores"][channel][
+                "overall_fit"
+            ]
+            goal_alignment_score = goal_alignment["overall_alignment"][channel][
+                "avg_alignment"
+            ]
             budget_fit_score = budget_fit["budget_fit_scores"][channel]["budget_fit"]
             roi_score = roi_analysis["roi_scores"][channel]["roi_score"]
 
             # Calculate weighted priority score
             priority_score = (
-                effectiveness_score * 0.3 +
-                audience_fit_score * 0.2 +
-                goal_alignment_score * 0.3 +
-                budget_fit_score * 0.2
+                effectiveness_score * 0.3
+                + audience_fit_score * 0.2
+                + goal_alignment_score * 0.3
+                + budget_fit_score * 0.2
             )
 
             # Determine priority level
@@ -1137,29 +1380,32 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "goal_alignment_score": goal_alignment_score,
                 "budget_fit_score": budget_fit_score,
                 "roi_score": roi_score,
-                "priority_level": priority_level
+                "priority_level": priority_level,
             }
 
         # Sort channels by priority score
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in priority_scores.items()],
             key=lambda x: x["overall_score"],
-            reverse=True
+            reverse=True,
         )
 
         # Categorize channels
         high_priority_channels = [
-            channel["channel"] for channel in sorted_channels
+            channel["channel"]
+            for channel in sorted_channels
             if channel["overall_score"] >= 0.7
         ]
 
         medium_priority_channels = [
-            channel["channel"] for channel in sorted_channels
+            channel["channel"]
+            for channel in sorted_channels
             if 0.4 <= channel["overall_score"] < 0.7
         ]
 
         low_priority_channels = [
-            channel["channel"] for channel in sorted_channels
+            channel["channel"]
+            for channel in sorted_channels
             if channel["overall_score"] < 0.4
         ]
 
@@ -1169,10 +1415,12 @@ class DefaultStrategyGenerator(StrategyGenerator):
             "high_priority_channels": high_priority_channels,
             "medium_priority_channels": medium_priority_channels,
             "low_priority_channels": low_priority_channels,
-            "prioritization_method": "weighted_score"
+            "prioritization_method": "weighted_score",
         }
 
-    def _generate_channel_recommendations(self, prioritized_channels: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_channel_recommendations(
+        self, prioritized_channels: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Generate recommendations for channel selection and implementation.
 
@@ -1214,7 +1462,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
                         "description": "Marketing channel",
                         "formats": ["content", "ads", "social"],
                         "metrics": ["engagement", "conversion", "roi"],
-                        "best_for": ["brand_awareness", "lead_generation"]
+                        "best_for": ["brand_awareness", "lead_generation"],
                     }
 
             # Generate recommendation
@@ -1227,8 +1475,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "implementation_tips": [
                     f"Focus on {channel_data.get('best_for', [''])[0]} to maximize effectiveness",
                     f"Allocate at least 20% of your budget to this channel",
-                    f"Measure {', '.join(channel_data.get('metrics', [])[:2])} to track performance"
-                ]
+                    f"Measure {', '.join(channel_data.get('metrics', [])[:2])} to track performance",
+                ],
             }
 
             # Add business-specific recommendations
@@ -1252,7 +1500,9 @@ class DefaultStrategyGenerator(StrategyGenerator):
             recommendations[channel] = recommendation
 
         # Generate recommendations for each medium priority channel
-        for channel in medium_priority_channels[:3]:  # Limit to top 3 medium priority channels
+        for channel in medium_priority_channels[
+            :3
+        ]:  # Limit to top 3 medium priority channels
             # Find the channel in MARKETING_CHANNELS
             # First try direct match
             if channel in self.MARKETING_CHANNELS:
@@ -1275,7 +1525,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
                         "description": "Marketing channel",
                         "formats": ["content", "ads", "social"],
                         "metrics": ["engagement", "conversion", "roi"],
-                        "best_for": ["brand_awareness", "lead_generation"]
+                        "best_for": ["brand_awareness", "lead_generation"],
                     }
 
             # Generate recommendation
@@ -1288,8 +1538,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "implementation_tips": [
                     f"Consider this channel as a secondary focus",
                     f"Allocate around 10% of your budget to this channel",
-                    f"Measure {', '.join(channel_data.get('metrics', [])[:1])} to track performance"
-                ]
+                    f"Measure {', '.join(channel_data.get('metrics', [])[:1])} to track performance",
+                ],
             }
 
             # Store the recommendation
@@ -1315,7 +1565,7 @@ class ContentMarketingStrategyGenerator(DefaultStrategyGenerator):
         content_types: Optional[List[str]] = None,
         frequency: str = "weekly",
         timeframe: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize a ContentMarketingStrategyGenerator.
@@ -1342,7 +1592,7 @@ class ContentMarketingStrategyGenerator(DefaultStrategyGenerator):
             description="A strategy focused on creating and distributing valuable content",
             channel_type="content_marketing",
             timeframe=timeframe,
-            **kwargs
+            **kwargs,
         )
         self.platforms = platforms or ["blog", "social_media", "email"]
         self.content_types = content_types or ["blog_posts", "videos", "infographics"]
@@ -1366,7 +1616,7 @@ class SocialMediaStrategyGenerator(DefaultStrategyGenerator):
         post_frequency: str = "daily",
         content_mix: Optional[Dict[str, int]] = None,
         timeframe: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize a SocialMediaStrategyGenerator.
@@ -1393,11 +1643,15 @@ class SocialMediaStrategyGenerator(DefaultStrategyGenerator):
             description="A strategy focused on social media marketing",
             channel_type="social_media",
             timeframe=timeframe,
-            **kwargs
+            **kwargs,
         )
         self.platforms = platforms or ["instagram", "twitter", "facebook", "linkedin"]
         self.post_frequency = post_frequency
-        self.content_mix = content_mix or {"educational": 40, "promotional": 20, "entertaining": 40}
+        self.content_mix = content_mix or {
+            "educational": 40,
+            "promotional": 20,
+            "entertaining": 40,
+        }
 
 
 class EmailMarketingStrategyGenerator(DefaultStrategyGenerator):
@@ -1417,7 +1671,7 @@ class EmailMarketingStrategyGenerator(DefaultStrategyGenerator):
         frequency: str = "weekly",
         list_building_tactics: Optional[List[str]] = None,
         timeframe: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize an EmailMarketingStrategyGenerator.
@@ -1444,13 +1698,18 @@ class EmailMarketingStrategyGenerator(DefaultStrategyGenerator):
             description="A strategy focused on email marketing",
             channel_type="email_marketing",
             timeframe=timeframe,
-            **kwargs
+            **kwargs,
         )
-        self.email_types = email_types or ["newsletter", "promotional", "onboarding", "retention"]
+        self.email_types = email_types or [
+            "newsletter",
+            "promotional",
+            "onboarding",
+            "retention",
+        ]
         self.frequency = frequency
         self.list_building_tactics = list_building_tactics or [
             "content upgrades",
             "lead magnets",
             "webinars",
-            "free trials"
+            "free trials",
         ]

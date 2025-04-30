@@ -1,6 +1,7 @@
 """
 Tests for the agent profiles in the agent_team module.
 """
+
 import pytest
 from unittest.mock import patch, MagicMock
 
@@ -10,7 +11,7 @@ from agent_team.agent_profiles import (
     DeveloperAgent,
     MonetizationAgent,
     MarketingAgent,
-    FeedbackAgent
+    FeedbackAgent,
 )
 from interfaces.agent_interfaces import IAgentTeam
 
@@ -30,7 +31,7 @@ def mock_team():
         "workflow": {
             "auto_progression": False,
             "review_required": True,
-        }
+        },
     }
     mock_team.project_state = {}
     return mock_team
@@ -50,7 +51,7 @@ def test_agent_profile_init():
         name="Test Agent",
         description="A test agent",
         capabilities=["capability1", "capability2"],
-        parameters={"param1": "value1", "param2": "value2"}
+        parameters={"param1": "value1", "param2": "value2"},
     )
     assert profile.name == "Test Agent"
     assert profile.description == "A test agent"
@@ -64,7 +65,7 @@ def test_agent_profile_to_dict():
         name="Test Agent",
         description="A test agent",
         capabilities=["capability1", "capability2"],
-        parameters={"param1": "value1", "param2": "value2"}
+        parameters={"param1": "value1", "param2": "value2"},
     )
 
     profile_dict = profile.to_dict()
@@ -118,7 +119,9 @@ def test_developer_agent_init(mock_team):
 def test_developer_agent_design_solution(mock_team):
     """Test DeveloperAgent design_solution method."""
     # Patch the _create_solution_design method to avoid KeyError
-    with patch.object(DeveloperAgent, '_create_solution_design') as mock_create_solution:
+    with patch.object(
+        DeveloperAgent, "_create_solution_design"
+    ) as mock_create_solution:
         # Set up the mock to return a solution
         mock_solution = {
             "id": "solution1",
@@ -128,28 +131,28 @@ def test_developer_agent_design_solution(mock_team):
                 {
                     "id": "feature1",
                     "name": "Feature 1",
-                    "description": "Description of feature 1"
+                    "description": "Description of feature 1",
                 }
             ],
             "architecture": {
                 "components": ["component1", "component2"],
-                "data_flow": "Description of data flow"
+                "data_flow": "Description of data flow",
             },
             "tech_stack": {
                 "frontend": ["React", "TypeScript"],
                 "backend": ["Python", "FastAPI"],
                 "database": "PostgreSQL",
-                "ai_models": ["GPT-4", "BERT"]
+                "ai_models": ["GPT-4", "BERT"],
             },
             "implementation_plan": {
                 "phases": [
                     {
                         "name": "Phase 1",
                         "duration": "2 weeks",
-                        "tasks": ["task1", "task2"]
+                        "tasks": ["task1", "task2"],
                     }
                 ]
-            }
+            },
         }
         mock_create_solution.return_value = mock_solution
 
@@ -163,7 +166,7 @@ def test_developer_agent_design_solution(mock_team):
                 "name": "Problem 1",
                 "description": "Description of problem 1",
                 "severity": "high",
-                "priority": "high"  # Add priority to avoid KeyError
+                "priority": "high",  # Add priority to avoid KeyError
             }
         ]
         mock_team.researcher = mock_researcher
@@ -172,7 +175,7 @@ def test_developer_agent_design_solution(mock_team):
         niche = {
             "id": "niche1",
             "name": "Niche 1",
-            "description": "Description of niche 1"
+            "description": "Description of niche 1",
         }
         result = agent.design_solution(niche)
 
@@ -200,53 +203,48 @@ def test_monetization_agent_init(mock_team):
     # Check that the agent has the expected attributes
     assert agent.team == mock_team
     assert agent.name == "Monetization Agent"
-    assert "subscription" in agent.description.lower() or "pricing" in agent.description.lower()
+    assert (
+        "subscription" in agent.description.lower()
+        or "pricing" in agent.description.lower()
+    )
     assert agent.model_settings == mock_team.config["model_settings"]["monetization"]
 
 
 def test_monetization_agent_create_strategy(mock_team):
     """Test MonetizationAgent create_strategy method."""
     # Patch the create_strategy method to avoid TypeError
-    with patch.object(MonetizationAgent, 'create_strategy') as mock_create_strategy:
+    with patch.object(MonetizationAgent, "create_strategy") as mock_create_strategy:
         # Set up the mock to return a strategy
         mock_strategy = {
             "id": "strategy1",
             "solution_id": "solution1",
             "subscription_tiers": [
-                {
-                    "name": "Free",
-                    "price": 0,
-                    "features": ["feature1"]
-                },
-                {
-                    "name": "Pro",
-                    "price": 9.99,
-                    "features": ["feature1", "feature2"]
-                }
+                {"name": "Free", "price": 0, "features": ["feature1"]},
+                {"name": "Pro", "price": 9.99, "features": ["feature1", "feature2"]},
             ],
             "additional_revenue_streams": [
                 {
                     "name": "API Access",
                     "description": "Access to the API for custom integrations",
                     "price": 49.99,
-                    "billing_cycle": "monthly"
+                    "billing_cycle": "monthly",
                 }
             ],
             "revenue_projections": {
                 "monthly": 5000,
                 "yearly": 60000,
-                "growth_rate": 0.1
+                "growth_rate": 0.1,
             },
             "payment_processing": {
                 "provider": "stripe",
                 "transaction_fee": "2.9% + $0.30",
-                "payout_schedule": "monthly"
+                "payout_schedule": "monthly",
             },
             "pricing_strategy": {
                 "positioning": "value-based",
                 "competitor_comparison": "competitive",
-                "discount_strategy": "yearly discount"
-            }
+                "discount_strategy": "yearly discount",
+            },
         }
         mock_create_strategy.return_value = mock_strategy
 
@@ -257,7 +255,7 @@ def test_monetization_agent_create_strategy(mock_team):
             "id": "solution1",
             "name": "Solution 1",
             "description": "Description of solution 1",
-            "features": ["feature1", "feature2"]
+            "features": ["feature1", "feature2"],
         }
 
         # Call the mocked method
@@ -297,7 +295,7 @@ def test_marketing_agent_init(mock_team):
 def test_marketing_agent_create_plan(mock_team):
     """Test MarketingAgent create_plan method."""
     # Patch the _create_marketing_plan method to avoid KeyError
-    with patch.object(MarketingAgent, '_create_marketing_plan') as mock_create_plan:
+    with patch.object(MarketingAgent, "_create_marketing_plan") as mock_create_plan:
         # Set up the mock to return a plan
         mock_plan = {
             "id": "plan1",
@@ -310,55 +308,58 @@ def test_marketing_agent_create_plan(mock_team):
                     "demographics": {
                         "age_range": "30-50",
                         "education": "college degree",
-                        "income": "middle to high"
-                    }
+                        "income": "middle to high",
+                    },
                 }
             ],
             "channels": [
                 {
                     "name": "Content Marketing",
                     "description": "Blog posts, tutorials, and guides",
-                    "priority": "high"
+                    "priority": "high",
                 },
                 {
                     "name": "Social Media",
                     "description": "LinkedIn, Twitter, and Facebook",
-                    "priority": "medium"
-                }
+                    "priority": "medium",
+                },
             ],
             "content_strategy": {
-                "blog_posts": ["5 Ways to Improve Efficiency", "How AI Can Help Your Business"],
+                "blog_posts": [
+                    "5 Ways to Improve Efficiency",
+                    "How AI Can Help Your Business",
+                ],
                 "social_media": ["Daily tips", "Weekly success stories"],
-                "email": ["Monthly newsletter", "Onboarding sequence"]
+                "email": ["Monthly newsletter", "Onboarding sequence"],
             },
             "budget": {
                 "total": 5000,
                 "breakdown": {
                     "content_creation": 2000,
                     "advertising": 2000,
-                    "tools": 1000
-                }
+                    "tools": 1000,
+                },
             },
             "timeline": {
                 "phases": [
                     {
                         "name": "Phase 1: Awareness",
                         "duration": "1 month",
-                        "activities": ["Blog posts", "Social media presence"]
+                        "activities": ["Blog posts", "Social media presence"],
                     },
                     {
                         "name": "Phase 2: Acquisition",
                         "duration": "2 months",
-                        "activities": ["Paid advertising", "Email campaigns"]
-                    }
+                        "activities": ["Paid advertising", "Email campaigns"],
+                    },
                 ]
             },
             "kpis": {
                 "website_traffic": "1000 visitors/month",
                 "conversion_rate": "2%",
                 "customer_acquisition_cost": "$50",
-                "lifetime_value": "$500"
-            }
+                "lifetime_value": "$500",
+            },
         }
         mock_create_plan.return_value = mock_plan
 
@@ -369,29 +370,24 @@ def test_marketing_agent_create_plan(mock_team):
             "id": "niche1",
             "name": "Niche 1",
             "description": "Description of niche 1",
-            "problem_areas": ["Problem 1", "Problem 2"]  # Add problem_areas to avoid KeyError
+            "problem_areas": [
+                "Problem 1",
+                "Problem 2",
+            ],  # Add problem_areas to avoid KeyError
         }
         solution = {
             "id": "solution1",
             "name": "Solution 1",
             "description": "Description of solution 1",
-            "features": ["feature1", "feature2"]
+            "features": ["feature1", "feature2"],
         }
         monetization = {
             "id": "monetization1",
             "solution_id": "solution1",
             "subscription_tiers": [
-                {
-                    "name": "Free",
-                    "price": 0,
-                    "features": ["feature1"]
-                },
-                {
-                    "name": "Pro",
-                    "price": 9.99,
-                    "features": ["feature1", "feature2"]
-                }
-            ]
+                {"name": "Free", "price": 0, "features": ["feature1"]},
+                {"name": "Pro", "price": 9.99, "features": ["feature1", "feature2"]},
+            ],
         }
 
         # Call the method
@@ -430,22 +426,14 @@ def test_feedback_agent_init(mock_team):
 def test_feedback_agent_collect_feedback(mock_team):
     """Test FeedbackAgent collect_feedback method."""
     # Patch the analyze_feedback method to avoid AttributeError
-    with patch.object(FeedbackAgent, 'analyze_feedback') as mock_analyze_feedback:
+    with patch.object(FeedbackAgent, "analyze_feedback") as mock_analyze_feedback:
         # Set up the mock to return a feedback analysis
         mock_feedback = {
             "id": "feedback1",
             "solution_id": "solution1",
             "feedback_sources": [
-                {
-                    "name": "User Surveys",
-                    "type": "survey",
-                    "count": 50
-                },
-                {
-                    "name": "App Store Reviews",
-                    "type": "review",
-                    "count": 25
-                }
+                {"name": "User Surveys", "type": "survey", "count": 50},
+                {"name": "App Store Reviews", "type": "review", "count": 25},
             ],
             "user_feedback": [
                 {
@@ -453,20 +441,16 @@ def test_feedback_agent_collect_feedback(mock_team):
                     "user_id": "user1",
                     "rating": 4,
                     "text": "Great app, but could use more features",
-                    "source": "survey"
+                    "source": "survey",
                 }
             ],
-            "sentiment_analysis": {
-                "positive": 0.7,
-                "neutral": 0.2,
-                "negative": 0.1
-            },
+            "sentiment_analysis": {"positive": 0.7, "neutral": 0.2, "negative": 0.1},
             "feature_requests": [
                 {
                     "id": "request1",
                     "name": "Export to CSV",
                     "description": "Allow exporting data to CSV format",
-                    "votes": 15
+                    "votes": 15,
                 }
             ],
             "bug_reports": [
@@ -475,7 +459,7 @@ def test_feedback_agent_collect_feedback(mock_team):
                     "name": "App crashes on startup",
                     "description": "The app crashes when opened on Android devices",
                     "severity": "high",
-                    "reported_count": 5
+                    "reported_count": 5,
                 }
             ],
             "improvement_suggestions": [
@@ -483,9 +467,9 @@ def test_feedback_agent_collect_feedback(mock_team):
                     "id": "suggestion1",
                     "name": "Improve UI",
                     "description": "Make the UI more intuitive",
-                    "votes": 10
+                    "votes": 10,
                 }
-            ]
+            ],
         }
         mock_analyze_feedback.return_value = mock_feedback
 
@@ -496,7 +480,7 @@ def test_feedback_agent_collect_feedback(mock_team):
             "id": "solution1",
             "name": "Solution 1",
             "description": "Description of solution 1",
-            "features": ["feature1", "feature2"]
+            "features": ["feature1", "feature2"],
         }
 
         # Call the method

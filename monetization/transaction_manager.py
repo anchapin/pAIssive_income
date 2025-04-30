@@ -11,8 +11,11 @@ import os
 import copy
 
 from common_utils import (
-    file_exists, create_directory, get_file_path,
-    load_from_json_file, is_date_in_range
+    file_exists,
+    create_directory,
+    get_file_path,
+    load_from_json_file,
+    is_date_in_range,
 )
 from .transaction import Transaction, TransactionStatus, TransactionType
 from .payment_method import PaymentMethod
@@ -32,7 +35,7 @@ class TransactionManager:
         self,
         payment_processor: Optional[PaymentProcessor] = None,
         payment_method_manager: Optional[PaymentMethodManager] = None,
-        storage_dir: Optional[str] = None
+        storage_dir: Optional[str] = None,
     ):
         """
         Initialize a transaction manager.
@@ -65,7 +68,7 @@ class TransactionManager:
         description: str,
         transaction_type: str = TransactionType.CHARGE,
         metadata: Optional[Dict[str, Any]] = None,
-        auto_process: bool = False
+        auto_process: bool = False,
     ) -> Transaction:
         """
         Create a transaction.
@@ -91,7 +94,7 @@ class TransactionManager:
             payment_method_id=payment_method_id,
             description=description,
             transaction_type=transaction_type,
-            metadata=metadata
+            metadata=metadata,
         )
 
         # Store transaction
@@ -132,7 +135,7 @@ class TransactionManager:
         transaction_type: Optional[str] = None,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Transaction]:
         """
         Get transactions for a customer.
@@ -168,9 +171,11 @@ class TransactionManager:
                 continue
 
             # Filter by date range
-            if not is_date_in_range(transaction.created_at,
-                                   start_date or datetime.min,
-                                   end_date or datetime.max):
+            if not is_date_in_range(
+                transaction.created_at,
+                start_date or datetime.min,
+                end_date or datetime.max,
+            ):
                 continue
 
             transactions.append(transaction)
@@ -204,8 +209,7 @@ class TransactionManager:
         # Check if payment processor is available
         if not self.payment_processor:
             transaction.set_error(
-                "processor_unavailable",
-                "Payment processor is not available"
+                "processor_unavailable", "Payment processor is not available"
             )
 
             # Save transaction if storage directory is set
@@ -225,13 +229,12 @@ class TransactionManager:
                     currency=transaction.currency,
                     payment_method_id=transaction.payment_method_id,
                     description=transaction.description,
-                    metadata=transaction.metadata
+                    metadata=transaction.metadata,
                 )
 
                 # Update transaction status
                 transaction.update_status(
-                    TransactionStatus.SUCCEEDED,
-                    "Payment successful"
+                    TransactionStatus.SUCCEEDED, "Payment successful"
                 )
 
                 # Add payment ID to metadata
@@ -243,8 +246,7 @@ class TransactionManager:
 
                 if not parent_id or parent_id not in self.transactions:
                     transaction.set_error(
-                        "parent_not_found",
-                        "Parent transaction not found"
+                        "parent_not_found", "Parent transaction not found"
                     )
                     return transaction
 
@@ -256,7 +258,7 @@ class TransactionManager:
                 if not payment_id:
                     transaction.set_error(
                         "payment_id_not_found",
-                        "Payment ID not found in parent transaction"
+                        "Payment ID not found in parent transaction",
                     )
                     return transaction
 
@@ -264,13 +266,12 @@ class TransactionManager:
                 refund_result = self.payment_processor.refund_payment(
                     payment_id=payment_id,
                     amount=transaction.amount,
-                    reason=transaction.metadata.get("reason")
+                    reason=transaction.metadata.get("reason"),
                 )
 
                 # Update transaction status
                 transaction.update_status(
-                    TransactionStatus.SUCCEEDED,
-                    "Refund successful"
+                    TransactionStatus.SUCCEEDED, "Refund successful"
                 )
 
                 # Add refund ID to metadata
@@ -280,7 +281,7 @@ class TransactionManager:
                 parent_transaction.add_refund(
                     amount=transaction.amount,
                     reason=transaction.metadata.get("reason"),
-                    metadata={"refund_transaction_id": transaction.id}
+                    metadata={"refund_transaction_id": transaction.id},
                 )
 
                 # Save parent transaction if storage directory is set
@@ -290,15 +291,12 @@ class TransactionManager:
             else:
                 transaction.set_error(
                     "unsupported_transaction_type",
-                    f"Unsupported transaction type: {transaction.transaction_type}"
+                    f"Unsupported transaction type: {transaction.transaction_type}",
                 )
 
         except Exception as e:
             # Handle payment error
-            transaction.set_error(
-                "payment_failed",
-                str(e)
-            )
+            transaction.set_error("payment_failed", str(e))
 
         # Save transaction if storage directory is set
         if self.storage_dir:
@@ -311,7 +309,7 @@ class TransactionManager:
         transaction_id: str,
         amount: Optional[float] = None,
         reason: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Optional[Transaction]:
         """
         Refund a transaction.
@@ -343,12 +341,14 @@ class TransactionManager:
             raise ValueError("Refund amount must be positive")
 
         if refund_amount > transaction.get_net_amount():
-            raise ValueError(f"Cannot refund more than the net amount ({transaction.get_net_amount()})")
+            raise ValueError(
+                f"Cannot refund more than the net amount ({transaction.get_net_amount()})"
+            )
 
         # Create refund metadata
         refund_metadata = {
             "parent_transaction_id": transaction_id,
-            "reason": reason or "requested_by_customer"
+            "reason": reason or "requested_by_customer",
         }
 
         if metadata:
@@ -362,7 +362,7 @@ class TransactionManager:
             payment_method_id=transaction.payment_method_id,
             description=f"Refund: {transaction.description}",
             transaction_type=TransactionType.REFUND,
-            metadata=refund_metadata
+            metadata=refund_metadata,
         )
 
         # Set parent ID
@@ -371,10 +371,7 @@ class TransactionManager:
         # Process refund
         return self.process_transaction(refund_transaction.id)
 
-    def get_transaction_history(
-        self,
-        transaction_id: str
-    ) -> List[Dict[str, Any]]:
+    def get_transaction_history(self, transaction_id: str) -> List[Dict[str, Any]]:
         """
         Get the history of a transaction.
 
@@ -391,10 +388,7 @@ class TransactionManager:
 
         return transaction.status_history
 
-    def get_related_transactions(
-        self,
-        transaction_id: str
-    ) -> List[Transaction]:
+    def get_related_transactions(self, transaction_id: str) -> List[Transaction]:
         """
         Get transactions related to a transaction.
 
@@ -429,7 +423,7 @@ class TransactionManager:
         self,
         customer_id: Optional[str] = None,
         start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """
         Get a summary of transactions.
@@ -448,7 +442,7 @@ class TransactionManager:
                 customer_id=customer_id,
                 start_date=start_date,
                 end_date=end_date,
-                limit=1000  # Use a high limit to get all transactions
+                limit=1000,  # Use a high limit to get all transactions
             )
         else:
             transactions = list(self.transactions.values())
@@ -458,9 +452,11 @@ class TransactionManager:
                 filtered_transactions = []
 
                 for transaction in transactions:
-                    if not is_date_in_range(transaction.created_at,
-                                       start_date or datetime.min,
-                                       end_date or datetime.max):
+                    if not is_date_in_range(
+                        transaction.created_at,
+                        start_date or datetime.min,
+                        end_date or datetime.max,
+                    ):
                         continue
 
                     filtered_transactions.append(transaction)
@@ -479,7 +475,7 @@ class TransactionManager:
             "net_amount": 0.0,
             "currencies": {},
             "by_status": {},
-            "by_type": {}
+            "by_type": {},
         }
 
         # Calculate summary
@@ -517,14 +513,20 @@ class TransactionManager:
                 summary["currencies"][transaction.currency] = {
                     "total_amount": 0.0,
                     "refunded_amount": 0.0,
-                    "net_amount": 0.0
+                    "net_amount": 0.0,
                 }
 
             # Add amounts
             if transaction.is_successful():
-                summary["currencies"][transaction.currency]["total_amount"] += transaction.amount
-                summary["currencies"][transaction.currency]["refunded_amount"] += transaction.get_refunded_amount()
-                summary["currencies"][transaction.currency]["net_amount"] += transaction.get_net_amount()
+                summary["currencies"][transaction.currency][
+                    "total_amount"
+                ] += transaction.amount
+                summary["currencies"][transaction.currency][
+                    "refunded_amount"
+                ] += transaction.get_refunded_amount()
+                summary["currencies"][transaction.currency][
+                    "net_amount"
+                ] += transaction.get_net_amount()
 
                 summary["total_amount"] += transaction.amount
                 summary["refunded_amount"] += transaction.get_refunded_amount()
@@ -623,15 +625,11 @@ if __name__ == "__main__":
     from .mock_payment_processor import MockPaymentProcessor
 
     # Create a payment processor
-    processor = MockPaymentProcessor({
-        "name": "Test Processor",
-        "success_rate": 0.95
-    })
+    processor = MockPaymentProcessor({"name": "Test Processor", "success_rate": 0.95})
 
     # Create a transaction manager
     manager = TransactionManager(
-        payment_processor=processor,
-        storage_dir="transactions"
+        payment_processor=processor, storage_dir="transactions"
     )
 
     # Create a transaction
@@ -641,7 +639,7 @@ if __name__ == "__main__":
         customer_id="cust_123",
         payment_method_id="pm_456",
         description="Monthly subscription payment",
-        metadata={"subscription_id": "sub_789"}
+        metadata={"subscription_id": "sub_789"},
     )
 
     print(f"Transaction created: {transaction}")
@@ -662,9 +660,7 @@ if __name__ == "__main__":
     # If successful, create a partial refund
     if processed_transaction.is_successful():
         refund_transaction = manager.refund_transaction(
-            transaction_id=transaction.id,
-            amount=5.00,
-            reason="Customer request"
+            transaction_id=transaction.id, amount=5.00, reason="Customer request"
         )
 
         print(f"\nRefund transaction: {refund_transaction}")

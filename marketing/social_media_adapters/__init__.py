@@ -15,12 +15,12 @@ from .pinterest_adapter import PinterestAdapter
 from .tiktok_adapter import TikTokAdapter
 
 __all__ = [
-    'BaseSocialMediaAdapter',
-    'TwitterAdapter',
-    'FacebookAdapter',
-    'InstagramAdapter',
-    'LinkedInAdapter',
-    'YouTubeAdapter',
-    'PinterestAdapter',
-    'TikTokAdapter'
+    "BaseSocialMediaAdapter",
+    "TwitterAdapter",
+    "FacebookAdapter",
+    "InstagramAdapter",
+    "LinkedInAdapter",
+    "YouTubeAdapter",
+    "PinterestAdapter",
+    "TikTokAdapter",
 ]

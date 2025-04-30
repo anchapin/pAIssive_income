@@ -8,7 +8,7 @@ from .server import GRPCServer, GRPCConfig
 from .servicer import ModelServicer
 
 __all__ = [
-    'GRPCServer',
-    'GRPCConfig',
-    'ModelServicer',
+    "GRPCServer",
+    "GRPCConfig",
+    "ModelServicer",
 ]

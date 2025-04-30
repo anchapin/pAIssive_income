@@ -11,11 +11,11 @@ from .structured_pruner import StructuredPruner
 from .utils import prune_model, analyze_pruning
 
 __all__ = [
-    'Pruner',
-    'PruningConfig',
-    'PruningMethod',
-    'MagnitudePruner',
-    'StructuredPruner',
-    'prune_model',
-    'analyze_pruning',
+    "Pruner",
+    "PruningConfig",
+    "PruningMethod",
+    "MagnitudePruner",
+    "StructuredPruner",
+    "prune_model",
+    "analyze_pruning",
 ]

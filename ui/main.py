@@ -7,30 +7,35 @@ This module initializes the UI application and services in the correct order.
 import logging
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 def initialize_application():
     """Initialize the application and services in the correct order."""
     logger.info("Initializing pAIssive Income application")
-    
+
     # Import the UI module
     from ui import app, init_app_with_services
-    
+
     # Initialize services
     init_app_with_services()
-    
+
     # Initialize routes services
     from ui.routes import init_services
+
     init_services()
-    
+
     logger.info("pAIssive Income application initialized")
-    
+
     return app
+
 
 # Create the application
 app = initialize_application()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run the application
     app.run(debug=True)

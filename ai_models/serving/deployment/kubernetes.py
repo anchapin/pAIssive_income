@@ -11,8 +11,7 @@ from typing import Dict, Any, Optional, List, Union
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -22,19 +21,20 @@ class KubernetesConfig:
     """
     Configuration for Kubernetes deployment.
     """
+
     # Basic configuration
     name: str
     namespace: str = "default"
     image: str = ""
-    
+
     # Server configuration
     server_type: str = "rest"  # "rest" or "grpc"
     port: int = 8000
-    
+
     # Deployment configuration
     replicas: int = 1
     strategy: str = "RollingUpdate"  # "RollingUpdate" or "Recreate"
-    
+
     # Resource configuration
     cpu_request: str = "500m"
     cpu_limit: str = "1"
@@ -42,34 +42,34 @@ class KubernetesConfig:
     memory_limit: str = "4Gi"
     gpu_request: int = 0
     gpu_limit: int = 0
-    
+
     # Environment variables
     env_vars: Dict[str, str] = field(default_factory=dict)
-    
+
     # Volume configuration
     volumes: List[Dict[str, str]] = field(default_factory=list)
-    
+
     # Service configuration
     service_type: str = "ClusterIP"  # "ClusterIP", "NodePort", or "LoadBalancer"
     node_port: Optional[int] = None
-    
+
     # Ingress configuration
     enable_ingress: bool = False
     ingress_host: str = ""
     ingress_path: str = "/"
     ingress_tls: bool = False
     ingress_tls_secret: str = ""
-    
+
     # Horizontal Pod Autoscaler configuration
     enable_hpa: bool = False
     min_replicas: int = 1
     max_replicas: int = 10
     target_cpu_utilization: int = 80
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert the configuration to a dictionary.
-        
+
         Returns:
             Dictionary representation of the configuration
         """
@@ -99,71 +99,68 @@ class KubernetesConfig:
             "enable_hpa": self.enable_hpa,
             "min_replicas": self.min_replicas,
             "max_replicas": self.max_replicas,
-            "target_cpu_utilization": self.target_cpu_utilization
+            "target_cpu_utilization": self.target_cpu_utilization,
         }
-    
+
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> 'KubernetesConfig':
+    def from_dict(cls, config_dict: Dict[str, Any]) -> "KubernetesConfig":
         """
         Create a configuration from a dictionary.
-        
+
         Args:
             config_dict: Dictionary with configuration parameters
-            
+
         Returns:
             Kubernetes configuration
         """
         return cls(**config_dict)
 
 
-def generate_kubernetes_config(
-    config: KubernetesConfig,
-    output_dir: str
-) -> str:
+def generate_kubernetes_config(config: KubernetesConfig, output_dir: str) -> str:
     """
     Generate Kubernetes configuration files.
-    
+
     Args:
         config: Kubernetes configuration
         output_dir: Directory to save the configuration files
-        
+
     Returns:
         Path to the generated deployment.yaml file
     """
     # Create output directory
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # Generate deployment.yaml
     deployment_path = os.path.join(output_dir, "deployment.yaml")
     _generate_deployment(config, deployment_path)
-    
+
     # Generate service.yaml
     service_path = os.path.join(output_dir, "service.yaml")
     _generate_service(config, service_path)
-    
+
     # Generate ingress.yaml if enabled
     if config.enable_ingress:
         ingress_path = os.path.join(output_dir, "ingress.yaml")
         _generate_ingress(config, ingress_path)
-    
+
     # Generate hpa.yaml if enabled
     if config.enable_hpa:
         hpa_path = os.path.join(output_dir, "hpa.yaml")
         _generate_hpa(config, hpa_path)
-    
+
     # Generate kustomization.yaml
     kustomization_path = os.path.join(output_dir, "kustomization.yaml")
     _generate_kustomization(config, kustomization_path)
-    
+
     logger.info(f"Kubernetes configuration files generated in {output_dir}")
-    
+
     return deployment_path
 
 
 def _generate_deployment(config: KubernetesConfig, output_path: str) -> None:
     """
     Generate a Kubernetes deployment configuration.
-    
+
     Args:
         config: Kubernetes configuration
         output_path: Path to save the deployment.yaml file
@@ -202,7 +199,7 @@ spec:
             cpu: {config.cpu_limit}
             memory: {config.memory_limit}
 """
-    
+
     # Add GPU resources if needed
     if config.gpu_request > 0 or config.gpu_limit > 0:
         content += "          requests:\n"
@@ -211,7 +208,7 @@ spec:
         content += "          limits:\n"
         if config.gpu_limit > 0:
             content += f"            nvidia.com/gpu: {config.gpu_limit}\n"
-    
+
     # Add environment variables
     if config.env_vars:
         content += "        env:\n"
@@ -219,7 +216,7 @@ spec:
             content += f"""        - name: {key}
           value: "{value}"
 """
-    
+
     # Add volumes
     if config.volumes:
         content += "        volumeMounts:\n"
@@ -227,22 +224,22 @@ spec:
             content += f"""        - name: volume-{i}
           mountPath: {volume['target']}
 """
-        
+
         content += "      volumes:\n"
         for i, volume in enumerate(config.volumes):
-            volume_type = volume.get('type', 'hostPath')
-            
-            if volume_type == 'hostPath':
+            volume_type = volume.get("type", "hostPath")
+
+            if volume_type == "hostPath":
                 content += f"""      - name: volume-{i}
         hostPath:
           path: {volume['source']}
 """
-            elif volume_type == 'persistentVolumeClaim':
+            elif volume_type == "persistentVolumeClaim":
                 content += f"""      - name: volume-{i}
         persistentVolumeClaim:
           claimName: {volume['source']}
 """
-    
+
     # Write deployment.yaml
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
@@ -251,7 +248,7 @@ spec:
 def _generate_service(config: KubernetesConfig, output_path: str) -> None:
     """
     Generate a Kubernetes service configuration.
-    
+
     Args:
         config: Kubernetes configuration
         output_path: Path to save the service.yaml file
@@ -275,11 +272,11 @@ spec:
     protocol: TCP
     name: {config.server_type}
 """
-    
+
     # Add node port if specified
     if config.service_type == "NodePort" and config.node_port:
         content += f"    nodePort: {config.node_port}\n"
-    
+
     # Write service.yaml
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
@@ -288,7 +285,7 @@ spec:
 def _generate_ingress(config: KubernetesConfig, output_path: str) -> None:
     """
     Generate a Kubernetes ingress configuration.
-    
+
     Args:
         config: Kubernetes configuration
         output_path: Path to save the ingress.yaml file
@@ -305,7 +302,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
 """
-    
+
     # Add TLS if enabled
     if config.ingress_tls:
         content += f"""spec:
@@ -339,7 +336,7 @@ metadata:
             port:
               number: {config.port}
 """
-    
+
     # Write ingress.yaml
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
@@ -348,7 +345,7 @@ metadata:
 def _generate_hpa(config: KubernetesConfig, output_path: str) -> None:
     """
     Generate a Kubernetes Horizontal Pod Autoscaler configuration.
-    
+
     Args:
         config: Kubernetes configuration
         output_path: Path to save the hpa.yaml file
@@ -377,7 +374,7 @@ spec:
         type: Utilization
         averageUtilization: {config.target_cpu_utilization}
 """
-    
+
     # Write hpa.yaml
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
@@ -386,7 +383,7 @@ spec:
 def _generate_kustomization(config: KubernetesConfig, output_path: str) -> None:
     """
     Generate a Kubernetes kustomization configuration.
-    
+
     Args:
         config: Kubernetes configuration
         output_path: Path to save the kustomization.yaml file
@@ -400,15 +397,15 @@ resources:
 - deployment.yaml
 - service.yaml
 """
-    
+
     # Add ingress if enabled
     if config.enable_ingress:
         content += "- ingress.yaml\n"
-    
+
     # Add HPA if enabled
     if config.enable_hpa:
         content += "- hpa.yaml\n"
-    
+
     # Write kustomization.yaml
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())

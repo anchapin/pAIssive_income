@@ -1,6 +1,7 @@
 """
 Tests for the NicheAnalyzer class.
 """
+
 import pytest
 from unittest.mock import patch, MagicMock
 import uuid
@@ -22,14 +23,14 @@ def mock_agent_team():
             "id": str(uuid.uuid4()),
             "name": "Problem 1",
             "description": "Description of problem 1",
-            "severity": "high"
+            "severity": "high",
         },
         {
             "id": str(uuid.uuid4()),
             "name": "Problem 2",
             "description": "Description of problem 2",
-            "severity": "medium"
-        }
+            "severity": "medium",
+        },
     ]
 
     mock_researcher.identify_niches.return_value = [
@@ -37,14 +38,14 @@ def mock_agent_team():
             "id": str(uuid.uuid4()),
             "name": "Niche 1",
             "description": "Description of niche 1",
-            "opportunity_score": 0.8
+            "opportunity_score": 0.8,
         },
         {
             "id": str(uuid.uuid4()),
             "name": "Niche 2",
             "description": "Description of niche 2",
-            "opportunity_score": 0.7
-        }
+            "opportunity_score": 0.7,
+        },
     ]
 
     # Set up the mock team to return the mock researcher

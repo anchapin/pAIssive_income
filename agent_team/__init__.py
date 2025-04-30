@@ -7,36 +7,45 @@ that collaborate on developing and monetizing niche AI tools for passive income.
 
 from .team_config import AgentTeam
 from .schemas import (
-    TeamConfigSchema, ModelSettingsSchema, WorkflowSettingsSchema,
-    AgentProfileSchema, NicheSchema, SolutionSchema, MonetizationStrategySchema,
-    MarketingPlanSchema, FeedbackItemSchema, ProjectStateSchema
+    TeamConfigSchema,
+    ModelSettingsSchema,
+    WorkflowSettingsSchema,
+    AgentProfileSchema,
+    NicheSchema,
+    SolutionSchema,
+    MonetizationStrategySchema,
+    MarketingPlanSchema,
+    FeedbackItemSchema,
+    ProjectStateSchema,
 )
 from .agent_profiles import (
-    AgentProfile, ResearchAgent, DeveloperAgent,
-    MonetizationAgent, MarketingAgent, FeedbackAgent
+    AgentProfile,
+    ResearchAgent,
+    DeveloperAgent,
+    MonetizationAgent,
+    MarketingAgent,
+    FeedbackAgent,
 )
 
 __all__ = [
     # Team configuration
-    'AgentTeam',
-    'TeamConfigSchema',
-    'ModelSettingsSchema',
-    'WorkflowSettingsSchema',
-
+    "AgentTeam",
+    "TeamConfigSchema",
+    "ModelSettingsSchema",
+    "WorkflowSettingsSchema",
     # Agent profiles
-    'AgentProfile',
-    'ResearchAgent',
-    'DeveloperAgent',
-    'MonetizationAgent',
-    'MarketingAgent',
-    'FeedbackAgent',
-
+    "AgentProfile",
+    "ResearchAgent",
+    "DeveloperAgent",
+    "MonetizationAgent",
+    "MarketingAgent",
+    "FeedbackAgent",
     # Project schemas
-    'AgentProfileSchema',
-    'NicheSchema',
-    'SolutionSchema',
-    'MonetizationStrategySchema',
-    'MarketingPlanSchema',
-    'FeedbackItemSchema',
-    'ProjectStateSchema'
+    "AgentProfileSchema",
+    "NicheSchema",
+    "SolutionSchema",
+    "MonetizationStrategySchema",
+    "MarketingPlanSchema",
+    "FeedbackItemSchema",
+    "ProjectStateSchema",
 ]

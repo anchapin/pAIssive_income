@@ -14,6 +14,7 @@ from .adapter_factory import AdapterFactory, adapter_factory, get_adapter_factor
 # Import TensorRT adapter if available
 try:
     from .tensorrt_adapter import TensorRTAdapter
+
     TENSORRT_AVAILABLE = True
 except ImportError:
     TENSORRT_AVAILABLE = False
@@ -28,15 +29,15 @@ if TENSORRT_AVAILABLE:
     adapter_factory.register_adapter("tensorrt", TensorRTAdapter)
 
 __all__ = [
-    'BaseModelAdapter',
-    'OllamaAdapter',
-    'LMStudioAdapter',
-    'OpenAICompatibleAdapter',
-    'AdapterFactory',
-    'adapter_factory',
-    'get_adapter_factory',
+    "BaseModelAdapter",
+    "OllamaAdapter",
+    "LMStudioAdapter",
+    "OpenAICompatibleAdapter",
+    "AdapterFactory",
+    "adapter_factory",
+    "get_adapter_factory",
 ]
 
 # Add TensorRT adapter if available
 if TENSORRT_AVAILABLE:
-    __all__.append('TensorRTAdapter')
+    __all__.append("TensorRTAdapter")

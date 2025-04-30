@@ -16,19 +16,19 @@ from .services import (
     AgentTeamService,
     UserService,
     DashboardService,
-    APIKeyService
+    APIKeyService,
 )
 
 __all__ = [
-    'Client',
-    'APIKeyAuth',
-    'JWTAuth',
-    'NicheAnalysisService',
-    'MonetizationService',
-    'MarketingService',
-    'AIModelsService',
-    'AgentTeamService',
-    'UserService',
-    'DashboardService',
-    'APIKeyService'
+    "Client",
+    "APIKeyAuth",
+    "JWTAuth",
+    "NicheAnalysisService",
+    "MonetizationService",
+    "MarketingService",
+    "AIModelsService",
+    "AgentTeamService",
+    "UserService",
+    "DashboardService",
+    "APIKeyService",
 ]

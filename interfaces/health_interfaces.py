@@ -16,17 +16,17 @@ class IHealthCheckable(ABC):
     def is_healthy(self) -> bool:
         """
         Check if the service is healthy.
-        
+
         Returns:
             bool: True if the service is healthy, False otherwise.
         """
         pass
-    
+
     @abstractmethod
     def get_health_status(self) -> Dict[str, Any]:
         """
         Get detailed health status information.
-        
+
         Returns:
             Dict[str, Any]: A dictionary with health status details.
                 - 'status': str - 'healthy' or 'unhealthy'

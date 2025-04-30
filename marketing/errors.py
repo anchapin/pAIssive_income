@@ -11,53 +11,46 @@ from typing import Dict, Any, Optional, List, Type, Union
 import logging
 
 # Add the project root to the Python path to import the errors module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from errors import (
-    MarketingError, ValidationError, handle_exception
-)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from errors import MarketingError, ValidationError, handle_exception
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 # Re-export the error classes for convenience
 __all__ = [
-    'MarketingError',
-    'ValidationError',
-    'handle_exception',
-    'ContentGenerationError',
-    'StrategyGenerationError',
-    'ChannelStrategyError',
-    'ContentTemplateError',
-    'ContentOptimizationError',
-    'UserPersonaError',
-    'MarketingCampaignError',
-    'InvalidTestConfigurationError',
-    'TestNotFoundError',
-    'ContentNotFoundError',
-    'InvalidParameterError',
-    'InsufficientDataError',
-    'StorageError',
-    'PlatformNotFoundError',
-    'PlatformNotSupportedError',
-    'AuthenticationError',
-    'ContentValidationError',
-    'PostNotFoundError',
-    'PostingError',
-    'DeletionError',
-    'SchedulingError',
-    'NotSupportedError'
+    "MarketingError",
+    "ValidationError",
+    "handle_exception",
+    "ContentGenerationError",
+    "StrategyGenerationError",
+    "ChannelStrategyError",
+    "ContentTemplateError",
+    "ContentOptimizationError",
+    "UserPersonaError",
+    "MarketingCampaignError",
+    "InvalidTestConfigurationError",
+    "TestNotFoundError",
+    "ContentNotFoundError",
+    "InvalidParameterError",
+    "InsufficientDataError",
+    "StorageError",
+    "PlatformNotFoundError",
+    "PlatformNotSupportedError",
+    "AuthenticationError",
+    "ContentValidationError",
+    "PostNotFoundError",
+    "PostingError",
+    "DeletionError",
+    "SchedulingError",
+    "NotSupportedError",
 ]
 
 
 class InvalidTestConfigurationError(MarketingError):
     """Error raised when there's an invalid test configuration."""
 
-    def __init__(
-        self,
-        message: str,
-        test_id: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, test_id: Optional[str] = None, **kwargs):
         """
         Initialize the invalid test configuration error.
 
@@ -74,19 +67,14 @@ class InvalidTestConfigurationError(MarketingError):
             message=message,
             code="invalid_test_configuration_error",
             details=details,
-            **kwargs
+            **kwargs,
         )
 
 
 class TestNotFoundError(MarketingError):
     """Error raised when a test is not found."""
 
-    def __init__(
-        self,
-        message: str,
-        test_id: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, test_id: Optional[str] = None, **kwargs):
         """
         Initialize the test not found error.
 
@@ -100,22 +88,14 @@ class TestNotFoundError(MarketingError):
             details["test_id"] = test_id
 
         super().__init__(
-            message=message,
-            code="test_not_found_error",
-            details=details,
-            **kwargs
+            message=message, code="test_not_found_error", details=details, **kwargs
         )
 
 
 class ContentGenerationError(MarketingError):
     """Error raised when there's an issue with content generation."""
 
-    def __init__(
-        self,
-        message: str,
-        content_type: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, content_type: Optional[str] = None, **kwargs):
         """
         Initialize the content generation error.
 
@@ -129,22 +109,14 @@ class ContentGenerationError(MarketingError):
             details["content_type"] = content_type
 
         super().__init__(
-            message=message,
-            code="content_generation_error",
-            details=details,
-            **kwargs
+            message=message, code="content_generation_error", details=details, **kwargs
         )
 
 
 class StrategyGenerationError(MarketingError):
     """Error raised when there's an issue with marketing strategy generation."""
 
-    def __init__(
-        self,
-        message: str,
-        strategy_type: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, strategy_type: Optional[str] = None, **kwargs):
         """
         Initialize the strategy generation error.
 
@@ -158,22 +130,14 @@ class StrategyGenerationError(MarketingError):
             details["strategy_type"] = strategy_type
 
         super().__init__(
-            message=message,
-            code="strategy_generation_error",
-            details=details,
-            **kwargs
+            message=message, code="strategy_generation_error", details=details, **kwargs
         )
 
 
 class ChannelStrategyError(MarketingError):
     """Error raised when there's an issue with a marketing channel strategy."""
 
-    def __init__(
-        self,
-        message: str,
-        channel: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, channel: Optional[str] = None, **kwargs):
         """
         Initialize the channel strategy error.
 
@@ -187,22 +151,14 @@ class ChannelStrategyError(MarketingError):
             details["channel"] = channel
 
         super().__init__(
-            message=message,
-            code="channel_strategy_error",
-            details=details,
-            **kwargs
+            message=message, code="channel_strategy_error", details=details, **kwargs
         )
 
 
 class ContentTemplateError(MarketingError):
     """Error raised when there's an issue with a content template."""
 
-    def __init__(
-        self,
-        message: str,
-        template_type: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, template_type: Optional[str] = None, **kwargs):
         """
         Initialize the content template error.
 
@@ -216,25 +172,16 @@ class ContentTemplateError(MarketingError):
             details["template_type"] = template_type
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "content_template_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "content_template_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, **kwargs)
 
 
 class ContentOptimizationError(MarketingError):
     """Error raised when there's an issue with content optimization."""
 
-    def __init__(
-        self,
-        message: str,
-        optimization_type: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, optimization_type: Optional[str] = None, **kwargs):
         """
         Initialize the content optimization error.
 
@@ -251,19 +198,14 @@ class ContentOptimizationError(MarketingError):
             message=message,
             code="content_optimization_error",
             details=details,
-            **kwargs
+            **kwargs,
         )
 
 
 class UserPersonaError(MarketingError):
     """Error raised when there's an issue with user persona creation or analysis."""
 
-    def __init__(
-        self,
-        message: str,
-        persona_name: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, persona_name: Optional[str] = None, **kwargs):
         """
         Initialize the user persona error.
 
@@ -277,22 +219,14 @@ class UserPersonaError(MarketingError):
             details["persona_name"] = persona_name
 
         super().__init__(
-            message=message,
-            code="user_persona_error",
-            details=details,
-            **kwargs
+            message=message, code="user_persona_error", details=details, **kwargs
         )
 
 
 class MarketingCampaignError(MarketingError):
     """Error raised when there's an issue with a marketing campaign."""
 
-    def __init__(
-        self,
-        message: str,
-        campaign_id: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, campaign_id: Optional[str] = None, **kwargs):
         """
         Initialize the marketing campaign error.
 
@@ -306,22 +240,14 @@ class MarketingCampaignError(MarketingError):
             details["campaign_id"] = campaign_id
 
         super().__init__(
-            message=message,
-            code="marketing_campaign_error",
-            details=details,
-            **kwargs
+            message=message, code="marketing_campaign_error", details=details, **kwargs
         )
 
 
 class InvalidParameterError(MarketingError):
     """Error raised when a parameter is invalid."""
 
-    def __init__(
-        self,
-        message: str,
-        parameter_name: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, parameter_name: Optional[str] = None, **kwargs):
         """
         Initialize the invalid parameter error.
 
@@ -335,10 +261,7 @@ class InvalidParameterError(MarketingError):
             details["parameter_name"] = parameter_name
 
         super().__init__(
-            message=message,
-            code="invalid_parameter_error",
-            details=details,
-            **kwargs
+            message=message, code="invalid_parameter_error", details=details, **kwargs
         )
 
 
@@ -350,7 +273,7 @@ class ContentNotFoundError(MarketingError):
         message: str,
         content_id: Optional[str] = None,
         content_type: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the content not found error.
@@ -368,10 +291,7 @@ class ContentNotFoundError(MarketingError):
             details["content_type"] = content_type
 
         super().__init__(
-            message=message,
-            code="content_not_found_error",
-            details=details,
-            **kwargs
+            message=message, code="content_not_found_error", details=details, **kwargs
         )
 
 
@@ -383,7 +303,7 @@ class StorageError(MarketingError):
         message: str,
         storage_type: Optional[str] = None,
         operation: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the storage error.
@@ -401,10 +321,7 @@ class StorageError(MarketingError):
             details["operation"] = operation
 
         super().__init__(
-            message=message,
-            code="storage_error",
-            details=details,
-            **kwargs
+            message=message, code="storage_error", details=details, **kwargs
         )
 
 
@@ -416,7 +333,7 @@ class InsufficientDataError(MarketingError):
         message: str,
         data_type: Optional[str] = None,
         min_required: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the insufficient data error.
@@ -434,10 +351,7 @@ class InsufficientDataError(MarketingError):
             details["min_required"] = min_required
 
         super().__init__(
-            message=message,
-            code="insufficient_data_error",
-            details=details,
-            **kwargs
+            message=message, code="insufficient_data_error", details=details, **kwargs
         )
 
 
@@ -449,7 +363,7 @@ class ContentValidationError(MarketingError):
         message: str,
         content_type: Optional[str] = None,
         validation_errors: Optional[List[str]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the content validation error.
@@ -467,22 +381,14 @@ class ContentValidationError(MarketingError):
             details["validation_errors"] = validation_errors
 
         super().__init__(
-            message=message,
-            code="content_validation_error",
-            details=details,
-            **kwargs
+            message=message, code="content_validation_error", details=details, **kwargs
         )
 
 
 class PlatformNotFoundError(MarketingError):
     """Error raised when a social media platform connection is not found."""
 
-    def __init__(
-        self,
-        platform_id: str,
-        message: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, platform_id: str, message: Optional[str] = None, **kwargs):
         """
         Initialize the platform not found error.
 
@@ -498,22 +404,14 @@ class PlatformNotFoundError(MarketingError):
             message = f"Social media platform with ID '{platform_id}' not found"
 
         super().__init__(
-            message=message,
-            code="platform_not_found_error",
-            details=details,
-            **kwargs
+            message=message, code="platform_not_found_error", details=details, **kwargs
         )
 
 
 class AuthenticationError(MarketingError):
     """Error raised when there's an authentication issue with a third-party service."""
 
-    def __init__(
-        self,
-        message: str,
-        service_name: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, service_name: Optional[str] = None, **kwargs):
         """
         Initialize the authentication error.
 
@@ -527,10 +425,7 @@ class AuthenticationError(MarketingError):
             details["service_name"] = service_name
 
         super().__init__(
-            message=message,
-            code="authentication_error",
-            details=details,
-            **kwargs
+            message=message, code="authentication_error", details=details, **kwargs
         )
 
 
@@ -542,7 +437,7 @@ class PostNotFoundError(MarketingError):
         message: str,
         post_id: Optional[str] = None,
         platform: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the post not found error.
@@ -560,10 +455,7 @@ class PostNotFoundError(MarketingError):
             details["platform"] = platform
 
         super().__init__(
-            message=message,
-            code="post_not_found_error",
-            details=details,
-            **kwargs
+            message=message, code="post_not_found_error", details=details, **kwargs
         )
 
 
@@ -576,7 +468,7 @@ class PostingError(MarketingError):
         platform: Optional[str] = None,
         content_id: Optional[str] = None,
         error_details: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the posting error.
@@ -597,10 +489,7 @@ class PostingError(MarketingError):
             details["error_details"] = error_details
 
         super().__init__(
-            message=message,
-            code="posting_error",
-            details=details,
-            **kwargs
+            message=message, code="posting_error", details=details, **kwargs
         )
 
 
@@ -613,7 +502,7 @@ class DeletionError(MarketingError):
         content_type: Optional[str] = None,
         content_id: Optional[str] = None,
         platform: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the deletion error.
@@ -634,10 +523,7 @@ class DeletionError(MarketingError):
             details["platform"] = platform
 
         super().__init__(
-            message=message,
-            code="deletion_error",
-            details=details,
-            **kwargs
+            message=message, code="deletion_error", details=details, **kwargs
         )
 
 
@@ -650,7 +536,7 @@ class SchedulingError(MarketingError):
         content_id: Optional[str] = None,
         schedule_time: Optional[str] = None,
         platform: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the scheduling error.
@@ -671,10 +557,7 @@ class SchedulingError(MarketingError):
             details["platform"] = platform
 
         super().__init__(
-            message=message,
-            code="scheduling_error",
-            details=details,
-            **kwargs
+            message=message, code="scheduling_error", details=details, **kwargs
         )
 
 
@@ -686,7 +569,7 @@ class NotSupportedError(MarketingError):
         message: str,
         feature: Optional[str] = None,
         platform: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the not supported error.
@@ -704,10 +587,7 @@ class NotSupportedError(MarketingError):
             details["platform"] = platform
 
         super().__init__(
-            message=message,
-            code="not_supported_error",
-            details=details,
-            **kwargs
+            message=message, code="not_supported_error", details=details, **kwargs
         )
 
 
@@ -717,4 +597,6 @@ class PlatformNotSupportedError(Exception):
     def __init__(self, platform: str, feature: str):
         self.platform = platform
         self.feature = feature
-        super().__init__(f"Feature '{feature}' is not supported by platform '{platform}'")
+        super().__init__(
+            f"Feature '{feature}' is not supported by platform '{platform}'"
+        )

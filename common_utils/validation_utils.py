@@ -20,16 +20,26 @@ import html
 logger = logging.getLogger(__name__)
 
 # Type variable for generic functions
-T = TypeVar('T')
+T = TypeVar("T")
 
 # Regular expressions for common validations
-EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$')
-URL_REGEX = re.compile(r'^https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+(/[-\w%!$&\'()*+,;=:]+)*(?:\?[-\w%!$&\'()*+,;=:/?]+)?(?:#[-\w%!$&\'()*+,;=:/?]+)?$')
-UUID_REGEX = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
-PHONE_REGEX = re.compile(r'^\+?[0-9]{1,3}?[-. ]?\(?[0-9]{1,3}\)?[-. ]?[0-9]{1,4}[-. ]?[0-9]{1,4}$')
-USERNAME_REGEX = re.compile(r'^[a-zA-Z0-9_-]{3,16}$')
-PASSWORD_REGEX = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$')
-SLUG_REGEX = re.compile(r'^[a-z0-9]+(?:-[a-z0-9]+)*$')
+EMAIL_REGEX = re.compile(
+    r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$"
+)
+URL_REGEX = re.compile(
+    r"^https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+(/[-\w%!$&\'()*+,;=:]+)*(?:\?[-\w%!$&\'()*+,;=:/?]+)?(?:#[-\w%!$&\'()*+,;=:/?]+)?$"
+)
+UUID_REGEX = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+)
+PHONE_REGEX = re.compile(
+    r"^\+?[0-9]{1,3}?[-. ]?\(?[0-9]{1,3}\)?[-. ]?[0-9]{1,4}[-. ]?[0-9]{1,4}$"
+)
+USERNAME_REGEX = re.compile(r"^[a-zA-Z0-9_-]{3,16}$")
+PASSWORD_REGEX = re.compile(
+    r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+)
+SLUG_REGEX = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
 def is_valid_email(email: str) -> bool:
@@ -312,8 +322,8 @@ def sanitize_filename(filename: str) -> str:
     base_name = os.path.basename(filename)
 
     # Remove path separators and null bytes
-    sanitized = re.sub(r'[\\/:*?"<>|]', '', base_name)
-    sanitized = sanitized.replace('\0', '')
+    sanitized = re.sub(r'[\\/:*?"<>|]', "", base_name)
+    sanitized = sanitized.replace("\0", "")
 
     # Limit length
     if len(sanitized) > 255:
@@ -339,19 +349,19 @@ def sanitize_path(path_str: str) -> str:
     try:
         # Get current working directory as base
         current_dir = os.getcwd()
-        
+
         # Create absolute path based on the input
         if os.path.isabs(path_str):
             path = Path(path_str).resolve()
         else:
             # For relative paths, join with current directory first
             path = Path(os.path.join(current_dir, path_str)).resolve()
-        
+
         # Normalize drive letter to lowercase on Windows
         result = str(path)
-        if len(result) >= 2 and result[1] == ':':
+        if len(result) >= 2 and result[1] == ":":
             result = result[0].lower() + result[1:]
-        
+
         return result
     except Exception:
         return ""
@@ -361,7 +371,7 @@ def validate_and_sanitize_input(
     input_value: Any,
     validation_func: Callable[[Any], bool],
     sanitization_func: Callable[[Any], Any] = None,
-    error_message: str = "Invalid input"
+    error_message: str = "Invalid input",
 ) -> Any:
     """
     Validate and sanitize an input value.
@@ -409,7 +419,7 @@ def validate_config_file(config_file: str, schema_cls: Type[T]) -> T:
 
     # Read configuration file
     try:
-        with open(config_file, 'r') as f:
+        with open(config_file, "r") as f:
             config_data = json.load(f)
     except json.JSONDecodeError:
         raise ValueError(f"Invalid JSON in configuration file: {config_file}")

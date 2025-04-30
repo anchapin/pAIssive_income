@@ -28,7 +28,7 @@ class DiskCache(CacheBackend):
         max_size: Optional[int] = None,
         eviction_policy: str = "lru",
         serialization: str = "json",
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the disk cache.
@@ -71,7 +71,7 @@ class DiskCache(CacheBackend):
                 # Load metadata first to check expiration
                 metadata = self._load_metadata(key)
                 expiration_time = metadata.get("expiration_time")
-                
+
                 if expiration_time is not None and time.time() > expiration_time:
                     # Item has expired
                     self.delete(key)
@@ -95,12 +95,7 @@ class DiskCache(CacheBackend):
                 self._save_stats()
                 return None
 
-    def set(
-        self,
-        key: str,
-        value: Dict[str, Any],
-        ttl: Optional[int] = None
-    ) -> bool:
+    def set(self, key: str, value: Dict[str, Any], ttl: Optional[int] = None) -> bool:
         """
         Set a value in the cache.
 
@@ -146,7 +141,11 @@ class DiskCache(CacheBackend):
                 "expiration_time": expiration_time,
                 "access_count": access_count,
                 "last_access_time": current_time,
-                "creation_time": current_time if not self.exists(key) else self._load_metadata(key).get("creation_time", current_time)
+                "creation_time": (
+                    current_time
+                    if not self.exists(key)
+                    else self._load_metadata(key).get("creation_time", current_time)
+                ),
             }
 
             # Save value and metadata
@@ -212,7 +211,10 @@ class DiskCache(CacheBackend):
             metadata = self._load_metadata(key)
 
             # Check if expired
-            if metadata.get("expiration_time") is not None and time.time() > metadata["expiration_time"]:
+            if (
+                metadata.get("expiration_time") is not None
+                and time.time() > metadata["expiration_time"]
+            ):
                 self.delete(key)
                 return False
 
@@ -289,7 +291,7 @@ class DiskCache(CacheBackend):
 
             try:
                 metadata_path = os.path.join(self.metadata_dir, filename)
-                with open(metadata_path, 'r') as f:
+                with open(metadata_path, "r") as f:
                     metadata = json.load(f)
                     if "key" in metadata:
                         key = metadata["key"]
@@ -382,7 +384,7 @@ class DiskCache(CacheBackend):
             File path
         """
         # Hash the key to create a valid filename
-        hashed_key = hashlib.md5(key.encode('utf-8')).hexdigest()
+        hashed_key = hashlib.md5(key.encode("utf-8")).hexdigest()
         return os.path.join(self.cache_dir, hashed_key)
 
     def _get_metadata_path(self, key: str) -> str:
@@ -396,7 +398,7 @@ class DiskCache(CacheBackend):
             Metadata file path
         """
         # Hash the key to create a valid filename
-        hashed_key = hashlib.md5(key.encode('utf-8')).hexdigest()
+        hashed_key = hashlib.md5(key.encode("utf-8")).hexdigest()
         return os.path.join(self.metadata_dir, f"{hashed_key}.json")
 
     def _save_value(self, key: str, value: Dict[str, Any]) -> None:
@@ -410,14 +412,14 @@ class DiskCache(CacheBackend):
         file_path = self._get_file_path(key)
 
         if self.serialization == "json":
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(value, f)
         elif self.serialization == "pickle":
-            with open(file_path, 'wb') as f:
+            with open(file_path, "wb") as f:
                 pickle.dump(value, f)
         else:
             # Default to JSON
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(value, f)
 
     def _load_value(self, key: str) -> Dict[str, Any]:
@@ -433,14 +435,14 @@ class DiskCache(CacheBackend):
         file_path = self._get_file_path(key)
 
         if self.serialization == "json":
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         elif self.serialization == "pickle":
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 return pickle.load(f)
         else:
             # Default to JSON
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 return json.load(f)
 
     def _save_metadata(self, key: str, metadata: Dict[str, Any]) -> None:
@@ -453,7 +455,7 @@ class DiskCache(CacheBackend):
         """
         metadata_path = self._get_metadata_path(key)
 
-        with open(metadata_path, 'w', encoding='utf-8') as f:
+        with open(metadata_path, "w", encoding="utf-8") as f:
             json.dump(metadata, f)
 
     def _load_metadata(self, key: str) -> Dict[str, Any]:
@@ -468,7 +470,7 @@ class DiskCache(CacheBackend):
         """
         metadata_path = self._get_metadata_path(key)
 
-        with open(metadata_path, 'r', encoding='utf-8') as f:
+        with open(metadata_path, "r", encoding="utf-8") as f:
             return json.load(f)
 
     def _load_stats(self) -> None:
@@ -477,7 +479,7 @@ class DiskCache(CacheBackend):
         """
         if os.path.exists(self.stats_file):
             try:
-                with open(self.stats_file, 'r', encoding='utf-8') as f:
+                with open(self.stats_file, "r", encoding="utf-8") as f:
                     self.stats = json.load(f)
             except Exception:
                 self.stats = {
@@ -486,7 +488,7 @@ class DiskCache(CacheBackend):
                     "sets": 0,
                     "deletes": 0,
                     "evictions": 0,
-                    "clears": 0
+                    "clears": 0,
                 }
         else:
             self.stats = {
@@ -495,14 +497,14 @@ class DiskCache(CacheBackend):
                 "sets": 0,
                 "deletes": 0,
                 "evictions": 0,
-                "clears": 0
+                "clears": 0,
             }
 
     def _save_stats(self) -> None:
         """
         Save statistics to disk.
         """
-        with open(self.stats_file, 'w', encoding='utf-8') as f:
+        with open(self.stats_file, "w", encoding="utf-8") as f:
             json.dump(self.stats, f)
 
     def _evict_item(self) -> None:
@@ -521,7 +523,10 @@ class DiskCache(CacheBackend):
                         metadata = self._load_metadata(key)
                         # Skip expired items
                         expiration_time = metadata.get("expiration_time")
-                        if expiration_time is not None and current_time > expiration_time:
+                        if (
+                            expiration_time is not None
+                            and current_time > expiration_time
+                        ):
                             self.delete(key)
                             continue
                         metadata_map[key] = metadata
@@ -536,7 +541,7 @@ class DiskCache(CacheBackend):
                     # Least Recently Used - evict item with oldest last_access_time
                     key_to_evict = min(
                         metadata_map.keys(),
-                        key=lambda k: metadata_map[k].get("last_access_time", 0)
+                        key=lambda k: metadata_map[k].get("last_access_time", 0),
                     )
                 elif self.eviction_policy == "lfu":
                     # Least Frequently Used - evict item with lowest access count and oldest creation time
@@ -544,23 +549,26 @@ class DiskCache(CacheBackend):
                         metadata = metadata_map[k]
                         count = metadata.get("access_count", 0)
                         # Creation time is used as a tiebreaker - older items are evicted first
-                        creation_time = metadata.get("creation_time", float('inf'))
+                        creation_time = metadata.get("creation_time", float("inf"))
                         # Return tuple of (count, creation_time) for comparison
                         # Python will compare tuples element by element
-                        return (count, -creation_time)  # Negative creation_time so older items are evicted first
+                        return (
+                            count,
+                            -creation_time,
+                        )  # Negative creation_time so older items are evicted first
 
                     key_to_evict = min(metadata_map.keys(), key=get_score)
                 elif self.eviction_policy == "fifo":
                     # First In First Out - evict oldest item by creation time
                     key_to_evict = min(
                         metadata_map.keys(),
-                        key=lambda k: metadata_map[k].get("creation_time", 0)
+                        key=lambda k: metadata_map[k].get("creation_time", 0),
                     )
                 else:
                     # Default to LRU
                     key_to_evict = min(
                         metadata_map.keys(),
-                        key=lambda k: metadata_map[k].get("last_access_time", 0)
+                        key=lambda k: metadata_map[k].get("last_access_time", 0),
                     )
 
                 if key_to_evict:
@@ -570,7 +578,10 @@ class DiskCache(CacheBackend):
 
             except Exception:
                 import logging
-                logging.exception("Error during cache eviction. Falling back to deleting the first key.")
+
+                logging.exception(
+                    "Error during cache eviction. Falling back to deleting the first key."
+                )
                 if keys:
                     # If there's any error, just delete the first key
                     self.delete(keys[0])
@@ -591,7 +602,7 @@ class DiskCache(CacheBackend):
 
                 metadata_path = os.path.join(self.metadata_dir, filename)
                 try:
-                    with open(metadata_path, 'r') as f:
+                    with open(metadata_path, "r") as f:
                         metadata = json.load(f)
 
                     expiration_time = metadata.get("expiration_time")

@@ -23,7 +23,10 @@ def get_model_provider(provider_type: str = "openai", **kwargs):
         A model provider instance
     """
     from tests.mocks.mock_model_providers import create_mock_provider
+
     return create_mock_provider(provider_type, kwargs.get("config"))
+
+
 import time
 import asyncio
 from datetime import datetime
@@ -36,16 +39,21 @@ import shutil
 import hashlib
 
 from .model_config import ModelConfig
+
 # Added import for the versioning system
 from .model_versioning import VersionedModelManager, ModelVersion
 from typing import TYPE_CHECKING
 import sys
 
 # Add the project root to the Python path to import the errors module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from errors import (
-    ModelError, ModelNotFoundError, ModelLoadError,
-    ConfigurationError, ValidationError, handle_exception
+    ModelError,
+    ModelNotFoundError,
+    ModelLoadError,
+    ConfigurationError,
+    ValidationError,
+    handle_exception,
 )
 from interfaces.model_interfaces import IModelManager
 from .model_base_types import ModelInfo
@@ -53,18 +61,22 @@ from .model_base_types import ModelInfo
 # Import only for type checking to avoid circular imports
 if TYPE_CHECKING:
     from .model_downloader import ModelDownloader, DownloadProgress
-    from .performance_monitor import PerformanceMonitor, InferenceMetrics, ModelPerformanceReport
+    from .performance_monitor import (
+        PerformanceMonitor,
+        InferenceMetrics,
+        ModelPerformanceReport,
+    )
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
     import torch
+
     TORCH_AVAILABLE = True
 except ImportError:
     logger.warning("PyTorch not available. GPU acceleration will be limited.")
@@ -73,34 +85,41 @@ except ImportError:
 try:
     import transformers
     from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning("Transformers not available. Hugging Face models will not be available.")
+    logger.warning(
+        "Transformers not available. Hugging Face models will not be available."
+    )
     TRANSFORMERS_AVAILABLE = False
 
 try:
     from sentence_transformers import SentenceTransformer
+
     SENTENCE_TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning("Sentence Transformers not available. Embedding models will be limited.")
+    logger.warning(
+        "Sentence Transformers not available. Embedding models will be limited."
+    )
     SENTENCE_TRANSFORMERS_AVAILABLE = False
 
 try:
     from llama_cpp import Llama
+
     LLAMA_CPP_AVAILABLE = True
 except ImportError:
-    logger.warning("llama-cpp-python not available. Llama model support will be limited.")
+    logger.warning(
+        "llama-cpp-python not available. Llama model support will be limited."
+    )
     LLAMA_CPP_AVAILABLE = False
 
 try:
     import onnxruntime as ort
+
     ONNX_AVAILABLE = True
 except ImportError:
     logger.warning("ONNX Runtime not available. ONNX model support will be limited.")
     ONNX_AVAILABLE = False
-
-
-
 
 
 class ModelManager(IModelManager):
@@ -108,7 +127,11 @@ class ModelManager(IModelManager):
     Central manager for AI models.
     """
 
-    def __init__(self, config: Optional[ModelConfig] = None, performance_monitor: Optional['PerformanceMonitor'] = None):
+    def __init__(
+        self,
+        config: Optional[ModelConfig] = None,
+        performance_monitor: Optional["PerformanceMonitor"] = None,
+    ):
         """
         Initialize the model manager.
 
@@ -144,7 +167,7 @@ class ModelManager(IModelManager):
 
         if os.path.exists(registry_path):
             try:
-                with open(registry_path, 'r') as f:
+                with open(registry_path, "r") as f:
                     registry_data = json.load(f)
 
                 for model_data in registry_data.get("models", []):
@@ -156,16 +179,14 @@ class ModelManager(IModelManager):
                 error = ConfigurationError(
                     message=f"Invalid JSON format in model registry: {e}",
                     config_key="registry.json",
-                    original_exception=e
+                    original_exception=e,
                 )
                 error.log()
                 # Create a new registry
                 self._save_model_registry()
             except Exception as e:
                 error = handle_exception(
-                    e,
-                    error_class=ConfigurationError,
-                    reraise=False
+                    e, error_class=ConfigurationError, reraise=False
                 )
                 # Create a new registry
                 self._save_model_registry()
@@ -184,7 +205,7 @@ class ModelManager(IModelManager):
                 "models": [model.to_dict() for model in self.models.values()]
             }
 
-            with open(registry_path, 'w') as f:
+            with open(registry_path, "w") as f:
                 json.dump(registry_data, f, indent=2)
 
             logger.info(f"Saved {len(self.models)} models to registry")
@@ -192,15 +213,11 @@ class ModelManager(IModelManager):
             error = ConfigurationError(
                 message=f"Failed to write model registry to {registry_path}: {e}",
                 config_key="models_dir",
-                original_exception=e
+                original_exception=e,
             )
             error.log()
         except Exception as e:
-            handle_exception(
-                e,
-                error_class=ConfigurationError,
-                reraise=False
-            )
+            handle_exception(e, error_class=ConfigurationError, reraise=False)
 
     def discover_models(self) -> List[ModelInfo]:
         """
@@ -246,7 +263,7 @@ class ModelManager(IModelManager):
         if not os.path.exists(self.config.models_dir):
             error = ConfigurationError(
                 message=f"Models directory {self.config.models_dir} does not exist",
-                config_key="models_dir"
+                config_key="models_dir",
             )
             error.log(level=logging.WARNING)
             return discovered_models
@@ -262,7 +279,9 @@ class ModelManager(IModelManager):
                         continue
 
                     # Determine model type and format based on file extension
-                    model_type, model_format, quantization = self._detect_model_type(file_path)
+                    model_type, model_format, quantization = self._detect_model_type(
+                        file_path
+                    )
 
                     if model_type:
                         # Generate a unique ID for the model
@@ -275,11 +294,13 @@ class ModelManager(IModelManager):
                             type=model_type,
                             path=file_path,
                             format=model_format,
-                            quantization=quantization
+                            quantization=quantization,
                         )
 
                         discovered_models.append(model_info)
-                        logger.info(f"Discovered local model: {model_info.name} ({model_info.type})")
+                        logger.info(
+                            f"Discovered local model: {model_info.name} ({model_info.type})"
+                        )
 
             return discovered_models
 
@@ -287,16 +308,12 @@ class ModelManager(IModelManager):
             error = ConfigurationError(
                 message=f"Error accessing models directory {self.config.models_dir}: {e}",
                 config_key="models_dir",
-                original_exception=e
+                original_exception=e,
             )
             error.log()
             return discovered_models
         except Exception as e:
-            error = handle_exception(
-                e,
-                error_class=ConfigurationError,
-                reraise=False
-            )
+            error = handle_exception(e, error_class=ConfigurationError, reraise=False)
             return discovered_models
 
     def _discover_huggingface_models(self) -> List[ModelInfo]:
@@ -314,7 +331,7 @@ class ModelManager(IModelManager):
         if not TRANSFORMERS_AVAILABLE:
             error = ModelError(
                 message="Transformers not available. Cannot discover Hugging Face models.",
-                code="transformers_not_available"
+                code="transformers_not_available",
             )
             error.log(level=logging.WARNING)
             return discovered_models
@@ -322,9 +339,21 @@ class ModelManager(IModelManager):
         try:
             # Define a list of common small models for testing
             common_models = [
-                {"name": "gpt2", "type": "text-generation", "description": "Small GPT-2 model for text generation"},
-                {"name": "distilbert-base-uncased", "type": "text-classification", "description": "Small DistilBERT model for text classification"},
-                {"name": "all-MiniLM-L6-v2", "type": "embedding", "description": "Small embedding model for text similarity"}
+                {
+                    "name": "gpt2",
+                    "type": "text-generation",
+                    "description": "Small GPT-2 model for text generation",
+                },
+                {
+                    "name": "distilbert-base-uncased",
+                    "type": "text-classification",
+                    "description": "Small DistilBERT model for text classification",
+                },
+                {
+                    "name": "all-MiniLM-L6-v2",
+                    "type": "embedding",
+                    "description": "Small embedding model for text similarity",
+                },
             ]
 
             for model_data in common_models:
@@ -334,22 +363,22 @@ class ModelManager(IModelManager):
                     id=model_id,
                     name=model_data["name"],
                     type=model_data["type"],
-                    path=model_data["name"],  # For Hugging Face models, path is the model name
+                    path=model_data[
+                        "name"
+                    ],  # For Hugging Face models, path is the model name
                     description=model_data["description"],
-                    format="huggingface"
+                    format="huggingface",
                 )
 
                 discovered_models.append(model_info)
-                logger.info(f"Added Hugging Face model: {model_info.name} ({model_info.type})")
+                logger.info(
+                    f"Added Hugging Face model: {model_info.name} ({model_info.type})"
+                )
 
             return discovered_models
 
         except Exception as e:
-            error = handle_exception(
-                e,
-                error_class=ModelError,
-                reraise=False
-            )
+            error = handle_exception(e, error_class=ModelError, reraise=False)
             return discovered_models
 
     def _detect_model_type(self, file_path: str) -> Tuple[str, str, str]:
@@ -379,19 +408,31 @@ class ModelManager(IModelManager):
             return "llama", "gguf", quantization
 
         # Check for ONNX models
-        elif file_name.endswith(".onnx") or (os.path.isdir(file_path) and any(f.endswith(".onnx") for f in os.listdir(file_path))):
+        elif file_name.endswith(".onnx") or (
+            os.path.isdir(file_path)
+            and any(f.endswith(".onnx") for f in os.listdir(file_path))
+        ):
             return "onnx", "onnx", "unknown"
 
         # Check for PyTorch models
-        elif file_name.endswith(".pt") or file_name.endswith(".pth") or file_name.endswith(".bin"):
+        elif (
+            file_name.endswith(".pt")
+            or file_name.endswith(".pth")
+            or file_name.endswith(".bin")
+        ):
             return "pytorch", "pytorch", "unknown"
 
         # Check for TensorFlow models
-        elif file_name.endswith(".pb") or (os.path.isdir(file_path) and any(f.endswith(".pb") for f in os.listdir(file_path))):
+        elif file_name.endswith(".pb") or (
+            os.path.isdir(file_path)
+            and any(f.endswith(".pb") for f in os.listdir(file_path))
+        ):
             return "tensorflow", "tensorflow", "unknown"
 
         # Check for Hugging Face models (directory with config.json)
-        elif os.path.isdir(file_path) and os.path.exists(os.path.join(file_path, "config.json")):
+        elif os.path.isdir(file_path) and os.path.exists(
+            os.path.join(file_path, "config.json")
+        ):
             return "huggingface", "huggingface", "unknown"
 
         # Unknown model type
@@ -501,8 +542,7 @@ class ModelManager(IModelManager):
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 return asyncio.run_coroutine_threadsafe(
-                    self.load_model_async(model_id, version, **kwargs),
-                    loop
+                    self.load_model_async(model_id, version, **kwargs), loop
                 ).result()
             else:
                 return loop.run_until_complete(
@@ -512,7 +552,9 @@ class ModelManager(IModelManager):
         except RuntimeError:
             return asyncio.run(self.load_model_async(model_id, version, **kwargs))
 
-    async def load_model_async(self, model_id: str, version: str = None, **kwargs) -> Any:
+    async def load_model_async(
+        self, model_id: str, version: str = None, **kwargs
+    ) -> Any:
         """
         Load a model asynchronously.
 
@@ -535,13 +577,12 @@ class ModelManager(IModelManager):
                 # Run in a thread pool executor since versioned_manager's methods are synchronous
                 return await asyncio.get_event_loop().run_in_executor(
                     None,
-                    lambda: self.versioned_manager.load_model_version(model_id, version, **kwargs)
+                    lambda: self.versioned_manager.load_model_version(
+                        model_id, version, **kwargs
+                    ),
                 )
             except ValueError as e:
-                raise ModelNotFoundError(
-                    message=str(e),
-                    model_id=model_id
-                )
+                raise ModelNotFoundError(message=str(e), model_id=model_id)
 
         # Check if the model is already loaded
         if model_id in self.loaded_models:
@@ -551,8 +592,7 @@ class ModelManager(IModelManager):
         model_info = self.get_model_info(model_id)
         if not model_info:
             raise ModelNotFoundError(
-                message=f"Model with ID {model_id} not found",
-                model_id=model_id
+                message=f"Model with ID {model_id} not found", model_id=model_id
             )
 
         # Load the model based on its type
@@ -571,11 +611,13 @@ class ModelManager(IModelManager):
                 raise ValidationError(
                     message=f"Unsupported model type: {model_info.type}",
                     field="model_type",
-                    validation_errors=[{
-                        "field": "model_type",
-                        "value": model_info.type,
-                        "error": "Unsupported model type"
-                    }]
+                    validation_errors=[
+                        {
+                            "field": "model_type",
+                            "value": model_info.type,
+                            "error": "Unsupported model type",
+                        }
+                    ],
                 )
 
             # Store the loaded model
@@ -589,7 +631,7 @@ class ModelManager(IModelManager):
                 message=f"Missing dependency for loading model {model_info.name}: {e}",
                 model_id=model_id,
                 details={"dependency_error": str(e)},
-                original_exception=e
+                original_exception=e,
             )
         except (ValidationError, ModelError) as e:
             # Re-raise custom errors
@@ -601,10 +643,12 @@ class ModelManager(IModelManager):
                 message=f"Failed to load model {model_info.name}: {e}",
                 model_id=model_id,
                 details={"model_type": model_info.type, "model_path": model_info.path},
-                original_exception=e
+                original_exception=e,
             )
 
-    async def _load_huggingface_model_async(self, model_info: ModelInfo, **kwargs) -> Any:
+    async def _load_huggingface_model_async(
+        self, model_info: ModelInfo, **kwargs
+    ) -> Any:
         """
         Load a Hugging Face model asynchronously.
 
@@ -622,17 +666,18 @@ class ModelManager(IModelManager):
         loop = asyncio.get_event_loop()
         try:
             return await loop.run_in_executor(
-                None,
-                lambda: self._load_huggingface_model(model_info, **kwargs)
+                None, lambda: self._load_huggingface_model(model_info, **kwargs)
             )
         except Exception as e:
             # Convert any exceptions to ModelLoadError
-            logger.error(f"Error loading Hugging Face model {model_info.name} asynchronously: {e}")
+            logger.error(
+                f"Error loading Hugging Face model {model_info.name} asynchronously: {e}"
+            )
             raise ModelLoadError(
                 message=f"Failed to load Hugging Face model {model_info.name} asynchronously: {e}",
                 model_id=model_info.id,
                 details={"model_type": model_info.type, "model_path": model_info.path},
-                original_exception=e
+                original_exception=e,
             )
 
     async def _load_llama_model_async(self, model_info: ModelInfo, **kwargs) -> Any:
@@ -653,16 +698,17 @@ class ModelManager(IModelManager):
         loop = asyncio.get_event_loop()
         try:
             return await loop.run_in_executor(
-                None,
-                lambda: self._load_llama_model(model_info, **kwargs)
+                None, lambda: self._load_llama_model(model_info, **kwargs)
             )
         except Exception as e:
-            logger.error(f"Error loading Llama model {model_info.name} asynchronously: {e}")
+            logger.error(
+                f"Error loading Llama model {model_info.name} asynchronously: {e}"
+            )
             raise ModelLoadError(
                 message=f"Failed to load Llama model {model_info.name} asynchronously: {e}",
                 model_id=model_info.id,
                 details={"model_type": model_info.type, "model_path": model_info.path},
-                original_exception=e
+                original_exception=e,
             )
 
     async def _load_embedding_model_async(self, model_info: ModelInfo, **kwargs) -> Any:
@@ -683,16 +729,17 @@ class ModelManager(IModelManager):
         loop = asyncio.get_event_loop()
         try:
             return await loop.run_in_executor(
-                None,
-                lambda: self._load_embedding_model(model_info, **kwargs)
+                None, lambda: self._load_embedding_model(model_info, **kwargs)
             )
         except Exception as e:
-            logger.error(f"Error loading embedding model {model_info.name} asynchronously: {e}")
+            logger.error(
+                f"Error loading embedding model {model_info.name} asynchronously: {e}"
+            )
             raise ModelLoadError(
                 message=f"Failed to load embedding model {model_info.name} asynchronously: {e}",
                 model_id=model_info.id,
                 details={"model_type": model_info.type, "model_path": model_info.path},
-                original_exception=e
+                original_exception=e,
             )
 
     async def _load_onnx_model_async(self, model_info: ModelInfo, **kwargs) -> Any:
@@ -713,16 +760,17 @@ class ModelManager(IModelManager):
         loop = asyncio.get_event_loop()
         try:
             return await loop.run_in_executor(
-                None,
-                lambda: self._load_onnx_model(model_info, **kwargs)
+                None, lambda: self._load_onnx_model(model_info, **kwargs)
             )
         except Exception as e:
-            logger.error(f"Error loading ONNX model {model_info.name} asynchronously: {e}")
+            logger.error(
+                f"Error loading ONNX model {model_info.name} asynchronously: {e}"
+            )
             raise ModelLoadError(
                 message=f"Failed to load ONNX model {model_info.name} asynchronously: {e}",
                 model_id=model_info.id,
                 details={"model_type": model_info.type, "model_path": model_info.path},
-                original_exception=e
+                original_exception=e,
             )
 
     def get_model_versions(self, model_id: str) -> List[ModelVersion]:
@@ -761,6 +809,7 @@ class ModelManager(IModelManager):
             A model provider instance
         """
         from tests.mocks.mock_model_providers import create_mock_provider
+
         return create_mock_provider(provider_type, kwargs.get("config"))
 
     def generate_text(self, prompt: str, model_id: str = "gpt-3.5-turbo", **kwargs):
@@ -777,9 +826,7 @@ class ModelManager(IModelManager):
         """
         provider = self.get_model_provider("openai")
         response = provider.create_chat_completion(
-            model=model_id,
-            messages=[{"role": "user", "content": prompt}],
-            **kwargs
+            model=model_id, messages=[{"role": "user", "content": prompt}], **kwargs
         )
         return response["choices"][0]["message"]["content"]
 
@@ -790,7 +837,7 @@ class ModelManager(IModelManager):
         features: List[str] = None,
         dependencies: Dict[str, str] = None,
         compatibility: List[str] = None,
-        metadata: Dict[str, Any] = None
+        metadata: Dict[str, Any] = None,
     ) -> ModelVersion:
         """
         Create a new version for a model.
@@ -813,8 +860,7 @@ class ModelManager(IModelManager):
         model_info = self.get_model_info(model_id)
         if not model_info:
             raise ModelNotFoundError(
-                message=f"Model with ID {model_id} not found",
-                model_id=model_id
+                message=f"Model with ID {model_id} not found", model_id=model_id
             )
 
         # Create version
@@ -824,7 +870,7 @@ class ModelManager(IModelManager):
             features=features,
             dependencies=dependencies,
             compatibility=compatibility,
-            metadata=metadata
+            metadata=metadata,
         )
 
         # Update model info with the new version
@@ -832,7 +878,9 @@ class ModelManager(IModelManager):
 
         return version_obj
 
-    def check_version_compatibility(self, model_id1: str, version1: str, model_id2: str, version2: str) -> bool:
+    def check_version_compatibility(
+        self, model_id1: str, version1: str, model_id2: str, version2: str
+    ) -> bool:
         """
         Check if two model versions are compatible.
 
@@ -845,9 +893,17 @@ class ModelManager(IModelManager):
         Returns:
             True if compatible, False otherwise
         """
-        return self.versioned_manager.check_compatibility(model_id1, version1, model_id2, version2)
+        return self.versioned_manager.check_compatibility(
+            model_id1, version1, model_id2, version2
+        )
 
-    def register_migration(self, model_id: str, source_version: str, target_version: str, migration_fn: Callable) -> None:
+    def register_migration(
+        self,
+        model_id: str,
+        source_version: str,
+        target_version: str,
+        migration_fn: Callable,
+    ) -> None:
         """
         Register a migration function for version transitions.
 
@@ -857,7 +913,9 @@ class ModelManager(IModelManager):
             target_version: Target version string
             migration_fn: Function that handles the migration
         """
-        self.versioned_manager.register_migration_function(model_id, source_version, target_version, migration_fn)
+        self.versioned_manager.register_migration_function(
+            model_id, source_version, target_version, migration_fn
+        )
 
     def migrate_model(self, model_id: str, target_version: str, **kwargs) -> ModelInfo:
         """
@@ -879,13 +937,14 @@ class ModelManager(IModelManager):
         model_info = self.get_model_info(model_id)
         if not model_info:
             raise ModelNotFoundError(
-                message=f"Model with ID {model_id} not found",
-                model_id=model_id
+                message=f"Model with ID {model_id} not found", model_id=model_id
             )
 
         try:
             # Perform migration
-            updated_info = self.versioned_manager.migrate_model(model_info, target_version, **kwargs)
+            updated_info = self.versioned_manager.migrate_model(
+                model_info, target_version, **kwargs
+            )
 
             # Update model registry with the migrated model info
             self.models[model_id] = updated_info
@@ -893,5 +952,7 @@ class ModelManager(IModelManager):
 
             return updated_info
         except ValueError as e:
-            logger.error(f"Error migrating model {model_id} to version {target_version}: {e}")
+            logger.error(
+                f"Error migrating model {model_id} to version {target_version}: {e}"
+            )
             raise

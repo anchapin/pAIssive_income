@@ -13,7 +13,13 @@ import copy
 import uuid
 import math
 
-from .usage_tracking import UsageRecord, UsageLimit, UsageQuota, UsageMetric, UsageCategory
+from .usage_tracking import (
+    UsageRecord,
+    UsageLimit,
+    UsageQuota,
+    UsageMetric,
+    UsageCategory,
+)
 
 
 class UsageTracker:
@@ -28,7 +34,7 @@ class UsageTracker:
         self,
         storage_dir: Optional[str] = None,
         auto_create_quotas: bool = True,
-        auto_reset_quotas: bool = True
+        auto_reset_quotas: bool = True,
     ):
         """
         Initialize a usage tracker.
@@ -110,7 +116,7 @@ class UsageTracker:
                     category=limit.category,
                     resource_type=limit.resource_type,
                     subscription_id=limit.subscription_id,
-                    metadata=copy.deepcopy(limit.metadata)
+                    metadata=copy.deepcopy(limit.metadata),
                 )
 
                 self.add_quota(quota)
@@ -138,7 +144,7 @@ class UsageTracker:
         customer_id: str,
         metric: Optional[str] = None,
         category: Optional[str] = None,
-        resource_type: Optional[str] = None
+        resource_type: Optional[str] = None,
     ) -> List[UsageLimit]:
         """
         Get usage limits for a customer.
@@ -183,7 +189,7 @@ class UsageTracker:
         self,
         limit_id: str,
         max_quantity: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Optional[UsageLimit]:
         """
         Update a usage limit.
@@ -314,7 +320,7 @@ class UsageTracker:
         customer_id: str,
         metric: Optional[str] = None,
         category: Optional[str] = None,
-        resource_type: Optional[str] = None
+        resource_type: Optional[str] = None,
     ) -> List[UsageQuota]:
         """
         Get usage quotas for a customer.
@@ -368,7 +374,7 @@ class UsageTracker:
         quota_id: str,
         allocated_quantity: Optional[float] = None,
         used_quantity: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Optional[UsageQuota]:
         """
         Update a usage quota.
@@ -463,7 +469,7 @@ class UsageTracker:
             customer_id=limit.customer_id,
             metric=limit.metric,
             category=limit.category,
-            resource_type=limit.resource_type
+            resource_type=limit.resource_type,
         )
 
         # Find a quota with the same period
@@ -582,7 +588,9 @@ class UsageTracker:
                             if record.resource_type not in self.resource_records:
                                 self.resource_records[record.resource_type] = []
 
-                            self.resource_records[record.resource_type].append(record.id)
+                            self.resource_records[record.resource_type].append(
+                                record.id
+                            )
 
                     except Exception as e:
                         print(f"Error loading record from {file_path}: {e}")
@@ -627,7 +635,7 @@ class UsageTracker:
         resource_type: Optional[str] = None,
         subscription_id: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
-        check_quota: bool = True
+        check_quota: bool = True,
     ) -> Tuple[UsageRecord, Optional[UsageQuota], bool]:
         """
         Track usage for a customer.
@@ -655,7 +663,7 @@ class UsageTracker:
             resource_id=resource_id,
             resource_type=resource_type,
             subscription_id=subscription_id,
-            metadata=metadata
+            metadata=metadata,
         )
 
         # Store record
@@ -700,7 +708,7 @@ class UsageTracker:
                 customer_id=customer_id,
                 metric=metric,
                 category=category,
-                resource_type=resource_type
+                resource_type=resource_type,
             )
 
             if quotas:
@@ -722,9 +730,7 @@ class UsageTracker:
         return record, updated_quota, quota_exceeded
 
     def track_usage_batch(
-        self,
-        records: List[Dict[str, Any]],
-        check_quota: bool = True
+        self, records: List[Dict[str, Any]], check_quota: bool = True
     ) -> List[Tuple[UsageRecord, Optional[UsageQuota], bool]]:
         """
         Track usage in batch for multiple customers or metrics.
@@ -749,7 +755,7 @@ class UsageTracker:
                 resource_type=record_data.get("resource_type"),
                 subscription_id=record_data.get("subscription_id"),
                 metadata=record_data.get("metadata"),
-                check_quota=check_quota
+                check_quota=check_quota,
             )
 
             results.append(result)
@@ -762,7 +768,7 @@ class UsageTracker:
         metric: str,
         quantity: float,
         category: Optional[str] = None,
-        resource_type: Optional[str] = None
+        resource_type: Optional[str] = None,
     ) -> Tuple[bool, Optional[str], Optional[UsageQuota]]:
         """
         Check if usage is allowed based on quotas.
@@ -782,7 +788,7 @@ class UsageTracker:
             customer_id=customer_id,
             metric=metric,
             category=category,
-            resource_type=resource_type
+            resource_type=resource_type,
         )
 
         if not quotas:
@@ -822,7 +828,7 @@ class UsageTracker:
         resource_type: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[UsageRecord]:
         """
         Get usage records for a customer.
@@ -940,7 +946,6 @@ class UsageTracker:
         with open(file_path, "w") as f:
             f.write(record.to_json())
 
-
     def get_usage_summary(
         self,
         customer_id: Optional[str] = None,
@@ -949,7 +954,7 @@ class UsageTracker:
         resource_type: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        group_by: Optional[str] = None
+        group_by: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Get a summary of usage.
@@ -973,7 +978,7 @@ class UsageTracker:
             category=category,
             resource_type=resource_type,
             start_time=start_time,
-            end_time=end_time
+            end_time=end_time,
         )
 
         # Initialize summary
@@ -983,7 +988,7 @@ class UsageTracker:
             "metrics": {},
             "categories": {},
             "customers": {},
-            "resource_types": {}
+            "resource_types": {},
         }
 
         # Group records if requested
@@ -997,30 +1002,21 @@ class UsageTracker:
 
             # Add to metrics
             if record.metric not in summary["metrics"]:
-                summary["metrics"][record.metric] = {
-                    "count": 0,
-                    "quantity": 0.0
-                }
+                summary["metrics"][record.metric] = {"count": 0, "quantity": 0.0}
 
             summary["metrics"][record.metric]["count"] += 1
             summary["metrics"][record.metric]["quantity"] += record.quantity
 
             # Add to categories
             if record.category not in summary["categories"]:
-                summary["categories"][record.category] = {
-                    "count": 0,
-                    "quantity": 0.0
-                }
+                summary["categories"][record.category] = {"count": 0, "quantity": 0.0}
 
             summary["categories"][record.category]["count"] += 1
             summary["categories"][record.category]["quantity"] += record.quantity
 
             # Add to customers
             if record.customer_id not in summary["customers"]:
-                summary["customers"][record.customer_id] = {
-                    "count": 0,
-                    "quantity": 0.0
-                }
+                summary["customers"][record.customer_id] = {"count": 0, "quantity": 0.0}
 
             summary["customers"][record.customer_id]["count"] += 1
             summary["customers"][record.customer_id]["quantity"] += record.quantity
@@ -1030,11 +1026,13 @@ class UsageTracker:
                 if record.resource_type not in summary["resource_types"]:
                     summary["resource_types"][record.resource_type] = {
                         "count": 0,
-                        "quantity": 0.0
+                        "quantity": 0.0,
                     }
 
                 summary["resource_types"][record.resource_type]["count"] += 1
-                summary["resource_types"][record.resource_type]["quantity"] += record.quantity
+                summary["resource_types"][record.resource_type][
+                    "quantity"
+                ] += record.quantity
 
             # Add to grouped data if requested
             if group_by:
@@ -1054,7 +1052,7 @@ class UsageTracker:
                         summary["grouped"][group_value] = {
                             "count": 0,
                             "quantity": 0.0,
-                            "records": []
+                            "records": [],
                         }
 
                     summary["grouped"][group_value]["count"] += 1
@@ -1071,7 +1069,7 @@ class UsageTracker:
         resource_type: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        interval: str = "day"
+        interval: str = "day",
     ) -> Dict[str, Any]:
         """
         Get usage grouped by time intervals.
@@ -1095,7 +1093,7 @@ class UsageTracker:
             category=category,
             resource_type=resource_type,
             start_time=start_time,
-            end_time=end_time
+            end_time=end_time,
         )
 
         # Initialize result
@@ -1103,7 +1101,7 @@ class UsageTracker:
             "total_records": len(records),
             "total_quantity": 0.0,
             "interval": interval,
-            "intervals": {}
+            "intervals": {},
         }
 
         # Group records by time interval
@@ -1119,8 +1117,12 @@ class UsageTracker:
                 result["intervals"][interval_key] = {
                     "count": 0,
                     "quantity": 0.0,
-                    "start_time": self._get_interval_start(record.timestamp, interval).isoformat(),
-                    "end_time": self._get_interval_end(record.timestamp, interval).isoformat()
+                    "start_time": self._get_interval_start(
+                        record.timestamp, interval
+                    ).isoformat(),
+                    "end_time": self._get_interval_end(
+                        record.timestamp, interval
+                    ).isoformat(),
                 }
 
             result["intervals"][interval_key]["count"] += 1
@@ -1137,57 +1139,57 @@ class UsageTracker:
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
         interval: str = "day",
-        num_intervals: int = 30
+        num_intervals: int = 30,
     ) -> Dict[str, Any]:
         """
         Generate comprehensive usage trend analysis with intelligent pattern detection.
-        
+
         This algorithm implements a sophisticated time-series analysis system for
         detecting and quantifying usage patterns across multiple dimensions. The
         implementation follows these key phases:
-        
+
         1. TIME RANGE DETERMINATION AND NORMALIZATION:
            - Establishes proper time boundaries based on requested analysis period
            - Applies intelligent defaults for missing time parameters
            - Normalizes the time range to ensure complete interval coverage
            - Handles various time granularities (hour, day, week, month) appropriately
            - Creates proper interval alignment for accurate trend analysis
-           
+
         2. TEMPORAL DATA AGGREGATION AND GAP FILLING:
            - Collects and aggregates usage data into consistent time buckets
            - Handles sparse data by properly zero-filling missing intervals
            - Ensures complete time-series continuity for accurate trend analysis
            - Maintains chronological ordering of data points
            - Preserves temporal relationships between data points
-           
+
         3. STATISTICAL TREND IDENTIFICATION:
            - Divides time-series data into equal analysis segments
            - Calculates summary statistics for each segment
            - Applies comparative analysis between segments
            - Quantifies the direction and magnitude of usage changes
            - Determines statistically significant trends versus normal variance
-           
+
         4. TREND CLASSIFICATION AND INTERPRETATION:
            - Categorizes usage patterns (increasing, decreasing, stable)
            - Quantifies percentage changes for objective measurement
            - Applies thresholds for meaningful trend detection
            - Provides numerical values for trend strength assessment
            - Delivers actionable insights through pattern classification
-        
+
         This trend analysis algorithm addresses several critical business requirements:
         - Early detection of changing usage patterns
         - Quantitative measurement of growth or decline rates
         - Support for capacity planning and resource allocation
         - Identification of customer behavior changes
         - Foundation for predictive analytics and forecasting
-        
+
         The implementation specifically supports common business scenarios:
         - Monitoring customer engagement over time
         - Detecting unusual spikes or drops in API usage
         - Measuring adoption rates of new features
         - Analyzing resource utilization trends
         - Identifying seasonal patterns in usage behavior
-        
+
         Args:
             customer_id: Optional customer identifier to filter usage data
             metric: Optional usage metric type (e.g., API_CALL, STORAGE) to analyze
@@ -1197,7 +1199,7 @@ class UsageTracker:
             end_time: End of analysis period (defaults to current time if not provided)
             interval: Time bucket size for aggregation (hour, day, week, month)
             num_intervals: Number of intervals to include when auto-calculating time range
-            
+
         Returns:
             Comprehensive dictionary containing:
             - Complete time-series data with consistent intervals
@@ -1234,7 +1236,7 @@ class UsageTracker:
             resource_type=resource_type,
             start_time=start_time,
             end_time=end_time,
-            interval=interval
+            interval=interval,
         )
 
         # Generate complete sequence of intervals to ensure gap-free analysis
@@ -1258,7 +1260,9 @@ class UsageTracker:
                 if current_time.month == 12:
                     current_time = datetime(current_time.year + 1, 1, 1)
                 else:
-                    current_time = datetime(current_time.year, current_time.month + 1, 1)
+                    current_time = datetime(
+                        current_time.year, current_time.month + 1, 1
+                    )
 
         # Initialize the trend analysis result structure
         trends = {
@@ -1268,10 +1272,7 @@ class UsageTracker:
             "start_time": start_time.isoformat(),
             "end_time": end_time.isoformat(),
             "intervals": [],
-            "trend": {
-                "direction": "stable",
-                "percentage_change": 0.0
-            }
+            "trend": {"direction": "stable", "percentage_change": 0.0},
         }
 
         # PHASE 2 Continued: Fill gaps in the time series data for complete analysis
@@ -1287,18 +1288,16 @@ class UsageTracker:
                     "count": 0,
                     "quantity": 0.0,
                     "start_time": self._get_interval_start(
-                        self._parse_interval_key(interval_key, interval),
-                        interval
+                        self._parse_interval_key(interval_key, interval), interval
                     ).isoformat(),
                     "end_time": self._get_interval_end(
-                        self._parse_interval_key(interval_key, interval),
-                        interval
-                    ).isoformat()
+                        self._parse_interval_key(interval_key, interval), interval
+                    ).isoformat(),
                 }
 
             # Add interval identifier to maintain proper chronological order
             interval_data["interval"] = interval_key
-            
+
             # Build the complete time series with all intervals represented
             trends["intervals"].append(interval_data)
 
@@ -1311,13 +1310,23 @@ class UsageTracker:
             second_half = trends["intervals"][half_point:]
 
             # Calculate the average usage quantity for each half of the time series
-            first_half_avg = sum(i["quantity"] for i in first_half) / len(first_half) if first_half else 0
-            second_half_avg = sum(i["quantity"] for i in second_half) / len(second_half) if second_half else 0
+            first_half_avg = (
+                sum(i["quantity"] for i in first_half) / len(first_half)
+                if first_half
+                else 0
+            )
+            second_half_avg = (
+                sum(i["quantity"] for i in second_half) / len(second_half)
+                if second_half
+                else 0
+            )
 
             # Calculate percentage change between the two periods
             # Handle division by zero case for when the first period had no usage
             if first_half_avg > 0:
-                percentage_change = ((second_half_avg - first_half_avg) / first_half_avg) * 100
+                percentage_change = (
+                    (second_half_avg - first_half_avg) / first_half_avg
+                ) * 100
             else:
                 # Special handling for cases where usage started from zero
                 percentage_change = 0 if second_half_avg == 0 else 100
@@ -1334,7 +1343,7 @@ class UsageTracker:
             # Record the trend analysis results
             trends["trend"] = {
                 "direction": direction,
-                "percentage_change": percentage_change
+                "percentage_change": percentage_change,
             }
 
         return trends
@@ -1344,7 +1353,7 @@ class UsageTracker:
         customer_id: str,
         metric: Optional[str] = None,
         category: Optional[str] = None,
-        resource_type: Optional[str] = None
+        resource_type: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Get the status of quotas for a customer.
@@ -1363,7 +1372,7 @@ class UsageTracker:
             customer_id=customer_id,
             metric=metric,
             category=category,
-            resource_type=resource_type
+            resource_type=resource_type,
         )
 
         # Initialize result
@@ -1371,11 +1380,7 @@ class UsageTracker:
             "customer_id": customer_id,
             "total_quotas": len(quotas),
             "quotas": [],
-            "summary": {
-                "exceeded": 0,
-                "near_limit": 0,
-                "healthy": 0
-            }
+            "summary": {"exceeded": 0, "near_limit": 0, "healthy": 0},
         }
 
         # Add quota status
@@ -1391,7 +1396,7 @@ class UsageTracker:
                 "usage_percentage": quota.get_usage_percentage(),
                 "is_exceeded": quota.is_exceeded(),
                 "is_near_limit": quota.is_near_limit(),
-                "reset_at": quota.reset_at.isoformat()
+                "reset_at": quota.reset_at.isoformat(),
             }
 
             # Add to summary
@@ -1414,7 +1419,7 @@ class UsageTracker:
         category: Optional[str] = None,
         resource_type: Optional[str] = None,
         start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None
+        end_time: Optional[datetime] = None,
     ) -> List[UsageRecord]:
         """
         Get filtered usage records.
@@ -1440,7 +1445,7 @@ class UsageTracker:
                 resource_type=resource_type,
                 start_time=start_time,
                 end_time=end_time,
-                limit=1000000  # Use a high limit to get all records
+                limit=1000000,  # Use a high limit to get all records
             )
         elif metric:
             # Get records for the metric
@@ -1589,31 +1594,18 @@ class UsageTracker:
         """
         if interval == "hour":
             return datetime(
-                timestamp.year,
-                timestamp.month,
-                timestamp.day,
-                timestamp.hour
+                timestamp.year, timestamp.month, timestamp.day, timestamp.hour
             )
         elif interval == "day":
-            return datetime(
-                timestamp.year,
-                timestamp.month,
-                timestamp.day
-            )
+            return datetime(timestamp.year, timestamp.month, timestamp.day)
         elif interval == "week":
             # Start of the week (Monday)
             days_since_monday = timestamp.weekday()
-            return datetime(
-                timestamp.year,
-                timestamp.month,
-                timestamp.day
-            ) - timedelta(days=days_since_monday)
-        elif interval == "month":
-            return datetime(
-                timestamp.year,
-                timestamp.month,
-                1
+            return datetime(timestamp.year, timestamp.month, timestamp.day) - timedelta(
+                days=days_since_monday
             )
+        elif interval == "month":
+            return datetime(timestamp.year, timestamp.month, 1)
         else:
             raise ValueError(f"Invalid interval: {interval}")
 
@@ -1660,7 +1652,7 @@ if __name__ == "__main__":
         period=UsageLimit.PERIOD_MONTHLY,
         category=UsageCategory.INFERENCE,
         resource_type="model",
-        metadata={"tier": "basic"}
+        metadata={"tier": "basic"},
     )
 
     tracker.add_limit(limit)
@@ -1692,7 +1684,7 @@ if __name__ == "__main__":
             category=UsageCategory.INFERENCE,
             resource_id=f"model_gpt4",
             resource_type="model",
-            metadata={"endpoint": "/v1/completions"}
+            metadata={"endpoint": "/v1/completions"},
         )
 
         print(f"Tracked usage: {record}")
@@ -1713,5 +1705,7 @@ if __name__ == "__main__":
     print(f"Near limit: {status['summary']['near_limit']}")
     print(f"Healthy: {status['summary']['healthy']}")
 
-    for quota_status in status['quotas']:
-        print(f"- {quota_status['metric']}: {quota_status['used_quantity']}/{quota_status['allocated_quantity']} ({quota_status['usage_percentage']:.2f}%)")
+    for quota_status in status["quotas"]:
+        print(
+            f"- {quota_status['metric']}: {quota_status['used_quantity']}/{quota_status['allocated_quantity']} ({quota_status['usage_percentage']:.2f}%)"
+        )

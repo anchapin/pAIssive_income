@@ -12,6 +12,7 @@ from typing import Dict, List, Any, Optional
 # Set up logging
 logger = logging.getLogger(__name__)
 
+
 class WebUI:
     """
     Web UI for the pAIssive Income project.
@@ -38,7 +39,9 @@ class WebUI:
 
         logger.info("WebUI initialized")
 
-    def analyze_market_segments(self, market_segments: List[str]) -> List[Dict[str, Any]]:
+    def analyze_market_segments(
+        self, market_segments: List[str]
+    ) -> List[Dict[str, Any]]:
         """
         Analyze market segments to find niches.
 
@@ -73,7 +76,7 @@ class WebUI:
         # Find the niche
         niche = None
         for n in self.current_niches:
-            if n.get('id') == niche_id:
+            if n.get("id") == niche_id:
                 niche = n
                 break
 
@@ -101,7 +104,9 @@ class WebUI:
             raise ValueError("No solution available. Develop a solution first.")
 
         # Use the agent team to create a monetization strategy
-        monetization = self.agent_team.create_monetization_strategy(self.current_solution)
+        monetization = self.agent_team.create_monetization_strategy(
+            self.current_solution
+        )
 
         # Store the monetization strategy
         self.current_monetization = monetization
@@ -121,7 +126,9 @@ class WebUI:
             raise ValueError("No solution available. Develop a solution first.")
 
         if self.current_monetization is None:
-            raise ValueError("No monetization strategy available. Create a monetization strategy first.")
+            raise ValueError(
+                "No monetization strategy available. Create a monetization strategy first."
+            )
 
         # Find the niche
         niche = self.current_niches[0] if self.current_niches else None
@@ -198,7 +205,7 @@ class WebUI:
             niches=self.current_niches,
             solution=self.current_solution,
             monetization=self.current_monetization,
-            marketing_plan=self.current_marketing_plan
+            marketing_plan=self.current_marketing_plan,
         )
 
     def process_ajax_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -214,7 +221,7 @@ class WebUI:
         logger.info(f"Processing AJAX request: {request_data}")
 
         # Get the action
-        action = request_data.get('action')
+        action = request_data.get("action")
 
         if action is None:
             raise ValueError("No action specified in request")
@@ -240,11 +247,7 @@ class WebUI:
             data = {"market_segments": data["market_segments"]}
 
         # Mock implementation for testing
-        return {
-            'success': True,
-            'action': action,
-            'data': data
-        }
+        return {"success": True, "action": action, "data": data}
 
     def handle_event(self, event_type: str, event_data: Dict[str, Any]) -> None:
         """
@@ -257,8 +260,9 @@ class WebUI:
         logger.info(f"Handling event: {event_type}")
 
         # Mock implementation for testing
-        if event_type == 'niche_selected':
+        if event_type == "niche_selected":
             from ui.event_handlers import handle_niche_selected
+
             handle_niche_selected(self, event_data)
 
     def save_project(self, project_name: str) -> None:
@@ -272,10 +276,10 @@ class WebUI:
 
         # Create project data
         project_data = {
-            'niches': self.current_niches,
-            'solution': self.current_solution,
-            'monetization': self.current_monetization,
-            'marketing_plan': self.current_marketing_plan
+            "niches": self.current_niches,
+            "solution": self.current_solution,
+            "monetization": self.current_monetization,
+            "marketing_plan": self.current_marketing_plan,
         }
 
         # Save the project
@@ -295,10 +299,10 @@ class WebUI:
 
         if project_data:
             # Update state
-            self.current_niches = project_data.get('niches', [])
-            self.current_solution = project_data.get('solution')
-            self.current_monetization = project_data.get('monetization')
-            self.current_marketing_plan = project_data.get('marketing_plan')
+            self.current_niches = project_data.get("niches", [])
+            self.current_solution = project_data.get("solution")
+            self.current_monetization = project_data.get("monetization")
+            self.current_marketing_plan = project_data.get("marketing_plan")
 
     def save_data(self, filename: str, data: Any) -> None:
         """
@@ -327,8 +331,8 @@ class WebUI:
 
         # Mock implementation for testing
         return {
-            'niches': [{"id": "niche1", "name": "Saved Niche"}],
-            'solution': {"id": "solution1", "name": "Saved Solution"},
-            'monetization': {"id": "monetization1", "name": "Saved Monetization"},
-            'marketing_plan': {"id": "marketing1", "name": "Saved Marketing Plan"}
+            "niches": [{"id": "niche1", "name": "Saved Niche"}],
+            "solution": {"id": "solution1", "name": "Saved Solution"},
+            "monetization": {"id": "monetization1", "name": "Saved Monetization"},
+            "marketing_plan": {"id": "marketing1", "name": "Saved Marketing Plan"},
         }

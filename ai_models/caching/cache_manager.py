@@ -12,24 +12,19 @@ from typing import Dict, Any, Optional, List, Union, Type
 
 from .cache_config import CacheConfig
 from .cache_key import CacheKey, generate_cache_key, parse_cache_key
-from .cache_backends import (
-    CacheBackend,
-    MemoryCache,
-    DiskCache,
-    SQLiteCache
-)
+from .cache_backends import CacheBackend, MemoryCache, DiskCache, SQLiteCache
 
 # Try to import Redis cache if available
 try:
     from .cache_backends import RedisCache
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -54,14 +49,14 @@ class CacheManager:
         model_id: str,
         operation: str,
         inputs: Union[str, List[str], Dict[str, Any]],
-        parameters: Optional[Dict[str, Any]] = None
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
         Create a consistent cache key string that preserves namespace structure.
         """
         # Generate cache key object
         key = generate_cache_key(model_id, operation, inputs, parameters)
-        
+
         # Return the structured key that maintains namespace information
         # Use colon as separator to maintain compatibility with tests
         return f"{key.model_id}:{key.operation}:{key.input_hash}:{key.parameters_hash}"
@@ -71,7 +66,7 @@ class CacheManager:
         model_id: str,
         operation: str,
         inputs: Union[str, List[str], Dict[str, Any]],
-        parameters: Optional[Dict[str, Any]] = None
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Get a value from the cache.
@@ -87,10 +82,10 @@ class CacheManager:
         """
         if not self.config.should_cache(model_id, operation):
             return None
-        
+
         # Generate structured cache key
         key = self._make_key(model_id, operation, inputs, parameters)
-        
+
         # Get value from cache
         return self.backend.get(key)
 
@@ -101,7 +96,7 @@ class CacheManager:
         inputs: Union[str, List[str], Dict[str, Any]],
         value: Dict[str, Any],
         parameters: Optional[Dict[str, Any]] = None,
-        ttl: Optional[int] = None
+        ttl: Optional[int] = None,
     ) -> bool:
         """
         Set a value in the cache.
@@ -119,14 +114,14 @@ class CacheManager:
         """
         if not self.config.should_cache(model_id, operation):
             return False
-        
+
         # Generate structured cache key
         key = self._make_key(model_id, operation, inputs, parameters)
-        
+
         # Use default TTL if not specified
         if ttl is None:
             ttl = self.config.ttl
-        
+
         # Set value in cache
         return self.backend.set(key, value, ttl)
 
@@ -135,7 +130,7 @@ class CacheManager:
         model_id: str,
         operation: str,
         inputs: Union[str, List[str], Dict[str, Any]],
-        parameters: Optional[Dict[str, Any]] = None
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Delete a value from the cache.
@@ -151,7 +146,7 @@ class CacheManager:
         """
         # Generate structured cache key
         key = self._make_key(model_id, operation, inputs, parameters)
-        
+
         # Delete value from cache
         return self.backend.delete(key)
 
@@ -160,7 +155,7 @@ class CacheManager:
         model_id: str,
         operation: str,
         inputs: Union[str, List[str], Dict[str, Any]],
-        parameters: Optional[Dict[str, Any]] = None
+        parameters: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Check if a value exists in the cache.
@@ -176,10 +171,10 @@ class CacheManager:
         """
         if not self.config.should_cache(model_id, operation):
             return False
-        
+
         # Generate structured cache key
         key = self._make_key(model_id, operation, inputs, parameters)
-        
+
         # Check if value exists in cache
         return self.backend.exists(key)
 
@@ -195,10 +190,10 @@ class CacheManager:
     def clear_namespace(self, namespace: str) -> bool:
         """
         Clear all values for a specific namespace.
-        
+
         Args:
             namespace: Namespace to clear (model_id)
-            
+
         Returns:
             True if successful, False otherwise
         """
@@ -207,7 +202,7 @@ class CacheManager:
         # We need to match keys where the model_id part exactly matches our namespace
         pattern = f"^{re.escape(namespace)}:"
         keys = self.get_keys(pattern)
-        
+
         if not keys:
             # No keys found for this namespace
             return True
@@ -292,5 +287,7 @@ class CacheManager:
             return RedisCache(**backend_config)
 
         else:
-            logger.warning(f"Unknown cache backend: {backend_name}. Falling back to memory cache.")
+            logger.warning(
+                f"Unknown cache backend: {backend_name}. Falling back to memory cache."
+            )
             return MemoryCache(**self.config.get_backend_config("memory"))

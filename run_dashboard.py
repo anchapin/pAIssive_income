@@ -15,11 +15,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Set up logging before importing the dashboard
 from common_utils.logging import setup_logging, LogLevel
+
 setup_logging(
     level=LogLevel.INFO,
     log_file="logs/dashboard.log",
     log_to_console=True,
-    log_to_file=True
+    log_to_file=True,
 )
 
 # Import the dashboard module
@@ -31,18 +32,23 @@ except ImportError as e:
     print("pip install dash plotly pandas")
     sys.exit(1)
 
+
 def main():
     """Parse command line arguments and start the dashboard."""
     parser = argparse.ArgumentParser(description="Start the monitoring dashboard")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind the server to")
-    parser.add_argument("--port", type=int, default=8050, help="Port to bind the server to")
+    parser.add_argument(
+        "--port", type=int, default=8050, help="Port to bind the server to"
+    )
     parser.add_argument("--debug", action="store_true", help="Run in debug mode")
-    
+
     args = parser.parse_args()
-    
-    print(f"Starting pAIssive Income Monitoring Dashboard on http://{args.host}:{args.port}")
+
+    print(
+        f"Starting pAIssive Income Monitoring Dashboard on http://{args.host}:{args.port}"
+    )
     print("Press Ctrl+C to stop the server")
-    
+
     try:
         # Start the dashboard
         start_dashboard(args.host, args.port, args.debug)
@@ -51,8 +57,9 @@ def main():
     except Exception as e:
         print(f"Error running dashboard: {e}")
         return 1
-    
+
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

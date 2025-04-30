@@ -14,13 +14,13 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from interfaces.model_interfaces import IModelInfo
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,7 @@ class ModelInfo(IModelInfo):
     """
     Information about an AI model.
     """
+
     _id: str
     _name: str
     _type: str  # huggingface, llama, embedding, etc.
@@ -63,7 +64,7 @@ class ModelInfo(IModelInfo):
         last_updated: str = "",
         created_at: str = "",
         updated_at: str = "",
-        version: str = "0.0.0"
+        version: str = "0.0.0",
     ):
         """Initialize a new ModelInfo object."""
         self._id = id
@@ -84,37 +85,37 @@ class ModelInfo(IModelInfo):
 
         # Run post-initialization logic
         self.__post_init__()
-    
+
     @property
     def id(self) -> str:
         """Get the model ID."""
         return self._id
-    
+
     @property
     def name(self) -> str:
         """Get the model name."""
         return self._name
-        
+
     @property
     def description(self) -> str:
         """Get the model description."""
         return self._description
-        
+
     @property
     def type(self) -> str:
         """Get the model type."""
         return self._type
-        
+
     @property
     def path(self) -> str:
         """Get the model path."""
         return self._path
-        
+
     @property
     def metadata(self) -> Dict[str, Any]:
         """Get the model metadata."""
         return self._metadata if self._metadata is not None else {}
-        
+
     @property
     def model_version(self) -> str:
         """Get the model version."""
@@ -174,7 +175,7 @@ class ModelInfo(IModelInfo):
             "last_updated": self.last_updated,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "version": self.version
+            "version": self.version,
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -210,7 +211,7 @@ class ModelInfo(IModelInfo):
         self.updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
 
         # For compatibility with datetime.now().isoformat() in tests
-        if hasattr(datetime, 'now'):
+        if hasattr(datetime, "now"):
             self.updated_at = datetime.now().isoformat()
 
     def has_capability(self, capability: str) -> bool:
@@ -236,7 +237,7 @@ class ModelInfo(IModelInfo):
         self.update_timestamp()
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ModelInfo':
+    def from_dict(cls, data: Dict[str, Any]) -> "ModelInfo":
         """
         Create a ModelInfo instance from a dictionary.
 

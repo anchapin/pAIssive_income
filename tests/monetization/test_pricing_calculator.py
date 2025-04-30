@@ -1,6 +1,7 @@
 """
 Tests for the PricingCalculator class.
 """
+
 import os
 import json
 import pytest
@@ -29,7 +30,7 @@ def pricing_calculator():
         pricing_strategy="value-based",
         base_cost=5.0,
         profit_margin=0.3,
-        competitor_prices={"basic": 9.99, "pro": 19.99, "premium": 29.99}
+        competitor_prices={"basic": 9.99, "pro": 19.99, "premium": 29.99},
     )
 
 
@@ -37,21 +38,16 @@ def pricing_calculator():
 def subscription_model():
     """Create a SubscriptionModel instance for testing."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Add features
     feature1 = model.add_feature(
-        name="Feature 1",
-        description="A test feature",
-        feature_type="functional"
+        name="Feature 1", description="A test feature", feature_type="functional"
     )
 
     feature2 = model.add_feature(
-        name="Feature 2",
-        description="Another test feature",
-        feature_type="premium"
+        name="Feature 2", description="Another test feature", feature_type="premium"
     )
 
     # Add tiers
@@ -59,14 +55,14 @@ def subscription_model():
         name="Basic",
         description="Basic tier",
         price_monthly=9.99,
-        features=[feature1["id"]]
+        features=[feature1["id"]],
     )
 
     pro_tier = model.add_tier(
         name="Pro",
         description="Pro tier",
         price_monthly=19.99,
-        features=[feature1["id"], feature2["id"]]
+        features=[feature1["id"], feature2["id"]],
     )
 
     return model
@@ -80,7 +76,11 @@ def test_pricing_calculator_init(pricing_calculator):
     assert pricing_calculator.pricing_strategy == "value-based"
     assert pricing_calculator.base_cost == 5.0
     assert pricing_calculator.profit_margin == 0.3
-    assert pricing_calculator.competitor_prices == {"basic": 9.99, "pro": 19.99, "premium": 29.99}
+    assert pricing_calculator.competitor_prices == {
+        "basic": 9.99,
+        "pro": 19.99,
+        "premium": 29.99,
+    }
     assert hasattr(pricing_calculator, "id")
     assert hasattr(pricing_calculator, "created_at")
     assert hasattr(pricing_calculator, "updated_at")
@@ -89,30 +89,20 @@ def test_pricing_calculator_init(pricing_calculator):
 def test_calculate_price(pricing_calculator):
     """Test calculate_price method."""
     # Test with default parameters
-    price = pricing_calculator.calculate_price(
-        base_value=10.0
-    )
+    price = pricing_calculator.calculate_price(base_value=10.0)
     assert price == 10.99  # Rounded to nearest .99
 
     # Test with tier multiplier
-    price = pricing_calculator.calculate_price(
-        base_value=10.0,
-        tier_multiplier=2.0
-    )
+    price = pricing_calculator.calculate_price(base_value=10.0, tier_multiplier=2.0)
     assert price == 19.99  # Rounded to nearest .99
 
     # Test with market adjustment
-    price = pricing_calculator.calculate_price(
-        base_value=10.0,
-        market_adjustment=1.5
-    )
+    price = pricing_calculator.calculate_price(base_value=10.0, market_adjustment=1.5)
     assert price == 15.99  # Rounded to nearest .99
 
     # Test with both tier multiplier and market adjustment
     price = pricing_calculator.calculate_price(
-        base_value=10.0,
-        tier_multiplier=2.0,
-        market_adjustment=1.5
+        base_value=10.0, tier_multiplier=2.0, market_adjustment=1.5
     )
     assert price == 30.99  # Rounded to nearest .99
 
@@ -125,7 +115,7 @@ def test_calculate_optimal_price(pricing_calculator):
         cost_per_user=5.0,
         value_perception=0.8,
         competitor_price=19.99,
-        price_sensitivity=0.7
+        price_sensitivity=0.7,
     )
 
     # Check that the price is a float and greater than 0
@@ -137,8 +127,7 @@ def test_analyze_price_sensitivity(pricing_calculator):
     """Test analyze_price_sensitivity method."""
     # Test with required parameters
     analysis = pricing_calculator.analyze_price_sensitivity(
-        base_price=19.99,
-        market_size=10000
+        base_price=19.99, market_size=10000
     )
 
     # Check that the analysis has the expected keys
@@ -161,9 +150,7 @@ def test_analyze_price_sensitivity(pricing_calculator):
 
     # Test with custom parameters
     analysis = pricing_calculator.analyze_price_sensitivity(
-        base_price=29.99,
-        market_size=5000,
-        price_elasticity=1.5
+        base_price=29.99, market_size=5000, price_elasticity=1.5
     )
 
     # Check that the custom parameters were used
@@ -195,7 +182,11 @@ def test_to_dict(pricing_calculator):
     assert calculator_dict["pricing_strategy"] == "value-based"
     assert calculator_dict["base_cost"] == 5.0
     assert calculator_dict["profit_margin"] == 0.3
-    assert calculator_dict["competitor_prices"] == {"basic": 9.99, "pro": 19.99, "premium": 29.99}
+    assert calculator_dict["competitor_prices"] == {
+        "basic": 9.99,
+        "pro": 19.99,
+        "premium": 29.99,
+    }
 
 
 def test_to_json(pricing_calculator):

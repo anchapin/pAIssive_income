@@ -57,16 +57,18 @@ class AnalyticsService:
         self._lock = threading.Lock()
 
         # Real-time monitoring
-        self._recent_requests = deque(maxlen=1000)  # Store recent requests for real-time analysis
+        self._recent_requests = deque(
+            maxlen=1000
+        )  # Store recent requests for real-time analysis
         self._alert_thresholds = {
-            'error_rate': 0.05,  # 5% error rate
-            'response_time': 1000,  # 1000ms response time
-            'requests_per_minute': 1000  # 1000 requests per minute
+            "error_rate": 0.05,  # 5% error rate
+            "response_time": 1000,  # 1000ms response time
+            "requests_per_minute": 1000,  # 1000 requests per minute
         }
         self._alert_cooldowns = {
-            'error_rate': datetime.min,
-            'response_time': datetime.min,
-            'requests_per_minute': datetime.min
+            "error_rate": datetime.min,
+            "response_time": datetime.min,
+            "requests_per_minute": datetime.min,
         }
         self._alert_cooldown_minutes = 15  # Cooldown period between alerts
         self._alert_handlers = []  # List of alert handler functions
@@ -76,35 +78,35 @@ class AnalyticsService:
 
         # Daily metrics aggregation thread
         self._aggregation_thread = threading.Thread(
-            target=self._daily_aggregation_task,
-            daemon=True
+            target=self._daily_aggregation_task, daemon=True
         )
         self._aggregation_thread.start()
 
         # Real-time monitoring thread
         self._monitoring_thread = threading.Thread(
-            target=self._real_time_monitoring_task,
-            daemon=True
+            target=self._real_time_monitoring_task, daemon=True
         )
         self._monitoring_thread.start()
 
-    def track_request(self,
-                     method: str,
-                     path: str,
-                     endpoint: str,
-                     version: str = None,
-                     status_code: int = None,
-                     response_time: float = None,
-                     user_id: str = None,
-                     api_key_id: str = None,
-                     client_ip: str = None,
-                     user_agent: str = None,
-                     request_size: int = None,
-                     response_size: int = None,
-                     query_params: Dict[str, Any] = None,
-                     error_type: str = None,
-                     error_message: str = None,
-                     metadata: Dict[str, Any] = None) -> str:
+    def track_request(
+        self,
+        method: str,
+        path: str,
+        endpoint: str,
+        version: str = None,
+        status_code: int = None,
+        response_time: float = None,
+        user_id: str = None,
+        api_key_id: str = None,
+        client_ip: str = None,
+        user_agent: str = None,
+        request_size: int = None,
+        response_size: int = None,
+        query_params: Dict[str, Any] = None,
+        error_type: str = None,
+        error_message: str = None,
+        metadata: Dict[str, Any] = None,
+    ) -> str:
         """
         Track an API request.
 
@@ -151,7 +153,7 @@ class AnalyticsService:
             "query_params": query_params,
             "error_type": error_type,
             "error_message": error_message,
-            "metadata": metadata
+            "metadata": metadata,
         }
 
         # Save request data
@@ -167,15 +169,17 @@ class AnalyticsService:
 
         return request_id
 
-    def get_requests(self,
-                    endpoint: str = None,
-                    version: str = None,
-                    user_id: str = None,
-                    api_key_id: str = None,
-                    status_code: int = None,
-                    days: int = 7,
-                    limit: int = 1000,
-                    offset: int = 0) -> List[Dict[str, Any]]:
+    def get_requests(
+        self,
+        endpoint: str = None,
+        version: str = None,
+        user_id: str = None,
+        api_key_id: str = None,
+        status_code: int = None,
+        days: int = 7,
+        limit: int = 1000,
+        offset: int = 0,
+    ) -> List[Dict[str, Any]]:
         """
         Get API requests.
 
@@ -205,13 +209,12 @@ class AnalyticsService:
             status_code=status_code,
             time_range=time_range,
             limit=limit,
-            offset=offset
+            offset=offset,
         )
 
-    def get_daily_metrics(self,
-                         days: int = 30,
-                         endpoint: str = None,
-                         version: str = None) -> List[Dict[str, Any]]:
+    def get_daily_metrics(
+        self, days: int = 30, endpoint: str = None, version: str = None
+    ) -> List[Dict[str, Any]]:
         """
         Get daily aggregated metrics.
 
@@ -228,15 +231,12 @@ class AnalyticsService:
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
         return self.db.get_daily_metrics(
-            start_date=start_date,
-            end_date=end_date,
-            endpoint=endpoint,
-            version=version
+            start_date=start_date, end_date=end_date, endpoint=endpoint, version=version
         )
 
-    def get_user_metrics(self,
-                        days: int = 30,
-                        user_id: str = None) -> List[Dict[str, Any]]:
+    def get_user_metrics(
+        self, days: int = 30, user_id: str = None
+    ) -> List[Dict[str, Any]]:
         """
         Get user metrics.
 
@@ -252,14 +252,12 @@ class AnalyticsService:
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
         return self.db.get_user_metrics(
-            start_date=start_date,
-            end_date=end_date,
-            user_id=user_id
+            start_date=start_date, end_date=end_date, user_id=user_id
         )
 
-    def get_api_key_metrics(self,
-                           days: int = 30,
-                           api_key_id: str = None) -> List[Dict[str, Any]]:
+    def get_api_key_metrics(
+        self, days: int = 30, api_key_id: str = None
+    ) -> List[Dict[str, Any]]:
         """
         Get API key metrics.
 
@@ -275,9 +273,7 @@ class AnalyticsService:
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
         return self.db.get_api_key_metrics(
-            start_date=start_date,
-            end_date=end_date,
-            api_key_id=api_key_id
+            start_date=start_date, end_date=end_date, api_key_id=api_key_id
         )
 
     def get_endpoint_stats(self, days: int = 30) -> List[Dict[str, Any]]:
@@ -294,10 +290,7 @@ class AnalyticsService:
         end_date = datetime.now().strftime("%Y-%m-%d")
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
-        return self.db.get_endpoint_stats(
-            start_date=start_date,
-            end_date=end_date
-        )
+        return self.db.get_endpoint_stats(start_date=start_date, end_date=end_date)
 
     def get_usage_summary(self, days: int = 30) -> Dict[str, Any]:
         """
@@ -322,13 +315,13 @@ class AnalyticsService:
             stat.get("avg_response_time", 0) * stat.get("total_requests", 0)
             for stat in endpoint_stats
         )
-        avg_response_time = total_response_time / total_requests if total_requests > 0 else 0
+        avg_response_time = (
+            total_response_time / total_requests if total_requests > 0 else 0
+        )
 
         # Get top endpoints
         top_endpoints = sorted(
-            endpoint_stats,
-            key=lambda x: x.get("total_requests", 0),
-            reverse=True
+            endpoint_stats, key=lambda x: x.get("total_requests", 0), reverse=True
         )[:5]
 
         # Get user metrics
@@ -341,7 +334,9 @@ class AnalyticsService:
         api_key_metrics = self.get_api_key_metrics(days)
 
         # Calculate unique API keys
-        unique_api_keys = len(set(metric.get("api_key_id") for metric in api_key_metrics))
+        unique_api_keys = len(
+            set(metric.get("api_key_id") for metric in api_key_metrics)
+        )
 
         return {
             "total_requests": total_requests,
@@ -350,15 +345,17 @@ class AnalyticsService:
             "avg_response_time": avg_response_time,
             "unique_users": unique_users,
             "unique_api_keys": unique_api_keys,
-            "top_endpoints": top_endpoints
+            "top_endpoints": top_endpoints,
         }
 
-    def export_requests_csv(self,
-                           days: int = 30,
-                           endpoint: str = None,
-                           version: str = None,
-                           user_id: str = None,
-                           api_key_id: str = None) -> str:
+    def export_requests_csv(
+        self,
+        days: int = 30,
+        endpoint: str = None,
+        version: str = None,
+        user_id: str = None,
+        api_key_id: str = None,
+    ) -> str:
         """
         Export API requests to CSV.
 
@@ -379,7 +376,7 @@ class AnalyticsService:
             user_id=user_id,
             api_key_id=api_key_id,
             days=days,
-            limit=10000  # Higher limit for exports
+            limit=10000,  # Higher limit for exports
         )
 
         if not requests:
@@ -390,10 +387,21 @@ class AnalyticsService:
         writer = csv.DictWriter(
             output,
             fieldnames=[
-                "id", "timestamp", "method", "path", "endpoint", "version",
-                "status_code", "response_time", "user_id", "api_key_id",
-                "client_ip", "request_size", "response_size", "error_type"
-            ]
+                "id",
+                "timestamp",
+                "method",
+                "path",
+                "endpoint",
+                "version",
+                "status_code",
+                "response_time",
+                "user_id",
+                "api_key_id",
+                "client_ip",
+                "request_size",
+                "response_size",
+                "error_type",
+            ],
         )
 
         writer.writeheader()
@@ -414,7 +422,7 @@ class AnalyticsService:
                 "client_ip": request.get("client_ip"),
                 "request_size": request.get("request_size"),
                 "response_size": request.get("response_size"),
-                "error_type": request.get("error_type")
+                "error_type": request.get("error_type"),
             }
 
             writer.writerow(row)
@@ -442,11 +450,20 @@ class AnalyticsService:
         writer = csv.DictWriter(
             output,
             fieldnames=[
-                "date", "endpoint", "version", "request_count", "error_count",
-                "avg_response_time", "min_response_time", "max_response_time",
-                "p95_response_time", "total_request_size", "total_response_size",
-                "unique_users", "unique_api_keys"
-            ]
+                "date",
+                "endpoint",
+                "version",
+                "request_count",
+                "error_count",
+                "avg_response_time",
+                "min_response_time",
+                "max_response_time",
+                "p95_response_time",
+                "total_request_size",
+                "total_response_size",
+                "unique_users",
+                "unique_api_keys",
+            ],
         )
 
         writer.writeheader()
@@ -493,7 +510,9 @@ class AnalyticsService:
                 # Sleep for 5 minutes before retrying
                 self._stop_event.wait(300)
 
-    def register_alert_handler(self, handler: Callable[[str, Dict[str, Any]], None]) -> None:
+    def register_alert_handler(
+        self, handler: Callable[[str, Dict[str, Any]], None]
+    ) -> None:
         """
         Register a function to be called when an alert is triggered.
 
@@ -530,7 +549,8 @@ class AnalyticsService:
             # Filter requests from the last N minutes
             cutoff_time = datetime.now() - timedelta(minutes=minutes)
             recent_requests = [
-                r for r in self._recent_requests
+                r
+                for r in self._recent_requests
                 if datetime.fromisoformat(r["timestamp"]) > cutoff_time
             ]
 
@@ -542,17 +562,27 @@ class AnalyticsService:
                     "avg_response_time": 0,
                     "p95_response_time": 0,
                     "requests_per_minute": 0,
-                    "endpoints": {}
+                    "endpoints": {},
                 }
 
             # Calculate metrics
             request_count = len(recent_requests)
-            error_count = sum(1 for r in recent_requests if r.get("status_code", 0) >= 400)
+            error_count = sum(
+                1 for r in recent_requests if r.get("status_code", 0) >= 400
+            )
             error_rate = error_count / request_count if request_count > 0 else 0
 
-            response_times = [r.get("response_time", 0) for r in recent_requests if r.get("response_time") is not None]
+            response_times = [
+                r.get("response_time", 0)
+                for r in recent_requests
+                if r.get("response_time") is not None
+            ]
             avg_response_time = statistics.mean(response_times) if response_times else 0
-            p95_response_time = statistics.quantiles(response_times, n=20)[-1] if len(response_times) >= 20 else max(response_times, default=0)
+            p95_response_time = (
+                statistics.quantiles(response_times, n=20)[-1]
+                if len(response_times) >= 20
+                else max(response_times, default=0)
+            )
 
             # Calculate requests per minute
             requests_per_minute = request_count / minutes
@@ -565,7 +595,7 @@ class AnalyticsService:
                     endpoints[endpoint] = {
                         "request_count": 0,
                         "error_count": 0,
-                        "response_times": []
+                        "response_times": [],
                     }
 
                 endpoints[endpoint]["request_count"] += 1
@@ -577,8 +607,16 @@ class AnalyticsService:
 
             # Calculate averages for endpoints
             for endpoint, data in endpoints.items():
-                data["error_rate"] = data["error_count"] / data["request_count"] if data["request_count"] > 0 else 0
-                data["avg_response_time"] = statistics.mean(data["response_times"]) if data["response_times"] else 0
+                data["error_rate"] = (
+                    data["error_count"] / data["request_count"]
+                    if data["request_count"] > 0
+                    else 0
+                )
+                data["avg_response_time"] = (
+                    statistics.mean(data["response_times"])
+                    if data["response_times"]
+                    else 0
+                )
                 data["requests_per_minute"] = data["request_count"] / minutes
                 # Remove raw response times from result
                 del data["response_times"]
@@ -590,7 +628,7 @@ class AnalyticsService:
                 "avg_response_time": avg_response_time,
                 "p95_response_time": p95_response_time,
                 "requests_per_minute": requests_per_minute,
-                "endpoints": endpoints
+                "endpoints": endpoints,
             }
 
     def _real_time_monitoring_task(self) -> None:
@@ -633,10 +671,12 @@ class AnalyticsService:
                         "value": metrics["error_rate"],
                         "threshold": self._alert_thresholds["error_rate"],
                         "request_count": metrics["request_count"],
-                        "error_count": metrics["error_count"]
-                    }
+                        "error_count": metrics["error_count"],
+                    },
                 )
-                self._alert_cooldowns["error_rate"] = now + timedelta(minutes=self._alert_cooldown_minutes)
+                self._alert_cooldowns["error_rate"] = now + timedelta(
+                    minutes=self._alert_cooldown_minutes
+                )
 
         # Check response time
         if metrics["avg_response_time"] > self._alert_thresholds["response_time"]:
@@ -648,13 +688,18 @@ class AnalyticsService:
                         "metric": "response_time",
                         "value": metrics["avg_response_time"],
                         "threshold": self._alert_thresholds["response_time"],
-                        "p95_response_time": metrics["p95_response_time"]
-                    }
+                        "p95_response_time": metrics["p95_response_time"],
+                    },
                 )
-                self._alert_cooldowns["response_time"] = now + timedelta(minutes=self._alert_cooldown_minutes)
+                self._alert_cooldowns["response_time"] = now + timedelta(
+                    minutes=self._alert_cooldown_minutes
+                )
 
         # Check requests per minute
-        if metrics["requests_per_minute"] > self._alert_thresholds["requests_per_minute"]:
+        if (
+            metrics["requests_per_minute"]
+            > self._alert_thresholds["requests_per_minute"]
+        ):
             if now > self._alert_cooldowns["requests_per_minute"]:
                 self._trigger_alert(
                     "High API Request Volume",
@@ -663,17 +708,24 @@ class AnalyticsService:
                         "metric": "requests_per_minute",
                         "value": metrics["requests_per_minute"],
                         "threshold": self._alert_thresholds["requests_per_minute"],
-                        "request_count": metrics["request_count"]
-                    }
+                        "request_count": metrics["request_count"],
+                    },
                 )
-                self._alert_cooldowns["requests_per_minute"] = now + timedelta(minutes=self._alert_cooldown_minutes)
+                self._alert_cooldowns["requests_per_minute"] = now + timedelta(
+                    minutes=self._alert_cooldown_minutes
+                )
 
         # Check per-endpoint metrics
         for endpoint, data in metrics["endpoints"].items():
             # Check endpoint error rate
-            if data["error_rate"] > self._alert_thresholds["error_rate"] * 2:  # Higher threshold for individual endpoints
+            if (
+                data["error_rate"] > self._alert_thresholds["error_rate"] * 2
+            ):  # Higher threshold for individual endpoints
                 alert_key = f"error_rate_{endpoint}"
-                if alert_key not in self._alert_cooldowns or now > self._alert_cooldowns[alert_key]:
+                if (
+                    alert_key not in self._alert_cooldowns
+                    or now > self._alert_cooldowns[alert_key]
+                ):
                     self._trigger_alert(
                         f"High Error Rate for Endpoint {endpoint}",
                         f"Error rate of {data['error_rate']:.2%} for endpoint {endpoint} exceeds threshold of {self._alert_thresholds['error_rate'] * 2:.2%}",
@@ -683,15 +735,23 @@ class AnalyticsService:
                             "value": data["error_rate"],
                             "threshold": self._alert_thresholds["error_rate"] * 2,
                             "request_count": data["request_count"],
-                            "error_count": data["error_count"]
-                        }
+                            "error_count": data["error_count"],
+                        },
                     )
-                    self._alert_cooldowns[alert_key] = now + timedelta(minutes=self._alert_cooldown_minutes)
+                    self._alert_cooldowns[alert_key] = now + timedelta(
+                        minutes=self._alert_cooldown_minutes
+                    )
 
             # Check endpoint response time
-            if data["avg_response_time"] > self._alert_thresholds["response_time"] * 1.5:  # Higher threshold for individual endpoints
+            if (
+                data["avg_response_time"]
+                > self._alert_thresholds["response_time"] * 1.5
+            ):  # Higher threshold for individual endpoints
                 alert_key = f"response_time_{endpoint}"
-                if alert_key not in self._alert_cooldowns or now > self._alert_cooldowns[alert_key]:
+                if (
+                    alert_key not in self._alert_cooldowns
+                    or now > self._alert_cooldowns[alert_key]
+                ):
                     self._trigger_alert(
                         f"High Response Time for Endpoint {endpoint}",
                         f"Average response time of {data['avg_response_time']:.2f}ms for endpoint {endpoint} exceeds threshold of {self._alert_thresholds['response_time'] * 1.5}ms",
@@ -699,10 +759,12 @@ class AnalyticsService:
                             "metric": "response_time",
                             "endpoint": endpoint,
                             "value": data["avg_response_time"],
-                            "threshold": self._alert_thresholds["response_time"] * 1.5
-                        }
+                            "threshold": self._alert_thresholds["response_time"] * 1.5,
+                        },
                     )
-                    self._alert_cooldowns[alert_key] = now + timedelta(minutes=self._alert_cooldown_minutes)
+                    self._alert_cooldowns[alert_key] = now + timedelta(
+                        minutes=self._alert_cooldown_minutes
+                    )
 
     def _trigger_alert(self, title: str, message: str, data: Dict[str, Any]) -> None:
         """
@@ -719,7 +781,7 @@ class AnalyticsService:
             "title": title,
             "message": message,
             "timestamp": datetime.now().isoformat(),
-            "data": data
+            "data": data,
         }
 
         # Call all registered alert handlers

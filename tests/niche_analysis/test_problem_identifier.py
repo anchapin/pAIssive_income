@@ -1,6 +1,7 @@
 """
 Tests for the ProblemIdentifier class.
 """
+
 import pytest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
@@ -11,23 +12,26 @@ from niche_analysis.problem_identifier import ProblemIdentifier
 def test_problem_identifier_init():
     """Test ProblemIdentifier initialization."""
     identifier = ProblemIdentifier()
-    
+
     # Check that the identifier has the expected attributes
     assert identifier.name == "Problem Identifier"
-    assert identifier.description == "Identifies user problems and pain points in specific niches"
+    assert (
+        identifier.description
+        == "Identifies user problems and pain points in specific niches"
+    )
 
 
 def test_identify_problems():
     """Test identify_problems method."""
     identifier = ProblemIdentifier()
-    
+
     # Identify problems for a niche
     problems = identifier.identify_problems("e-commerce")
-    
+
     # Check that the result is a list of problems
     assert isinstance(problems, list)
     assert len(problems) > 0
-    
+
     # Check that each problem has the expected keys
     for problem in problems:
         assert "id" in problem
@@ -43,10 +47,10 @@ def test_identify_problems():
 def test_identify_problems_unknown_niche():
     """Test identify_problems method with an unknown niche."""
     identifier = ProblemIdentifier()
-    
+
     # Identify problems for an unknown niche
     problems = identifier.identify_problems("unknown_niche")
-    
+
     # Check that the result is an empty list
     assert isinstance(problems, list)
     assert len(problems) == 0
@@ -55,7 +59,7 @@ def test_identify_problems_unknown_niche():
 def test_analyze_problem_severity():
     """Test analyze_problem_severity method."""
     identifier = ProblemIdentifier()
-    
+
     # Create a test problem
     problem = {
         "id": "problem1",
@@ -64,10 +68,10 @@ def test_analyze_problem_severity():
         "consequences": ["stockouts", "excess inventory", "lost sales"],
         "severity": "high",
     }
-    
+
     # Analyze the problem severity
     result = identifier.analyze_problem_severity(problem)
-    
+
     # Check that the result has the expected keys
     assert "id" in result
     assert "problem_id" in result
@@ -76,7 +80,7 @@ def test_analyze_problem_severity():
     assert "potential_impact_of_solution" in result
     assert "user_willingness_to_pay" in result
     assert "timestamp" in result
-    
+
     # Check specific values
     assert result["problem_id"] == "problem1"
     assert result["severity"] == "high"
@@ -88,7 +92,7 @@ def test_analyze_problem_severity():
 def test_analyze_problem_severity_medium():
     """Test analyze_problem_severity method with medium severity."""
     identifier = ProblemIdentifier()
-    
+
     # Create a test problem with medium severity
     problem = {
         "id": "problem1",
@@ -97,10 +101,10 @@ def test_analyze_problem_severity_medium():
         "consequences": ["poor SEO", "lower conversion rates"],
         "severity": "medium",
     }
-    
+
     # Analyze the problem severity
     result = identifier.analyze_problem_severity(problem)
-    
+
     # Check specific values
     assert result["severity"] == "medium"
     assert result["potential_impact_of_solution"] == "medium"
@@ -110,7 +114,7 @@ def test_analyze_problem_severity_medium():
 def test_analyze_problem_severity_low():
     """Test analyze_problem_severity method with low severity."""
     identifier = ProblemIdentifier()
-    
+
     # Create a test problem with low severity
     problem = {
         "id": "problem1",
@@ -119,33 +123,30 @@ def test_analyze_problem_severity_low():
         "consequences": ["inconsistent posting", "lower engagement"],
         "severity": "low",
     }
-    
+
     # Analyze the problem severity
     result = identifier.analyze_problem_severity(problem)
-    
+
     # Check specific values
     assert result["severity"] == "low"
     assert result["potential_impact_of_solution"] == "low"
     assert result["user_willingness_to_pay"] == "low"
 
 
-@patch('niche_analysis.problem_identifier.datetime')
+@patch("niche_analysis.problem_identifier.datetime")
 def test_problem_timestamp(mock_datetime):
     """Test that problems include a timestamp."""
     # Mock datetime.now() to return a fixed datetime
     mock_now = datetime(2023, 1, 1, 12, 0, 0)
     mock_datetime.now.return_value = mock_now
-    
+
     identifier = ProblemIdentifier()
-    
+
     # Create a problem
     problem = identifier._create_problem(
-        "Test Problem",
-        "A test problem",
-        ["consequence 1", "consequence 2"],
-        "medium"
+        "Test Problem", "A test problem", ["consequence 1", "consequence 2"], "medium"
     )
-    
+
     # Check that the timestamp is the mocked datetime
     assert problem["timestamp"] == mock_now.isoformat()
 
@@ -153,15 +154,12 @@ def test_problem_timestamp(mock_datetime):
 def test_create_problem():
     """Test _create_problem method."""
     identifier = ProblemIdentifier()
-    
+
     # Create a problem
     problem = identifier._create_problem(
-        "Test Problem",
-        "A test problem",
-        ["consequence 1", "consequence 2"],
-        "medium"
+        "Test Problem", "A test problem", ["consequence 1", "consequence 2"], "medium"
     )
-    
+
     # Check that the problem has the expected keys
     assert "id" in problem
     assert "name" in problem
@@ -171,7 +169,7 @@ def test_create_problem():
     assert "current_solutions" in problem
     assert "solution_gaps" in problem
     assert "timestamp" in problem
-    
+
     # Check specific values
     assert problem["name"] == "Test Problem"
     assert problem["description"] == "A test problem"
@@ -184,18 +182,18 @@ def test_create_problem():
 def test_identify_problems_for_multiple_niches():
     """Test identify_problems method for multiple niches."""
     identifier = ProblemIdentifier()
-    
+
     # Identify problems for multiple niches
     niches = ["e-commerce", "content creation", "freelancing"]
     all_problems = []
-    
+
     for niche in niches:
         problems = identifier.identify_problems(niche)
         all_problems.extend(problems)
-    
+
     # Check that problems were identified for each niche
     assert len(all_problems) > 0
-    
+
     # Check that the problems are unique
     problem_ids = [problem["id"] for problem in all_problems]
     assert len(problem_ids) == len(set(problem_ids))
@@ -204,6 +202,9 @@ def test_identify_problems_for_multiple_niches():
 def test_str_representation():
     """Test string representation of ProblemIdentifier."""
     identifier = ProblemIdentifier()
-    
+
     # Check the string representation
-    assert str(identifier) == "Problem Identifier: Identifies user problems and pain points in specific niches"
+    assert (
+        str(identifier)
+        == "Problem Identifier: Identifies user problems and pain points in specific niches"
+    )

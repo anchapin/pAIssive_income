@@ -13,12 +13,16 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Add the parent directory to the path to import the marketing module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from marketing import SocialMediaIntegration, SocialMediaPlatform
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -39,12 +43,11 @@ def main():
             "access_token": "YOUR_ACCESS_TOKEN",
             "access_token_secret": "YOUR_ACCESS_TOKEN_SECRET",
             "account_name": "YourTwitterHandle",
-            "account_id": "YourTwitterID"
+            "account_id": "YourTwitterID",
         }
 
         twitter_connection = social_media.connect_platform(
-            platform=SocialMediaPlatform.TWITTER,
-            credentials=twitter_credentials
+            platform=SocialMediaPlatform.TWITTER, credentials=twitter_credentials
         )
 
         logger.info(f"Connected to Twitter: {twitter_connection['id']}")
@@ -55,8 +58,7 @@ def main():
         }
 
         tweet_result = social_media.post_content(
-            platform_id=twitter_connection["id"],
-            content=tweet_content
+            platform_id=twitter_connection["id"], content=tweet_content
         )
 
         logger.info(f"Posted tweet: {tweet_result['id']}")
@@ -64,8 +66,7 @@ def main():
 
         # Example: Get analytics for the tweet
         analytics = social_media.get_analytics(
-            platform_id=twitter_connection["id"],
-            post_id=tweet_result["id"]
+            platform_id=twitter_connection["id"], post_id=tweet_result["id"]
         )
 
         logger.info(f"Tweet analytics: {json.dumps(analytics, indent=2)}")
@@ -86,12 +87,11 @@ def main():
             "access_token": "YOUR_FACEBOOK_ACCESS_TOKEN",
             "page_id": "YOUR_FACEBOOK_PAGE_ID",
             "account_name": "Your Facebook Page",
-            "account_id": "YourFacebookID"
+            "account_id": "YourFacebookID",
         }
 
         facebook_connection = social_media.connect_platform(
-            platform=SocialMediaPlatform.FACEBOOK,
-            credentials=facebook_credentials
+            platform=SocialMediaPlatform.FACEBOOK, credentials=facebook_credentials
         )
 
         logger.info(f"Connected to Facebook: {facebook_connection['id']}")
@@ -99,12 +99,11 @@ def main():
         # Example: Post to Facebook
         facebook_content = {
             "message": "This is a test post from the pAIssive Income social media integration module!",
-            "link": "https://github.com/anchapin/pAIssive_income"
+            "link": "https://github.com/anchapin/pAIssive_income",
         }
 
         facebook_result = social_media.post_content(
-            platform_id=facebook_connection["id"],
-            content=facebook_content
+            platform_id=facebook_connection["id"], content=facebook_content
         )
 
         logger.info(f"Posted to Facebook: {facebook_result['id']}")
@@ -115,16 +114,18 @@ def main():
 
         scheduled_content = {
             "message": "This is a scheduled post from the pAIssive Income social media integration module!",
-            "link": "https://github.com/anchapin/pAIssive_income"
+            "link": "https://github.com/anchapin/pAIssive_income",
         }
 
         scheduled_result = social_media.schedule_post(
             platform_id=facebook_connection["id"],
             content=scheduled_content,
-            schedule_time=tomorrow
+            schedule_time=tomorrow,
         )
 
-        logger.info(f"Scheduled post for {tomorrow.isoformat()}: {scheduled_result['id']}")
+        logger.info(
+            f"Scheduled post for {tomorrow.isoformat()}: {scheduled_result['id']}"
+        )
 
     except Exception as e:
         logger.error(f"Error in Facebook example: {e}")
@@ -136,12 +137,11 @@ def main():
             "instagram_account_id": "YOUR_INSTAGRAM_ACCOUNT_ID",
             "facebook_page_id": "YOUR_FACEBOOK_PAGE_ID",  # Required for some operations
             "account_name": "Your Instagram Handle",
-            "account_id": "YourInstagramID"
+            "account_id": "YourInstagramID",
         }
 
         instagram_connection = social_media.connect_platform(
-            platform=SocialMediaPlatform.INSTAGRAM,
-            credentials=instagram_credentials
+            platform=SocialMediaPlatform.INSTAGRAM, credentials=instagram_credentials
         )
 
         logger.info(f"Connected to Instagram: {instagram_connection['id']}")
@@ -151,28 +151,28 @@ def main():
             "caption": "This is a test post from the pAIssive Income social media integration module! #AITools #PassiveIncome",
             "image": {
                 "url": "https://example.com/image.jpg"  # Replace with a real image URL
-            }
+            },
         }
 
         instagram_result = social_media.post_content(
-            platform_id=instagram_connection["id"],
-            content=instagram_content
+            platform_id=instagram_connection["id"], content=instagram_content
         )
 
         logger.info(f"Posted to Instagram: {instagram_result['id']}")
-        logger.info(f"Post URL: {instagram_result.get('platform_data', {}).get('permalink')}")
+        logger.info(
+            f"Post URL: {instagram_result.get('platform_data', {}).get('permalink')}"
+        )
 
         # Example: Post a story to Instagram
         story_content = {
             "story": {
                 "type": "image",
-                "url": "https://example.com/story-image.jpg"  # Replace with a real image URL
+                "url": "https://example.com/story-image.jpg",  # Replace with a real image URL
             }
         }
 
         story_result = social_media.post_content(
-            platform_id=instagram_connection["id"],
-            content=story_content
+            platform_id=instagram_connection["id"], content=story_content
         )
 
         logger.info(f"Posted story to Instagram: {story_result['id']}")
@@ -194,12 +194,11 @@ def main():
             "organization_id": "YOUR_LINKEDIN_ORGANIZATION_ID",  # For company pages
             "person_id": "YOUR_LINKEDIN_PERSON_ID",  # For personal profiles
             "account_name": "Your LinkedIn Page",
-            "account_id": "YourLinkedInID"
+            "account_id": "YourLinkedInID",
         }
 
         linkedin_connection = social_media.connect_platform(
-            platform=SocialMediaPlatform.LINKEDIN,
-            credentials=linkedin_credentials
+            platform=SocialMediaPlatform.LINKEDIN, credentials=linkedin_credentials
         )
 
         logger.info(f"Connected to LinkedIn: {linkedin_connection['id']}")
@@ -210,8 +209,7 @@ def main():
         }
 
         linkedin_text_result = social_media.post_content(
-            platform_id=linkedin_connection["id"],
-            content=linkedin_text_content
+            platform_id=linkedin_connection["id"], content=linkedin_text_content
         )
 
         logger.info(f"Posted text to LinkedIn: {linkedin_text_result['id']}")
@@ -222,13 +220,12 @@ def main():
             "article": {
                 "title": "Generate Passive Income with AI Tools",
                 "url": "https://github.com/anchapin/pAIssive_income",
-                "description": "A comprehensive framework for creating passive income streams using AI tools."
-            }
+                "description": "A comprehensive framework for creating passive income streams using AI tools.",
+            },
         }
 
         linkedin_article_result = social_media.post_content(
-            platform_id=linkedin_connection["id"],
-            content=linkedin_article_content
+            platform_id=linkedin_connection["id"], content=linkedin_article_content
         )
 
         logger.info(f"Posted article to LinkedIn: {linkedin_article_result['id']}")
@@ -243,10 +240,12 @@ def main():
         linkedin_scheduled_result = social_media.schedule_post(
             platform_id=linkedin_connection["id"],
             content=linkedin_scheduled_content,
-            schedule_time=tomorrow
+            schedule_time=tomorrow,
         )
 
-        logger.info(f"Scheduled post for LinkedIn on {tomorrow.isoformat()}: {linkedin_scheduled_result['id']}")
+        logger.info(
+            f"Scheduled post for LinkedIn on {tomorrow.isoformat()}: {linkedin_scheduled_result['id']}"
+        )
 
         # Example: Get audience insights
         insights = social_media.get_audience_insights(
@@ -268,12 +267,11 @@ def main():
             "api_key": "YOUR_YOUTUBE_API_KEY",  # For read-only operations
             "channel_id": "YOUR_YOUTUBE_CHANNEL_ID",
             "account_name": "Your YouTube Channel",
-            "account_id": "YourYouTubeID"
+            "account_id": "YourYouTubeID",
         }
 
         youtube_connection = social_media.connect_platform(
-            platform=SocialMediaPlatform.YOUTUBE,
-            credentials=youtube_credentials
+            platform=SocialMediaPlatform.YOUTUBE, credentials=youtube_credentials
         )
 
         logger.info(f"Connected to YouTube: {youtube_connection['id']}")
@@ -287,13 +285,13 @@ def main():
             "privacy_status": "private",  # Use private for testing
             "video": {
                 "file_path": "path/to/test-video.mp4"  # Replace with a real video path
-            }
+            },
         }
 
         youtube_result = social_media.post_content(
             platform_id=youtube_connection["id"],
             content=youtube_content,
-            visibility="private"  # Use private for testing
+            visibility="private",  # Use private for testing
         )
 
         logger.info(f"Uploaded video to YouTube: {youtube_result['id']}")
@@ -310,23 +308,24 @@ def main():
             "privacy_status": "private",  # Use private for testing
             "video": {
                 "file_path": "path/to/test-video.mp4"  # Replace with a real video path
-            }
+            },
         }
 
         youtube_scheduled_result = social_media.schedule_post(
             platform_id=youtube_connection["id"],
             content=youtube_scheduled_content,
             schedule_time=tomorrow,
-            visibility="private"  # Use private for testing
+            visibility="private",  # Use private for testing
         )
 
-        logger.info(f"Scheduled video for YouTube on {tomorrow.isoformat()}: {youtube_scheduled_result['id']}")
+        logger.info(
+            f"Scheduled video for YouTube on {tomorrow.isoformat()}: {youtube_scheduled_result['id']}"
+        )
 
         # Example: Get analytics for a video
         if "id" in youtube_result:
             analytics = social_media.get_analytics(
-                platform_id=youtube_connection["id"],
-                post_id=youtube_result["id"]
+                platform_id=youtube_connection["id"], post_id=youtube_result["id"]
             )
 
             logger.info(f"YouTube video analytics: {json.dumps(analytics, indent=2)}")
@@ -350,12 +349,11 @@ def main():
             "client_secret": "YOUR_PINTEREST_CLIENT_SECRET",
             "user_id": "YOUR_PINTEREST_USERNAME",
             "account_name": "Your Pinterest Account",
-            "account_id": "YourPinterestID"
+            "account_id": "YourPinterestID",
         }
 
         pinterest_connection = social_media.connect_platform(
-            platform=SocialMediaPlatform.PINTEREST,
-            credentials=pinterest_credentials
+            platform=SocialMediaPlatform.PINTEREST, credentials=pinterest_credentials
         )
 
         logger.info(f"Connected to Pinterest: {pinterest_connection['id']}")
@@ -368,15 +366,14 @@ def main():
                 "board_name": "AI Tools",  # Will create the board if it doesn't exist
                 "media": {
                     "source_type": "image_url",
-                    "url": "https://example.com/image.jpg"  # Replace with a real image URL
+                    "url": "https://example.com/image.jpg",  # Replace with a real image URL
                 },
-                "link": "https://github.com/anchapin/pAIssive_income"
+                "link": "https://github.com/anchapin/pAIssive_income",
             }
         }
 
         pinterest_result = social_media.post_content(
-            platform_id=pinterest_connection["id"],
-            content=pinterest_content
+            platform_id=pinterest_connection["id"], content=pinterest_content
         )
 
         logger.info(f"Created pin on Pinterest: {pinterest_result['id']}")
@@ -385,8 +382,7 @@ def main():
         # Example: Get analytics for a pin
         if "id" in pinterest_result:
             analytics = social_media.get_analytics(
-                platform_id=pinterest_connection["id"],
-                post_id=pinterest_result["id"]
+                platform_id=pinterest_connection["id"], post_id=pinterest_result["id"]
             )
 
             logger.info(f"Pinterest pin analytics: {json.dumps(analytics, indent=2)}")
@@ -410,12 +406,11 @@ def main():
             "client_secret": "YOUR_TIKTOK_CLIENT_SECRET",
             "open_id": "YOUR_TIKTOK_OPEN_ID",
             "account_name": "Your TikTok Account",
-            "account_id": "YourTikTokID"
+            "account_id": "YourTikTokID",
         }
 
         tiktok_connection = social_media.connect_platform(
-            platform=SocialMediaPlatform.TIKTOK,
-            credentials=tiktok_credentials
+            platform=SocialMediaPlatform.TIKTOK, credentials=tiktok_credentials
         )
 
         logger.info(f"Connected to TikTok: {tiktok_connection['id']}")
@@ -426,13 +421,13 @@ def main():
                 "file_path": "path/to/test-video.mp4"  # Replace with a real video path
             },
             "caption": "Testing the pAIssive Income social media integration module!",
-            "hashtags": ["AITools", "PassiveIncome", "TikTokAPI", "Test"]
+            "hashtags": ["AITools", "PassiveIncome", "TikTokAPI", "Test"],
         }
 
         tiktok_result = social_media.post_content(
             platform_id=tiktok_connection["id"],
             content=tiktok_content,
-            visibility="private"  # Use private for testing
+            visibility="private",  # Use private for testing
         )
 
         logger.info(f"Posted video to TikTok: {tiktok_result['id']}")
@@ -441,8 +436,7 @@ def main():
         # Example: Get analytics for a video
         if "id" in tiktok_result:
             analytics = social_media.get_analytics(
-                platform_id=tiktok_connection["id"],
-                post_id=tiktok_result["id"]
+                platform_id=tiktok_connection["id"], post_id=tiktok_result["id"]
             )
 
             logger.info(f"TikTok video analytics: {json.dumps(analytics, indent=2)}")
@@ -482,12 +476,12 @@ def main():
             content_items = [
                 {
                     "text": "Check out our new project on GitHub! #AITools #PassiveIncome",
-                    "link": "https://github.com/anchapin/pAIssive_income"
+                    "link": "https://github.com/anchapin/pAIssive_income",
                 },
                 {
                     "text": "Learn how to generate passive income with AI tools! #AITools #PassiveIncome",
-                    "link": "https://github.com/anchapin/pAIssive_income"
-                }
+                    "link": "https://github.com/anchapin/pAIssive_income",
+                },
             ]
 
             # Define schedule settings
@@ -498,7 +492,7 @@ def main():
                 "end_date": end_date.isoformat(),
                 "frequency": "daily",
                 "times": ["09:00", "15:00", "19:00"],
-                "timezone": "UTC"
+                "timezone": "UTC",
             }
 
             # Create the campaign
@@ -506,12 +500,16 @@ def main():
                 platform_ids=platforms,
                 campaign_name=campaign_name,
                 content_items=content_items,
-                schedule_settings=schedule_settings
+                schedule_settings=schedule_settings,
             )
 
             logger.info(f"Created campaign: {campaign['id']}")
-            logger.info(f"Campaign schedule: {campaign['start_date']} to {campaign['end_date']}")
-            logger.info(f"Scheduled posts: {json.dumps(campaign['scheduled_posts'], indent=2)}")
+            logger.info(
+                f"Campaign schedule: {campaign['start_date']} to {campaign['end_date']}"
+            )
+            logger.info(
+                f"Scheduled posts: {json.dumps(campaign['scheduled_posts'], indent=2)}"
+            )
 
     except Exception as e:
         logger.error(f"Error in campaign example: {e}")

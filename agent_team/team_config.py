@@ -11,8 +11,12 @@ import uuid
 from datetime import datetime
 
 from interfaces.agent_interfaces import (
-    IAgentTeam, IResearchAgent, IDeveloperAgent,
-    IMonetizationAgent, IMarketingAgent, IFeedbackAgent
+    IAgentTeam,
+    IResearchAgent,
+    IDeveloperAgent,
+    IMonetizationAgent,
+    IMarketingAgent,
+    IFeedbackAgent,
 )
 from .agent_profiles.researcher import ResearchAgent
 from .agent_profiles.developer import DeveloperAgent
@@ -20,20 +24,29 @@ from .agent_profiles.monetization import MonetizationAgent
 from .agent_profiles.marketing import MarketingAgent
 from .agent_profiles.feedback import FeedbackAgent
 from .errors import (
-    AgentTeamError, AgentInitializationError, WorkflowError,
-    ValidationError, handle_exception
+    AgentTeamError,
+    AgentInitializationError,
+    WorkflowError,
+    ValidationError,
+    handle_exception,
 )
 from .schemas import (
-    TeamConfigSchema, ModelSettingsSchema, WorkflowSettingsSchema,
-    ProjectStateSchema, NicheSchema, SolutionSchema, MonetizationStrategySchema,
-    MarketingPlanSchema, FeedbackItemSchema
+    TeamConfigSchema,
+    ModelSettingsSchema,
+    WorkflowSettingsSchema,
+    ProjectStateSchema,
+    NicheSchema,
+    SolutionSchema,
+    MonetizationStrategySchema,
+    MarketingPlanSchema,
+    FeedbackItemSchema,
 )
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 # Type variable for agent interfaces
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class AgentTeam(IAgentTeam):
@@ -60,11 +73,13 @@ class AgentTeam(IAgentTeam):
                 raise ValidationError(
                     message="Project name must be a non-empty string",
                     field="project_name",
-                    validation_errors=[{
-                        "field": "project_name",
-                        "value": project_name,
-                        "error": "Must be a non-empty string"
-                    }]
+                    validation_errors=[
+                        {
+                            "field": "project_name",
+                            "value": project_name,
+                            "error": "Must be a non-empty string",
+                        }
+                    ],
                 )
 
             self._project_name = project_name
@@ -78,7 +93,7 @@ class AgentTeam(IAgentTeam):
                 raise AgentTeamError(
                     message=f"Failed to load configuration: {e}",
                     code="config_load_error",
-                    original_exception=e
+                    original_exception=e,
                 )
 
             # Initialize the specialized agents
@@ -89,7 +104,7 @@ class AgentTeam(IAgentTeam):
                 raise AgentInitializationError(
                     message=f"Failed to initialize Research Agent: {e}",
                     agent_name="Research Agent",
-                    original_exception=e
+                    original_exception=e,
                 )
 
             try:
@@ -99,17 +114,19 @@ class AgentTeam(IAgentTeam):
                 raise AgentInitializationError(
                     message=f"Failed to initialize Developer Agent: {e}",
                     agent_name="Developer Agent",
-                    original_exception=e
+                    original_exception=e,
                 )
 
             try:
                 self.monetization = MonetizationAgent(self)
-                logger.debug(f"Initialized Monetization Agent for project: {project_name}")
+                logger.debug(
+                    f"Initialized Monetization Agent for project: {project_name}"
+                )
             except Exception as e:
                 raise AgentInitializationError(
                     message=f"Failed to initialize Monetization Agent: {e}",
                     agent_name="Monetization Agent",
-                    original_exception=e
+                    original_exception=e,
                 )
 
             try:
@@ -119,7 +136,7 @@ class AgentTeam(IAgentTeam):
                 raise AgentInitializationError(
                     message=f"Failed to initialize Marketing Agent: {e}",
                     agent_name="Marketing Agent",
-                    original_exception=e
+                    original_exception=e,
                 )
 
             try:
@@ -129,7 +146,7 @@ class AgentTeam(IAgentTeam):
                 raise AgentInitializationError(
                     message=f"Failed to initialize Feedback Agent: {e}",
                     agent_name="Feedback Agent",
-                    original_exception=e
+                    original_exception=e,
                 )
 
             # Project state storage
@@ -144,7 +161,7 @@ class AgentTeam(IAgentTeam):
                 "marketing_plan": None,
                 "feedback_data": [],
                 "created_at": str(datetime.now().isoformat()),
-                "updated_at": str(datetime.now().isoformat())
+                "updated_at": str(datetime.now().isoformat()),
             }
 
             # Agent registry for dependency injection
@@ -153,10 +170,12 @@ class AgentTeam(IAgentTeam):
                 "developer": self.developer,
                 "monetization": self.monetization,
                 "marketing": self.marketing,
-                "feedback": self.feedback
+                "feedback": self.feedback,
             }
 
-            logger.info(f"Successfully initialized agent team for project: {project_name}")
+            logger.info(
+                f"Successfully initialized agent team for project: {project_name}"
+            )
 
         except ValidationError:
             # Re-raise validation errors
@@ -171,7 +190,7 @@ class AgentTeam(IAgentTeam):
                 error_class=AgentTeamError,
                 message=f"Failed to initialize agent team for project {project_name}",
                 reraise=True,
-                log_level=logging.ERROR
+                log_level=logging.ERROR,
             )
             # This line won't be reached due to reraise=True
 
@@ -204,7 +223,9 @@ class AgentTeam(IAgentTeam):
             ValueError: If the agent type is invalid
         """
         if agent_type not in self._agent_registry:
-            raise ValueError(f"Invalid agent type: {agent_type}. Valid types are: {', '.join(self._agent_registry.keys())}")
+            raise ValueError(
+                f"Invalid agent type: {agent_type}. Valid types are: {', '.join(self._agent_registry.keys())}"
+            )
 
         return self._agent_registry[agent_type]
 
@@ -234,7 +255,7 @@ class AgentTeam(IAgentTeam):
                 "workflow": {
                     "auto_progression": False,
                     "review_required": True,
-                }
+                },
             }
 
             if config_path:
@@ -242,27 +263,33 @@ class AgentTeam(IAgentTeam):
                     raise ValidationError(
                         message=f"Configuration file not found: {config_path}",
                         field="config_path",
-                        validation_errors=[{
-                            "field": "config_path",
-                            "value": config_path,
-                            "error": "File not found"
-                        }]
+                        validation_errors=[
+                            {
+                                "field": "config_path",
+                                "value": config_path,
+                                "error": "File not found",
+                            }
+                        ],
                     )
 
                 try:
-                    with open(config_path, 'r') as f:
+                    with open(config_path, "r") as f:
                         try:
                             user_config = json.load(f)
                         except json.JSONDecodeError as e:
                             raise ValidationError(
                                 message=f"Invalid JSON in configuration file: {e}",
                                 field="config_file_content",
-                                original_exception=e
+                                original_exception=e,
                             )
 
                         # Merge user config with default config
                         for key, value in user_config.items():
-                            if key in default_config and isinstance(value, dict) and isinstance(default_config[key], dict):
+                            if (
+                                key in default_config
+                                and isinstance(value, dict)
+                                and isinstance(default_config[key], dict)
+                            ):
                                 default_config[key].update(value)
                             else:
                                 default_config[key] = value
@@ -271,19 +298,21 @@ class AgentTeam(IAgentTeam):
                     raise AgentTeamError(
                         message=f"Failed to read configuration file: {e}",
                         code="config_file_error",
-                        original_exception=e
+                        original_exception=e,
                     )
 
             # Validate the config using Pydantic schema
             try:
                 validated_config = TeamConfigSchema(**default_config).dict()
-                logger.info(f"Successfully validated configuration using Pydantic schema")
+                logger.info(
+                    f"Successfully validated configuration using Pydantic schema"
+                )
                 return validated_config
             except Exception as e:
                 raise ValidationError(
                     message=f"Invalid configuration: {e}",
                     field="config",
-                    original_exception=e
+                    original_exception=e,
                 )
 
         except ValidationError:
@@ -299,7 +328,7 @@ class AgentTeam(IAgentTeam):
                 error_class=AgentTeamError,
                 message=f"Failed to load configuration: {e}",
                 reraise=True,
-                log_level=logging.ERROR
+                log_level=logging.ERROR,
             )
             return {}  # This line won't be reached due to reraise=True
 
@@ -343,22 +372,26 @@ class AgentTeam(IAgentTeam):
                 raise ValidationError(
                     message="Market segments list cannot be empty",
                     field="market_segments",
-                    validation_errors=[{
-                        "field": "market_segments",
-                        "value": str(market_segments),
-                        "error": "Cannot be empty"
-                    }]
+                    validation_errors=[
+                        {
+                            "field": "market_segments",
+                            "value": str(market_segments),
+                            "error": "Cannot be empty",
+                        }
+                    ],
                 )
 
             if not isinstance(market_segments, list):
                 raise ValidationError(
                     message="Market segments must be a list",
                     field="market_segments",
-                    validation_errors=[{
-                        "field": "market_segments",
-                        "value": str(type(market_segments)),
-                        "error": "Must be a list"
-                    }]
+                    validation_errors=[
+                        {
+                            "field": "market_segments",
+                            "value": str(type(market_segments)),
+                            "error": "Must be a list",
+                        }
+                    ],
                 )
 
             for i, segment in enumerate(market_segments):
@@ -366,14 +399,18 @@ class AgentTeam(IAgentTeam):
                     raise ValidationError(
                         message=f"Market segment at index {i} must be a non-empty string",
                         field=f"market_segments[{i}]",
-                        validation_errors=[{
-                            "field": f"market_segments[{i}]",
-                            "value": str(segment),
-                            "error": "Must be a non-empty string"
-                        }]
+                        validation_errors=[
+                            {
+                                "field": f"market_segments[{i}]",
+                                "value": str(segment),
+                                "error": "Must be a non-empty string",
+                            }
+                        ],
                     )
 
-            logger.info(f"Running niche analysis for market segments: {', '.join(market_segments)}")
+            logger.info(
+                f"Running niche analysis for market segments: {', '.join(market_segments)}"
+            )
 
             try:
                 # Run the analysis
@@ -383,14 +420,16 @@ class AgentTeam(IAgentTeam):
                 self.project_state["identified_niches"] = niches
                 self.project_state["updated_at"] = str(datetime.now().isoformat())
 
-                logger.info(f"Identified {len(niches)} niches across {len(market_segments)} market segments")
+                logger.info(
+                    f"Identified {len(niches)} niches across {len(market_segments)} market segments"
+                )
                 return niches
 
             except Exception as e:
                 raise WorkflowError(
                     message=f"Niche analysis workflow failed: {e}",
                     workflow_step="niche_analysis",
-                    original_exception=e
+                    original_exception=e,
                 )
 
         except ValidationError:
@@ -407,7 +446,7 @@ class AgentTeam(IAgentTeam):
                 message=f"Unexpected error in niche analysis workflow: {e}",
                 details={"workflow_step": "niche_analysis"},
                 reraise=True,
-                log_level=logging.ERROR
+                log_level=logging.ERROR,
             )
             return []  # This line won't be reached due to reraise=True
 
@@ -456,7 +495,7 @@ class AgentTeam(IAgentTeam):
                 raise ValidationError(
                     message=f"Invalid niche data: {e}",
                     field="niche",
-                    original_exception=e
+                    original_exception=e,
                 )
 
             logger.info(f"Developing solution for niche: {validated_niche['name']}")
@@ -475,9 +514,13 @@ class AgentTeam(IAgentTeam):
                 # Validate solution using Pydantic schema
                 try:
                     validated_solution = SolutionSchema(**solution).dict()
-                    logger.info(f"Successfully validated solution output using Pydantic schema")
+                    logger.info(
+                        f"Successfully validated solution output using Pydantic schema"
+                    )
                 except Exception as e:
-                    logger.warning(f"Solution data does not fully conform to schema: {e}")
+                    logger.warning(
+                        f"Solution data does not fully conform to schema: {e}"
+                    )
                     # Continue with original solution data if validation fails
                     validated_solution = solution
 
@@ -485,14 +528,16 @@ class AgentTeam(IAgentTeam):
                 self.project_state["solution_design"] = validated_solution
                 self.project_state["updated_at"] = str(datetime.now().isoformat())
 
-                logger.info(f"Successfully developed solution: {validated_solution.get('name', 'Unnamed solution')}")
+                logger.info(
+                    f"Successfully developed solution: {validated_solution.get('name', 'Unnamed solution')}"
+                )
                 return validated_solution
 
             except Exception as e:
                 raise WorkflowError(
                     message=f"Solution development workflow failed: {e}",
                     workflow_step="develop_solution",
-                    original_exception=e
+                    original_exception=e,
                 )
 
         except ValidationError:
@@ -509,11 +554,13 @@ class AgentTeam(IAgentTeam):
                 message=f"Unexpected error in solution development workflow: {e}",
                 details={"workflow_step": "develop_solution"},
                 reraise=True,
-                log_level=logging.ERROR
+                log_level=logging.ERROR,
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def create_monetization_strategy(self, solution: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def create_monetization_strategy(
+        self, solution: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Create a monetization strategy for the developed solution.
 
@@ -531,7 +578,7 @@ class AgentTeam(IAgentTeam):
         4. Validate the resulting strategy with schema validation
         5. Store the monetization strategy in the project state
         6. Return the validated monetization strategy
-        
+
         Performance considerations:
         -------------------------
         - Time complexity: O(m*p), where:
@@ -544,7 +591,7 @@ class AgentTeam(IAgentTeam):
 
         Returns:
             Monetization strategy specification
-            
+
         Raises:
             ValidationError: If the solution is invalid
             MonetizationAgentError: If there's an issue with the monetization agent
@@ -555,46 +602,62 @@ class AgentTeam(IAgentTeam):
             if solution:
                 try:
                     validated_solution = SolutionSchema(**solution).dict()
-                    logger.info(f"Successfully validated solution input using Pydantic schema")
+                    logger.info(
+                        f"Successfully validated solution input using Pydantic schema"
+                    )
                 except Exception as e:
-                    logger.warning(f"Solution data does not fully conform to schema: {e}")
+                    logger.warning(
+                        f"Solution data does not fully conform to schema: {e}"
+                    )
                     validated_solution = solution
-                    
+
                 # Store the solution in the project state if it's not already there
                 if not self.project_state["solution_design"]:
                     self.project_state["solution_design"] = validated_solution
             elif not self.project_state["solution_design"]:
-                raise ValueError("Solution must be designed before creating monetization strategy")
-                
+                raise ValueError(
+                    "Solution must be designed before creating monetization strategy"
+                )
+
             # Use the solution from the project state or the provided solution
-            solution_to_use = validated_solution if solution else self.project_state["solution_design"]
+            solution_to_use = (
+                validated_solution
+                if solution
+                else self.project_state["solution_design"]
+            )
 
             try:
                 # Create the monetization strategy
                 strategy = self.monetization.create_strategy(solution_to_use)
-                
+
                 # Validate strategy using Pydantic schema
                 try:
                     validated_strategy = MonetizationStrategySchema(**strategy).dict()
-                    logger.info(f"Successfully validated monetization strategy using Pydantic schema")
+                    logger.info(
+                        f"Successfully validated monetization strategy using Pydantic schema"
+                    )
                 except Exception as e:
-                    logger.warning(f"Monetization strategy does not fully conform to schema: {e}")
+                    logger.warning(
+                        f"Monetization strategy does not fully conform to schema: {e}"
+                    )
                     validated_strategy = strategy
-                
+
                 # Store the strategy in the project state
                 self.project_state["monetization_strategy"] = validated_strategy
                 self.project_state["updated_at"] = str(datetime.now().isoformat())
-                
-                logger.info(f"Successfully created monetization strategy for solution: {solution_to_use.get('name', 'Unnamed solution')}")
+
+                logger.info(
+                    f"Successfully created monetization strategy for solution: {solution_to_use.get('name', 'Unnamed solution')}"
+                )
                 return validated_strategy
-                
+
             except Exception as e:
                 raise WorkflowError(
                     message=f"Monetization strategy creation workflow failed: {e}",
                     workflow_step="create_monetization_strategy",
-                    original_exception=e
+                    original_exception=e,
                 )
-                
+
         except ValueError as e:
             # Re-raise value errors
             raise
@@ -609,16 +672,19 @@ class AgentTeam(IAgentTeam):
                 message=f"Unexpected error in monetization strategy workflow: {e}",
                 details={"workflow_step": "create_monetization_strategy"},
                 reraise=True,
-                log_level=logging.ERROR
+                log_level=logging.ERROR,
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def create_marketing_plan(self, niche: Optional[Dict[str, Any]] = None,
-                          solution: Optional[Dict[str, Any]] = None,
-                          monetization: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def create_marketing_plan(
+        self,
+        niche: Optional[Dict[str, Any]] = None,
+        solution: Optional[Dict[str, Any]] = None,
+        monetization: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         Create a marketing plan for the developed solution.
-        
+
         Algorithm description:
         ---------------------
         The marketing plan creation algorithm follows these steps:
@@ -635,7 +701,7 @@ class AgentTeam(IAgentTeam):
         3. Validate the resulting marketing plan with schema validation
         4. Store the marketing plan in the project state
         5. Return the validated marketing plan
-        
+
         Performance considerations:
         -------------------------
         - Time complexity: O(c*a), where:
@@ -650,7 +716,7 @@ class AgentTeam(IAgentTeam):
 
         Returns:
             Marketing plan specification
-            
+
         Raises:
             ValidationError: If any of the inputs are invalid
             MarketingAgentError: If there's an issue with the marketing agent
@@ -659,68 +725,98 @@ class AgentTeam(IAgentTeam):
         try:
             # Use provided objects or fall back to project state
             niche_to_use = niche if niche else self.project_state["selected_niche"]
-            solution_to_use = solution if solution else self.project_state["solution_design"]
-            monetization_to_use = monetization if monetization else self.project_state["monetization_strategy"]
+            solution_to_use = (
+                solution if solution else self.project_state["solution_design"]
+            )
+            monetization_to_use = (
+                monetization
+                if monetization
+                else self.project_state["monetization_strategy"]
+            )
 
             # Validate that we have all required objects
             if not niche_to_use:
-                raise ValueError("Niche must be selected before creating marketing plan")
+                raise ValueError(
+                    "Niche must be selected before creating marketing plan"
+                )
             if not solution_to_use:
-                raise ValueError("Solution must be designed before creating marketing plan")
+                raise ValueError(
+                    "Solution must be designed before creating marketing plan"
+                )
             if not monetization_to_use:
-                raise ValueError("Monetization strategy must be created before marketing plan")
+                raise ValueError(
+                    "Monetization strategy must be created before marketing plan"
+                )
 
             # Validate inputs using Pydantic schemas
             try:
                 if niche:
                     validated_niche = NicheSchema(**niche_to_use).dict()
-                    logger.info("Successfully validated niche input using Pydantic schema")
+                    logger.info(
+                        "Successfully validated niche input using Pydantic schema"
+                    )
                     niche_to_use = validated_niche
             except Exception as e:
                 logger.warning(f"Niche data does not fully conform to schema: {e}")
-                
+
             try:
                 if solution:
                     validated_solution = SolutionSchema(**solution_to_use).dict()
-                    logger.info("Successfully validated solution input using Pydantic schema")
+                    logger.info(
+                        "Successfully validated solution input using Pydantic schema"
+                    )
                     solution_to_use = validated_solution
             except Exception as e:
                 logger.warning(f"Solution data does not fully conform to schema: {e}")
-                
+
             try:
                 if monetization:
-                    validated_monetization = MonetizationStrategySchema(**monetization_to_use).dict()
-                    logger.info("Successfully validated monetization input using Pydantic schema")
+                    validated_monetization = MonetizationStrategySchema(
+                        **monetization_to_use
+                    ).dict()
+                    logger.info(
+                        "Successfully validated monetization input using Pydantic schema"
+                    )
                     monetization_to_use = validated_monetization
             except Exception as e:
-                logger.warning(f"Monetization data does not fully conform to schema: {e}")
+                logger.warning(
+                    f"Monetization data does not fully conform to schema: {e}"
+                )
 
             try:
                 # Create the marketing plan
-                plan = self.marketing.create_plan(niche_to_use, solution_to_use, monetization_to_use)
-                
+                plan = self.marketing.create_plan(
+                    niche_to_use, solution_to_use, monetization_to_use
+                )
+
                 # Validate marketing plan using Pydantic schema
                 try:
                     validated_plan = MarketingPlanSchema(**plan).dict()
-                    logger.info("Successfully validated marketing plan using Pydantic schema")
+                    logger.info(
+                        "Successfully validated marketing plan using Pydantic schema"
+                    )
                 except Exception as e:
-                    logger.warning(f"Marketing plan does not fully conform to schema: {e}")
+                    logger.warning(
+                        f"Marketing plan does not fully conform to schema: {e}"
+                    )
                     validated_plan = plan
-                
+
                 # Store the plan in the project state
                 self.project_state["marketing_plan"] = validated_plan
                 self.project_state["updated_at"] = str(datetime.now().isoformat())
-                
-                logger.info(f"Successfully created marketing plan for solution: {solution_to_use.get('name', 'Unnamed solution')}")
+
+                logger.info(
+                    f"Successfully created marketing plan for solution: {solution_to_use.get('name', 'Unnamed solution')}"
+                )
                 return validated_plan
-                
+
             except Exception as e:
                 raise WorkflowError(
                     message=f"Marketing plan creation workflow failed: {e}",
                     workflow_step="create_marketing_plan",
-                    original_exception=e
+                    original_exception=e,
                 )
-                
+
         except ValueError as e:
             # Re-raise value errors
             raise
@@ -735,7 +831,7 @@ class AgentTeam(IAgentTeam):
                 message=f"Unexpected error in marketing plan workflow: {e}",
                 details={"workflow_step": "create_marketing_plan"},
                 reraise=True,
-                log_level=logging.ERROR
+                log_level=logging.ERROR,
             )
             return {}  # This line won't be reached due to reraise=True
 
@@ -748,7 +844,7 @@ class AgentTeam(IAgentTeam):
 
         Returns:
             Analysis and recommendations based on feedback
-            
+
         Raises:
             ValidationError: If the feedback data is invalid
             FeedbackAgentError: If there's an issue with the feedback agent
@@ -762,19 +858,23 @@ class AgentTeam(IAgentTeam):
                     validated_item = FeedbackItemSchema(**item).dict()
                     validated_feedback_items.append(validated_item)
                 except Exception as e:
-                    logger.warning(f"Feedback item at index {i} does not conform to schema: {e}")
+                    logger.warning(
+                        f"Feedback item at index {i} does not conform to schema: {e}"
+                    )
                     validated_feedback_items.append(item)
-            
+
             # Store feedback in the project state
             self.project_state["feedback_data"].extend(validated_feedback_items)
             self.project_state["updated_at"] = str(datetime.now().isoformat())
-            
+
             # Process the feedback
             analysis = self.feedback.analyze_feedback(validated_feedback_items)
-            
-            logger.info(f"Successfully processed {len(validated_feedback_items)} feedback items")
+
+            logger.info(
+                f"Successfully processed {len(validated_feedback_items)} feedback items"
+            )
             return analysis
-            
+
         except Exception as e:
             # Handle unexpected errors
             error = handle_exception(
@@ -783,7 +883,7 @@ class AgentTeam(IAgentTeam):
                 message=f"Unexpected error in feedback processing workflow: {e}",
                 details={"workflow_step": "process_feedback"},
                 reraise=True,
-                log_level=logging.ERROR
+                log_level=logging.ERROR,
             )
             return {}  # This line won't be reached due to reraise=True
 
@@ -793,7 +893,7 @@ class AgentTeam(IAgentTeam):
 
         Args:
             output_path: Path to save the project plan
-            
+
         Raises:
             IOError: If there's an issue writing to the file
         """
@@ -801,16 +901,18 @@ class AgentTeam(IAgentTeam):
             # Validate project state using Pydantic schema
             try:
                 validated_state = ProjectStateSchema(**self.project_state).dict()
-                logger.info("Successfully validated project state using Pydantic schema")
+                logger.info(
+                    "Successfully validated project state using Pydantic schema"
+                )
             except Exception as e:
                 logger.warning(f"Project state does not fully conform to schema: {e}")
                 validated_state = self.project_state
-            
-            with open(output_path, 'w') as f:
+
+            with open(output_path, "w") as f:
                 json.dump(validated_state, f, indent=2)
-                
+
             logger.info(f"Successfully exported project plan to: {output_path}")
-            
+
         except (IOError, OSError) as e:
             logger.error(f"Failed to export project plan: {e}")
             raise

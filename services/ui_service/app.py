@@ -19,14 +19,13 @@ from fastapi.responses import JSONResponse, HTMLResponse
 from services.service_discovery.registration import (
     register_service,
     get_service_metadata,
-    get_default_tags
+    get_default_tags,
 )
 from services.service_discovery.discovery_client import ServiceDiscoveryClient
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="pAIssive Income UI Service",
     description="UI Service for pAIssive Income platform",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add CORS middleware
@@ -152,11 +151,7 @@ async def root(request: Request):
 @app.get("/api/status")
 async def api_status():
     """API status endpoint."""
-    return {
-        "status": "ok",
-        "version": "1.0.0",
-        "service": "ui-service"
-    }
+    return {"status": "ok", "version": "1.0.0", "service": "ui-service"}
 
 
 @app.get("/api/service-info")
@@ -164,7 +159,7 @@ async def get_services():
     """Get information about available services."""
     if not service_discovery_client:
         return {"services": {}, "error": "Service discovery not available"}
-    
+
     try:
         services = service_discovery_client.discover_all_services()
         # Convert ServiceInstance objects to simple dictionaries
@@ -176,7 +171,7 @@ async def get_services():
                     "name": instance.service_name,
                     "host": instance.host,
                     "port": instance.port,
-                    "version": instance.version
+                    "version": instance.version,
                 }
                 for instance in instances
             ]
@@ -189,7 +184,7 @@ async def get_services():
 def check_service_health() -> bool:
     """
     Check if this service is healthy.
-    
+
     Returns:
         bool: True if healthy, False otherwise
     """
@@ -201,16 +196,16 @@ def check_service_health() -> bool:
 def register_with_service_registry(port: int):
     """
     Register this service with the service registry.
-    
+
     Args:
         port: Port this service is running on
     """
     global service_registration, service_discovery_client
-    
+
     # Get metadata and tags
     metadata = get_service_metadata()
     tags = get_default_tags() + ["ui", "frontend", "web"]
-    
+
     # Register service
     service_registration = register_service(
         app=app,
@@ -220,29 +215,31 @@ def register_with_service_registry(port: int):
         health_check_path="/health",
         check_functions=[check_service_health],
         tags=tags,
-        metadata=metadata
+        metadata=metadata,
     )
-    
+
     if service_registration:
         logger.info("Successfully registered UI Service with service registry")
         service_discovery_client = service_registration.client
     else:
-        logger.warning("Failed to register with service registry, continuing without service discovery")
+        logger.warning(
+            "Failed to register with service registry, continuing without service discovery"
+        )
 
 
 def start_ui_service(host: str = "0.0.0.0", port: int = 3000):
     """
     Start the UI Service.
-    
+
     Args:
         host: Host to bind to
         port: Port to listen on
     """
     import uvicorn
-    
+
     # Register with service registry
     register_with_service_registry(port)
-    
+
     # Start the UI Service
     uvicorn.run(app, host=host, port=port)
 
@@ -252,8 +249,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="UI Service")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
     parser.add_argument("--port", type=int, default=3000, help="Port to listen on")
-    
+
     args = parser.parse_args()
-    
+
     # Start the UI Service
     start_ui_service(host=args.host, port=args.port)

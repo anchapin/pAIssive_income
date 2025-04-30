@@ -10,8 +10,7 @@ from typing import Dict, Any, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -19,6 +18,7 @@ try:
     import strawberry
     from strawberry.fastapi import GraphQLRouter
     from strawberry.schema.config import StrawberryConfig
+
     STRAWBERRY_AVAILABLE = True
 except ImportError:
     logger.warning("Strawberry GraphQL is required for GraphQL API")
@@ -27,13 +27,20 @@ except ImportError:
 # Import resolvers
 if STRAWBERRY_AVAILABLE:
     from .resolvers import (
-        Query, Mutation,
-        NicheAnalysisQuery, NicheAnalysisMutation,
-        MonetizationQuery, MonetizationMutation,
-        MarketingQuery, MarketingMutation,
-        AIModelsQuery, AIModelsMutation,
-        AgentTeamQuery, AgentTeamMutation,
-        UserQuery, UserMutation
+        Query,
+        Mutation,
+        NicheAnalysisQuery,
+        NicheAnalysisMutation,
+        MonetizationQuery,
+        MonetizationMutation,
+        MarketingQuery,
+        MarketingMutation,
+        AIModelsQuery,
+        AIModelsMutation,
+        AgentTeamQuery,
+        AgentTeamMutation,
+        UserQuery,
+        UserMutation,
     )
 
 
@@ -60,7 +67,7 @@ def build_schema():
         MarketingQuery,
         AIModelsQuery,
         AgentTeamQuery,
-        UserQuery
+        UserQuery,
     ):
         pass
 
@@ -73,7 +80,7 @@ def build_schema():
         MarketingMutation,
         AIModelsMutation,
         AgentTeamMutation,
-        UserMutation
+        UserMutation,
     ):
         pass
 
@@ -83,7 +90,7 @@ def build_schema():
         mutation=RootMutation,
         config=StrawberryConfig(
             auto_camel_case=True  # Convert snake_case to camelCase
-        )
+        ),
     )
 
     return schema
@@ -101,7 +108,9 @@ def create_graphql_router(path: str = "/graphql", graphiql: bool = True):
         GraphQL router
     """
     if not STRAWBERRY_AVAILABLE:
-        logger.error("Cannot create GraphQL router: Strawberry GraphQL is not installed")
+        logger.error(
+            "Cannot create GraphQL router: Strawberry GraphQL is not installed"
+        )
         return None
 
     # Build schema
@@ -114,10 +123,7 @@ def create_graphql_router(path: str = "/graphql", graphiql: bool = True):
 
     # Create router
     router = GraphQLRouter(
-        schema=schema,
-        graphiql=graphiql,
-        path=path,
-        context_getter=get_context
+        schema=schema, graphiql=graphiql, path=path, context_getter=get_context
     )
 
     return router

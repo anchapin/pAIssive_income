@@ -1,6 +1,7 @@
 """
 Integration tests for the niche-to-solution workflow.
 """
+
 import pytest
 from unittest.mock import patch, MagicMock
 
@@ -117,13 +118,16 @@ def mock_agents():
     }
 
 
-@patch('agent_team.team_config.ResearchAgent')
-@patch('agent_team.team_config.DeveloperAgent')
-@patch('agent_team.team_config.MonetizationAgent')
-@patch('agent_team.team_config.MarketingAgent')
+@patch("agent_team.team_config.ResearchAgent")
+@patch("agent_team.team_config.DeveloperAgent")
+@patch("agent_team.team_config.MonetizationAgent")
+@patch("agent_team.team_config.MarketingAgent")
 def test_niche_to_solution_workflow(
-    mock_marketing_class, mock_monetization_class, mock_developer_class, mock_researcher_class,
-    mock_agents
+    mock_marketing_class,
+    mock_monetization_class,
+    mock_developer_class,
+    mock_researcher_class,
+    mock_agents,
 ):
     """Test the complete niche-to-solution workflow."""
     # Set up the mock agents
@@ -139,7 +143,9 @@ def test_niche_to_solution_workflow(
     niches = team.run_niche_analysis(["e-commerce"])
 
     # Check that the researcher's analyze_market_segments method was called
-    mock_agents["researcher"].analyze_market_segments.assert_called_once_with(["e-commerce"])
+    mock_agents["researcher"].analyze_market_segments.assert_called_once_with(
+        ["e-commerce"]
+    )
 
     # Check that niches were returned
     assert len(niches) == 2
@@ -171,7 +177,9 @@ def test_niche_to_solution_workflow(
 
     # Check that a monetization strategy was returned
     assert monetization["name"] == "Freemium Strategy"
-    assert monetization["subscription_model"]["name"] == "Inventory Manager Subscription"
+    assert (
+        monetization["subscription_model"]["name"] == "Inventory Manager Subscription"
+    )
     assert len(monetization["subscription_model"]["tiers"]) == 2
 
     # Create a marketing plan

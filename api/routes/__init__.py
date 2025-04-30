@@ -15,13 +15,13 @@ from .api_key import router as api_key_router
 from .analytics import router as analytics_router
 
 __all__ = [
-    'niche_analysis_router',
-    'monetization_router',
-    'marketing_router',
-    'ai_models_router',
-    'agent_team_router',
-    'user_router',
-    'dashboard_router',
-    'api_key_router',
-    'analytics_router',
+    "niche_analysis_router",
+    "monetization_router",
+    "marketing_router",
+    "ai_models_router",
+    "agent_team_router",
+    "user_router",
+    "dashboard_router",
+    "api_key_router",
+    "analytics_router",
 ]

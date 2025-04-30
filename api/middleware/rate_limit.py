@@ -14,14 +14,14 @@ from ..rate_limit import RateLimitManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
     from fastapi import FastAPI, Request, Response
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for rate limiting middleware")
@@ -43,18 +43,22 @@ class RateLimitMiddleware:
         self.config = config
 
         # Create rate limit manager
-        storage_type = "redis" if hasattr(config, "redis_url") and config.redis_url else "memory"
+        storage_type = (
+            "redis" if hasattr(config, "redis_url") and config.redis_url else "memory"
+        )
         storage_kwargs = {}
         if storage_type == "redis":
             storage_kwargs["redis_url"] = config.redis_url
 
-        self.rate_limit_manager = RateLimitManager(config, storage_type, **storage_kwargs)
+        self.rate_limit_manager = RateLimitManager(
+            config, storage_type, **storage_kwargs
+        )
 
     def check_rate_limit(
         self,
         client_id: str,
         endpoint: Optional[str] = None,
-        api_key: Optional[str] = None
+        api_key: Optional[str] = None,
     ) -> Tuple[bool, Dict[str, Any]]:
         """
         Check if a request should be rate limited.
@@ -105,7 +109,9 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
     rate_limit_middleware = RateLimitMiddleware(config)
 
     @app.middleware("http")
-    async def rate_limit_middleware_func(request: Request, call_next: Callable) -> Response:
+    async def rate_limit_middleware_func(
+        request: Request, call_next: Callable
+    ) -> Response:
         """
         Rate limiting middleware function.
 
@@ -137,7 +143,9 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
         endpoint = request.url.path
 
         # Check rate limit
-        allowed, limit_info = rate_limit_middleware.check_rate_limit(client_id, endpoint, api_key)
+        allowed, limit_info = rate_limit_middleware.check_rate_limit(
+            client_id, endpoint, api_key
+        )
 
         if not allowed:
             # Return rate limit exceeded response
@@ -147,7 +155,7 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
                 status_code=429,
                 content='{"detail":"Rate limit exceeded"}',
                 media_type="application/json",
-                headers=headers
+                headers=headers,
             )
 
         # Process the request

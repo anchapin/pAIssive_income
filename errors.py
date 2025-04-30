@@ -25,7 +25,7 @@ class BaseError(Exception):
         code: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None,
         http_status: int = 500,
-        original_exception: Optional[Exception] = None
+        original_exception: Optional[Exception] = None,
     ):
         """
         Initialize the base error.
@@ -64,7 +64,7 @@ class BaseError(Exception):
                 "code": self.code,
                 "message": self.message,
                 "details": self.details,
-                "timestamp": self.timestamp
+                "timestamp": self.timestamp,
             }
         }
 
@@ -84,20 +84,18 @@ class BaseError(Exception):
         Args:
             level: Logging level
         """
-        logger.log(level, f"{self.code}: {self.message}", exc_info=self.original_exception)
+        logger.log(
+            level, f"{self.code}: {self.message}", exc_info=self.original_exception
+        )
 
 
 # Configuration Errors
 
+
 class ConfigurationError(BaseError):
     """Error raised when there's an issue with configuration."""
 
-    def __init__(
-        self,
-        message: str,
-        config_key: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, config_key: Optional[str] = None, **kwargs):
         """
         Initialize the configuration error.
 
@@ -111,15 +109,10 @@ class ConfigurationError(BaseError):
             details["config_key"] = config_key
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "configuration_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "configuration_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            http_status=500,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, http_status=500, **kwargs)
 
 
 class ValidationError(BaseError):
@@ -130,7 +123,7 @@ class ValidationError(BaseError):
         message: str,
         field: Optional[str] = None,
         validation_errors: Optional[List[Dict[str, Any]]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the validation error.
@@ -148,28 +141,19 @@ class ValidationError(BaseError):
             details["validation_errors"] = validation_errors
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "validation_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "validation_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            http_status=400,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, http_status=400, **kwargs)
 
 
 # AI Model Errors
 
+
 class ModelError(BaseError):
     """Base class for all model-related errors."""
 
-    def __init__(
-        self,
-        message: str,
-        model_id: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, model_id: Optional[str] = None, **kwargs):
         """
         Initialize the model error.
 
@@ -183,26 +167,16 @@ class ModelError(BaseError):
             details["model_id"] = model_id
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "model_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "model_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            http_status=500,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, http_status=500, **kwargs)
 
 
 class ModelNotFoundError(ModelError):
     """Error raised when a model is not found."""
 
-    def __init__(
-        self,
-        message: str,
-        model_id: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, model_id: Optional[str] = None, **kwargs):
         """
         Initialize the model not found error.
 
@@ -212,26 +186,16 @@ class ModelNotFoundError(ModelError):
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "model_not_found"
+        if "code" not in kwargs:
+            kwargs["code"] = "model_not_found"
 
-        super().__init__(
-            message=message,
-            model_id=model_id,
-            http_status=404,
-            **kwargs
-        )
+        super().__init__(message=message, model_id=model_id, http_status=404, **kwargs)
 
 
 class ModelLoadError(ModelError):
     """Error raised when a model fails to load."""
 
-    def __init__(
-        self,
-        message: str,
-        model_id: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, model_id: Optional[str] = None, **kwargs):
         """
         Initialize the model load error.
 
@@ -241,25 +205,16 @@ class ModelLoadError(ModelError):
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "model_load_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "model_load_error"
 
-        super().__init__(
-            message=message,
-            model_id=model_id,
-            **kwargs
-        )
+        super().__init__(message=message, model_id=model_id, **kwargs)
 
 
 class ModelInferenceError(ModelError):
     """Error raised when model inference fails."""
 
-    def __init__(
-        self,
-        message: str,
-        model_id: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, model_id: Optional[str] = None, **kwargs):
         """
         Initialize the model inference error.
 
@@ -269,14 +224,10 @@ class ModelInferenceError(ModelError):
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "model_inference_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "model_inference_error"
 
-        super().__init__(
-            message=message,
-            model_id=model_id,
-            **kwargs
-        )
+        super().__init__(message=message, model_id=model_id, **kwargs)
 
 
 class ModelDownloadError(ModelError):
@@ -287,7 +238,7 @@ class ModelDownloadError(ModelError):
         message: str,
         model_id: Optional[str] = None,
         source: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the model download error.
@@ -303,27 +254,19 @@ class ModelDownloadError(ModelError):
             details["source"] = source
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "model_download_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "model_download_error"
 
-        super().__init__(
-            message=message,
-            model_id=model_id,
-            details=details,
-            **kwargs
-        )
+        super().__init__(message=message, model_id=model_id, details=details, **kwargs)
 
 
 # Monetization Errors
 
+
 class MonetizationError(BaseError):
     """Base class for all monetization-related errors."""
 
-    def __init__(
-        self,
-        message: str,
-        **kwargs
-    ):
+    def __init__(self, message: str, **kwargs):
         """
         Initialize the monetization error.
 
@@ -332,14 +275,10 @@ class MonetizationError(BaseError):
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "monetization_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "monetization_error"
 
-        super().__init__(
-            message=message,
-            http_status=500,
-            **kwargs
-        )
+        super().__init__(message=message, http_status=500, **kwargs)
 
 
 class SubscriptionError(MonetizationError):
@@ -350,7 +289,7 @@ class SubscriptionError(MonetizationError):
         message: str,
         subscription_id: Optional[str] = None,
         user_id: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the subscription error.
@@ -368,14 +307,10 @@ class SubscriptionError(MonetizationError):
             details["user_id"] = user_id
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "subscription_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "subscription_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, **kwargs)
 
 
 class PaymentError(MonetizationError):
@@ -386,7 +321,7 @@ class PaymentError(MonetizationError):
         message: str,
         transaction_id: Optional[str] = None,
         payment_method: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the payment error.
@@ -404,26 +339,19 @@ class PaymentError(MonetizationError):
             details["payment_method"] = payment_method
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "payment_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "payment_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, **kwargs)
 
 
 # Niche Analysis Errors
 
+
 class NicheAnalysisError(BaseError):
     """Base class for all niche analysis-related errors."""
 
-    def __init__(
-        self,
-        message: str,
-        **kwargs
-    ):
+    def __init__(self, message: str, **kwargs):
         """
         Initialize the niche analysis error.
 
@@ -432,25 +360,16 @@ class NicheAnalysisError(BaseError):
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "niche_analysis_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "niche_analysis_error"
 
-        super().__init__(
-            message=message,
-            http_status=500,
-            **kwargs
-        )
+        super().__init__(message=message, http_status=500, **kwargs)
 
 
 class MarketAnalysisError(NicheAnalysisError):
     """Error raised when market analysis fails."""
 
-    def __init__(
-        self,
-        message: str,
-        segment: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, segment: Optional[str] = None, **kwargs):
         """
         Initialize the market analysis error.
 
@@ -464,25 +383,16 @@ class MarketAnalysisError(NicheAnalysisError):
             details["segment"] = segment
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "market_analysis_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "market_analysis_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, **kwargs)
 
 
 class OpportunityScoringError(NicheAnalysisError):
     """Error raised when opportunity scoring fails."""
 
-    def __init__(
-        self,
-        message: str,
-        niche: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, niche: Optional[str] = None, **kwargs):
         """
         Initialize the opportunity scoring error.
 
@@ -496,26 +406,19 @@ class OpportunityScoringError(NicheAnalysisError):
             details["niche"] = niche
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "opportunity_scoring_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "opportunity_scoring_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, **kwargs)
 
 
 # Agent Team Errors
 
+
 class AgentTeamError(BaseError):
     """Base class for all agent team-related errors."""
 
-    def __init__(
-        self,
-        message: str,
-        **kwargs
-    ):
+    def __init__(self, message: str, **kwargs):
         """
         Initialize the agent team error.
 
@@ -524,25 +427,16 @@ class AgentTeamError(BaseError):
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "agent_team_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "agent_team_error"
 
-        super().__init__(
-            message=message,
-            http_status=500,
-            **kwargs
-        )
+        super().__init__(message=message, http_status=500, **kwargs)
 
 
 class AgentError(AgentTeamError):
     """Error raised when an agent operation fails."""
 
-    def __init__(
-        self,
-        message: str,
-        agent_name: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, agent_name: Optional[str] = None, **kwargs):
         """
         Initialize the agent error.
 
@@ -556,26 +450,19 @@ class AgentError(AgentTeamError):
             details["agent_name"] = agent_name
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "agent_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "agent_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, **kwargs)
 
 
 # Marketing Errors
 
+
 class MarketingError(BaseError):
     """Base class for all marketing-related errors."""
 
-    def __init__(
-        self,
-        message: str,
-        **kwargs
-    ):
+    def __init__(self, message: str, **kwargs):
         """
         Initialize the marketing error.
 
@@ -584,25 +471,16 @@ class MarketingError(BaseError):
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "marketing_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "marketing_error"
 
-        super().__init__(
-            message=message,
-            http_status=500,
-            **kwargs
-        )
+        super().__init__(message=message, http_status=500, **kwargs)
 
 
 class StrategyGenerationError(MarketingError):
     """Error raised when strategy generation fails."""
 
-    def __init__(
-        self,
-        message: str,
-        strategy_type: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, message: str, strategy_type: Optional[str] = None, **kwargs):
         """
         Initialize the strategy generation error.
 
@@ -616,26 +494,19 @@ class StrategyGenerationError(MarketingError):
             details["strategy_type"] = strategy_type
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "strategy_generation_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "strategy_generation_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, **kwargs)
 
 
 # UI Errors
 
+
 class UIError(BaseError):
     """Base class for all UI-related errors."""
 
-    def __init__(
-        self,
-        message: str,
-        **kwargs
-    ):
+    def __init__(self, message: str, **kwargs):
         """
         Initialize the UI error.
 
@@ -644,14 +515,10 @@ class UIError(BaseError):
             **kwargs: Additional arguments to pass to the base class
         """
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "ui_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "ui_error"
 
-        super().__init__(
-            message=message,
-            http_status=500,
-            **kwargs
-        )
+        super().__init__(message=message, http_status=500, **kwargs)
 
 
 class APIError(UIError):
@@ -662,7 +529,7 @@ class APIError(UIError):
         message: str,
         endpoint: Optional[str] = None,
         method: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the API error.
@@ -680,17 +547,14 @@ class APIError(UIError):
             details["method"] = method
 
         # Only set code if it's not already provided in kwargs
-        if 'code' not in kwargs:
-            kwargs['code'] = "api_error"
+        if "code" not in kwargs:
+            kwargs["code"] = "api_error"
 
-        super().__init__(
-            message=message,
-            details=details,
-            **kwargs
-        )
+        super().__init__(message=message, details=details, **kwargs)
 
 
 # Error handling utilities
+
 
 def handle_exception(
     exception: Exception,
@@ -698,7 +562,7 @@ def handle_exception(
     reraise: bool = True,
     error_class: Type[BaseError] = BaseError,
     message: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ) -> BaseError:
     """
     Handle an exception by converting it to a custom error and logging it.
@@ -728,7 +592,7 @@ def handle_exception(
     error = error_class(
         message=message if message is not None else str(exception),
         original_exception=exception,
-        **kwargs
+        **kwargs,
     )
 
     # Log the error
@@ -756,9 +620,7 @@ def error_to_response(error: Union[BaseError, Exception]) -> Dict[str, Any]:
 
     # Convert standard exception to BaseError
     base_error = BaseError(
-        message=str(error),
-        code=error.__class__.__name__,
-        original_exception=error
+        message=str(error), code=error.__class__.__name__, original_exception=error
     )
 
     return base_error.to_dict()

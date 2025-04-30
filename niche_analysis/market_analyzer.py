@@ -13,14 +13,25 @@ import asyncio
 from functools import partial
 
 from .errors import (
-    MarketSegmentError, CompetitionAnalysisError, TrendAnalysisError,
-    TargetUserAnalysisError, ValidationError, handle_exception
+    MarketSegmentError,
+    CompetitionAnalysisError,
+    TrendAnalysisError,
+    TargetUserAnalysisError,
+    ValidationError,
+    handle_exception,
 )
 from .schemas import (
-    MarketSegmentSchema, CompetitionAnalysisSchema, TrendAnalysisSchema,
-    TargetUserAnalysisSchema, CompetitorSchema, UserSegmentSchema,
-    DemographicsSchema, PsychographicsSchema, BuyingBehaviorSchema,
-    TrendSchema, PredictionSchema
+    MarketSegmentSchema,
+    CompetitionAnalysisSchema,
+    TrendAnalysisSchema,
+    TargetUserAnalysisSchema,
+    CompetitorSchema,
+    UserSegmentSchema,
+    DemographicsSchema,
+    PsychographicsSchema,
+    BuyingBehaviorSchema,
+    TrendSchema,
+    PredictionSchema,
 )
 
 # Import the centralized caching service
@@ -49,7 +60,9 @@ class MarketAnalyzer:
         # Lock for concurrent access to shared resources
         self._lock = asyncio.Lock()
 
-    def analyze_market(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
+    def analyze_market(
+        self, segment: str, force_refresh: bool = False
+    ) -> Dict[str, Any]:
         """
         Analyze a market segment to identify potential niches.
 
@@ -70,11 +83,13 @@ class MarketAnalyzer:
                 raise ValidationError(
                     message="Market segment must be a non-empty string",
                     field="segment",
-                    validation_errors=[{
-                        "field": "segment",
-                        "value": segment,
-                        "error": "Must be a non-empty string"
-                    }]
+                    validation_errors=[
+                        {
+                            "field": "segment",
+                            "value": segment,
+                            "error": "Must be a non-empty string",
+                        }
+                    ],
                 )
 
             # Generate cache key
@@ -82,7 +97,9 @@ class MarketAnalyzer:
 
             # Try to get from cache first if not forcing refresh
             if not force_refresh:
-                cached_result = default_cache.get(cache_key, namespace="market_analysis")
+                cached_result = default_cache.get(
+                    cache_key, namespace="market_analysis"
+                )
                 if cached_result is not None:
                     logger.info(f"Using cached market analysis for segment: {segment}")
                     return cached_result
@@ -228,7 +245,9 @@ class MarketAnalyzer:
             if analysis:
                 logger.info(f"Analyzed market segment: {segment_name}")
                 # Cache the result
-                default_cache.set(cache_key, analysis, ttl=self.cache_ttl, namespace="market_analysis")
+                default_cache.set(
+                    cache_key, analysis, ttl=self.cache_ttl, namespace="market_analysis"
+                )
                 return analysis
             else:
                 # Create a default analysis for unknown segments
@@ -245,9 +264,16 @@ class MarketAnalyzer:
                     "target_users": [],
                 }
 
-                logger.info(f"Created default analysis for unknown segment: {segment_name}")
+                logger.info(
+                    f"Created default analysis for unknown segment: {segment_name}"
+                )
                 # Cache the result
-                default_cache.set(cache_key, default_analysis, ttl=self.cache_ttl, namespace="market_analysis")
+                default_cache.set(
+                    cache_key,
+                    default_analysis,
+                    ttl=self.cache_ttl,
+                    namespace="market_analysis",
+                )
                 return default_analysis
 
         except ValidationError:
@@ -256,14 +282,13 @@ class MarketAnalyzer:
         except Exception as e:
             # Handle unexpected errors
             error = handle_exception(
-                e,
-                error_class=MarketSegmentError,
-                reraise=True,
-                log_level=logging.ERROR
+                e, error_class=MarketSegmentError, reraise=True, log_level=logging.ERROR
             )
             return {}  # This line won't be reached due to reraise=True
 
-    async def analyze_market_async(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
+    async def analyze_market_async(
+        self, segment: str, force_refresh: bool = False
+    ) -> Dict[str, Any]:
         """
         Analyze a market segment asynchronously to identify potential niches.
 
@@ -287,11 +312,13 @@ class MarketAnalyzer:
                 raise ValidationError(
                     message="Market segment must be a non-empty string",
                     field="segment",
-                    validation_errors=[{
-                        "field": "segment",
-                        "value": segment,
-                        "error": "Must be a non-empty string"
-                    }]
+                    validation_errors=[
+                        {
+                            "field": "segment",
+                            "value": segment,
+                            "error": "Must be a non-empty string",
+                        }
+                    ],
                 )
 
             # Generate cache key
@@ -301,9 +328,7 @@ class MarketAnalyzer:
             if not force_refresh:
                 # Run cache retrieval asynchronously to avoid blocking
                 cached_result = await run_in_thread(
-                    default_cache.get,
-                    cache_key,
-                    namespace="market_analysis"
+                    default_cache.get, cache_key, namespace="market_analysis"
                 )
                 if cached_result is not None:
                     logger.info(f"Using cached market analysis for segment: {segment}")
@@ -458,7 +483,7 @@ class MarketAnalyzer:
                     cache_key,
                     analysis,
                     ttl=self.cache_ttl,
-                    namespace="market_analysis"
+                    namespace="market_analysis",
                 )
                 return analysis
             else:
@@ -476,14 +501,16 @@ class MarketAnalyzer:
                     "target_users": [],
                 }
 
-                logger.info(f"Created default analysis for unknown segment: {segment_name}")
+                logger.info(
+                    f"Created default analysis for unknown segment: {segment_name}"
+                )
                 # Cache the result asynchronously
                 await run_in_thread(
                     default_cache.set,
                     cache_key,
                     default_analysis,
                     ttl=self.cache_ttl,
-                    namespace="market_analysis"
+                    namespace="market_analysis",
                 )
                 return default_analysis
 
@@ -493,14 +520,13 @@ class MarketAnalyzer:
         except Exception as e:
             # Handle unexpected errors
             error = handle_exception(
-                e,
-                error_class=MarketSegmentError,
-                reraise=True,
-                log_level=logging.ERROR
+                e, error_class=MarketSegmentError, reraise=True, log_level=logging.ERROR
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def analyze_competition(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
+    def analyze_competition(
+        self, niche: str, force_refresh: bool = False
+    ) -> Dict[str, Any]:
         """
         Analyze competition in a specific niche.
 
@@ -521,11 +547,13 @@ class MarketAnalyzer:
                 raise ValidationError(
                     message="Niche must be a non-empty string",
                     field="niche",
-                    validation_errors=[{
-                        "field": "niche",
-                        "value": niche,
-                        "error": "Must be a non-empty string"
-                    }]
+                    validation_errors=[
+                        {
+                            "field": "niche",
+                            "value": niche,
+                            "error": "Must be a non-empty string",
+                        }
+                    ],
                 )
 
             # Generate cache key
@@ -533,7 +561,9 @@ class MarketAnalyzer:
 
             # Try to get from cache first if not forcing refresh
             if not force_refresh:
-                cached_result = default_cache.get(cache_key, namespace="market_analysis")
+                cached_result = default_cache.get(
+                    cache_key, namespace="market_analysis"
+                )
                 if cached_result is not None:
                     logger.info(f"Using cached competition analysis for niche: {niche}")
                     return cached_result
@@ -574,8 +604,15 @@ class MarketAnalyzer:
             logger.info(f"Analyzed competition for niche: {niche}")
 
             # Cache the result (shorter TTL for competition analysis as it may change frequently)
-            competition_ttl = min(self.cache_ttl, 21600)  # 6 hours maximum for competition analysis
-            default_cache.set(cache_key, competition_analysis, ttl=competition_ttl, namespace="market_analysis")
+            competition_ttl = min(
+                self.cache_ttl, 21600
+            )  # 6 hours maximum for competition analysis
+            default_cache.set(
+                cache_key,
+                competition_analysis,
+                ttl=competition_ttl,
+                namespace="market_analysis",
+            )
 
             return competition_analysis
 
@@ -588,11 +625,13 @@ class MarketAnalyzer:
                 e,
                 error_class=CompetitionAnalysisError,
                 reraise=True,
-                log_level=logging.ERROR
+                log_level=logging.ERROR,
             )
             return {}  # This line won't be reached due to reraise=True
 
-    async def analyze_competition_async(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
+    async def analyze_competition_async(
+        self, niche: str, force_refresh: bool = False
+    ) -> Dict[str, Any]:
         """
         Analyze competition in a specific niche asynchronously.
 
@@ -616,11 +655,13 @@ class MarketAnalyzer:
                 raise ValidationError(
                     message="Niche must be a non-empty string",
                     field="niche",
-                    validation_errors=[{
-                        "field": "niche",
-                        "value": niche,
-                        "error": "Must be a non-empty string"
-                    }]
+                    validation_errors=[
+                        {
+                            "field": "niche",
+                            "value": niche,
+                            "error": "Must be a non-empty string",
+                        }
+                    ],
                 )
 
             # Generate cache key
@@ -630,9 +671,7 @@ class MarketAnalyzer:
             if not force_refresh:
                 # Run cache retrieval asynchronously to avoid blocking
                 cached_result = await run_in_thread(
-                    default_cache.get,
-                    cache_key,
-                    namespace="market_analysis"
+                    default_cache.get, cache_key, namespace="market_analysis"
                 )
                 if cached_result is not None:
                     logger.info(f"Using cached competition analysis for niche: {niche}")
@@ -678,7 +717,7 @@ class MarketAnalyzer:
                 cache_key,
                 competition_analysis,
                 ttl=self.cache_ttl,
-                namespace="market_analysis"
+                namespace="market_analysis",
             )
 
             return competition_analysis
@@ -692,11 +731,13 @@ class MarketAnalyzer:
                 e,
                 error_class=CompetitionAnalysisError,
                 reraise=True,
-                log_level=logging.ERROR
+                log_level=logging.ERROR,
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def analyze_trends(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
+    def analyze_trends(
+        self, segment: str, force_refresh: bool = False
+    ) -> Dict[str, Any]:
         """
         Analyze trends in a specific market segment.
 
@@ -728,7 +769,9 @@ class MarketAnalyzer:
                     "name": f"Trend {i+1}",
                     "description": f"A trend in the {segment} segment",
                     "impact": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "maturity": "emerging" if i == 0 else "growing" if i == 1 else "mature",
+                    "maturity": (
+                        "emerging" if i == 0 else "growing" if i == 1 else "mature"
+                    ),
                 }
                 for i in range(3)  # Top 3 trends
             ],
@@ -737,7 +780,9 @@ class MarketAnalyzer:
                     "name": f"Prediction {i+1}",
                     "description": f"A prediction for the {segment} segment",
                     "likelihood": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "timeframe": "1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years",
+                    "timeframe": (
+                        "1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years"
+                    ),
                 }
                 for i in range(3)  # Top 3 predictions
             ],
@@ -753,11 +798,15 @@ class MarketAnalyzer:
 
         # Cache the result (shorter TTL for trends as they change frequently)
         trend_ttl = min(self.cache_ttl, 21600)  # 6 hours maximum for trends
-        default_cache.set(cache_key, trend_analysis, ttl=trend_ttl, namespace="market_analysis")
+        default_cache.set(
+            cache_key, trend_analysis, ttl=trend_ttl, namespace="market_analysis"
+        )
 
         return trend_analysis
 
-    async def analyze_trends_async(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
+    async def analyze_trends_async(
+        self, segment: str, force_refresh: bool = False
+    ) -> Dict[str, Any]:
         """
         Analyze trends in a specific market segment asynchronously.
 
@@ -778,9 +827,7 @@ class MarketAnalyzer:
         if not force_refresh:
             # Run cache retrieval asynchronously
             cached_result = await run_in_thread(
-                default_cache.get,
-                cache_key,
-                namespace="market_analysis"
+                default_cache.get, cache_key, namespace="market_analysis"
             )
             if cached_result is not None:
                 logger.info(f"Using cached trend analysis for segment: {segment}")
@@ -800,7 +847,9 @@ class MarketAnalyzer:
                     "name": f"Trend {i+1}",
                     "description": f"A trend in the {segment} segment",
                     "impact": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "maturity": "emerging" if i == 0 else "growing" if i == 1 else "mature",
+                    "maturity": (
+                        "emerging" if i == 0 else "growing" if i == 1 else "mature"
+                    ),
                 }
                 for i in range(3)  # Top 3 trends
             ],
@@ -809,7 +858,9 @@ class MarketAnalyzer:
                     "name": f"Prediction {i+1}",
                     "description": f"A prediction for the {segment} segment",
                     "likelihood": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "timeframe": "1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years",
+                    "timeframe": (
+                        "1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years"
+                    ),
                 }
                 for i in range(3)  # Top 3 predictions
             ],
@@ -830,12 +881,14 @@ class MarketAnalyzer:
             cache_key,
             trend_analysis,
             ttl=trend_ttl,
-            namespace="market_analysis"
+            namespace="market_analysis",
         )
 
         return trend_analysis
 
-    def analyze_target_users(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
+    def analyze_target_users(
+        self, niche: str, force_refresh: bool = False
+    ) -> Dict[str, Any]:
         """
         Analyze target users for a specific niche.
 
@@ -881,7 +934,11 @@ class MarketAnalyzer:
             "psychographics": {
                 "goals": ["efficiency", "growth", "profitability"],
                 "values": ["quality", "reliability", "innovation"],
-                "challenges": ["time constraints", "resource limitations", "competition"],
+                "challenges": [
+                    "time constraints",
+                    "resource limitations",
+                    "competition",
+                ],
             },
             "pain_points": [
                 "time-consuming manual processes",
@@ -904,11 +961,18 @@ class MarketAnalyzer:
         logger.info(f"Analyzed target users for niche: {niche}")
 
         # Cache the result
-        default_cache.set(cache_key, target_user_analysis, ttl=self.cache_ttl, namespace="market_analysis")
+        default_cache.set(
+            cache_key,
+            target_user_analysis,
+            ttl=self.cache_ttl,
+            namespace="market_analysis",
+        )
 
         return target_user_analysis
 
-    async def analyze_target_users_async(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
+    async def analyze_target_users_async(
+        self, niche: str, force_refresh: bool = False
+    ) -> Dict[str, Any]:
         """
         Analyze target users for a specific niche asynchronously.
 
@@ -929,9 +993,7 @@ class MarketAnalyzer:
         if not force_refresh:
             # Run cache retrieval asynchronously
             cached_result = await run_in_thread(
-                default_cache.get,
-                cache_key,
-                namespace="market_analysis"
+                default_cache.get, cache_key, namespace="market_analysis"
             )
             if cached_result is not None:
                 logger.info(f"Using cached target user analysis for niche: {niche}")
@@ -965,7 +1027,11 @@ class MarketAnalyzer:
             "psychographics": {
                 "goals": ["efficiency", "growth", "profitability"],
                 "values": ["quality", "reliability", "innovation"],
-                "challenges": ["time constraints", "resource limitations", "competition"],
+                "challenges": [
+                    "time constraints",
+                    "resource limitations",
+                    "competition",
+                ],
             },
             "pain_points": [
                 "time-consuming manual processes",
@@ -993,7 +1059,7 @@ class MarketAnalyzer:
             cache_key,
             target_user_analysis,
             ttl=self.cache_ttl,
-            namespace="market_analysis"
+            namespace="market_analysis",
         )
 
         return target_user_analysis
@@ -1044,7 +1110,9 @@ class MarketAnalyzer:
         """String representation of the Market Analyzer."""
         return f"{self.name}: {self.description}"
 
-    async def analyze_markets_batch_async(self, segments: List[str], force_refresh: bool = False) -> List[Dict[str, Any]]:
+    async def analyze_markets_batch_async(
+        self, segments: List[str], force_refresh: bool = False
+    ) -> List[Dict[str, Any]]:
         """
         Analyze multiple market segments in parallel asynchronously.
 
@@ -1056,15 +1124,22 @@ class MarketAnalyzer:
             List of market analyses
         """
         # Create tasks for analyzing each segment
-        tasks = [self.analyze_market_async(segment, force_refresh) for segment in segments]
+        tasks = [
+            self.analyze_market_async(segment, force_refresh) for segment in segments
+        ]
 
         # Run all tasks concurrently and gather results
         results = await asyncio.gather(*tasks)
 
         return results
 
-    async def analyze_multiple_niches_async(self, niches: List[str], analyze_competition: bool = True,
-                                          analyze_users: bool = True, force_refresh: bool = False) -> List[Dict[str, Any]]:
+    async def analyze_multiple_niches_async(
+        self,
+        niches: List[str],
+        analyze_competition: bool = True,
+        analyze_users: bool = True,
+        force_refresh: bool = False,
+    ) -> List[Dict[str, Any]]:
         """
         Perform comprehensive analysis of multiple niches in parallel asynchronously.
 
@@ -1114,4 +1189,5 @@ class MarketAnalyzer:
     def _get_current_timestamp(self) -> str:
         """Get the current timestamp in ISO format using the module's datetime."""
         from datetime import datetime
+
         return datetime.now().isoformat()

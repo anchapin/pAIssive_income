@@ -8,11 +8,15 @@ without creating circular dependencies.
 from typing import Any, Type
 from dependency_container import get_container
 
+
 def register_ui_services():
     """Register UI services in the dependency container."""
     from interfaces.ui_interfaces import (
-        IAgentTeamService, INicheAnalysisService, IDeveloperService,
-        IMonetizationService, IMarketingService
+        IAgentTeamService,
+        INicheAnalysisService,
+        IDeveloperService,
+        IMonetizationService,
+        IMarketingService,
     )
     from .services.agent_team_service import AgentTeamService
     from .services.niche_analysis_service import NicheAnalysisService
@@ -25,37 +29,26 @@ def register_ui_services():
     # Register agent team service
     container.register(
         IAgentTeamService,
-        lambda: AgentTeamService(agent_team=container.resolve('IAgentTeam')),
-        singleton=True
+        lambda: AgentTeamService(agent_team=container.resolve("IAgentTeam")),
+        singleton=True,
     )
 
     # Register niche analysis service
     container.register(
-        INicheAnalysisService,
-        lambda: NicheAnalysisService(),
-        singleton=True
+        INicheAnalysisService, lambda: NicheAnalysisService(), singleton=True
     )
 
     # Register developer service
-    container.register(
-        IDeveloperService,
-        lambda: DeveloperService(),
-        singleton=True
-    )
+    container.register(IDeveloperService, lambda: DeveloperService(), singleton=True)
 
     # Register monetization service
     container.register(
-        IMonetizationService,
-        lambda: MonetizationService(),
-        singleton=True
+        IMonetizationService, lambda: MonetizationService(), singleton=True
     )
 
     # Register marketing service
-    container.register(
-        IMarketingService,
-        lambda: MarketingService(),
-        singleton=True
-    )
+    container.register(IMarketingService, lambda: MarketingService(), singleton=True)
+
 
 def get_service(service_type: Type) -> Any:
     """
@@ -70,6 +63,7 @@ def get_service(service_type: Type) -> Any:
     """
     container = get_container()
     return container.resolve(service_type)
+
 
 def get_ui_service(service_type: Type) -> Any:
     """

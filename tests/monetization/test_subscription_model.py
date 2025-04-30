@@ -1,6 +1,7 @@
 """
 Tests for the SubscriptionModel class.
 """
+
 import os
 import json
 import pytest
@@ -13,8 +14,7 @@ from monetization.subscription_models import SubscriptionModel
 def test_subscription_model_init():
     """Test SubscriptionModel initialization."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Check that the model has the expected attributes
@@ -32,8 +32,7 @@ def test_subscription_model_init():
 def test_add_feature():
     """Test add_feature method."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Add a feature
@@ -42,7 +41,7 @@ def test_add_feature():
         description="A test feature",
         feature_type="functional",
         value_proposition="Save time",
-        development_cost="low"
+        development_cost="low",
     )
 
     # Check that the feature was added
@@ -61,8 +60,7 @@ def test_add_feature():
 def test_add_tier():
     """Test add_tier method."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Add a tier
@@ -73,7 +71,7 @@ def test_add_tier():
         price_yearly=99.99,
         features=["feature1", "feature2"],
         limits={"api_calls": 100, "exports": 10},
-        target_users="Individual users"
+        target_users="Individual users",
     )
 
     # Check that the tier was added
@@ -94,15 +92,12 @@ def test_add_tier():
 def test_get_tier_by_id():
     """Test get_tier_by_id method."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Add a tier
     tier = model.add_tier(
-        name="Test Tier",
-        description="A test tier",
-        price_monthly=9.99
+        name="Test Tier", description="A test tier", price_monthly=9.99
     )
 
     # Get the tier by ID
@@ -118,15 +113,12 @@ def test_get_tier_by_id():
 def test_get_feature_by_id():
     """Test get_feature_by_id method."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Add a feature
     feature = model.add_feature(
-        name="Test Feature",
-        description="A test feature",
-        feature_type="functional"
+        name="Test Feature", description="A test feature", feature_type="functional"
     )
 
     # Get the feature by ID
@@ -142,8 +134,7 @@ def test_get_feature_by_id():
 def test_update_tier_price():
     """Test update_tier_price method."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Add a tier
@@ -151,7 +142,7 @@ def test_update_tier_price():
         name="Test Tier",
         description="A test tier",
         price_monthly=9.99,
-        price_yearly=99.99
+        price_yearly=99.99,
     )
 
     # Update the tier price
@@ -169,22 +160,17 @@ def test_update_tier_price():
 def test_to_dict():
     """Test to_dict method."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Add a feature
     feature = model.add_feature(
-        name="Test Feature",
-        description="A test feature",
-        feature_type="functional"
+        name="Test Feature", description="A test feature", feature_type="functional"
     )
 
     # Add a tier
     tier = model.add_tier(
-        name="Test Tier",
-        description="A test tier",
-        price_monthly=9.99
+        name="Test Tier", description="A test tier", price_monthly=9.99
     )
 
     # Convert to dictionary
@@ -212,8 +198,7 @@ def test_to_dict():
 def test_to_json():
     """Test to_json method."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Convert to JSON
@@ -229,22 +214,17 @@ def test_to_json():
 def test_save_load_file(temp_dir):
     """Test save_to_file and load_from_file methods."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Add a feature
     feature = model.add_feature(
-        name="Test Feature",
-        description="A test feature",
-        feature_type="functional"
+        name="Test Feature", description="A test feature", feature_type="functional"
     )
 
     # Add a tier
     tier = model.add_tier(
-        name="Test Tier",
-        description="A test tier",
-        price_monthly=9.99
+        name="Test Tier", description="A test tier", price_monthly=9.99
     )
 
     # Save to file

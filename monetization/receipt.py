@@ -27,7 +27,7 @@ class ReceiptItem:
         unit_price: float = 0.0,
         discount: float = 0.0,
         tax_rate: float = 0.0,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a receipt item.
@@ -112,11 +112,11 @@ class ReceiptItem:
             "taxable_amount": self.get_taxable_amount(),
             "tax_amount": self.get_tax_amount(),
             "total": self.get_total(),
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ReceiptItem':
+    def from_dict(cls, data: Dict[str, Any]) -> "ReceiptItem":
         """
         Create a receipt item from a dictionary.
 
@@ -132,7 +132,7 @@ class ReceiptItem:
             unit_price=data["unit_price"],
             discount=data["discount"],
             tax_rate=data["tax_rate"],
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
         item.id = data["id"]
@@ -159,7 +159,7 @@ class Receipt:
         date: Optional[datetime] = None,
         currency: str = "USD",
         items: Optional[List[ReceiptItem]] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a receipt.
@@ -211,7 +211,7 @@ class Receipt:
         unit_price: float = 0.0,
         discount: float = 0.0,
         tax_rate: float = 0.0,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> ReceiptItem:
         """
         Add an item to the receipt.
@@ -233,7 +233,7 @@ class Receipt:
             unit_price=unit_price,
             discount=discount,
             tax_rate=tax_rate,
-            metadata=metadata
+            metadata=metadata,
         )
 
         self.items.append(item)
@@ -289,7 +289,7 @@ class Receipt:
         email: str = "",
         phone: str = "",
         website: str = "",
-        logo_url: str = ""
+        logo_url: str = "",
     ) -> None:
         """
         Set company information for the receipt.
@@ -317,12 +317,7 @@ class Receipt:
         self.metadata["company_website"] = website
         self.metadata["company_logo_url"] = logo_url
 
-    def set_customer_info(
-        self,
-        name: str,
-        email: str = "",
-        address: str = ""
-    ) -> None:
+    def set_customer_info(self, name: str, email: str = "", address: str = "") -> None:
         """
         Set customer information for the receipt.
 
@@ -340,11 +335,7 @@ class Receipt:
         self.metadata["customer_email"] = email
         self.metadata["customer_address"] = address
 
-    def set_payment_info(
-        self,
-        method: str,
-        payment_id: str = ""
-    ) -> None:
+    def set_payment_info(self, method: str, payment_id: str = "") -> None:
         """
         Set payment information for the receipt.
 
@@ -359,11 +350,7 @@ class Receipt:
         self.metadata["payment_method"] = method
         self.metadata["payment_id"] = payment_id
 
-    def add_custom_field(
-        self,
-        name: str,
-        value: Any
-    ) -> None:
+    def add_custom_field(self, name: str, value: Any) -> None:
         """
         Add a custom field to the receipt.
 
@@ -375,10 +362,7 @@ class Receipt:
         self.metadata["custom_fields"] = self.custom_fields
 
     def add_additional_fee(
-        self,
-        name: str,
-        amount: float,
-        is_percentage: bool = False
+        self, name: str, amount: float, is_percentage: bool = False
     ) -> None:
         """
         Add an additional fee to the receipt.
@@ -388,11 +372,7 @@ class Receipt:
             amount: Fee amount
             is_percentage: Whether the fee is a percentage of the subtotal
         """
-        fee = {
-            "name": name,
-            "amount": amount,
-            "is_percentage": is_percentage
-        }
+        fee = {"name": name, "amount": amount, "is_percentage": is_percentage}
 
         self.additional_fees.append(fee)
         self.metadata["additional_fees"] = self.additional_fees
@@ -453,7 +433,7 @@ class Receipt:
             "tax_total": self.get_tax_total(),
             "additional_fees_total": self.get_additional_fees_total(),
             "total": self.get_total(),
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -469,7 +449,7 @@ class Receipt:
         return to_json(self.to_dict(), indent=indent)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Receipt':
+    def from_dict(cls, data: Dict[str, Any]) -> "Receipt":
         """
         Create a receipt from a dictionary.
 
@@ -485,7 +465,7 @@ class Receipt:
             customer_id=data["customer_id"],
             date=datetime.fromisoformat(data["date"]),
             currency=data["currency"],
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
         # Set receipt ID
@@ -584,9 +564,9 @@ class Receipt:
             Total amount
         """
         return (
-            self.get_taxable_amount() +
-            self.get_tax_total() +
-            self.get_additional_fees_total()
+            self.get_taxable_amount()
+            + self.get_tax_total()
+            + self.get_additional_fees_total()
         )
 
     def format_amount(self, amount: float) -> str:
@@ -605,7 +585,7 @@ class Receipt:
             "GBP": "£",
             "JPY": "¥",
             "CAD": "C$",
-            "AUD": "A$"
+            "AUD": "A$",
         }
 
         symbol = currency_symbols.get(self.currency, self.currency)
@@ -687,7 +667,9 @@ class Receipt:
         # Add items
         lines.append("Items:")
         lines.append("-" * 80)
-        lines.append(f"{'Description':<40} {'Quantity':>10} {'Unit Price':>15} {'Discount':>15} {'Total':>15}")
+        lines.append(
+            f"{'Description':<40} {'Quantity':>10} {'Unit Price':>15} {'Discount':>15} {'Total':>15}"
+        )
         lines.append("-" * 80)
 
         for item in self.items:
@@ -705,10 +687,14 @@ class Receipt:
         lines.append(f"{'Subtotal:':<65} {self.format_amount(self.get_subtotal()):>15}")
 
         if self.get_discount_total() > 0:
-            lines.append(f"{self.discount_name+'s:':<65} {self.format_amount(self.get_discount_total()):>15}")
+            lines.append(
+                f"{self.discount_name+'s:':<65} {self.format_amount(self.get_discount_total()):>15}"
+            )
 
         if self.get_tax_total() > 0:
-            lines.append(f"{self.tax_name+'es:':<65} {self.format_amount(self.get_tax_total()):>15}")
+            lines.append(
+                f"{self.tax_name+'es:':<65} {self.format_amount(self.get_tax_total()):>15}"
+            )
 
         # Add additional fees
         for fee in self.additional_fees:
@@ -763,16 +749,24 @@ class Receipt:
         html.append("<head>")
         html.append(f"<title>Receipt {self.id}</title>")
         html.append("<style>")
-        html.append("body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }")
-        html.append(".receipt { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; padding: 20px; }")
+        html.append(
+            "body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }"
+        )
+        html.append(
+            ".receipt { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; padding: 20px; }"
+        )
         html.append(".header { text-align: center; margin-bottom: 20px; }")
         html.append(".company-name { font-size: 24px; font-weight: bold; }")
         html.append(".receipt-info { margin-bottom: 20px; }")
         html.append(".customer-info { margin-bottom: 20px; }")
         html.append(".payment-info { margin-bottom: 20px; }")
-        html.append(".items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }")
+        html.append(
+            ".items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }"
+        )
         html.append(".items th, .items td { padding: 8px; text-align: right; }")
-        html.append(".items th:first-child, .items td:first-child { text-align: left; }")
+        html.append(
+            ".items th:first-child, .items td:first-child { text-align: left; }"
+        )
         html.append(".items th { background-color: #f2f2f2; }")
         html.append(".items tr:nth-child(even) { background-color: #f9f9f9; }")
         html.append(".totals { width: 100%; margin-bottom: 20px; }")
@@ -791,13 +785,15 @@ class Receipt:
         html.append('<div class="header">')
 
         if self.company_logo_url:
-            html.append(f'<img src="{self.company_logo_url}" alt="{self.company_name}" style="max-height: 100px; margin-bottom: 10px;">')
+            html.append(
+                f'<img src="{self.company_logo_url}" alt="{self.company_name}" style="max-height: 100px; margin-bottom: 10px;">'
+            )
 
         if self.company_name:
             html.append(f'<div class="company-name">{self.company_name}</div>')
 
         if self.company_address:
-            html.append(f'<div>{self.company_address}</div>')
+            html.append(f"<div>{self.company_address}</div>")
 
         contact_info = []
 
@@ -811,79 +807,95 @@ class Receipt:
             html.append(f'<div>{" | ".join(contact_info)}</div>')
 
         if self.company_website:
-            html.append(f'<div>Website: {self.company_website}</div>')
+            html.append(f"<div>Website: {self.company_website}</div>")
 
-        html.append('</div>')  # End header
+        html.append("</div>")  # End header
 
         # Receipt information
         html.append('<div class="receipt-info">')
-        html.append(f'<div><strong>Receipt:</strong> {self.id}</div>')
-        html.append(f'<div><strong>Date:</strong> {self.date.strftime("%Y-%m-%d %H:%M:%S")}</div>')
+        html.append(f"<div><strong>Receipt:</strong> {self.id}</div>")
+        html.append(
+            f'<div><strong>Date:</strong> {self.date.strftime("%Y-%m-%d %H:%M:%S")}</div>'
+        )
 
         if self.transaction_id:
-            html.append(f'<div><strong>Transaction:</strong> {self.transaction_id}</div>')
+            html.append(
+                f"<div><strong>Transaction:</strong> {self.transaction_id}</div>"
+            )
 
-        html.append('</div>')  # End receipt info
+        html.append("</div>")  # End receipt info
 
         # Customer information
         if self.customer_name or self.customer_email or self.customer_address:
             html.append('<div class="customer-info">')
-            html.append('<h3>Customer Information</h3>')
+            html.append("<h3>Customer Information</h3>")
 
             if self.customer_name:
-                html.append(f'<div><strong>Name:</strong> {self.customer_name}</div>')
+                html.append(f"<div><strong>Name:</strong> {self.customer_name}</div>")
 
             if self.customer_email:
-                html.append(f'<div><strong>Email:</strong> {self.customer_email}</div>')
+                html.append(f"<div><strong>Email:</strong> {self.customer_email}</div>")
 
             if self.customer_address:
-                html.append(f'<div><strong>Address:</strong> {self.customer_address}</div>')
+                html.append(
+                    f"<div><strong>Address:</strong> {self.customer_address}</div>"
+                )
 
-            html.append('</div>')  # End customer info
+            html.append("</div>")  # End customer info
 
         # Payment information
         if self.payment_method or self.payment_id:
             html.append('<div class="payment-info">')
-            html.append('<h3>Payment Information</h3>')
+            html.append("<h3>Payment Information</h3>")
 
             if self.payment_method:
-                html.append(f'<div><strong>Method:</strong> {self.payment_method}</div>')
+                html.append(
+                    f"<div><strong>Method:</strong> {self.payment_method}</div>"
+                )
 
             if self.payment_id:
-                html.append(f'<div><strong>Payment ID:</strong> {self.payment_id}</div>')
+                html.append(
+                    f"<div><strong>Payment ID:</strong> {self.payment_id}</div>"
+                )
 
-            html.append('</div>')  # End payment info
+            html.append("</div>")  # End payment info
 
         # Items
         html.append('<table class="items">')
-        html.append('<tr>')
-        html.append('<th>Description</th>')
-        html.append('<th>Quantity</th>')
-        html.append('<th>Unit Price</th>')
-        html.append('<th>Discount</th>')
-        html.append('<th>Total</th>')
-        html.append('</tr>')
+        html.append("<tr>")
+        html.append("<th>Description</th>")
+        html.append("<th>Quantity</th>")
+        html.append("<th>Unit Price</th>")
+        html.append("<th>Discount</th>")
+        html.append("<th>Total</th>")
+        html.append("</tr>")
 
         for item in self.items:
-            html.append('<tr>')
-            html.append(f'<td>{item.description}</td>')
-            html.append(f'<td>{item.quantity:.2f}</td>')
-            html.append(f'<td>{self.format_amount(item.unit_price)}</td>')
-            html.append(f'<td>{self.format_amount(item.discount)}</td>')
-            html.append(f'<td>{self.format_amount(item.get_total())}</td>')
-            html.append('</tr>')
+            html.append("<tr>")
+            html.append(f"<td>{item.description}</td>")
+            html.append(f"<td>{item.quantity:.2f}</td>")
+            html.append(f"<td>{self.format_amount(item.unit_price)}</td>")
+            html.append(f"<td>{self.format_amount(item.discount)}</td>")
+            html.append(f"<td>{self.format_amount(item.get_total())}</td>")
+            html.append("</tr>")
 
-        html.append('</table>')
+        html.append("</table>")
 
         # Totals
         html.append('<table class="totals">')
-        html.append(f'<tr><td>Subtotal:</td><td>{self.format_amount(self.get_subtotal())}</td></tr>')
+        html.append(
+            f"<tr><td>Subtotal:</td><td>{self.format_amount(self.get_subtotal())}</td></tr>"
+        )
 
         if self.get_discount_total() > 0:
-            html.append(f'<tr><td>{self.discount_name}s:</td><td>{self.format_amount(self.get_discount_total())}</td></tr>')
+            html.append(
+                f"<tr><td>{self.discount_name}s:</td><td>{self.format_amount(self.get_discount_total())}</td></tr>"
+            )
 
         if self.get_tax_total() > 0:
-            html.append(f'<tr><td>{self.tax_name}es:</td><td>{self.format_amount(self.get_tax_total())}</td></tr>')
+            html.append(
+                f"<tr><td>{self.tax_name}es:</td><td>{self.format_amount(self.get_tax_total())}</td></tr>"
+            )
 
         # Additional fees
         for fee in self.additional_fees:
@@ -895,48 +907,48 @@ class Receipt:
             else:
                 fee_amount = fee["amount"]
 
-            html.append(f'<tr><td>{fee_name}:</td><td>{self.format_amount(fee_amount)}</td></tr>')
+            html.append(
+                f"<tr><td>{fee_name}:</td><td>{self.format_amount(fee_amount)}</td></tr>"
+            )
 
-        html.append(f'<tr class="total-row"><td>Total:</td><td>{self.format_amount(self.get_total())}</td></tr>')
-        html.append('</table>')
+        html.append(
+            f'<tr class="total-row"><td>Total:</td><td>{self.format_amount(self.get_total())}</td></tr>'
+        )
+        html.append("</table>")
 
         # Notes
         if self.notes:
             html.append('<div class="notes">')
-            html.append('<h3>Notes</h3>')
-            html.append(f'<p>{self.notes}</p>')
-            html.append('</div>')
+            html.append("<h3>Notes</h3>")
+            html.append(f"<p>{self.notes}</p>")
+            html.append("</div>")
 
         # Terms
         if self.terms:
             html.append('<div class="terms">')
-            html.append('<h3>Terms and Conditions</h3>')
-            html.append(f'<p>{self.terms}</p>')
-            html.append('</div>')
+            html.append("<h3>Terms and Conditions</h3>")
+            html.append(f"<p>{self.terms}</p>")
+            html.append("</div>")
 
         # Custom fields
         if self.custom_fields:
             html.append('<div class="custom-fields">')
-            html.append('<h3>Additional Information</h3>')
-            html.append('<ul>')
+            html.append("<h3>Additional Information</h3>")
+            html.append("<ul>")
 
             for name, value in self.custom_fields.items():
-                html.append(f'<li><strong>{name}:</strong> {value}</li>')
+                html.append(f"<li><strong>{name}:</strong> {value}</li>")
 
-            html.append('</ul>')
-            html.append('</div>')
+            html.append("</ul>")
+            html.append("</div>")
 
-        html.append('</div>')  # End receipt container
-        html.append('</body>')
-        html.append('</html>')
+        html.append("</div>")  # End receipt container
+        html.append("</body>")
+        html.append("</html>")
 
         return "\n".join(html)
 
-    def save_to_file(
-        self,
-        file_path: str,
-        format: str = "text"
-    ) -> None:
+    def save_to_file(self, file_path: str, format: str = "text") -> None:
         """
         Save the receipt to a file.
 

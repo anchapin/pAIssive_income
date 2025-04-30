@@ -9,7 +9,8 @@ from typing import Dict, List, Any, Optional, Type, Union
 
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from interfaces.model_interfaces import IModelAdapter
 from errors import ModelError, handle_exception
 
@@ -26,7 +27,9 @@ class AdapterFactory:
         """Initialize the adapter factory."""
         self._adapters: Dict[str, Type[IModelAdapter]] = {}
 
-    def register_adapter(self, adapter_type: str, adapter_class: Type[IModelAdapter]) -> None:
+    def register_adapter(
+        self, adapter_type: str, adapter_class: Type[IModelAdapter]
+    ) -> None:
         """
         Register an adapter class.
 
@@ -67,9 +70,9 @@ class AdapterFactory:
                 message=f"Failed to create adapter: {adapter_type}",
                 details={
                     "adapter_type": adapter_type,
-                    "available_adapters": list(self._adapters.keys())
+                    "available_adapters": list(self._adapters.keys()),
                 },
-                original_exception=e
+                original_exception=e,
             )
 
             # Log and raise the error

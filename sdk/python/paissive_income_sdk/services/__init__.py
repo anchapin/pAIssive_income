@@ -15,13 +15,13 @@ from .dashboard import DashboardService
 from .api_key import APIKeyService
 
 __all__ = [
-    'BaseService',
-    'NicheAnalysisService',
-    'MonetizationService',
-    'MarketingService',
-    'AIModelsService',
-    'AgentTeamService',
-    'UserService',
-    'DashboardService',
-    'APIKeyService'
+    "BaseService",
+    "NicheAnalysisService",
+    "MonetizationService",
+    "MarketingService",
+    "AIModelsService",
+    "AgentTeamService",
+    "UserService",
+    "DashboardService",
+    "APIKeyService",
 ]

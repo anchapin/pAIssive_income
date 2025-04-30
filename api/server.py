@@ -17,8 +17,7 @@ from .errors import setup_error_handlers
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -26,6 +25,7 @@ logger = logging.getLogger(__name__)
 try:
     import uvicorn
     from fastapi import FastAPI, Depends
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI and uvicorn are required for API server")
@@ -99,7 +99,9 @@ class APIServer:
             openapi_schema = get_openapi(
                 title=self.app.title,
                 version=self.app.version,
-                description=self.app.description + "\n\n" + self._get_version_info_description(),
+                description=self.app.description
+                + "\n\n"
+                + self._get_version_info_description(),
                 routes=self.app.routes,
                 terms_of_service=self.app.terms_of_service,
                 contact=self.app.contact,
@@ -112,7 +114,8 @@ class APIServer:
                 "active": [v.value for v in self.config.active_versions],
                 "latest": APIVersion.latest_version().value,
                 "deprecated": [
-                    v.value for v in self.config.active_versions
+                    v.value
+                    for v in self.config.active_versions
                     if any(
                         change.get("from_version") == v.value
                         for change in self.version_manager.get_deprecated_endpoints()
@@ -125,6 +128,7 @@ class APIServer:
 
         # Import get_openapi here to avoid circular imports
         from fastapi.openapi.utils import get_openapi
+
         self.app.openapi = custom_openapi
 
         # Set up middleware
@@ -138,10 +142,7 @@ class APIServer:
 
         # Start server
         self.start_time = time.time()
-        self.server_thread = threading.Thread(
-            target=self._run_server,
-            daemon=True
-        )
+        self.server_thread = threading.Thread(target=self._run_server, daemon=True)
         self.server_thread.start()
 
         logger.info(f"Server started at http://{self.config.host}:{self.config.port}")
@@ -203,7 +204,11 @@ class APIServer:
             "error_count": self.error_count,
             "error_rate": self.error_count / max(1, self.request_count),
             "requests_per_second": self.request_count / max(1, uptime),
-            "average_latency": sum(self.latencies) / max(1, len(self.latencies)) if self.latencies else 0,
+            "average_latency": (
+                sum(self.latencies) / max(1, len(self.latencies))
+                if self.latencies
+                else 0
+            ),
         }
 
     def _get_version_info_description(self) -> str:
@@ -219,7 +224,8 @@ class APIServer:
 
         # Get deprecated versions
         deprecated_versions = [
-            v.value for v in self.config.active_versions
+            v.value
+            for v in self.config.active_versions
             if any(
                 change.get("from_version") == v.value
                 for change in self.version_manager.get_deprecated_endpoints()
@@ -248,7 +254,8 @@ class APIServer:
                 sunset_dates = [
                     change.get("sunset_date")
                     for change in self.version_manager.get_deprecated_endpoints()
-                    if change.get("from_version") == version and change.get("sunset_date")
+                    if change.get("from_version") == version
+                    and change.get("sunset_date")
                 ]
                 if sunset_dates:
                     notes.append(f"Will be removed on {min(sunset_dates)}")
@@ -256,7 +263,9 @@ class APIServer:
             description += f"| {version} | {status} | {', '.join(notes)} |\n"
 
         description += "\n### Version Discovery\n\n"
-        description += "You can discover available API versions using the following endpoints:\n\n"
+        description += (
+            "You can discover available API versions using the following endpoints:\n\n"
+        )
         description += f"- `GET {self.config.prefix}/versions`: Returns a list of available API versions.\n"
         description += f"- `GET {self.config.prefix}/changelog`: Returns a changelog for all API versions.\n"
         description += f"- `GET {self.config.prefix}/changelog/{{version}}`: Returns a changelog for a specific API version.\n\n"
@@ -278,7 +287,7 @@ class APIServer:
             timeout_keep_alive=60,
             log_level=self.config.log_level.lower(),
             ssl_keyfile=self.config.ssl_keyfile if self.config.enable_https else None,
-            ssl_certfile=self.config.ssl_certfile if self.config.enable_https else None
+            ssl_certfile=self.config.ssl_certfile if self.config.enable_https else None,
         )
 
         # Create and run server
@@ -325,49 +334,47 @@ class APIServer:
             self.app.include_router(
                 niche_analysis_router,
                 prefix=f"{api_prefix}/niche-analysis",
-                tags=[f"Niche Analysis {version_tag}"]
+                tags=[f"Niche Analysis {version_tag}"],
             )
 
         if self.config.enable_monetization:
             self.app.include_router(
                 monetization_router,
                 prefix=f"{api_prefix}/monetization",
-                tags=[f"Monetization {version_tag}"]
+                tags=[f"Monetization {version_tag}"],
             )
 
         if self.config.enable_marketing:
             self.app.include_router(
                 marketing_router,
                 prefix=f"{api_prefix}/marketing",
-                tags=[f"Marketing {version_tag}"]
+                tags=[f"Marketing {version_tag}"],
             )
 
         if self.config.enable_ai_models:
             self.app.include_router(
                 ai_models_router,
                 prefix=f"{api_prefix}/ai-models",
-                tags=[f"AI Models {version_tag}"]
+                tags=[f"AI Models {version_tag}"],
             )
 
         if self.config.enable_agent_team:
             self.app.include_router(
                 agent_team_router,
                 prefix=f"{api_prefix}/agent-team",
-                tags=[f"Agent Team {version_tag}"]
+                tags=[f"Agent Team {version_tag}"],
             )
 
         if self.config.enable_user:
             self.app.include_router(
-                user_router,
-                prefix=f"{api_prefix}/user",
-                tags=[f"User {version_tag}"]
+                user_router, prefix=f"{api_prefix}/user", tags=[f"User {version_tag}"]
             )
 
         if self.config.enable_dashboard:
             self.app.include_router(
                 dashboard_router,
                 prefix=f"{api_prefix}/dashboard",
-                tags=[f"Dashboard {version_tag}"]
+                tags=[f"Dashboard {version_tag}"],
             )
 
         # Add API key routes
@@ -375,7 +382,7 @@ class APIServer:
             self.app.include_router(
                 api_key_router,
                 prefix=f"{api_prefix}/api-keys",
-                tags=[f"API Keys {version_tag}"]
+                tags=[f"API Keys {version_tag}"],
             )
 
         # Include webhook router
@@ -383,7 +390,7 @@ class APIServer:
             self.app.include_router(
                 webhook_router,
                 prefix=f"{api_prefix}/webhooks",
-                tags=[f"Webhooks {version_tag}"]
+                tags=[f"Webhooks {version_tag}"],
             )
 
     def _setup_version_info_routes(self) -> None:
@@ -418,7 +425,7 @@ class APIServer:
             "/versions",
             response_model=VersionsResponse,
             tags=["API Versions"],
-            summary="Get available API versions"
+            summary="Get available API versions",
         )
         async def get_versions():
             versions = []
@@ -447,36 +454,33 @@ class APIServer:
                         version=version_value,
                         is_latest=(version_value == latest),
                         is_deprecated=is_deprecated,
-                        sunset_date=sunset_date
+                        sunset_date=sunset_date,
                     )
                 )
 
-            return VersionsResponse(
-                versions=versions,
-                latest_version=latest
-            )
+            return VersionsResponse(versions=versions, latest_version=latest)
 
         # Get changelog endpoint
         @version_router.get(
             "/changelog",
             response_model=ChangelogResponse,
             tags=["API Versions"],
-            summary="Get API changelog"
+            summary="Get API changelog",
         )
         async def get_changelog():
-            return ChangelogResponse(
-                changelog=self.version_manager.get_changelog()
-            )
+            return ChangelogResponse(changelog=self.version_manager.get_changelog())
 
         # Get version-specific changelog endpoint
         @version_router.get(
             "/changelog/{version}",
             tags=["API Versions"],
-            summary="Get changelog for a specific API version"
+            summary="Get changelog for a specific API version",
         )
         async def get_version_changelog(version: str):
             if not APIVersion.is_valid_version(version):
-                raise HTTPException(status_code=404, detail=f"Version {version} not found")
+                raise HTTPException(
+                    status_code=404, detail=f"Version {version} not found"
+                )
 
             for v in APIVersion:
                 if v.value == version:
@@ -486,7 +490,5 @@ class APIServer:
 
         # Include the version router
         self.app.include_router(
-            version_router,
-            prefix=f"{self.config.prefix}",
-            tags=["API Versions"]
+            version_router, prefix=f"{self.config.prefix}", tags=["API Versions"]
         )

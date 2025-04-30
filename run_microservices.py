@@ -16,8 +16,7 @@ from typing import Dict, List, Optional, Any
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,7 @@ def check_consul_installation() -> bool:
             ["consul", "--version"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
         )
         return result.returncode == 0
     except FileNotFoundError:
@@ -57,12 +56,16 @@ def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subproces
 
     # Command to start Consul in development mode
     cmd = [
-        "consul", "agent",
+        "consul",
+        "agent",
         "-dev",
-        "-data-dir", data_dir,
+        "-data-dir",
+        data_dir,
         "-ui",
-        "-bind", "127.0.0.1",
-        "-client", "0.0.0.0"
+        "-bind",
+        "127.0.0.1",
+        "-client",
+        "0.0.0.0",
     ]
 
     if port != 8500:
@@ -70,10 +73,7 @@ def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subproces
 
     logger.info(f"Starting Consul with command: {' '.join(cmd)}")
     process = subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
 
     # Wait for Consul to start
@@ -86,7 +86,7 @@ def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subproces
                 ["consul", "catalog", "services"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True
+                text=True,
             )
             if result.returncode == 0:
                 logger.info("Consul is running")
@@ -94,7 +94,9 @@ def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subproces
         except Exception:
             pass
 
-        logger.info(f"Waiting for Consul to start (attempt {attempt + 1}/{max_attempts})...")
+        logger.info(
+            f"Waiting for Consul to start (attempt {attempt + 1}/{max_attempts})..."
+        )
         time.sleep(1)
         attempt += 1
 
@@ -133,7 +135,7 @@ def start_service(service_name: str, script_path: str, port: int) -> subprocess.
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-        env=env
+        env=env,
     )
 
     return process
@@ -142,12 +144,25 @@ def start_service(service_name: str, script_path: str, port: int) -> subprocess.
 def main():
     """Main function to start all services."""
     parser = argparse.ArgumentParser(description="Start pAIssive income microservices")
-    parser.add_argument("--no-consul", action="store_true", help="Don't start Consul (use existing)")
-    parser.add_argument("--consul-port", type=int, default=8500, help="Port for Consul HTTP API")
-    parser.add_argument("--api-gateway-port", type=int, default=8000, help="Port for API Gateway")
+    parser.add_argument(
+        "--no-consul", action="store_true", help="Don't start Consul (use existing)"
+    )
+    parser.add_argument(
+        "--consul-port", type=int, default=8500, help="Port for Consul HTTP API"
+    )
+    parser.add_argument(
+        "--api-gateway-port", type=int, default=8000, help="Port for API Gateway"
+    )
     parser.add_argument("--ui-port", type=int, default=3000, help="Port for UI Service")
-    parser.add_argument("--ai-models-port", type=int, default=8002, help="Port for AI Models Service")
-    parser.add_argument("--niche-analysis-port", type=int, default=8001, help="Port for Niche Analysis Service")
+    parser.add_argument(
+        "--ai-models-port", type=int, default=8002, help="Port for AI Models Service"
+    )
+    parser.add_argument(
+        "--niche-analysis-port",
+        type=int,
+        default=8001,
+        help="Port for Niche Analysis Service",
+    )
 
     args = parser.parse_args()
 
@@ -156,8 +171,12 @@ def main():
     try:
         # Check if Consul is installed
         if not check_consul_installation():
-            logger.error("Consul is not installed. Please install Consul before running this script.")
-            logger.error("See https://developer.hashicorp.com/consul/downloads for installation instructions.")
+            logger.error(
+                "Consul is not installed. Please install Consul before running this script."
+            )
+            logger.error(
+                "See https://developer.hashicorp.com/consul/downloads for installation instructions."
+            )
             return 1
 
         # Start Consul if requested
@@ -170,15 +189,13 @@ def main():
         processes["api_gateway"] = start_service(
             service_name="API Gateway",
             script_path=api_gateway_path,
-            port=args.api_gateway_port
+            port=args.api_gateway_port,
         )
 
         # Start UI Service
         ui_service_path = os.path.join("services", "ui_service", "app.py")
         processes["ui_service"] = start_service(
-            service_name="UI Service",
-            script_path=ui_service_path,
-            port=args.ui_port
+            service_name="UI Service", script_path=ui_service_path, port=args.ui_port
         )
 
         # Start AI Models Service
@@ -186,15 +203,17 @@ def main():
         processes["ai_models_service"] = start_service(
             service_name="AI Models Service",
             script_path=ai_models_service_path,
-            port=args.ai_models_port
+            port=args.ai_models_port,
         )
 
         # Start Niche Analysis Service
-        niche_analysis_service_path = os.path.join("services", "niche_analysis_service", "app.py")
+        niche_analysis_service_path = os.path.join(
+            "services", "niche_analysis_service", "app.py"
+        )
         processes["niche_analysis_service"] = start_service(
             service_name="Niche Analysis Service",
             script_path=niche_analysis_service_path,
-            port=args.niche_analysis_port
+            port=args.niche_analysis_port,
         )
 
         # Print access information
@@ -205,7 +224,9 @@ def main():
         logger.info(f"API Gateway:         http://localhost:{args.api_gateway_port}/")
         logger.info(f"UI Service:          http://localhost:{args.ui_port}/")
         logger.info(f"AI Models API:       http://localhost:{args.ai_models_port}/docs")
-        logger.info(f"Niche Analysis API:  http://localhost:{args.niche_analysis_port}/docs")
+        logger.info(
+            f"Niche Analysis API:  http://localhost:{args.niche_analysis_port}/docs"
+        )
         logger.info("=" * 80)
         logger.info("Press Ctrl+C to stop all services.")
 
@@ -216,7 +237,9 @@ def main():
             # Check if any process has terminated
             for name, process in list(processes.items()):
                 if process.poll() is not None:
-                    logger.error(f"{name} terminated unexpectedly with return code {process.returncode}")
+                    logger.error(
+                        f"{name} terminated unexpectedly with return code {process.returncode}"
+                    )
 
                     # Get the error output
                     stderr = process.stderr.read() if process.stderr else ""

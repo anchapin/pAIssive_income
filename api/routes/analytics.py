@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 try:
     from fastapi import APIRouter, Depends, Query, Path, HTTPException, Response
     from fastapi.responses import JSONResponse, StreamingResponse
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for analytics routes")
@@ -35,7 +36,7 @@ from ..schemas.analytics import (
     RealTimeMetricsResponse,
     AlertResponse,
     AlertThresholdRequest,
-    AlertThresholdResponse
+    AlertThresholdResponse,
 )
 from ..schemas.common import ErrorResponse, SuccessResponse
 
@@ -50,7 +51,7 @@ else:
     "/summary",
     response_model=AnalyticsSummaryResponse,
     summary="Get API usage summary",
-    description="Get a summary of API usage statistics"
+    description="Get a summary of API usage statistics",
 )
 async def get_summary(days: int = Query(30, description="Number of days to include")):
     """
@@ -74,7 +75,7 @@ async def get_summary(days: int = Query(30, description="Number of days to inclu
     "/requests",
     response_model=List[RequestStatsResponse],
     summary="Get API request statistics",
-    description="Get detailed statistics for API requests"
+    description="Get detailed statistics for API requests",
 )
 async def get_requests(
     endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
@@ -84,7 +85,7 @@ async def get_requests(
     status_code: Optional[int] = Query(None, description="Filter by status code"),
     days: int = Query(7, description="Number of days to include"),
     limit: int = Query(100, description="Maximum number of records to return"),
-    offset: int = Query(0, description="Number of records to skip")
+    offset: int = Query(0, description="Number of records to skip"),
 ):
     """
     Get detailed statistics for API requests.
@@ -111,7 +112,7 @@ async def get_requests(
             status_code=status_code,
             days=days,
             limit=limit,
-            offset=offset
+            offset=offset,
         )
         return requests
     except Exception as e:
@@ -123,9 +124,11 @@ async def get_requests(
     "/endpoints",
     response_model=List[EndpointStatsResponse],
     summary="Get endpoint statistics",
-    description="Get statistics for each API endpoint"
+    description="Get statistics for each API endpoint",
 )
-async def get_endpoint_stats(days: int = Query(30, description="Number of days to include")):
+async def get_endpoint_stats(
+    days: int = Query(30, description="Number of days to include")
+):
     """
     Get statistics for each API endpoint.
 
@@ -147,11 +150,11 @@ async def get_endpoint_stats(days: int = Query(30, description="Number of days t
     "/users",
     response_model=List[UserStatsResponse],
     summary="Get user statistics",
-    description="Get statistics for API usage by users"
+    description="Get statistics for API usage by users",
 )
 async def get_user_stats(
     days: int = Query(30, description="Number of days to include"),
-    user_id: Optional[str] = Query(None, description="Filter by user ID")
+    user_id: Optional[str] = Query(None, description="Filter by user ID"),
 ):
     """
     Get statistics for API usage by users.
@@ -175,11 +178,11 @@ async def get_user_stats(
     "/api-keys",
     response_model=List[ApiKeyStatsResponse],
     summary="Get API key statistics",
-    description="Get statistics for API usage by API keys"
+    description="Get statistics for API usage by API keys",
 )
 async def get_api_key_stats(
     days: int = Query(30, description="Number of days to include"),
-    api_key_id: Optional[str] = Query(None, description="Filter by API key ID")
+    api_key_id: Optional[str] = Query(None, description="Filter by API key ID"),
 ):
     """
     Get statistics for API usage by API keys.
@@ -202,14 +205,14 @@ async def get_api_key_stats(
 @router.get(
     "/export/requests",
     summary="Export API requests to CSV",
-    description="Export detailed API request data to CSV format"
+    description="Export detailed API request data to CSV format",
 )
 async def export_requests_csv(
     endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
     version: Optional[str] = Query(None, description="Filter by API version"),
     user_id: Optional[str] = Query(None, description="Filter by user ID"),
     api_key_id: Optional[str] = Query(None, description="Filter by API key ID"),
-    days: int = Query(30, description="Number of days to include")
+    days: int = Query(30, description="Number of days to include"),
 ):
     """
     Export detailed API request data to CSV format.
@@ -230,7 +233,7 @@ async def export_requests_csv(
             endpoint=endpoint,
             version=version,
             user_id=user_id,
-            api_key_id=api_key_id
+            api_key_id=api_key_id,
         )
 
         # Generate filename
@@ -241,7 +244,7 @@ async def export_requests_csv(
         return StreamingResponse(
             iter([csv_data]),
             media_type="text/csv",
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
     except Exception as e:
         logger.error(f"Error exporting requests to CSV: {e}")
@@ -251,9 +254,11 @@ async def export_requests_csv(
 @router.get(
     "/export/metrics",
     summary="Export daily metrics to CSV",
-    description="Export daily aggregated metrics to CSV format"
+    description="Export daily aggregated metrics to CSV format",
 )
-async def export_metrics_csv(days: int = Query(30, description="Number of days to include")):
+async def export_metrics_csv(
+    days: int = Query(30, description="Number of days to include")
+):
     """
     Export daily aggregated metrics to CSV format.
 
@@ -274,7 +279,7 @@ async def export_metrics_csv(days: int = Query(30, description="Number of days t
         return StreamingResponse(
             iter([csv_data]),
             media_type="text/csv",
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
     except Exception as e:
         logger.error(f"Error exporting metrics to CSV: {e}")
@@ -285,9 +290,11 @@ async def export_metrics_csv(days: int = Query(30, description="Number of days t
     "/real-time",
     response_model=RealTimeMetricsResponse,
     summary="Get real-time API metrics",
-    description="Get real-time metrics for API usage in the last few minutes"
+    description="Get real-time metrics for API usage in the last few minutes",
 )
-async def get_real_time_metrics(minutes: int = Query(5, description="Number of minutes to include")):
+async def get_real_time_metrics(
+    minutes: int = Query(5, description="Number of minutes to include")
+):
     """
     Get real-time metrics for API usage in the last few minutes.
 
@@ -311,7 +318,7 @@ async def get_real_time_metrics(minutes: int = Query(5, description="Number of m
     "/alerts/thresholds",
     response_model=AlertThresholdResponse,
     summary="Set alert threshold",
-    description="Set a threshold for a specific metric that will trigger alerts when exceeded"
+    description="Set a threshold for a specific metric that will trigger alerts when exceeded",
 )
 async def set_alert_threshold(threshold: AlertThresholdRequest):
     """
@@ -328,7 +335,7 @@ async def set_alert_threshold(threshold: AlertThresholdRequest):
         return {
             "metric": threshold.metric,
             "threshold": threshold.threshold,
-            "message": f"Alert threshold for {threshold.metric} set to {threshold.threshold}"
+            "message": f"Alert threshold for {threshold.metric} set to {threshold.threshold}",
         }
     except Exception as e:
         logger.error(f"Error setting alert threshold: {e}")
@@ -339,7 +346,7 @@ async def set_alert_threshold(threshold: AlertThresholdRequest):
     "/cleanup",
     response_model=SuccessResponse,
     summary="Clean up old analytics data",
-    description="Remove analytics data older than the specified number of days"
+    description="Remove analytics data older than the specified number of days",
 )
 async def cleanup_data(days: int = Query(365, description="Number of days to keep")):
     """
@@ -355,7 +362,7 @@ async def cleanup_data(days: int = Query(365, description="Number of days to kee
         count = analytics_service.cleanup_old_data(days)
         return {
             "success": True,
-            "message": f"Removed {count} records older than {days} days"
+            "message": f"Removed {count} records older than {days} days",
         }
     except Exception as e:
         logger.error(f"Error cleaning up analytics data: {e}")

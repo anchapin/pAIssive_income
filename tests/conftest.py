@@ -18,7 +18,6 @@ from tests.mocks.fixtures import (
     mock_ollama_provider,
     mock_lmstudio_provider,
     patch_model_providers,
-
     # HTTP and external API fixtures
     mock_http_with_common_responses,
     mock_hf_hub_with_models,
@@ -29,26 +28,24 @@ from tests.mocks.fixtures import (
     mock_email_api,
     mock_storage_api,
     patch_external_apis,
-
     # Complete test scenario fixtures
     mock_ai_model_testing_setup,
     mock_monetization_testing_setup,
     mock_marketing_testing_setup,
     mock_niche_analysis_testing_setup,
-
     # Common test data fixtures
     mock_model_inference_result,
     mock_embedding_result,
     mock_subscription_data,
     mock_niche_analysis_data,
-    mock_marketing_campaign_data
+    mock_marketing_campaign_data,
 )
 
 from tests.mocks.mock_model_providers import (
     create_mock_provider,
     MockOpenAIProvider,
     MockOllamaProvider,
-    MockLMStudioProvider
+    MockLMStudioProvider,
 )
 
 from tests.mocks.mock_external_apis import (
@@ -56,7 +53,7 @@ from tests.mocks.mock_external_apis import (
     MockHuggingFaceAPI,
     MockPaymentAPI,
     MockEmailAPI,
-    MockStorageAPI
+    MockStorageAPI,
 )
 
 # Keep existing mock payment APIs for backward compatibility
@@ -64,16 +61,19 @@ try:
     from tests.mocks.mock_payment_apis import (
         create_payment_gateway,
         MockStripeGateway,
-        MockPayPalGateway
+        MockPayPalGateway,
     )
 except ImportError:
     # Create mock versions if the module doesn't exist yet
     class MockStripeGateway:
         pass
+
     class MockPayPalGateway:
         pass
+
     def create_payment_gateway(gateway_type, config=None):
         return MagicMock()
+
 
 # Re-export all fixtures from tests.mocks.fixtures
 # This makes them available to all tests without explicit imports
@@ -81,20 +81,18 @@ except ImportError:
 # Continue with existing fixtures
 # These will be kept for backward compatibility
 
+
 @pytest.fixture
 def mock_stripe_gateway():
     """Create a mock Stripe payment gateway."""
     # Create gateway with network errors disabled
-    gateway = create_payment_gateway("stripe", {
-        "simulate_network_errors": False,
-        "success_rate": 1.0  # Always succeed
-    })
+    gateway = create_payment_gateway(
+        "stripe",
+        {"simulate_network_errors": False, "success_rate": 1.0},  # Always succeed
+    )
 
     # Add some test data
-    customer = gateway.create_customer(
-        email="test@example.com",
-        name="Test Customer"
-    )
+    customer = gateway.create_customer(email="test@example.com", name="Test Customer")
 
     # Create a payment method
     payment_method = gateway.create_payment_method(
@@ -104,23 +102,20 @@ def mock_stripe_gateway():
             "number": "4242424242424242",  # Visa test card
             "exp_month": 12,
             "exp_year": datetime.now().year + 1,
-            "cvc": "123"
-        }
+            "cvc": "123",
+        },
     )
 
     # Create a plan
     plan = gateway.create_plan(
-        name="Test Plan",
-        currency="USD",
-        interval="month",
-        amount=9.99
+        name="Test Plan", currency="USD", interval="month", amount=9.99
     )
 
     # Create a subscription
     subscription = gateway.create_subscription(
         customer_id=customer["id"],
         plan_id=plan["id"],
-        payment_method_id=payment_method["id"]
+        payment_method_id=payment_method["id"],
     )
 
     return gateway
@@ -143,26 +138,26 @@ def mock_model_manager():
             "id": "gpt-3.5-turbo",
             "name": "GPT-3.5 Turbo",
             "capabilities": ["text-generation", "chat"],
-            "provider": "openai"
+            "provider": "openai",
         },
         {
             "id": "gpt-4",
             "name": "GPT-4",
             "capabilities": ["text-generation", "chat"],
-            "provider": "openai"
+            "provider": "openai",
         },
         {
             "id": "mistral-7b",
             "name": "Mistral 7B",
             "capabilities": ["text-generation", "chat"],
-            "provider": "ollama"
+            "provider": "ollama",
         },
         {
             "id": "llama2",
             "name": "Llama 2",
             "capabilities": ["text-generation", "chat"],
-            "provider": "lmstudio"
-        }
+            "provider": "lmstudio",
+        },
     ]
 
     # Mock the get_model_info method
@@ -194,7 +189,7 @@ def mock_test_solution():
                 "description": "Predict future inventory needs based on historical data",
                 "complexity": "high",
                 "development_cost": "high",
-                "value_proposition": "Save time and reduce stockouts"
+                "value_proposition": "Save time and reduce stockouts",
             },
             {
                 "id": "feature2",
@@ -202,7 +197,7 @@ def mock_test_solution():
                 "description": "Get alerts when inventory is running low",
                 "complexity": "medium",
                 "development_cost": "medium",
-                "value_proposition": "Never run out of stock again"
+                "value_proposition": "Never run out of stock again",
             },
             {
                 "id": "feature3",
@@ -210,7 +205,7 @@ def mock_test_solution():
                 "description": "Generate custom inventory reports",
                 "complexity": "medium",
                 "development_cost": "medium",
-                "value_proposition": "Get the insights you need"
+                "value_proposition": "Get the insights you need",
             },
             {
                 "id": "feature4",
@@ -218,14 +213,14 @@ def mock_test_solution():
                 "description": "Access inventory data through API",
                 "complexity": "high",
                 "development_cost": "high",
-                "value_proposition": "Integrate with your existing systems"
-            }
+                "value_proposition": "Integrate with your existing systems",
+            },
         ],
         "market_data": {
             "target_audience": "E-commerce store owners and inventory managers",
             "market_size": "large",
-            "competition": "medium"
-        }
+            "competition": "medium",
+        },
     }
 
 
@@ -244,59 +239,56 @@ def mock_test_monetization_strategy():
                     "name": "Free",
                     "price_monthly": 0.0,
                     "features": ["Basic Forecasting"],
-                    "limits": {"api_calls": 100, "exports": 10}
+                    "limits": {"api_calls": 100, "exports": 10},
                 },
                 {
                     "id": "tier2",
                     "name": "Pro",
                     "price_monthly": 19.99,
                     "features": ["Advanced Forecasting", "Reorder Alerts"],
-                    "limits": {"api_calls": 1000, "exports": 100}
+                    "limits": {"api_calls": 1000, "exports": 100},
                 },
                 {
                     "id": "tier3",
                     "name": "Business",
                     "price_monthly": 49.99,
-                    "features": ["Advanced Forecasting", "Reorder Alerts", "Custom Reporting", "API Access"],
-                    "limits": {"api_calls": 10000, "exports": 1000}
-                }
+                    "features": [
+                        "Advanced Forecasting",
+                        "Reorder Alerts",
+                        "Custom Reporting",
+                        "API Access",
+                    ],
+                    "limits": {"api_calls": 10000, "exports": 1000},
+                },
             ],
         },
         "target_audience": {
             "segments": [
                 "Small businesses",
                 "E-commerce store owners",
-                "Retail inventory managers"
+                "Retail inventory managers",
             ],
             "user_personas": {
                 "free_tier": "Small business owners looking for basic inventory management",
                 "pro_tier": "Growing e-commerce businesses with moderate inventory needs",
-                "business_tier": "Established businesses with complex inventory requirements"
-            }
+                "business_tier": "Established businesses with complex inventory requirements",
+            },
         },
         "pricing_strategy": {
             "model_type": "freemium",
             "pricing_psychology": "price_anchoring",
-            "discount_strategy": "annual_discount"
+            "discount_strategy": "annual_discount",
         },
         "revenue_projections": {
             "year_1": {
                 "total": 250000,
-                "by_tier": {
-                    "Free": 0,
-                    "Pro": 150000,
-                    "Business": 100000
-                }
+                "by_tier": {"Free": 0, "Pro": 150000, "Business": 100000},
             },
             "year_3": {
                 "total": 1200000,
-                "by_tier": {
-                    "Free": 0,
-                    "Pro": 500000,
-                    "Business": 700000
-                }
-            }
-        }
+                "by_tier": {"Free": 0, "Pro": 500000, "Business": 700000},
+            },
+        },
     }
 
 
@@ -329,6 +321,7 @@ def mock_test_niche():
 # deprecated in favor of the more comprehensive patch_external_apis and
 # patch_model_providers fixtures. They are kept for backward compatibility.
 
+
 @pytest.fixture
 def patch_payment_processor(monkeypatch):
     """
@@ -347,10 +340,13 @@ def patch_payment_processor(monkeypatch):
         return mock_gateway
 
     # Apply the patch
-    if hasattr(monkeypatch, 'setattr'):
+    if hasattr(monkeypatch, "setattr"):
         try:
             # Try to patch the appropriate module
-            monkeypatch.setattr('monetization.payment_processor.get_payment_gateway', mock_get_payment_gateway)
+            monkeypatch.setattr(
+                "monetization.payment_processor.get_payment_gateway",
+                mock_get_payment_gateway,
+            )
         except (ImportError, AttributeError):
             pass  # Module might not exist yet
 
@@ -375,10 +371,12 @@ def patch_model_provider(monkeypatch):
         return mock_provider
 
     # Apply the patch
-    if hasattr(monkeypatch, 'setattr'):
+    if hasattr(monkeypatch, "setattr"):
         try:
             # Try to patch the appropriate module
-            monkeypatch.setattr('ai_models.model_manager.get_model_provider', mock_get_model_provider)
+            monkeypatch.setattr(
+                "ai_models.model_manager.get_model_provider", mock_get_model_provider
+            )
         except (ImportError, AttributeError):
             pass  # Module might not exist yet
 

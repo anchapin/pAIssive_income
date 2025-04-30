@@ -11,10 +11,10 @@ from .marketing import MarketingAgent
 from .feedback import FeedbackAgent
 
 __all__ = [
-    'AgentProfile',
-    'ResearchAgent',
-    'DeveloperAgent',
-    'MonetizationAgent',
-    'MarketingAgent',
-    'FeedbackAgent',
+    "AgentProfile",
+    "ResearchAgent",
+    "DeveloperAgent",
+    "MonetizationAgent",
+    "MarketingAgent",
+    "FeedbackAgent",
 ]

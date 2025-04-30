@@ -3,7 +3,7 @@ Research Agent for the pAIssive Income project.
 Specializes in market research and niche identification.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import uuid
 from datetime import datetime
 
@@ -53,7 +53,7 @@ class ResearchAgent(IResearchAgent):
            to prioritize the most promising opportunities
         3. Store the sorted list in the team's project state for workflow continuity
         4. Return the sorted list of niche opportunities
-        
+
         This algorithm employs a divide-and-conquer approach by:
         - Breaking down the broad market analysis into segment-specific analyses
         - Aggregating the results
@@ -81,7 +81,7 @@ class ResearchAgent(IResearchAgent):
         niches.sort(key=lambda x: x["opportunity_score"], reverse=True)
 
         # Store the identified niches in the team's project state
-        if hasattr(self.team, 'project_state'):
+        if hasattr(self.team, "project_state"):
             self.team.project_state["identified_niches"] = niches
 
         return niches
@@ -119,27 +119,31 @@ class ResearchAgent(IResearchAgent):
                     "Inventory Management for Small E-commerce",
                     "Small e-commerce businesses struggle with inventory management",
                     ["overstocking", "stockouts", "manual inventory tracking"],
-                    0.85
+                    0.85,
                 ),
                 self._create_niche(
                     "Product Description Generator",
                     "E-commerce businesses need compelling product descriptions",
                     ["time-consuming", "inconsistent quality", "SEO optimization"],
-                    0.78
+                    0.78,
                 ),
             ],
             "content creation": [
                 self._create_niche(
                     "YouTube Script Generator",
                     "YouTube creators need engaging scripts for their videos",
-                    ["writer's block", "time-consuming", "maintaining viewer engagement"],
-                    0.92
+                    [
+                        "writer's block",
+                        "time-consuming",
+                        "maintaining viewer engagement",
+                    ],
+                    0.92,
                 ),
                 self._create_niche(
                     "Blog Post Optimizer",
                     "Bloggers need to optimize their content for search engines",
                     ["keyword research", "readability", "SEO optimization"],
-                    0.81
+                    0.81,
                 ),
             ],
             "freelancing": [
@@ -147,13 +151,13 @@ class ResearchAgent(IResearchAgent):
                     "Freelance Proposal Writer",
                     "Freelancers need to write compelling proposals to win clients",
                     ["time-consuming", "low conversion rates", "customization"],
-                    0.88
+                    0.88,
                 ),
                 self._create_niche(
                     "Client Communication Assistant",
                     "Freelancers need to maintain professional communication with clients",
                     ["response time", "professionalism", "clarity"],
-                    0.75
+                    0.75,
                 ),
             ],
             "education": [
@@ -161,13 +165,13 @@ class ResearchAgent(IResearchAgent):
                     "Study Note Generator",
                     "Students need comprehensive study notes from lectures",
                     ["time-consuming", "missing important points", "organization"],
-                    0.89
+                    0.89,
                 ),
                 self._create_niche(
                     "Personalized Learning Path Creator",
                     "Educators need to create personalized learning paths for students",
                     ["time-consuming", "individualization", "tracking progress"],
-                    0.82
+                    0.82,
                 ),
             ],
             "real estate": [
@@ -175,13 +179,13 @@ class ResearchAgent(IResearchAgent):
                     "Property Description Generator",
                     "Real estate agents need compelling property descriptions",
                     ["time-consuming", "highlighting key features", "emotional appeal"],
-                    0.86
+                    0.86,
                 ),
                 self._create_niche(
                     "Market Analysis Assistant",
                     "Real estate professionals need market analysis for properties",
                     ["data collection", "trend analysis", "pricing strategy"],
-                    0.79
+                    0.79,
                 ),
             ],
         }
@@ -204,7 +208,7 @@ class ResearchAgent(IResearchAgent):
         3. Sort all identified problems by priority score in descending order
            to highlight the most critical issues first
         4. Return the prioritized list of problems
-        
+
         This algorithm employs a standardized problem identification approach that:
         - Applies domain knowledge to common problem areas
         - Contextualizes each problem within the specific niche
@@ -228,7 +232,7 @@ class ResearchAgent(IResearchAgent):
             "inconsistent quality",
             "lack of automation",
             "difficulty scaling",
-            "high error rates"
+            "high error rates",
         ]
 
         problems = []
@@ -256,7 +260,7 @@ class ResearchAgent(IResearchAgent):
         3. Sort all identified problems by priority score in descending order
            to identify the most pressing user pain points
         4. Return the prioritized list of user problems
-        
+
         This algorithm differs from analyze_problems() by:
         - Using problem areas specifically identified for the niche rather than generic ones
         - Providing deeper context by leveraging the full niche information
@@ -304,14 +308,34 @@ class ResearchAgent(IResearchAgent):
             "id": str(uuid.uuid4()),
             "name": problem_name,
             "description": f"Users in the {niche_name} niche struggle with {problem_name}",
-            "priority": round(0.5 + 0.5 * hash(problem_name) % 100 / 100, 2),  # Random priority between 0.5 and 1.0
-            "impact": "high" if hash(problem_name) % 3 == 0 else "medium" if hash(problem_name) % 3 == 1 else "low",
-            "frequency": "daily" if hash(problem_name) % 4 == 0 else "weekly" if hash(problem_name) % 4 == 1 else "monthly" if hash(problem_name) % 4 == 2 else "occasionally",
+            "priority": round(
+                0.5 + 0.5 * hash(problem_name) % 100 / 100, 2
+            ),  # Random priority between 0.5 and 1.0
+            "impact": (
+                "high"
+                if hash(problem_name) % 3 == 0
+                else "medium" if hash(problem_name) % 3 == 1 else "low"
+            ),
+            "frequency": (
+                "daily"
+                if hash(problem_name) % 4 == 0
+                else (
+                    "weekly"
+                    if hash(problem_name) % 4 == 1
+                    else "monthly" if hash(problem_name) % 4 == 2 else "occasionally"
+                )
+            ),
             "current_solutions": ["manual processes", "generic tools", "outsourcing"],
             "solution_gaps": ["automation", "specialization", "integration"],
         }
 
-    def create_niche(self, name: str, description: str, problem_areas: List[str], opportunity_score: float) -> Dict[str, Any]:
+    def create_niche(
+        self,
+        name: str,
+        description: str,
+        problem_areas: List[str],
+        opportunity_score: float,
+    ) -> Dict[str, Any]:
         """
         Create a niche dictionary.
 
@@ -337,7 +361,13 @@ class ResearchAgent(IResearchAgent):
             "timestamp": datetime.now().isoformat(),
         }
 
-    def _create_niche(self, name: str, description: str, problem_areas: List[str], opportunity_score: float) -> Dict[str, Any]:
+    def _create_niche(
+        self,
+        name: str,
+        description: str,
+        problem_areas: List[str],
+        opportunity_score: float,
+    ) -> Dict[str, Any]:
         """
         Create a niche dictionary with a unique ID and metadata.
 

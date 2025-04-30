@@ -12,6 +12,7 @@ from enum import Enum
 
 class SubscriptionStatus(Enum):
     """Subscription status enum."""
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     CANCELED = "canceled"
@@ -22,6 +23,7 @@ class SubscriptionStatus(Enum):
 
 class TransactionStatus(Enum):
     """Transaction status enum."""
+
     PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -31,6 +33,7 @@ class TransactionStatus(Enum):
 
 class TransactionType(Enum):
     """Transaction type enum."""
+
     PAYMENT = "payment"
     REFUND = "refund"
     CREDIT = "credit"
@@ -41,7 +44,9 @@ class ISubscriptionModel(ABC):
     """Interface for subscription model."""
 
     @abstractmethod
-    def create_subscription_tiers(self, solution: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def create_subscription_tiers(
+        self, solution: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """
         Create subscription tiers for a solution.
 
@@ -54,7 +59,9 @@ class ISubscriptionModel(ABC):
         pass
 
     @abstractmethod
-    def calculate_pricing(self, solution: Dict[str, Any], tiers: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def calculate_pricing(
+        self, solution: Dict[str, Any], tiers: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Calculate pricing for subscription tiers.
 
@@ -68,7 +75,9 @@ class ISubscriptionModel(ABC):
         pass
 
     @abstractmethod
-    def project_revenue(self, solution: Dict[str, Any], tiers: List[Dict[str, Any]], users: int) -> Dict[str, Any]:
+    def project_revenue(
+        self, solution: Dict[str, Any], tiers: List[Dict[str, Any]], users: int
+    ) -> Dict[str, Any]:
         """
         Project revenue for a solution.
 
@@ -101,7 +110,9 @@ class IPricingCalculator(ABC):
         pass
 
     @abstractmethod
-    def calculate_tier_prices(self, base_price: float, tiers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def calculate_tier_prices(
+        self, base_price: float, tiers: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Calculate prices for subscription tiers.
 
@@ -133,7 +144,9 @@ class IRevenueProjector(ABC):
     """Interface for revenue projector."""
 
     @abstractmethod
-    def project_monthly_revenue(self, tiers: List[Dict[str, Any]], user_distribution: Dict[str, int]) -> Dict[str, Any]:
+    def project_monthly_revenue(
+        self, tiers: List[Dict[str, Any]], user_distribution: Dict[str, int]
+    ) -> Dict[str, Any]:
         """
         Project monthly revenue.
 
@@ -147,7 +160,12 @@ class IRevenueProjector(ABC):
         pass
 
     @abstractmethod
-    def project_annual_revenue(self, tiers: List[Dict[str, Any]], user_distribution: Dict[str, int], growth_rate: float) -> Dict[str, Any]:
+    def project_annual_revenue(
+        self,
+        tiers: List[Dict[str, Any]],
+        user_distribution: Dict[str, int],
+        growth_rate: float,
+    ) -> Dict[str, Any]:
         """
         Project annual revenue.
 
@@ -180,7 +198,9 @@ class ISubscriptionManager(ABC):
     """Interface for subscription manager."""
 
     @abstractmethod
-    def create_subscription(self, user_id: str, tier_id: str, payment_method_id: str) -> Dict[str, Any]:
+    def create_subscription(
+        self, user_id: str, tier_id: str, payment_method_id: str
+    ) -> Dict[str, Any]:
         """
         Create a subscription.
 
@@ -195,7 +215,9 @@ class ISubscriptionManager(ABC):
         pass
 
     @abstractmethod
-    def update_subscription(self, subscription_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+    def update_subscription(
+        self, subscription_id: str, updates: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Update a subscription.
 
@@ -209,7 +231,9 @@ class ISubscriptionManager(ABC):
         pass
 
     @abstractmethod
-    def cancel_subscription(self, subscription_id: str, reason: Optional[str] = None) -> Dict[str, Any]:
+    def cancel_subscription(
+        self, subscription_id: str, reason: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Cancel a subscription.
 
@@ -253,7 +277,9 @@ class IMonetizationCalculator(ABC):
     """Interface for monetization calculator."""
 
     @abstractmethod
-    def calculate_subscription_revenue(self, tiers: List[Dict[str, Any]], user_counts: Dict[str, int]) -> Dict[str, Any]:
+    def calculate_subscription_revenue(
+        self, tiers: List[Dict[str, Any]], user_counts: Dict[str, int]
+    ) -> Dict[str, Any]:
         """
         Calculate subscription revenue.
 
@@ -280,7 +306,9 @@ class IMonetizationCalculator(ABC):
         pass
 
     @abstractmethod
-    def calculate_profit(self, revenue: Dict[str, Any], costs: Dict[str, Any]) -> Dict[str, Any]:
+    def calculate_profit(
+        self, revenue: Dict[str, Any], costs: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Calculate profit.
 
@@ -294,7 +322,9 @@ class IMonetizationCalculator(ABC):
         pass
 
     @abstractmethod
-    def project_growth(self, initial_users: int, growth_rate: float, months: int) -> Dict[str, Any]:
+    def project_growth(
+        self, initial_users: int, growth_rate: float, months: int
+    ) -> Dict[str, Any]:
         """
         Project user growth.
 

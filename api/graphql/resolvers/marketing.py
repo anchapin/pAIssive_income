@@ -9,14 +9,14 @@ from typing import Optional, List, Dict, Any
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 try:
     import strawberry
     from strawberry.types import Info
+
     STRAWBERRY_AVAILABLE = True
 except ImportError:
     logger.warning("Strawberry GraphQL is required for GraphQL resolvers")
@@ -24,25 +24,31 @@ except ImportError:
 
 if STRAWBERRY_AVAILABLE:
     from ..schemas.marketing import (
-        MarketingStrategyType, ContentTemplateType, CampaignType, ChannelAnalysisType,
-        MarketingStrategyInput, ContentTemplateInput, CampaignInput
+        MarketingStrategyType,
+        ContentTemplateType,
+        CampaignType,
+        ChannelAnalysisType,
+        MarketingStrategyInput,
+        ContentTemplateInput,
+        CampaignInput,
     )
-    
+
     @strawberry.type
     class MarketingQuery:
         """Marketing query resolvers."""
-        
+
         @strawberry.field
-        async def marketing_strategies(self, info: Info, limit: Optional[int] = 10, 
-                                     offset: Optional[int] = 0) -> List[MarketingStrategyType]:
+        async def marketing_strategies(
+            self, info: Info, limit: Optional[int] = 10, offset: Optional[int] = 0
+        ) -> List[MarketingStrategyType]:
             """
             Get a list of marketing strategies.
-            
+
             Args:
                 info: GraphQL resolver info
                 limit: Maximum number of strategies to return
                 offset: Number of strategies to skip
-                
+
             Returns:
                 List of marketing strategies
             """
@@ -51,10 +57,12 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Marketing service not available")
                 return []
-            
+
             # Get marketing strategies from service
             try:
-                strategies = await service.get_marketing_strategies(limit=limit, offset=offset)
+                strategies = await service.get_marketing_strategies(
+                    limit=limit, offset=offset
+                )
                 return [
                     MarketingStrategyType(
                         id=str(strategy.id),
@@ -63,24 +71,34 @@ if STRAWBERRY_AVAILABLE:
                         target_audience=strategy.target_audience,
                         channels=strategy.channels,
                         goals=strategy.goals,
-                        created_at=strategy.created_at.isoformat() if strategy.created_at else None,
-                        updated_at=strategy.updated_at.isoformat() if strategy.updated_at else None
+                        created_at=(
+                            strategy.created_at.isoformat()
+                            if strategy.created_at
+                            else None
+                        ),
+                        updated_at=(
+                            strategy.updated_at.isoformat()
+                            if strategy.updated_at
+                            else None
+                        ),
                     )
                     for strategy in strategies
                 ]
             except Exception as e:
                 logger.error(f"Error getting marketing strategies: {str(e)}")
                 return []
-        
+
         @strawberry.field
-        async def marketing_strategy(self, info: Info, id: str) -> Optional[MarketingStrategyType]:
+        async def marketing_strategy(
+            self, info: Info, id: str
+        ) -> Optional[MarketingStrategyType]:
             """
             Get a marketing strategy by ID.
-            
+
             Args:
                 info: GraphQL resolver info
                 id: Marketing strategy ID
-                
+
             Returns:
                 Marketing strategy if found, None otherwise
             """
@@ -89,13 +107,13 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Marketing service not available")
                 return None
-            
+
             # Get marketing strategy from service
             try:
                 strategy = await service.get_marketing_strategy(id)
                 if not strategy:
                     return None
-                
+
                 return MarketingStrategyType(
                     id=str(strategy.id),
                     name=strategy.name,
@@ -103,25 +121,34 @@ if STRAWBERRY_AVAILABLE:
                     target_audience=strategy.target_audience,
                     channels=strategy.channels,
                     goals=strategy.goals,
-                    created_at=strategy.created_at.isoformat() if strategy.created_at else None,
-                    updated_at=strategy.updated_at.isoformat() if strategy.updated_at else None
+                    created_at=(
+                        strategy.created_at.isoformat() if strategy.created_at else None
+                    ),
+                    updated_at=(
+                        strategy.updated_at.isoformat() if strategy.updated_at else None
+                    ),
                 )
             except Exception as e:
                 logger.error(f"Error getting marketing strategy: {str(e)}")
                 return None
-        
+
         @strawberry.field
-        async def content_templates(self, info: Info, strategy_id: Optional[str] = None,
-                                  limit: Optional[int] = 10, offset: Optional[int] = 0) -> List[ContentTemplateType]:
+        async def content_templates(
+            self,
+            info: Info,
+            strategy_id: Optional[str] = None,
+            limit: Optional[int] = 10,
+            offset: Optional[int] = 0,
+        ) -> List[ContentTemplateType]:
             """
             Get a list of content templates.
-            
+
             Args:
                 info: GraphQL resolver info
                 strategy_id: Filter by strategy ID
                 limit: Maximum number of templates to return
                 offset: Number of templates to skip
-                
+
             Returns:
                 List of content templates
             """
@@ -130,42 +157,52 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Marketing service not available")
                 return []
-            
+
             # Get content templates from service
             try:
                 templates = await service.get_content_templates(
-                    strategy_id=strategy_id,
-                    limit=limit,
-                    offset=offset
+                    strategy_id=strategy_id, limit=limit, offset=offset
                 )
-                
+
                 return [
                     ContentTemplateType(
                         id=str(template.id),
-                        strategy_id=str(template.strategy_id) if template.strategy_id else None,
+                        strategy_id=(
+                            str(template.strategy_id) if template.strategy_id else None
+                        ),
                         name=template.name,
                         description=template.description,
                         content_type=template.content_type,
                         template=template.template,
                         variables=template.variables,
-                        created_at=template.created_at.isoformat() if template.created_at else None,
-                        updated_at=template.updated_at.isoformat() if template.updated_at else None
+                        created_at=(
+                            template.created_at.isoformat()
+                            if template.created_at
+                            else None
+                        ),
+                        updated_at=(
+                            template.updated_at.isoformat()
+                            if template.updated_at
+                            else None
+                        ),
                     )
                     for template in templates
                 ]
             except Exception as e:
                 logger.error(f"Error getting content templates: {str(e)}")
                 return []
-        
+
         @strawberry.field
-        async def channel_analysis(self, info: Info, strategy_id: str) -> Optional[ChannelAnalysisType]:
+        async def channel_analysis(
+            self, info: Info, strategy_id: str
+        ) -> Optional[ChannelAnalysisType]:
             """
             Get channel analysis for a marketing strategy.
-            
+
             Args:
                 info: GraphQL resolver info
                 strategy_id: Marketing strategy ID
-                
+
             Returns:
                 Channel analysis if found, None otherwise
             """
@@ -174,38 +211,40 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Marketing service not available")
                 return None
-            
+
             # Get channel analysis from service
             try:
                 analysis = await service.get_channel_analysis(strategy_id)
                 if not analysis:
                     return None
-                
+
                 return ChannelAnalysisType(
                     strategy_id=str(analysis.strategy_id),
                     channels=analysis.channels,
                     effectiveness_scores=analysis.effectiveness_scores,
                     cost_estimates=analysis.cost_estimates,
                     roi_estimates=analysis.roi_estimates,
-                    recommendations=analysis.recommendations
+                    recommendations=analysis.recommendations,
                 )
             except Exception as e:
                 logger.error(f"Error getting channel analysis: {str(e)}")
                 return None
-    
+
     @strawberry.type
     class MarketingMutation:
         """Marketing mutation resolvers."""
-        
+
         @strawberry.mutation
-        async def create_marketing_strategy(self, info: Info, input: MarketingStrategyInput) -> Optional[MarketingStrategyType]:
+        async def create_marketing_strategy(
+            self, info: Info, input: MarketingStrategyInput
+        ) -> Optional[MarketingStrategyType]:
             """
             Create a new marketing strategy.
-            
+
             Args:
                 info: GraphQL resolver info
                 input: Marketing strategy input
-                
+
             Returns:
                 Created marketing strategy if successful, None otherwise
             """
@@ -214,7 +253,7 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Marketing service not available")
                 return None
-            
+
             # Create marketing strategy
             try:
                 strategy = await service.create_marketing_strategy(
@@ -222,9 +261,9 @@ if STRAWBERRY_AVAILABLE:
                     description=input.description,
                     target_audience=input.target_audience,
                     channels=input.channels,
-                    goals=input.goals
+                    goals=input.goals,
                 )
-                
+
                 return MarketingStrategyType(
                     id=str(strategy.id),
                     name=strategy.name,
@@ -232,24 +271,29 @@ if STRAWBERRY_AVAILABLE:
                     target_audience=strategy.target_audience,
                     channels=strategy.channels,
                     goals=strategy.goals,
-                    created_at=strategy.created_at.isoformat() if strategy.created_at else None,
-                    updated_at=strategy.updated_at.isoformat() if strategy.updated_at else None
+                    created_at=(
+                        strategy.created_at.isoformat() if strategy.created_at else None
+                    ),
+                    updated_at=(
+                        strategy.updated_at.isoformat() if strategy.updated_at else None
+                    ),
                 )
             except Exception as e:
                 logger.error(f"Error creating marketing strategy: {str(e)}")
                 return None
-        
+
         @strawberry.mutation
-        async def update_marketing_strategy(self, info: Info, id: str, 
-                                          input: MarketingStrategyInput) -> Optional[MarketingStrategyType]:
+        async def update_marketing_strategy(
+            self, info: Info, id: str, input: MarketingStrategyInput
+        ) -> Optional[MarketingStrategyType]:
             """
             Update a marketing strategy.
-            
+
             Args:
                 info: GraphQL resolver info
                 id: Marketing strategy ID
                 input: Marketing strategy input
-                
+
             Returns:
                 Updated marketing strategy if successful, None otherwise
             """
@@ -258,7 +302,7 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Marketing service not available")
                 return None
-            
+
             # Update marketing strategy
             try:
                 strategy = await service.update_marketing_strategy(
@@ -267,12 +311,12 @@ if STRAWBERRY_AVAILABLE:
                     description=input.description,
                     target_audience=input.target_audience,
                     channels=input.channels,
-                    goals=input.goals
+                    goals=input.goals,
                 )
-                
+
                 if not strategy:
                     return None
-                
+
                 return MarketingStrategyType(
                     id=str(strategy.id),
                     name=strategy.name,
@@ -280,22 +324,26 @@ if STRAWBERRY_AVAILABLE:
                     target_audience=strategy.target_audience,
                     channels=strategy.channels,
                     goals=strategy.goals,
-                    created_at=strategy.created_at.isoformat() if strategy.created_at else None,
-                    updated_at=strategy.updated_at.isoformat() if strategy.updated_at else None
+                    created_at=(
+                        strategy.created_at.isoformat() if strategy.created_at else None
+                    ),
+                    updated_at=(
+                        strategy.updated_at.isoformat() if strategy.updated_at else None
+                    ),
                 )
             except Exception as e:
                 logger.error(f"Error updating marketing strategy: {str(e)}")
                 return None
-        
+
         @strawberry.mutation
         async def delete_marketing_strategy(self, info: Info, id: str) -> bool:
             """
             Delete a marketing strategy.
-            
+
             Args:
                 info: GraphQL resolver info
                 id: Marketing strategy ID
-                
+
             Returns:
                 True if successful, False otherwise
             """
@@ -304,7 +352,7 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Marketing service not available")
                 return False
-            
+
             # Delete marketing strategy
             try:
                 success = await service.delete_marketing_strategy(id)
@@ -312,16 +360,18 @@ if STRAWBERRY_AVAILABLE:
             except Exception as e:
                 logger.error(f"Error deleting marketing strategy: {str(e)}")
                 return False
-        
+
         @strawberry.mutation
-        async def create_content_template(self, info: Info, input: ContentTemplateInput) -> Optional[ContentTemplateType]:
+        async def create_content_template(
+            self, info: Info, input: ContentTemplateInput
+        ) -> Optional[ContentTemplateType]:
             """
             Create a new content template.
-            
+
             Args:
                 info: GraphQL resolver info
                 input: Content template input
-                
+
             Returns:
                 Created content template if successful, None otherwise
             """
@@ -330,7 +380,7 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 logger.warning("Marketing service not available")
                 return None
-            
+
             # Create content template
             try:
                 template = await service.create_content_template(
@@ -339,19 +389,25 @@ if STRAWBERRY_AVAILABLE:
                     description=input.description,
                     content_type=input.content_type,
                     template=input.template,
-                    variables=input.variables
+                    variables=input.variables,
                 )
-                
+
                 return ContentTemplateType(
                     id=str(template.id),
-                    strategy_id=str(template.strategy_id) if template.strategy_id else None,
+                    strategy_id=(
+                        str(template.strategy_id) if template.strategy_id else None
+                    ),
                     name=template.name,
                     description=template.description,
                     content_type=template.content_type,
                     template=template.template,
                     variables=template.variables,
-                    created_at=template.created_at.isoformat() if template.created_at else None,
-                    updated_at=template.updated_at.isoformat() if template.updated_at else None
+                    created_at=(
+                        template.created_at.isoformat() if template.created_at else None
+                    ),
+                    updated_at=(
+                        template.updated_at.isoformat() if template.updated_at else None
+                    ),
                 )
             except Exception as e:
                 logger.error(f"Error creating content template: {str(e)}")

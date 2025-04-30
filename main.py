@@ -14,11 +14,11 @@ def main():
     print("=" * 80)
     print("pAIssive Income Framework Demo")
     print("=" * 80)
-    
+
     # Create the agent team
     team = AgentTeam("Niche AI Tools")
     print(f"Created agent team: {team}")
-    
+
     # Define market segments to analyze
     market_segments = [
         "e-commerce",
@@ -27,57 +27,67 @@ def main():
         "education",
         "real estate",
     ]
-    print(f"\nAnalyzing {len(market_segments)} market segments: {', '.join(market_segments)}")
-    
+    print(
+        f"\nAnalyzing {len(market_segments)} market segments: {', '.join(market_segments)}"
+    )
+
     # Run niche analysis
     niches = team.run_niche_analysis(market_segments)
     print(f"\nIdentified {len(niches)} potential niches:")
     for i, niche in enumerate(niches):
         print(f"{i+1}. {niche['name']} (Score: {niche['opportunity_score']:.2f})")
-    
+
     # Select the top niche
     top_niche = niches[0]
-    print(f"\nSelected top niche: {top_niche['name']} (Score: {top_niche['opportunity_score']:.2f})")
+    print(
+        f"\nSelected top niche: {top_niche['name']} (Score: {top_niche['opportunity_score']:.2f})"
+    )
     print(f"Description: {top_niche['description']}")
     print(f"Problem areas: {', '.join(top_niche['problem_areas'])}")
-    
+
     # Develop a solution for the top niche
-    solution = team.develop_solution(top_niche['id'])
+    solution = team.develop_solution(top_niche["id"])
     print(f"\nDeveloped solution: {solution['name']}")
     print(f"Description: {solution['description']}")
-    print(f"Architecture: {solution['architecture']['type']} with {solution['architecture']['frontend']} frontend and {solution['architecture']['backend']} backend")
-    
+    print(
+        f"Architecture: {solution['architecture']['type']} with {solution['architecture']['frontend']} frontend and {solution['architecture']['backend']} backend"
+    )
+
     print("\nFeatures:")
-    for i, feature in enumerate(solution['features']):
+    for i, feature in enumerate(solution["features"]):
         print(f"{i+1}. {feature['name']} - {feature['description']}")
-    
+
     # Create a monetization strategy
     monetization = team.create_monetization_strategy()
     print(f"\nMonetization Strategy:")
     print(f"Subscription Tiers:")
-    for tier in monetization['subscription_tiers']:
-        print(f"- {tier['name']}: ${tier['price_monthly']}/month or ${tier['price_yearly']}/year")
-    
+    for tier in monetization["subscription_tiers"]:
+        print(
+            f"- {tier['name']}: ${tier['price_monthly']}/month or ${tier['price_yearly']}/year"
+        )
+
     print(f"\nRevenue Projections:")
-    for year, projection in monetization['revenue_projections'].items():
-        print(f"- {year.replace('_', ' ').title()}: {projection['users']} users, ${projection['revenue']} revenue")
-    
+    for year, projection in monetization["revenue_projections"].items():
+        print(
+            f"- {year.replace('_', ' ').title()}: {projection['users']} users, ${projection['revenue']} revenue"
+        )
+
     # Create a marketing plan
     marketing = team.create_marketing_plan()
     print(f"\nMarketing Plan:")
     print(f"Target Personas:")
-    for persona in marketing['user_personas']:
+    for persona in marketing["user_personas"]:
         print(f"- {persona['name']}: {persona['description']}")
-    
+
     print(f"\nMarketing Channels:")
-    for channel in marketing['marketing_channels']:
+    for channel in marketing["marketing_channels"]:
         print(f"- {channel['name']}: {channel['description']}")
-    
+
     # Export the project plan
     output_path = "project_plan.json"
     team.export_project_plan(output_path)
     print(f"\nExported project plan to {output_path}")
-    
+
     print("\n" + "=" * 80)
     print("Demo Complete")
     print("=" * 80)

@@ -12,8 +12,7 @@ from ..version_manager import VersionManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -22,13 +21,16 @@ try:
     from fastapi import FastAPI
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.middleware.gzip import GZipMiddleware
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for middleware setup")
     FASTAPI_AVAILABLE = False
 
 
-def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManager = None) -> None:
+def setup_middleware(
+    app: Any, config: APIConfig, version_manager: VersionManager = None
+) -> None:
     """
     Set up middleware for the API server.
 
@@ -58,21 +60,25 @@ def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManage
     # Add authentication middleware
     if config.enable_auth:
         from .auth import setup_auth_middleware
+
         setup_auth_middleware(app, config)
 
     # Add rate limiting middleware
     if config.enable_rate_limit:
         from .rate_limit import setup_rate_limit_middleware
+
         setup_rate_limit_middleware(app, config)
 
     # Add version middleware if version manager is provided
     if version_manager is not None:
         from .version import setup_version_middleware
+
         setup_version_middleware(app, config, version_manager)
 
     # Add analytics middleware
     if config.enable_analytics:
         from .analytics import AnalyticsMiddleware
+
         AnalyticsMiddleware(app)
 
     # Add query parameters middleware
@@ -80,7 +86,12 @@ def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManage
 
     # Define allowed sort and filter fields for each endpoint
     allowed_sort_fields = {
-        "/api/v1/niche-analysis/niches": ["name", "market_segment", "opportunity_score", "created_at"],
+        "/api/v1/niche-analysis/niches": [
+            "name",
+            "market_segment",
+            "opportunity_score",
+            "created_at",
+        ],
         "/api/v1/monetization/subscription-models": ["name", "type", "created_at"],
         "/api/v1/marketing/campaigns": ["name", "status", "start_date", "end_date"],
         "/api/v1/ai-models/models": ["name", "type", "size", "created_at"],
@@ -89,7 +100,11 @@ def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManage
     }
 
     allowed_filter_fields = {
-        "/api/v1/niche-analysis/niches": ["name", "market_segment", "opportunity_score"],
+        "/api/v1/niche-analysis/niches": [
+            "name",
+            "market_segment",
+            "opportunity_score",
+        ],
         "/api/v1/monetization/subscription-models": ["name", "type", "solution_id"],
         "/api/v1/marketing/campaigns": ["name", "status", "channel"],
         "/api/v1/ai-models/models": ["name", "type", "provider"],
@@ -101,5 +116,5 @@ def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManage
         app,
         allowed_sort_fields=allowed_sort_fields,
         allowed_filter_fields=allowed_filter_fields,
-        max_page_size=config.max_page_size
+        max_page_size=config.max_page_size,
     )

@@ -1,6 +1,7 @@
 """
 Tests for the ModelConfig class.
 """
+
 import os
 import json
 import pytest
@@ -12,7 +13,7 @@ from ai_models.model_config import ModelConfig
 def test_model_config_init():
     """Test ModelConfig initialization."""
     config = ModelConfig()
-    
+
     # Check default values
     assert config.models_dir.endswith("models")
     assert config.cache_dir.endswith("cache")
@@ -32,7 +33,7 @@ def test_model_config_to_dict():
     """Test ModelConfig to_dict method."""
     config = ModelConfig()
     config_dict = config.to_dict()
-    
+
     # Check that all attributes are in the dictionary
     assert "models_dir" in config_dict
     assert "cache_dir" in config_dict
@@ -51,7 +52,7 @@ def test_model_config_to_json():
     """Test ModelConfig to_json method."""
     config = ModelConfig()
     config_json = config.to_json()
-    
+
     # Check that the JSON is valid
     config_dict = json.loads(config_json)
     assert "models_dir" in config_dict
@@ -62,16 +63,16 @@ def test_model_config_save_load(temp_dir):
     """Test ModelConfig save and load methods."""
     config = ModelConfig()
     config_path = os.path.join(temp_dir, "test_config.json")
-    
+
     # Save the config
     config.save(config_path)
-    
+
     # Check that the file exists
     assert os.path.exists(config_path)
-    
+
     # Load the config
     loaded_config = ModelConfig.load(config_path)
-    
+
     # Check that the loaded config has the same values
     assert loaded_config.models_dir == config.models_dir
     assert loaded_config.cache_dir == config.cache_dir
@@ -89,10 +90,10 @@ def test_model_config_save_load(temp_dir):
 def test_model_config_get_default():
     """Test ModelConfig get_default method."""
     config = ModelConfig.get_default()
-    
+
     # Check that the config is a ModelConfig instance
     assert isinstance(config, ModelConfig)
-    
+
     # Check that the default config path exists
     default_path = ModelConfig.get_default_config_path()
     assert os.path.exists(default_path)

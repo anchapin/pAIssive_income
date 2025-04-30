@@ -11,9 +11,9 @@ from .monetization_service import MonetizationService
 from .marketing_service import MarketingService
 
 __all__ = [
-    'AgentTeamService',
-    'NicheAnalysisService',
-    'DeveloperService',
-    'MonetizationService',
-    'MarketingService',
+    "AgentTeamService",
+    "NicheAnalysisService",
+    "DeveloperService",
+    "MonetizationService",
+    "MarketingService",
 ]

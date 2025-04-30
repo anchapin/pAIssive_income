@@ -27,10 +27,7 @@ class MarketingPlan:
         self.channels = []
         self.budget = None
         self.tier_budget_allocations = {}
-        self.content_calendar = {
-            "content_types": [],
-            "frequency": "weekly"
-        }
+        self.content_calendar = {"content_types": [], "frequency": "weekly"}
         self.target_audience = ""
         self.metrics = []
         self.tactics = []
@@ -40,7 +37,12 @@ class MarketingPlan:
         self.messaging_strategy = {}
         self.conversion_funnels = []
 
-    def set_budget(self, total_amount: float, period: str = "monthly", allocation_strategy: str = "equal"):
+    def set_budget(
+        self,
+        total_amount: float,
+        period: str = "monthly",
+        allocation_strategy: str = "equal",
+    ):
         """Set the budget for the marketing plan.
 
         Args:
@@ -53,12 +55,19 @@ class MarketingPlan:
             "amount": total_amount,  # For backward compatibility
             "period": period,
             "allocation_strategy": allocation_strategy,
-            "allocation": {}
+            "allocation": {},
         }
         self.updated_at = datetime.now().isoformat()
 
-    def add_channel(self, name: str, description: str = "", budget_percentage: float = 0.0,
-                  primary_goal: str = None, target_tiers: List[str] = None, strategies: List[str] = None):
+    def add_channel(
+        self,
+        name: str,
+        description: str = "",
+        budget_percentage: float = 0.0,
+        primary_goal: str = None,
+        target_tiers: List[str] = None,
+        strategies: List[str] = None,
+    ):
         """Add a marketing channel to the plan.
 
         Args:
@@ -76,7 +85,7 @@ class MarketingPlan:
             "budget_percentage": budget_percentage,
             "primary_goal": primary_goal,
             "target_tiers": target_tiers or [],
-            "strategies": strategies or []
+            "strategies": strategies or [],
         }
         self.channels.append(channel)
 
@@ -87,7 +96,13 @@ class MarketingPlan:
         self.updated_at = datetime.now().isoformat()
         return channel
 
-    def add_tier_budget_allocation(self, tier_name: str, amount: float, percentage: Optional[float] = None, focus_areas: Optional[List[str]] = None):
+    def add_tier_budget_allocation(
+        self,
+        tier_name: str,
+        amount: float,
+        percentage: Optional[float] = None,
+        focus_areas: Optional[List[str]] = None,
+    ):
         """Add a budget allocation for a specific tier.
 
         Args:
@@ -98,10 +113,12 @@ class MarketingPlan:
         """
         self.tier_budget_allocations[tier_name] = {
             "amount": amount,
-            "percentage": percentage if percentage is not None else (
-                amount / self.budget["amount"] if self.budget else 0.0
+            "percentage": (
+                percentage
+                if percentage is not None
+                else (amount / self.budget["amount"] if self.budget else 0.0)
             ),
-            "focus_areas": focus_areas or []
+            "focus_areas": focus_areas or [],
         }
         self.updated_at = datetime.now().isoformat()
 
@@ -148,13 +165,19 @@ class MarketingPlan:
             "description": description,
             "target_value": target_value,
             "current_value": 0.0,
-            "unit": unit
+            "unit": unit,
         }
         self.metrics.append(metric)
         self.updated_at = datetime.now().isoformat()
         return metric
 
-    def add_tactic(self, name: str, channel_name: str, description: str, expected_impact: float = 0.5):
+    def add_tactic(
+        self,
+        name: str,
+        channel_name: str,
+        description: str,
+        expected_impact: float = 0.5,
+    ):
         """Add a marketing tactic to the plan.
 
         Args:
@@ -168,7 +191,7 @@ class MarketingPlan:
             "name": name,
             "channel_name": channel_name,
             "description": description,
-            "expected_impact": expected_impact
+            "expected_impact": expected_impact,
         }
         self.tactics.append(tactic)
         self.updated_at = datetime.now().isoformat()
@@ -192,7 +215,7 @@ class MarketingPlan:
             "content_calendar": self.content_calendar,
             "target_audience": self.target_audience,
             "metrics": self.metrics,
-            "tactics": self.tactics
+            "tactics": self.tactics,
         }
 
     def calculate_channel_budget(self, channel_name: str) -> float:
@@ -221,7 +244,14 @@ class MarketingPlan:
         """
         return sum(tactic["expected_impact"] for tactic in self.tactics)
 
-    def add_goal(self, name: str, description: str, metric: str, target_value: float, timeframe: str):
+    def add_goal(
+        self,
+        name: str,
+        description: str,
+        metric: str,
+        target_value: float,
+        timeframe: str,
+    ):
         """Add a goal to the marketing plan.
 
         Args:
@@ -237,13 +267,20 @@ class MarketingPlan:
             "description": description,
             "metric": metric,
             "target_value": target_value,
-            "timeframe": timeframe
+            "timeframe": timeframe,
         }
         self.goals.append(goal)
         self.updated_at = datetime.now().isoformat()
         return goal
 
-    def add_persona(self, name: str, description: str, target_tier: str, goals: List[str], pain_points: List[str]):
+    def add_persona(
+        self,
+        name: str,
+        description: str,
+        target_tier: str,
+        goals: List[str],
+        pain_points: List[str],
+    ):
         """Add a persona to the marketing plan.
 
         Args:
@@ -259,13 +296,15 @@ class MarketingPlan:
             "description": description,
             "target_tier": target_tier,
             "goals": goals,
-            "pain_points": pain_points
+            "pain_points": pain_points,
         }
         self.personas.append(persona)
         self.updated_at = datetime.now().isoformat()
         return persona
 
-    def add_content_strategy(self, name: str, description: str, content_types: List[Dict[str, Any]]):
+    def add_content_strategy(
+        self, name: str, description: str, content_types: List[Dict[str, Any]]
+    ):
         """Add a content strategy to the marketing plan.
 
         Args:
@@ -277,7 +316,7 @@ class MarketingPlan:
             "id": str(uuid.uuid4()),
             "name": name,
             "description": description,
-            "content_types": content_types
+            "content_types": content_types,
         }
         self.content_strategies.append(strategy)
         self.updated_at = datetime.now().isoformat()
@@ -293,7 +332,9 @@ class MarketingPlan:
         self.updated_at = datetime.now().isoformat()
         return self.messaging_strategy
 
-    def add_conversion_funnel(self, name: str, target_tier: str, stages: List[Dict[str, Any]]):
+    def add_conversion_funnel(
+        self, name: str, target_tier: str, stages: List[Dict[str, Any]]
+    ):
         """Add a conversion funnel to the marketing plan.
 
         Args:
@@ -305,7 +346,7 @@ class MarketingPlan:
             "id": str(uuid.uuid4()),
             "name": name,
             "target_tier": target_tier,
-            "stages": stages
+            "stages": stages,
         }
         self.conversion_funnels.append(funnel)
         self.updated_at = datetime.now().isoformat()

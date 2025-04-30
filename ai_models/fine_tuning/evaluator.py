@@ -15,15 +15,10 @@ from dataclasses import dataclass, field
 
 import torch
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
-from transformers import (
-    AutoModelForCausalLM, AutoTokenizer,
-    Trainer, TrainingArguments
-)
+from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
 
 # Import metrics from benchmarking
-from ai_models.benchmarking.metrics import (
-    AccuracyMetric, PerplexityMetric, RougeMetric
-)
+from ai_models.benchmarking.metrics import AccuracyMetric, PerplexityMetric, RougeMetric
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -33,6 +28,7 @@ class EvaluationMetric(Enum):
     """
     Enum for evaluation metrics.
     """
+
     ACCURACY = "accuracy"
     PERPLEXITY = "perplexity"
     ROUGE = "rouge"
@@ -47,6 +43,7 @@ class EvaluationConfig:
     """
     Configuration for model evaluation.
     """
+
     # Model information
     model_path: str
 
@@ -55,7 +52,9 @@ class EvaluationConfig:
     dataset: Optional[Union[Dataset, DatasetDict]] = None
 
     # Evaluation metrics
-    metrics: List[EvaluationMetric] = field(default_factory=lambda: [EvaluationMetric.PERPLEXITY])
+    metrics: List[EvaluationMetric] = field(
+        default_factory=lambda: [EvaluationMetric.PERPLEXITY]
+    )
 
     # Custom evaluation function
     custom_evaluation_function: Optional[Callable] = None
@@ -86,7 +85,9 @@ class EvaluationConfig:
                 try:
                     metric = EvaluationMetric(metric)
                 except ValueError:
-                    logger.warning(f"Unknown metric: {metric}, using PERPLEXITY instead")
+                    logger.warning(
+                        f"Unknown metric: {metric}, using PERPLEXITY instead"
+                    )
                     metric = EvaluationMetric.PERPLEXITY
             processed_metrics.append(metric)
         self.metrics = processed_metrics
@@ -167,8 +168,7 @@ class ModelEvaluator:
 
             # Load model
             self.model = AutoModelForCausalLM.from_pretrained(
-                self.config.model_path,
-                device_map=self.config.device
+                self.config.model_path, device_map=self.config.device
             )
 
             logger.info(f"Model loaded successfully on {self.config.device}")
@@ -251,7 +251,10 @@ class ModelEvaluator:
                 metric_result = self._evaluate_f1(eval_dataset)
             elif metric_type == EvaluationMetric.EXACT_MATCH:
                 metric_result = self._evaluate_exact_match(eval_dataset)
-            elif metric_type == EvaluationMetric.CUSTOM and self.config.custom_evaluation_function:
+            elif (
+                metric_type == EvaluationMetric.CUSTOM
+                and self.config.custom_evaluation_function
+            ):
                 metric_result = self._evaluate_custom(eval_dataset)
             else:
                 logger.warning(f"Skipping unsupported metric: {metric_type.value}")
@@ -316,13 +319,12 @@ class ModelEvaluator:
             # Get overall perplexity
             overall_perplexity = perplexity_metric.get_overall_perplexity()
 
-            return {
-                "perplexity": perplexity,
-                "overall_perplexity": overall_perplexity
-            }
+            return {"perplexity": perplexity, "overall_perplexity": overall_perplexity}
         else:
-            logger.warning(f"Text field {text_field} is not a list, skipping perplexity evaluation")
-            return {"perplexity": float('inf')}
+            logger.warning(
+                f"Text field {text_field} is not a list, skipping perplexity evaluation"
+            )
+            return {"perplexity": float("inf")}
 
     def _evaluate_accuracy(self, dataset: Dataset) -> Dict[str, float]:
         """
@@ -359,14 +361,16 @@ class ModelEvaluator:
         # Create a function to generate predictions
         def generate_prediction(input_text):
             # Tokenize the input
-            inputs = self.tokenizer(input_text, return_tensors="pt").to(self.config.device)
+            inputs = self.tokenizer(input_text, return_tensors="pt").to(
+                self.config.device
+            )
 
             # Generate prediction
             with torch.no_grad():
                 outputs = self.model.generate(
                     inputs["input_ids"],
                     max_length=self.config.max_length,
-                    num_return_sequences=1
+                    num_return_sequences=1,
                 )
 
             # Decode prediction
@@ -384,12 +388,11 @@ class ModelEvaluator:
             # Get overall accuracy
             overall_accuracy = accuracy_metric.get_overall_accuracy()
 
-            return {
-                "accuracy": accuracy,
-                "overall_accuracy": overall_accuracy
-            }
+            return {"accuracy": accuracy, "overall_accuracy": overall_accuracy}
         else:
-            logger.warning(f"Input or label fields are not lists, skipping accuracy evaluation")
+            logger.warning(
+                f"Input or label fields are not lists, skipping accuracy evaluation"
+            )
             return {"accuracy": 0.0}
 
     def _evaluate_rouge(self, dataset: Dataset) -> Dict[str, float]:
@@ -416,7 +419,14 @@ class ModelEvaluator:
                 input_field = input_candidate
                 break
 
-        for reference_candidate in ["output", "completion", "answer", "label", "target", "reference"]:
+        for reference_candidate in [
+            "output",
+            "completion",
+            "answer",
+            "label",
+            "target",
+            "reference",
+        ]:
             if reference_candidate in dataset.features:
                 reference_field = reference_candidate
                 break
@@ -427,14 +437,16 @@ class ModelEvaluator:
         # Create a function to generate predictions
         def generate_prediction(input_text):
             # Tokenize the input
-            inputs = self.tokenizer(input_text, return_tensors="pt").to(self.config.device)
+            inputs = self.tokenizer(input_text, return_tensors="pt").to(
+                self.config.device
+            )
 
             # Generate prediction
             with torch.no_grad():
                 outputs = self.model.generate(
                     inputs["input_ids"],
                     max_length=self.config.max_length,
-                    num_return_sequences=1
+                    num_return_sequences=1,
                 )
 
             # Decode prediction
@@ -457,7 +469,9 @@ class ModelEvaluator:
 
             return rouge_scores
         else:
-            logger.warning(f"Input or reference fields are not lists, skipping ROUGE evaluation")
+            logger.warning(
+                f"Input or reference fields are not lists, skipping ROUGE evaluation"
+            )
             return {"rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0}
 
     def _evaluate_bleu(self, dataset: Dataset) -> Dict[str, float]:
@@ -522,7 +536,7 @@ class ModelEvaluator:
                 model=self.model,
                 tokenizer=self.tokenizer,
                 dataset=dataset,
-                device=self.config.device
+                device=self.config.device,
             )
 
             return custom_results
@@ -546,13 +560,17 @@ class ModelEvaluator:
         results_path = os.path.join(results_dir, f"results_{timestamp}.json")
 
         with open(results_path, "w", encoding="utf-8") as f:
-            json.dump({
-                "model_path": self.config.model_path,
-                "metrics": [metric.value for metric in self.config.metrics],
-                "results": self.results,
-                "metadata": self.config.metadata,
-                "timestamp": timestamp
-            }, f, indent=2)
+            json.dump(
+                {
+                    "model_path": self.config.model_path,
+                    "metrics": [metric.value for metric in self.config.metrics],
+                    "results": self.results,
+                    "metadata": self.config.metadata,
+                    "timestamp": timestamp,
+                },
+                f,
+                indent=2,
+            )
 
         logger.info(f"Saved evaluation results to {results_path}")
 
@@ -580,7 +598,9 @@ class ModelEvaluator:
                 output_dir = os.path.join(self.config.output_dir, "visualizations")
                 os.makedirs(output_dir, exist_ok=True)
                 timestamp = time.strftime("%Y%m%d-%H%M%S")
-                output_path = os.path.join(output_dir, f"evaluation_viz_{timestamp}.png")
+                output_path = os.path.join(
+                    output_dir, f"evaluation_viz_{timestamp}.png"
+                )
 
             if output_path is None:
                 logger.warning("No output path provided for visualization")
@@ -592,11 +612,15 @@ class ModelEvaluator:
             for metric_name, metric_results in self.results.items():
                 if isinstance(metric_results, dict):
                     for result_name, result_value in metric_results.items():
-                        if isinstance(result_value, (int, float)) and not isinstance(result_value, bool):
-                            viz_data.append({
-                                "Metric": f"{metric_name}_{result_name}",
-                                "Value": result_value
-                            })
+                        if isinstance(result_value, (int, float)) and not isinstance(
+                            result_value, bool
+                        ):
+                            viz_data.append(
+                                {
+                                    "Metric": f"{metric_name}_{result_name}",
+                                    "Value": result_value,
+                                }
+                            )
 
             if not viz_data:
                 logger.warning("No numeric results to visualize")
@@ -613,7 +637,9 @@ class ModelEvaluator:
             ax = sns.barplot(x="Metric", y="Value", data=df)
 
             # Add labels and title
-            plt.title(f"Evaluation Results for {os.path.basename(self.config.model_path)}")
+            plt.title(
+                f"Evaluation Results for {os.path.basename(self.config.model_path)}"
+            )
             plt.xlabel("Metric")
             plt.ylabel("Value")
 
@@ -632,7 +658,9 @@ class ModelEvaluator:
 
         except ImportError as e:
             logger.warning(f"Could not create visualization: {e}")
-            logger.warning("Install matplotlib, pandas, and seaborn for visualization support")
+            logger.warning(
+                "Install matplotlib, pandas, and seaborn for visualization support"
+            )
             return ""
         except Exception as e:
             logger.error(f"Error creating visualization: {e}")
@@ -644,7 +672,7 @@ class ModelEvaluator:
         dataset_path: str,
         metrics: List[Union[str, EvaluationMetric]] = None,
         output_dir: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Dict[str, Any]]:
         """
         Compare multiple models using the same evaluation metrics.
@@ -679,7 +707,7 @@ class ModelEvaluator:
                     dataset_path=dataset_path,
                     metrics=metrics,
                     output_dir=output_dir,
-                    **kwargs
+                    **kwargs,
                 )
 
                 # Create evaluator
@@ -712,8 +740,7 @@ class ModelEvaluator:
 
     @staticmethod
     def visualize_comparison(
-        results: Dict[str, Dict[str, Any]],
-        output_dir: str
+        results: Dict[str, Dict[str, Any]], output_dir: str
     ) -> str:
         """
         Visualize comparison of multiple models.
@@ -742,12 +769,16 @@ class ModelEvaluator:
                 for metric_name, metric_results in model_results.items():
                     if isinstance(metric_results, dict):
                         for result_name, result_value in metric_results.items():
-                            if isinstance(result_value, (int, float)) and not isinstance(result_value, bool):
-                                viz_data.append({
-                                    "Model": model_name,
-                                    "Metric": f"{metric_name}_{result_name}",
-                                    "Value": result_value
-                                })
+                            if isinstance(
+                                result_value, (int, float)
+                            ) and not isinstance(result_value, bool):
+                                viz_data.append(
+                                    {
+                                        "Model": model_name,
+                                        "Metric": f"{metric_name}_{result_name}",
+                                        "Value": result_value,
+                                    }
+                                )
 
             if not viz_data:
                 logger.warning("No numeric results to visualize")
@@ -762,8 +793,13 @@ class ModelEvaluator:
 
             # Create grouped bar plot
             ax = sns.catplot(
-                x="Metric", y="Value", hue="Model",
-                data=df, kind="bar", height=6, aspect=1.5
+                x="Metric",
+                y="Value",
+                hue="Model",
+                data=df,
+                kind="bar",
+                height=6,
+                aspect=1.5,
             )
 
             # Add labels and title
@@ -788,7 +824,9 @@ class ModelEvaluator:
 
         except ImportError as e:
             logger.warning(f"Could not create visualization: {e}")
-            logger.warning("Install matplotlib, pandas, and seaborn for visualization support")
+            logger.warning(
+                "Install matplotlib, pandas, and seaborn for visualization support"
+            )
             return ""
         except Exception as e:
             logger.error(f"Error creating visualization: {e}")
@@ -798,7 +836,7 @@ class ModelEvaluator:
     def generate_evaluation_report(
         results: Dict[str, Dict[str, Any]],
         output_path: str,
-        include_visualizations: bool = True
+        include_visualizations: bool = True,
     ) -> str:
         """
         Generate a comprehensive evaluation report.
@@ -842,8 +880,12 @@ class ModelEvaluator:
                 for metric_name, metric_results in model_results.items():
                     if isinstance(metric_results, dict):
                         for result_name, result_value in metric_results.items():
-                            if isinstance(result_value, (int, float)) and not isinstance(result_value, bool):
-                                model_summary[f"{metric_name}_{result_name}"] = result_value
+                            if isinstance(
+                                result_value, (int, float)
+                            ) and not isinstance(result_value, bool):
+                                model_summary[f"{metric_name}_{result_name}"] = (
+                                    result_value
+                                )
 
                 summary_data.append(model_summary)
 
@@ -852,7 +894,11 @@ class ModelEvaluator:
                 summary_df = pd.DataFrame(summary_data)
 
                 # Add summary table
-                report_content.append(tabulate(summary_df, headers="keys", tablefmt="pipe", showindex=False))
+                report_content.append(
+                    tabulate(
+                        summary_df, headers="keys", tablefmt="pipe", showindex=False
+                    )
+                )
                 report_content.append("")
 
             # Add detailed results for each model
@@ -874,14 +920,23 @@ class ModelEvaluator:
                         metric_data = []
 
                         for result_name, result_value in metric_results.items():
-                            metric_data.append({"Metric": result_name, "Value": result_value})
+                            metric_data.append(
+                                {"Metric": result_name, "Value": result_value}
+                            )
 
                         if metric_data:
                             # Convert to DataFrame
                             metric_df = pd.DataFrame(metric_data)
 
                             # Add metric table
-                            report_content.append(tabulate(metric_df, headers="keys", tablefmt="pipe", showindex=False))
+                            report_content.append(
+                                tabulate(
+                                    metric_df,
+                                    headers="keys",
+                                    tablefmt="pipe",
+                                    showindex=False,
+                                )
+                            )
                     else:
                         report_content.append(f"Value: {metric_results}")
 
@@ -896,12 +951,16 @@ class ModelEvaluator:
                 viz_dir = os.path.join(os.path.dirname(output_path), "visualizations")
                 os.makedirs(viz_dir, exist_ok=True)
 
-                comparison_viz_path = ModelEvaluator.visualize_comparison(results, viz_dir)
+                comparison_viz_path = ModelEvaluator.visualize_comparison(
+                    results, viz_dir
+                )
 
                 if comparison_viz_path:
                     # Add comparison visualization
                     report_content.append("### Model Comparison")
-                    report_content.append(f"![Model Comparison]({os.path.relpath(comparison_viz_path, os.path.dirname(output_path))})")
+                    report_content.append(
+                        f"![Model Comparison]({os.path.relpath(comparison_viz_path, os.path.dirname(output_path))})"
+                    )
                     report_content.append("")
 
             # Write report to file
@@ -922,12 +981,13 @@ class ModelEvaluator:
 
 # Helper functions
 
+
 def evaluate_model(
     model_path: str,
     dataset_path: str,
     metrics: List[Union[str, EvaluationMetric]] = None,
     output_dir: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ) -> Dict[str, Any]:
     """
     Evaluate a fine-tuned model.
@@ -948,7 +1008,7 @@ def evaluate_model(
         dataset_path=dataset_path,
         metrics=metrics or [EvaluationMetric.PERPLEXITY],
         output_dir=output_dir,
-        **kwargs
+        **kwargs,
     )
 
     # Create evaluator
@@ -969,7 +1029,7 @@ def compare_models(
     dataset_path: str,
     metrics: List[Union[str, EvaluationMetric]] = None,
     output_dir: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ) -> Dict[str, Dict[str, Any]]:
     """
     Compare multiple fine-tuned models.
@@ -989,14 +1049,14 @@ def compare_models(
         dataset_path=dataset_path,
         metrics=metrics,
         output_dir=output_dir,
-        **kwargs
+        **kwargs,
     )
 
 
 def generate_evaluation_report(
     results: Dict[str, Dict[str, Any]],
     output_path: str,
-    include_visualizations: bool = True
+    include_visualizations: bool = True,
 ) -> str:
     """
     Generate a comprehensive evaluation report.
@@ -1012,5 +1072,5 @@ def generate_evaluation_report(
     return ModelEvaluator.generate_evaluation_report(
         results=results,
         output_path=output_path,
-        include_visualizations=include_visualizations
+        include_visualizations=include_visualizations,
     )

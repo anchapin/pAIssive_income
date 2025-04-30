@@ -14,8 +14,7 @@ from ..services.api_key_service import APIKeyService
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -24,6 +23,7 @@ try:
     from fastapi import FastAPI, Request, Response, Depends, HTTPException, status
     from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
     import jwt
+
     FASTAPI_AVAILABLE = True
     JWT_AVAILABLE = True
 except ImportError:
@@ -73,17 +73,10 @@ class AuthMiddleware:
         expires = datetime.utcnow() + timedelta(minutes=self.jwt_expires_minutes)
 
         # Create token data
-        token_data = {
-            **data,
-            "exp": expires
-        }
+        token_data = {**data, "exp": expires}
 
         # Create token
-        token = jwt.encode(
-            token_data,
-            self.jwt_secret,
-            algorithm=self.jwt_algorithm
-        )
+        token = jwt.encode(token_data, self.jwt_secret, algorithm=self.jwt_algorithm)
 
         return token
 
@@ -106,9 +99,7 @@ class AuthMiddleware:
         try:
             # Decode token
             payload = jwt.decode(
-                token,
-                self.jwt_secret,
-                algorithms=[self.jwt_algorithm]
+                token, self.jwt_secret, algorithms=[self.jwt_algorithm]
             )
 
             return payload
@@ -141,7 +132,7 @@ class AuthMiddleware:
 async def get_current_user(
     request: Request = None,
     api_key_header: str = Depends(APIKeyHeader(name="X-API-Key", auto_error=False)),
-    token: str = Depends(OAuth2PasswordBearer(tokenUrl="token", auto_error=False))
+    token: str = Depends(OAuth2PasswordBearer(tokenUrl="token", auto_error=False)),
 ) -> Dict[str, Any]:
     """
     Get the current user from the request.
@@ -159,6 +150,7 @@ async def get_current_user(
 
     # Create auth middleware
     from ..config import APIConfig
+
     config = APIConfig()
     auth_middleware = AuthMiddleware(config)
 
@@ -173,7 +165,11 @@ async def get_current_user(
         api_key = auth_middleware.api_key_service.verify_api_key(api_key_header)
         if api_key:
             # For API keys from the service, use the user ID from the API key
-            return {"id": api_key.user_id or "system", "name": "API Key User", "role": "api_key"}
+            return {
+                "id": api_key.user_id or "system",
+                "name": "API Key User",
+                "role": "api_key",
+            }
 
     # Check JWT token
     if token:
@@ -250,5 +246,5 @@ def setup_auth_middleware(app: Any, config: APIConfig) -> None:
         return Response(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content='{"detail":"Invalid authentication credentials"}',
-            media_type="application/json"
+            media_type="application/json",
         )

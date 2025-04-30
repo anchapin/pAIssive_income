@@ -35,6 +35,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         self.payment_gateway = None
         try:
             from .payment_processor import get_payment_gateway
+
             self.payment_gateway = get_payment_gateway()
         except (ImportError, AttributeError):
             pass
@@ -45,7 +46,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         currency: str,
         payment_method_id: str,
         description: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Process a payment.
@@ -66,7 +67,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
                 currency=currency,
                 payment_method_id=payment_method_id,
                 description=description,
-                metadata=metadata
+                metadata=metadata,
             )
 
         # Generate a payment ID
@@ -81,7 +82,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
             "description": description,
             "metadata": metadata or {},
             "status": "succeeded",
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
 
         # Store payment
@@ -94,7 +95,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         payment_id: str,
         amount: Optional[float] = None,
         reason: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Refund a payment.
@@ -110,10 +111,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         """
         if self.payment_gateway:
             return self.payment_gateway.refund_payment(
-                payment_id=payment_id,
-                amount=amount,
-                reason=reason,
-                metadata=metadata
+                payment_id=payment_id, amount=amount, reason=reason, metadata=metadata
             )
 
         # Check if payment exists
@@ -136,7 +134,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
             "reason": reason,
             "metadata": metadata or {},
             "status": "succeeded",
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
 
         # Store refund
@@ -168,7 +166,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         customer_id: Optional[str] = None,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """
         List payments.
@@ -187,7 +185,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
                 customer_id=customer_id,
                 start_date=start_date,
                 end_date=end_date,
-                limit=limit
+                limit=limit,
             )
 
         # Filter payments
@@ -206,7 +204,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         self,
         email: str,
         name: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a customer.
@@ -221,9 +219,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         """
         if self.payment_gateway:
             return self.payment_gateway.create_customer(
-                email=email,
-                name=name,
-                metadata=metadata
+                email=email, name=name, metadata=metadata
             )
 
         # Generate a customer ID
@@ -235,7 +231,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
             "email": email,
             "name": name,
             "metadata": metadata or {},
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
 
         # Store customer
@@ -267,7 +263,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         customer_id: str,
         email: Optional[str] = None,
         name: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Update a customer.
@@ -283,10 +279,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         """
         if self.payment_gateway:
             return self.payment_gateway.update_customer(
-                customer_id=customer_id,
-                email=email,
-                name=name,
-                metadata=metadata
+                customer_id=customer_id, email=email, name=name, metadata=metadata
             )
 
         # Check if customer exists
@@ -333,7 +326,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         payment_type: str,
         payment_details: Dict[str, Any],
         set_as_default: bool = False,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a payment method.
@@ -354,7 +347,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
                 customer_id=customer_id,
                 payment_type=payment_type,
                 payment_details=payment_details,
-                metadata=metadata
+                metadata=metadata,
             )
 
         # Check if customer exists
@@ -372,7 +365,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
             "details": payment_details,
             "is_default": set_as_default,
             "metadata": metadata or {},
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
 
         # Store payment method
@@ -404,7 +397,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         payment_method_id: str,
         payment_details: Optional[Dict[str, Any]] = None,
         set_as_default: Optional[bool] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Update a payment method.
@@ -423,7 +416,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
                 payment_method_id=payment_method_id,
                 payment_details=payment_details,
                 set_as_default=set_as_default,
-                metadata=metadata
+                metadata=metadata,
             )
 
         # Check if payment method exists
@@ -465,9 +458,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         return True
 
     def list_payment_methods(
-        self,
-        customer_id: str,
-        payment_type: Optional[str] = None
+        self, customer_id: str, payment_type: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         List payment methods for a customer.
@@ -481,8 +472,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         """
         if self.payment_gateway:
             return self.payment_gateway.list_payment_methods(
-                customer_id=customer_id,
-                payment_type=payment_type
+                customer_id=customer_id, payment_type=payment_type
             )
 
         # Check if customer exists
@@ -491,9 +481,10 @@ class MockPaymentProcessorImpl(PaymentProcessor):
 
         # Filter payment methods
         payment_methods = [
-            pm for pm in self.payment_methods.values()
-            if pm["customer_id"] == customer_id and
-            (payment_type is None or pm["type"] == payment_type)
+            pm
+            for pm in self.payment_methods.values()
+            if pm["customer_id"] == customer_id
+            and (payment_type is None or pm["type"] == payment_type)
         ]
 
         return payment_methods
@@ -504,7 +495,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         plan_id: str,
         payment_method_id: str,
         trial_period_days: Optional[int] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a subscription.
@@ -525,7 +516,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
                 plan_id=plan_id,
                 payment_method_id=payment_method_id,
                 trial_period_days=trial_period_days,
-                metadata=metadata
+                metadata=metadata,
             )
 
         # Check if customer exists
@@ -552,7 +543,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
             "status": "active",
             "trial_period_days": trial_period_days,
             "metadata": metadata or {},
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
 
         # Store subscription
@@ -584,7 +575,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         subscription_id: str,
         plan_id: Optional[str] = None,
         payment_method_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Update a subscription.
@@ -603,7 +594,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
                 subscription_id=subscription_id,
                 plan_id=plan_id,
                 payment_method_id=payment_method_id,
-                metadata=metadata
+                metadata=metadata,
             )
 
         # Check if subscription exists
@@ -629,9 +620,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         return subscription
 
     def cancel_subscription(
-        self,
-        subscription_id: str,
-        cancel_at_period_end: bool = False
+        self, subscription_id: str, cancel_at_period_end: bool = False
     ) -> Dict[str, Any]:
         """
         Cancel a subscription.
@@ -646,7 +635,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         if self.payment_gateway:
             return self.payment_gateway.cancel_subscription(
                 subscription_id=subscription_id,
-                cancel_at_period_end=cancel_at_period_end
+                cancel_at_period_end=cancel_at_period_end,
             )
 
         # Check if subscription exists
@@ -668,7 +657,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         self,
         customer_id: Optional[str] = None,
         status: Optional[str] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """
         List subscriptions.
@@ -683,9 +672,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         """
         if self.payment_gateway:
             return self.payment_gateway.list_subscriptions(
-                customer_id=customer_id,
-                status=status,
-                limit=limit
+                customer_id=customer_id, status=status, limit=limit
             )
 
         # Filter subscriptions
@@ -693,7 +680,9 @@ class MockPaymentProcessorImpl(PaymentProcessor):
 
         # Apply filters
         if customer_id:
-            subscriptions = [s for s in subscriptions if s["customer_id"] == customer_id]
+            subscriptions = [
+                s for s in subscriptions if s["customer_id"] == customer_id
+            ]
         if status:
             subscriptions = [s for s in subscriptions if s["status"] == status]
 
