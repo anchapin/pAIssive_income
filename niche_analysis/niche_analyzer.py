@@ -268,7 +268,6 @@ class NicheAnalyzer(INicheAnalyzer):
 
         Raises:
             NicheAnalysisError: If agent team or researcher is not available
-            Exception: If agent team or researcher is not available (for test compatibility)
         """
         logger.info(f"Identifying niches in {len(market_segments)} market segments")
 
@@ -286,12 +285,12 @@ class NicheAnalyzer(INicheAnalyzer):
         # Check for agent team and researcher
         if not self.agent_team:
             logger.error("Agent team not available")
-            raise Exception("Agent team not available")
+            raise NicheAnalysisError("Agent team not available")
 
         research_agent = self.agent_team.get_agent("researcher")
         if not research_agent:
             logger.error("Research agent not available")
-            raise Exception("Research agent not available")
+            raise NicheAnalysisError("Research agent not available")
 
         try:
             # Identify niches
