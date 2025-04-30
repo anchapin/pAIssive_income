@@ -441,16 +441,20 @@ class ABTest:
                 variant_conv = variant["metrics"]["conversions"]
                 variant_imp = variant["metrics"]["impressions"]
                 
+                # Calculate significance based on overall conversion rate (conversions/impressions)
+                control_rate = control_conv/control_imp if control_imp > 0 else 0
+                variant_rate = variant_conv/variant_imp if variant_imp > 0 else 0
+
                 # Use Fisher's exact test for overall conversion significance
-                # Create contingency table
-                table = [[control_conv, control_imp - control_conv],
-                        [variant_conv, variant_imp - variant_conv]]
-                # Use one-tailed Fisher's exact test
+                # Create contingency table comparing successes (conversions) vs failures
+                table = [[variant_conv, variant_imp - variant_conv],
+                        [control_conv, control_imp - control_conv]]
+                
+                # Use one-tailed test to check if variant is better than control
                 odds_ratio, conv_p_value = stats.fisher_exact(table, alternative='greater')
                 
                 # Determine conversion significance at 95% confidence
-                conv_is_significant = (conv_p_value < 0.05 and 
-                                     (variant_conv/variant_imp > control_conv/control_imp))
+                conv_is_significant = (conv_p_value < 0.05 and variant_rate > control_rate)
                 
                 variant_analysis = {
                     "id": variant["id"],
@@ -515,8 +519,43 @@ class ABTest:
         # If no winning variant specified, try to determine one from analysis
         if not winning_variant_id:
             try:
+                # First try to use statistical analysis
                 analysis = self.analyze_test()
                 winning_variant_id = analysis.get("recommended_winner")
+                
+                # If no significant winner, use best performing variant based on metrics
+                if not winning_variant_id:
+                    control_variant = next((v for v in self.variants if v.get("is_control", False)), None)
+                    if control_variant:
+                        control_metrics = control_variant["metrics"]
+                        control_ctr = control_metrics["click_through_rate"]
+                        control_cvr = control_metrics["conversion_rate"] if control_metrics["clicks"] > 0 else 0
+                        
+                        best_variant = None
+                        best_improvement = 0
+                        
+                        for variant in self.variants:
+                            if not variant.get("is_control", False):
+                                metrics = variant["metrics"]
+                                variant_ctr = metrics["click_through_rate"]
+                                variant_cvr = metrics["conversion_rate"] if metrics["clicks"] > 0 else 0
+                                
+                                # Calculate relative improvement
+                                ctr_improvement = ((variant_ctr - control_ctr) / control_ctr) if control_ctr > 0 else 0
+                                cvr_improvement = ((variant_cvr - control_cvr) / control_cvr) if control_cvr > 0 else 0
+                                
+                                # Use combined improvement score
+                                total_improvement = ctr_improvement + cvr_improvement
+                                
+                                if total_improvement > best_improvement and variant_ctr >= control_ctr:
+                                    best_variant = variant
+                                    best_improvement = total_improvement
+                        
+                        if best_variant and best_improvement > 0:
+                            winning_variant_id = best_variant["id"]
+                        else:
+                            winning_variant_id = control_variant["id"]
+                    
             except InsufficientDataError:
                 # If not enough data, default to control variant
                 control_variant = next((v for v in self.variants if v.get("is_control", False)), None)

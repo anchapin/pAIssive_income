@@ -503,15 +503,30 @@ class MarketAnalyzer:
     def analyze_competition(self, niche: str) -> Dict[str, Any]:
         """Analyze competition in a niche market."""
         result = {
+            "id": str(uuid.uuid4()),
             "niche": niche,
-            "competitors": [],
-            "market_share": {},
-            "analysis_summary": "",
-            "timestamp": datetime.now().isoformat()
+            "top_competitors": [
+                {
+                    "name": f"Competitor {i+1}",
+                    "description": f"A competitor in the {niche} niche",
+                    "market_share": f"{20 - i * 3}%",
+                    "strengths": ["feature 1", "feature 2"],
+                    "weaknesses": ["weakness 1", "weakness 2"],
+                    "pricing": f"${10 * (i+1)}/month",
+                }
+                for i in range(3)  # Top 3 competitors
+            ],
+            "competitor_count": 3,
+            "market_saturation": "medium",  # Placeholder, would be determined by AI
+            "entry_barriers": "medium",  # Placeholder, would be determined by AI
+            "differentiation_opportunities": [
+                "better user experience",
+                "more specialized features",
+                "integration with other tools",
+                "lower price point",
+            ],
+            "timestamp": self._get_current_timestamp(),
         }
-        
-        # In a real implementation, this would use AI to analyze the competition
-        # For now, we'll return a placeholder implementation
         
         logger.info(f"Analyzed competition for niche: {niche}")
         

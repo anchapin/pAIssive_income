@@ -8,6 +8,7 @@ themselves and discover other services in the system.
 import logging
 import os
 import socket
+import time
 import uuid
 from typing import Dict, List, Optional, Any, Tuple, Callable
 
@@ -46,23 +47,7 @@ class ServiceDiscoveryClient:
         is_secure: bool = False,
         load_balancer_strategy: str = "round_robin"
     ):
-        """
-        Initialize the service discovery client.
-        
-        Args:
-            service_name: The name of this service
-            host: Host address where this service runs (default: auto-detect)
-            port: Port where this service runs
-            version: Service version (default: "1.0.0")
-            tags: List of tags for this service (optional)
-            metadata: Additional metadata for this service (optional)
-            health_check_url: URL path for health checks (default: "/health")
-            registry_host: Hostname of the service registry (default: "localhost")
-            registry_port: Port of the service registry (default: 8500)
-            auto_register: Whether to register this service automatically (default: True)
-            is_secure: Whether this service uses HTTPS (default: False)
-            load_balancer_strategy: Strategy for load balancing (round_robin, random)
-        """
+        """Initialize the service discovery client."""
         self.service_name = service_name
         self.port = port
         self.version = version
@@ -98,12 +83,7 @@ class ServiceDiscoveryClient:
             self.register_self()
     
     def _setup_load_balancer(self, strategy_name: str) -> None:
-        """
-        Set up the load balancer with the specified strategy.
-        
-        Args:
-            strategy_name: Name of the strategy to use
-        """
+        """Set up the load balancer with the specified strategy."""
         if strategy_name == "random":
             self.load_balancer = LoadBalancer(strategy=RandomStrategy())
         else:  # Default to round_robin
@@ -113,12 +93,7 @@ class ServiceDiscoveryClient:
         self.load_balancer.filter_function = lambda instance: self.registry.get_service_health(instance.service_id)
     
     def _get_local_ip(self) -> str:
-        """
-        Get the local IP address.
-        
-        Returns:
-            str: The local IP address
-        """
+        """Get the local IP address."""
         try:
             # Create a socket to get the local IP
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -132,15 +107,7 @@ class ServiceDiscoveryClient:
             return "127.0.0.1"
     
     def register_self(self) -> bool:
-        """
-        Register this service with the registry.
-        
-        Returns:
-            bool: True if registration was successful, False otherwise
-            
-        Raises:
-            ServiceRegistrationError: If registration fails
-        """
+        """Register this service with the registry."""
         instance = ServiceInstance(
             service_id=self.service_id,
             service_name=self.service_name,
@@ -155,27 +122,11 @@ class ServiceDiscoveryClient:
         return self.registry.register(instance)
     
     def deregister_self(self) -> bool:
-        """
-        Deregister this service from the registry.
-        
-        Returns:
-            bool: True if deregistration was successful, False otherwise
-        """
+        """Deregister this service from the registry."""
         return self.registry.deregister(self.service_id)
     
     def discover_service(self, service_name: str) -> List[ServiceInstance]:
-        """
-        Discover instances of a service by name.
-        
-        Args:
-            service_name: The name of the service to discover
-            
-        Returns:
-            List[ServiceInstance]: All instances of the requested service
-            
-        Raises:
-            ServiceLookupError: If lookup fails
-        """
+        """Discover instances of a service by name."""
         # Check if we have a recent cache entry
         now = time.time()
         if service_name in self._service_cache:
@@ -199,15 +150,7 @@ class ServiceDiscoveryClient:
             raise
     
     def get_service_instance(self, service_name: str) -> Optional[ServiceInstance]:
-        """
-        Get a service instance, using load balancing to select one.
-        
-        Args:
-            service_name: The name of the service
-            
-        Returns:
-            Optional[ServiceInstance]: A selected service instance, or None if none available
-        """
+        """Get a service instance, using load balancing to select one."""
         instances = self.discover_service(service_name)
         if not instances:
             logger.warning(f"No instances found for service: {service_name}")
@@ -217,16 +160,7 @@ class ServiceDiscoveryClient:
         return self.load_balancer.select(instances)
     
     def get_service_url(self, service_name: str, path: str = "/") -> Optional[str]:
-        """
-        Get the URL for a service, automatically selecting an instance.
-        
-        Args:
-            service_name: The name of the service
-            path: The path to append to the URL (default: "/")
-            
-        Returns:
-            Optional[str]: The URL for the service, or None if no instances found
-        """
+        """Get the URL for a service, automatically selecting an instance."""
         instance = self.get_service_instance(service_name)
         if not instance:
             return None
@@ -236,24 +170,11 @@ class ServiceDiscoveryClient:
         return f"{protocol}://{instance.host}:{instance.port}{path}"
     
     def discover_all_services(self) -> Dict[str, List[ServiceInstance]]:
-        """
-        Discover all registered services.
-        
-        Returns:
-            Dict[str, List[ServiceInstance]]: A dictionary mapping service names to lists of instances
-        """
+        """Discover all registered services."""
         return self.registry.get_all_services()
     
     def is_service_healthy(self, service_name: str) -> bool:
-        """
-        Check if at least one instance of a service is healthy.
-        
-        Args:
-            service_name: The name of the service to check
-            
-        Returns:
-            bool: True if at least one instance is healthy, False otherwise
-        """
+        """Check if at least one instance of a service is healthy."""
         instances = self.discover_service(service_name)
         if not instances:
             return False
@@ -265,12 +186,7 @@ class ServiceDiscoveryClient:
         return False
     
     def set_cache_ttl(self, ttl_seconds: float) -> None:
-        """
-        Set the time-to-live for the service instance cache.
-        
-        Args:
-            ttl_seconds: Time-to-live in seconds
-        """
+        """Set the time-to-live for the service instance cache."""
         self._cache_ttl = max(0.0, ttl_seconds)
     
     def clear_cache(self) -> None:
@@ -282,18 +198,7 @@ class ServiceDiscoveryClient:
         service_name: str, 
         fallback_url: Optional[str] = None
     ) -> Callable[[str], Optional[str]]:
-        """
-        Return a function that builds URLs for the specified service.
-        
-        This is a convenience method for building service URLs in a fluent manner.
-        
-        Args:
-            service_name: The name of the service
-            fallback_url: Optional fallback URL if service is not found
-            
-        Returns:
-            Callable: A function that takes a path and returns the full URL
-        """
+        """Return a function that builds URLs for the specified service."""
         def url_builder(path: str = "/") -> Optional[str]:
             url = self.get_service_url(service_name, path)
             if url is None and fallback_url:
@@ -301,4 +206,3 @@ class ServiceDiscoveryClient:
             return url
         
         return url_builder
-```

@@ -428,8 +428,11 @@ def api_server(api_config: APIConfig) -> APIServer:
             "id": "test-strategy-id",
             "name": data.get("name", "Test Strategy"),
             "description": data.get("description", "Test Description"),
-            "target_audience": data.get("target_audience", []),
+            "niche_id": data.get("niche_id", "test-niche-id"),
+            "target_audience": data.get("target_audience", {}),
             "channels": data.get("channels", []),
+            "content_types": data.get("content_types", ["blog_posts", "case_studies", "webinars", "social_media_posts"]),
+            "kpis": data.get("kpis", ["website_traffic", "lead_generation", "conversion_rate", "customer_acquisition_cost"]),
             "created_at": "2025-04-29T21:30:00Z",
             "updated_at": None
         }
@@ -449,8 +452,11 @@ def api_server(api_config: APIConfig) -> APIServer:
             "id": strategy_id,
             "name": "Test Strategy",
             "description": "Test Description",
-            "target_audience": [],
+            "niche_id": "test-niche-id",
+            "target_audience": {},
             "channels": [],
+            "content_types": ["blog_posts", "case_studies", "webinars", "social_media_posts"],
+            "kpis": ["website_traffic", "lead_generation", "conversion_rate", "customer_acquisition_cost"],
             "created_at": "2025-04-29T21:30:00Z",
             "updated_at": None
         }
@@ -466,8 +472,11 @@ def api_server(api_config: APIConfig) -> APIServer:
             "id": strategy_id,
             "name": data.get("name", "Updated Strategy"),
             "description": data.get("description", "Updated Description"),
-            "target_audience": data.get("target_audience", []),
+            "niche_id": data.get("niche_id", "test-niche-id"),
+            "target_audience": data.get("target_audience", {}),
             "channels": data.get("channels", []),
+            "content_types": data.get("content_types", ["blog_posts", "case_studies", "webinars", "social_media_posts"]),
+            "kpis": data.get("kpis", ["website_traffic", "lead_generation", "conversion_rate", "customer_acquisition_cost"]),
             "created_at": "2025-04-29T21:30:00Z",
             "updated_at": "2025-04-29T21:35:00Z"
         }
@@ -484,11 +493,23 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @marketing_router.get("/personas")
     async def get_personas():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+        return {
+            "personas": [],
+            "items": [],
+            "total": 0,
+            "page": 1,
+            "page_size": 10
+        }
 
     @marketing_router.get("/channels")
     async def get_channels():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+        return {
+            "channels": [],
+            "items": [],
+            "total": 0,
+            "page": 1,
+            "page_size": 10
+        }
 
     @marketing_router.post("/content/generate")
     async def generate_content(data: dict = Body(...)):
@@ -509,6 +530,9 @@ def api_server(api_config: APIConfig) -> APIServer:
             "description": data.get("description", "Test Description"),
             "strategy_id": data.get("strategy_id", ""),
             "channels": data.get("channels", []),
+            "budget": data.get("budget", 1000.00),
+            "target_audience": data.get("target_audience", {}),
+            "goals": data.get("goals", {}),
             "start_date": data.get("start_date", "2025-05-01T00:00:00Z"),
             "end_date": data.get("end_date", "2025-05-31T23:59:59Z"),
             "status": "draft",
@@ -528,13 +552,24 @@ def api_server(api_config: APIConfig) -> APIServer:
             "description": "Test Description",
             "strategy_id": "test-strategy-id",
             "channels": [],
+            "budget": 1000.00,
+            "target_audience": {},
+            "goals": {},
             "start_date": "2025-05-01T00:00:00Z",
             "end_date": "2025-05-31T23:59:59Z",
             "status": "draft",
-            "created_at": "2025-04-29T21:30:00Z"
+            "metrics": {
+                "impressions": 1000,
+                "clicks": 100,
+                "conversions": 10,
+                "ctr": 0.1,
+                "conversion_rate": 0.01
+            },
+            "created_at": "2025-04-29T21:30:00Z",
+            "updated_at": "2025-04-29T21:35:00Z"
         }
 
-    @marketing_router.put("/campaigns/{campaign_id}/status")
+    @marketing_router.patch("/campaigns/{campaign_id}/status")
     async def update_campaign_status(campaign_id: str, data: dict = Body(...)):
         if campaign_id.startswith("nonexistent-"):
             return JSONResponse(
@@ -544,8 +579,15 @@ def api_server(api_config: APIConfig) -> APIServer:
         return {
             "id": campaign_id,
             "status": data.get("status", "active"),
+            "activation_date": data.get("activation_date", "2025-05-01T00:00:00Z"),
             "updated_at": "2025-04-29T21:35:00Z"
         }
+
+    # Add a fallback for PUT method to handle the test case
+    @marketing_router.put("/campaigns/{campaign_id}/status")
+    async def update_campaign_status_put(campaign_id: str, data: dict = Body(...)):
+        # Redirect to the PATCH method
+        return await update_campaign_status(campaign_id, data)
 
     @marketing_router.get("/campaigns/{campaign_id}/metrics")
     async def get_campaign_metrics(campaign_id: str):
@@ -556,6 +598,17 @@ def api_server(api_config: APIConfig) -> APIServer:
             )
         return {
             "campaign_id": campaign_id,
+            "period": {
+                "start_date": "2025-05-01",
+                "end_date": "2025-05-31"
+            },
+            "metrics": {
+                "impressions": 1000,
+                "clicks": 100,
+                "conversions": 10,
+                "engagement": 0.25,
+                "reach": 5000
+            },
             "impressions": 1000,
             "clicks": 100,
             "conversions": 10,
@@ -563,7 +616,31 @@ def api_server(api_config: APIConfig) -> APIServer:
             "conversion_rate": 0.01,
             "cost": 100.0,
             "revenue": 500.0,
-            "roi": 4.0
+            "roi": 4.0,
+            "time_series": [
+                {
+                    "date": "2025-05-01",
+                    "metrics": {
+                        "impressions": 100,
+                        "clicks": 10,
+                        "conversions": 1
+                    }
+                }
+            ]
+        }
+
+    # Add bulk create endpoint for marketing strategies
+    @marketing_router.post("/strategies/bulk")
+    async def bulk_create_marketing_strategies(response: Response, data: dict = Body(...)):
+        response.status_code = status.HTTP_201_CREATED
+        # Extract items from the request data
+        items = data.get("items", [])
+        total = len(items)
+        return {
+            "items": [],
+            "errors": [],
+            "stats": {"total": total, "success": total, "failure": 0},
+            "operation_id": "test-operation-id"
         }
 
     # Include the marketing router in the app
@@ -853,6 +930,176 @@ def api_server(api_config: APIConfig) -> APIServer:
         api_key_router,
         prefix="/api/v1/api-keys",
         tags=["API Keys"]
+    )
+
+    # Create a mock GraphQL router
+    graphql_router = APIRouter()
+
+    # Add routes to the mock GraphQL router
+    @graphql_router.post("")
+    async def graphql_endpoint(request: Request, data: dict = Body(...)):
+        # Extract query, variables, and operation_name from the request
+        query = data.get("query", "")
+        variables = data.get("variables", {})
+        operation_name = data.get("operationName")
+
+        # Check if this is an introspection query
+        is_introspection = "__schema" in query or "__type" in query
+
+        # Handle different query types
+        if "nicheAnalysis" in query:
+            return {
+                "data": {
+                    "nicheAnalysis": {
+                        "id": variables.get("id", "test-id"),
+                        "status": "completed",
+                        "marketAnalysis": {
+                            "size": 1000000,
+                            "growth": 15.5,
+                            "competition": "medium"
+                        },
+                        "results": {
+                            "opportunityScore": 0.85,
+                            "recommendations": [
+                                {
+                                    "title": "Test Recommendation",
+                                    "description": "Test Description",
+                                    "priority": "high"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        elif "marketingStrategy" in query:
+            return {
+                "data": {
+                    "marketingStrategy": {
+                        "id": variables.get("id", "test-id"),
+                        "name": "Test Strategy",
+                        "campaigns": [
+                            {
+                                "id": "test-campaign-id",
+                                "name": "Test Campaign",
+                                "status": "active",
+                                "metrics": {
+                                    "impressions": 1000,
+                                    "clicks": 100,
+                                    "conversions": 10,
+                                    "roi": 2.5
+                                },
+                                "content": [
+                                    {
+                                        "id": "test-content-id",
+                                        "type": "blog",
+                                        "title": "Test Title",
+                                        "performance": {
+                                            "views": 500,
+                                            "engagement": 0.2
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        elif "createCampaign" in query:
+            input_data = variables.get("input", {})
+            return {
+                "data": {
+                    "createCampaign": {
+                        "campaign": {
+                            "id": "test-campaign-id",
+                            "name": input_data.get("name", "Test Campaign"),
+                            "status": "draft",
+                            "budget": input_data.get("budget", 0),
+                            "startDate": input_data.get("startDate", "2025-05-01"),
+                            "endDate": input_data.get("endDate", "2025-05-31")
+                        },
+                        "errors": []
+                    }
+                }
+            }
+        elif "campaignMetricsUpdate" in query:
+            return {
+                "data": {
+                    "campaignMetricsUpdate": {
+                        "timestamp": "2025-04-29T21:30:00Z",
+                        "metrics": {
+                            "impressions": 1000,
+                            "clicks": 100,
+                            "conversions": 10,
+                            "currentSpend": 50.0
+                        }
+                    }
+                }
+            }
+        elif "nonexistentField" in query:
+            return {
+                "errors": [
+                    {
+                        "message": "Cannot query field 'nonexistentField' on type 'Query'",
+                        "locations": [{"line": 3, "column": 13}]
+                    }
+                ]
+            }
+        elif is_introspection:
+            return {
+                "data": {
+                    "__schema": {
+                        "types": [
+                            {
+                                "name": "Query",
+                                "fields": [
+                                    {
+                                        "name": "nicheAnalysis",
+                                        "type": {
+                                            "name": "NicheAnalysis",
+                                            "kind": "OBJECT"
+                                        }
+                                    },
+                                    {
+                                        "name": "marketingStrategy",
+                                        "type": {
+                                            "name": "MarketingStrategy",
+                                            "kind": "OBJECT"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Mutation",
+                                "fields": [
+                                    {
+                                        "name": "createCampaign",
+                                        "type": {
+                                            "name": "CreateCampaignPayload",
+                                            "kind": "OBJECT"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        else:
+            return {
+                "data": None,
+                "errors": [
+                    {
+                        "message": "Unknown query",
+                        "locations": [{"line": 1, "column": 1}]
+                    }
+                ]
+            }
+
+    # Include the GraphQL router in the app
+    server.app.include_router(
+        graphql_router,
+        prefix="/api/v1/graphql",
+        tags=["GraphQL"]
     )
 
     # Create a mock router for monetization

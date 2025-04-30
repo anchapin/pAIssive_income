@@ -86,22 +86,20 @@ class MemoryCache(CacheBackend):
         with self.lock:
             current_time = time.time()
             
-            # Check if we need to evict an item before adding a new one
-            # Only evict if this is a new key and we're at capacity
-            if self.max_size is not None and len(self.cache) >= self.max_size and key not in self.cache:
-                self._evict_item()
-            
-            # Calculate expiration time
-            expiration_time = None
-            if ttl is not None:
-                expiration_time = current_time + ttl
-            
             # For new items, start with access_count = 0
             # For existing items, preserve their access count but update timestamp
             if key in self.cache:
                 _, _, access_count, _ = self.cache[key]
             else:
                 access_count = 0
+                # Only evict if this is a new key and we're at capacity
+                if self.max_size is not None and len(self.cache) >= self.max_size:
+                    self._evict_item()
+            
+            # Calculate expiration time
+            expiration_time = None
+            if ttl is not None:
+                expiration_time = current_time + ttl
             
             # Store with current timestamp for proper LRU ordering
             self.cache[key] = (value, expiration_time, access_count, current_time)

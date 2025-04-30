@@ -89,13 +89,13 @@ class DiskCache(CacheBackend):
                     self._save_stats()
                     return None
 
+                # Update access count and last access time
+                metadata["access_count"] = metadata.get("access_count", 0) + 1
+                metadata["last_access_time"] = time.time()
+                self._save_metadata(key, metadata)
+
                 # Load value
                 value = self._load_value(key)
-
-                # Initialize access_count if not present
-                if "access_count" not in metadata:
-                    metadata["access_count"] = 0
-                    self._save_metadata(key, metadata)
 
                 self.stats["hits"] += 1
                 self._save_stats()
@@ -527,11 +527,16 @@ class DiskCache(CacheBackend):
                     )
 
                 elif self.eviction_policy == "lfu":
-                    # Least Frequently Used
-                    key_to_evict = min(
+                    # Get all keys sorted by access count
+                    sorted_keys = sorted(
                         keys,
-                        key=lambda k: self._load_metadata(k).get("access_count", 0)
+                        key=lambda k: (
+                            self._load_metadata(k).get("access_count", 0),
+                            -self._load_metadata(k).get("last_access_time", 0)  # Break ties with LRU
+                        )
                     )
+                    # Pick the first one (least frequently used)
+                    key_to_evict = sorted_keys[0] if sorted_keys else None
 
                 elif self.eviction_policy == "fifo":
                     # First In First Out
