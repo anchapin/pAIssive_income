@@ -5,34 +5,45 @@ on:
     branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
+  workflow_dispatch:
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-        cache: pip
+        cache: 'pip'
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 black isort mypy
+        python -m pip install flake8 black isort mypy ruff pyright
         python -m pip install -r requirements-dev.txt
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     
-    - name: Cache mypy
-      uses: actions/cache@v3
+    - name: Cache Python packages
+      uses: actions/cache@v4
       with:
-        path: .mypy_cache
-        key: mypy-${{ hashFiles('**/*.py') }}
+        path: |
+          ~/.cache/pip
+          .mypy_cache
+          .ruff_cache
+          .pytest_cache
+        key: ${{ runner.os }}-pip-lint-${{ hashFiles('**/requirements*.txt') }}
         restore-keys: |
-          mypy-
+          ${{ runner.os }}-pip-lint-
+    
+    - name: Lint with Ruff
+      run: |
+        ruff check .
+        ruff format --check .
     
     - name: Lint with flake8
       run: |
@@ -49,6 +60,11 @@ jobs:
       run: |
         isort --check-only --diff --profile black .
     
-    - name: Type check with mypy
+    - name: Type check with mypy and pyright
       run: |
         mypy . --ignore-missing-imports --install-types --non-interactive
+        pyright .
+    
+    - name: Check for unused imports
+      run: |
+        ruff check . --select F401

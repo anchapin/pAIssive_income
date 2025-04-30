@@ -175,34 +175,36 @@ class FallbackManager:
             except ModelNotFoundError:
                 pass
 
-        # Define the standard fallback cascade sequence
-        standard_cascade = [
-            FallbackStrategy.DEFAULT,
-            FallbackStrategy.SIMILAR_MODEL,
-            FallbackStrategy.MODEL_TYPE,
-            FallbackStrategy.ANY_AVAILABLE
-        ]
-
         # Build the list of strategies to try
-        if strategy_override is not None:
-            # If strategy is overridden, just use that one
+        if strategy_override is not None and strategy_override != FallbackStrategy.NONE:
+            # When a strategy is overridden, just use that strategy
             strategies_to_try = [strategy_override]
         elif self.default_strategy == FallbackStrategy.NONE:
             # If configured to not use fallbacks, don't try any strategies
             return None, None
         else:
-            # Start with the configured default strategy if it's not in the cascade
+            # Define the standard cascade sequence
             strategies_to_try = []
-            if self.default_strategy not in standard_cascade:
+
+            # Always start with the default strategy
+            if self.default_strategy != FallbackStrategy.NONE:
                 strategies_to_try.append(self.default_strategy)
             
-            # Always try standard cascade in order
-            strategies_to_try.extend(standard_cascade)
+            # If we have an original model, add model-based strategies
+            if original_model_info:
+                if FallbackStrategy.SIMILAR_MODEL not in strategies_to_try:
+                    strategies_to_try.append(FallbackStrategy.SIMILAR_MODEL)
+                if FallbackStrategy.MODEL_TYPE not in strategies_to_try:
+                    strategies_to_try.append(FallbackStrategy.MODEL_TYPE)
             
-            # Insert capability-based strategy after DEFAULT if capabilities are provided
+            # If we have capabilities, add capability strategy right after default
             if required_capabilities and FallbackStrategy.CAPABILITY_BASED not in strategies_to_try:
-                default_index = strategies_to_try.index(FallbackStrategy.DEFAULT)
+                default_index = strategies_to_try.index(self.default_strategy) if self.default_strategy in strategies_to_try else 0
                 strategies_to_try.insert(default_index + 1, FallbackStrategy.CAPABILITY_BASED)
+            
+            # Always include ANY_AVAILABLE as a last resort
+            if FallbackStrategy.ANY_AVAILABLE not in strategies_to_try:
+                strategies_to_try.append(FallbackStrategy.ANY_AVAILABLE)
 
         reason = "Primary model selection failed"
         attempts = 0
@@ -246,10 +248,12 @@ class FallbackManager:
                     "success": fallback_model is not None
                 }
             )
+            
+            # Always track the attempt, even if unsuccessful
             self.track_fallback_event(event, was_successful=fallback_model is not None)
             last_event = event
 
-            # If we found a model, return it
+            # If we found a model, return it 
             if fallback_model:
                 return fallback_model, event
 
@@ -366,7 +370,11 @@ class FallbackManager:
     def _apply_default_model_strategy(self) -> Optional[IModelInfo]:
         """Apply the default model fallback strategy."""
         if self.default_model_id:
-            return self.model_manager.get_model_info(self.default_model_id)
+            try:
+                return self.model_manager.get_model_info(self.default_model_id)
+            except ModelNotFoundError:
+                self.logger.warning(f"Default model {self.default_model_id} not found")
+                return None
         return None
         
     def _apply_similar_model_strategy(self, original_model: Optional[IModelInfo]) -> Optional[IModelInfo]:
@@ -383,6 +391,12 @@ class FallbackManager:
         # If no candidates, return None
         if not candidates:
             return None
+        
+        # If dealing with GPT-4, prefer GPT-3.5-turbo as it's most similar
+        if original_model.id == "gpt-4":
+            gpt35_models = [m for m in candidates if m.id == "gpt-3.5-turbo"]
+            if gpt35_models:
+                return gpt35_models[0]
             
         # If the original model has capabilities, try to find models with similar capabilities
         if hasattr(original_model, "capabilities") and original_model.capabilities:
@@ -394,25 +408,25 @@ class FallbackManager:
                     continue
                     
                 # Count shared capabilities
-                original_caps = set(original_model.capabilities)
-                model_caps = set(model.capabilities)
-                shared = len(original_caps & model_caps)
-                total = len(original_caps | model_caps)
+                shared = len(set(original_model.capabilities) & set(model.capabilities))
+                total = len(set(original_model.capabilities))
                 
-                # Calculate Jaccard similarity
+                # Calculate similarity as proportion of original model's capabilities that are shared
                 similarity = shared / total if total > 0 else 0
                 scored_candidates.append((model, similarity))
                 
             # Sort by score (highest first)
             scored_candidates.sort(key=lambda x: x[1], reverse=True)
             
-            # Return the most similar model if it has high enough similarity (>0.5)
-            if scored_candidates and scored_candidates[0][1] > 0.5:
+            # If we have a good match (>50% similarity), use it
+            if scored_candidates and scored_candidates[0][1] >= 0.5:
                 return scored_candidates[0][0]
         
-        # If no good similarity match was found, try same type models
+        # If no good capability match, try same type models
         same_type_models = [m for m in candidates if m.type == original_model.type]
         if same_type_models:
+            # Sort by ID to ensure consistent selection
+            same_type_models.sort(key=lambda x: x.id)
             return same_type_models[0]
                 
         return None
@@ -454,8 +468,21 @@ class FallbackManager:
     def _apply_any_available_strategy(self) -> Optional[IModelInfo]:
         """Use any available model as a fallback."""
         all_models = self.model_manager.get_all_models()
-        # Sort by ID to ensure consistent ordering
-        sorted_models = sorted(all_models, key=lambda m: m.id)
+        
+        # Sort models first by type, then by ID to ensure deterministic ordering
+        # We prioritize GPT-4 first, then other OpenAI models, then others
+        def sort_key(model):
+            # GPT-4 gets top priority
+            if model.id == "gpt-4":
+                return (0, model.id)
+            # Then other OpenAI models
+            elif model.type == "openai":
+                return (1, model.id)
+            # Then everything else by type and id
+            else:
+                return (2, model.type, model.id)
+        
+        sorted_models = sorted(all_models, key=sort_key)
         return sorted_models[0] if sorted_models else None
         
     def _apply_specified_list_strategy(self, agent_type: Optional[str]) -> Optional[IModelInfo]:

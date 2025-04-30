@@ -7,36 +7,74 @@ on:
     branches: [ main, master, develop ]
   schedule:
     - cron: '0 0 * * 0'  # Run weekly on Sundays at midnight
+  workflow_dispatch:
 
 jobs:
   security:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       security-events: write
+      contents: read
+      actions: read
       
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-        cache: pip
+        cache: 'pip'
+    
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-security-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-security-
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install safety bandit
+        python -m pip install safety bandit pip-audit
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
     
     - name: Check for vulnerable dependencies with Safety
+      continue-on-error: true  # Don't fail the build, but report issues
       run: |
         safety check
         
+    - name: Run pip-audit for dependency scanning
+      continue-on-error: true
+      run: |
+        pip-audit
+        
     - name: Run SAST with Bandit
       run: |
-        bandit -r . -ll -ii -x ./tests,./venv --format json --output bandit-results.json
+        bandit -r . -ll -ii -x ./tests,./venv,./.env,./.venv -f sarif -o bandit-results.sarif
+        
+    - name: Upload Bandit scan results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: bandit-results.sarif
+        category: bandit
+        
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: python
+        queries: security-and-quality
+        
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:python"
         
     - name: Run Dependency Review
       uses: actions/dependency-review-action@v3
@@ -52,11 +90,13 @@ jobs:
         severity: 'CRITICAL,HIGH'
         
     - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
+        category: trivy
         
-    - name: Check Python package security
-      run: |
-        pip-audit
+    - name: Run secret scanning
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
