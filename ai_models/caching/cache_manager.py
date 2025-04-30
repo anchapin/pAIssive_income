@@ -7,6 +7,7 @@ This module provides the main cache manager for the model cache system.
 import os
 import re
 import logging
+import hashlib
 from typing import Dict, Any, Optional, List, Union, Type
 
 from .cache_config import CacheConfig
@@ -48,6 +49,23 @@ class CacheManager:
         self.config = config or CacheConfig()
         self.backend = self._create_backend()
 
+    def _make_key(
+        self,
+        model_id: str,
+        operation: str,
+        inputs: Union[str, List[str], Dict[str, Any]],
+        parameters: Optional[Dict[str, Any]] = None
+    ) -> str:
+        """
+        Create a consistent cache key string that preserves namespace structure.
+        """
+        # Generate cache key object
+        key = generate_cache_key(model_id, operation, inputs, parameters)
+        
+        # Return the structured key that maintains namespace information
+        # Use colon as separator to maintain compatibility with tests
+        return f"{key.model_id}:{key.operation}:{key.input_hash}:{key.parameters_hash}"
+
     def get(
         self,
         model_id: str,
@@ -69,10 +87,10 @@ class CacheManager:
         """
         if not self.config.should_cache(model_id, operation):
             return None
-
-        # Generate cache key - use str() to ensure consistent key format
-        key = str(generate_cache_key(model_id, operation, inputs, parameters))
-
+        
+        # Generate structured cache key
+        key = self._make_key(model_id, operation, inputs, parameters)
+        
         # Get value from cache
         return self.backend.get(key)
 
@@ -101,14 +119,14 @@ class CacheManager:
         """
         if not self.config.should_cache(model_id, operation):
             return False
-
-        # Generate cache key - use str() to ensure consistent key format
-        key = str(generate_cache_key(model_id, operation, inputs, parameters))
-
+        
+        # Generate structured cache key
+        key = self._make_key(model_id, operation, inputs, parameters)
+        
         # Use default TTL if not specified
         if ttl is None:
             ttl = self.config.ttl
-
+        
         # Set value in cache
         return self.backend.set(key, value, ttl)
 
@@ -131,9 +149,9 @@ class CacheManager:
         Returns:
             True if successful, False otherwise
         """
-        # Generate cache key - use str() to ensure consistent key format
-        key = str(generate_cache_key(model_id, operation, inputs, parameters))
-
+        # Generate structured cache key
+        key = self._make_key(model_id, operation, inputs, parameters)
+        
         # Delete value from cache
         return self.backend.delete(key)
 
@@ -158,12 +176,12 @@ class CacheManager:
         """
         if not self.config.should_cache(model_id, operation):
             return False
-
-        # Generate cache key
-        key = generate_cache_key(model_id, operation, inputs, parameters)
-
+        
+        # Generate structured cache key
+        key = self._make_key(model_id, operation, inputs, parameters)
+        
         # Check if value exists in cache
-        return self.backend.exists(str(key))
+        return self.backend.exists(key)
 
     def clear(self) -> bool:
         """
@@ -177,10 +195,10 @@ class CacheManager:
     def clear_namespace(self, namespace: str) -> bool:
         """
         Clear all values for a specific namespace.
-
+        
         Args:
             namespace: Namespace to clear (model_id)
-
+            
         Returns:
             True if successful, False otherwise
         """
@@ -189,27 +207,16 @@ class CacheManager:
         # We need to match keys where the model_id part exactly matches our namespace
         pattern = f"^{re.escape(namespace)}:"
         keys = self.get_keys(pattern)
-
+        
         if not keys:
             # No keys found for this namespace
             return True
 
-        # Delete each key individually
+        # Delete each key in the namespace
         success = True
-        # Only delete keys where the namespace is exactly the first part
-        # This ensures we don't delete keys from other namespaces that might
-        # have similar prefixes
         for key in keys:
-            # Parse the key to verify the namespace
-            try:
-                cache_key = parse_cache_key(key)
-                if cache_key.model_id == namespace:
-                    if not self.backend.delete(key):
-                        success = False
-            except ValueError:
-                # If the key can't be parsed, it's not in our format
-                # so we should skip it
-                continue
+            if not self.backend.delete(key):
+                success = False
 
         return success
 
