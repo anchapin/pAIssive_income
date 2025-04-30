@@ -9,8 +9,8 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Depends, Query, Body, status
 from ..middleware.auth import get_current_user
 from ..schemas.api_key import (
-    APIKeyRequest, APIKeyResponse, APIKeyList,
-    APIKeyUpdateRequest
+    APIKeyCreate, APIKeyResponse, APIKeyList,
+    APIKeyUpdate
 )
 from ..schemas.common import ErrorResponse, SuccessResponse
 
@@ -31,7 +31,7 @@ router = APIRouter()
     }
 )
 async def create_api_key(
-    data: APIKeyRequest = Body(...),
+    data: APIKeyCreate = Body(...),
     user: dict = Depends(get_current_user)
 ):
     """Create a new API key."""
@@ -86,7 +86,7 @@ async def list_api_keys(
 )
 async def update_api_key(
     api_key_id: str,
-    data: APIKeyUpdateRequest = Body(...),
+    data: APIKeyUpdate = Body(...),
     user: dict = Depends(get_current_user)
 ):
     """Update an API key."""
@@ -118,7 +118,7 @@ async def delete_api_key(
 ):
     """Delete an API key."""
     try:
-        return {"message": "API key deleted successfully"}
+        return {"detail": "API key deleted successfully"}
     except Exception as e:
         logger.error(f"Error deleting API key: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

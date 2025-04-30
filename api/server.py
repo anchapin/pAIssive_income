@@ -37,9 +37,12 @@ class APIServer:
         """Initialize the API server."""
         self.config = config
         self.app = FastAPI(
-            title=config.title,
-            description=config.description,
-            version=config.version
+            title=config.title or "pAIssive Income API",
+            description=config.description or "RESTful API for pAIssive Income services",
+            version=config.version.value,
+            docs_url=config.docs_url,
+            openapi_url=config.openapi_url,
+            redoc_url=config.redoc_url
         )
         self._setup_middleware()
         self._setup_routes()
@@ -63,34 +66,85 @@ class APIServer:
 
     def _setup_version_routes(self, version: APIVersion) -> None:
         """Set up routes for a specific API version."""
-        # Include routers based on configuration
-        if self.config.enable_niche_analysis:
-            self.app.include_router(niche_analysis_router, prefix="/niche-analysis")
+        # Create version prefix
+        version_prefix = f"/api/v{version.value}"
 
-        if self.config.enable_monetization:
-            self.app.include_router(monetization_router, prefix="/monetization")
-
-        if self.config.enable_marketing:
-            self.app.include_router(marketing_router, prefix="/marketing")
-
-        if self.config.enable_ai_models:
-            self.app.include_router(ai_models_router, prefix="/ai-models")
-
-        if self.config.enable_agent_team:
-            self.app.include_router(agent_team_router, prefix="/agent-team")
-
-        # User router - always enabled
-        self.app.include_router(user_router, prefix="/user")
-
-        if self.config.enable_dashboard:
-            self.app.include_router(dashboard_router, prefix="/dashboard")
+        # Include core routers with proper tags
+        self.app.include_router(
+            user_router, 
+            prefix=f"{version_prefix}/user", 
+            tags=["User"]
+        )
 
         if self.config.enable_auth:
-            self.app.include_router(api_key_router, prefix="/api-keys")
-            self.app.include_router(webhook_router, prefix="/webhooks")
+            self.app.include_router(
+                api_key_router, 
+                prefix=f"{version_prefix}/api-keys", 
+                tags=["API Keys"],
+                dependencies=[Depends(verify_token)]
+            )
+
+        if self.config.enable_niche_analysis:
+            self.app.include_router(
+                niche_analysis_router, 
+                prefix=f"{version_prefix}/niche-analysis", 
+                tags=["Niche Analysis"]
+            )
+
+        if self.config.enable_monetization:
+            self.app.include_router(
+                monetization_router, 
+                prefix=f"{version_prefix}/monetization", 
+                tags=["Monetization"]
+            )
+
+        if self.config.enable_marketing:
+            self.app.include_router(
+                marketing_router, 
+                prefix=f"{version_prefix}/marketing", 
+                tags=["Marketing"]
+            )
+
+        if self.config.enable_ai_models:
+            self.app.include_router(
+                ai_models_router, 
+                prefix=f"{version_prefix}/ai-models", 
+                tags=["AI Models"]
+            )
+
+        if self.config.enable_agent_team:
+            self.app.include_router(
+                agent_team_router, 
+                prefix=f"{version_prefix}/agent-team", 
+                tags=["Agent Team"]
+            )
+
+        if self.config.enable_dashboard:
+            self.app.include_router(
+                dashboard_router, 
+                prefix=f"{version_prefix}/dashboard", 
+                tags=["Dashboard"]
+            )
 
         if self.config.enable_analytics:
-            self.app.include_router(analytics_router, prefix="/analytics")
+            self.app.include_router(
+                analytics_router, 
+                prefix=f"{version_prefix}/analytics", 
+                tags=["Analytics"]
+            )
 
         if self.config.enable_developer:
-            self.app.include_router(developer_router, prefix="/developer")
+            self.app.include_router(
+                developer_router, 
+                prefix=f"{version_prefix}/developer", 
+                tags=["Developer"]
+            )
+
+        # Webhook router should be protected by auth
+        if self.config.enable_auth:
+            self.app.include_router(
+                webhook_router, 
+                prefix=f"{version_prefix}/webhooks", 
+                tags=["Webhooks"],
+                dependencies=[Depends(verify_token)]
+            )

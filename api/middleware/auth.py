@@ -3,125 +3,82 @@ Authentication middleware for the API server.
 """
 
 import logging
-from typing import Optional, Callable
-from fastapi import HTTPException, Header, Depends, status, Request, Response
-from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from typing import Optional, Dict, Any
+from fastapi import Request, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+from datetime import datetime, timedelta
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
+from api.config import APIConfig
+
+# Configure logging
 logger = logging.getLogger(__name__)
 
-async def verify_token(authorization: Optional[str] = Header(None)) -> str:
-    """
-    Verify the authorization token.
+# Security scheme
+security = HTTPBearer()
+
+# JWT configuration
+JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+class AuthMiddleware:
+    """Authentication middleware."""
     
-    Args:
-        authorization: Authorization header value
-        
-    Returns:
-        The verified token
-        
-    Raises:
-        HTTPException: If token is invalid or missing
-    """
-    if not authorization:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing authorization header"
-        )
+    def __init__(self, config: APIConfig | str):
+        if isinstance(config, APIConfig):
+            if not config.jwt_secret:
+                raise ValueError("JWT secret is not configured")
+            self.secret_key = config.jwt_secret
+            self.algorithm = config.jwt_algorithm or JWT_ALGORITHM
+            self.access_token_expire_minutes = config.jwt_expires_minutes or ACCESS_TOKEN_EXPIRE_MINUTES
+            self.api_keys = config.api_keys or []
+        else:
+            self.secret_key = config
+            self.algorithm = JWT_ALGORITHM
+            self.access_token_expire_minutes = ACCESS_TOKEN_EXPIRE_MINUTES
+            self.api_keys = []
     
-    try:
-        scheme, token = authorization.split()
-        if scheme.lower() != "bearer":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authorization scheme"
-            )
-        return token
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authorization header format"
-        )
-
-async def get_current_user(token: str = Depends(verify_token)):
-    """
-    Get the current authenticated user.
+    def create_token(self, data: dict) -> str:
+        """Create a JWT token."""
+        to_encode = data.copy()
+        expire = datetime.utcnow() + timedelta(minutes=self.access_token_expire_minutes)
+        to_encode.update({"exp": expire})
+        return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
     
-    Args:
-        token: The verified authentication token
-        
-    Returns:
-        User data
-        
-    Raises:
-        HTTPException: If token is invalid or user not found
-    """
-    # TODO: Add proper token validation and user lookup
-    # For now, return mock user data
-    return {
-        "id": "test_user_id",
-        "username": "testuser",
-        "email": "test@example.com",
-        "first_name": "Test",
-        "last_name": "User",
-        "created_at": "2025-04-30T00:00:00Z"
-    }
-
-class AuthMiddleware(BaseHTTPMiddleware):
-    """Middleware for handling authentication."""
-
-    def __init__(self, app, exclude_paths: Optional[list[str]] = None):
-        """Initialize middleware."""
-        super().__init__(app)
-        self.exclude_paths = exclude_paths or [
-            "/user/login",
-            "/user/register",
-            "/docs",
-            "/redoc",
-            "/openapi.json"
-        ]
-
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        """Process the request."""
-        # Skip auth for excluded paths
-        if any(request.url.path.endswith(path) for path in self.exclude_paths):
-            return await call_next(request)
-
-        # Get authorization header
-        auth_header = request.headers.get("Authorization")
-        if not auth_header:
-            return Response(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content='{"detail":"Missing authorization header"}',
-                media_type="application/json"
-            )
-
+    def verify_token(self, token: str) -> Dict[str, Any]:
+        """Verify a JWT token."""
         try:
-            # Verify token
-            scheme, token = auth_header.split()
-            if scheme.lower() != "bearer":
-                return Response(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    content='{"detail":"Invalid authorization scheme"}',
-                    media_type="application/json"
-                )
+            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            return payload
+        except jwt.ExpiredSignatureError:
+            raise ValueError("Token has expired")
+        except jwt.JWTError:
+            raise ValueError("Invalid token")
 
-            # TODO: Add proper token validation
-            # For now, we just check if it's our mock token
-            if token != "mock_token":
-                return Response(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    content='{"detail":"Invalid token"}',
-                    media_type="application/json"
-                )
+    def verify_api_key(self, api_key: str) -> bool:
+        """Verify an API key."""
+        # Return False for empty API keys
+        if not api_key:
+            return False
+            
+        # Check if API key exists in configured keys
+        return api_key in self.api_keys
 
-            # Continue processing
-            return await call_next(request)
 
-        except ValueError:
-            return Response(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content='{"detail":"Invalid authorization header format"}',
-                media_type="application/json"
-            )
+# Create middleware instance
+auth_middleware = AuthMiddleware("test-secret")  # Default for testing
+
+async def verify_token(token: str = Depends(security)) -> Dict[str, Any]:
+    """Verify a JWT token."""
+    try:
+        return auth_middleware.verify_token(token)
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+
+async def get_current_user(token: str = Depends(verify_token)) -> Dict[str, Any]:
+    """Get the current authenticated user."""
+    try:
+        # The token payload contains the user info
+        return token
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
