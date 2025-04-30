@@ -1,0 +1,5 @@
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+-P ubuntu-22.04=catthehacker/ubuntu:act-latest
+--env-file=.env
+--bind
+--container-architecture linux/amd64
