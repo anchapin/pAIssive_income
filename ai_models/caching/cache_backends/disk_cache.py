@@ -60,53 +60,37 @@ class DiskCache(CacheBackend):
         self._load_stats()
 
     def get(self, key: str) -> Optional[Dict[str, Any]]:
-        """
-        Get a value from the cache.
-
-        Args:
-            key: Cache key
-
-        Returns:
-            Cached value or None if not found
-        """
+        """Get a value from the cache."""
         with self.lock:
-            file_path = self._get_file_path(key)
-            metadata_path = self._get_metadata_path(key)
-
-            if not os.path.exists(file_path) or not os.path.exists(metadata_path):
+            if not self.exists(key):
                 self.stats["misses"] += 1
                 self._save_stats()
                 return None
 
             try:
-                # Load metadata first
+                # Load metadata first to check expiration
                 metadata = self._load_metadata(key)
-
-                # Check if expired
-                if metadata.get("expiration_time") is not None and time.time() > metadata["expiration_time"]:
+                expiration_time = metadata.get("expiration_time")
+                
+                if expiration_time is not None and time.time() > expiration_time:
+                    # Item has expired
                     self.delete(key)
                     self.stats["misses"] += 1
                     self._save_stats()
                     return None
 
-                # Load value
-                value = self._load_value(key)
-
-                # Initialize access_count if not present
-                if "access_count" not in metadata:
-                    metadata["access_count"] = 0
-
-                # Update access count and time
-
-                metadata["access_count"] += 1
+                # Update access time and count in metadata
                 metadata["last_access_time"] = time.time()
+                metadata["access_count"] = metadata.get("access_count", 0) + 1
                 self._save_metadata(key, metadata)
 
+                # Load the actual value
+                value = self._load_value(key)
                 self.stats["hits"] += 1
                 self._save_stats()
                 return value
 
-            except Exception:
+            except (IOError, json.JSONDecodeError):
                 self.stats["misses"] += 1
                 self._save_stats()
                 return None
@@ -522,9 +506,7 @@ class DiskCache(CacheBackend):
             json.dump(self.stats, f)
 
     def _evict_item(self) -> None:
-        """
-        Evict an item from the cache based on the eviction policy.
-        """
+        """Evict an item from the cache based on the eviction policy."""
         with self.lock:
             keys = self.get_keys()
             if not keys:
@@ -533,24 +515,33 @@ class DiskCache(CacheBackend):
             try:
                 # Load all metadata up front to avoid multiple disk reads
                 metadata_map = {}
+                current_time = time.time()
                 for key in keys:
                     try:
-                        metadata_map[key] = self._load_metadata(key)
+                        metadata = self._load_metadata(key)
+                        # Skip expired items
+                        expiration_time = metadata.get("expiration_time")
+                        if expiration_time is not None and current_time > expiration_time:
+                            self.delete(key)
+                            continue
+                        metadata_map[key] = metadata
                     except (IOError, json.JSONDecodeError):
                         # Skip corrupted metadata
                         continue
 
+                if not metadata_map:
+                    return
+
                 if self.eviction_policy == "lru":
-                    # Least Recently Used
+                    # Least Recently Used - evict item with oldest last_access_time
                     key_to_evict = min(
                         metadata_map.keys(),
                         key=lambda k: metadata_map[k].get("last_access_time", 0)
                     )
-
                 elif self.eviction_policy == "lfu":
-                    # Least Frequently Used - First by access count, then by creation time
+                    # Least Frequently Used - evict item with lowest access count and oldest creation time
                     def get_score(k):
-                        metadata = self._load_metadata(k)
+                        metadata = metadata_map[k]
                         count = metadata.get("access_count", 0)
                         # Creation time is used as a tiebreaker - older items are evicted first
                         creation_time = metadata.get("creation_time", float('inf'))
@@ -558,18 +549,13 @@ class DiskCache(CacheBackend):
                         # Python will compare tuples element by element
                         return (count, -creation_time)  # Negative creation_time so older items are evicted first
 
-                    key_to_evict = min(
-                        metadata_map.keys(),
-                        key=get_score
-                    )
-
+                    key_to_evict = min(metadata_map.keys(), key=get_score)
                 elif self.eviction_policy == "fifo":
-                    # First In First Out
+                    # First In First Out - evict oldest item by creation time
                     key_to_evict = min(
                         metadata_map.keys(),
                         key=lambda k: metadata_map[k].get("creation_time", 0)
                     )
-
                 else:
                     # Default to LRU
                     key_to_evict = min(
@@ -582,7 +568,7 @@ class DiskCache(CacheBackend):
                     self.stats["evictions"] += 1
                     self._save_stats()
 
-            except Exception as e:
+            except Exception:
                 import logging
                 logging.exception("Error during cache eviction. Falling back to deleting the first key.")
                 if keys:

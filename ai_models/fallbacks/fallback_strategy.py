@@ -163,31 +163,10 @@ class FallbackManager:
         required_capabilities: Optional[List[str]] = None,
         strategy_override: Optional[FallbackStrategy] = None
     ) -> Tuple[Optional[IModelInfo], Optional[FallbackEvent]]:
-        """
-        Find a fallback model when the primary model is unavailable.
-        
-        This method implements the core fallback algorithm:
-        1. If strategy_override is provided, use that strategy
-        2. Otherwise, use the default strategy and cascade through others if it fails
-        3. Execute the selected strategy to find a fallback model
-        4. Track the fallback event if successful
-        
-        Args:
-            original_model_id: ID of the original model that failed (if any)
-            agent_type: Type of agent requesting the model (for preference matching)
-            task_type: Type of task the model will perform
-            required_capabilities: List of required model capabilities
-            strategy_override: Optional override for the fallback strategy
-            
-        Returns:
-            Tuple containing:
-              - ModelInfo of the fallback model or None if no fallback found
-              - FallbackEvent describing the fallback or None if no fallback found
-        """
         if not self.fallback_enabled:
             self.logger.info("Fallback is disabled, not attempting model fallback")
             return None, None
-            
+
         # Track the original model info if available
         original_model_info = None
         if original_model_id:
@@ -196,79 +175,75 @@ class FallbackManager:
             except ModelNotFoundError:
                 pass
 
-        # Define the cascade order - if DEFAULT fails, try these in sequence
-        cascade_order = [
+        # Define the standard fallback cascade sequence
+        standard_cascade = [
             FallbackStrategy.DEFAULT,
             FallbackStrategy.SIMILAR_MODEL,
             FallbackStrategy.MODEL_TYPE,
             FallbackStrategy.ANY_AVAILABLE
         ]
 
-        # If strategy override is provided, only try that strategy
-        if strategy_override:
+        # Build the list of strategies to try
+        if strategy_override is not None:
+            # If strategy is overridden, just use that one
             strategies_to_try = [strategy_override]
         else:
-            strategies_to_try = cascade_order
+            # Use the full cascade sequence, starting with DEFAULT
+            strategies_to_try = standard_cascade
 
         reason = "Primary model selection failed"
         attempts = 0
+        last_model = None
 
         # Try each strategy in sequence until we find a model
-        for strategy in strategies_to_try:
+        for current_strategy in strategies_to_try:
             attempts += 1
-            self.logger.info(f"Trying fallback strategy: {strategy.value} (attempt {attempts})")
+            self.logger.info(f"Trying fallback strategy: {current_strategy.value} (attempt {attempts})")
 
             fallback_model = None
             
             # Execute the selected fallback strategy
-            if strategy == FallbackStrategy.NONE:
-                continue
-                
-            elif strategy == FallbackStrategy.DEFAULT:
+            if current_strategy == FallbackStrategy.DEFAULT:
                 fallback_model = self._apply_default_model_strategy()
-                
-            elif strategy == FallbackStrategy.SIMILAR_MODEL:
+            elif current_strategy == FallbackStrategy.SIMILAR_MODEL:
                 fallback_model = self._apply_similar_model_strategy(original_model_info)
-                
-            elif strategy == FallbackStrategy.MODEL_TYPE:
+            elif current_strategy == FallbackStrategy.MODEL_TYPE:
                 fallback_model = self._apply_model_type_strategy(original_model_info, agent_type, task_type)
-                
-            elif strategy == FallbackStrategy.ANY_AVAILABLE:
+            elif current_strategy == FallbackStrategy.ANY_AVAILABLE:
                 fallback_model = self._apply_any_available_strategy()
-                
-            elif strategy == FallbackStrategy.SPECIFIED_LIST:
+            elif current_strategy == FallbackStrategy.SPECIFIED_LIST:
                 fallback_model = self._apply_specified_list_strategy(agent_type)
-                
-            elif strategy == FallbackStrategy.SIZE_TIER:
+            elif current_strategy == FallbackStrategy.SIZE_TIER:
                 fallback_model = self._apply_size_tier_strategy(original_model_info)
-                
-            elif strategy == FallbackStrategy.CAPABILITY_BASED:
+            elif current_strategy == FallbackStrategy.CAPABILITY_BASED:
                 fallback_model = self._apply_capability_strategy(required_capabilities)
 
-            # If we found a fallback model, record the event and return
+            # Create and track the attempt, regardless of success
+            event = FallbackEvent(
+                original_model_id=original_model_id,
+                fallback_model_id=fallback_model.id if fallback_model else None,
+                reason=reason,
+                agent_type=agent_type,
+                task_type=task_type,
+                strategy_used=current_strategy,
+                details={
+                    "attempts": attempts,
+                    "original_model_type": original_model_info.type if original_model_info else None,
+                    "fallback_model_type": fallback_model.type if fallback_model else None,
+                    "success": fallback_model is not None
+                }
+            )
+            self.track_fallback_event(event, was_successful=fallback_model is not None)
+
+            # If we found a model, return it
             if fallback_model:
-                event = FallbackEvent(
-                    original_model_id=original_model_id,
-                    fallback_model_id=fallback_model.id,
-                    reason=reason,
-                    agent_type=agent_type,
-                    task_type=task_type,
-                    strategy_used=strategy,
-                    details={
-                        "attempts": attempts,
-                        "original_model_type": original_model_info.type if original_model_info else None,
-                        "fallback_model_type": fallback_model.type
-                    }
-                )
-                
-                self.track_fallback_event(event)
                 return fallback_model, event
 
-            self.logger.warning(f"Strategy {strategy.value} failed to find a fallback model")
+            self.logger.warning(f"Strategy {current_strategy.value} failed to find a fallback model")
 
         self.logger.warning(f"No fallback model found after trying {attempts} strategies")
-        return None, None
-        
+        return None, event  # Return the last event even if unsuccessful
+
     def track_fallback_event(self, event: FallbackEvent, was_successful: bool = True) -> None:
         """
         Track a fallback event and update metrics.
@@ -405,24 +380,28 @@ class FallbackManager:
                     continue
                     
                 # Count shared capabilities
-                shared = len(set(original_model.capabilities) & set(model.capabilities))
-                score = shared / len(original_model.capabilities) if original_model.capabilities else 0
+                original_caps = set(original_model.capabilities)
+                model_caps = set(model.capabilities)
+                shared = len(original_caps & model_caps)
+                total = len(original_caps | model_caps)
+                
+                # Calculate both Jaccard similarity and coverage ratio
+                jaccard_sim = shared / total if total > 0 else 0
+                coverage = shared / len(original_caps) if original_caps else 0
+                
+                # Only consider it similar if it has very high similarity AND covers almost all capabilities
+                score = min(jaccard_sim, coverage)  # Use the lower of the two scores
                 scored_candidates.append((model, score))
                 
             # Sort by score (highest first)
             scored_candidates.sort(key=lambda x: x[1], reverse=True)
             
-            # If we have a candidate with a score > 0, return it
-            if scored_candidates and scored_candidates[0][1] > 0:
+            # Require very high similarity (>0.8 means almost all capabilities match)
+            if scored_candidates and scored_candidates[0][1] > 0.8:
                 return scored_candidates[0][0]
                 
-        # If no similarity-based match, fall back to same type
-        same_type_models = [m for m in candidates if m.type == original_model.type]
-        if same_type_models:
-            return same_type_models[0]
-            
-        # If still no match, return any model
-        return candidates[0] if candidates else None
+        # If no good similarity match was found, return None to let other strategies try
+        return None
         
     def _apply_model_type_strategy(
         self, 
