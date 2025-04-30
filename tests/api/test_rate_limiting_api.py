@@ -7,6 +7,7 @@ This module contains tests for rate limiting and throttling endpoints.
 import pytest
 import time
 from typing import Dict, Any, List
+from concurrent.futures import ThreadPoolExecutor
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
@@ -29,35 +30,35 @@ class TestRateLimitingAPI:
     def test_rate_limit_enforcement(self, api_test_client: APITestClient):
         """Test that rate limits are properly enforced."""
         endpoint = "test-rate-limit"
-        
+
         # Make multiple requests in quick succession
         responses = []
         for _ in range(5):  # Attempt more requests than default rate limit
             response = api_test_client.get(f"rate-limiting/{endpoint}")
             responses.append(response)
-        
+
         # Validate that some requests succeeded and some were rate limited
         successful = [r for r in responses if r.status_code == 200]
         rate_limited = [r for r in responses if r.status_code == 429]
-        
+
         assert len(successful) > 0, "Expected some requests to succeed"
         assert len(rate_limited) > 0, "Expected some requests to be rate limited"
-        
+
         # Validate rate limit headers in successful responses
         for response in successful:
             assert "X-RateLimit-Limit" in response.headers
             assert "X-RateLimit-Remaining" in response.headers
             assert "X-RateLimit-Reset" in response.headers
-            
+
             # Validate that remaining count decreases
             remaining = int(response.headers["X-RateLimit-Remaining"])
             assert remaining >= 0, "Remaining requests should not be negative"
-        
+
         # Validate rate limited response
         for response in rate_limited:
             result = validate_error_response(response, 429)  # Too Many Requests
             assert "Retry-After" in response.headers
-            
+
             # Validate error response structure
             validate_field_exists(result, "error")
             validate_field_exists(result["error"], "message")
@@ -66,7 +67,7 @@ class TestRateLimitingAPI:
     def test_rate_limit_reset(self, api_test_client: APITestClient):
         """Test that rate limits reset after the specified window."""
         endpoint = "test-rate-limit-reset"
-        
+
         # Step 1: Make requests until rate limited
         responses = []
         while True:
@@ -74,18 +75,18 @@ class TestRateLimitingAPI:
             if response.status_code == 429:
                 break
             responses.append(response)
-        
+
         # Get reset time from last successful response
         last_successful = responses[-1]
         reset_after = int(last_successful.headers["X-RateLimit-Reset"])
-        
+
         # Step 2: Wait for rate limit window to reset
         time.sleep(reset_after + 1)
-        
+
         # Step 3: Try another request
         response = api_test_client.get(f"rate-limiting/{endpoint}")
         validate_success_response(response)
-        
+
         # Validate new rate limit window
         assert "X-RateLimit-Limit" in response.headers
         assert int(response.headers["X-RateLimit-Remaining"]) > 0
@@ -101,20 +102,20 @@ class TestRateLimitingAPI:
                 "requests_per_hour": 1000
             }
         }
-        
+
         # Apply custom rate limits
         response = auth_api_test_client.post("rate-limiting/config", config_data)
         validate_success_response(response)
-        
+
         # Test the custom limits
         endpoint = "test-custom-rate-limit"
         responses = []
-        
+
         # Make requests at the configured rate
         for _ in range(15):  # More than requests_per_second
             response = auth_api_test_client.get(f"rate-limiting/{endpoint}")
             responses.append(response)
-        
+
         # Validate that limits were enforced according to tier
         successful = len([r for r in responses if r.status_code == 200])
         assert successful <= config_data["limits"]["requests_per_second"]
@@ -122,22 +123,22 @@ class TestRateLimitingAPI:
     def test_rate_limit_by_ip(self, api_test_client: APITestClient):
         """Test rate limiting by IP address."""
         endpoint = "test-ip-rate-limit"
-        
+
         # Test with different IP addresses
         ips = ["192.168.1.1", "192.168.1.2"]
-        
+
         for ip in ips:
             # Make requests with specific IP
             headers = {"X-Forwarded-For": ip}
             responses = []
-            
+
             for _ in range(5):
                 response = api_test_client.get(
                     f"rate-limiting/{endpoint}",
                     headers=headers
                 )
                 responses.append(response)
-            
+
             # Validate rate limits are tracked separately per IP
             successful = len([r for r in responses if r.status_code == 200])
             assert successful > 0, f"Expected some requests to succeed for IP {ip}"
@@ -145,41 +146,41 @@ class TestRateLimitingAPI:
     def test_concurrent_request_throttling(self, api_test_client: APITestClient):
         """Test throttling of concurrent requests."""
         endpoint = "test-concurrent-throttling"
-        
+
         # Configure throttling
         config = {
             "max_concurrent_requests": 3,
             "timeout_seconds": 5
         }
-        
+
         response = api_test_client.post("rate-limiting/throttle-config", config)
         validate_success_response(response)
-        
+
         # Make concurrent requests
         from concurrent.futures import ThreadPoolExecutor
-        
+
         def make_request():
             return api_test_client.get(f"rate-limiting/{endpoint}")
-        
+
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = [executor.submit(make_request) for _ in range(5)]
             responses = [f.result() for f in futures]
-        
+
         # Validate that some requests were throttled
         successful = len([r for r in responses if r.status_code == 200])
         throttled = len([r for r in responses if r.status_code == 429])
-        
+
         assert successful <= config["max_concurrent_requests"]
         assert throttled > 0
 
     def test_degradation_under_load(self, api_test_client: APITestClient):
         """Test graceful degradation under load."""
         endpoint = "test-degradation"
-        
+
         # Make requests with increasing concurrency
         concurrent_requests = [1, 5, 10, 20]
         response_times = []
-        
+
         for concurrency in concurrent_requests:
             with ThreadPoolExecutor(max_workers=concurrency) as executor:
                 futures = [
@@ -187,17 +188,17 @@ class TestRateLimitingAPI:
                     for _ in range(concurrency)
                 ]
                 responses = [f.result() for f in futures]
-                
+
                 # Calculate average response time
                 successful_responses = [
-                    r for r in responses 
+                    r for r in responses
                     if r.status_code in (200, 429)  # Include rate limited responses
                 ]
-                
+
                 for response in successful_responses:
                     assert "X-Response-Time" in response.headers
                     response_times.append(float(response.headers["X-Response-Time"]))
-        
+
         # Validate graceful degradation
         # Response times should increase gradually, not exponentially
         for i in range(1, len(response_times)):
@@ -214,21 +215,21 @@ class TestRateLimitingAPI:
             "overage_allowed": True,
             "overage_rate": 1.5
         }
-        
+
         response = auth_api_test_client.post("rate-limiting/quota", quota_data)
         validate_success_response(response)
-        
+
         # Test quota enforcement
         endpoint = "test-quota-limit"
-        
+
         # Make requests and track quota usage
         responses = []
         quota_headers = []
-        
+
         for _ in range(5):
             response = auth_api_test_client.get(f"rate-limiting/{endpoint}")
             responses.append(response)
-            
+
             if response.status_code == 200:
                 assert "X-Daily-Quota-Remaining" in response.headers
                 assert "X-Monthly-Quota-Remaining" in response.headers
@@ -236,7 +237,7 @@ class TestRateLimitingAPI:
                     "daily": int(response.headers["X-Daily-Quota-Remaining"]),
                     "monthly": int(response.headers["X-Monthly-Quota-Remaining"])
                 })
-        
+
         # Validate quota tracking
         for i in range(1, len(quota_headers)):
             assert quota_headers[i]["daily"] < quota_headers[i-1]["daily"]
