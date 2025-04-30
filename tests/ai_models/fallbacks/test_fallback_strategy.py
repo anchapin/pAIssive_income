@@ -462,11 +462,113 @@ class TestFallbackManager(unittest.TestCase):
 
     @patch('ai_models.fallbacks.fallback_strategy.FallbackStrategy', FallbackStrategy)
     @patch('ai_models.fallbacks.fallback_strategy.FallbackEvent', FallbackEvent)
-    def test_fallback_with_unsuccessful_result(self):
-        """Test tracking unsuccessful fallbacks."""
-        # This test is problematic because the implementation might be tracking
-        # metrics differently than expected. We'll skip it for now.
-        pass
+    def test_fallback_preferences_by_agent(self):
+        """Test that fallback preferences are correctly applied per agent type."""
+        # Configure fallback preferences
+        custom_preferences = {
+            "researcher": ["huggingface", "openai", "general-purpose"],
+            "developer": ["openai", "huggingface", "general-purpose"],
+            "default": ["general-purpose"]
+        }
+        self.fallback_manager.configure(
+            default_strategy=FallbackStrategy.SPECIFIED_LIST,
+            fallback_preferences=custom_preferences
+        )
+
+        # Test researcher preferences
+        researcher_model, researcher_event = self.fallback_manager.find_fallback_model(
+            agent_type="researcher"
+        )
+
+        self.assertIsNotNone(researcher_model)
+        self.assertEqual(researcher_model.type, "huggingface")
+
+        # Test developer preferences
+        developer_model, developer_event = self.fallback_manager.find_fallback_model(
+            agent_type="developer"
+        )
+
+        self.assertIsNotNone(developer_model)
+        self.assertEqual(developer_model.type, "openai")
+
+        # Verify events recorded the correct agent types
+        self.assertEqual(researcher_event.agent_type, "researcher")
+        self.assertEqual(developer_event.agent_type, "developer")
+
+    @patch('ai_models.fallbacks.fallback_strategy.FallbackStrategy', FallbackStrategy)
+    @patch('ai_models.fallbacks.fallback_strategy.FallbackEvent', FallbackEvent)
+    def test_fallback_recovery_and_metrics(self):
+        """Test recovery tracking and metric updates after fallback."""
+        # Configure default strategy
+        self.fallback_manager.configure(default_strategy=FallbackStrategy.DEFAULT)
+
+        # First attempt - force a fallback
+        model1, event1 = self.fallback_manager.find_fallback_model(
+            original_model_id="offline-model",
+            agent_type="researcher",
+            task_type="summarization"
+        )
+
+        # Should get the default model
+        self.assertIsNotNone(model1)
+        self.assertEqual(model1.id, "gpt-3.5-turbo")
+        self.assertIsNotNone(event1)
+
+        # Second attempt - use capability-based strategy
+        model2, event2 = self.fallback_manager.find_fallback_model(
+            required_capabilities=["translation"],
+            strategy_override=FallbackStrategy.CAPABILITY_BASED
+        )
+
+        # Should get a model with translation capability
+        self.assertIsNotNone(model2)
+        self.assertIn("translation", model2.capabilities)
+        self.assertEqual(model2.id, "t5-base")
+        self.assertIsNotNone(event2)
+
+        # Check metrics were updated correctly
+        metrics = self.fallback_manager.get_fallback_metrics()
+        self.assertEqual(metrics[FallbackStrategy.DEFAULT.value]["total_count"], 1)
+        self.assertEqual(metrics[FallbackStrategy.CAPABILITY_BASED.value]["total_count"], 1)
+
+        # Verify events are in history
+        history = self.fallback_manager.get_fallback_history()
+        self.assertEqual(len(history), 2)
+        self.assertEqual(history[0]["strategy_used"], FallbackStrategy.DEFAULT.value)
+        self.assertEqual(history[1]["strategy_used"], FallbackStrategy.CAPABILITY_BASED.value)
+
+    @patch('ai_models.fallbacks.fallback_strategy.FallbackStrategy', FallbackStrategy)
+    @patch('ai_models.fallbacks.fallback_strategy.FallbackEvent', FallbackEvent)
+    def test_cascading_fallback_chain(self):
+        """Test that fallback strategies cascade in the correct order."""
+        # Configure a non-existent model as default to force cascading
+        self.fallback_manager.configure(
+            default_strategy=FallbackStrategy.DEFAULT,
+            default_model_id="non-existent-model"
+        )
+
+        # Try to find a fallback model which should trigger cascading fallbacks
+        model, event = self.fallback_manager.find_fallback_model(
+            original_model_id="gpt-4",
+            agent_type="researcher",
+            required_capabilities=["chat", "reasoning"]
+        )
+
+        # Should eventually find a model
+        self.assertIsNotNone(model)
+        self.assertIsNotNone(event)
+
+        # Verify the history shows the cascade
+        history = self.fallback_manager.get_fallback_history()
+        strategies_tried = [event["strategy_used"] for event in history]
+
+        # Should see DEFAULT -> SIMILAR_MODEL -> MODEL_TYPE in the history
+        self.assertIn(FallbackStrategy.DEFAULT.value, strategies_tried)
+        self.assertIn(FallbackStrategy.SIMILAR_MODEL.value, strategies_tried)
+        self.assertIn(FallbackStrategy.MODEL_TYPE.value, strategies_tried)
+
+        # The successful strategy should be recorded in the final event
+        self.assertEqual(event.strategy_used.value, strategies_tried[-1])
 
 
 if __name__ == "__main__":

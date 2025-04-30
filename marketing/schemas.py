@@ -569,6 +569,7 @@ class BusinessAnalysisSchema(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
+
 class EmailContentSchema(BaseModel):
     """Pydantic model for email content."""
     subject: str = Field(..., description="Email subject line")
@@ -582,23 +583,6 @@ class EmailContentSchema(BaseModel):
     template_id: Optional[str] = Field(None, description="ID of the email template to use")
 
     model_config = ConfigDict(extra="allow")  # Allow extra fields
-
-
-class SocialMediaPostSchema(BaseModel):
-    """Pydantic model for social media post content."""
-    platform_id: str = Field(..., description="ID of the connected platform")
-    content_text: str = Field(..., description="Text content of the post")
-    media_urls: List[str] = Field(default_factory=list, description="URLs of media attachments")
-    hashtags: List[str] = Field(default_factory=list, description="Hashtags to include")
-    mentions: List[str] = Field(default_factory=list, description="Accounts to mention")
-    links: List[str] = Field(default_factory=list, description="URLs to include")
-    location: Optional[Dict[str, Any]] = Field(None, description="Location data")
-    visibility: ContentVisibility = Field(ContentVisibility.PUBLIC, description="Post visibility setting")
-    schedule_type: PostScheduleType = Field(PostScheduleType.NOW, description="Posting schedule type")
-    schedule_time: Optional[datetime] = Field(None, description="Scheduled posting time")
-    targeting: Optional[Dict[str, Any]] = Field(None, description="Audience targeting parameters")
-
-    model_config = ConfigDict(extra="allow")  # Allow extra fields for platform-specific post parameters
 
 
 class SocialMediaAnalyticsMetricSchema(BaseModel):
@@ -625,69 +609,6 @@ class SocialMediaAnalyticsSchema(BaseModel):
     model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
-class SocialMediaCampaignSchema(BaseModel):
-    """Pydantic model for social media campaign."""
-    id: str = Field(..., description="Unique identifier for the campaign")
-    name: str = Field(..., description="Campaign name")
-    description: Optional[str] = Field(None, description="Campaign description")
-    platform_ids: List[str] = Field(..., description="IDs of connected platforms")
-    content_items: List[Dict[str, Any]] = Field(..., description="Content items in the campaign")
-    schedule_settings: Dict[str, Any] = Field(..., description="Schedule settings")
-    targeting: Optional[Dict[str, Any]] = Field(None, description="Audience targeting parameters")
-    start_date: datetime = Field(..., description="Campaign start date")
-    end_date: Optional[datetime] = Field(None, description="Campaign end date")
-    status: str = Field("draft", description="Campaign status")
-    scheduled_posts: Dict[str, List[str]] = Field(default_factory=dict, description="Scheduled post IDs by platform")
-    tags: List[str] = Field(default_factory=list, description="Campaign tags")
-
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
-
-
-class AudienceInsightSchema(BaseModel):
-    """Pydantic model for social media audience insights."""
-    platform_id: str = Field(..., description="ID of the connected platform")
-    segment: Optional[Dict[str, Any]] = Field(None, description="Audience segment parameters")
-    demographics: Optional[Dict[str, Any]] = Field(None, description="Demographic breakdown")
-    interests: Optional[Dict[str, Any]] = Field(None, description="Interest categories")
-    behaviors: Optional[Dict[str, Any]] = Field(None, description="Audience behaviors")
-    engagement_metrics: Optional[Dict[str, Any]] = Field(None, description="Engagement metrics")
-    active_times: Optional[Dict[str, Any]] = Field(None, description="Active times data")
-    insights: List[Dict[str, Any]] = Field(default_factory=list, description="Insights derived from audience data")
-
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
-
-
-class SocialMediaAuthSchema(BaseModel):
-    """Pydantic model for social media authentication."""
-    platform: SocialMediaPlatform
-    api_key: Optional[str] = Field(None, description="API key for the platform")
-    api_secret: Optional[str] = Field(None, description="API secret for the platform")
-    access_token: Optional[str] = Field(None, description="Access token for the platform")
-    access_token_secret: Optional[str] = Field(None, description="Access token secret for the platform")
-    refresh_token: Optional[str] = Field(None, description="Refresh token for the platform")
-    expires_at: Optional[datetime] = Field(None, description="Token expiration timestamp")
-    oauth_verifier: Optional[str] = Field(None, description="OAuth verifier for the platform")
-    user_id: Optional[str] = Field(None, description="User ID on the platform")
-
-    model_config = ConfigDict(extra="allow")  # Allow extra fields for platform-specific auth details
-
-
-class SocialMediaConnectionSchema(BaseModel):
-    """Pydantic model for social media connection."""
-    id: str = Field(..., description="Unique identifier for the connection")
-    platform: SocialMediaPlatform = Field(..., description="Social media platform")
-    account_name: str = Field(..., description="Account name on the platform")
-    account_id: str = Field(..., description="Account ID on the platform")
-    profile_url: Optional[str] = Field(None, description="URL to the profile on the platform")
-    connected_at: datetime = Field(..., description="Connection timestamp")
-    last_synced_at: Optional[datetime] = Field(None, description="Last sync timestamp")
-    status: str = Field("active", description="Connection status")
-    settings: Dict[str, Any] = Field(default_factory=dict, description="Platform-specific settings")
-    capabilities: List[str] = Field(..., description="Supported capabilities for this connection")
-
-    model_config = ConfigDict(extra="allow")  # Allow extra fields
-
-
 class MarketingChannelSchema(BaseModel):
     """Pydantic model for marketing channel."""
     id: str = Field(..., description="Unique identifier for the channel")
@@ -701,3 +622,88 @@ class MarketingChannelSchema(BaseModel):
     best_practices: List[str] = Field(default_factory=list, description="Best practices for this channel")
 
     model_config = ConfigDict(extra="allow")  # Allow extra fields
+
+
+class SocialMediaAuthSchema(BaseModel):
+    """Schema for social media authentication."""
+    access_token: str = Field(..., description="OAuth access token")
+    token_type: str = Field(..., description="Token type (e.g., Bearer)")
+    refresh_token: Optional[str] = Field(None, description="OAuth refresh token")
+    expires_at: Optional[str] = Field(None, description="Token expiration timestamp")
+    scope: Optional[List[str]] = Field(default_factory=list, description="Granted OAuth scopes")
+    api_key: Optional[str] = Field(None, description="API key for the platform")
+    api_secret: Optional[str] = Field(None, description="API secret for the platform")
+    access_token_secret: Optional[str] = Field(None, description="Access token secret for the platform")
+    oauth_verifier: Optional[str] = Field(None, description="OAuth verifier for the platform")
+    user_id: Optional[str] = Field(None, description="User ID on the platform")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class SocialMediaConnectionSchema(BaseModel):
+    """Schema for social media platform connections."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the connection")
+    platform: SocialMediaPlatform = Field(..., description="Social media platform")
+    account_name: str = Field(..., description="Connected account name")
+    account_id: str = Field(..., description="Platform-specific account ID")
+    profile_url: Optional[str] = Field(None, description="URL to the social media profile")
+    connected_at: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Connection timestamp")
+    last_synced_at: Optional[str] = Field(None, description="Last data sync timestamp")
+    status: str = Field(default="active", description="Connection status")
+    capabilities: List[str] = Field(default_factory=list, description="Available platform capabilities")
+    settings: Dict[str, Any] = Field(default_factory=dict, description="Platform-specific settings")
+    auth: SocialMediaAuthSchema = Field(..., description="Authentication information")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class SocialMediaPostSchema(BaseModel):
+    """Schema for social media posts."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the post")
+    platform_id: str = Field(..., description="ID of the connected platform")
+    content: Dict[str, Any] = Field(..., description="Post content and metadata")
+    schedule_time: Optional[str] = Field(None, description="Scheduled posting time")
+    schedule_type: PostScheduleType = Field(default=PostScheduleType.NOW, description="Scheduling type")
+    visibility: ContentVisibility = Field(default=ContentVisibility.PUBLIC, description="Post visibility")
+    targeting: Optional[Dict[str, Any]] = Field(None, description="Audience targeting settings")
+    status: str = Field(default="draft", description="Post status")
+    platform_data: Optional[Dict[str, Any]] = Field(None, description="Platform-specific post data")
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Creation timestamp")
+    posted_at: Optional[str] = Field(None, description="Actual posting timestamp")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class SocialMediaCampaignSchema(BaseModel):
+    """Schema for social media campaigns."""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the campaign")
+    name: str = Field(..., description="Campaign name")
+    description: str = Field(..., description="Campaign description")
+    platform_ids: List[str] = Field(..., description="IDs of target platforms")
+    content_items: List[Dict[str, Any]] = Field(..., description="Campaign content items")
+    schedule: Dict[str, Any] = Field(..., description="Campaign schedule settings")
+    targeting: Optional[Dict[str, Any]] = Field(None, description="Campaign targeting settings")
+    status: str = Field(default="draft", description="Campaign status")
+    metrics: Optional[Dict[str, Any]] = Field(None, description="Campaign performance metrics")
+    created_at: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Creation timestamp")
+    updated_at: Optional[str] = Field(None, description="Last update timestamp")
+    scheduled_posts: Optional[Dict[str, List[str]]] = Field(default_factory=dict, description="Scheduled post IDs by platform")
+    tags: Optional[List[str]] = Field(default_factory=list, description="Campaign tags")
+
+    model_config = ConfigDict(extra="allow")
+
+
+class AudienceInsightSchema(BaseModel):
+    """Schema for social media audience insights."""
+    platform_id: str = Field(..., description="ID of the connected platform")
+    segment: Optional[Dict[str, Any]] = Field(None, description="Audience segment criteria")
+    demographics: Dict[str, Any] = Field(..., description="Demographic breakdown")
+    interests: Dict[str, Any] = Field(..., description="Interest categories")
+    behaviors: Dict[str, Any] = Field(..., description="Behavioral metrics")
+    engagement: Dict[str, Any] = Field(..., description="Engagement metrics")
+    reach: Dict[str, Any] = Field(..., description="Reach metrics")
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Data timestamp")
+    active_times: Optional[Dict[str, Any]] = Field(None, description="Active times data")
+    insights: Optional[List[Dict[str, Any]]] = Field(default_factory=list, description="Insights derived from audience data")
+
+    model_config = ConfigDict(extra="allow")

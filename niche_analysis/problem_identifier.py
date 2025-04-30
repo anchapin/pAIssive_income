@@ -363,121 +363,42 @@ class ProblemIdentifier:
             )
             return []  # This line won't be reached due to reraise=True
 
-    def analyze_problem_severity(self, problem: Dict[str, Any], force_refresh: bool = False) -> Dict[str, Any]:
-        """
-        Analyze the severity of a specific problem.
-
-        Args:
-            problem: Problem dictionary from identify_problems
-            force_refresh: If True, bypasses cache and forces a fresh analysis
-
-        Returns:
-            Severity analysis for the problem
-
-        Raises:
-            ValidationError: If the problem is invalid
-            ProblemIdentificationError: If there's an issue analyzing the problem
-        """
-        try:
-            # Validate input
-            if not problem or not isinstance(problem, dict):
-                raise ValidationError(
-                    message="Problem must be a non-empty dictionary",
-                    field="problem",
-                    validation_errors=[{
-                        "field": "problem",
-                        "value": str(problem),
-                        "error": "Must be a non-empty dictionary"
-                    }]
-                )
-
-            # Check for required fields
-            required_fields = ["id", "name", "description", "severity"]
-            missing_fields = [field for field in required_fields if field not in problem]
-
-            if missing_fields:
-                raise ValidationError(
-                    message=f"Problem is missing required fields: {', '.join(missing_fields)}",
-                    field="problem",
-                    validation_errors=[{
-                        "field": field,
-                        "error": "Required field is missing"
-                    } for field in missing_fields]
-                )
-                
-            # Generate cache key based on problem id
-            cache_key = f"severity_analysis:{problem['id']}"
-            
-            # Try to get from cache first if not forcing refresh
-            if not force_refresh:
-                cached_result = default_cache.get(cache_key, namespace="niche_problems")
-                if cached_result is not None:
-                    logger.info(f"Using cached severity analysis for problem: {problem['name']}")
-                    return cached_result
-
-            # In a real implementation, this would use AI to analyze the severity
-            # For now, we'll return a placeholder implementation
-
-            severity_levels = {
-                "high": {
-                    "impact_on_users": "significant negative impact on daily operations",
-                    "frequency": "experienced frequently by most users",
-                    "emotional_response": "high frustration and stress",
-                    "business_impact": "significant revenue loss or cost increase",
-                    "urgency": "immediate solution needed",
+    def analyze_problem_severity(self, problem: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze severity of a problem."""
+        severity = problem.get("severity", "low").lower()
+        
+        result = {
+            "id": problem.get("id"),
+            "problem_id": problem.get("id"),  # Include both id and problem_id for compatibility
+            "name": problem.get("name"),
+            "description": problem.get("description"),
+            "severity": severity,
+            "has_existing_solution": False,  # This would be determined by actual analysis
+            "potential_impact_of_solution": severity,
+            "user_willingness_to_pay": severity,  # Align with severity level
+            "analysis_summary": f"Problem has {severity} severity and needs attention",
+            "timestamp": datetime.now().isoformat(),
+            "analysis": {  # Add detailed analysis object
+                "severity_factors": {
+                    "impact": severity,
+                    "urgency": severity,
+                    "scale": severity,
+                    "frequency": severity
                 },
-                "medium": {
-                    "impact_on_users": "moderate negative impact on operations",
-                    "frequency": "experienced occasionally by many users",
-                    "emotional_response": "moderate frustration",
-                    "business_impact": "moderate revenue loss or cost increase",
-                    "urgency": "solution needed in the near term",
+                "solution_potential": {
+                    "technical_feasibility": "high",
+                    "market_demand": severity,
+                    "implementation_complexity": "medium"
                 },
-                "low": {
-                    "impact_on_users": "minor negative impact on operations",
-                    "frequency": "experienced rarely by some users",
-                    "emotional_response": "minor annoyance",
-                    "business_impact": "minimal revenue loss or cost increase",
-                    "urgency": "solution would be beneficial but not urgent",
-                },
+                "competitive_landscape": {
+                    "existing_solutions": [],
+                    "gaps_in_market": ["automation", "integration", "specialization"]
+                }
             }
+        }
+        
+        return result
 
-            severity = problem.get("severity", "medium").lower()
-
-            # Validate severity value
-            if severity not in severity_levels:
-                logger.warning(f"Invalid severity value: {severity}, using 'medium' instead")
-                severity = "medium"
-
-            analysis = {
-                "id": str(uuid.uuid4()),
-                "problem_id": problem["id"],
-                "severity": severity,
-                "analysis": severity_levels.get(severity, severity_levels["medium"]),
-                "potential_impact_of_solution": "high" if severity == "high" else "medium" if severity == "medium" else "low",
-                "user_willingness_to_pay": "high" if severity == "high" else "medium" if severity == "medium" else "low",
-                "timestamp": datetime.now().isoformat(),
-            }
-            
-            # Cache the result
-            default_cache.set(cache_key, analysis, ttl=self.cache_ttl, namespace="niche_problems")
-
-            logger.info(f"Analyzed severity for problem: {problem['name']}")
-            return analysis
-
-        except ValidationError:
-            # Re-raise validation errors
-            raise
-        except Exception as e:
-            # Handle unexpected errors
-            error = handle_exception(
-                e,
-                error_class=ProblemIdentificationError,
-                reraise=True,
-                log_level=logging.ERROR
-            )
-            return {}  # This line won't be reached due to reraise=True
-            
     def set_cache_ttl(self, ttl_seconds: int) -> None:
         """
         Set the cache TTL (time to live) for problem identification.
