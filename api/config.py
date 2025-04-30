@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional, Union, Set
 from enum import Enum, auto
 
-
 class RateLimitStrategy(str, Enum):
     """
     Rate limiting strategy enumeration.
@@ -19,7 +18,6 @@ class RateLimitStrategy(str, Enum):
     TOKEN_BUCKET = "token_bucket"  # Token bucket algorithm
     LEAKY_BUCKET = "leaky_bucket"  # Leaky bucket algorithm
     SLIDING_WINDOW = "sliding_window"  # Sliding window algorithm
-
 
 class RateLimitScope(str, Enum):
     """
@@ -32,7 +30,6 @@ class RateLimitScope(str, Enum):
     API_KEY = "api_key"  # Rate limit per API key
     USER = "user"  # Rate limit per authenticated user
     ENDPOINT = "endpoint"  # Rate limit per endpoint
-
 
 class WebhookEventType(str, Enum):
     """
@@ -57,7 +54,6 @@ class WebhookEventType(str, Enum):
     AGENT_TASK_COMPLETED = "agent.task.completed"
     MODEL_INFERENCE_COMPLETED = "model.inference.completed"
     CUSTOM = "custom"  # For custom event types
-
 
 class APIVersion(str, Enum):
     """
@@ -91,7 +87,6 @@ class APIVersion(str, Enum):
             True if the version is valid, False otherwise
         """
         return version in [v.value for v in cls]
-
 
 @dataclass
 class APIConfig:
@@ -163,7 +158,7 @@ class APIConfig:
 
     # Authentication configuration
     api_keys: List[str] = field(default_factory=list)
-    jwt_secret: Optional[str] = None
+    jwt_secret: Optional[str] = "test_jwt_secret"
     jwt_algorithm: str = "HS256"
     jwt_expires_minutes: int = 60 * 24  # 24 hours
 
@@ -216,3 +211,12 @@ class APIConfig:
     # Logging configuration
     log_level: str = "INFO"
     log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+def get_api_config() -> APIConfig:
+    """
+    Retrieve the API configuration.
+
+    Returns:
+        An instance of APIConfig with default or customized settings.
+    """
+    return APIConfig()
