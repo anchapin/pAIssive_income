@@ -313,6 +313,8 @@ class APIServer:
         from .routes.dashboard_router import dashboard_router
         from .routes.api_key_router import api_key_router
         from .routes.webhook_router import webhook_router
+        from .routes.analytics_router import analytics_router
+        from .routes.developer_router import developer_router
 
         # Get API prefix for this version
         api_prefix = f"{self.config.prefix}/{version.value}"
@@ -384,6 +386,22 @@ class APIServer:
                 webhook_router,
                 prefix=f"{api_prefix}/webhooks",
                 tags=[f"Webhooks {version_tag}"]
+            )
+
+        # Include analytics router
+        if self.config.enable_analytics:
+            self.app.include_router(
+                analytics_router,
+                prefix=f"{api_prefix}/analytics",
+                tags=[f"Analytics {version_tag}"]
+            )
+
+        # Include developer router
+        if self.config.enable_developer:
+            self.app.include_router(
+                developer_router,
+                prefix=f"{api_prefix}/developer",
+                tags=[f"Developer {version_tag}"]
             )
 
     def _setup_version_info_routes(self) -> None:

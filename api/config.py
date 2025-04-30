@@ -202,6 +202,7 @@ class APIConfig:
     enable_agent_team: bool = True
     enable_user: bool = True
     enable_dashboard: bool = True
+    enable_developer: bool = True
 
     # Pagination, filtering, and sorting configuration
     max_page_size: int = 100  # Maximum number of items per page

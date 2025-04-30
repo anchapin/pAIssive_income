@@ -14,6 +14,7 @@ from .user_router import router as user_router
 from .dashboard_router import router as dashboard_router
 from .api_key_router import router as api_key_router
 from .analytics_router import router as analytics_router
+from .developer_router import router as developer_router
 
 __all__ = [
     'niche_analysis_router',
@@ -25,4 +26,5 @@ __all__ = [
     'dashboard_router',
     'api_key_router',
     'analytics_router',
+    'developer_router',
 ]

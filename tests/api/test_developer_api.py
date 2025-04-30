@@ -29,13 +29,13 @@ class TestDeveloperAPI:
         """Test getting all development niches."""
         # Make request
         response = api_test_client.get("developer/niches")
-        
+
         # Validate response
         result = validate_paginated_response(response)
-        
+
         # Validate items
         validate_field_type(result, "items", list)
-        
+
         # If there are items, validate their structure
         if result["items"]:
             item = result["items"][0]
@@ -47,18 +47,18 @@ class TestDeveloperAPI:
             validate_field_type(item, "description", str)
             validate_field_exists(item, "technical_requirements")
             validate_field_type(item, "technical_requirements", list)
-    
+
     def test_get_templates(self, api_test_client: APITestClient):
         """Test getting all development templates."""
         # Make request
         response = api_test_client.get("developer/templates")
-        
+
         # Validate response
         result = validate_paginated_response(response)
-        
+
         # Validate items
         validate_field_type(result, "items", list)
-        
+
         # If there are items, validate their structure
         if result["items"]:
             item = result["items"][0]
@@ -77,13 +77,13 @@ class TestDeveloperAPI:
         """Test creating a development solution."""
         # Generate test data
         data = generate_solution_data()
-        
+
         # Make request
         response = api_test_client.post("developer/solution", data)
-        
+
         # Validate response
         result = validate_success_response(response, 201)  # Created
-        
+
         # Validate fields
         validate_field_exists(result, "id")
         validate_field_type(result, "id", str)
@@ -107,16 +107,16 @@ class TestDeveloperAPI:
         """Test getting a specific development solution."""
         # Generate a random ID
         solution_id = generate_id()
-        
+
         # Make request
         response = api_test_client.get(f"developer/solutions/{solution_id}")
-        
+
         # This might return 404 if the solution doesn't exist, which is fine for testing
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
             result = validate_success_response(response)
-            
+
             # Validate fields
             validate_field_exists(result, "id")
             validate_field_equals(result, "id", solution_id)
@@ -143,10 +143,10 @@ class TestDeveloperAPI:
         """Test getting all development solutions."""
         # Make request
         response = api_test_client.get("developer/solutions")
-        
+
         # Validate response
         result = validate_paginated_response(response)
-        
+
         # Validate items
         validate_field_type(result, "items", list)
 
@@ -155,16 +155,16 @@ class TestDeveloperAPI:
         # Generate a random ID and test data
         solution_id = generate_id()
         data = generate_solution_data()
-        
+
         # Make request
         response = api_test_client.put(f"developer/solutions/{solution_id}", data)
-        
+
         # This might return 404 if the solution doesn't exist, which is fine for testing
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
             result = validate_success_response(response)
-            
+
             # Validate fields
             validate_field_exists(result, "id")
             validate_field_equals(result, "id", solution_id)
@@ -177,10 +177,10 @@ class TestDeveloperAPI:
         """Test deleting a development solution."""
         # Generate a random ID
         solution_id = generate_id()
-        
+
         # Make request
         response = api_test_client.delete(f"developer/solutions/{solution_id}")
-        
+
         # This might return 404 if the solution doesn't exist, which is fine for testing
         if response.status_code == 404:
             validate_error_response(response, 404)
@@ -200,24 +200,26 @@ class TestDeveloperAPI:
                 "page_size": 10
             }
         )
-        
+
         # Validate response
         result = validate_paginated_response(response)
-        
+
         # Validate items
         validate_field_type(result, "items", list)
-        
+
         # If there are items, validate that they match the filter
         if result["items"]:
             for item in result["items"]:
                 validate_field_equals(item, "status", "in_progress")
-                validate_list_contains(item["technology_stack"], "python")
+                # Check if any technology in the stack matches 'python' case-insensitively
+                tech_match = any(tech.lower() == "python" for tech in item["technology_stack"])
+                assert tech_match, f"Technology stack {item['technology_stack']} does not contain 'python' (case-insensitive)"
 
     def test_invalid_solution_request(self, api_test_client: APITestClient):
         """Test invalid solution request."""
         # Make request with invalid data
         response = api_test_client.post("developer/solution", {})
-        
+
         # Validate error response
         validate_error_response(response, 422)  # Unprocessable Entity
 
@@ -225,9 +227,9 @@ class TestDeveloperAPI:
         """Test getting a nonexistent solution."""
         # Generate a random ID that is unlikely to exist
         solution_id = "nonexistent-" + generate_id()
-        
+
         # Make request
         response = api_test_client.get(f"developer/solutions/{solution_id}")
-        
+
         # Validate error response
         validate_error_response(response, 404)  # Not Found

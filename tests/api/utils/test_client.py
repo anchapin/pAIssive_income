@@ -56,20 +56,23 @@ class APITestClient:
         return self.client.get(url, params=params, headers=request_headers)
 
     def post(self, path: str, data: Optional[Dict[str, Any]] = None,
-             headers: Optional[Dict[str, str]] = None) -> Any:
+             headers: Optional[Dict[str, str]] = None, json: Optional[Dict[str, Any]] = None) -> Any:
         """
         Make a POST request to the API.
 
         Args:
             path: API path (without base URL)
-            data: Request data
+            data: Request data (used if json is not provided)
             headers: Request headers (overrides default headers)
+            json: JSON data to send (takes precedence over data)
 
         Returns:
             Response from the API
         """
         url = f"{self.base_url}/{path.lstrip('/')}"
         request_headers = {**self.headers, **(headers or {})}
+        if json is not None:
+            return self.client.post(url, json=json, headers=request_headers)
         return self.client.post(url, json=data, headers=request_headers)
 
     def put(self, path: str, data: Optional[Dict[str, Any]] = None,
@@ -174,18 +177,18 @@ class APITestClient:
 
 
 @pytest.fixture
-def api_test_client(api_client: TestClient, api_headers: Dict[str, str]) -> APITestClient:
+def api_test_client(api_client: TestClient, api_unauth_headers: Dict[str, str]) -> APITestClient:
     """
-    Create an API test client.
+    Create an unauthenticated API test client.
 
     Args:
         api_client: FastAPI test client
-        api_headers: Default headers for requests
+        api_unauth_headers: Default headers for unauthenticated requests
 
     Returns:
-        API test client
+        Unauthenticated API test client
     """
-    return APITestClient(api_client, api_headers)
+    return APITestClient(api_client, api_unauth_headers)
 
 
 @pytest.fixture
