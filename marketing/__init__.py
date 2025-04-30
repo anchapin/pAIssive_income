@@ -24,6 +24,7 @@ from .marketing_plan import MarketingPlan
 from .ab_testing import ABTesting, ABTest
 from .content_performance import ContentPerformanceAnalyzer
 from .social_media_integration import SocialMediaIntegration
+from .statistical_analysis import StatisticalAnalysis, StatisticalAnalysisError, InsufficientDataError, InvalidParameterError
 from .schemas import (
     BusinessType, BusinessSize, BillingPeriod, TimeframeUnit,
     ChannelType, PriorityLevel, DifficultyLevel,
@@ -60,6 +61,10 @@ __all__ = [
     'ABTest',
     'ContentPerformanceAnalyzer',
     'SocialMediaIntegration',
+    'StatisticalAnalysis',
+    'StatisticalAnalysisError',
+    'InsufficientDataError',
+    'InvalidParameterError',
     # Schema exports
     'BusinessType',
     'BusinessSize',
