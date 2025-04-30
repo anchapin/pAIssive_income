@@ -30,7 +30,13 @@ __all__ = [
     'ContentTemplateError',
     'ContentOptimizationError',
     'UserPersonaError',
-    'MarketingCampaignError'
+    'MarketingCampaignError',
+    'InvalidTestConfigurationError',
+    'TestNotFoundError',
+    'ContentNotFoundError',
+    'InvalidParameterError',
+    'InsufficientDataError',
+    'StorageError'
 ]
 
 
@@ -240,9 +246,53 @@ class MarketingCampaignError(MarketingError):
         )
 
 
+class InvalidTestConfigurationError(MarketingError):
+    """Error raised when an A/B test configuration is invalid."""
+
+    def __init__(
+        self,
+        message: str,
+        **kwargs
+    ):
+        """
+        Initialize the invalid test configuration error.
+
+        Args:
+            message: Human-readable error message
+            **kwargs: Additional arguments to pass to the base class
+        """
+        super().__init__(
+            message=message,
+            code="invalid_test_configuration",
+            **kwargs
+        )
+
+
+class TestNotFoundError(MarketingError):
+    """Error raised when an A/B test is not found."""
+
+    def __init__(
+        self,
+        test_id: str,
+        **kwargs
+    ):
+        """
+        Initialize the test not found error.
+
+        Args:
+            test_id: ID of the test that was not found
+            **kwargs: Additional arguments to pass to the base class
+        """
+        super().__init__(
+            message=f"A/B test with ID '{test_id}' not found",
+            code="test_not_found",
+            **kwargs
+        )
+
+
 class PlatformNotSupportedError(Exception):
     """Exception raised when a social media platform is not supported."""
-    
+
     def __init__(self, platform: str):
         self.platform = platform
         super().__init__(f"Social media platform '{platform}' is not supported")
@@ -250,7 +300,7 @@ class PlatformNotSupportedError(Exception):
 
 class PlatformNotFoundError(Exception):
     """Exception raised when a social media platform connection is not found."""
-    
+
     def __init__(self, platform_id: str):
         self.platform_id = platform_id
         super().__init__(f"Social media platform with ID '{platform_id}' not found")
@@ -258,7 +308,7 @@ class PlatformNotFoundError(Exception):
 
 class AuthenticationError(Exception):
     """Exception raised when authentication with a social media platform fails."""
-    
+
     def __init__(self, platform: str, message: str = "Authentication failed"):
         self.platform = platform
         self.message = message
@@ -267,7 +317,7 @@ class AuthenticationError(Exception):
 
 class PostNotFoundError(Exception):
     """Exception raised when a social media post is not found."""
-    
+
     def __init__(self, platform_id: str, post_id: str):
         self.platform_id = platform_id
         self.post_id = post_id
@@ -276,7 +326,7 @@ class PostNotFoundError(Exception):
 
 class ContentValidationError(Exception):
     """Exception raised when social media content validation fails."""
-    
+
     def __init__(self, platform: str, message: str):
         self.platform = platform
         self.message = message
@@ -285,7 +335,7 @@ class ContentValidationError(Exception):
 
 class PostingError(Exception):
     """Exception raised when posting to a social media platform fails."""
-    
+
     def __init__(self, platform: str, message: str):
         self.platform = platform
         self.message = message
@@ -294,7 +344,7 @@ class PostingError(Exception):
 
 class DeletionError(Exception):
     """Exception raised when deleting a post from a social media platform fails."""
-    
+
     def __init__(self, platform: str, post_id: str, message: str):
         self.platform = platform
         self.post_id = post_id
@@ -304,7 +354,7 @@ class DeletionError(Exception):
 
 class SchedulingError(Exception):
     """Exception raised when scheduling a post or campaign fails."""
-    
+
     def __init__(self, message: str):
         self.message = message
         super().__init__(f"Failed to schedule content: {message}")
@@ -312,8 +362,103 @@ class SchedulingError(Exception):
 
 class NotSupportedError(Exception):
     """Exception raised when a feature is not supported by a platform."""
-    
+
     def __init__(self, platform: str, feature: str):
         self.platform = platform
         self.feature = feature
         super().__init__(f"Feature '{feature}' is not supported by platform '{platform}'")
+
+
+class ContentNotFoundError(MarketingError):
+    """Error raised when content is not found."""
+
+    def __init__(
+        self,
+        content_id: str,
+        **kwargs
+    ):
+        """
+        Initialize the content not found error.
+
+        Args:
+            content_id: ID of the content that was not found
+            **kwargs: Additional arguments to pass to the base class
+        """
+        super().__init__(
+            message=f"Content with ID '{content_id}' not found",
+            code="content_not_found",
+            **kwargs
+        )
+
+
+class InvalidParameterError(MarketingError):
+    """Error raised when a parameter is invalid."""
+
+    def __init__(
+        self,
+        message: str,
+        parameter: Optional[str] = None,
+        **kwargs
+    ):
+        """
+        Initialize the invalid parameter error.
+
+        Args:
+            message: Human-readable error message
+            parameter: Optional name of the invalid parameter
+            **kwargs: Additional arguments to pass to the base class
+        """
+        details = kwargs.pop("details", {})
+        if parameter:
+            details["parameter"] = parameter
+
+        super().__init__(
+            message=message,
+            code="invalid_parameter",
+            details=details,
+            **kwargs
+        )
+
+
+class InsufficientDataError(MarketingError):
+    """Error raised when there is not enough data for an operation."""
+
+    def __init__(
+        self,
+        message: str,
+        **kwargs
+    ):
+        """
+        Initialize the insufficient data error.
+
+        Args:
+            message: Human-readable error message
+            **kwargs: Additional arguments to pass to the base class
+        """
+        super().__init__(
+            message=message,
+            code="insufficient_data",
+            **kwargs
+        )
+
+
+class StorageError(MarketingError):
+    """Error raised when there is an issue with storage operations."""
+
+    def __init__(
+        self,
+        message: str,
+        **kwargs
+    ):
+        """
+        Initialize the storage error.
+
+        Args:
+            message: Human-readable error message
+            **kwargs: Additional arguments to pass to the base class
+        """
+        super().__init__(
+            message=message,
+            code="storage_error",
+            **kwargs
+        )

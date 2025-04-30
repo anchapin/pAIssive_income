@@ -102,6 +102,33 @@ class ChannelCategory(str, Enum):
     OTHER = "other"
 
 
+class SocialMediaPlatform(str, Enum):
+    """Enum for social media platforms."""
+    TWITTER = "twitter"
+    FACEBOOK = "facebook"
+    INSTAGRAM = "instagram"
+    LINKEDIN = "linkedin"
+    YOUTUBE = "youtube"
+    PINTEREST = "pinterest"
+    TIKTOK = "tiktok"
+
+
+class ContentVisibility(str, Enum):
+    """Enum for content visibility settings."""
+    PUBLIC = "public"
+    PRIVATE = "private"
+    FOLLOWERS = "followers"
+    CONNECTIONS = "connections"
+
+
+class PostScheduleType(str, Enum):
+    """Enum for post scheduling types."""
+    NOW = "now"
+    SCHEDULED = "scheduled"
+    OPTIMAL = "optimal"
+    RECURRING = "recurring"
+
+
 # Base schemas that don't depend on other schemas
 class ConfigSchema(BaseModel):
     """Schema for general configuration settings."""
@@ -628,33 +655,6 @@ class AudienceInsightSchema(BaseModel):
     insights: List[Dict[str, Any]] = Field(default_factory=list, description="Insights derived from audience data")
 
     model_config = ConfigDict(extra="allow")  # Allow extra fields
-
-
-class SocialMediaPlatform(str, Enum):
-    """Enum for social media platforms."""
-    TWITTER = "twitter"
-    FACEBOOK = "facebook"
-    INSTAGRAM = "instagram"
-    LINKEDIN = "linkedin"
-    YOUTUBE = "youtube"
-    PINTEREST = "pinterest"
-    TIKTOK = "tiktok"
-
-
-class ContentVisibility(str, Enum):
-    """Enum for content visibility settings."""
-    PUBLIC = "public"
-    PRIVATE = "private"
-    FOLLOWERS = "followers"
-    CONNECTIONS = "connections"
-
-
-class PostScheduleType(str, Enum):
-    """Enum for post scheduling types."""
-    NOW = "now"
-    SCHEDULED = "scheduled"
-    OPTIMAL = "optimal"
-    RECURRING = "recurring"
 
 
 class SocialMediaAuthSchema(BaseModel):

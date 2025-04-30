@@ -359,7 +359,7 @@ class AgentModelProvider:
         try:
             # First try to load the specified model
             return self.model_manager.load_model(model_id)
-        except ModelLoadError as e:
+        except Exception as e:
             if not self.fallback_manager.fallback_enabled:
                 raise e
 

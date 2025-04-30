@@ -11,7 +11,21 @@ from typing import List, Dict, Any, Optional
 from .health_interfaces import IHealthCheckable
 
 
-class IAgentTeamService(IHealthCheckable):
+class IBaseService(IHealthCheckable):
+    """Base interface for all services."""
+
+    @abstractmethod
+    def get_service_info(self) -> Dict[str, Any]:
+        """
+        Get information about the service.
+
+        Returns:
+            Dict[str, Any]: Information about the service.
+        """
+        pass
+
+
+class IAgentTeamService(IBaseService):
     """Interface for agent team services."""
 
     @abstractmethod
@@ -78,7 +92,7 @@ class IAgentTeamService(IHealthCheckable):
         pass
 
 
-class INicheAnalysisService(IHealthCheckable):
+class INicheAnalysisService(IBaseService):
     """Interface for niche analysis services."""
 
     @abstractmethod
@@ -141,7 +155,7 @@ class INicheAnalysisService(IHealthCheckable):
         pass
 
 
-class IDeveloperService(IHealthCheckable):
+class IDeveloperService(IBaseService):
     """Interface for developer services."""
 
     @abstractmethod
@@ -194,7 +208,7 @@ class IDeveloperService(IHealthCheckable):
         pass
 
 
-class IMonetizationService(IHealthCheckable):
+class IMonetizationService(IBaseService):
     """Interface for monetization services."""
 
     @abstractmethod
@@ -247,7 +261,7 @@ class IMonetizationService(IHealthCheckable):
         pass
 
 
-class IMarketingService(IHealthCheckable):
+class IMarketingService(IBaseService):
     """Interface for marketing services."""
 
     @abstractmethod
