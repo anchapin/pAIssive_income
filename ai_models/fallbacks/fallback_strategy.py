@@ -168,9 +168,9 @@ class FallbackManager:
         
         This method implements the core fallback algorithm:
         1. If strategy_override is provided, use that strategy
-        2. Otherwise, try strategies in order: DEFAULT -> SIMILAR_MODEL -> MODEL_TYPE -> ANY_AVAILABLE
+        2. Otherwise, try strategies in cascading order
         3. Execute each strategy until a fallback model is found
-        4. Track the fallback event if successful
+        4. Track the fallback event and return results
         
         Args:
             original_model_id: ID of the original model that failed (if any)
@@ -193,22 +193,10 @@ class FallbackManager:
         if original_model_id:
             try:
                 original_model_info = self.model_manager.get_model_info(original_model_id)
-            except Exception:
+            except ModelNotFoundError:
                 pass
 
-        # If strategy override is provided, only try that strategy
-        if strategy_override:
-            return self._try_strategy(
-                strategy_override,
-                original_model_id,
-                original_model_info,
-                agent_type,
-                task_type,
-                required_capabilities
-            )
-
-        # Otherwise, try strategies in cascading order
-        # The order matches test expectations: DEFAULT -> SIMILAR_MODEL -> MODEL_TYPE
+        # Define the cascade order for strategies
         cascade_order = [
             FallbackStrategy.DEFAULT,
             FallbackStrategy.SIMILAR_MODEL,
@@ -218,96 +206,84 @@ class FallbackManager:
             FallbackStrategy.ANY_AVAILABLE
         ]
 
-        last_event = None
-        for strategy in cascade_order:
-            fallback_model, event = self._try_strategy(
-                strategy,
-                original_model_id,
-                original_model_info,
-                agent_type,
-                task_type,
-                required_capabilities
-            )
-            if fallback_model:
-                return fallback_model, event
-            last_event = event
+        # If strategy override is provided, only try that strategy
+        if strategy_override:
+            strategies_to_try = [strategy_override]
+        else:
+            strategies_to_try = cascade_order
 
-        self.logger.warning("No fallback model found after trying all strategies")
-        return None, last_event
-
-    def _try_strategy(
-        self,
-        strategy: FallbackStrategy,
-        original_model_id: Optional[str],
-        original_model_info: Optional[IModelInfo],
-        agent_type: Optional[str],
-        task_type: Optional[str],
-        required_capabilities: Optional[List[str]]
-    ) -> Tuple[Optional[IModelInfo], Optional[FallbackEvent]]:
-        """Try a specific fallback strategy and return the result."""
-        self.logger.info(f"Trying fallback strategy: {strategy.value}")
-        
-        fallback_model = None
         reason = "Primary model selection failed"
-        
-        # Execute the selected fallback strategy
-        if strategy == FallbackStrategy.NONE:
-            # No fallback, just return None
-            return None, None
+        attempts = 0
+
+        # Try each strategy in sequence until we find a model
+        for strategy in strategies_to_try:
+            attempts += 1
+            self.logger.info(f"Trying fallback strategy: {strategy.value} (attempt {attempts})")
+
+            fallback_model = None
             
-        elif strategy == FallbackStrategy.DEFAULT:
-            # Use the default model if specified
-            fallback_model = self._apply_default_model_strategy()
-            reason = "Default model strategy failed" if not fallback_model else reason
-            
-        elif strategy == FallbackStrategy.SIMILAR_MODEL:
-            # Find a model with similar capabilities
-            fallback_model = self._apply_similar_model_strategy(original_model_info)
-            reason = "Similar model strategy failed" if not fallback_model else reason
-            
-        elif strategy == FallbackStrategy.MODEL_TYPE:
-            # Try other models of the same type
-            fallback_model = self._apply_model_type_strategy(original_model_info, agent_type, task_type)
-            reason = "Model type strategy failed" if not fallback_model else reason
-            
-        elif strategy == FallbackStrategy.ANY_AVAILABLE:
-            # Use any available model
-            fallback_model = self._apply_any_available_strategy()
-            reason = "Any available strategy failed" if not fallback_model else reason
-            
-        elif strategy == FallbackStrategy.SPECIFIED_LIST:
-            # Try models in a specified order based on agent type
-            fallback_model = self._apply_specified_list_strategy(agent_type)
-            reason = "Specified list strategy failed" if not fallback_model else reason
-            
-        elif strategy == FallbackStrategy.SIZE_TIER:
-            # Try models of different size tiers
-            fallback_model = self._apply_size_tier_strategy(original_model_info)
-            reason = "Size tier strategy failed" if not fallback_model else reason
-            
-        elif strategy == FallbackStrategy.CAPABILITY_BASED:
-            # Try models with required capabilities
-            fallback_model = self._apply_capability_strategy(required_capabilities)
-            reason = "Capability based strategy failed" if not fallback_model else reason
-            
-        # Create event to track this attempt
+            # Execute the selected fallback strategy
+            if strategy == FallbackStrategy.NONE:
+                continue
+                
+            elif strategy == FallbackStrategy.DEFAULT:
+                fallback_model = self._apply_default_model_strategy()
+                
+            elif strategy == FallbackStrategy.SIMILAR_MODEL:
+                fallback_model = self._apply_similar_model_strategy(original_model_info)
+                
+            elif strategy == FallbackStrategy.MODEL_TYPE:
+                fallback_model = self._apply_model_type_strategy(original_model_info, agent_type, task_type)
+                
+            elif strategy == FallbackStrategy.ANY_AVAILABLE:
+                fallback_model = self._apply_any_available_strategy()
+                
+            elif strategy == FallbackStrategy.SPECIFIED_LIST:
+                fallback_model = self._apply_specified_list_strategy(agent_type)
+                
+            elif strategy == FallbackStrategy.SIZE_TIER:
+                fallback_model = self._apply_size_tier_strategy(original_model_info)
+                
+            elif strategy == FallbackStrategy.CAPABILITY_BASED:
+                fallback_model = self._apply_capability_strategy(required_capabilities)
+
+            # If we found a fallback model, record the event and return
+            if fallback_model:
+                event = FallbackEvent(
+                    original_model_id=original_model_id,
+                    fallback_model_id=fallback_model.id,
+                    reason=reason,
+                    agent_type=agent_type,
+                    task_type=task_type,
+                    strategy_used=strategy,
+                    details={
+                        "attempts": attempts,
+                        "original_model_type": original_model_info.type if original_model_info else None,
+                        "fallback_model_type": fallback_model.type
+                    }
+                )
+                
+                self.track_fallback_event(event, was_successful=True)
+                return fallback_model, event
+
+            self.logger.warning(f"Strategy {strategy.value} failed to find a fallback model")
+
+        # If we get here, we've tried all strategies and found no fallback
         event = FallbackEvent(
             original_model_id=original_model_id,
-            fallback_model_id=fallback_model.id if fallback_model else "none",
-            reason=reason,
+            fallback_model_id="none",
+            reason=f"No fallback found after {attempts} attempts",
             agent_type=agent_type,
             task_type=task_type,
-            strategy_used=strategy,
+            strategy_used=strategies_to_try[-1],
             details={
+                "attempts": attempts,
                 "original_model_type": original_model_info.type if original_model_info else None,
-                "fallback_model_type": fallback_model.type if fallback_model else None
             }
         )
-        
-        # Track the event with appropriate success status
-        self.track_fallback_event(event, was_successful=fallback_model is not None)
-            
-        return fallback_model, event  # Return event for both success and failure
+        self.track_fallback_event(event, was_successful=False)
+        self.logger.warning(f"No fallback model found after trying {attempts} strategies")
+        return None, event
 
     def track_fallback_event(self, event: FallbackEvent, was_successful: bool = True) -> None:
         """

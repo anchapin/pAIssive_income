@@ -89,13 +89,17 @@ class DiskCache(CacheBackend):
                     self._save_stats()
                     return None
 
-                # Update access count and last access time
-                metadata["access_count"] = metadata.get("access_count", 0) + 1
-                metadata["last_access_time"] = time.time()
-                self._save_metadata(key, metadata)
-
                 # Load value
                 value = self._load_value(key)
+
+                # Initialize access_count if not present
+                if "access_count" not in metadata:
+                    metadata["access_count"] = 0
+
+                # Update access count and time
+                metadata["access_count"] += 1
+                metadata["last_access_time"] = time.time()
+                self._save_metadata(key, metadata)
 
                 self.stats["hits"] += 1
                 self._save_stats()
@@ -135,22 +139,29 @@ class DiskCache(CacheBackend):
             if ttl is not None:
                 expiration_time = time.time() + ttl
 
-            # If key exists, preserve access count
+            # Always start with access_count of 0 for new items
+            # Only preserve access count if key exists and we're updating
             access_count = 0
-            try:
-                if self.exists(key):
+            if self.exists(key):
+                try:
                     old_metadata = self._load_metadata(key)
-                    access_count = old_metadata.get("access_count", 0)
-            except (IOError, json.JSONDecodeError):
-                pass
+                    if self.eviction_policy == "lfu":
+                        # For LFU, preserve the access count
+                        access_count = old_metadata.get("access_count", 0)
+                    else:
+                        # For other policies, reset access count on update
+                        access_count = 0
+                except (IOError, json.JSONDecodeError):
+                    pass
 
             # Create metadata
+            current_time = time.time()
             metadata = {
                 "key": key,
                 "expiration_time": expiration_time,
                 "access_count": access_count,
-                "last_access_time": time.time(),
-                "creation_time": time.time()
+                "last_access_time": current_time,
+                "creation_time": current_time if not self.exists(key) else self._load_metadata(key).get("creation_time", current_time)
             }
 
             # Save value and metadata
@@ -519,50 +530,64 @@ class DiskCache(CacheBackend):
                 return
 
             try:
+                # Load all metadata up front to avoid multiple disk reads
+                metadata_map = {}
+                for key in keys:
+                    try:
+                        metadata_map[key] = self._load_metadata(key)
+                    except (IOError, json.JSONDecodeError):
+                        # Skip corrupted metadata
+                        continue
+
                 if self.eviction_policy == "lru":
                     # Least Recently Used
                     key_to_evict = min(
-                        keys,
-                        key=lambda k: self._load_metadata(k).get("last_access_time", 0)
+                        metadata_map.keys(),
+                        key=lambda k: metadata_map[k].get("last_access_time", 0)
                     )
 
                 elif self.eviction_policy == "lfu":
-                    # Get all keys sorted by access count
-                    sorted_keys = sorted(
-                        keys,
-                        key=lambda k: (
-                            self._load_metadata(k).get("access_count", 0),
-                            -self._load_metadata(k).get("last_access_time", 0)  # Break ties with LRU
-                        )
+                    # Least Frequently Used - First by access count, then by creation time
+                    def get_score(k):
+                        metadata = metadata_map[k]
+                        count = metadata.get("access_count", 0)
+                        # Creation time is used as a tiebreaker - older items are evicted first
+                        creation_time = metadata.get("creation_time", float('inf'))
+                        # Return tuple of (count, creation_time) for comparison
+                        return (count, -creation_time)  # Negative creation_time so older items are evicted first
+
+                    key_to_evict = min(
+                        metadata_map.keys(),
+                        key=get_score
                     )
-                    # Pick the first one (least frequently used)
-                    key_to_evict = sorted_keys[0] if sorted_keys else None
 
                 elif self.eviction_policy == "fifo":
                     # First In First Out
                     key_to_evict = min(
-                        keys,
-                        key=lambda k: self._load_metadata(k).get("creation_time", 0)
+                        metadata_map.keys(),
+                        key=lambda k: metadata_map[k].get("creation_time", 0)
                     )
 
                 else:
                     # Default to LRU
                     key_to_evict = min(
-                        keys,
-                        key=lambda k: self._load_metadata(k).get("last_access_time", 0)
+                        metadata_map.keys(),
+                        key=lambda k: metadata_map[k].get("last_access_time", 0)
                     )
 
                 if key_to_evict:
-                    # Delete both value and metadata files
                     self.delete(key_to_evict)
                     self.stats["evictions"] += 1
                     self._save_stats()
 
-            except Exception:
-                # If there's any error, just delete the first key
-                self.delete(keys[0])
-                self.stats["evictions"] += 1
-                self._save_stats()
+            except Exception as e:
+                import logging
+                logging.exception("Error during cache eviction. Falling back to deleting the first key.")
+                if keys:
+                    # If there's any error, just delete the first key
+                    self.delete(keys[0])
+                    self.stats["evictions"] += 1
+                    self._save_stats()
 
     def _remove_expired_items(self) -> None:
         """
