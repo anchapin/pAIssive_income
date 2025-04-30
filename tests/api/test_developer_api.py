@@ -173,6 +173,54 @@ class TestDeveloperAPI:
             validate_field_exists(result, "description")
             validate_field_equals(result, "description", data["description"])
 
+    def test_update_solution_fields(self, api_test_client: APITestClient):
+        """Test updating specific fields of a development solution."""
+        # Generate a random ID and test data
+        solution_id = generate_id()
+        data = {
+            "name": "Updated Solution",
+            "description": "Updated solution description",
+            "status": "in_progress",
+            "technology_stack": ["python", "fastapi", "postgresql"],
+            "metadata": {
+                "version": "2.0",
+                "priority": "high"
+            }
+        }
+
+        # Make request
+        response = api_test_client.put(f"developer/solutions/{solution_id}", data)
+
+        # This might return 404 if the solution doesn't exist, which is fine for testing
+        if response.status_code == 404:
+            validate_error_response(response, 404)
+        else:
+            result = validate_success_response(response)
+
+            # Validate required fields
+            validate_field_exists(result, "id")
+            validate_field_equals(result, "id", solution_id)
+            validate_field_exists(result, "name")
+            validate_field_equals(result, "name", data["name"])
+            validate_field_exists(result, "description")
+            validate_field_equals(result, "description", data["description"])
+
+            # Validate optional fields if they were updated
+            validate_field_exists(result, "status")
+            validate_field_equals(result, "status", data["status"])
+            validate_field_exists(result, "technology_stack")
+            validate_field_type(result, "technology_stack", list)
+            for tech in data["technology_stack"]:
+                validate_list_contains(result["technology_stack"], tech)
+            validate_field_exists(result, "metadata")
+            validate_field_type(result, "metadata", dict)
+            validate_field_equals(result["metadata"], "version", data["metadata"]["version"])
+            validate_field_equals(result["metadata"], "priority", data["metadata"]["priority"])
+
+            # Validate timestamps
+            validate_field_exists(result, "updated_at")
+            validate_field_type(result, "updated_at", str)
+
     def test_delete_solution(self, api_test_client: APITestClient):
         """Test deleting a development solution."""
         # Generate a random ID
@@ -233,3 +281,129 @@ class TestDeveloperAPI:
 
         # Validate error response
         validate_error_response(response, 404)  # Not Found
+
+    def test_invalid_solution_update(self, api_test_client: APITestClient):
+        """Test invalid solution update request."""
+        # Generate a random ID
+        solution_id = generate_id()
+        
+        # Test with empty data
+        response = api_test_client.put(f"developer/solutions/{solution_id}", {})
+        validate_error_response(response, 422)  # Unprocessable Entity
+        
+        # Test with invalid status
+        response = api_test_client.put(f"developer/solutions/{solution_id}", {
+            "status": "invalid_status"
+        })
+        validate_error_response(response, 422)
+        
+        # Test with invalid technology stack format
+        response = api_test_client.put(f"developer/solutions/{solution_id}", {
+            "technology_stack": "python,fastapi"  # Should be a list
+        })
+        validate_error_response(response, 422)
+
+    def test_delete_solution_errors(self, api_test_client: APITestClient):
+        """Test error cases for deleting a solution."""
+        # Test deleting with invalid ID format
+        response = api_test_client.delete("developer/solutions/invalid-id-format")
+        validate_error_response(response, 422)  # Unprocessable Entity
+        
+        # Test deleting already deleted solution
+        solution_id = generate_id()
+        response = api_test_client.delete(f"developer/solutions/{solution_id}")
+        if response.status_code == 404:
+            # Try deleting again
+            response = api_test_client.delete(f"developer/solutions/{solution_id}")
+            validate_error_response(response, 404)  # Not Found
+
+    def test_bulk_update_solutions(self, api_test_client: APITestClient):
+        """Test bulk updating development solutions."""
+        # Generate test data for multiple solutions
+        solutions = [
+            {
+                "id": generate_id(),
+                "name": f"Updated Solution {i}",
+                "status": "in_progress",
+                "metadata": {"batch_update": True}
+            }
+            for i in range(3)
+        ]
+
+        # Make request
+        response = api_test_client.bulk_update("developer/solutions", solutions)
+
+        # Validate response
+        result = validate_bulk_response(response)
+
+        # Validate stats
+        validate_field_exists(result, "stats")
+        validate_field_exists(result["stats"], "total")
+        validate_field_equals(result["stats"], "total", len(solutions))
+        validate_field_exists(result["stats"], "updated")
+        validate_field_exists(result["stats"], "failed")
+        assert result["stats"]["updated"] + result["stats"]["failed"] == len(solutions)
+
+        # Validate updated items
+        validate_field_exists(result, "items")
+        validate_field_type(result, "items", list)
+        for item in result["items"]:
+            validate_field_exists(item, "id")
+            validate_field_exists(item, "success")
+            if item["success"]:
+                validate_field_exists(item, "data")
+                validate_field_type(item, "data", dict)
+            else:
+                validate_field_exists(item, "error")
+                validate_field_type(item, "error", dict)
+
+    def test_bulk_delete_solutions(self, api_test_client: APITestClient):
+        """Test bulk deleting development solutions."""
+        # Generate IDs for solutions to delete
+        solution_ids = [generate_id() for _ in range(3)]
+
+        # Make request
+        response = api_test_client.bulk_delete("developer/solutions", solution_ids)
+
+        # Validate response
+        result = validate_bulk_response(response)
+
+        # Validate stats
+        validate_field_exists(result, "stats")
+        validate_field_exists(result["stats"], "total")
+        validate_field_equals(result["stats"], "total", len(solution_ids))
+        validate_field_exists(result["stats"], "deleted")
+        validate_field_exists(result["stats"], "failed")
+        assert result["stats"]["deleted"] + result["stats"]["failed"] == len(solution_ids)
+
+        # Validate results for each ID
+        validate_field_exists(result, "items")
+        validate_field_type(result, "items", list)
+        for item in result["items"]:
+            validate_field_exists(item, "id")
+            validate_field_exists(item, "success")
+            if not item["success"]:
+                validate_field_exists(item, "error")
+                validate_field_type(item, "error", dict)
+
+    def test_invalid_bulk_operations(self, api_test_client: APITestClient):
+        """Test invalid bulk update and delete operations."""
+        # Test bulk update with empty list
+        response = api_test_client.bulk_update("developer/solutions", [])
+        validate_error_response(response, 422)
+
+        # Test bulk update with invalid data
+        response = api_test_client.bulk_update("developer/solutions", [
+            {"id": "invalid-id"},  # Missing required fields
+            {"name": "No ID"}  # Missing ID
+        ])
+        validate_error_response(response, 422)
+
+        # Test bulk delete with empty list
+        response = api_test_client.bulk_delete("developer/solutions", [])
+        validate_error_response(response, 422)
+
+        # Test bulk delete with invalid IDs
+        response = api_test_client.bulk_delete("developer/solutions", ["invalid-id-1", "invalid-id-2"])
+        result = validate_bulk_response(response)
+        validate_field_equals(result["stats"], "failed", 2)
