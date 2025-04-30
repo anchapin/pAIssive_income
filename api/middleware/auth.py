@@ -44,7 +44,7 @@ class AuthMiddleware:
         expire = datetime.utcnow() + timedelta(minutes=self.access_token_expire_minutes)
         to_encode.update({"exp": expire})
         return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
-    
+
     def verify_token(self, token: str) -> Dict[str, Any]:
         """Verify a JWT token."""
         try:
@@ -64,21 +64,14 @@ class AuthMiddleware:
         # Check if API key exists in configured keys
         return api_key in self.api_keys
 
-
-# Create middleware instance
-auth_middleware = AuthMiddleware("test-secret")  # Default for testing
+# Get the config from environment/settings and initialize middleware
+from api.config import get_api_config
+auth_middleware = AuthMiddleware(get_api_config())
 
 async def verify_token(token: str = Depends(security)) -> Dict[str, Any]:
     """Verify a JWT token."""
-    try:
-        return auth_middleware.verify_token(token)
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+    return auth_middleware.verify_token(token)
 
 async def get_current_user(token: str = Depends(verify_token)) -> Dict[str, Any]:
     """Get the current authenticated user."""
-    try:
-        # The token payload contains the user info
-        return token
-    except Exception as e:
-        raise HTTPException(status_code=401, detail="Could not validate credentials")
+    return token
