@@ -11,7 +11,9 @@ on:
 jobs:
   security:
     runs-on: ubuntu-latest
-    
+    permissions:
+      security-events: write
+      
     steps:
     - uses: actions/checkout@v3
     
@@ -31,11 +33,11 @@ jobs:
     - name: Check for vulnerable dependencies with Safety
       run: |
         safety check
-    
-    - name: Scan code with Bandit
+        
+    - name: Run SAST with Bandit
       run: |
-        bandit -r . -x ./tests
-    
+        bandit -r . -ll -ii -x ./tests,./venv --format json --output bandit-results.json
+        
     - name: Run Dependency Review
       uses: actions/dependency-review-action@v3
       if: github.event_name == 'pull_request'
@@ -45,7 +47,16 @@ jobs:
       with:
         scan-type: 'fs'
         scan-ref: '.'
-        format: 'table'
-        exit-code: '1'
-        ignore-unfixed: true
+        format: 'sarif'
+        output: 'trivy-results.sarif'
         severity: 'CRITICAL,HIGH'
+        
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+        
+    - name: Check Python package security
+      run: |
+        pip-audit
