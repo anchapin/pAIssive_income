@@ -1,0 +1,1013 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="32" failures="12" skipped="1" tests="315" time="318.473" timestamp="2025-04-30T17:32:58.842143+00:00" hostname="docker-desktop"><testcase classname="" name="tests.ai_models.adapters.test_adapter_factory" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/ai_models/adapters/test_adapter_factory.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\ai_models\adapters\test_adapter_factory.py:8: in &lt;module&gt;
+    ???
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.ai_models.adapters.test_ollama_adapter" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/ai_models/adapters/test_ollama_adapter.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\ai_models\adapters\test_ollama_adapter.py:8: in &lt;module&gt;
+    ???
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.ai_models.caching.test_disk_cache" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/ai_models/caching/test_disk_cache.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\ai_models\caching\test_disk_cache.py:13: in &lt;module&gt;
+    ???
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.ai_models.fallbacks.test_fallback_strategy" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/ai_models/fallbacks/test_fallback_strategy.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\ai_models\fallbacks\test_fallback_strategy.py:75: in &lt;module&gt;
+    ???
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.ai_models.test_caching" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/ai_models/test_caching.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\ai_models\test_caching.py:7: in &lt;module&gt;
+    ???
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.api" time="0.000"><error message="collection failure">c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\api\conftest.py:13: in &lt;module&gt;
+    ???
+api/__init__.py:9: in &lt;module&gt;
+    from .routes import (
+api/routes/__init__.py:7: in &lt;module&gt;
+    from .niche_analysis import router as niche_analysis_router
+api/routes/niche_analysis.py:609: in &lt;module&gt;
+    @router.post(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:994: in decorator
+    self.add_api_route(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:933: in add_api_route
+    route = route_class(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:511: in __init__
+    self.response_field = create_model_field(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/utils.py:98: in create_model_field
+    raise fastapi.exceptions.FastAPIError(
+E   fastapi.exceptions.FastAPIError: Invalid args for response field! Hint: check that &lt;class 'api.schemas.niche_analysis.BulkNicheCreateResponse'&gt; is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field (e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation with the path operation decorator parameter response_model=None. Read more: https://fastapi.tiangolo.com/tutorial/response-model/</error><error message="collection failure">c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\api\conftest.py:13: in &lt;module&gt;
+    ???
+api/__init__.py:9: in &lt;module&gt;
+    from .routes import (
+api/routes/__init__.py:7: in &lt;module&gt;
+    from .niche_analysis import router as niche_analysis_router
+api/routes/niche_analysis.py:609: in &lt;module&gt;
+    @router.post(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:994: in decorator
+    self.add_api_route(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:933: in add_api_route
+    route = route_class(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:511: in __init__
+    self.response_field = create_model_field(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/utils.py:98: in create_model_field
+    raise fastapi.exceptions.FastAPIError(
+E   fastapi.exceptions.FastAPIError: Invalid args for response field! Hint: check that &lt;class 'api.schemas.niche_analysis.BulkNicheCreateResponse'&gt; is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field (e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation with the path operation decorator parameter response_model=None. Read more: https://fastapi.tiangolo.com/tutorial/response-model/</error><error message="collection failure">c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\api\conftest.py:13: in &lt;module&gt;
+    ???
+api/__init__.py:9: in &lt;module&gt;
+    from .routes import (
+api/routes/__init__.py:7: in &lt;module&gt;
+    from .niche_analysis import router as niche_analysis_router
+api/routes/niche_analysis.py:609: in &lt;module&gt;
+    @router.post(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:994: in decorator
+    self.add_api_route(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:933: in add_api_route
+    route = route_class(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:511: in __init__
+    self.response_field = create_model_field(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/utils.py:98: in create_model_field
+    raise fastapi.exceptions.FastAPIError(
+E   fastapi.exceptions.FastAPIError: Invalid args for response field! Hint: check that &lt;class 'api.schemas.niche_analysis.BulkNicheCreateResponse'&gt; is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field (e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation with the path operation decorator parameter response_model=None. Read more: https://fastapi.tiangolo.com/tutorial/response-model/</error><error message="collection failure">c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\api\conftest.py:13: in &lt;module&gt;
+    ???
+api/__init__.py:9: in &lt;module&gt;
+    from .routes import (
+api/routes/__init__.py:7: in &lt;module&gt;
+    from .niche_analysis import router as niche_analysis_router
+api/routes/niche_analysis.py:609: in &lt;module&gt;
+    @router.post(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:994: in decorator
+    self.add_api_route(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:933: in add_api_route
+    route = route_class(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:511: in __init__
+    self.response_field = create_model_field(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/utils.py:98: in create_model_field
+    raise fastapi.exceptions.FastAPIError(
+E   fastapi.exceptions.FastAPIError: Invalid args for response field! Hint: check that &lt;class 'api.schemas.niche_analysis.BulkNicheCreateResponse'&gt; is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field (e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation with the path operation decorator parameter response_model=None. Read more: https://fastapi.tiangolo.com/tutorial/response-model/</error><error message="collection failure">c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\api\conftest.py:13: in &lt;module&gt;
+    ???
+api/__init__.py:9: in &lt;module&gt;
+    from .routes import (
+api/routes/__init__.py:7: in &lt;module&gt;
+    from .niche_analysis import router as niche_analysis_router
+api/routes/niche_analysis.py:609: in &lt;module&gt;
+    @router.post(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:994: in decorator
+    self.add_api_route(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:933: in add_api_route
+    route = route_class(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/routing.py:511: in __init__
+    self.response_field = create_model_field(
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/site-packages/fastapi/utils.py:98: in create_model_field
+    raise fastapi.exceptions.FastAPIError(
+E   fastapi.exceptions.FastAPIError: Invalid args for response field! Hint: check that &lt;class 'api.schemas.niche_analysis.BulkNicheCreateResponse'&gt; is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field (e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation with the path operation decorator parameter response_model=None. Read more: https://fastapi.tiangolo.com/tutorial/response-model/</error><error message="collection failure">c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\api\conftest.py:13: in &lt;module&gt;
+    ???
+api/__init__.py:7: in &lt;module&gt;
+    from .server import APIServer, APIConfig
+api/server.py:14: in &lt;module&gt;
+    from .middleware import setup_middleware
+api/middleware/__init__.py:11: in &lt;module&gt;
+    from .analytics import AnalyticsMiddleware
+api/middleware/analytics.py:26: in &lt;module&gt;
+    from api.analytics import analytics_service
+api/analytics/__init__.py:7: in &lt;module&gt;
+    from .service import AnalyticsService, analytics_service
+api/analytics/service.py:808: in &lt;module&gt;
+    analytics_service = AnalyticsService.get_instance()
+api/analytics/service.py:46: in get_instance
+    cls._instance = cls(db_path)
+api/analytics/service.py:56: in __init__
+    self.db = AnalyticsDatabase(db_path)
+api/analytics/database.py:40: in __init__
+    self._init_schema()
+api/analytics/database.py:68: in _init_schema
+    cursor.execute(
+E   sqlite3.OperationalError: database is locked</error></testcase><testcase classname="" name="tests.integration.test_ai_models_integration" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/integration/test_ai_models_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\integration\test_ai_models_integration.py:8: in &lt;module&gt;
+    ???
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.integration.test_monetization_integration" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/integration/test_monetization_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\integration\test_monetization_integration.py:11: in &lt;module&gt;
+    ???
+monetization/__init__.py:44: in &lt;module&gt;
+    from .billing_calculator import (
+monetization/billing_calculator.py:19: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.integration.test_monetization_to_marketing" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/integration/test_monetization_to_marketing.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\integration\test_monetization_to_marketing.py:9: in &lt;module&gt;
+    ???
+monetization/__init__.py:44: in &lt;module&gt;
+    from .billing_calculator import (
+monetization/billing_calculator.py:19: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.integration.test_niche_to_solution" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/integration/test_niche_to_solution.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\integration\test_niche_to_solution.py:9: in &lt;module&gt;
+    ???
+niche_analysis/__init__.py:6: in &lt;module&gt;
+    from .market_analyzer import MarketAnalyzer
+niche_analysis/market_analyzer.py:38: in &lt;module&gt;
+    from common_utils.caching import default_cache, cached
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.integration.test_solution_to_monetization" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/integration/test_solution_to_monetization.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\integration\test_solution_to_monetization.py:9: in &lt;module&gt;
+    ???
+monetization/__init__.py:44: in &lt;module&gt;
+    from .billing_calculator import (
+monetization/billing_calculator.py:19: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.integration.test_ui_integration" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/integration/test_ui_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\integration\test_ui_integration.py:9: in &lt;module&gt;
+    ???
+ui/__init__.py:18: in &lt;module&gt;
+    from .app_factory import create_app
+ui/app_factory.py:8: in &lt;module&gt;
+    from flask import Flask
+E   ModuleNotFoundError: No module named 'flask'</error></testcase><testcase classname="" name="tests.marketing.test_ab_testing" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/marketing/test_ab_testing.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\marketing\test_ab_testing.py:9: in &lt;module&gt;
+    ???
+marketing/__init__.py:16: in &lt;module&gt;
+    from .content_generators import ContentGenerator
+marketing/content_generators.py:29: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.marketing.test_content_optimization_properties" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/marketing/test_content_optimization_properties.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\marketing\test_content_optimization_properties.py:14: in &lt;module&gt;
+    ???
+marketing/__init__.py:16: in &lt;module&gt;
+    from .content_generators import ContentGenerator
+marketing/content_generators.py:29: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.marketing.test_content_templates" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/marketing/test_content_templates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\marketing\test_content_templates.py:9: in &lt;module&gt;
+    ???
+marketing/__init__.py:16: in &lt;module&gt;
+    from .content_generators import ContentGenerator
+marketing/content_generators.py:29: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.marketing.test_statistical_analysis" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/marketing/test_statistical_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\marketing\test_statistical_analysis.py:10: in &lt;module&gt;
+    ???
+marketing/__init__.py:16: in &lt;module&gt;
+    from .content_generators import ContentGenerator
+marketing/content_generators.py:29: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.marketing.test_user_personas" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/marketing/test_user_personas.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\marketing\test_user_personas.py:9: in &lt;module&gt;
+    ???
+marketing/__init__.py:16: in &lt;module&gt;
+    from .content_generators import ContentGenerator
+marketing/content_generators.py:29: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.niche_analysis.test_competition_analysis" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/niche_analysis/test_competition_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\niche_analysis\test_competition_analysis.py:4: in &lt;module&gt;
+    ???
+niche_analysis/__init__.py:6: in &lt;module&gt;
+    from .market_analyzer import MarketAnalyzer
+niche_analysis/market_analyzer.py:38: in &lt;module&gt;
+    from common_utils.caching import default_cache, cached
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.niche_analysis.test_market_analyzer" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/niche_analysis/test_market_analyzer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\niche_analysis\test_market_analyzer.py:9: in &lt;module&gt;
+    ???
+niche_analysis/__init__.py:6: in &lt;module&gt;
+    from .market_analyzer import MarketAnalyzer
+niche_analysis/market_analyzer.py:38: in &lt;module&gt;
+    from common_utils.caching import default_cache, cached
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.niche_analysis.test_market_trends" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/niche_analysis/test_market_trends.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\niche_analysis\test_market_trends.py:5: in &lt;module&gt;
+    ???
+niche_analysis/__init__.py:6: in &lt;module&gt;
+    from .market_analyzer import MarketAnalyzer
+niche_analysis/market_analyzer.py:38: in &lt;module&gt;
+    from common_utils.caching import default_cache, cached
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.niche_analysis.test_niche_analyzer" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/niche_analysis/test_niche_analyzer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\niche_analysis\test_niche_analyzer.py:9: in &lt;module&gt;
+    ???
+niche_analysis/__init__.py:6: in &lt;module&gt;
+    from .market_analyzer import MarketAnalyzer
+niche_analysis/market_analyzer.py:38: in &lt;module&gt;
+    from common_utils.caching import default_cache, cached
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.niche_analysis.test_opportunity_scorer" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/niche_analysis/test_opportunity_scorer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\niche_analysis\test_opportunity_scorer.py:9: in &lt;module&gt;
+    ???
+niche_analysis/__init__.py:6: in &lt;module&gt;
+    from .market_analyzer import MarketAnalyzer
+niche_analysis/market_analyzer.py:38: in &lt;module&gt;
+    from common_utils.caching import default_cache, cached
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.niche_analysis.test_problem_identifier" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/niche_analysis/test_problem_identifier.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\niche_analysis\test_problem_identifier.py:9: in &lt;module&gt;
+    ???
+niche_analysis/__init__.py:6: in &lt;module&gt;
+    from .market_analyzer import MarketAnalyzer
+niche_analysis/market_analyzer.py:38: in &lt;module&gt;
+    from common_utils.caching import default_cache, cached
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.niche_analysis.test_target_users" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/niche_analysis/test_target_users.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\niche_analysis\test_target_users.py:4: in &lt;module&gt;
+    ???
+niche_analysis/__init__.py:6: in &lt;module&gt;
+    from .market_analyzer import MarketAnalyzer
+niche_analysis/market_analyzer.py:38: in &lt;module&gt;
+    from common_utils.caching import default_cache, cached
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.test_metered_billing" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/test_metered_billing.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\test_metered_billing.py:31: in &lt;module&gt;
+    ???
+monetization/__init__.py:44: in &lt;module&gt;
+    from .billing_calculator import (
+monetization/billing_calculator.py:19: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.test_service_initialization" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/test_service_initialization.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\test_service_initialization.py:8: in &lt;module&gt;
+    ???
+service_initialization.py:22: in &lt;module&gt;
+    from ai_models.adapters import get_adapter_factory
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="" name="tests.unit.common_utils.caching.test_namespace_clearing" time="0.000"><error message="collection failure">ImportError while importing test module '/mnt/c/Users/ancha/Documents/AI/pAIssive_income2/pAIssive_income/tests/unit/common_utils/caching/test_namespace_clearing.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\unit\common_utils\caching\test_namespace_clearing.py:9: in &lt;module&gt;
+    ???
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+ai_models/adapters/ollama_adapter.py:13: in &lt;module&gt;
+    import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'</error></testcase><testcase classname="tests.ai_models.test_mock_providers.TestMockProviders" name="test_huggingface_mock_provider" time="0.292" /><testcase classname="tests.agent_team.test_team_config" name="test_develop_solution" time="0.094" /><testcase classname="tests.agent_team.test_team_config" name="test_create_monetization_strategy" time="0.023" /><testcase classname="tests.agent_team.test_team_config" name="test_create_marketing_plan" time="0.005" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_developer_agent_init" time="0.168" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_developer_agent_design_solution" time="0.046" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_model_type_strategy" time="0.227" /><testcase classname="tests.ai_models.test_agent_integration" name="test_get_model_for_agent_with_assignment" time="0.204" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_monetization_agent_init" time="0.005" /><testcase classname="tests.ai_models.test_agent_integration" name="test_assign_model_to_agent" time="0.013" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_multiple_fallback_attempts" time="0.015" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_no_fallback_strategy" time="0.006" /><testcase classname="tests.agent_team.test_agent_collaboration" name="test_agent_information_sharing" time="0.274" /><testcase classname="tests.ai_models.test_agent_integration" name="test_assign_model_to_agent_invalid_model" time="0.018" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_similar_model_strategy" time="0.014" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_size_tier_strategy" time="0.003" /><testcase classname="tests.agent_team.test_agent_collaboration" name="test_agent_conflict_resolution" time="0.073" /><testcase classname="tests.ai_models.test_mock_providers.TestMockProviders" name="test_integration_with_model_manager" time="0.081" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_monetization_agent_create_strategy" time="0.009" /><testcase classname="tests.ai_models.test_agent_integration" name="test_get_agent_model_assignments" time="0.007" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_marketing_agent_init" time="0.022" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_marketing_agent_create_plan" time="0.004" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_specified_list_strategy" time="0.014" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_feedback_agent_init" time="0.021" /><testcase classname="tests.ai_models.test_mock_external_apis.TestMockExternalAPIs" name="test_mock_http_requests" time="0.128" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackEvent" name="test_event_initialization" time="0.200" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_feedback_agent_collect_feedback" time="0.019" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_strategy_override" time="0.014" /><testcase classname="tests.agent_team.test_agent_collaboration" name="test_agent_collaborative_decision_making" time="0.028" /><testcase classname="tests.ai_models.test_agent_integration" name="test_agent_model_provider_init" time="0.019" /><testcase classname="tests.ai_models.test_mock_providers.TestMockProviders" name="test_local_mock_provider" time="0.039" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackEvent" name="test_to_dict" time="0.002" /><testcase classname="tests.agent_team.test_team_config" name="test_agent_team_init" time="0.021" /><testcase classname="tests.agent_team.test_agent_collaboration" name="test_agent_learning_from_feedback" time="0.030" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_any_available_strategy" time="0.004" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_capability_based_strategy" time="0.005" /><testcase classname="tests.ai_models.test_agent_integration" name="test_agent_model_provider_init_with_container" time="0.261"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = ()
+keywargs = {'mock_model_manager': &lt;MagicMock spec='ModelManager' id='139701979570752'&gt;}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.ai_models.test_mock_providers.TestMockProviders" name="test_onnx_mock_provider" time="0.002" /><testcase classname="tests.ai_models.test_mock_providers.TestMockProviders" name="test_openai_mock_provider" time="0.012" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_default_model_strategy" time="0.007" /><testcase classname="tests.agent_team.test_agent_collaboration" name="test_agent_knowledge_retention" time="0.033" /><testcase classname="tests.ai_models.test_mock_external_apis.TestMockExternalAPIs" name="test_mock_huggingface_hub" time="0.027" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_disable_fallbacks" time="0.013" /><testcase classname="tests.ai_models.test_mock_providers" name="test_usage_with_pytest" time="0.004" /><testcase classname="tests.ai_models.test_model_config" name="test_model_config_init" time="0.002" /><testcase classname="tests.ai_models.test_mock_external_apis.TestMockExternalAPIs" name="test_mock_lmstudio_api" time="0.013" /><testcase classname="tests.agent_team.test_agent_collaboration" name="test_agent_domain_specialization" time="0.025" /><testcase classname="tests.ai_models.test_model_config" name="test_model_config_to_dict" time="0.002" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_fallback_with_unsuccessful_result" time="0.003" /><testcase classname="tests.agent_team.test_team_config" name="test_agent_team_init_with_config" time="0.070" /><testcase classname="tests.agent_team.test_agent_collaboration" name="test_agent_cross_domain_problem_solving" time="0.008" /><testcase classname="tests.ai_models.test_model_config" name="test_model_config_to_json" time="0.008" /><testcase classname="tests.ai_models.test_mock_external_apis.TestMockExternalAPIs" name="test_mock_ollama_api" time="0.019" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_agent_profile_init" time="0.010" /><testcase classname="tests.ai_models.fallbacks.test_fallback_standalone.TestFallbackManager" name="test_initialization" time="0.002" /><testcase classname="tests.agent_team.test_team_config" name="test_run_niche_analysis" time="0.012" /><testcase classname="tests.ai_models.test_mock_external_apis.TestMockExternalAPIs" name="test_mock_openai_api" time="0.014" /><testcase classname="tests.ai_models.test_model_downloader" name="test_download_progress_init" time="0.005" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_agent_profile_to_dict" time="0.002" /><testcase classname="tests.ai_models.test_model_downloader" name="test_download_progress_to_dict" time="0.004" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_research_agent_init" time="0.014" /><testcase classname="tests.ai_models.test_model_config" name="test_model_config_save_load" time="0.037" /><testcase classname="tests.ai_models.test_mock_external_apis" name="test_with_pytest_fixtures" time="0.005" /><testcase classname="tests.ai_models.test_mock_providers.TestMockProviders" name="test_create_mock_provider" time="0.026" /><testcase classname="tests.agent_team.test_agent_profiles" name="test_research_agent_analyze_market_segments" time="0.020" /><testcase classname="tests.ai_models.test_model_config" name="test_model_config_get_default" time="0.008" /><testcase classname="tests.ai_models.test_model_downloader" name="test_download_task_init" time="0.002" /><testcase classname="tests.ai_models.test_model_info" name="test_model_info_has_capability" time="0.082" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_get_models_by_type" time="0.031" /><testcase classname="tests.ai_models.test_model_versioning" name="test_version_downgrade_path" time="0.016" /><testcase classname="tests.ai_models.test_model_downloader" name="test_download_task_to_dict" time="0.005" /><testcase classname="tests.ai_models.test_model_downloader" name="test_download_task_update_progress" time="0.002" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_init" time="0.007" /><testcase classname="tests.ai_models.test_model_versioning" name="test_version_migration_execution" time="0.011" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_get_all_models" time="0.026" /><testcase classname="tests.ai_models.test_model_downloader" name="test_download_task_complete" time="0.002" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_init_default_config" time="0.004"><skipped type="pytest.skip" message="Cannot instantiate abstract ModelManager class directly">c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\ai_models\test_model_manager.py:79: Cannot instantiate abstract ModelManager class directly</skipped></testcase><testcase classname="tests.ai_models.test_model_downloader" name="test_download_task_fail" time="0.008" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_register_model" time="0.018" /><testcase classname="tests.ai_models.test_model_versioning" name="test_invalid_migration_path" time="0.018" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_init_model_registry" time="0.017" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_delete_model" time="0.080" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_save_model_registry" time="0.021" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_load_huggingface_model" time="0.034" /><testcase classname="tests.ai_models.test_model_versioning" name="test_version_compatibility_same_major" time="0.004" /><testcase classname="tests.ai_models.test_model_downloader" name="test_model_downloader_download_from_url" time="0.255"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = (), keywargs = {'temp_models_dir': '/tmp/tmpx61uijye'}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.ai_models.test_model_versioning" name="test_direct_vs_indirect_migration" time="0.015" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_discover_local_models" time="0.022" /><testcase classname="tests.ai_models.test_model_versioning" name="test_version_conflict_resolution" time="0.036" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_load_model" time="0.034" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_discover_huggingface_models" time="0.023" /><testcase classname="tests.ai_models.test_model_versioning" name="test_version_compatibility_different_major" time="0.019" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_unload_model" time="0.018" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_discover_models" time="0.017" /><testcase classname="tests.ai_models.test_model_versioning" name="test_version_hash_verification" time="0.011" /><testcase classname="tests.ai_models.test_model_versioning" name="test_version_compatibility_explicit" time="0.002" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_get_model_info" time="0.022" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_is_model_loaded" time="0.013" /><testcase classname="tests.ai_models.test_performance_monitor" name="test_model_performance_report_to_dict" time="0.004" /><testcase classname="tests.ai_models.test_model_versioning" name="test_concurrent_version_updates" time="0.021" /><testcase classname="tests.ai_models.test_model_versioning" name="test_registry_compatibility_check" time="0.010" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_date" time="0.020" /><testcase classname="tests.ai_models.test_model_versioning" name="test_cross_model_compatibility" time="0.007" /><testcase classname="tests.ai_models.test_model_versioning" name="test_invalid_version_string" time="0.004" /><testcase classname="tests.ai_models.test_model_versioning" name="test_version_metadata_conflict" time="0.025" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_get_loaded_models" time="0.039" /><testcase classname="tests.ai_models.test_model_versioning" name="test_version_upgrade_path" time="0.011" /><testcase classname="tests.ai_models.test_model_manager" name="test_model_manager_update_model_info" time="0.014" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_directory" time="0.006" /><testcase classname="tests.ai_models.test_performance_monitor" name="test_inference_metrics_init" time="0.002" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_sanitize_html" time="0.002" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_email" time="0.010" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_sanitize_path" time="0.021" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_file" time="0.009" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_file_path" time="0.002" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_password" time="0.008" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_sanitize_string" time="0.007" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_json" time="0.005" /><testcase classname="tests.examples.test_mock_fixtures_usage" name="test_huggingface_hub_interaction" time="0.048" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_phone" time="0.004" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_slug" time="0.003" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_validate_and_sanitize_input" time="0.003" /><testcase classname="tests.examples.test_mock_fixtures_usage" name="test_with_patched_huggingface_hub" time="0.005" /><testcase classname="tests.examples.test_mocks_usage" name="test_ollama_provider_usage" time="0.030" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_validate_config_file" time="0.030" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_url" time="0.002" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_username" time="0.011" /><testcase classname="tests.examples.test_mocks_usage" name="test_stripe_payment_processing" time="0.036" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_is_valid_uuid" time="0.007" /><testcase classname="tests.examples.test_mocks_usage" name="test_subscription_management" time="0.012" /><testcase classname="tests.common_utils.test_validation_utils.TestValidationUtils" name="test_sanitize_filename" time="0.004"><failure message="AssertionError: 'filename.txt' != 'name.txt'&#10;- filename.txt&#10;? ----&#10;+ name.txt">self = &lt;tests.common_utils.test_validation_utils.TestValidationUtils testMethod=test_sanitize_filename&gt;
+
+&gt;   ???
+E   AssertionError: 'filename.txt' != 'name.txt'
+E   - filename.txt
+E   ? ----
+E   + name.txt
+
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\common_utils\test_validation_utils.py:264: AssertionError</failure></testcase><testcase classname="tests.examples.test_mock_fixtures_usage" name="test_openai_api_interaction" time="0.045" /><testcase classname="tests.examples.test_mocks_usage" name="test_model_manager_with_mock" time="0.158"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = ()
+keywargs = {'mock_openai_provider': &lt;tests.mocks.mock_model_providers.MockOpenAIProvider object at 0x7f1ad00c4860&gt;}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.examples.test_mock_fixtures_usage" name="test_with_patched_requests" time="0.007" /><testcase classname="tests.marketing.test_channel_strategies" name="test_marketing_strategy_create_plan" time="0.047" /><testcase classname="tests.marketing.test_channel_strategies" name="test_email_marketing_strategy_create_campaign" time="0.037" /><testcase classname="tests.marketing.test_channel_strategies" name="test_content_marketing_strategy_init" time="0.002" /><testcase classname="tests.marketing.test_channel_strategies" name="test_channel_prioritization" time="0.002" /><testcase classname="tests.marketing.test_channel_strategies" name="test_budget_based_channel_strategy" time="0.004" /><testcase classname="tests.marketing.test_channel_strategies" name="test_content_marketing_strategy_create_content_plan" time="0.007" /><testcase classname="tests.marketing.test_channel_strategies" name="test_cross_channel_campaign_coordination" time="0.004" /><testcase classname="tests.marketing.test_channel_strategies" name="test_social_media_strategy_init" time="0.005" /><testcase classname="tests.marketing.test_channel_strategies" name="test_channel_performance_metrics" time="0.004" /><testcase classname="tests.marketing.test_channel_strategies" name="test_social_media_strategy_create_platform_plan" time="0.002" /><testcase classname="tests.marketing.test_strategy_generator" name="test_strategy_generator_init" time="0.002" /><testcase classname="tests.examples.test_mock_fixtures_usage" name="test_ai_model_complete_scenario" time="0.241" /><testcase classname="tests.marketing.test_channel_strategies" name="test_email_marketing_strategy_init" time="0.007" /><testcase classname="tests.marketing.test_strategy_generator" name="test_calculate_channel_business_alignment" time="0.004" /><testcase classname="tests.examples.test_mock_fixtures_usage" name="test_monetization_scenario" time="0.013" /><testcase classname="tests.marketing.test_strategy_generator" name="test_adjust_metrics_for_goals" time="0.002" /><testcase classname="tests.marketing.test_strategy_generator" name="test_calculate_channel_goal_alignment_score" time="0.008" /><testcase classname="tests.marketing.test_strategy_generator" name="test_calculate_difficulty_adjustment" time="0.003" /><testcase classname="tests.examples.test_mock_fixtures_usage" name="test_marketing_scenario" time="0.019" /><testcase classname="tests.marketing.test_strategy_generator" name="test_analyze_channel_audience_fit" time="0.012" /><testcase classname="tests.marketing.test_strategy_generator" name="test_analyze_channel_goal_alignment" time="0.012" /><testcase classname="tests.marketing.test_strategy_generator" name="test_analyze_channel_budget_fit" time="0.005" /><testcase classname="tests.marketing.test_strategy_generator" name="test_calculate_time_adjustment" time="0.011" /><testcase classname="tests.marketing.test_strategy_generator" name="test_adjust_metrics_for_business_type" time="0.009" /><testcase classname="tests.marketing.test_strategy_generator" name="test_analyze_channel_roi" time="0.009" /><testcase classname="tests.marketing.test_strategy_generator" name="test_prioritize_channels" time="0.006" /><testcase classname="tests.marketing.test_strategy_generator" name="test_generate_channel_recommendations" time="0.003" /><testcase classname="tests.monetization.test_pricing_calculator" name="test_calculate_price" time="0.045" /><testcase classname="tests.monetization.test_freemium_model" name="test_freemium_model_init" time="0.034" /><testcase classname="tests.examples.test_mock_fixtures_usage" name="test_niche_analysis_scenario" time="0.130" /><testcase classname="tests.monetization.test_pricing_calculator" name="test_calculate_optimal_price" time="0.005" /><testcase classname="tests.monetization.test_freemium_model" name="test_freemium_model_custom_free_tier" time="0.002" /><testcase classname="tests.examples.test_mocks_usage" name="test_openai_provider_usage" time="0.002" /><testcase classname="tests.monetization.test_freemium_model" name="test_add_paid_tier" time="0.009" /><testcase classname="tests.monetization.test_pricing_calculator" name="test_analyze_price_sensitivity" time="0.003" /><testcase classname="tests.monetization.test_freemium_model" name="test_get_free_tier" time="0.020" /><testcase classname="tests.monetization.test_pricing_calculator" name="test_to_json" time="0.003" /><testcase classname="tests.monetization.test_pricing_calculator" name="test_to_dict" time="0.007" /><testcase classname="tests.monetization.test_freemium_model" name="test_update_free_tier_limits" time="0.003" /><testcase classname="tests.monetization.test_pricing_properties.TestMonetizationCalculatorProperties" name="test_subscription_revenue_with_zero_users" time="14.700" /><testcase classname="tests.monetization.test_pricing_calculator" name="test_save_to_file" time="0.019" /><testcase classname="tests.monetization.test_freemium_model" name="test_to_dict" time="0.006" /><testcase classname="tests.monetization.test_pricing_calculator" name="test_load_from_file" time="0.007" /><testcase classname="tests.monetization.test_freemium_model" name="test_save_load_file" time="0.015" /><testcase classname="tests.monetization.test_pricing_calculator" name="test_repr" time="0.009" /><testcase classname="tests.monetization.test_pricing_properties.TestMonetizationCalculatorProperties" name="test_profit_calculation_property" time="13.470" /><testcase classname="tests.monetization.test_pricing_calculator" name="test_pricing_calculator_init" time="0.006" /><testcase classname="tests.monetization.test_pricing_properties.TestPricingCalculatorProperties" name="test_optimal_price_bounds" time="15.200" /><testcase classname="tests.ai_models.test_agent_integration" name="test_agent_model_provider_init_fallback" time="0.278"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = ()
+keywargs = {'mock_model_manager': &lt;MagicMock spec='ModelManager' id='139702294623392'&gt;}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.ai_models.test_model_downloader" name="test_model_downloader_download_model" time="0.209"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = (), keywargs = {'temp_models_dir': '/tmp/tmp132lpl1w'}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.examples.test_mocks_usage" name="test_payment_processor_with_mock" time="0.347"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = ()
+keywargs = {'mock_stripe_gateway': &lt;tests.mocks.mock_payment_apis.MockStripeGateway object at 0x7f1ad014df70&gt;}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+monetization/__init__.py:44: in &lt;module&gt;
+    from .billing_calculator import (
+monetization/billing_calculator.py:19: in &lt;module&gt;
+    from common_utils.caching import default_cache
+common_utils/caching/__init__.py:3: in &lt;module&gt;
+    from .cache_service import CacheService, cached, default_cache
+common_utils/caching/cache_service.py:18: in &lt;module&gt;
+    from ai_models.caching import CacheManager
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.ai_models.test_agent_integration" name="test_get_model_for_agent_no_assignment" time="0.025" /><testcase classname="tests.ai_models.test_model_downloader" name="test_model_downloader_get_task" time="0.104"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = (), keywargs = {'temp_models_dir': '/tmp/tmpfbinst6q'}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.ai_models.test_model_downloader" name="test_model_downloader_download_model_failure" time="0.098"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = (), keywargs = {'temp_models_dir': '/tmp/tmp4msrt2ma'}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.marketing.test_channel_strategies" name="test_marketing_strategy_init" time="0.161" /><testcase classname="tests.marketing.test_strategy_generator" name="test_validate_business_type" time="0.011" /><testcase classname="tests.marketing.test_strategy_generator" name="test_validate_goals" time="0.008" /><testcase classname="tests.marketing.test_strategy_generator" name="test_analyze_channels" time="0.021" /><testcase classname="tests.marketing.test_strategy_generator" name="test_analyze_channel_effectiveness" time="0.012" /><testcase classname="tests.marketing.test_strategy_generator" name="test_analyze_channel_metrics_effectiveness" time="0.018" /><testcase classname="tests.marketing.test_strategy_generator" name="test_calculate_channel_base_score" time="0.005" /><testcase classname="tests.monetization.test_revenue_projections_properties" name="test_user_projections_properties" time="12.711" /><testcase classname="tests.ai_models.test_model_downloader" name="test_model_downloader_get_tasks" time="0.264"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = (), keywargs = {'temp_models_dir': '/tmp/tmpwwt86lm5'}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.ai_models.test_performance_monitor" name="test_inference_metrics_to_dict" time="0.004" /><testcase classname="tests.ai_models.test_performance_monitor" name="test_inference_tracker_init" time="0.109" /><testcase classname="tests.ai_models.test_performance_monitor" name="test_inference_tracker_start_stop" time="0.039" /><testcase classname="tests.ai_models.test_performance_monitor" name="test_performance_monitor_init" time="0.003" /><testcase classname="tests.ai_models.test_performance_monitor" name="test_performance_monitor_track_inference" time="0.033" /><testcase classname="tests.ai_models.test_performance_monitor" name="test_performance_monitor_get_model_metrics" time="0.011" /><testcase classname="tests.ai_models.test_performance_monitor" name="test_performance_monitor_generate_report" time="0.004" /><testcase classname="tests.ai_models.test_performance_monitor" name="test_model_performance_report_init" time="0.003" /><testcase classname="tests.monetization.test_revenue_projections_properties" name="test_revenue_projection_calculation_properties" time="13.073" /><testcase classname="tests.ai_models.test_model_info" name="test_model_info_init" time="0.002" /><testcase classname="tests.ai_models.test_model_info" name="test_model_info_with_metadata" time="0.004" /><testcase classname="tests.ai_models.test_model_info" name="test_model_info_with_performance" time="0.002" /><testcase classname="tests.ai_models.test_model_info" name="test_model_info_to_dict" time="0.009" /><testcase classname="tests.ai_models.test_model_info" name="test_model_info_to_json" time="0.004" /><testcase classname="tests.ai_models.test_model_info" name="test_model_info_from_dict" time="0.002" /><testcase classname="tests.ai_models.test_model_info" name="test_model_info_update_performance" time="0.002" /><testcase classname="tests.ai_models.test_model_info" name="test_model_info_update_timestamp" time="0.115"><failure message="ModuleNotFoundError: No module named 'aiohttp'">args = (), keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+&gt;       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+/opt/hostedtoolcache/Python/3.12.10/x64/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.monetization.test_revenue_projector" name="test_revenue_projector_init" time="0.028" /><testcase classname="tests.monetization.test_revenue_projector" name="test_project_users" time="0.003" /><testcase classname="tests.monetization.test_revenue_projector" name="test_project_revenue_without_model" time="0.008" /><testcase classname="tests.monetization.test_revenue_projector" name="test_project_revenue_with_model" time="0.004" /><testcase classname="tests.monetization.test_revenue_projector" name="test_project_revenue_with_prices" time="0.005" /><testcase classname="tests.monetization.test_revenue_projector" name="test_to_dict" time="0.002" /><testcase classname="tests.monetization.test_revenue_projector" name="test_to_json" time="0.002" /><testcase classname="tests.monetization.test_revenue_projector" name="test_save_to_file" time="0.004" /><testcase classname="tests.monetization.test_revenue_projector" name="test_load_from_file" time="0.013" /><testcase classname="tests.monetization.test_revenue_projector" name="test_repr" time="0.006" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_subscription_manager_properties" time="21.862" /><testcase classname="tests.monetization.test_pricing_properties.TestMonetizationCalculatorProperties" name="test_growth_projection_properties" time="0.437" /><testcase classname="tests.monetization.test_pricing_properties.TestPricingCalculatorProperties" name="test_pricing_calculator_initialization" time="1.049" /><testcase classname="tests.monetization.test_pricing_properties.TestMonetizationCalculatorProperties" name="test_subscription_revenue_sum_property" time="0.790" /><testcase classname="tests.monetization.test_pricing_properties.TestPricingCalculatorProperties" name="test_calculate_price_properties" time="0.546" /><testcase classname="tests.monetization.test_pricing_properties.TestPricingCalculatorProperties" name="test_pricing_strategy_influence" time="0.959" /><testcase classname="tests.monetization.test_pricing_properties.TestMonetizationCalculatorProperties" name="test_arpu_calculation_property" time="0.854" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_change_billing_cycle_properties" time="14.809" /><testcase classname="tests.monetization.test_revenue_projections_properties" name="test_invariant_properties" time="0.720" /><testcase classname="tests.monetization.test_pricing_properties.TestPricingCalculatorProperties" name="test_price_sensitivity_analysis_properties" time="0.507" /><testcase classname="tests.monetization.test_pricing_properties.TestMonetizationCalculatorProperties" name="test_cost_calculation_sum_property" time="0.470" /><testcase classname="tests.monetization.test_revenue_projections_properties" name="test_lifetime_value_calculation_properties" time="0.537" /><testcase classname="tests.monetization.test_revenue_projections_properties" name="test_revenue_projections_properties" time="1.012" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_subscription_state_transitions" time="3.125" /><testcase classname="tests.monetization.test_revenue_projections_properties" name="test_revenue_projection_monthly_to_annual_conversion" time="0.804" /><testcase classname="tests.monetization.test_revenue_projections_properties" name="test_payback_period_calculation_properties" time="0.539" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_subscription_batch_operations_properties" time="18.861" /><testcase classname="tests.monetization.test_revenue_projections_properties" name="test_revenue_projection_sensitivity_to_churn" time="1.213" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_tier_upgrade_downgrade_properties" time="11.377" /><testcase classname="tests.monetization.test_subscription_model" name="test_add_feature" time="0.004" /><testcase classname="tests.monetization.test_subscription_model" name="test_add_tier" time="0.002" /><testcase classname="tests.monetization.test_subscription_model" name="test_get_tier_by_id" time="0.003" /><testcase classname="tests.monetization.test_subscription_model" name="test_get_feature_by_id" time="0.002" /><testcase classname="tests.monetization.test_subscription_model" name="test_update_tier_price" time="0.003" /><testcase classname="tests.monetization.test_subscription_model" name="test_to_dict" time="0.002" /><testcase classname="tests.monetization.test_subscription_model" name="test_to_json" time="0.002" /><testcase classname="tests.monetization.test_subscription_model" name="test_save_load_file" time="0.025" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_score_bounds" time="1.049" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_trial_expiration_properties" time="2.660" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_weighted_score_calculation" time="1.100" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_opportunity_assessment_consistency" time="1.103" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_monotonicity" time="1.329" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_overall_score_calculation" time="1.147" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_factor_influence" time="1.151" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_weight_influence" time="0.553" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_equal_weights" time="0.554" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_recommendations_consistency" time="1.263" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_perfect_scores" time="1.054" /><testcase classname="tests.test_dependency_container" name="test_register_and_resolve" time="0.003" /><testcase classname="tests.test_dependency_container" name="test_register_instance" time="0.003" /><testcase classname="tests.test_dependency_container" name="test_singleton" time="0.002" /><testcase classname="tests.test_dependency_container" name="test_non_singleton" time="0.002" /><testcase classname="tests.test_dependency_container" name="test_resolve_unregistered" time="0.004" /><testcase classname="tests.test_dependency_container" name="test_resolve_named_unregistered" time="0.002" /><testcase classname="tests.test_dependency_container" name="test_clear" time="0.004" /><testcase classname="tests.test_dependency_container" name="test_get_container" time="0.002" /><testcase classname="tests.test_mock_examples" name="test_openai_provider" time="0.002" /><testcase classname="tests.test_mock_examples" name="test_model_provider_with_custom_responses" time="0.002" /><testcase classname="tests.test_mock_examples" name="test_payment_processing_api" time="0.010" /><testcase classname="tests.test_mock_examples" name="test_huggingface_api" time="0.003" /><testcase classname="tests.niche_analysis.test_opportunity_scoring_properties.TestOpportunityScoringAlgorithmProperties" name="test_zero_scores" time="0.993" /><testcase classname="tests.test_mock_examples" name="test_with_patched_model_providers" time="0.140"><failure message="ModuleNotFoundError: No module named 'aiohttp'">patch_model_providers = {'huggingface': &lt;tests.mocks.mock_model_providers.MockHuggingFaceProvider object at 0x7f1d28c0f980&gt;, 'lmstudio': &lt;test...ject at 0x7f1d28c0d460&gt;, 'ollama': &lt;tests.mocks.mock_model_providers.MockOllamaProvider object at 0x7f1d28c0e5a0&gt;, ...}
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f1d28c0d610&gt;
+
+&gt;   ???
+
+c:\Users\ancha\Documents\AI\pAIssive_income2\pAIssive_income\tests\test_mock_examples.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ai_models/__init__.py:31: in &lt;module&gt;
+    from .adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+ai_models/adapters/__init__.py:9: in &lt;module&gt;
+    from .ollama_adapter import OllamaAdapter
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    """
+    Ollama adapter for the AI Models module.
+    
+    This module provides an adapter for connecting to Ollama,
+    a local API server for running large language models.
+    """
+    
+    import os
+    import json
+    import logging
+    import time
+    import asyncio
+&gt;   import aiohttp
+E   ModuleNotFoundError: No module named 'aiohttp'
+
+ai_models/adapters/ollama_adapter.py:13: ModuleNotFoundError</failure></testcase><testcase classname="tests.test_mock_examples" name="test_with_patched_external_apis" time="0.216" /><testcase classname="tests.test_mock_examples" name="test_using_common_fixtures" time="0.011" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_renewal_properties" time="13.794" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_subscription_proration_properties" time="21.139" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_feature_access_properties" time="2.279" /><testcase classname="tests.monetization.test_subscription_model" name="test_subscription_model_init" time="0.002" /><testcase classname="tests.monetization.test_subscription_management_properties" name="test_pause_resume_properties" time="4.844" /></testsuite></testsuites>

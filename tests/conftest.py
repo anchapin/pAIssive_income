@@ -5,56 +5,22 @@ This module provides fixtures that can be used across tests.
 """
 
 import os
+import sys
 import json
 import pytest
 from unittest.mock import MagicMock
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
+# Add project root to Python path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 # Import our centralized mock fixtures
-from tests.mocks.fixtures import (
-    # Model provider fixtures
-    mock_openai_provider,
-    mock_ollama_provider,
-    mock_lmstudio_provider,
-    patch_model_providers,
-    # HTTP and external API fixtures
-    mock_http_with_common_responses,
-    mock_hf_hub_with_models,
-    patch_requests,
-    patch_huggingface_hub,
-    mock_huggingface_api,
-    mock_payment_api,
-    mock_email_api,
-    mock_storage_api,
-    patch_external_apis,
-    # Complete test scenario fixtures
-    mock_ai_model_testing_setup,
-    mock_monetization_testing_setup,
-    mock_marketing_testing_setup,
-    mock_niche_analysis_testing_setup,
-    # Common test data fixtures
-    mock_model_inference_result,
-    mock_embedding_result,
-    mock_subscription_data,
-    mock_niche_analysis_data,
-    mock_marketing_campaign_data,
-)
-
-from tests.mocks.mock_model_providers import (
-    create_mock_provider,
-    MockOpenAIProvider,
-    MockOllamaProvider,
-    MockLMStudioProvider,
-)
-
-from tests.mocks.mock_external_apis import (
-    create_mock_api,
-    MockHuggingFaceAPI,
-    MockPaymentAPI,
-    MockEmailAPI,
-    MockStorageAPI,
-)
+from tests.mocks.fixtures import *  # Import all fixtures
+from tests.mocks.mock_model_providers import *  # Import all mock providers
+from tests.mocks.mock_external_apis import *  # Import all mock APIs
 
 # Keep existing mock payment APIs for backward compatibility
 try:

@@ -37,161 +37,27 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          # Install core dependencies
+          python -m pip install -r requirements.txt
           python -m pip install -r requirements-dev.txt
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          
+          # Install service dependencies
+          for req in $(find . -name "requirements.txt" ! -path "./requirements.txt"); do
+            echo "Installing dependencies from $req"
+            python -m pip install -r $req
+          done
+          
+      - name: Create junit directory
+        run: mkdir -p junit
       
       - name: Run tests
-        run: |
-          python -m pytest tests --cov=. --cov-report=xml
-          
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-  build-and-push:
-    needs: test
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
-      
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: yourorganization/paissive-income
-          tags: |
-            type=semver,pattern={{version}}
-            type=ref,event=branch
-            type=sha,prefix=,suffix=,format=short
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=yourorganization/paissive-income:buildcache
-          cache-to: type=registry,ref=yourorganization/paissive-income:buildcache,mode=max
-          provenance: true
-          sbom: true
-
-  deploy:
-    name: Deploy to Environment
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/v'))
-    
-    environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/develop' && 'staging' || 'development' }}
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3.7
-        with:
-          version: 'latest'
-      
-      - name: Set Kubernetes context
-        uses: azure/k8s-set-context@v3
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-          context: ${{ secrets.KUBE_CONTEXT }}
-      
-      - name: Set environment based on branch or tag
-        id: set-env
-        run: |
-          if [[ $GITHUB_REF == refs/heads/main || $GITHUB_REF == refs/heads/master || $GITHUB_REF == refs/tags/* ]]; then
-            echo "env=production" >> $GITHUB_OUTPUT
-            echo "ENV=production" >> $GITHUB_ENV
-          elif [[ $GITHUB_REF == refs/heads/develop ]]; then
-            echo "env=staging" >> $GITHUB_OUTPUT
-            echo "ENV=staging" >> $GITHUB_ENV
-          else
-            echo "env=development" >> $GITHUB_OUTPUT
-            echo "ENV=development" >> $GITHUB_ENV
-          fi
-      
-      - name: Setup environment-specific config
-        run: |
-          # Create namespace if it doesn't exist
-          kubectl create namespace ${{ env.ENV }} --dry-run=client -o yaml | kubectl apply -f -
-          
-          # Create the configmap from the appropriate environment file
-          kubectl create configmap env-config \
-            --from-env-file=.github/environments/${{ env.ENV }}.env \
-            -n ${{ env.ENV }} \
-            -o yaml --dry-run=client > kubernetes/generated-configmap.yaml
-          
-          # Load secrets from GitHub secrets
-          if [[ "${{ env.ENV }}" == "production" || "${{ env.ENV }}" == "staging" ]]; then
-            export DB_USER="${{ secrets.DB_USER }}"
-            export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
-            export DB_HOST="${{ secrets.DB_HOST_PROD }}"
-          else
-            export DB_USER="${{ secrets.DB_USER_DEV }}"
-            export DB_PASSWORD="${{ secrets.DB_PASSWORD_DEV }}"
-            export DB_HOST="${{ secrets.DB_HOST_DEV }}"
-          fi
-          
-          # Create secrets
-          kubectl create secret generic db-credentials \
-            --from-literal=DB_USER="$DB_USER" \
-            --from-literal=DB_PASSWORD="$DB_PASSWORD" \
-            --from-literal=DB_HOST="$DB_HOST" \
-            -n ${{ env.ENV }} \
-            --dry-run=client -o yaml | kubectl apply -f -
-      
-      - name: Deploy to Kubernetes
-        run: |
-          # Replace image tag in deployment
-          IMAGE_TAG=$(echo ${{ steps.meta.outputs.tags }} | cut -d' ' -f1)
-          sed -i "s|image: yourorganization/paissive-income:.*|image: $IMAGE_TAG|" kubernetes/deployment.yaml
-          
-          # Apply Kubernetes manifests with server-side apply
-          kubectl apply -f kubernetes/final-configmap.yaml --namespace=${{ env.ENV }} --server-side
-          kubectl apply -f kubernetes/deployment.yaml --namespace=${{ env.ENV }} --server-side
-          kubectl apply -f kubernetes/service.yaml --namespace=${{ env.ENV }} --server-side
-          kubectl apply -f kubernetes/persistent-volume-claims.yaml --namespace=${{ env.ENV }} --server-side
-          
-          # Verify deployment
-          kubectl rollout status deployment/paissive-income --namespace=${{ env.ENV }} --timeout=300s
-
-      - name: Notify deployment status
-        if: always()
-        uses: rtCamp/action-slack-notify@v2.2.1
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_CHANNEL: deployments
-          SLACK_USERNAME: GitHub Actions
-          SLACK_ICON: https://github.com/github.png?size=48
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_TITLE: Deployment to ${{ steps.set-env.outputs.env }}
-          SLACK_MESSAGE: |
-            Application deployed to ${{ steps.set-env.outputs.env }}
-            Status: ${{ job.status }}
-            Commit: ${{ github.sha }}
-            Branch/Tag: ${{ github.ref }}
-            Workflow: ${{ github.workflow }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          pytest tests \
+            -n auto \
+            --import-mode=importlib \
+            --cov=. \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junitxml=junit/test-results.xml
