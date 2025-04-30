@@ -97,7 +97,6 @@ class DiskCache(CacheBackend):
                     metadata["access_count"] = 0
 
                 # Update access count and time
-
                 metadata["access_count"] += 1
                 metadata["last_access_time"] = time.time()
                 self._save_metadata(key, metadata)
@@ -550,12 +549,11 @@ class DiskCache(CacheBackend):
                 elif self.eviction_policy == "lfu":
                     # Least Frequently Used - First by access count, then by creation time
                     def get_score(k):
-                        metadata = self._load_metadata(k)
+                        metadata = metadata_map[k]
                         count = metadata.get("access_count", 0)
                         # Creation time is used as a tiebreaker - older items are evicted first
                         creation_time = metadata.get("creation_time", float('inf'))
                         # Return tuple of (count, creation_time) for comparison
-                        # Python will compare tuples element by element
                         return (count, -creation_time)  # Negative creation_time so older items are evicted first
 
                     key_to_evict = min(

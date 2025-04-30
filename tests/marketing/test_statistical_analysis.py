@@ -1,8 +1,8 @@
 """
 Tests for the statistical analysis module.
 
-This module contains tests for the statistical analysis framework
-used in marketing analytics and A/B testing.
+This module tests the statistical analysis framework used in marketing analytics 
+and A/B testing.
 """
 
 import pytest
@@ -1294,7 +1294,7 @@ class TestStatisticalAnalysis:
 
         # Check specific values
         assert result["adjustment_method"] == "sidak"
-        assert result["adjusted_alpha"] == pytest.approx(1.0 - (1.0 - 0.05) ** (1.0 / 5), abs=1e-10)
+        assert result["adjusted_alpha"] == pytest.approx(1.0 - (1.0 - 0.05) ** 5, abs=1e-10)
 
         # Test no adjustment
         result = stats_analysis.adjust_alpha(alpha=0.05, n_tests=5, method="none")

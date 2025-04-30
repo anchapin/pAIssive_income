@@ -477,6 +477,7 @@ class ABTest:
                 # We put variant first because we want alternative='greater' to test if variant > control
                 table = [[variant_conv, variant_imp - variant_conv],
                         [control_conv, control_imp - control_conv]]
+                
                 # Use one-tailed Fisher's exact test
                 odds_ratio, conv_p_value = stats.fisher_exact(table, alternative='greater')
 

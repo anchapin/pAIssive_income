@@ -110,31 +110,31 @@ class TestPagination(unittest.TestCase):
     def test_apply_pagination(self):
         """Test applying pagination to a list of items."""
         items = list(range(100))
-        
+
         # Test first page
         params = QueryParams(page=1, page_size=10)
         paginated, total = apply_pagination(items, params)
         self.assertEqual(paginated, list(range(10)))
         self.assertEqual(total, 100)
-        
+
         # Test second page
         params = QueryParams(page=2, page_size=10)
         paginated, total = apply_pagination(items, params)
         self.assertEqual(paginated, list(range(10, 20)))
         self.assertEqual(total, 100)
-        
+
         # Test last page
         params = QueryParams(page=10, page_size=10)
         paginated, total = apply_pagination(items, params)
         self.assertEqual(paginated, list(range(90, 100)))
         self.assertEqual(total, 100)
-        
+
         # Test empty list
         params = QueryParams(page=1, page_size=10)
         paginated, total = apply_pagination([], params)
         self.assertEqual(paginated, [])
         self.assertEqual(total, 0)
-        
+
         # Test page beyond total
         params = QueryParams(page=11, page_size=10)
         paginated, total = apply_pagination(items, params)
@@ -252,8 +252,11 @@ class TestFiltering(unittest.TestCase):
             filter_operators={"name": FilterOperator.STARTS_WITH, "price": FilterOperator.GT}
         )
         filtered = apply_filtering(self.items, params)
-        self.assertEqual(len(filtered), 1)
-        self.assertEqual([item["id"] for item in filtered], [2])
+        # Items 1, 2, and 5 have names starting with "Item"
+        # Items 1, 2, 3, and 4 have prices > 10.0 (note: 10.5 > 10.0)
+        # Therefore, items 1 and 2 match both conditions
+        self.assertEqual(len(filtered), 2)
+        self.assertEqual(sorted([item["id"] for item in filtered]), [1, 2])
 
 
 class TestSorting(unittest.TestCase):
@@ -273,28 +276,28 @@ class TestSorting(unittest.TestCase):
         """Test sorting in ascending order."""
         params = QueryParams(sort_by="name", sort_dir=SortDirection.ASC)
         sorted_items = apply_sorting(self.items, params)
-        self.assertEqual([item["name"] for item in sorted_items], 
+        self.assertEqual([item["name"] for item in sorted_items],
                          ["Item A", "Item B", "Item C", "Item D", "Item E"])
 
     def test_apply_sorting_desc(self):
         """Test sorting in descending order."""
         params = QueryParams(sort_by="name", sort_dir=SortDirection.DESC)
         sorted_items = apply_sorting(self.items, params)
-        self.assertEqual([item["name"] for item in sorted_items], 
+        self.assertEqual([item["name"] for item in sorted_items],
                          ["Item E", "Item D", "Item C", "Item B", "Item A"])
 
     def test_apply_sorting_numeric(self):
         """Test sorting numeric values."""
         params = QueryParams(sort_by="price", sort_dir=SortDirection.ASC)
         sorted_items = apply_sorting(self.items, params)
-        self.assertEqual([item["price"] for item in sorted_items], 
+        self.assertEqual([item["price"] for item in sorted_items],
                          [5.0, 10.5, 15.0, 20.0, 25.5])
 
     def test_apply_sorting_boolean(self):
         """Test sorting boolean values."""
         params = QueryParams(sort_by="active", sort_dir=SortDirection.ASC)
         sorted_items = apply_sorting(self.items, params)
-        self.assertEqual([item["active"] for item in sorted_items], 
+        self.assertEqual([item["active"] for item in sorted_items],
                          [False, False, True, True, True])
 
     def test_apply_sorting_none(self):
@@ -306,17 +309,17 @@ class TestSorting(unittest.TestCase):
             {"id": 4, "name": "Item C", "price": 25.5},
             {"id": 5, "name": None, "price": None}
         ]
-        
+
         # Test sorting with None values (ascending)
         params = QueryParams(sort_by="name", sort_dir=SortDirection.ASC)
         sorted_items = apply_sorting(items, params)
-        self.assertEqual([item["name"] for item in sorted_items], 
+        self.assertEqual([item["name"] for item in sorted_items],
                          ["Item A", "Item B", "Item C", None, None])
-        
+
         # Test sorting with None values (descending)
         params = QueryParams(sort_by="name", sort_dir=SortDirection.DESC)
         sorted_items = apply_sorting(items, params)
-        self.assertEqual([item["name"] for item in sorted_items], 
+        self.assertEqual([item["name"] for item in sorted_items],
                          [None, None, "Item C", "Item B", "Item A"])
 
 

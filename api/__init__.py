@@ -14,7 +14,8 @@ from .routes import (
     agent_team_router,
     user_router,
     dashboard_router,
-    api_key_router
+    api_key_router,
+    analytics_router
 )
 
 __all__ = [
@@ -31,4 +32,5 @@ __all__ = [
     'user_router',
     'dashboard_router',
     'api_key_router',
+    'analytics_router',
 ]
