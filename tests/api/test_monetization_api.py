@@ -261,3 +261,172 @@ class TestMonetizationAPI:
         
         # Validate error response
         validate_error_response(response, 404)  # Not Found
+
+    def test_track_metered_usage(self, api_test_client: APITestClient):
+        """Test tracking metered usage."""
+        # Generate test data
+        data = {
+            "subscription_id": generate_id(),
+            "metric": "api_calls",
+            "value": 100,
+            "timestamp": "2025-04-29T10:00:00Z"
+        }
+        
+        # Make request
+        response = api_test_client.post("monetization/usage/track", data)
+        
+        # Validate response
+        result = validate_success_response(response, 201)  # Created
+        
+        # Validate fields
+        validate_field_exists(result, "id")
+        validate_field_type(result, "id", str)
+        validate_field_not_empty(result, "id")
+        validate_field_exists(result, "subscription_id")
+        validate_field_equals(result, "subscription_id", data["subscription_id"])
+        validate_field_exists(result, "metric")
+        validate_field_equals(result, "metric", data["metric"])
+        validate_field_exists(result, "value")
+        validate_field_equals(result, "value", data["value"])
+        validate_field_exists(result, "timestamp")
+        validate_field_equals(result, "timestamp", data["timestamp"])
+
+    def test_get_metered_usage(self, api_test_client: APITestClient):
+        """Test getting metered usage."""
+        # Generate a subscription ID
+        subscription_id = generate_id()
+        
+        # Make request
+        response = api_test_client.get(
+            f"monetization/usage/{subscription_id}",
+            params={
+                "metric": "api_calls",
+                "start_date": "2025-04-01T00:00:00Z",
+                "end_date": "2025-04-30T23:59:59Z"
+            }
+        )
+        
+        # This might return 404 if the subscription doesn't exist
+        if response.status_code == 404:
+            validate_error_response(response, 404)
+        else:
+            result = validate_success_response(response)
+            
+            # Validate fields
+            validate_field_exists(result, "subscription_id")
+            validate_field_equals(result, "subscription_id", subscription_id)
+            validate_field_exists(result, "metric")
+            validate_field_equals(result, "metric", "api_calls")
+            validate_field_exists(result, "total_usage")
+            validate_field_type(result, "total_usage", int)
+            validate_field_exists(result, "usage_periods")
+            validate_field_type(result, "usage_periods", list)
+
+    def test_calculate_metered_billing(self, api_test_client: APITestClient):
+        """Test calculating metered billing."""
+        # Generate a subscription ID
+        subscription_id = generate_id()
+        
+        # Make request
+        response = api_test_client.get(
+            f"monetization/billing/{subscription_id}/calculate",
+            params={
+                "billing_period": "2025-04"
+            }
+        )
+        
+        # This might return 404 if the subscription doesn't exist
+        if response.status_code == 404:
+            validate_error_response(response, 404)
+        else:
+            result = validate_success_response(response)
+            
+            # Validate fields
+            validate_field_exists(result, "subscription_id")
+            validate_field_equals(result, "subscription_id", subscription_id)
+            validate_field_exists(result, "billing_period")
+            validate_field_equals(result, "billing_period", "2025-04")
+            validate_field_exists(result, "total_amount")
+            assert isinstance(result["total_amount"], (int, float))
+            validate_field_exists(result, "currency")
+            validate_field_type(result, "currency", str)
+            validate_field_exists(result, "line_items")
+            validate_field_type(result, "line_items", list)
+            
+            # Validate line items if they exist
+            if result["line_items"]:
+                item = result["line_items"][0]
+                validate_field_exists(item, "metric")
+                validate_field_type(item, "metric", str)
+                validate_field_exists(item, "usage")
+                validate_field_type(item, "usage", int)
+                validate_field_exists(item, "rate")
+                assert isinstance(item["rate"], (int, float))
+                validate_field_exists(item, "amount")
+                assert isinstance(item["amount"], (int, float))
+
+    def test_test_billing_threshold_alerts(self, api_test_client: APITestClient):
+        """Test billing threshold alerts."""
+        # Generate test data
+        data = {
+            "subscription_id": generate_id(),
+            "metric": "api_calls",
+            "threshold": 1000,
+            "alert_type": "usage",
+            "notification_channels": ["email", "webhook"]
+        }
+        
+        # Make request
+        response = api_test_client.post("monetization/billing/alerts", data)
+        
+        # Validate response
+        result = validate_success_response(response, 201)  # Created
+        
+        # Validate fields
+        validate_field_exists(result, "id")
+        validate_field_type(result, "id", str)
+        validate_field_not_empty(result, "id")
+        validate_field_exists(result, "subscription_id")
+        validate_field_equals(result, "subscription_id", data["subscription_id"])
+        validate_field_exists(result, "metric")
+        validate_field_equals(result, "metric", data["metric"])
+        validate_field_exists(result, "threshold")
+        validate_field_equals(result, "threshold", data["threshold"])
+        validate_field_exists(result, "alert_type")
+        validate_field_equals(result, "alert_type", data["alert_type"])
+        validate_field_exists(result, "notification_channels")
+        validate_field_type(result, "notification_channels", list)
+        validate_field_equals(result, "status", "active")
+
+    def test_get_billing_alerts(self, api_test_client: APITestClient):
+        """Test getting billing alerts."""
+        # Generate a subscription ID
+        subscription_id = generate_id()
+        
+        # Make request
+        response = api_test_client.get(f"monetization/billing/{subscription_id}/alerts")
+        
+        # This might return 404 if the subscription doesn't exist
+        if response.status_code == 404:
+            validate_error_response(response, 404)
+        else:
+            result = validate_paginated_response(response)
+            
+            # Validate items
+            validate_field_type(result, "items", list)
+            
+            # If there are items, validate their structure
+            if result["items"]:
+                item = result["items"][0]
+                validate_field_exists(item, "id")
+                validate_field_type(item, "id", str)
+                validate_field_exists(item, "subscription_id")
+                validate_field_equals(item, "subscription_id", subscription_id)
+                validate_field_exists(item, "metric")
+                validate_field_type(item, "metric", str)
+                validate_field_exists(item, "threshold")
+                assert isinstance(item["threshold"], (int, float))
+                validate_field_exists(item, "alert_type")
+                validate_field_type(item, "alert_type", str)
+                validate_field_exists(item, "status")
+                validate_field_type(item, "status", str)

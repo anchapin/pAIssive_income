@@ -30,7 +30,7 @@ class BulkOperationError(BaseModel):
     item_id: Optional[str] = Field(None, description="ID of the item if available")
 
 
-class BulkResponse(Generic[R]):
+class BulkResponse(BaseModel, Generic[R]):
     """Generic response model for bulk operations."""
     results: List[R] = Field(..., description="List of successful results")
     errors: List[BulkOperationError] = Field(..., description="List of errors")
@@ -38,13 +38,13 @@ class BulkResponse(Generic[R]):
     operation_id: str = Field(..., description="Unique ID for the bulk operation")
 
 
-class BulkCreateRequest(Generic[T]):
+class BulkCreateRequest(BaseModel, Generic[T]):
     """Generic request model for bulk create operations."""
     items: List[T] = Field(..., description="List of items to create")
     options: Optional[Dict[str, Any]] = Field(None, description="Optional parameters for the operation")
 
 
-class BulkCreateResponse(Generic[R]):
+class BulkCreateResponse(BaseModel, Generic[R]):
     """Generic response model for bulk create operations."""
     items: List[R] = Field(..., description="List of created items")
     errors: List[BulkOperationError] = Field(..., description="List of errors")
@@ -52,13 +52,13 @@ class BulkCreateResponse(Generic[R]):
     operation_id: str = Field(..., description="Unique ID for the bulk operation")
 
 
-class BulkUpdateRequest(Generic[T]):
+class BulkUpdateRequest(BaseModel, Generic[T]):
     """Generic request model for bulk update operations."""
     items: List[Dict[str, Any]] = Field(..., description="List of items to update with IDs")
     options: Optional[Dict[str, Any]] = Field(None, description="Optional parameters for the operation")
 
 
-class BulkUpdateResponse(Generic[R]):
+class BulkUpdateResponse(BaseModel, Generic[R]):
     """Generic response model for bulk update operations."""
     items: List[R] = Field(..., description="List of updated items")
     errors: List[BulkOperationError] = Field(..., description="List of errors")

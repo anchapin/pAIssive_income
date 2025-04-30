@@ -183,3 +183,104 @@ class TestNicheAnalysisAPI:
         
         # Validate error response
         validate_error_response(response, 404)  # Not Found
+    
+    def test_get_analysis_results_by_id(self, api_test_client: APITestClient):
+        """Test getting analysis results by ID."""
+        # First create an analysis
+        data = generate_niche_analysis_data()
+        analysis_response = api_test_client.post("niche-analysis/analyze", data)
+        analysis_result = validate_success_response(analysis_response, 202)
+        analysis_id = analysis_result["task_id"]
+        
+        # Make request for results
+        response = api_test_client.get(f"niche-analysis/results/{analysis_id}")
+        
+        # Handle both completed and in-progress states
+        if response.status_code == 200:
+            # Analysis complete
+            result = validate_success_response(response)
+            
+            # Validate fields
+            validate_field_exists(result, "id")
+            validate_field_equals(result, "id", analysis_id)
+            validate_field_exists(result, "status")
+            validate_field_equals(result, "status", "completed")
+            validate_field_exists(result, "results")
+            validate_field_type(result, "results", list)
+            
+            # Validate result items
+            if result["results"]:
+                first_result = result["results"][0]
+                validate_field_exists(first_result, "niche_name")
+                validate_field_exists(first_result, "opportunity_score")
+                validate_field_exists(first_result, "market_size")
+                validate_field_exists(first_result, "competition_level")
+                validate_field_exists(first_result, "trend_analysis")
+        elif response.status_code == 202:
+            # Analysis still in progress
+            result = validate_success_response(response, 202)
+            validate_field_exists(result, "id")
+            validate_field_equals(result, "id", analysis_id)
+            validate_field_exists(result, "status")
+            validate_field_equals(result, "status", "in_progress")
+        else:
+            pytest.fail(f"Unexpected status code: {response.status_code}")
+
+    def test_get_all_analysis_results(self, api_test_client: APITestClient):
+        """Test getting all analysis results."""
+        # Make request
+        response = api_test_client.get("niche-analysis/results")
+        
+        # Validate response
+        result = validate_paginated_response(response)
+        
+        # Validate items structure
+        validate_field_type(result, "items", list)
+        
+        # If there are items, validate their structure
+        if result["items"]:
+            first_item = result["items"][0]
+            validate_field_exists(first_item, "id")
+            validate_field_exists(first_item, "status")
+            validate_field_exists(first_item, "created_at")
+            validate_field_exists(first_item, "updated_at")
+            
+            # If the analysis is complete, validate results
+            if first_item["status"] == "completed":
+                validate_field_exists(first_item, "results")
+                validate_field_type(first_item["results"], list)
+
+    def test_get_analysis_results_with_filters(self, api_test_client: APITestClient):
+        """Test getting analysis results with filters."""
+        # Make request with filters
+        response = api_test_client.get(
+            "niche-analysis/results",
+            params={
+                "status": "completed",
+                "sort": "created_at:desc",
+                "page": 1,
+                "page_size": 10
+            }
+        )
+        
+        # Validate response
+        result = validate_paginated_response(response)
+        
+        # Validate items
+        validate_field_type(result, "items", list)
+        
+        # If there are items, validate they match the filter
+        if result["items"]:
+            for item in result["items"]:
+                validate_field_equals(item, "status", "completed")
+
+    def test_nonexistent_analysis_results(self, api_test_client: APITestClient):
+        """Test getting results for a nonexistent analysis."""
+        # Generate a random ID that is unlikely to exist
+        analysis_id = "nonexistent-" + generate_id()
+        
+        # Make request
+        response = api_test_client.get(f"niche-analysis/results/{analysis_id}")
+        
+        # Validate error response
+        validate_error_response(response, 404)  # Not Found
