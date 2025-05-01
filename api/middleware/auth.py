@@ -10,6 +10,7 @@ from fastapi import Request, Response, status, Depends, HTTPException, Security
 from fastapi.security import APIKeyHeader
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+import jwt
 
 from ..services.api_key_service import APIKeyService
 from ..models.api_key import APIKey
@@ -24,6 +25,41 @@ API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
 
 # API key service
 api_key_service = APIKeyService()
+
+# JWT settings
+JWT_SECRET = "your-secret-key"  # Should be loaded from environment variables
+JWT_ALGORITHM = "HS256"
+
+async def verify_token(token: str) -> Dict[str, Any]:
+    """
+    Verify a JWT token and return its payload.
+
+    Args:
+        token: JWT token to verify
+
+    Returns:
+        Dict containing the token payload
+
+    Raises:
+        HTTPException: If the token is invalid or expired
+    """
+    try:
+        # Remove 'Bearer ' prefix if present
+        if token.startswith("Bearer "):
+            token = token[7:]
+            
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired"
+        )
+    except jwt.JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
 
 class AuthMiddleware(BaseHTTPMiddleware):
     """Middleware for API authentication."""

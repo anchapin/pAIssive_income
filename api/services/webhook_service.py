@@ -12,6 +12,7 @@ import asyncio
 import aiohttp
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+from fastapi import HTTPException
 
 from .audit_service import AuditService, AuditEvent
 from .webhook_security import WebhookSignatureVerifier
@@ -48,6 +49,54 @@ class WebhookService:
         self.delivery_queue = asyncio.Queue()
         self.worker_task = None
         self.audit_service = audit_service or AuditService()
+
+    async def deliver_event(self, webhook_id: str, event_type: str, event_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Deliver an event to a specific webhook immediately.
+
+        Args:
+            webhook_id: ID of the webhook to deliver to
+            event_type: Type of event to deliver
+            event_data: Event data to deliver
+
+        Returns:
+            Delivery result
+
+        Raises:
+            ValueError: If webhook is not found, inactive, or not subscribed to event type
+        """
+        # Get webhook
+        webhook = await self.get_webhook(webhook_id)
+        if not webhook:
+            raise ValueError(f"Webhook not found: {webhook_id}")
+
+        # Check if webhook is active
+        if not webhook["is_active"]:
+            raise ValueError(f"Webhook is not active: {webhook_id}")
+
+        # Check if webhook is subscribed to this event type
+        if event_type not in webhook["events"]:
+            raise ValueError(f"Webhook {webhook_id} is not subscribed to event type: {event_type}")
+
+        # Create delivery record
+        delivery_id = str(uuid.uuid4())
+        delivery = {
+            "id": delivery_id,
+            "webhook_id": webhook_id,
+            "event_type": event_type,
+            "event_data": event_data,
+            "status": "pending",
+            "attempts": 0,
+            "created_at": datetime.utcnow().isoformat()
+        }
+
+        # Store delivery
+        self.deliveries[delivery_id] = delivery
+
+        # Deliver webhook directly
+        success = await self._deliver_webhook(webhook, delivery)
+        
+        return delivery
     
     async def start(self):
         """

@@ -10,33 +10,41 @@ import uuid
 import json
 import math
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Tuple
 
 import numpy as np
 from scipy import stats
 
 from interfaces.marketing_interfaces import IABTesting
-from marketing.errors import MarketingError, InvalidTestConfigurationError, TestNotFoundError
+from marketing.errors import (
+    MarketingError,
+    InvalidTestConfigurationError,
+    TestNotFoundError,
+)
 
 
 class ABTestingError(MarketingError):
     """Base class for A/B testing errors."""
+
     pass
 
 
 class TestAlreadyEndedError(ABTestingError):
     """Raised when trying to modify a test that has already ended."""
+
     pass
 
 
 class InvalidVariantError(ABTestingError):
     """Raised when referencing an invalid variant."""
+
     pass
 
 
 class InsufficientDataError(ABTestingError):
     """Raised when there is not enough data to analyze a test."""
+
     pass
 
 
@@ -56,7 +64,7 @@ class ABTest:
         content_type: str,
         test_type: str,
         variants: List[Dict[str, Any]],
-        created_at: datetime = None
+        created_at: datetime = None,
     ):
         """
         Initialize an A/B test.
@@ -76,38 +84,26 @@ class ABTest:
         self.content_type = content_type
         self.test_type = test_type
         self.variants = variants
-        self.created_at = created_at or datetime.now()
-        self.updated_at = self.created_at
+        self.created_at = created_at or datetime.utcnow()
         self.ended_at = None
-        self.status = "active"
-        self.winning_variant_id = None
-        self.interactions = []
-        self.confidence_level = 0.95  # Default 95% confidence level
 
-        # Ensure each variant has the required fields
+        # Validate variants
+        if len(variants) < 2:
+            raise InvalidTestConfigurationError("Test must have at least 2 variants")
+        if not any(v.get("is_control") for v in variants):
+            raise InvalidTestConfigurationError("Test must have a control variant")
+        if sum(1 for v in variants if v.get("is_control")) > 1:
+            raise InvalidTestConfigurationError("Test can only have one control variant")
+
+        # Initialize metrics for each variant
         for variant in self.variants:
-            if "id" not in variant:
-                variant["id"] = str(uuid.uuid4())
-            if "name" not in variant:
-                variant["name"] = f"Variant {variant['id'][:8]}"
-            if "is_control" not in variant:
-                variant["is_control"] = False
-
-            # Initialize metrics for each variant
-            variant["metrics"] = {
+            variant.setdefault("metrics", {
                 "impressions": 0,
-                "clicks": 0,
+                "interactions": 0,
                 "conversions": 0,
-                "click_through_rate": 0.0,
-                "conversion_rate": 0.0
-            }
-
-        # Ensure there is at least one control variant
-        if not any(v.get("is_control", False) for v in self.variants):
-            if self.variants:
-                self.variants[0]["is_control"] = True
-            else:
-                raise InvalidTestConfigurationError("At least one variant must be specified")
+                "revenue": 0.0
+            })
+            variant.setdefault("user_ids", set())
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -122,13 +118,17 @@ class ABTest:
             "description": self.description,
             "content_type": self.content_type,
             "test_type": self.test_type,
-            "variants": self.variants,
+            "variants": [
+                {
+                    **v,
+                    "user_ids": list(v["user_ids"]),
+                    "metrics": v["metrics"]
+                }
+                for v in self.variants
+            ],
             "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
             "ended_at": self.ended_at.isoformat() if self.ended_at else None,
-            "status": self.status,
-            "winning_variant_id": self.winning_variant_id,
-            "confidence_level": self.confidence_level
+            "results": self.analyze_test() if self.ended_at else None
         }
 
     def _get_variant_index(self, variant_id: str) -> int:
@@ -148,10 +148,17 @@ class ABTest:
             if variant["id"] == variant_id:
                 return i
 
-        raise InvalidVariantError(f"Variant with ID '{variant_id}' not found in test '{self.id}'")
+        raise InvalidVariantError(
+            f"Variant with ID '{variant_id}' not found in test '{self.id}'"
+        )
 
-    def record_interaction(self, variant_id: str, interaction_type: str, user_id: Optional[str] = None,
-                           metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def record_interaction(
+        self,
+        variant_id: str,
+        interaction_type: str,
+        user_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         Record an interaction with a variant.
 
@@ -168,49 +175,27 @@ class ABTest:
             TestAlreadyEndedError: If the test has already ended
             InvalidVariantError: If the variant ID is invalid
         """
-        if self.status != "active":
-            raise TestAlreadyEndedError(f"Cannot record interaction for ended test '{self.id}'")
+        if self.ended_at:
+            raise TestAlreadyEndedError("Cannot record interactions for ended test")
 
-        # Get the variant
-        variant_index = self._get_variant_index(variant_id)
-        variant = self.variants[variant_index]
+        variant_idx = self._get_variant_index(variant_id)
+        variant = self.variants[variant_idx]
 
-        # Create interaction record
-        interaction = {
-            "id": str(uuid.uuid4()),
-            "test_id": self.id,
-            "variant_id": variant_id,
-            "interaction_type": interaction_type,
-            "user_id": user_id,
-            "metadata": metadata or {},
-            "timestamp": datetime.now().isoformat()
-        }
-
-        # Add to interactions list
-        self.interactions.append(interaction)
-
-        # Update variant metrics
+        # Update metrics based on interaction type
         if interaction_type == "impression":
             variant["metrics"]["impressions"] += 1
-        elif interaction_type == "click":
-            variant["metrics"]["clicks"] += 1
+        elif interaction_type == "interaction":
+            variant["metrics"]["interactions"] += 1
         elif interaction_type == "conversion":
             variant["metrics"]["conversions"] += 1
+            if metadata and "revenue" in metadata:
+                variant["metrics"]["revenue"] += float(metadata["revenue"])
 
-        # Recalculate rates
-        if variant["metrics"]["impressions"] > 0:
-            variant["metrics"]["click_through_rate"] = variant["metrics"]["clicks"] / variant["metrics"]["impressions"]
-            # Add overall conversion rate (conversions/impressions)
-            variant["metrics"]["overall_conversion_rate"] = variant["metrics"]["conversions"] / variant["metrics"]["impressions"]
+        # Track user if provided
+        if user_id:
+            variant["user_ids"].add(user_id)
 
-        if variant["metrics"]["clicks"] > 0:
-            # This is now the click-to-conversion rate
-            variant["metrics"]["conversion_rate"] = variant["metrics"]["conversions"] / variant["metrics"]["clicks"]
-
-        # Update test timestamp
-        self.updated_at = datetime.now()
-
-        return interaction
+        return self._calculate_metrics(variant_id)
 
     def _calculate_metrics(self, variant_id: str) -> Dict[str, Any]:
         """
@@ -222,32 +207,44 @@ class ABTest:
         Returns:
             Dictionary of metrics
         """
-        # Initialize metrics
-        metrics = {
-            "impressions": 0,
-            "clicks": 0,
-            "conversions": 0,
-            "click_through_rate": 0.0,
-            "conversion_rate": 0.0
-        }
+        variant_idx = self._get_variant_index(variant_id)
+        variant = self.variants[variant_idx]
+        metrics = variant["metrics"]
 
-        # Calculate metrics from interactions
-        for interaction in self.interactions:
-            if interaction["variant_id"] == variant_id:
-                if interaction["interaction_type"] == "impression":
-                    metrics["impressions"] += 1
-                elif interaction["interaction_type"] == "click":
-                    metrics["clicks"] += 1
-                elif interaction["interaction_type"] == "conversion":
-                    metrics["conversions"] += 1
+        result = {
+            "id": variant["id"],
+            "name": variant["name"],
+            "is_control": variant.get("is_control", False),
+            "impressions": metrics["impressions"],
+            "interactions": metrics["interactions"],
+            "conversions": metrics["conversions"],
+            "revenue": metrics["revenue"],
+            "unique_users": len(variant["user_ids"])
+        }
 
         # Calculate rates
         if metrics["impressions"] > 0:
-            metrics["click_through_rate"] = metrics["clicks"] / metrics["impressions"]
-        if metrics["clicks"] > 0:
-            metrics["conversion_rate"] = metrics["conversions"] / metrics["clicks"]
+            result["interaction_rate"] = metrics["interactions"] / metrics["impressions"]
+            result["conversion_rate"] = metrics["conversions"] / metrics["impressions"]
+            result["revenue_per_impression"] = metrics["revenue"] / metrics["impressions"]
+        else:
+            result["interaction_rate"] = 0
+            result["conversion_rate"] = 0
+            result["revenue_per_impression"] = 0
 
-        return metrics
+        if metrics["interactions"] > 0:
+            result["conversion_per_interaction"] = metrics["conversions"] / metrics["interactions"]
+            result["revenue_per_interaction"] = metrics["revenue"] / metrics["interactions"]
+        else:
+            result["conversion_per_interaction"] = 0
+            result["revenue_per_interaction"] = 0
+
+        if metrics["conversions"] > 0:
+            result["revenue_per_conversion"] = metrics["revenue"] / metrics["conversions"]
+        else:
+            result["revenue_per_conversion"] = 0
+
+        return result
 
     def _get_control_metrics(self) -> Optional[Dict[str, Any]]:
         """
@@ -256,12 +253,14 @@ class ABTest:
         Returns:
             Dictionary of control variant metrics or None if no control variant exists
         """
-        control_variant = next((v for v in self.variants if v.get("is_control", False)), None)
-        if control_variant:
-            return self._calculate_metrics(control_variant["id"])
+        for variant in self.variants:
+            if variant.get("is_control"):
+                return self._calculate_metrics(variant["id"])
         return None
 
-    def _get_best_performing_variant_by_ctr(self, variants: List[Dict[str, Any]]) -> Optional[str]:
+    def _get_best_performing_variant_by_ctr(
+        self, variants: List[Dict[str, Any]]
+    ) -> Optional[str]:
         """
         Find the variant with the best click-through rate (CTR).
 
@@ -274,24 +273,18 @@ class ABTest:
         Raises:
             ZeroDivisionError: If a variant has impressions but no clicks
         """
-        control_variant = next((v for v in variants if v.get("is_control", False)), None)
-        if not control_variant:
-            return None
+        max_ctr = -1
+        best_variant = None
 
-        # Start with control as the best variant
-        control_rate = control_variant["metrics"]["clicks"] / control_variant["metrics"]["impressions"]
-        best_rate = control_rate
-        best_variant = control_variant
-
-        # Compare with other variants
         for variant in variants:
-            if not variant.get("is_control", False):
-                rate = variant["metrics"]["clicks"] / variant["metrics"]["impressions"]
-                if rate > best_rate:
-                    best_rate = rate
-                    best_variant = variant
+            metrics = variant["metrics"]
+            if metrics["impressions"] > 0:
+                ctr = metrics["interactions"] / metrics["impressions"]
+                if ctr > max_ctr:
+                    max_ctr = ctr
+                    best_variant = variant["id"]
 
-        return best_variant["id"]
+        return best_variant
 
     def get_results(self) -> Dict[str, Any]:
         """Get current test results."""
@@ -302,7 +295,7 @@ class ABTest:
             "total_impressions": 0,
             "total_clicks": 0,
             "total_conversions": 0,
-            "variants": []
+            "variants": [],
         }
 
         for variant in self.variants:
@@ -311,7 +304,7 @@ class ABTest:
                 "id": variant["id"],
                 "name": variant["name"],
                 "is_control": variant.get("is_control", False),
-                "metrics": metrics
+                "metrics": metrics,
             }
 
             # Calculate lifts if this is not the control variant
@@ -321,22 +314,40 @@ class ABTest:
                     # Calculate CTR lift if control has impressions
                     if control_metrics["click_through_rate"] > 0:
                         variant_result["ctr_lift"] = round(
-                            ((metrics["click_through_rate"] / control_metrics["click_through_rate"]) - 1) * 100,
-                            1
+                            (
+                                (
+                                    metrics["click_through_rate"]
+                                    / control_metrics["click_through_rate"]
+                                )
+                                - 1
+                            )
+                            * 100,
+                            1,
                         )
                     else:
                         # If control has no click-through rate, and variant does, lift is infinite (set to 100%)
-                        variant_result["ctr_lift"] = 100.0 if metrics["click_through_rate"] > 0 else 0.0
+                        variant_result["ctr_lift"] = (
+                            100.0 if metrics["click_through_rate"] > 0 else 0.0
+                        )
 
                     # Calculate conversion lift if control has conversions
                     if control_metrics["conversion_rate"] > 0:
                         variant_result["conversion_lift"] = round(
-                            ((metrics["conversion_rate"] / control_metrics["conversion_rate"]) - 1) * 100,
-                            1
+                            (
+                                (
+                                    metrics["conversion_rate"]
+                                    / control_metrics["conversion_rate"]
+                                )
+                                - 1
+                            )
+                            * 100,
+                            1,
                         )
                     else:
                         # If control has no conversion rate, and variant does, lift is infinite (set to 100%)
-                        variant_result["conversion_lift"] = 100.0 if metrics["conversion_rate"] > 0 else 0.0
+                        variant_result["conversion_lift"] = (
+                            100.0 if metrics["conversion_rate"] > 0 else 0.0
+                        )
 
             results["variants"].append(variant_result)
             results["total_impressions"] += metrics["impressions"]
@@ -345,17 +356,24 @@ class ABTest:
 
         # Calculate overall rates
         if results["total_impressions"] > 0:
-            results["overall_click_through_rate"] = results["total_clicks"] / results["total_impressions"]
+            results["overall_click_through_rate"] = (
+                results["total_clicks"] / results["total_impressions"]
+            )
         if results["total_clicks"] > 0:
-            results["overall_conversion_rate"] = results["total_conversions"] / results["total_clicks"]
+            results["overall_conversion_rate"] = (
+                results["total_conversions"] / results["total_clicks"]
+            )
 
         return results
 
-    def _calculate_significance(self, variant1: Dict[str, Any], variant2: Dict[str, Any],
-                                metric: str = "click_through_rate") -> Tuple[float, bool]:
+    def _calculate_significance(
+        self,
+        variant1: Dict[str, Any],
+        variant2: Dict[str, Any],
+        metric: str = "conversion_rate"
+    ) -> Tuple[float, bool]:
         """
-        Calculate statistical significance between two variants using different
-        significance levels for CTR (95%) and conversion (90%) tests.
+        Calculate statistical significance between two variants.
 
         Args:
             variant1: First variant (typically control)
@@ -365,62 +383,32 @@ class ABTest:
         Returns:
             Tuple of (p_value, is_significant)
         """
-        if metric == "click_through_rate":
-            successes1 = variant1["metrics"]["clicks"]
-            trials1 = variant1["metrics"]["impressions"]
-            successes2 = variant2["metrics"]["clicks"]
-            trials2 = variant2["metrics"]["impressions"]
-            min_trials = 30  # Higher threshold for CTR
-            significance_level = 0.95  # 95% confidence for CTR
-        elif metric == "conversion_rate":
-            successes1 = variant1["metrics"]["conversions"]
-            trials1 = variant1["metrics"]["clicks"]
-            successes2 = variant2["metrics"]["conversions"]
-            trials2 = variant2["metrics"]["clicks"]
-            min_trials = 20  # Lower threshold for conversions
-            significance_level = 0.90  # 90% confidence for conversions
-        else:
-            raise ValueError(f"Invalid metric: {metric}")
+        # Get conversion and impression counts
+        variant1_imp = variant1["metrics"]["impressions"]
+        variant1_conv = variant1["metrics"]["conversions"]
+        variant2_imp = variant2["metrics"]["impressions"]
+        variant2_conv = variant2["metrics"]["conversions"]
 
-        # Ensure minimum sample size
-        if trials1 < min_trials or trials2 < min_trials:
-            return 1.0, False
+        # Skip if not enough data
+        min_sample = 100  # Minimum sample size per variant
+        if variant1_imp < min_sample or variant2_imp < min_sample:
+            return 1.0, False  # Not significant if not enough data
 
-        try:
-            # Calculate proportions
-            p1 = successes1 / trials1
-            p2 = successes2 / trials2
+        # Create contingency table for Fisher's exact test
+        table = [
+            [variant1_conv, variant1_imp - variant1_conv],
+            [variant2_conv, variant2_imp - variant2_conv]
+        ]
 
-            # Use Fisher's exact test for conversion rates since we have small counts
-            if metric == "conversion_rate":
-                # Create contingency table
-                table = [[successes1, trials1 - successes1],
-                        [successes2, trials2 - successes2]]
-                # Use Fisher's exact test with one-tailed alternative
-                odds_ratio, p_value = stats.fisher_exact(table, alternative='greater')
-            else:
-                # Use normal approximation for CTR since we have large counts
-                # Calculate pooled proportion under null hypothesis
-                p_pooled = (successes1 + successes2) / (trials1 + trials2)
-                # Calculate standard error
-                se = math.sqrt(p_pooled * (1 - p_pooled) * (1/trials1 + 1/trials2))
+        # Use one-tailed Fisher's exact test
+        odds_ratio, p_value = stats.fisher_exact(table, alternative="greater")
 
-                if se == 0:
-                    return 1.0, False
+        # Test is significant if p < 0.05 and variant1 rate > variant2 rate
+        is_significant = p_value < 0.05 and (
+            variant1_conv/variant1_imp > variant2_conv/variant2_imp
+        )
 
-                # Calculate z-score
-                z = (p2 - p1) / se
-                # Calculate one-tailed p-value
-                p_value = 1 - stats.norm.cdf(z)
-
-            # Determine significance using appropriate confidence level
-            is_significant = p_value < (1 - significance_level) and p2 > p1
-
-            return p_value, is_significant
-
-        except Exception:
-            # If there's any error in the calculation, return no significance
-            return 1.0, False
+        return p_value, is_significant
 
     def analyze_test(self) -> Dict[str, Any]:
         """
@@ -432,101 +420,85 @@ class ABTest:
         Raises:
             InsufficientDataError: If there is not enough data to analyze the test
         """
-        # Get control variant
-        control_variant = next((v for v in self.variants if v.get("is_control", False)), None)
+        if not self.ended_at:
+            raise ABTestingError("Cannot analyze test that hasn't ended")
 
-        if not control_variant:
+        control_metrics = self._get_control_metrics()
+        if not control_metrics:
             raise InvalidTestConfigurationError("No control variant found")
 
-        # Check if we have enough data
-        total_impressions = sum(v["metrics"]["impressions"] for v in self.variants)
-        if total_impressions < 100:  # Arbitrary threshold, could be adjusted
-            raise InsufficientDataError(f"Not enough data to analyze test '{self.id}' - need at least 100 impressions")
-
-        # Analyze each variant against control
-        analysis = {
-            "test_id": self.id,
-            "name": self.name,
-            "confidence_level": self.confidence_level,
-            "has_significant_results": False,
-            "recommended_winner": None,
-            "variants": []
+        results = {
+            "control": control_metrics,
+            "variants": [],
+            "winner": None,
+            "ended_at": self.ended_at.isoformat(),
+            "duration": (self.ended_at - self.created_at).total_seconds(),
+            "total_users": len(set().union(*(v["user_ids"] for v in self.variants))),
+            "statistical_power": None  # Calculated below if possible
         }
 
+        # Analyze each non-control variant
         for variant in self.variants:
-            if variant.get("is_control", False):
-                variant_analysis = {
-                    "id": variant["id"],
-                    "name": variant["name"],
-                    "is_control": True,
-                    "metrics": variant["metrics"].copy()
+            if variant.get("is_control"):
+                continue
+
+            variant_metrics = self._calculate_metrics(variant["id"])
+            
+            # Calculate significance vs control
+            p_value, is_significant = self._calculate_significance(
+                variant, 
+                next(v for v in self.variants if v.get("is_control"))
+            )
+
+            variant_result = {
+                **variant_metrics,
+                "p_value": p_value,
+                "is_significant": is_significant,
+                "lift": {
+                    "interaction_rate": (
+                        variant_metrics["interaction_rate"] / control_metrics["interaction_rate"] - 1
+                        if control_metrics["interaction_rate"] > 0 else 0
+                    ),
+                    "conversion_rate": (
+                        variant_metrics["conversion_rate"] / control_metrics["conversion_rate"] - 1
+                        if control_metrics["conversion_rate"] > 0 else 0
+                    ),
+                    "revenue_per_impression": (
+                        variant_metrics["revenue_per_impression"] / control_metrics["revenue_per_impression"] - 1
+                        if control_metrics["revenue_per_impression"] > 0 else 0
+                    )
                 }
-            else:
-                # Calculate significance for CTR
-                ctr_p_value, ctr_is_significant = self._calculate_significance(
-                    control_variant, variant, "click_through_rate")
+            }
 
-                # Calculate significance for conversion rate
-                # Use Fisher's exact test for conversion significance
-                control_conv = control_variant["metrics"]["conversions"]
-                control_imp = control_variant["metrics"]["impressions"]
-                variant_conv = variant["metrics"]["conversions"]
-                variant_imp = variant["metrics"]["impressions"]
+            results["variants"].append(variant_result)
 
-                # Create contingency table - order is important for one-sided test
-                # We put variant first because we want alternative='greater' to test if variant > control
-                table = [[variant_conv, variant_imp - variant_conv],
-                        [control_conv, control_imp - control_conv]]
-                
-                # Use one-tailed Fisher's exact test
-                odds_ratio, conv_p_value = stats.fisher_exact(table, alternative='greater')
+            # Update winner if this variant is significant and has highest conversion rate
+            if (
+                is_significant and
+                (results["winner"] is None or
+                 variant_metrics["conversion_rate"] > results["variants"][results["winner"]]["conversion_rate"])
+            ):
+                results["winner"] = len(results["variants"]) - 1
 
-                # Determine conversion significance at 95% confidence
-                conv_is_significant = (conv_p_value < 0.05 and
-                                     (variant_conv/variant_imp > control_conv/control_imp))
+        # Calculate test-wide metrics
+        total_impressions = sum(v["metrics"]["impressions"] for v in self.variants)
+        if total_impressions >= 100:  # Minimum sample size for power calculation
+            # Calculate observed effect size
+            control_rate = control_metrics["conversion_rate"]
+            variant_rates = [v["conversion_rate"] for v in results["variants"]]
+            max_effect_size = max(abs(r - control_rate) for r in variant_rates)
 
-                variant_analysis = {
-                    "id": variant["id"],
-                    "name": variant["name"],
-                    "is_control": False,
-                    "metrics": variant["metrics"].copy(),
-                    "ctr_p_value": ctr_p_value,
-                    "ctr_is_significant": ctr_is_significant,
-                    "conversion_p_value": conv_p_value,
-                    "conversion_is_significant": conv_is_significant,
-                    "is_better_than_control": False
-                }
+            # Calculate statistical power
+            if max_effect_size > 0:
+                power = stats.power_analysis.power_analysis_two_sample(
+                    effect_size=max_effect_size,
+                    nobs1=control_metrics["impressions"],
+                    ratio=len(self.variants) - 1,  # Number of variant groups
+                    alpha=0.05
+                )
+                results["statistical_power"] = power
 
-                # A variant is better than control if either:
-                # 1. Overall conversion rate is significantly better
-                # 2. CTR is significantly better and conversion rate is at least as good
-                if conv_is_significant:
-                    variant_analysis["is_better_than_control"] = True
-                    analysis["has_significant_results"] = True
-                elif (ctr_is_significant and
-                      (variant_conv/variant_imp >= control_conv/control_imp)):
-                    variant_analysis["is_better_than_control"] = True
-                    analysis["has_significant_results"] = True
-
-            analysis["variants"].append(variant_analysis)
-
-        # Determine recommended winner
-        if analysis["has_significant_results"]:
-            best_variant = None
-            best_conv_rate = control_variant["metrics"]["conversions"] / control_variant["metrics"]["impressions"]
-
-            for variant in analysis["variants"]:
-                if not variant["is_control"]:
-                    conv_rate = variant["metrics"]["conversions"] / variant["metrics"]["impressions"]
-                    if (variant.get("is_better_than_control", False) and
-                        conv_rate > best_conv_rate):
-                        best_variant = variant
-                        best_conv_rate = conv_rate
-
-            if best_variant:
-                analysis["recommended_winner"] = best_variant["id"]
-
-        return analysis
+        return results
 
     def end_test(self, winning_variant_id: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -554,17 +526,23 @@ class ABTest:
 
                 # If no statistically significant winner, pick best performing variant
                 if not winning_variant_id:
-                    winning_variant_id = self._get_best_performing_variant_by_ctr(self.variants)
+                    winning_variant_id = self._get_best_performing_variant_by_ctr(
+                        self.variants
+                    )
 
             except (InsufficientDataError, ZeroDivisionError):
                 # If not enough data or error in calculation, default to control variant
-                control_variant = next((v for v in self.variants if v.get("is_control", False)), None)
+                control_variant = next(
+                    (v for v in self.variants if v.get("is_control", False)), None
+                )
                 if control_variant:
                     winning_variant_id = control_variant["id"]
 
         # Validate winning variant if specified
         if winning_variant_id:
-            self._get_variant_index(winning_variant_id)  # Will raise InvalidVariantError if not found
+            self._get_variant_index(
+                winning_variant_id
+            )  # Will raise InvalidVariantError if not found
             self.winning_variant_id = winning_variant_id
 
         # Update test status
@@ -578,7 +556,7 @@ class ABTest:
             "status": self.status,
             "ended_at": self.ended_at.isoformat(),
             "winning_variant_id": self.winning_variant_id,
-            "results": self.get_results()
+            "results": self.get_results(),
         }
 
 
@@ -601,7 +579,7 @@ class ABTesting(IABTesting):
         description: str,
         content_type: str,
         test_type: str,
-        variants: List[Dict[str, Any]]
+        variants: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """
         Create an A/B test.
@@ -623,7 +601,9 @@ class ABTesting(IABTesting):
             raise InvalidTestConfigurationError(f"Invalid test type: {test_type}")
 
         if not variants or len(variants) < 2:
-            raise InvalidTestConfigurationError("At least two variants are required for an A/B test")
+            raise InvalidTestConfigurationError(
+                "At least two variants are required for an A/B test"
+            )
 
         # Generate test ID
         test_id = str(uuid.uuid4())
@@ -635,7 +615,7 @@ class ABTesting(IABTesting):
             description=description,
             content_type=content_type,
             test_type=test_type,
-            variants=variants
+            variants=variants,
         )
 
         # Store the test
@@ -656,7 +636,9 @@ class ABTesting(IABTesting):
             List of test dictionaries
         """
         if status:
-            return [test.to_dict() for test in self.tests.values() if test.status == status]
+            return [
+                test.to_dict() for test in self.tests.values() if test.status == status
+            ]
 
         return [test.to_dict() for test in self.tests.values()]
 
@@ -704,7 +686,7 @@ class ABTesting(IABTesting):
         variant_id: str,
         interaction_type: str,
         user_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Record an interaction with a variant.
@@ -728,7 +710,9 @@ class ABTesting(IABTesting):
         if not test:
             raise TestNotFoundError(f"Test with ID '{test_id}' not found")
 
-        interaction = test.record_interaction(variant_id, interaction_type, user_id, metadata)
+        interaction = test.record_interaction(
+            variant_id, interaction_type, user_id, metadata
+        )
 
         if interaction_type in ["click", "conversion"]:
             self.logger.info(
@@ -777,7 +761,9 @@ class ABTesting(IABTesting):
 
         return test.analyze_test()
 
-    def end_test(self, test_id: str, winning_variant_id: Optional[str] = None) -> Dict[str, Any]:
+    def end_test(
+        self, test_id: str, winning_variant_id: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         End an A/B test and optionally select a winning variant.
 
@@ -806,7 +792,9 @@ class ABTesting(IABTesting):
 
         return result
 
-    def generate_test_recommendation(self, content_type: str, target_persona: Dict[str, Any]) -> Dict[str, Any]:
+    def generate_test_recommendation(
+        self, content_type: str, target_persona: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Generate recommendations for A/B testing based on content type and target persona.
 
@@ -823,47 +811,121 @@ class ABTesting(IABTesting):
             "test_variants": [],
             "suggested_sample_size": 0,
             "suggested_run_time": "",
-            "expected_improvement": ""
+            "expected_improvement": "",
         }
 
         # Recommendations based on content type
         if content_type == "email":
             recommendations["test_elements"] = [
-                {"element": "subject_line", "importance": "high", "reason": "Directly impacts open rates"},
-                {"element": "call_to_action", "importance": "high", "reason": "Directly impacts click rates"},
-                {"element": "preview_text", "importance": "medium", "reason": "Influences open rates"},
-                {"element": "sender_name", "importance": "medium", "reason": "Affects trust and open rates"},
-                {"element": "content_length", "importance": "medium", "reason": "Affects engagement"},
-                {"element": "send_time", "importance": "medium", "reason": "Affects open rates"}
+                {
+                    "element": "subject_line",
+                    "importance": "high",
+                    "reason": "Directly impacts open rates",
+                },
+                {
+                    "element": "call_to_action",
+                    "importance": "high",
+                    "reason": "Directly impacts click rates",
+                },
+                {
+                    "element": "preview_text",
+                    "importance": "medium",
+                    "reason": "Influences open rates",
+                },
+                {
+                    "element": "sender_name",
+                    "importance": "medium",
+                    "reason": "Affects trust and open rates",
+                },
+                {
+                    "element": "content_length",
+                    "importance": "medium",
+                    "reason": "Affects engagement",
+                },
+                {
+                    "element": "send_time",
+                    "importance": "medium",
+                    "reason": "Affects open rates",
+                },
             ]
             recommendations["suggested_sample_size"] = 5000
             recommendations["suggested_run_time"] = "7 days"
-            recommendations["expected_improvement"] = "10-30% increase in open or click rates"
+            recommendations["expected_improvement"] = (
+                "10-30% increase in open or click rates"
+            )
 
         elif content_type == "landing_page":
             recommendations["test_elements"] = [
-                {"element": "headline", "importance": "high", "reason": "First thing visitors see"},
-                {"element": "call_to_action", "importance": "high", "reason": "Directly impacts conversion rates"},
-                {"element": "hero_image", "importance": "high", "reason": "Creates visual first impression"},
-                {"element": "form_length", "importance": "medium", "reason": "Affects form completion rates"},
-                {"element": "social_proof", "importance": "medium", "reason": "Builds trust"},
-                {"element": "page_layout", "importance": "medium", "reason": "Affects user flow"}
+                {
+                    "element": "headline",
+                    "importance": "high",
+                    "reason": "First thing visitors see",
+                },
+                {
+                    "element": "call_to_action",
+                    "importance": "high",
+                    "reason": "Directly impacts conversion rates",
+                },
+                {
+                    "element": "hero_image",
+                    "importance": "high",
+                    "reason": "Creates visual first impression",
+                },
+                {
+                    "element": "form_length",
+                    "importance": "medium",
+                    "reason": "Affects form completion rates",
+                },
+                {
+                    "element": "social_proof",
+                    "importance": "medium",
+                    "reason": "Builds trust",
+                },
+                {
+                    "element": "page_layout",
+                    "importance": "medium",
+                    "reason": "Affects user flow",
+                },
             ]
             recommendations["suggested_sample_size"] = 1000
             recommendations["suggested_run_time"] = "14-30 days"
-            recommendations["expected_improvement"] = "20-50% increase in conversion rates"
+            recommendations["expected_improvement"] = (
+                "20-50% increase in conversion rates"
+            )
 
         elif content_type == "ad":
             recommendations["test_elements"] = [
-                {"element": "headline", "importance": "high", "reason": "Drives click-through rate"},
-                {"element": "image", "importance": "high", "reason": "Creates visual appeal"},
-                {"element": "call_to_action", "importance": "high", "reason": "Drives clicks"},
-                {"element": "value_proposition", "importance": "medium", "reason": "Communicates benefits"},
-                {"element": "ad_format", "importance": "medium", "reason": "Affects visibility and engagement"}
+                {
+                    "element": "headline",
+                    "importance": "high",
+                    "reason": "Drives click-through rate",
+                },
+                {
+                    "element": "image",
+                    "importance": "high",
+                    "reason": "Creates visual appeal",
+                },
+                {
+                    "element": "call_to_action",
+                    "importance": "high",
+                    "reason": "Drives clicks",
+                },
+                {
+                    "element": "value_proposition",
+                    "importance": "medium",
+                    "reason": "Communicates benefits",
+                },
+                {
+                    "element": "ad_format",
+                    "importance": "medium",
+                    "reason": "Affects visibility and engagement",
+                },
             ]
             recommendations["suggested_sample_size"] = 10000
             recommendations["suggested_run_time"] = "7-14 days"
-            recommendations["expected_improvement"] = "10-40% increase in click-through rates"
+            recommendations["expected_improvement"] = (
+                "10-40% increase in click-through rates"
+            )
 
         # Generate test variants based on persona and content type
         persona_name = target_persona.get("name", "")
@@ -872,27 +934,34 @@ class ABTesting(IABTesting):
 
         if content_type == "email" and persona_pain_points and persona_goals:
             subject_variants = [
-                {"type": "pain_point", "value": f"Solve your {persona_pain_points[0]} today"},
+                {
+                    "type": "pain_point",
+                    "value": f"Solve your {persona_pain_points[0]} today",
+                },
                 {"type": "benefit", "value": f"Achieve {persona_goals[0]} faster"},
-                {"type": "question", "value": f"Are you struggling with {persona_pain_points[0]}?"},
-                {"type": "curiosity", "value": f"The surprising solution to {persona_pain_points[0]}"},
+                {
+                    "type": "question",
+                    "value": f"Are you struggling with {persona_pain_points[0]}?",
+                },
+                {
+                    "type": "curiosity",
+                    "value": f"The surprising solution to {persona_pain_points[0]}",
+                },
             ]
 
             cta_variants = [
                 {"type": "direct", "value": "Get Started Now"},
                 {"type": "benefit", "value": f"Achieve {persona_goals[0]}"},
                 {"type": "solution", "value": f"Solve {persona_pain_points[0]}"},
-                {"type": "low_friction", "value": "Learn More"}
+                {"type": "low_friction", "value": "Learn More"},
             ]
 
-            recommendations["test_variants"].append({
-                "element": "subject_line",
-                "variants": subject_variants
-            })
+            recommendations["test_variants"].append(
+                {"element": "subject_line", "variants": subject_variants}
+            )
 
-            recommendations["test_variants"].append({
-                "element": "call_to_action",
-                "variants": cta_variants
-            })
+            recommendations["test_variants"].append(
+                {"element": "call_to_action", "variants": cta_variants}
+            )
 
         return recommendations
