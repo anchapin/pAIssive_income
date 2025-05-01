@@ -90,14 +90,14 @@ class MemoryCache(CacheBackend):
         with self.lock:
             if key not in self.cache:
                 return False
-                
+
             # Check if expired
             _, expiration_time, _, _ = self.cache[key]
             current_time = time.time()
             if expiration_time is not None and current_time > expiration_time:
                 self.delete(key)
                 return False
-                
+
             return True
 
     def clear(self) -> bool:
@@ -125,42 +125,42 @@ class MemoryCache(CacheBackend):
                 return [key for key in self.cache.keys() if regex.match(key)]
             except re.error:
                 return [key for key in self.cache.keys() if key.startswith(pattern.rstrip("^$"))]
-                
+
     def get_stats(self) -> Dict[str, Any]:
         """Get statistics about the cache."""
         with self.lock:
             return self.stats.copy()
-            
+
     def get_ttl(self, key: str) -> Optional[int]:
         """Get the time to live for a key."""
         with self.lock:
             if key not in self.cache:
                 return None
-                
+
             _, expiration_time, _, _ = self.cache[key]
             if expiration_time is None:
                 return None
-                
+
             current_time = time.time()
             remaining = expiration_time - current_time
-            
+
             # If expired, delete and return None
             if remaining <= 0:
                 self.delete(key)
                 return None
-                
+
             return int(remaining)
-            
+
     def set_ttl(self, key: str, ttl: int) -> bool:
         """Set the time to live for a key."""
         with self.lock:
             if key not in self.cache:
                 return False
-                
+
             value, _, access_count, last_access_time = self.cache[key]
             current_time = time.time()
             expiration_time = current_time + ttl if ttl is not None else None
-            
+
             self.cache[key] = (value, expiration_time, access_count, last_access_time)
             return True
 
@@ -171,19 +171,36 @@ class MemoryCache(CacheBackend):
                 return
 
             current_time = time.time()
-            valid_items = [(k, v) for k, v in self.cache.items() if v[1] is None or v[1] > current_time]
+
+            # Filter out expired items first
+            valid_items = {
+                k: v for k, v in self.cache.items()
+                if v[1] is None or v[1] > current_time
+            }
+
             if not valid_items:
                 return
 
+            # Debug: Print all valid items with their last access times
+            print(f"Valid items before eviction: {len(valid_items)}")
+            for k, v in valid_items.items():
+                print(f"Key: {k}, Last access time: {v[3]}")
+
             if self.eviction_policy == "lru":
                 # Get least recently accessed key
-                key_to_evict = min(valid_items, key=lambda x: x[1][3])[0]
+                # The last_access_time is at index 3 in the tuple
+                key_to_evict = min(valid_items.items(), key=lambda x: x[1][3])[0]
+                print(f"Evicting LRU key: {key_to_evict}")
             elif self.eviction_policy == "lfu":
                 # Get least frequently used key
-                key_to_evict = min(valid_items, key=lambda x: (x[1][2], x[1][3]))[0]
+                # The access_count is at index 2 in the tuple
+                # Use last_access_time as a tiebreaker
+                key_to_evict = min(valid_items.items(), key=lambda x: (x[1][2], x[1][3]))[0]
             else:  # FIFO or default
-                key_to_evict = valid_items[0][0]
+                # Get oldest item by creation time (approximated by order in the dict)
+                key_to_evict = next(iter(valid_items))
 
+            # Make sure the key exists before deleting
             if key_to_evict in self.cache:
                 del self.cache[key_to_evict]
                 self.stats["evictions"] += 1

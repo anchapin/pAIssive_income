@@ -68,7 +68,7 @@ class ModelVersion:
         """
         # Validate the version string
         try:
-            semver.parse(version)
+            semver.Version.parse(version)
         except ValueError as e:
             raise ValueError(
                 f"Invalid version string: {version}. Must follow semver format (e.g., '1.0.0')"
@@ -86,17 +86,17 @@ class ModelVersion:
     @property
     def major(self) -> int:
         """Get the major version number."""
-        return semver.parse(self.version)["major"]
+        return semver.Version.parse(self.version).major
 
     @property
     def minor(self) -> int:
         """Get the minor version number."""
-        return semver.parse(self.version)["minor"]
+        return semver.Version.parse(self.version).minor
 
     @property
     def patch(self) -> int:
         """Get the patch version number."""
-        return semver.parse(self.version)["patch"]
+        return semver.Version.parse(self.version).patch
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -165,14 +165,14 @@ class ModelVersion:
             return True
 
         # Parse versions
-        this_parsed = semver.parse(self.version)
+        this_parsed = semver.Version.parse(self.version)
         try:
-            other_parsed = semver.parse(other_ver_str)
+            other_parsed = semver.Version.parse(other_ver_str)
         except ValueError:
             return False
 
         # Major version must match for compatibility by default
-        return this_parsed["major"] == other_parsed["major"]
+        return this_parsed.major == other_parsed.major
 
     def __str__(self) -> str:
         """String representation of the version."""
