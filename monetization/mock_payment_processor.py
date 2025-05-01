@@ -5,12 +5,12 @@ This module provides a mock implementation of the payment processor interface
 for testing and development purposes.
 """
 
-from typing import Dict, List, Any, Optional, Union
-from datetime import datetime, timedelta
-import uuid
-import json
 import copy
+import json
 import random
+import uuid
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Union
 
 from .payment_processor import PaymentProcessor
 
@@ -45,10 +45,14 @@ class MockPaymentProcessor(PaymentProcessor):
         self.network_error_rate = config.get("network_error_rate", 0.05)
 
         # Set supported payment types
-        self.supported_payment_types = config.get("supported_payment_types", ["card", "bank_account"])
+        self.supported_payment_types = config.get(
+            "supported_payment_types", ["card", "bank_account"]
+        )
 
         # Set supported currencies
-        self.supported_currencies = config.get("supported_currencies", ["USD", "EUR", "GBP"])
+        self.supported_currencies = config.get(
+            "supported_currencies", ["USD", "EUR", "GBP"]
+        )
 
     def _generate_id(self, prefix: str) -> str:
         """
@@ -96,7 +100,7 @@ class MockPaymentProcessor(PaymentProcessor):
         self,
         email: str,
         name: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a customer.
@@ -122,7 +126,7 @@ class MockPaymentProcessor(PaymentProcessor):
             "name": name or "",
             "metadata": metadata or {},
             "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat()
+            "updated_at": datetime.now().isoformat(),
         }
 
         # Store customer
@@ -154,7 +158,7 @@ class MockPaymentProcessor(PaymentProcessor):
         customer_id: str,
         email: Optional[str] = None,
         name: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Update a customer.
@@ -214,7 +218,8 @@ class MockPaymentProcessor(PaymentProcessor):
 
         # Delete associated payment methods
         payment_method_ids = [
-            pm_id for pm_id, pm in self.payment_methods.items()
+            pm_id
+            for pm_id, pm in self.payment_methods.items()
             if pm["customer_id"] == customer_id
         ]
 
@@ -223,7 +228,8 @@ class MockPaymentProcessor(PaymentProcessor):
 
         # Delete associated subscriptions
         subscription_ids = [
-            sub_id for sub_id, sub in self.subscriptions.items()
+            sub_id
+            for sub_id, sub in self.subscriptions.items()
             if sub["customer_id"] == customer_id
         ]
 
@@ -237,7 +243,7 @@ class MockPaymentProcessor(PaymentProcessor):
         customer_id: str,
         payment_type: str,
         payment_details: Dict[str, Any],
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a payment method.
@@ -290,7 +296,7 @@ class MockPaymentProcessor(PaymentProcessor):
                 "brand": card_type,
                 "exp_month": payment_details["exp_month"],
                 "exp_year": payment_details["exp_year"],
-                "masked_number": masked_number
+                "masked_number": masked_number,
             }
         elif payment_type == "bank_account":
             # Validate bank account details
@@ -308,7 +314,7 @@ class MockPaymentProcessor(PaymentProcessor):
                 "last4": payment_details["account_number"][-4:],
                 "bank_name": payment_details.get("bank_name", ""),
                 "account_type": payment_details.get("account_type", "checking"),
-                "masked_account": masked_account
+                "masked_account": masked_account,
             }
         else:
             # For other payment types, just copy the details
@@ -325,7 +331,7 @@ class MockPaymentProcessor(PaymentProcessor):
             "details": payment_details_copy,
             "metadata": metadata or {},
             "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat()
+            "updated_at": datetime.now().isoformat(),
         }
 
         # Store payment method
@@ -353,9 +359,7 @@ class MockPaymentProcessor(PaymentProcessor):
         return copy.deepcopy(self.payment_methods[payment_method_id])
 
     def list_payment_methods(
-        self,
-        customer_id: str,
-        payment_type: Optional[str] = None
+        self, customer_id: str, payment_type: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         List payment methods for a customer.
@@ -376,9 +380,10 @@ class MockPaymentProcessor(PaymentProcessor):
 
         # Filter payment methods
         payment_methods = [
-            pm for pm in self.payment_methods.values()
-            if pm["customer_id"] == customer_id and
-            (payment_type is None or pm["type"] == payment_type)
+            pm
+            for pm in self.payment_methods.values()
+            if pm["customer_id"] == customer_id
+            and (payment_type is None or pm["type"] == payment_type)
         ]
 
         return copy.deepcopy(payment_methods)
@@ -387,7 +392,7 @@ class MockPaymentProcessor(PaymentProcessor):
         self,
         payment_method_id: str,
         payment_details: Dict[str, Any],
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Update a payment method.
@@ -417,17 +422,23 @@ class MockPaymentProcessor(PaymentProcessor):
             if payment_type == "card":
                 # Update card details
                 if "exp_month" in payment_details:
-                    payment_method["details"]["exp_month"] = payment_details["exp_month"]
+                    payment_method["details"]["exp_month"] = payment_details[
+                        "exp_month"
+                    ]
 
                 if "exp_year" in payment_details:
                     payment_method["details"]["exp_year"] = payment_details["exp_year"]
             elif payment_type == "bank_account":
                 # Update bank account details
                 if "bank_name" in payment_details:
-                    payment_method["details"]["bank_name"] = payment_details["bank_name"]
+                    payment_method["details"]["bank_name"] = payment_details[
+                        "bank_name"
+                    ]
 
                 if "account_type" in payment_details:
-                    payment_method["details"]["account_type"] = payment_details["account_type"]
+                    payment_method["details"]["account_type"] = payment_details[
+                        "account_type"
+                    ]
             else:
                 # For other payment types, just update the details
                 payment_method["details"].update(payment_details)
@@ -468,7 +479,7 @@ class MockPaymentProcessor(PaymentProcessor):
         currency: str,
         payment_method_id: str,
         description: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Process a payment.
@@ -520,12 +531,13 @@ class MockPaymentProcessor(PaymentProcessor):
             "description": description,
             "metadata": metadata or {},
             "status": "succeeded" if success else "failed",
-            "error": None if success else {
-                "code": "card_declined",
-                "message": "Your card was declined."
-            },
+            "error": (
+                None
+                if success
+                else {"code": "card_declined", "message": "Your card was declined."}
+            ),
             "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat()
+            "updated_at": datetime.now().isoformat(),
         }
 
         # Store payment
@@ -541,7 +553,7 @@ class MockPaymentProcessor(PaymentProcessor):
         self,
         payment_id: str,
         amount: Optional[float] = None,
-        reason: Optional[str] = None
+        reason: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Refund a payment.
@@ -593,12 +605,16 @@ class MockPaymentProcessor(PaymentProcessor):
             "currency": payment["currency"],
             "reason": reason or "requested_by_customer",
             "status": "succeeded" if success else "failed",
-            "error": None if success else {
-                "code": "refund_failed",
-                "message": "Refund could not be processed."
-            },
+            "error": (
+                None
+                if success
+                else {
+                    "code": "refund_failed",
+                    "message": "Refund could not be processed.",
+                }
+            ),
             "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat()
+            "updated_at": datetime.now().isoformat(),
         }
 
         # Update payment
@@ -638,7 +654,7 @@ class MockPaymentProcessor(PaymentProcessor):
         customer_id: Optional[str] = None,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """
         List payments.
@@ -688,7 +704,7 @@ class MockPaymentProcessor(PaymentProcessor):
         customer_id: str,
         plan_id: str,
         payment_method_id: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a subscription.
@@ -716,7 +732,9 @@ class MockPaymentProcessor(PaymentProcessor):
         # Check if payment method belongs to customer
         payment_method = self.payment_methods[payment_method_id]
         if payment_method["customer_id"] != customer_id:
-            raise ValueError(f"Payment method {payment_method_id} does not belong to customer {customer_id}")
+            raise ValueError(
+                f"Payment method {payment_method_id} does not belong to customer {customer_id}"
+            )
 
         # Generate subscription ID
         subscription_id = self._generate_id("sub")
@@ -735,7 +753,7 @@ class MockPaymentProcessor(PaymentProcessor):
             "ended_at": None,
             "metadata": metadata or {},
             "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat()
+            "updated_at": datetime.now().isoformat(),
         }
 
         # Store subscription
@@ -767,7 +785,7 @@ class MockPaymentProcessor(PaymentProcessor):
         subscription_id: str,
         plan_id: Optional[str] = None,
         payment_method_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Update a subscription.
@@ -793,7 +811,9 @@ class MockPaymentProcessor(PaymentProcessor):
 
         # Check if subscription is active
         if subscription["status"] != "active":
-            raise ValueError(f"Cannot update subscription with status: {subscription['status']}")
+            raise ValueError(
+                f"Cannot update subscription with status: {subscription['status']}"
+            )
 
         # Update plan ID
         if plan_id is not None:
@@ -808,7 +828,9 @@ class MockPaymentProcessor(PaymentProcessor):
             # Check if payment method belongs to customer
             payment_method = self.payment_methods[payment_method_id]
             if payment_method["customer_id"] != subscription["customer_id"]:
-                raise ValueError(f"Payment method {payment_method_id} does not belong to customer {subscription['customer_id']}")
+                raise ValueError(
+                    f"Payment method {payment_method_id} does not belong to customer {subscription['customer_id']}"
+                )
 
             subscription["payment_method_id"] = payment_method_id
 
@@ -821,9 +843,7 @@ class MockPaymentProcessor(PaymentProcessor):
         return copy.deepcopy(subscription)
 
     def cancel_subscription(
-        self,
-        subscription_id: str,
-        cancel_at_period_end: bool = True
+        self, subscription_id: str, cancel_at_period_end: bool = True
     ) -> Dict[str, Any]:
         """
         Cancel a subscription.
@@ -847,7 +867,9 @@ class MockPaymentProcessor(PaymentProcessor):
 
         # Check if subscription is active
         if subscription["status"] != "active":
-            raise ValueError(f"Cannot cancel subscription with status: {subscription['status']}")
+            raise ValueError(
+                f"Cannot cancel subscription with status: {subscription['status']}"
+            )
 
         # Update subscription
         subscription["cancel_at_period_end"] = cancel_at_period_end
@@ -866,7 +888,7 @@ class MockPaymentProcessor(PaymentProcessor):
         customer_id: Optional[str] = None,
         plan_id: Optional[str] = None,
         status: Optional[str] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """
         List subscriptions.

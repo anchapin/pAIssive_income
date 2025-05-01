@@ -1,11 +1,13 @@
 """
 Integration tests for the niche-to-solution workflow.
 """
+
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from agent_team import AgentTeam
-from niche_analysis import MarketAnalyzer, ProblemIdentifier, OpportunityScorer
+from niche_analysis import MarketAnalyzer, OpportunityScorer, ProblemIdentifier
 
 
 @pytest.fixture
@@ -55,7 +57,7 @@ def mock_agents():
             ],
         },
     ]
-    
+
     # Mock the DeveloperAgent
     mock_developer = MagicMock()
     mock_developer.design_solution.return_value = {
@@ -75,7 +77,7 @@ def mock_agents():
             },
         ],
     }
-    
+
     # Mock the MonetizationAgent
     mock_monetization = MagicMock()
     mock_monetization.create_strategy.return_value = {
@@ -98,7 +100,7 @@ def mock_agents():
             ],
         },
     }
-    
+
     # Mock the MarketingAgent
     mock_marketing = MagicMock()
     mock_marketing.create_plan.return_value = {
@@ -108,7 +110,7 @@ def mock_agents():
         "channels": ["content", "social", "email"],
         "target_audience": "E-commerce store owners",
     }
-    
+
     return {
         "researcher": mock_researcher,
         "developer": mock_developer,
@@ -117,13 +119,16 @@ def mock_agents():
     }
 
 
-@patch('agent_team.team_config.ResearchAgent')
-@patch('agent_team.team_config.DeveloperAgent')
-@patch('agent_team.team_config.MonetizationAgent')
-@patch('agent_team.team_config.MarketingAgent')
+@patch("agent_team.team_config.ResearchAgent")
+@patch("agent_team.team_config.DeveloperAgent")
+@patch("agent_team.team_config.MonetizationAgent")
+@patch("agent_team.team_config.MarketingAgent")
 def test_niche_to_solution_workflow(
-    mock_marketing_class, mock_monetization_class, mock_developer_class, mock_researcher_class,
-    mock_agents
+    mock_marketing_class,
+    mock_monetization_class,
+    mock_developer_class,
+    mock_researcher_class,
+    mock_agents,
 ):
     """Test the complete niche-to-solution workflow."""
     # Set up the mock agents
@@ -131,51 +136,57 @@ def test_niche_to_solution_workflow(
     mock_developer_class.return_value = mock_agents["developer"]
     mock_monetization_class.return_value = mock_agents["monetization"]
     mock_marketing_class.return_value = mock_agents["marketing"]
-    
+
     # Create a team
     team = AgentTeam("Test Team")
-    
+
     # Run niche analysis
     niches = team.run_niche_analysis(["e-commerce"])
-    
+
     # Check that the researcher's analyze_market_segments method was called
-    mock_agents["researcher"].analyze_market_segments.assert_called_once_with(["e-commerce"])
-    
+    mock_agents["researcher"].analyze_market_segments.assert_called_once_with(
+        ["e-commerce"]
+    )
+
     # Check that niches were returned
     assert len(niches) == 2
     assert niches[0]["name"] == "Inventory Management"
     assert niches[1]["name"] == "Product Description Generation"
-    
+
     # Select the top niche
     selected_niche = niches[0]
-    
+
     # Develop a solution
     solution = team.develop_solution(selected_niche)
-    
+
     # Check that the developer's design_solution method was called
     mock_agents["developer"].design_solution.assert_called_once_with(selected_niche)
-    
+
     # Check that a solution was returned
     assert solution["name"] == "AI Inventory Manager"
     assert len(solution["features"]) == 2
-    
+
     # Create a monetization strategy
     monetization = team.create_monetization_strategy(solution)
-    
+
     # Check that the monetization agent's create_strategy method was called
     mock_agents["monetization"].create_strategy.assert_called_once_with(solution)
-    
+
     # Check that a monetization strategy was returned
     assert monetization["name"] == "Freemium Strategy"
-    assert monetization["subscription_model"]["name"] == "Inventory Manager Subscription"
+    assert (
+        monetization["subscription_model"]["name"] == "Inventory Manager Subscription"
+    )
     assert len(monetization["subscription_model"]["tiers"]) == 2
-    
+
     # Create a marketing plan
     marketing_plan = team.create_marketing_plan(selected_niche, solution, monetization)
-    
+
     # Check that the marketing agent's create_plan method was called
-    mock_agents["marketing"].create_plan.assert_called_once_with(selected_niche, solution, monetization)
-    
+    mock_agents["marketing"].create_plan.assert_called_once_with(
+        selected_niche, solution, monetization
+    )
+
     # Check that a marketing plan was returned
     assert marketing_plan["name"] == "Inventory Manager Marketing Plan"
     assert "content" in marketing_plan["channels"]

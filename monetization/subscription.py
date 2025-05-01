@@ -5,11 +5,11 @@ This module provides classes for managing subscription plans, tiers, and user su
 It includes tools for subscription lifecycle management and payment processing.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
-from datetime import datetime, timedelta
-import uuid
-import json
 import copy
+import json
+import uuid
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 
 class FeatureWrapper:
@@ -200,7 +200,7 @@ class SubscriptionPlan:
         description: str = "",
         billing_cycles: Optional[List[str]] = None,
         features: Optional[List[Dict[str, Any]]] = None,
-        tiers: Optional[List[Dict[str, Any]]] = None
+        tiers: Optional[List[Dict[str, Any]]] = None,
     ):
         """
         Initialize a subscription plan.
@@ -227,7 +227,7 @@ class SubscriptionPlan:
         description: str = "",
         type: str = "boolean",
         value_type: str = "string",
-        category: str = "general"
+        category: str = "general",
     ) -> Dict[str, Any]:
         """
         Add a feature to the subscription plan.
@@ -249,7 +249,7 @@ class SubscriptionPlan:
             "type": type,
             "value_type": value_type,
             "category": category,
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
 
         self.features.append(feature)
@@ -257,7 +257,9 @@ class SubscriptionPlan:
 
         return feature
 
-    def get_feature(self, feature_id: str) -> Optional[Union[Dict[str, Any], FeatureWrapper]]:
+    def get_feature(
+        self, feature_id: str
+    ) -> Optional[Union[Dict[str, Any], FeatureWrapper]]:
         """
         Get a feature by ID.
 
@@ -283,7 +285,7 @@ class SubscriptionPlan:
         description: Optional[str] = None,
         type: Optional[str] = None,
         value_type: Optional[str] = None,
-        category: Optional[str] = None
+        category: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Update a feature.
@@ -342,7 +344,9 @@ class SubscriptionPlan:
                 # Also remove the feature from all tiers
                 for tier in self.tiers:
                     if "features" in tier:
-                        tier["features"] = [f for f in tier["features"] if f["feature_id"] != feature_id]
+                        tier["features"] = [
+                            f for f in tier["features"] if f["feature_id"] != feature_id
+                        ]
 
                 return True
 
@@ -359,7 +363,7 @@ class SubscriptionPlan:
         is_popular: bool = False,
         is_hidden: bool = False,
         max_users: Optional[int] = None,
-        trial_days: int = 0
+        trial_days: int = 0,
     ) -> Dict[str, Any]:
         """
         Add a tier to the subscription plan.
@@ -397,7 +401,7 @@ class SubscriptionPlan:
             "is_hidden": is_hidden,
             "max_users": max_users,
             "trial_days": trial_days,
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
 
         self.tiers.append(tier)
@@ -435,7 +439,7 @@ class SubscriptionPlan:
         is_popular: Optional[bool] = None,
         is_hidden: Optional[bool] = None,
         max_users: Optional[int] = None,
-        trial_days: Optional[int] = None
+        trial_days: Optional[int] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Update a tier.
@@ -519,7 +523,7 @@ class SubscriptionPlan:
         tier_id: str,
         feature_id: str,
         value: Any = True,
-        limit: Optional[int] = None
+        limit: Optional[int] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Add a feature to a tier.
@@ -551,10 +555,7 @@ class SubscriptionPlan:
                     return tier
 
             # Add new feature to tier
-            tier_feature = {
-                "feature_id": feature_id,
-                "value": value
-            }
+            tier_feature = {"feature_id": feature_id, "value": value}
 
             if limit is not None:
                 tier_feature["limit"] = limit
@@ -590,7 +591,9 @@ class SubscriptionPlan:
 
         return False
 
-    def get_tier_features(self, tier_id: str) -> List[Union[Dict[str, Any], FeatureWrapper]]:
+    def get_tier_features(
+        self, tier_id: str
+    ) -> List[Union[Dict[str, Any], FeatureWrapper]]:
         """
         Get all features for a tier with their details.
 
@@ -663,7 +666,7 @@ class SubscriptionPlan:
                         "category": feature.category,
                         "value": value,
                         "created_at": feature.created_at,
-                        "updated_at": feature.updated_at
+                        "updated_at": feature.updated_at,
                     }
 
                     if limit is not None:
@@ -683,7 +686,9 @@ class SubscriptionPlan:
         Returns:
             Dictionary with comparison data
         """
-        tiers = [self.get_tier(tier_id) for tier_id in tier_ids if self.get_tier(tier_id)]
+        tiers = [
+            self.get_tier(tier_id) for tier_id in tier_ids if self.get_tier(tier_id)
+        ]
 
         if not tiers:
             return {"tiers": [], "features": []}
@@ -711,11 +716,11 @@ class SubscriptionPlan:
                     "id": tier["id"],
                     "name": tier["name"],
                     "price_monthly": tier["price_monthly"],
-                    "price_annual": tier["price_annual"]
+                    "price_annual": tier["price_annual"],
                 }
                 for tier in tiers
             ],
-            "features": []
+            "features": [],
         }
 
         # Add feature comparison
@@ -726,20 +731,18 @@ class SubscriptionPlan:
                 "description": feature["description"],
                 "category": feature["category"],
                 "type": feature["type"],
-                "values": []
+                "values": [],
             }
 
             for tier in tiers:
                 # Find feature in tier
                 tier_feature = next(
                     (f for f in tier["features"] if f["feature_id"] == feature["id"]),
-                    None
+                    None,
                 )
 
                 if tier_feature:
-                    value = {
-                        "value": tier_feature.get("value", True)
-                    }
+                    value = {"value": tier_feature.get("value", True)}
 
                     if "limit" in tier_feature:
                         value["limit"] = tier_feature["limit"]
@@ -767,7 +770,7 @@ class SubscriptionPlan:
             "features": self.features,
             "tiers": self.tiers,
             "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "updated_at": self.updated_at,
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -793,7 +796,7 @@ class SubscriptionPlan:
             f.write(self.to_json())
 
     @classmethod
-    def load_from_file(cls, file_path: str) -> 'SubscriptionPlan':
+    def load_from_file(cls, file_path: str) -> "SubscriptionPlan":
         """
         Load a subscription plan from a JSON file.
 
@@ -811,7 +814,7 @@ class SubscriptionPlan:
             description=data["description"],
             billing_cycles=data["billing_cycles"],
             features=data["features"],
-            tiers=data["tiers"]
+            tiers=data["tiers"],
         )
 
         plan.id = data["id"]
@@ -837,11 +840,7 @@ class SubscriptionTier:
     compared to the dictionary-based approach in SubscriptionPlan.
     """
 
-    def __init__(
-        self,
-        plan: SubscriptionPlan,
-        tier_id: str
-    ):
+    def __init__(self, plan: SubscriptionPlan, tier_id: str):
         """
         Initialize a subscription tier.
 
@@ -916,10 +915,7 @@ class SubscriptionTier:
         return self.plan.get_tier_features(self.tier_id)
 
     def add_feature(
-        self,
-        feature_id: str,
-        value: Any = True,
-        limit: Optional[int] = None
+        self, feature_id: str, value: Any = True, limit: Optional[int] = None
     ) -> bool:
         """
         Add a feature to this tier.
@@ -1012,7 +1008,9 @@ class SubscriptionTier:
         self._tier_data = self.plan.get_tier(self.tier_id)
 
         if not self._tier_data:
-            raise ValueError(f"Tier with ID {self.tier_id} no longer exists in plan {self.plan.name}")
+            raise ValueError(
+                f"Tier with ID {self.tier_id} no longer exists in plan {self.plan.name}"
+            )
 
 
 # Example usage
@@ -1020,7 +1018,7 @@ if __name__ == "__main__":
     # Create a subscription plan
     plan = SubscriptionPlan(
         name="AI Tool Subscription",
-        description="Subscription plan for an AI-powered tool"
+        description="Subscription plan for an AI-powered tool",
     )
 
     # Add features
@@ -1028,21 +1026,21 @@ if __name__ == "__main__":
         name="Content Generation",
         description="Generate content using AI",
         type="quantity",
-        category="core"
+        category="core",
     )
 
     feature2 = plan.add_feature(
         name="API Access",
         description="Access to the API",
         type="boolean",
-        category="integration"
+        category="integration",
     )
 
     feature3 = plan.add_feature(
         name="Team Members",
         description="Number of team members",
         type="quantity",
-        category="team"
+        category="team",
     )
 
     # Add tiers
@@ -1050,14 +1048,14 @@ if __name__ == "__main__":
         name="Free",
         description="Basic features for individuals",
         price_monthly=0,
-        target_users="Individuals trying out the service"
+        target_users="Individuals trying out the service",
     )
 
     basic_tier = plan.add_tier(
         name="Basic",
         description="Essential features for individuals",
         price_monthly=9.99,
-        target_users="Individual creators and small businesses"
+        target_users="Individual creators and small businesses",
     )
 
     pro_tier = plan.add_tier(
@@ -1065,7 +1063,7 @@ if __name__ == "__main__":
         description="Advanced features for professionals",
         price_monthly=19.99,
         is_popular=True,
-        target_users="Professional content creators and marketing teams"
+        target_users="Professional content creators and marketing teams",
     )
 
     # Add features to tiers

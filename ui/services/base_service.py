@@ -6,16 +6,22 @@ This module provides a base class for services that interact with the pAIssive I
 
 import logging
 import os
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
-from interfaces.ui_interfaces import IBaseService
-from common_utils import get_file_path, file_exists, load_from_json_file, save_to_json_file, create_directory
-from ..errors import (
-    ServiceError, DataError, ValidationError, handle_exception
+from common_utils import (
+    create_directory,
+    file_exists,
+    get_file_path,
+    load_from_json_file,
+    save_to_json_file,
 )
+from interfaces.ui_interfaces import IBaseService
+
+from ..errors import DataError, ServiceError, ValidationError, handle_exception
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
 
 class BaseService(IBaseService):
     """
@@ -24,7 +30,7 @@ class BaseService(IBaseService):
 
     def __init__(self):
         """Initialize the base service."""
-        self.data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+        self.data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
         create_directory(self.data_dir)
 
     def load_data(self, filename: str) -> Optional[Dict[str, Any]]:
@@ -51,7 +57,7 @@ class BaseService(IBaseService):
                     message=f"Failed to load data from file {filename}: {e}",
                     data_type="json",
                     operation="load",
-                    original_exception=e
+                    original_exception=e,
                 )
                 error.log()
                 raise error
@@ -81,7 +87,7 @@ class BaseService(IBaseService):
                 message=f"Failed to save data to file {filename}: {e}",
                 data_type="json",
                 operation="save",
-                original_exception=e
+                original_exception=e,
             )
             error.log()
             raise error

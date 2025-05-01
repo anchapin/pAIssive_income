@@ -7,12 +7,11 @@ This module provides the base class for all commands.
 import abc
 import argparse
 import logging
-from typing import Dict, Any, Optional, List, Type
+from typing import Any, Dict, List, Optional, Type
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -21,59 +20,59 @@ class BaseCommand(abc.ABC):
     """
     Base class for all commands.
     """
-    
+
     # Command description
     description = "Base command"
-    
+
     def __init__(self, args: argparse.Namespace):
         """
         Initialize the command.
-        
+
         Args:
             args: Command-line arguments
         """
         self.args = args
-    
+
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         """
         Add command-specific arguments to the parser.
-        
+
         Args:
             parser: Argument parser
         """
         pass
-    
+
     @abc.abstractmethod
     def run(self) -> int:
         """
         Run the command.
-        
+
         Returns:
             Exit code
         """
         pass
-    
+
     def _get_arg(self, name: str, default: Any = None) -> Any:
         """
         Get an argument value.
-        
+
         Args:
             name: Argument name
             default: Default value
-            
+
         Returns:
             Argument value
         """
         return getattr(self.args, name, default)
-    
+
     def _validate_args(self, required_args: List[str]) -> bool:
         """
         Validate required arguments.
-        
+
         Args:
             required_args: List of required argument names
-            
+
         Returns:
             True if all required arguments are present, False otherwise
         """
@@ -81,5 +80,5 @@ class BaseCommand(abc.ABC):
             if not hasattr(self.args, arg) or getattr(self.args, arg) is None:
                 logger.error(f"Missing required argument: {arg}")
                 return False
-        
+
         return True

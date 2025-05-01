@@ -5,47 +5,50 @@ This module provides custom exceptions and error handling utilities
 specific to the Monetization module.
 """
 
-import sys
 import os
-from typing import Dict, Any, Optional, List, Type, Union
+import sys
+from typing import Any, Dict, List, Optional, Type, Union
 
 # Add the project root to the Python path to import the errors module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from errors import (
-    MonetizationError, SubscriptionError, PaymentError, 
-    ValidationError, handle_exception
+    MonetizationError,
+    PaymentError,
+    SubscriptionError,
+    ValidationError,
+    handle_exception,
 )
 
 # Re-export the error classes for convenience
 __all__ = [
-    'MonetizationError',
-    'SubscriptionError',
-    'PaymentError',
-    'ValidationError',
-    'handle_exception',
-    'TierNotFoundError',
-    'FeatureNotFoundError',
-    'PricingError',
-    'RevenueProjectionError',
-    'BillingError',
-    'InvoiceError',
-    'UsageTrackingError'
+    "MonetizationError",
+    "SubscriptionError",
+    "PaymentError",
+    "ValidationError",
+    "handle_exception",
+    "TierNotFoundError",
+    "FeatureNotFoundError",
+    "PricingError",
+    "RevenueProjectionError",
+    "BillingError",
+    "InvoiceError",
+    "UsageTrackingError",
 ]
 
 
 class TierNotFoundError(SubscriptionError):
     """Error raised when a subscription tier is not found."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         tier_id: Optional[str] = None,
         model_id: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the tier not found error.
-        
+
         Args:
             message: Human-readable error message
             tier_id: ID of the tier that was not found
@@ -57,7 +60,7 @@ class TierNotFoundError(SubscriptionError):
             details["tier_id"] = tier_id
         if model_id:
             details["model_id"] = model_id
-        
+
         super().__init__(
             message=message,
             code="tier_not_found",
@@ -69,17 +72,17 @@ class TierNotFoundError(SubscriptionError):
 
 class FeatureNotFoundError(SubscriptionError):
     """Error raised when a subscription feature is not found."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         feature_id: Optional[str] = None,
         model_id: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the feature not found error.
-        
+
         Args:
             message: Human-readable error message
             feature_id: ID of the feature that was not found
@@ -91,7 +94,7 @@ class FeatureNotFoundError(SubscriptionError):
             details["feature_id"] = feature_id
         if model_id:
             details["model_id"] = model_id
-        
+
         super().__init__(
             message=message,
             code="feature_not_found",
@@ -103,16 +106,11 @@ class FeatureNotFoundError(SubscriptionError):
 
 class PricingError(MonetizationError):
     """Error raised when there's an issue with pricing calculations."""
-    
-    def __init__(
-        self, 
-        message: str, 
-        calculator_id: Optional[str] = None,
-        **kwargs
-    ):
+
+    def __init__(self, message: str, calculator_id: Optional[str] = None, **kwargs):
         """
         Initialize the pricing error.
-        
+
         Args:
             message: Human-readable error message
             calculator_id: ID of the pricing calculator
@@ -121,27 +119,19 @@ class PricingError(MonetizationError):
         details = kwargs.pop("details", {})
         if calculator_id:
             details["calculator_id"] = calculator_id
-        
+
         super().__init__(
-            message=message,
-            code="pricing_error",
-            details=details,
-            **kwargs
+            message=message, code="pricing_error", details=details, **kwargs
         )
 
 
 class RevenueProjectionError(MonetizationError):
     """Error raised when there's an issue with revenue projections."""
-    
-    def __init__(
-        self, 
-        message: str, 
-        projector_id: Optional[str] = None,
-        **kwargs
-    ):
+
+    def __init__(self, message: str, projector_id: Optional[str] = None, **kwargs):
         """
         Initialize the revenue projection error.
-        
+
         Args:
             message: Human-readable error message
             projector_id: ID of the revenue projector
@@ -150,27 +140,19 @@ class RevenueProjectionError(MonetizationError):
         details = kwargs.pop("details", {})
         if projector_id:
             details["projector_id"] = projector_id
-        
+
         super().__init__(
-            message=message,
-            code="revenue_projection_error",
-            details=details,
-            **kwargs
+            message=message, code="revenue_projection_error", details=details, **kwargs
         )
 
 
 class BillingError(MonetizationError):
     """Error raised when there's an issue with billing calculations."""
-    
-    def __init__(
-        self, 
-        message: str, 
-        calculator_id: Optional[str] = None,
-        **kwargs
-    ):
+
+    def __init__(self, message: str, calculator_id: Optional[str] = None, **kwargs):
         """
         Initialize the billing error.
-        
+
         Args:
             message: Human-readable error message
             calculator_id: ID of the billing calculator
@@ -179,28 +161,25 @@ class BillingError(MonetizationError):
         details = kwargs.pop("details", {})
         if calculator_id:
             details["calculator_id"] = calculator_id
-        
+
         super().__init__(
-            message=message,
-            code="billing_error",
-            details=details,
-            **kwargs
+            message=message, code="billing_error", details=details, **kwargs
         )
 
 
 class InvoiceError(MonetizationError):
     """Error raised when there's an issue with invoices."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         invoice_id: Optional[str] = None,
         customer_id: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the invoice error.
-        
+
         Args:
             message: Human-readable error message
             invoice_id: ID of the invoice
@@ -212,28 +191,25 @@ class InvoiceError(MonetizationError):
             details["invoice_id"] = invoice_id
         if customer_id:
             details["customer_id"] = customer_id
-        
+
         super().__init__(
-            message=message,
-            code="invoice_error",
-            details=details,
-            **kwargs
+            message=message, code="invoice_error", details=details, **kwargs
         )
 
 
 class UsageTrackingError(MonetizationError):
     """Error raised when there's an issue with usage tracking."""
-    
+
     def __init__(
-        self, 
-        message: str, 
+        self,
+        message: str,
         user_id: Optional[str] = None,
         metric: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize the usage tracking error.
-        
+
         Args:
             message: Human-readable error message
             user_id: ID of the user
@@ -245,10 +221,7 @@ class UsageTrackingError(MonetizationError):
             details["user_id"] = user_id
         if metric:
             details["metric"] = metric
-        
+
         super().__init__(
-            message=message,
-            code="usage_tracking_error",
-            details=details,
-            **kwargs
+            message=message, code="usage_tracking_error", details=details, **kwargs
         )

@@ -1,62 +1,63 @@
 """
 Utility functions for tests.
 """
-import os
+
 import json
+import os
 import uuid
-from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
 
 def create_test_file(directory: str, filename: str, content: str) -> str:
     """
     Create a test file with the given content.
-    
+
     Args:
         directory: Directory to create the file in
         filename: Name of the file
         content: Content of the file
-        
+
     Returns:
         Path to the created file
     """
     os.makedirs(directory, exist_ok=True)
     file_path = os.path.join(directory, filename)
-    
-    with open(file_path, 'w') as f:
+
+    with open(file_path, "w") as f:
         f.write(content)
-    
+
     return file_path
 
 
 def create_test_json_file(directory: str, filename: str, data: Dict[str, Any]) -> str:
     """
     Create a test JSON file with the given data.
-    
+
     Args:
         directory: Directory to create the file in
         filename: Name of the file
         data: Data to write to the file
-        
+
     Returns:
         Path to the created file
     """
     os.makedirs(directory, exist_ok=True)
     file_path = os.path.join(directory, filename)
-    
-    with open(file_path, 'w') as f:
+
+    with open(file_path, "w") as f:
         json.dump(data, f, indent=2)
-    
+
     return file_path
 
 
 def create_mock_niche(name: str = "Test Niche") -> Dict[str, Any]:
     """
     Create a mock niche for testing.
-    
+
     Args:
         name: Name of the niche
-        
+
     Returns:
         Mock niche dictionary
     """
@@ -103,13 +104,15 @@ def create_mock_niche(name: str = "Test Niche") -> Dict[str, Any]:
     }
 
 
-def create_mock_subscription_model(name: str = "Test Subscription Model") -> Dict[str, Any]:
+def create_mock_subscription_model(
+    name: str = "Test Subscription Model",
+) -> Dict[str, Any]:
     """
     Create a mock subscription model for testing.
-    
+
     Args:
         name: Name of the subscription model
-        
+
     Returns:
         Mock subscription model dictionary
     """
@@ -174,10 +177,10 @@ def create_mock_subscription_model(name: str = "Test Subscription Model") -> Dic
 def create_mock_model_info(name: str = "Test Model") -> Dict[str, Any]:
     """
     Create a mock model info for testing.
-    
+
     Args:
         name: Name of the model
-        
+
     Returns:
         Mock model info dictionary
     """

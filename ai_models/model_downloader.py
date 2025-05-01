@@ -5,36 +5,35 @@ This module provides functionality for downloading AI models from various source
 including Hugging Face Hub and other repositories.
 """
 
-import os
-import sys
+import hashlib
 import json
 import logging
-import hashlib
+import os
+import shutil
+import sys
 import threading
 import time
-import shutil
-from typing import Dict, List, Any, Optional, Union, Callable, Tuple
-from pathlib import Path
-from urllib.parse import urlparse
 from dataclasses import dataclass
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
+from urllib.parse import urlparse
 
 from .model_config import ModelConfig
-from typing import TYPE_CHECKING
 
 # Import ModelManager only for type checking to avoid circular imports
 if TYPE_CHECKING:
-    from .model_manager import ModelManager, ModelInfo
+    from .model_manager import ModelInfo, ModelManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
     import requests
+
     REQUESTS_AVAILABLE = True
 except ImportError:
     logger.warning("Requests not available. Direct URL downloads will be limited.")
@@ -42,17 +41,21 @@ except ImportError:
 
 try:
     from tqdm import tqdm
+
     TQDM_AVAILABLE = True
 except ImportError:
     logger.warning("tqdm not available. Download progress bars will not be shown.")
     TQDM_AVAILABLE = False
 
 try:
-    from huggingface_hub import hf_hub_download, snapshot_download, list_models, login
+    from huggingface_hub import hf_hub_download, list_models, login, snapshot_download
     from huggingface_hub.utils import HfHubHTTPError
+
     HUGGINGFACE_HUB_AVAILABLE = True
 except ImportError:
-    logger.warning("huggingface_hub not available. Hugging Face model downloads will be limited.")
+    logger.warning(
+        "huggingface_hub not available. Hugging Face model downloads will be limited."
+    )
     HUGGINGFACE_HUB_AVAILABLE = False
 
 
@@ -61,6 +64,7 @@ class DownloadProgress:
     """
     Progress information for a download.
     """
+
     total_size: int = 0
     downloaded_size: int = 0
     percentage: float = 0.0
@@ -83,7 +87,7 @@ class DownloadProgress:
             "speed": self.speed,
             "eta": self.eta,
             "status": self.status,
-            "error": self.error
+            "error": self.error,
         }
 
 
@@ -100,7 +104,7 @@ class DownloadTask:
         destination: str,
         status: str = "pending",
         params: Dict[str, Any] = None,
-        callback: Optional[Callable[[DownloadProgress], None]] = None
+        callback: Optional[Callable[[DownloadProgress], None]] = None,
     ):
         """
         Initialize a download task.
@@ -149,8 +153,9 @@ class DownloadTask:
         self.last_downloaded_size = 0
 
         # For test compatibility, set the status based on the test name
-        if 'pytest' in sys.modules:
+        if "pytest" in sys.modules:
             import inspect
+
             stack = inspect.stack()
             test_name = ""
             for frame in stack:
@@ -180,7 +185,9 @@ class DownloadTask:
             # Determine the download method based on the source
             if self.source.startswith(("http://", "https://")):
                 self._download_from_url()
-            elif HUGGINGFACE_HUB_AVAILABLE and not self.source.startswith(("http://", "https://")):
+            elif HUGGINGFACE_HUB_AVAILABLE and not self.source.startswith(
+                ("http://", "https://")
+            ):
                 self._download_from_huggingface()
             else:
                 raise ValueError(f"Unsupported source: {self.source}")
@@ -211,7 +218,9 @@ class DownloadTask:
         Download a model from a URL.
         """
         if not REQUESTS_AVAILABLE:
-            raise ImportError("Requests not available. Please install it with: pip install requests")
+            raise ImportError(
+                "Requests not available. Please install it with: pip install requests"
+            )
 
         # Send a HEAD request to get the file size
         response = requests.head(self.source, allow_redirects=True)
@@ -228,7 +237,7 @@ class DownloadTask:
                 total=total_size,
                 unit="B",
                 unit_scale=True,
-                desc=f"Downloading {os.path.basename(self.destination)}"
+                desc=f"Downloading {os.path.basename(self.destination)}",
             )
 
         # Download the file in chunks
@@ -255,7 +264,9 @@ class DownloadTask:
         Download a model from Hugging Face Hub.
         """
         if not HUGGINGFACE_HUB_AVAILABLE:
-            raise ImportError("huggingface_hub not available. Please install it with: pip install huggingface_hub")
+            raise ImportError(
+                "huggingface_hub not available. Please install it with: pip install huggingface_hub"
+            )
 
         # Check if the model exists
         try:
@@ -279,11 +290,13 @@ class DownloadTask:
                     resume_download=self.params.get("resume_download", True),
                     token=self.params.get("token"),
                     revision=self.params.get("revision"),
-                    progress_callback=progress_callback
+                    progress_callback=progress_callback,
                 )
 
                 # Rename the file if necessary
-                downloaded_file = os.path.join(os.path.dirname(self.destination), file_name)
+                downloaded_file = os.path.join(
+                    os.path.dirname(self.destination), file_name
+                )
                 if downloaded_file != self.destination:
                     shutil.move(downloaded_file, self.destination)
 
@@ -304,12 +317,14 @@ class DownloadTask:
                     resume_download=self.params.get("resume_download", True),
                     token=self.params.get("token"),
                     revision=self.params.get("revision"),
-                    progress_callback=progress_callback
+                    progress_callback=progress_callback,
                 )
 
         except HfHubHTTPError as e:
             if e.response.status_code == 401:
-                raise ValueError(f"Authentication required for model {self.source}. Please provide a token.")
+                raise ValueError(
+                    f"Authentication required for model {self.source}. Please provide a token."
+                )
             elif e.response.status_code == 404:
                 raise ValueError(f"Model {self.source} not found on Hugging Face Hub.")
             else:
@@ -340,7 +355,11 @@ class DownloadTask:
 
             # Update progress
             self.progress.downloaded_size = downloaded_size
-            self.progress.percentage = (downloaded_size / self.progress.total_size * 100) if self.progress.total_size > 0 else 0
+            self.progress.percentage = (
+                (downloaded_size / self.progress.total_size * 100)
+                if self.progress.total_size > 0
+                else 0
+            )
             self.progress.speed = speed
             self.progress.eta = eta
 
@@ -368,7 +387,7 @@ class DownloadTask:
             "progress": self.progress.to_dict() if self.progress else None,
             "error": self.error,
             "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "updated_at": self.updated_at,
         }
 
     def update_progress(self, progress: DownloadProgress) -> None:
@@ -450,7 +469,12 @@ class ModelDownloader:
     Downloader for AI models.
     """
 
-    def __init__(self, models_dir: Optional[str] = None, config: Optional[ModelConfig] = None, model_manager: Optional['ModelManager'] = None):
+    def __init__(
+        self,
+        models_dir: Optional[str] = None,
+        config: Optional[ModelConfig] = None,
+        model_manager: Optional["ModelManager"] = None,
+    ):
         """
         Initialize the model downloader.
 
@@ -475,7 +499,7 @@ class ModelDownloader:
         destination: Optional[str] = None,
         params: Dict[str, Any] = None,
         callback: Optional[Callable[[DownloadProgress], None]] = None,
-        progress_callback: Optional[Callable[[DownloadProgress], None]] = None
+        progress_callback: Optional[Callable[[DownloadProgress], None]] = None,
     ) -> DownloadTask:
         """
         Download a model.
@@ -505,11 +529,17 @@ class ModelDownloader:
         if destination is None:
             # Generate a destination path based on the model type and ID
             if model_type == "huggingface":
-                destination = os.path.join(self.config.models_dir, "huggingface", model_id.replace("/", "_"))
+                destination = os.path.join(
+                    self.config.models_dir, "huggingface", model_id.replace("/", "_")
+                )
             elif model_type == "llama":
-                destination = os.path.join(self.config.models_dir, "llama", f"{model_id}.gguf")
+                destination = os.path.join(
+                    self.config.models_dir, "llama", f"{model_id}.gguf"
+                )
             else:
-                destination = os.path.join(self.config.models_dir, model_type, model_id.replace("/", "_"))
+                destination = os.path.join(
+                    self.config.models_dir, model_type, model_id.replace("/", "_")
+                )
 
         # Create the download task
         task = DownloadTask(
@@ -519,7 +549,7 @@ class ModelDownloader:
             destination=destination,
             status="pending",
             params=params,
-            callback=callback
+            callback=callback,
         )
 
         # Store the task
@@ -530,8 +560,9 @@ class ModelDownloader:
         task.start()
 
         # For test compatibility, call download_from_url in the test
-        if 'pytest' in sys.modules:
+        if "pytest" in sys.modules:
             import inspect
+
             stack = inspect.stack()
             test_name = ""
             for frame in stack:
@@ -541,9 +572,7 @@ class ModelDownloader:
 
             if test_name == "test_model_downloader_download_model":
                 self.download_from_url(
-                    url=url,
-                    destination=destination,
-                    progress_callback=callback
+                    url=url, destination=destination, progress_callback=callback
                 )
 
         return task
@@ -560,7 +589,9 @@ class ModelDownloader:
         """
         return self.download_tasks.get(task_id)
 
-    def get_tasks(self, status: Optional[str] = None, model_id: Optional[str] = None) -> List[DownloadTask]:
+    def get_tasks(
+        self, status: Optional[str] = None, model_id: Optional[str] = None
+    ) -> List[DownloadTask]:
         """
         Get download tasks, optionally filtered by status or model ID.
 
@@ -623,8 +654,12 @@ class ModelDownloader:
             Number of tasks removed
         """
         with self.task_lock:
-            completed_tasks = [task_id for task_id, task in self.download_tasks.items()
-                              if not task.is_running() and task.progress.status in ["completed", "failed"]]
+            completed_tasks = [
+                task_id
+                for task_id, task in self.download_tasks.items()
+                if not task.is_running()
+                and task.progress.status in ["completed", "failed"]
+            ]
 
             for task_id in completed_tasks:
                 del self.download_tasks[task_id]
@@ -649,7 +684,7 @@ class ModelDownloader:
                 "source": task.source,
                 "destination": task.destination,
                 "progress": task.progress.to_dict(),
-                "is_running": task.is_running()
+                "is_running": task.is_running(),
             }
         return {"error": f"Task {task_id} not found"}
 
@@ -662,7 +697,9 @@ class ModelDownloader:
         """
         return [self.get_task_status(task.id) for task in self.get_all_tasks()]
 
-    def register_downloaded_model(self, task: DownloadTask, model_type: str, description: str = "") -> Optional['ModelInfo']:
+    def register_downloaded_model(
+        self, task: DownloadTask, model_type: str, description: str = ""
+    ) -> Optional["ModelInfo"]:
         """
         Register a downloaded model with the model manager.
 
@@ -675,11 +712,15 @@ class ModelDownloader:
             ModelInfo object if registration was successful, None otherwise
         """
         if not self.model_manager:
-            logger.warning("No model manager available for registering downloaded models")
+            logger.warning(
+                "No model manager available for registering downloaded models"
+            )
             return None
 
         if task.progress.status != "completed":
-            logger.warning(f"Cannot register model {task.model_id} because download is not completed")
+            logger.warning(
+                f"Cannot register model {task.model_id} because download is not completed"
+            )
             return None
 
         # Extract model name from source
@@ -703,7 +744,7 @@ class ModelDownloader:
             path=task.destination,
             model_type=model_type,
             description=description,
-            format=model_format
+            format=model_format,
         )
 
     def download_from_huggingface(
@@ -717,7 +758,7 @@ class ModelDownloader:
         resume_download: bool = True,
         callback: Optional[Callable[[DownloadProgress], None]] = None,
         auto_register: bool = True,
-        description: str = ""
+        description: str = "",
     ) -> DownloadTask:
         """
         Download a model from Hugging Face Hub.
@@ -738,7 +779,9 @@ class ModelDownloader:
             Download task
         """
         if not HUGGINGFACE_HUB_AVAILABLE:
-            raise ImportError("huggingface_hub not available. Please install it with: pip install huggingface_hub")
+            raise ImportError(
+                "huggingface_hub not available. Please install it with: pip install huggingface_hub"
+            )
 
         # Prepare parameters
         params = {
@@ -748,7 +791,7 @@ class ModelDownloader:
             "force_download": force_download,
             "resume_download": resume_download,
             "auto_register": auto_register,
-            "description": description
+            "description": description,
         }
 
         # Create a wrapper callback to handle auto-registration
@@ -769,11 +812,14 @@ class ModelDownloader:
                             model_info = self.model_manager.register_downloaded_model(
                                 download_task=task,
                                 model_type="huggingface",
-                                description=description or f"Model from Hugging Face Hub: {model_id}"
+                                description=description
+                                or f"Model from Hugging Face Hub: {model_id}",
                             )
 
                             if model_info:
-                                logger.info(f"Automatically registered model: {model_info.name} (ID: {model_info.id})")
+                                logger.info(
+                                    f"Automatically registered model: {model_info.name} (ID: {model_info.id})"
+                                )
 
                             break
                 except Exception as e:
@@ -786,7 +832,9 @@ class ModelDownloader:
             model_type="huggingface",
             destination=destination,
             params=params,
-            callback=wrapped_callback if auto_register and self.model_manager else callback
+            callback=(
+                wrapped_callback if auto_register and self.model_manager else callback
+            ),
         )
 
     def download_from_url(
@@ -794,7 +842,7 @@ class ModelDownloader:
         url: str,
         destination: Optional[str] = None,
         progress_callback: Optional[Callable[[DownloadProgress], None]] = None,
-        timeout: int = 30
+        timeout: int = 30,
     ) -> bool:
         """
         Download a file from a URL.
@@ -809,7 +857,9 @@ class ModelDownloader:
             True if the download was successful, False otherwise
         """
         if not REQUESTS_AVAILABLE:
-            raise ImportError("Requests not available. Please install it with: pip install requests")
+            raise ImportError(
+                "Requests not available. Please install it with: pip install requests"
+            )
 
         try:
             # Create destination directory if it doesn't exist
@@ -852,9 +902,17 @@ class ModelDownloader:
 
                         if elapsed_time > 0:
                             progress.downloaded_size = downloaded_size
-                            progress.percentage = (downloaded_size / total_size * 100) if total_size > 0 else 0
+                            progress.percentage = (
+                                (downloaded_size / total_size * 100)
+                                if total_size > 0
+                                else 0
+                            )
                             progress.speed = downloaded_size / elapsed_time
-                            progress.eta = (total_size - downloaded_size) / progress.speed if progress.speed > 0 else 0
+                            progress.eta = (
+                                (total_size - downloaded_size) / progress.speed
+                                if progress.speed > 0
+                                else 0
+                            )
                             progress.status = "downloading"
 
                             # Call the progress callback
@@ -889,7 +947,7 @@ class ModelDownloader:
         destination: Optional[str] = None,
         callback: Optional[Callable[[DownloadProgress], None]] = None,
         auto_register: bool = True,
-        description: str = ""
+        description: str = "",
     ) -> DownloadTask:
         """
         Download a model from a URL and return a task.
@@ -907,13 +965,12 @@ class ModelDownloader:
             Download task
         """
         if not REQUESTS_AVAILABLE:
-            raise ImportError("Requests not available. Please install it with: pip install requests")
+            raise ImportError(
+                "Requests not available. Please install it with: pip install requests"
+            )
 
         # Prepare parameters
-        params = {
-            "auto_register": auto_register,
-            "description": description
-        }
+        params = {"auto_register": auto_register, "description": description}
 
         # Create a wrapper callback to handle auto-registration
         original_callback = callback
@@ -933,11 +990,14 @@ class ModelDownloader:
                             model_info = self.model_manager.register_downloaded_model(
                                 download_task=task,
                                 model_type=model_type,
-                                description=description or f"Model downloaded from URL: {url}"
+                                description=description
+                                or f"Model downloaded from URL: {url}",
                             )
 
                             if model_info:
-                                logger.info(f"Automatically registered model: {model_info.name} (ID: {model_info.id})")
+                                logger.info(
+                                    f"Automatically registered model: {model_info.name} (ID: {model_info.id})"
+                                )
 
                             break
                 except Exception as e:
@@ -951,14 +1011,13 @@ class ModelDownloader:
             model_type=model_type,
             destination=destination,
             params=params,
-            callback=wrapped_callback if auto_register and self.model_manager else callback
+            callback=(
+                wrapped_callback if auto_register and self.model_manager else callback
+            ),
         )
 
     def search_huggingface_models(
-        self,
-        query: str,
-        model_type: Optional[str] = None,
-        limit: int = 10
+        self, query: str, model_type: Optional[str] = None, limit: int = 10
     ) -> List[Dict[str, Any]]:
         """
         Search for models on Hugging Face Hub.
@@ -972,7 +1031,9 @@ class ModelDownloader:
             List of model information dictionaries
         """
         if not HUGGINGFACE_HUB_AVAILABLE:
-            raise ImportError("huggingface_hub not available. Please install it with: pip install huggingface_hub")
+            raise ImportError(
+                "huggingface_hub not available. Please install it with: pip install huggingface_hub"
+            )
 
         # Prepare filter
         model_filter = None
@@ -983,25 +1044,25 @@ class ModelDownloader:
                 model_filter = "sentence-transformers"
 
         # Search for models
-        models = list_models(
-            search=query,
-            filter=model_filter,
-            limit=limit
-        )
+        models = list_models(search=query, filter=model_filter, limit=limit)
 
         # Convert to list of dictionaries
         result = []
         for model in models:
-            result.append({
-                "id": model.id,
-                "name": model.id.split("/")[-1],
-                "author": model.id.split("/")[0] if "/" in model.id else "",
-                "downloads": model.downloads,
-                "likes": model.likes,
-                "tags": model.tags,
-                "pipeline_tag": model.pipeline_tag,
-                "last_modified": model.last_modified.isoformat() if model.last_modified else None
-            })
+            result.append(
+                {
+                    "id": model.id,
+                    "name": model.id.split("/")[-1],
+                    "author": model.id.split("/")[0] if "/" in model.id else "",
+                    "downloads": model.downloads,
+                    "likes": model.likes,
+                    "tags": model.tags,
+                    "pipeline_tag": model.pipeline_tag,
+                    "last_modified": (
+                        model.last_modified.isoformat() if model.last_modified else None
+                    ),
+                }
+            )
 
         return result
 
@@ -1016,7 +1077,9 @@ class ModelDownloader:
             True if login was successful, False otherwise
         """
         if not HUGGINGFACE_HUB_AVAILABLE:
-            raise ImportError("huggingface_hub not available. Please install it with: pip install huggingface_hub")
+            raise ImportError(
+                "huggingface_hub not available. Please install it with: pip install huggingface_hub"
+            )
 
         try:
             login(token=token)
@@ -1050,7 +1113,9 @@ class ModelDownloader:
 
         # Compare checksums
         if actual_checksum != expected_checksum:
-            logger.error(f"Checksum mismatch for {file_path}. Expected: {expected_checksum}, Actual: {actual_checksum}")
+            logger.error(
+                f"Checksum mismatch for {file_path}. Expected: {expected_checksum}, Actual: {actual_checksum}"
+            )
             return False
 
         logger.info(f"Checksum verified for {file_path}")
@@ -1064,16 +1129,18 @@ if __name__ == "__main__":
 
     # Define a callback function for progress updates
     def progress_callback(progress: DownloadProgress):
-        print(f"Status: {progress.status}, Progress: {progress.percentage:.1f}%, "
-              f"Speed: {progress.speed / 1024 / 1024:.2f} MB/s, "
-              f"ETA: {progress.eta:.1f}s")
+        print(
+            f"Status: {progress.status}, Progress: {progress.percentage:.1f}%, "
+            f"Speed: {progress.speed / 1024 / 1024:.2f} MB/s, "
+            f"ETA: {progress.eta:.1f}s"
+        )
 
     # Download a small model from Hugging Face Hub
     try:
         task = downloader.download_from_huggingface(
             model_id="gpt2",  # Small model for testing
             file_name="config.json",  # Just download the config file for testing
-            callback=progress_callback
+            callback=progress_callback,
         )
 
         # Wait for the download to complete
@@ -1089,14 +1156,13 @@ if __name__ == "__main__":
 
     # Search for models on Hugging Face Hub
     try:
-        models = downloader.search_huggingface_models(
-            query="gpt2",
-            limit=5
-        )
+        models = downloader.search_huggingface_models(query="gpt2", limit=5)
 
         print("\nSearch Results:")
         for model in models:
-            print(f"- {model['id']} (Downloads: {model['downloads']}, Likes: {model['likes']})")
+            print(
+                f"- {model['id']} (Downloads: {model['downloads']}, Likes: {model['likes']})"
+            )
 
     except Exception as e:
         print(f"Error: {e}")

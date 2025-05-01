@@ -7,21 +7,26 @@ including downloading, serving, and optimizing models.
 
 from .cli import main
 from .commands import (
-    DownloadCommand, ListCommand, InfoCommand,
-    ServeRESTCommand, ServeGRPCCommand,
-    OptimizeCommand, BenchmarkCommand,
-    DeployCommand, ValidateCommand
+    BenchmarkCommand,
+    DeployCommand,
+    DownloadCommand,
+    InfoCommand,
+    ListCommand,
+    OptimizeCommand,
+    ServeGRPCCommand,
+    ServeRESTCommand,
+    ValidateCommand,
 )
 
 __all__ = [
-    'main',
-    'DownloadCommand',
-    'ListCommand',
-    'InfoCommand',
-    'ServeRESTCommand',
-    'ServeGRPCCommand',
-    'OptimizeCommand',
-    'BenchmarkCommand',
-    'DeployCommand',
-    'ValidateCommand',
+    "main",
+    "DownloadCommand",
+    "ListCommand",
+    "InfoCommand",
+    "ServeRESTCommand",
+    "ServeGRPCCommand",
+    "OptimizeCommand",
+    "BenchmarkCommand",
+    "DeployCommand",
+    "ValidateCommand",
 ]

@@ -11,33 +11,39 @@ Dependencies:
 - PyQt5 (for desktop applications, alternative to Electron)
 """
 
-import os
 import json
 import logging
-from typing import Dict, List, Any, Optional, Union, Callable
+import os
+import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
-import uuid
+from typing import Any, Callable, Dict, List, Optional, Union
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Check for optional dependencies
 try:
     import flask
-    from flask import Flask, render_template, request, jsonify, redirect, url_for
+    from flask import Flask, jsonify, redirect, render_template, request, url_for
+
     FLASK_AVAILABLE = True
 except ImportError:
     FLASK_AVAILABLE = False
     logger.warning("Flask not available. Web application templates will not work.")
 
 try:
-    from PyQt5 import QtWidgets, QtCore, QtGui
+    from PyQt5 import QtCore, QtGui, QtWidgets
+
     PYQT_AVAILABLE = True
 except ImportError:
     PYQT_AVAILABLE = False
-    logger.warning("PyQt5 not available. Desktop application templates (PyQt) will not work.")
+    logger.warning(
+        "PyQt5 not available. Desktop application templates (PyQt) will not work."
+    )
 
 
 class BaseUITemplate(ABC):
@@ -51,7 +57,7 @@ class BaseUITemplate(ABC):
         description: str,
         version: str = "0.1.0",
         author: str = "",
-        config_path: Optional[str] = None
+        config_path: Optional[str] = None,
     ):
         """
         Initialize a UI template.
@@ -87,23 +93,15 @@ class BaseUITemplate(ABC):
                 "secondary_color": "#f78c6c",
                 "background_color": "#ffffff",
                 "text_color": "#333333",
-                "font_family": "Arial, sans-serif"
+                "font_family": "Arial, sans-serif",
             },
-            "layout": {
-                "sidebar": True,
-                "navbar": True,
-                "footer": True
-            },
-            "features": {
-                "dark_mode": True,
-                "responsive": True,
-                "animations": True
-            }
+            "layout": {"sidebar": True, "navbar": True, "footer": True},
+            "features": {"dark_mode": True, "responsive": True, "animations": True},
         }
 
         if config_path and os.path.exists(config_path):
             try:
-                with open(config_path, 'r') as f:
+                with open(config_path, "r") as f:
                     user_config = json.load(f)
                     # Merge user config with default config
                     for key, value in user_config.items():
@@ -152,13 +150,13 @@ class BaseUITemplate(ABC):
             "author": self.author,
             "created_at": self.created_at,
             "config": self.config,
-            "template_type": self.__class__.__name__
+            "template_type": self.__class__.__name__,
         }
 
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(template_config, f, indent=2)
-        
+
         logger.info(f"Template configuration exported to {output_path}")
 
     def __str__(self) -> str:
@@ -179,7 +177,7 @@ class WebAppTemplate(BaseUITemplate):
         author: str = "",
         config_path: Optional[str] = None,
         template_folder: str = "templates",
-        static_folder: str = "static"
+        static_folder: str = "static",
     ):
         """
         Initialize a web application template.
@@ -194,10 +192,12 @@ class WebAppTemplate(BaseUITemplate):
             static_folder: Folder for static files (CSS, JS, images)
         """
         super().__init__(app_name, description, version, author, config_path)
-        
+
         if not FLASK_AVAILABLE:
-            raise ImportError("Flask is required for web applications. Install it with 'pip install flask'.")
-        
+            raise ImportError(
+                "Flask is required for web applications. Install it with 'pip install flask'."
+            )
+
         self.template_folder = template_folder
         self.static_folder = static_folder
         self.routes = []
@@ -213,30 +213,38 @@ class WebAppTemplate(BaseUITemplate):
         app = Flask(
             self.app_name,
             template_folder=self.template_folder,
-            static_folder=self.static_folder
+            static_folder=self.static_folder,
         )
-        
+
         # Configure the app
-        app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_key_' + self.id)
-        
+        app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev_key_" + self.id)
+
         # Register default routes
-        @app.route('/')
+        @app.route("/")
         def index():
-            return render_template('index.html', app_name=self.app_name, description=self.description)
-        
-        @app.route('/about')
+            return render_template(
+                "index.html", app_name=self.app_name, description=self.description
+            )
+
+        @app.route("/about")
         def about():
-            return render_template('about.html', app_name=self.app_name, description=self.description, version=self.version, author=self.author)
-        
+            return render_template(
+                "about.html",
+                app_name=self.app_name,
+                description=self.description,
+                version=self.version,
+                author=self.author,
+            )
+
         # Register custom routes
         for route in self.routes:
             app.add_url_rule(
-                route['url'],
-                endpoint=route.get('endpoint'),
-                view_func=route['view_func'],
-                methods=route.get('methods', ['GET'])
+                route["url"],
+                endpoint=route.get("endpoint"),
+                view_func=route["view_func"],
+                methods=route.get("methods", ["GET"]),
             )
-        
+
         self.app = app
         return app
 
@@ -245,7 +253,7 @@ class WebAppTemplate(BaseUITemplate):
         url: str,
         view_func: Callable,
         endpoint: Optional[str] = None,
-        methods: List[str] = None
+        methods: List[str] = None,
     ) -> None:
         """
         Add a route to the application.
@@ -257,20 +265,26 @@ class WebAppTemplate(BaseUITemplate):
             methods: HTTP methods allowed for the route
         """
         if methods is None:
-            methods = ['GET']
-        
-        self.routes.append({
-            'url': url,
-            'view_func': view_func,
-            'endpoint': endpoint,
-            'methods': methods
-        })
-        
+            methods = ["GET"]
+
+        self.routes.append(
+            {
+                "url": url,
+                "view_func": view_func,
+                "endpoint": endpoint,
+                "methods": methods,
+            }
+        )
+
         # If app is already created, add the route directly
         if self.app:
-            self.app.add_url_rule(url, endpoint=endpoint, view_func=view_func, methods=methods)
+            self.app.add_url_rule(
+                url, endpoint=endpoint, view_func=view_func, methods=methods
+            )
 
-    def run(self, host: str = '127.0.0.1', port: int = 5000, debug: bool = False) -> None:
+    def run(
+        self, host: str = "127.0.0.1", port: int = 5000, debug: bool = False
+    ) -> None:
         """
         Run the web application.
 
@@ -281,7 +295,7 @@ class WebAppTemplate(BaseUITemplate):
         """
         if not self.app:
             self.create_app()
-        
+
         self.app.run(host=host, port=port, debug=debug)
 
     def generate_templates(self, output_dir: str) -> None:
@@ -292,9 +306,9 @@ class WebAppTemplate(BaseUITemplate):
             output_dir: Directory to save the templates
         """
         os.makedirs(os.path.join(output_dir, self.template_folder), exist_ok=True)
-        os.makedirs(os.path.join(output_dir, self.static_folder, 'css'), exist_ok=True)
-        os.makedirs(os.path.join(output_dir, self.static_folder, 'js'), exist_ok=True)
-        
+        os.makedirs(os.path.join(output_dir, self.static_folder, "css"), exist_ok=True)
+        os.makedirs(os.path.join(output_dir, self.static_folder, "js"), exist_ok=True)
+
         # Create base template
         base_template = """<!DOCTYPE html>
 <html lang="en">
@@ -330,7 +344,7 @@ class WebAppTemplate(BaseUITemplate):
 </body>
 </html>
 """
-        
+
         # Create index template
         index_template = """{% extends "base.html" %}
 
@@ -362,7 +376,7 @@ class WebAppTemplate(BaseUITemplate):
 </section>
 {% endblock %}
 """
-        
+
         # Create about template
         about_template = """{% extends "base.html" %}
 
@@ -379,15 +393,26 @@ class WebAppTemplate(BaseUITemplate):
 </section>
 {% endblock %}
 """
-        
+
         # Create CSS file
-        css_content = """/* Base styles */
+        css_content = (
+            """/* Base styles */
 :root {
-    --primary-color: """ + self.config["theme"]["primary_color"] + """;
-    --secondary-color: """ + self.config["theme"]["secondary_color"] + """;
-    --background-color: """ + self.config["theme"]["background_color"] + """;
-    --text-color: """ + self.config["theme"]["text_color"] + """;
-    --font-family: """ + self.config["theme"]["font_family"] + """;
+    --primary-color: """
+            + self.config["theme"]["primary_color"]
+            + """;
+    --secondary-color: """
+            + self.config["theme"]["secondary_color"]
+            + """;
+    --background-color: """
+            + self.config["theme"]["background_color"]
+            + """;
+    --text-color: """
+            + self.config["theme"]["text_color"]
+            + """;
+    --font-family: """
+            + self.config["theme"]["font_family"]
+            + """;
 }
 
 body {
@@ -526,7 +551,8 @@ footer {
     }
 }
 """
-        
+        )
+
         # Create JavaScript file
         js_content = """// Main JavaScript file
 
@@ -550,23 +576,33 @@ function initializeApp() {
     // Add your initialization code here
 }
 """
-        
+
         # Write files
-        with open(os.path.join(output_dir, self.template_folder, 'base.html'), 'w') as f:
+        with open(
+            os.path.join(output_dir, self.template_folder, "base.html"), "w"
+        ) as f:
             f.write(base_template)
-        
-        with open(os.path.join(output_dir, self.template_folder, 'index.html'), 'w') as f:
+
+        with open(
+            os.path.join(output_dir, self.template_folder, "index.html"), "w"
+        ) as f:
             f.write(index_template)
-        
-        with open(os.path.join(output_dir, self.template_folder, 'about.html'), 'w') as f:
+
+        with open(
+            os.path.join(output_dir, self.template_folder, "about.html"), "w"
+        ) as f:
             f.write(about_template)
-        
-        with open(os.path.join(output_dir, self.static_folder, 'css', 'style.css'), 'w') as f:
+
+        with open(
+            os.path.join(output_dir, self.static_folder, "css", "style.css"), "w"
+        ) as f:
             f.write(css_content)
-        
-        with open(os.path.join(output_dir, self.static_folder, 'js', 'main.js'), 'w') as f:
+
+        with open(
+            os.path.join(output_dir, self.static_folder, "js", "main.js"), "w"
+        ) as f:
             f.write(js_content)
-        
+
         logger.info(f"Web application templates generated in {output_dir}")
 
 
@@ -583,7 +619,7 @@ class DesktopAppTemplate(BaseUITemplate):
         author: str = "",
         config_path: Optional[str] = None,
         window_width: int = 800,
-        window_height: int = 600
+        window_height: int = 600,
     ):
         """
         Initialize a desktop application template.
@@ -598,10 +634,12 @@ class DesktopAppTemplate(BaseUITemplate):
             window_height: Height of the main window
         """
         super().__init__(app_name, description, version, author, config_path)
-        
+
         if not PYQT_AVAILABLE:
-            raise ImportError("PyQt5 is required for desktop applications. Install it with 'pip install PyQt5'.")
-        
+            raise ImportError(
+                "PyQt5 is required for desktop applications. Install it with 'pip install PyQt5'."
+            )
+
         self.window_width = window_width
         self.window_height = window_height
         self.app = None
@@ -617,58 +655,66 @@ class DesktopAppTemplate(BaseUITemplate):
         app = QtWidgets.QApplication([])
         app.setApplicationName(self.app_name)
         app.setApplicationVersion(self.version)
-        
+
         # Create main window
         main_window = QtWidgets.QMainWindow()
         main_window.setWindowTitle(self.app_name)
         main_window.resize(self.window_width, self.window_height)
-        
+
         # Create central widget
         central_widget = QtWidgets.QWidget()
         main_window.setCentralWidget(central_widget)
-        
+
         # Create layout
         layout = QtWidgets.QVBoxLayout(central_widget)
-        
+
         # Add a label with the app description
         description_label = QtWidgets.QLabel(self.description)
         description_label.setAlignment(QtCore.Qt.AlignCenter)
         description_label.setStyleSheet(f"font-size: 16px; margin: 20px;")
         layout.addWidget(description_label)
-        
+
         # Add a button
         button = QtWidgets.QPushButton("Get Started")
-        button.setStyleSheet(f"background-color: {self.config['theme']['primary_color']}; color: white; padding: 10px; font-size: 14px;")
-        button.clicked.connect(lambda: QtWidgets.QMessageBox.information(main_window, "Welcome", f"Welcome to {self.app_name}!"))
+        button.setStyleSheet(
+            f"background-color: {self.config['theme']['primary_color']}; color: white; padding: 10px; font-size: 14px;"
+        )
+        button.clicked.connect(
+            lambda: QtWidgets.QMessageBox.information(
+                main_window, "Welcome", f"Welcome to {self.app_name}!"
+            )
+        )
         layout.addWidget(button, alignment=QtCore.Qt.AlignCenter)
-        
+
         # Create menu bar
         menu_bar = main_window.menuBar()
-        
+
         # File menu
         file_menu = menu_bar.addMenu("File")
-        
+
         # Exit action
         exit_action = QtWidgets.QAction("Exit", main_window)
         exit_action.setShortcut("Ctrl+Q")
         exit_action.triggered.connect(app.quit)
         file_menu.addAction(exit_action)
-        
+
         # Help menu
         help_menu = menu_bar.addMenu("Help")
-        
+
         # About action
         about_action = QtWidgets.QAction("About", main_window)
-        about_action.triggered.connect(lambda: QtWidgets.QMessageBox.about(
-            main_window,
-            f"About {self.app_name}",
-            f"{self.app_name} v{self.version}\n\n{self.description}\n\nCreated by: {self.author or 'Unknown'}"
-        ))
+        about_action.triggered.connect(
+            lambda: QtWidgets.QMessageBox.about(
+                main_window,
+                f"About {self.app_name}",
+                f"{self.app_name} v{self.version}\n\n{self.description}\n\nCreated by: {self.author or 'Unknown'}",
+            )
+        )
         help_menu.addAction(about_action)
-        
+
         self.app = app
         self.main_window = main_window
-        
+
         return app
 
     def run(self) -> None:
@@ -677,7 +723,7 @@ class DesktopAppTemplate(BaseUITemplate):
         """
         if not self.app:
             self.create_app()
-        
+
         self.main_window.show()
         self.app.exec_()
 
@@ -789,11 +835,11 @@ def main():
 if __name__ == "__main__":
     main()
 """
-        
+
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             f.write(template)
-        
+
         logger.info(f"Desktop application template generated at {output_path}")
 
 
@@ -804,10 +850,7 @@ class UITemplateFactory:
 
     @staticmethod
     def create(
-        template_type: str,
-        app_name: str,
-        description: str,
-        **kwargs
+        template_type: str, app_name: str, description: str, **kwargs
     ) -> BaseUITemplate:
         """
         Create a UI template.
@@ -839,15 +882,15 @@ if __name__ == "__main__":
                 app_name="My Web App",
                 description="A web application for managing tasks",
                 version="1.0.0",
-                author="John Doe"
+                author="John Doe",
             )
-            
+
             # Generate templates
             web_app.generate_templates("./web_app_example")
-            
+
             # Export template configuration
             web_app.export_template("./web_app_example/template_config.json")
-            
+
             print("Web application template created successfully!")
             print(f"Template ID: {web_app.id}")
             print(f"App Name: {web_app.app_name}")
@@ -855,12 +898,12 @@ if __name__ == "__main__":
             print(f"Version: {web_app.version}")
             print(f"Author: {web_app.author}")
             print()
-            
+
             # Uncomment to run the web application
             # web_app.run(debug=True)
         except Exception as e:
             print(f"Error creating web application template: {e}")
-    
+
     # Example 2: Desktop application template
     if PYQT_AVAILABLE:
         try:
@@ -871,15 +914,15 @@ if __name__ == "__main__":
                 version="1.0.0",
                 author="Jane Doe",
                 window_width=1024,
-                window_height=768
+                window_height=768,
             )
-            
+
             # Generate template
             desktop_app.generate_template("./desktop_app_example/app.py")
-            
+
             # Export template configuration
             desktop_app.export_template("./desktop_app_example/template_config.json")
-            
+
             print("Desktop application template created successfully!")
             print(f"Template ID: {desktop_app.id}")
             print(f"App Name: {desktop_app.app_name}")
@@ -887,7 +930,7 @@ if __name__ == "__main__":
             print(f"Version: {desktop_app.version}")
             print(f"Author: {desktop_app.author}")
             print()
-            
+
             # Uncomment to run the desktop application
             # desktop_app.run()
         except Exception as e:

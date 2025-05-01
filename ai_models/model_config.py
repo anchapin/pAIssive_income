@@ -6,14 +6,15 @@ including settings for model paths, cache, and performance options.
 """
 
 import os
-from typing import Dict, List, Any, Optional, Union
-from dataclasses import dataclass, field, asdict
-from pathlib import Path
-
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from common_utils import from_json, load_from_json_file, save_to_json_file, to_json
 from interfaces.model_interfaces import IModelConfig
-from common_utils import to_json, from_json, save_to_json_file, load_from_json_file
+
 from .schemas import ModelConfigSchema
 
 
@@ -22,9 +23,18 @@ class ModelConfig(IModelConfig):
     """
     Configuration for AI models.
     """
+
     # Base directories
-    _models_dir: str = field(default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "models"))
-    _cache_dir: str = field(default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "cache"))
+    _models_dir: str = field(
+        default_factory=lambda: os.path.join(
+            os.path.expanduser("~"), ".pAIssive_income", "models"
+        )
+    )
+    _cache_dir: str = field(
+        default_factory=lambda: os.path.join(
+            os.path.expanduser("~"), ".pAIssive_income", "cache"
+        )
+    )
 
     # Cache settings
     cache_enabled: bool = True
@@ -54,39 +64,39 @@ class ModelConfig(IModelConfig):
     def models_dir(self) -> str:
         """Get the models directory."""
         return self._models_dir
-    
+
     @models_dir.setter
     def models_dir(self, value: str):
         """Set the models directory."""
         self._models_dir = value
         os.makedirs(self._models_dir, exist_ok=True)
-    
+
     @property
     def cache_dir(self) -> str:
         """Get the cache directory."""
         return self._cache_dir
-    
+
     @cache_dir.setter
     def cache_dir(self, value: str):
         """Set the cache directory."""
         self._cache_dir = value
         os.makedirs(self._cache_dir, exist_ok=True)
-    
+
     @property
     def auto_discover(self) -> bool:
         """Get whether to auto-discover models."""
         return self._auto_discover
-    
+
     @auto_discover.setter
     def auto_discover(self, value: bool):
         """Set whether to auto-discover models."""
         self._auto_discover = value
-    
+
     @property
     def max_threads(self) -> Optional[int]:
         """Get the maximum number of threads to use."""
         return self._max_threads
-    
+
     @max_threads.setter
     def max_threads(self, value: Optional[int]):
         """Set the maximum number of threads to use."""
@@ -111,7 +121,7 @@ class ModelConfig(IModelConfig):
             "auto_discover": self.auto_discover,
             "model_sources": self.model_sources,
             "default_text_model": self.default_text_model,
-            "default_embedding_model": self.default_embedding_model
+            "default_embedding_model": self.default_embedding_model,
         }
         return result
 
@@ -137,7 +147,7 @@ class ModelConfig(IModelConfig):
         save_to_json_file(self.to_dict(), config_path)
 
     @classmethod
-    def load(cls, config_path: str) -> 'ModelConfig':
+    def load(cls, config_path: str) -> "ModelConfig":
         """
         Load configuration from a JSON file.
 
@@ -171,7 +181,7 @@ class ModelConfig(IModelConfig):
         return os.path.join(config_dir, "model_config.json")
 
     @classmethod
-    def get_default(cls) -> 'ModelConfig':
+    def get_default(cls) -> "ModelConfig":
         """
         Get the default configuration.
 

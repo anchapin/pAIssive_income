@@ -4,18 +4,20 @@ Agent Team Service for the pAIssive Income UI.
 This service provides methods for interacting with the Agent Team module.
 """
 
+import json
 import logging
 import os
-import json
-from typing import Dict, List, Any, Optional
 import uuid
+from typing import Any, Dict, List, Optional
 
-from interfaces.ui_interfaces import IAgentTeamService
-from .base_service import BaseService
 from common_utils import format_datetime
+from interfaces.ui_interfaces import IAgentTeamService
+
+from .base_service import BaseService
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
 
 class AgentTeamService(BaseService, IAgentTeamService):
     """
@@ -25,17 +27,20 @@ class AgentTeamService(BaseService, IAgentTeamService):
     def __init__(self):
         """Initialize the Agent Team service."""
         super().__init__()
-        self.projects_file = 'projects.json'
+        self.projects_file = "projects.json"
 
         # Import the AgentTeam class
         try:
             from agent_team import AgentTeam
+
             self.agent_team_available = True
         except ImportError:
             logger.warning("Agent Team module not available. Using mock data.")
             self.agent_team_available = False
 
-    def create_project(self, project_name: str, config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def create_project(
+        self, project_name: str, config: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Create a new project with an agent team.
 
@@ -49,18 +54,20 @@ class AgentTeamService(BaseService, IAgentTeamService):
         if self.agent_team_available:
             try:
                 from agent_team import AgentTeam
+
                 team = AgentTeam(project_name, config_path=None)
 
                 from datetime import datetime
+
                 now = datetime.now()
                 project = {
-                    'id': str(uuid.uuid4()),
-                    'name': project_name,
-                    'created_at': format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
-                    'updated_at': format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
-                    'status': 'active',
-                    'team_id': team.id if hasattr(team, 'id') else str(uuid.uuid4()),
-                    'config': config or {}
+                    "id": str(uuid.uuid4()),
+                    "name": project_name,
+                    "created_at": format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "updated_at": format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "status": "active",
+                    "team_id": team.id if hasattr(team, "id") else str(uuid.uuid4()),
+                    "config": config or {},
                 }
             except Exception as e:
                 logger.error(f"Error creating agent team: {e}")
@@ -100,11 +107,13 @@ class AgentTeamService(BaseService, IAgentTeamService):
         """
         projects = self.get_projects()
         for project in projects:
-            if project['id'] == project_id:
+            if project["id"] == project_id:
                 return project
         return None
 
-    def update_project(self, project_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def update_project(
+        self, project_id: str, updates: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """
         Update a project.
 
@@ -117,10 +126,13 @@ class AgentTeamService(BaseService, IAgentTeamService):
         """
         projects = self.get_projects()
         for i, project in enumerate(projects):
-            if project['id'] == project_id:
+            if project["id"] == project_id:
                 project.update(updates)
                 from datetime import datetime
-                project['updated_at'] = format_datetime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ")
+
+                project["updated_at"] = format_datetime(
+                    datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ"
+                )
                 projects[i] = project
                 self.save_data(self.projects_file, projects)
                 return project
@@ -138,13 +150,15 @@ class AgentTeamService(BaseService, IAgentTeamService):
         """
         projects = self.get_projects()
         for i, project in enumerate(projects):
-            if project['id'] == project_id:
+            if project["id"] == project_id:
                 del projects[i]
                 self.save_data(self.projects_file, projects)
                 return True
         return False
 
-    def _create_mock_project(self, project_name: str, config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _create_mock_project(
+        self, project_name: str, config: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Create a mock project for testing.
 
@@ -156,14 +170,15 @@ class AgentTeamService(BaseService, IAgentTeamService):
             Mock project data
         """
         from datetime import datetime
+
         now = datetime.now()
         return {
-            'id': str(uuid.uuid4()),
-            'name': project_name,
-            'created_at': format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
-            'updated_at': format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
-            'status': 'active',
-            'team_id': str(uuid.uuid4()),
-            'config': config or {},
-            'is_mock': True
+            "id": str(uuid.uuid4()),
+            "name": project_name,
+            "created_at": format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
+            "updated_at": format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),
+            "status": "active",
+            "team_id": str(uuid.uuid4()),
+            "config": config or {},
+            "is_mock": True,
         }

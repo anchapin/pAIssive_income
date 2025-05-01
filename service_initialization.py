@@ -5,36 +5,35 @@ This module provides functions for initializing and configuring services
 used by the project, including dependency injection setup.
 """
 
-import os
 import logging
-from typing import Dict, Any, Optional, Type
+import os
+from typing import Any, Dict, Optional, Type
 
-from dependency_container import get_container, DependencyContainer
-from interfaces.agent_interfaces import IAgentTeam, IAgentProfile, IResearchAgent
-from interfaces.model_interfaces import IModelManager, IModelConfig, IModelAdapter
-from interfaces.niche_interfaces import INicheAnalyzer
-from interfaces.monetization_interfaces import IMonetizationCalculator
-from interfaces.marketing_interfaces import IMarketingStrategy
-from interfaces.ui_interfaces import (
-    IAgentTeamService, INicheAnalysisService, IDeveloperService,
-    IMonetizationService, IMarketingService
-)
-
-from agent_team import AgentTeam, ResearchAgent, AgentProfile
-
-from ai_models.model_manager import ModelManager
-from ai_models.model_config import ModelConfig
+from agent_team import AgentProfile, AgentTeam, ResearchAgent
 from ai_models.adapters import get_adapter_factory
-
-from niche_analysis.niche_analyzer import NicheAnalyzer
-from monetization.calculator import MonetizationCalculator
+from ai_models.model_config import ModelConfig
+from ai_models.model_manager import ModelManager
+from dependency_container import DependencyContainer, get_container
+from interfaces.agent_interfaces import IAgentProfile, IAgentTeam, IResearchAgent
+from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.model_interfaces import IModelAdapter, IModelConfig, IModelManager
+from interfaces.monetization_interfaces import IMonetizationCalculator
+from interfaces.niche_interfaces import INicheAnalyzer
+from interfaces.ui_interfaces import (
+    IAgentTeamService,
+    IDeveloperService,
+    IMarketingService,
+    IMonetizationService,
+    INicheAnalysisService,
+)
 from marketing.strategy_generator import StrategyGenerator
-
+from monetization.calculator import MonetizationCalculator
+from niche_analysis.niche_analyzer import NicheAnalyzer
 from ui.services.agent_team_service import AgentTeamService
-from ui.services.niche_analysis_service import NicheAnalysisService
 from ui.services.developer_service import DeveloperService
-from ui.services.monetization_service import MonetizationService
 from ui.services.marketing_service import MarketingService
+from ui.services.monetization_service import MonetizationService
+from ui.services.niche_analysis_service import NicheAnalysisService
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -77,7 +76,9 @@ def initialize_services(config: Optional[Dict[str, Any]] = None) -> DependencyCo
     return container
 
 
-def _register_configuration(container: DependencyContainer, config: Optional[Dict[str, Any]] = None) -> None:
+def _register_configuration(
+    container: DependencyContainer, config: Optional[Dict[str, Any]] = None
+) -> None:
     """
     Register configuration in the dependency container.
 
@@ -106,7 +107,7 @@ def _register_ai_models(container: DependencyContainer) -> None:
     container.register(
         IModelManager,
         lambda: ModelManager(config=container.resolve(IModelConfig)),
-        singleton=True
+        singleton=True,
     )
 
     # Register adapter factory
@@ -125,9 +126,7 @@ def _register_agent_team(container: DependencyContainer) -> None:
     """
     # Register agent profile
     container.register(
-        IAgentProfile,
-        lambda: AgentProfile(name="default"),
-        singleton=True
+        IAgentProfile, lambda: AgentProfile(name="default"), singleton=True
     )
 
     # Register research agent
@@ -135,18 +134,16 @@ def _register_agent_team(container: DependencyContainer) -> None:
         IResearchAgent,
         lambda: ResearchAgent(
             profile=container.resolve(IAgentProfile),
-            model_manager=container.resolve(IModelManager)
+            model_manager=container.resolve(IModelManager),
         ),
-        singleton=True
+        singleton=True,
     )
 
     # Register agent team
     container.register(
         IAgentTeam,
-        lambda: AgentTeam(
-            research_agent=container.resolve(IResearchAgent)
-        ),
-        singleton=True
+        lambda: AgentTeam(research_agent=container.resolve(IResearchAgent)),
+        singleton=True,
     )
 
     logger.info("Registered agent team services")
@@ -162,10 +159,8 @@ def _register_niche_analysis(container: DependencyContainer) -> None:
     # Register niche analyzer
     container.register(
         INicheAnalyzer,
-        lambda: NicheAnalyzer(
-            agent_team=container.resolve(IAgentTeam)
-        ),
-        singleton=True
+        lambda: NicheAnalyzer(agent_team=container.resolve(IAgentTeam)),
+        singleton=True,
     )
 
     logger.info("Registered niche analysis services")
@@ -180,9 +175,7 @@ def _register_monetization(container: DependencyContainer) -> None:
     """
     # Register monetization calculator
     container.register(
-        IMonetizationCalculator,
-        lambda: MonetizationCalculator(),
-        singleton=True
+        IMonetizationCalculator, lambda: MonetizationCalculator(), singleton=True
     )
 
     logger.info("Registered monetization services")
@@ -198,10 +191,8 @@ def _register_marketing(container: DependencyContainer) -> None:
     # Register marketing strategy generator
     container.register(
         IMarketingStrategy,
-        lambda: StrategyGenerator(
-            agent_team=container.resolve(IAgentTeam)
-        ),
-        singleton=True
+        lambda: StrategyGenerator(agent_team=container.resolve(IAgentTeam)),
+        singleton=True,
     )
 
     logger.info("Registered marketing services")
@@ -215,39 +206,23 @@ def _register_ui_services(container: DependencyContainer) -> None:
         container: Dependency container
     """
     # Register agent team service
-    container.register(
-        IAgentTeamService,
-        lambda: AgentTeamService(),
-        singleton=True
-    )
+    container.register(IAgentTeamService, lambda: AgentTeamService(), singleton=True)
 
     # Register niche analysis service
     container.register(
-        INicheAnalysisService,
-        lambda: NicheAnalysisService(),
-        singleton=True
+        INicheAnalysisService, lambda: NicheAnalysisService(), singleton=True
     )
 
     # Register developer service
-    container.register(
-        IDeveloperService,
-        lambda: DeveloperService(),
-        singleton=True
-    )
+    container.register(IDeveloperService, lambda: DeveloperService(), singleton=True)
 
     # Register monetization service
     container.register(
-        IMonetizationService,
-        lambda: MonetizationService(),
-        singleton=True
+        IMonetizationService, lambda: MonetizationService(), singleton=True
     )
 
     # Register marketing service
-    container.register(
-        IMarketingService,
-        lambda: MarketingService(),
-        singleton=True
-    )
+    container.register(IMarketingService, lambda: MarketingService(), singleton=True)
 
     logger.info("Registered UI services")
 

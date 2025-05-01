@@ -6,7 +6,7 @@ and improve testability and maintainability.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 class IAgentProfile(ABC):
@@ -124,7 +124,13 @@ class IResearchAgent(ABC):
         pass
 
     @abstractmethod
-    def create_niche(self, name: str, description: str, problem_areas: List[str], opportunity_score: float) -> Dict[str, Any]:
+    def create_niche(
+        self,
+        name: str,
+        description: str,
+        problem_areas: List[str],
+        opportunity_score: float,
+    ) -> Dict[str, Any]:
         """
         Create a niche dictionary.
 
@@ -240,7 +246,9 @@ class IMarketingAgent(ABC):
         pass
 
     @abstractmethod
-    def create_marketing_plan(self, solution: Dict[str, Any], niche: Dict[str, Any]) -> Dict[str, Any]:
+    def create_marketing_plan(
+        self, solution: Dict[str, Any], niche: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Create a marketing plan for a solution.
 
@@ -254,7 +262,9 @@ class IMarketingAgent(ABC):
         pass
 
     @abstractmethod
-    def create_content_strategy(self, solution: Dict[str, Any], niche: Dict[str, Any]) -> Dict[str, Any]:
+    def create_content_strategy(
+        self, solution: Dict[str, Any], niche: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Create a content strategy for a solution.
 

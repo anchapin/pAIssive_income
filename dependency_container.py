@@ -6,12 +6,12 @@ and enabling dependency injection throughout the application.
 """
 
 import logging
-from typing import Dict, Any, Type, Optional, TypeVar, Generic, cast, Callable
+from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, cast
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class DependencyContainer:
@@ -28,7 +28,9 @@ class DependencyContainer:
         self._factories: Dict[str, Any] = {}
         self._singletons: Dict[str, Any] = {}
 
-    def register(self, interface_type: Type[T], factory: Callable[[], T], singleton: bool = True) -> None:
+    def register(
+        self, interface_type: Type[T], factory: Callable[[], T], singleton: bool = True
+    ) -> None:
         """
         Register a dependency.
 
@@ -81,7 +83,10 @@ class DependencyContainer:
         interface_name = interface_type.__name__
 
         # Check if we have a singleton instance
-        if interface_name in self._singletons and self._singletons[interface_name] is not None:
+        if (
+            interface_name in self._singletons
+            and self._singletons[interface_name] is not None
+        ):
             return cast(T, self._singletons[interface_name])
 
         # Check if we have a factory

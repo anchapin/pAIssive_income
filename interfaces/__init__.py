@@ -7,79 +7,87 @@ and improve testability and maintainability.
 
 # Import agent interfaces
 from .agent_interfaces import (
-    IAgentTeam, IResearchAgent, IDeveloperAgent,
-    IMonetizationAgent, IMarketingAgent, IFeedbackAgent
+    IAgentTeam,
+    IDeveloperAgent,
+    IFeedbackAgent,
+    IMarketingAgent,
+    IMonetizationAgent,
+    IResearchAgent,
 )
+
+# Import marketing interfaces
+from .marketing_interfaces import IContentTemplate, IMarketingStrategy, IPersonaCreator
 
 # Import model interfaces
 from .model_interfaces import (
-    IModelConfig, IModelInfo, IModelManager,
-    IModelAdapter, ICacheManager, IPerformanceMonitor
-)
-
-# Import niche analysis interfaces
-from .niche_interfaces import (
-    IMarketAnalyzer, IProblemIdentifier, IOpportunityScorer
+    ICacheManager,
+    IModelAdapter,
+    IModelConfig,
+    IModelInfo,
+    IModelManager,
+    IPerformanceMonitor,
 )
 
 # Import monetization interfaces
 from .monetization_interfaces import (
-    ISubscriptionModel, IPricingCalculator, IRevenueProjector,
-    ISubscriptionManager, SubscriptionStatus, TransactionStatus, TransactionType
+    IPricingCalculator,
+    IRevenueProjector,
+    ISubscriptionManager,
+    ISubscriptionModel,
+    SubscriptionStatus,
+    TransactionStatus,
+    TransactionType,
 )
 
-# Import marketing interfaces
-from .marketing_interfaces import (
-    IPersonaCreator, IMarketingStrategy, IContentTemplate
-)
+# Import niche analysis interfaces
+from .niche_interfaces import IMarketAnalyzer, IOpportunityScorer, IProblemIdentifier
 
 # Import UI interfaces
 from .ui_interfaces import (
-    IBaseService, IAgentTeamService, INicheAnalysisService,
-    IDeveloperService, IMonetizationService, IMarketingService
+    IAgentTeamService,
+    IBaseService,
+    IDeveloperService,
+    IMarketingService,
+    IMonetizationService,
+    INicheAnalysisService,
 )
 
 __all__ = [
     # Agent interfaces
-    'IAgentTeam',
-    'IResearchAgent',
-    'IDeveloperAgent',
-    'IMonetizationAgent',
-    'IMarketingAgent',
-    'IFeedbackAgent',
-
+    "IAgentTeam",
+    "IResearchAgent",
+    "IDeveloperAgent",
+    "IMonetizationAgent",
+    "IMarketingAgent",
+    "IFeedbackAgent",
     # Model interfaces
-    'IModelConfig',
-    'IModelInfo',
-    'IModelManager',
-    'IModelAdapter',
-    'ICacheManager',
-    'IPerformanceMonitor',
-
+    "IModelConfig",
+    "IModelInfo",
+    "IModelManager",
+    "IModelAdapter",
+    "ICacheManager",
+    "IPerformanceMonitor",
     # Niche analysis interfaces
-    'IMarketAnalyzer',
-    'IProblemIdentifier',
-    'IOpportunityScorer',
-
+    "IMarketAnalyzer",
+    "IProblemIdentifier",
+    "IOpportunityScorer",
     # Monetization interfaces
-    'ISubscriptionModel',
-    'IPricingCalculator',
-    'IRevenueProjector',
-    'ISubscriptionManager',
-    'SubscriptionStatus',
-    'TransactionStatus',
-    'TransactionType',
-
+    "ISubscriptionModel",
+    "IPricingCalculator",
+    "IRevenueProjector",
+    "ISubscriptionManager",
+    "SubscriptionStatus",
+    "TransactionStatus",
+    "TransactionType",
     # Marketing interfaces
-    'IPersonaCreator',
-    'IMarketingStrategy',
-    'IContentTemplate',
-
+    "IPersonaCreator",
+    "IMarketingStrategy",
+    "IContentTemplate",
     # UI interfaces
-    'IBaseService',
-    'IAgentTeamService',
-    'INicheAnalysisService',
-    'IDeveloperService',
-    'IMonetizationService',
-    'IMarketingService',
+    "IBaseService",
+    "IAgentTeamService",
+    "INicheAnalysisService",
+    "IDeveloperService",
+    "IMonetizationService",
+    "IMarketingService",
 ]

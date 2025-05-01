@@ -5,27 +5,28 @@ This module provides an adapter for connecting to Ollama,
 a local API server for running large language models.
 """
 
-import os
+import asyncio
 import json
 import logging
-import time
-import asyncio
-import aiohttp
-from typing import Dict, List, Any, Optional, Union, Generator, AsyncGenerator, Tuple
+import os
 import threading
+import time
+from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Tuple, Union
+
+import aiohttp
 
 from .base_adapter import BaseModelAdapter
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
     import requests
+
     REQUESTS_AVAILABLE = True
 except ImportError:
     logger.warning("Requests not available. Ollama adapter will not work.")
@@ -34,6 +35,7 @@ except ImportError:
 # Check for aiohttp availability for async operations
 try:
     import aiohttp
+
     AIOHTTP_AVAILABLE = True
 except ImportError:
     logger.warning("aiohttp not available. Async operations will not work.")
@@ -46,10 +48,7 @@ class OllamaAdapter(BaseModelAdapter):
     """
 
     def __init__(
-        self,
-        base_url: str = "http://localhost:11434",
-        timeout: int = 60,
-        **kwargs
+        self, base_url: str = "http://localhost:11434", timeout: int = 60, **kwargs
     ):
         """
         Initialize the Ollama adapter.
@@ -61,18 +60,20 @@ class OllamaAdapter(BaseModelAdapter):
         """
         super().__init__(
             name="Ollama",
-            description="Adapter for connecting to Ollama, a local API server for running large language models"
+            description="Adapter for connecting to Ollama, a local API server for running large language models",
         )
 
         if not REQUESTS_AVAILABLE:
-            raise ImportError("Requests not available. Please install it with: pip install requests")
+            raise ImportError(
+                "Requests not available. Please install it with: pip install requests"
+            )
 
         self.base_url = base_url
         self.timeout = timeout
         self.kwargs = kwargs
         self.session = requests.Session()
         self._async_session = None
-        
+
         # Check if Ollama is running
         self._check_ollama_status()
 
@@ -89,7 +90,9 @@ class OllamaAdapter(BaseModelAdapter):
                 logger.warning(f"Ollama returned status code {response.status_code}")
         except requests.exceptions.RequestException as e:
             logger.error(f"Error connecting to Ollama: {e}")
-            raise ConnectionError(f"Could not connect to Ollama at {self.base_url}. Make sure Ollama is running.")
+            raise ConnectionError(
+                f"Could not connect to Ollama at {self.base_url}. Make sure Ollama is running."
+            )
 
     def connect(self, **kwargs) -> bool:
         """
@@ -140,8 +143,7 @@ class OllamaAdapter(BaseModelAdapter):
         """
         try:
             response = self.session.get(
-                f"{self.base_url}/api/tags",
-                timeout=self.timeout
+                f"{self.base_url}/api/tags", timeout=self.timeout
             )
             response.raise_for_status()
 
@@ -165,23 +167,23 @@ class OllamaAdapter(BaseModelAdapter):
             # Transform the model data to a standard format
             standardized_models = []
             for model in models:
-                standardized_models.append({
-                    "id": model.get("name", ""),
-                    "name": model.get("name", "").split(":")[0],
-                    "description": f"Ollama model: {model.get('name', '')}",
-                    "type": "llm",
-                    "size": model.get("size", 0),
-                    "modified_at": model.get("modified_at", ""),
-                    "adapter": "ollama"
-                })
+                standardized_models.append(
+                    {
+                        "id": model.get("name", ""),
+                        "name": model.get("name", "").split(":")[0],
+                        "description": f"Ollama model: {model.get('name', '')}",
+                        "type": "llm",
+                        "size": model.get("size", 0),
+                        "modified_at": model.get("modified_at", ""),
+                        "adapter": "ollama",
+                    }
+                )
 
             return standardized_models
 
         except Exception as e:
             self._handle_error(
-                e,
-                f"Failed to get models from Ollama",
-                operation="get_models"
+                e, f"Failed to get models from Ollama", operation="get_models"
             )
             return []
 
@@ -199,7 +201,7 @@ class OllamaAdapter(BaseModelAdapter):
             response = self.session.post(
                 f"{self.base_url}/api/show",
                 json={"name": model_name},
-                timeout=self.timeout
+                timeout=self.timeout,
             )
             response.raise_for_status()
 
@@ -220,7 +222,7 @@ class OllamaAdapter(BaseModelAdapter):
         max_tokens: int = 2048,
         stop: Optional[List[str]] = None,
         stream: bool = False,
-        **kwargs
+        **kwargs,
     ) -> Union[str, Generator[str, None, None]]:
         """
         Generate text using an Ollama model.
@@ -248,7 +250,7 @@ class OllamaAdapter(BaseModelAdapter):
             "top_p": top_p,
             "top_k": top_k,
             "num_predict": max_tokens,
-            "stream": stream
+            "stream": stream,
         }
 
         # Add system prompt if provided
@@ -285,16 +287,16 @@ class OllamaAdapter(BaseModelAdapter):
             Generated text
         """
         response = self.session.post(
-            f"{self.base_url}/api/generate",
-            json=request_data,
-            timeout=self.timeout
+            f"{self.base_url}/api/generate", json=request_data, timeout=self.timeout
         )
         response.raise_for_status()
 
         data = response.json()
         return data.get("response", "")
 
-    def _generate_text_stream(self, request_data: Dict[str, Any]) -> Generator[str, None, None]:
+    def _generate_text_stream(
+        self, request_data: Dict[str, Any]
+    ) -> Generator[str, None, None]:
         """
         Generate text as a stream.
 
@@ -308,7 +310,7 @@ class OllamaAdapter(BaseModelAdapter):
             f"{self.base_url}/api/generate",
             json=request_data,
             stream=True,
-            timeout=self.timeout
+            timeout=self.timeout,
         )
         response.raise_for_status()
 
@@ -336,7 +338,7 @@ class OllamaAdapter(BaseModelAdapter):
         max_tokens: int = 2048,
         stop: Optional[List[str]] = None,
         stream: bool = False,
-        **kwargs
+        **kwargs,
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """
         Chat with an Ollama model.
@@ -363,7 +365,7 @@ class OllamaAdapter(BaseModelAdapter):
             "top_p": top_p,
             "top_k": top_k,
             "num_predict": max_tokens,
-            "stream": stream
+            "stream": stream,
         }
 
         # Add stop sequences if provided
@@ -396,15 +398,15 @@ class OllamaAdapter(BaseModelAdapter):
             Response dictionary
         """
         response = self.session.post(
-            f"{self.base_url}/api/chat",
-            json=request_data,
-            timeout=self.timeout
+            f"{self.base_url}/api/chat", json=request_data, timeout=self.timeout
         )
         response.raise_for_status()
 
         return response.json()
 
-    def _chat_stream(self, request_data: Dict[str, Any]) -> Generator[Dict[str, Any], None, None]:
+    def _chat_stream(
+        self, request_data: Dict[str, Any]
+    ) -> Generator[Dict[str, Any], None, None]:
         """
         Chat as a stream.
 
@@ -418,7 +420,7 @@ class OllamaAdapter(BaseModelAdapter):
             f"{self.base_url}/api/chat",
             json=request_data,
             stream=True,
-            timeout=self.timeout
+            timeout=self.timeout,
         )
         response.raise_for_status()
 
@@ -435,12 +437,7 @@ class OllamaAdapter(BaseModelAdapter):
                 except json.JSONDecodeError:
                     logger.warning(f"Could not decode JSON: {line}")
 
-    def create_embedding(
-        self,
-        model_name: str,
-        prompt: str,
-        **kwargs
-    ) -> List[float]:
+    def create_embedding(self, model_name: str, prompt: str, **kwargs) -> List[float]:
         """
         Create an embedding for a text.
 
@@ -453,10 +450,7 @@ class OllamaAdapter(BaseModelAdapter):
             List of embedding values
         """
         # Prepare request data
-        request_data = {
-            "model": model_name,
-            "prompt": prompt
-        }
+        request_data = {"model": model_name, "prompt": prompt}
 
         # Add any additional parameters
         for key, value in kwargs.items():
@@ -467,7 +461,7 @@ class OllamaAdapter(BaseModelAdapter):
             response = self.session.post(
                 f"{self.base_url}/api/embeddings",
                 json=request_data,
-                timeout=self.timeout
+                timeout=self.timeout,
             )
             response.raise_for_status()
 
@@ -482,7 +476,7 @@ class OllamaAdapter(BaseModelAdapter):
         self,
         model_name: str,
         insecure: bool = False,
-        callback: Optional[callable] = None
+        callback: Optional[callable] = None,
     ) -> Dict[str, Any]:
         """
         Pull a model from the Ollama library.
@@ -496,10 +490,7 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with pull status
         """
         # Prepare request data
-        request_data = {
-            "name": model_name,
-            "insecure": insecure
-        }
+        request_data = {"name": model_name, "insecure": insecure}
 
         try:
             if callback:
@@ -508,7 +499,7 @@ class OllamaAdapter(BaseModelAdapter):
                 response = self.session.post(
                     f"{self.base_url}/api/pull",
                     json=request_data,
-                    timeout=None  # No timeout for model pulling
+                    timeout=None,  # No timeout for model pulling
                 )
                 response.raise_for_status()
 
@@ -519,9 +510,7 @@ class OllamaAdapter(BaseModelAdapter):
             raise
 
     def _pull_model_with_callback(
-        self,
-        request_data: Dict[str, Any],
-        callback: callable
+        self, request_data: Dict[str, Any], callback: callable
     ) -> Dict[str, Any]:
         """
         Pull a model with progress updates.
@@ -537,7 +526,7 @@ class OllamaAdapter(BaseModelAdapter):
             f"{self.base_url}/api/pull",
             json=request_data,
             stream=True,
-            timeout=None  # No timeout for model pulling
+            timeout=None,  # No timeout for model pulling
         )
         response.raise_for_status()
 
@@ -560,7 +549,7 @@ class OllamaAdapter(BaseModelAdapter):
         self,
         model_name: str,
         insecure: bool = False,
-        callback: Optional[callable] = None
+        callback: Optional[callable] = None,
     ) -> Dict[str, Any]:
         """
         Push a model to a registry.
@@ -574,10 +563,7 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with push status
         """
         # Prepare request data
-        request_data = {
-            "name": model_name,
-            "insecure": insecure
-        }
+        request_data = {"name": model_name, "insecure": insecure}
 
         try:
             if callback:
@@ -586,7 +572,7 @@ class OllamaAdapter(BaseModelAdapter):
                 response = self.session.post(
                     f"{self.base_url}/api/push",
                     json=request_data,
-                    timeout=None  # No timeout for model pushing
+                    timeout=None,  # No timeout for model pushing
                 )
                 response.raise_for_status()
 
@@ -597,9 +583,7 @@ class OllamaAdapter(BaseModelAdapter):
             raise
 
     def _push_model_with_callback(
-        self,
-        request_data: Dict[str, Any],
-        callback: callable
+        self, request_data: Dict[str, Any], callback: callable
     ) -> Dict[str, Any]:
         """
         Push a model with progress updates.
@@ -615,7 +599,7 @@ class OllamaAdapter(BaseModelAdapter):
             f"{self.base_url}/api/push",
             json=request_data,
             stream=True,
-            timeout=None  # No timeout for model pushing
+            timeout=None,  # No timeout for model pushing
         )
         response.raise_for_status()
 
@@ -635,10 +619,7 @@ class OllamaAdapter(BaseModelAdapter):
         return {"status": "success", "model": request_data["name"]}
 
     def create_model(
-        self,
-        model_name: str,
-        modelfile: str,
-        callback: Optional[callable] = None
+        self, model_name: str, modelfile: str, callback: Optional[callable] = None
     ) -> Dict[str, Any]:
         """
         Create a model from a Modelfile.
@@ -652,10 +633,7 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with creation status
         """
         # Prepare request data
-        request_data = {
-            "name": model_name,
-            "modelfile": modelfile
-        }
+        request_data = {"name": model_name, "modelfile": modelfile}
 
         try:
             if callback:
@@ -664,7 +642,7 @@ class OllamaAdapter(BaseModelAdapter):
                 response = self.session.post(
                     f"{self.base_url}/api/create",
                     json=request_data,
-                    timeout=None  # No timeout for model creation
+                    timeout=None,  # No timeout for model creation
                 )
                 response.raise_for_status()
 
@@ -675,9 +653,7 @@ class OllamaAdapter(BaseModelAdapter):
             raise
 
     def _create_model_with_callback(
-        self,
-        request_data: Dict[str, Any],
-        callback: callable
+        self, request_data: Dict[str, Any], callback: callable
     ) -> Dict[str, Any]:
         """
         Create a model with progress updates.
@@ -693,7 +669,7 @@ class OllamaAdapter(BaseModelAdapter):
             f"{self.base_url}/api/create",
             json=request_data,
             stream=True,
-            timeout=None  # No timeout for model creation
+            timeout=None,  # No timeout for model creation
         )
         response.raise_for_status()
 
@@ -723,15 +699,11 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with deletion status
         """
         # Prepare request data
-        request_data = {
-            "name": model_name
-        }
+        request_data = {"name": model_name}
 
         try:
             response = self.session.delete(
-                f"{self.base_url}/api/delete",
-                json=request_data,
-                timeout=self.timeout
+                f"{self.base_url}/api/delete", json=request_data, timeout=self.timeout
             )
             response.raise_for_status()
 
@@ -753,16 +725,11 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with copy status
         """
         # Prepare request data
-        request_data = {
-            "source": source_model,
-            "destination": target_model
-        }
+        request_data = {"source": source_model, "destination": target_model}
 
         try:
             response = self.session.post(
-                f"{self.base_url}/api/copy",
-                json=request_data,
-                timeout=self.timeout
+                f"{self.base_url}/api/copy", json=request_data, timeout=self.timeout
             )
             response.raise_for_status()
 
@@ -783,15 +750,19 @@ class OllamaAdapter(BaseModelAdapter):
             True if successful, False otherwise
         """
         if not AIOHTTP_AVAILABLE:
-            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
-            
+            raise ImportError(
+                "aiohttp not available. Please install it with: pip install aiohttp"
+            )
+
         try:
             # Create async session if needed
             if self._async_session is None:
                 self._async_session = aiohttp.ClientSession()
-                
+
             # Try to connect to the Ollama API
-            async with self._async_session.get(f"{self.base_url}", timeout=5) as response:
+            async with self._async_session.get(
+                f"{self.base_url}", timeout=5
+            ) as response:
                 if response.status != 200:
                     logger.warning(f"Ollama returned status code {response.status}")
                     self._connected = False
@@ -829,16 +800,17 @@ class OllamaAdapter(BaseModelAdapter):
             List of model information dictionaries
         """
         if not AIOHTTP_AVAILABLE:
-            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
-            
+            raise ImportError(
+                "aiohttp not available. Please install it with: pip install aiohttp"
+            )
+
         # Create async session if needed
         if self._async_session is None:
             self._async_session = aiohttp.ClientSession()
-            
+
         try:
             async with self._async_session.get(
-                f"{self.base_url}/api/tags",
-                timeout=self.timeout
+                f"{self.base_url}/api/tags", timeout=self.timeout
             ) as response:
                 response.raise_for_status()
                 data = await response.json()
@@ -861,15 +833,17 @@ class OllamaAdapter(BaseModelAdapter):
             # Transform the model data to a standard format
             standardized_models = []
             for model in models:
-                standardized_models.append({
-                    "id": model.get("name", ""),
-                    "name": model.get("name", "").split(":")[0],
-                    "description": f"Ollama model: {model.get('name', '')}",
-                    "type": "llm",
-                    "size": model.get("size", 0),
-                    "modified_at": model.get("modified_at", ""),
-                    "adapter": "ollama"
-                })
+                standardized_models.append(
+                    {
+                        "id": model.get("name", ""),
+                        "name": model.get("name", "").split(":")[0],
+                        "description": f"Ollama model: {model.get('name', '')}",
+                        "type": "llm",
+                        "size": model.get("size", 0),
+                        "modified_at": model.get("modified_at", ""),
+                        "adapter": "ollama",
+                    }
+                )
 
             return standardized_models
 
@@ -888,23 +862,27 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with model information
         """
         if not AIOHTTP_AVAILABLE:
-            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
-            
+            raise ImportError(
+                "aiohttp not available. Please install it with: pip install aiohttp"
+            )
+
         # Create async session if needed
         if self._async_session is None:
             self._async_session = aiohttp.ClientSession()
-            
+
         try:
             async with self._async_session.post(
                 f"{self.base_url}/api/show",
                 json={"name": model_name},
-                timeout=self.timeout
+                timeout=self.timeout,
             ) as response:
                 response.raise_for_status()
                 return await response.json()
 
         except aiohttp.ClientError as e:
-            logger.error(f"Error getting model info for {model_name} asynchronously: {e}")
+            logger.error(
+                f"Error getting model info for {model_name} asynchronously: {e}"
+            )
             raise
 
     async def generate_text_async(
@@ -918,7 +896,7 @@ class OllamaAdapter(BaseModelAdapter):
         max_tokens: int = 2048,
         stop: Optional[List[str]] = None,
         stream: bool = False,
-        **kwargs
+        **kwargs,
     ) -> Union[str, AsyncGenerator[str, None]]:
         """
         Generate text using an Ollama model asynchronously.
@@ -939,12 +917,14 @@ class OllamaAdapter(BaseModelAdapter):
             Generated text or an async generator yielding text chunks if streaming
         """
         if not AIOHTTP_AVAILABLE:
-            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
-            
+            raise ImportError(
+                "aiohttp not available. Please install it with: pip install aiohttp"
+            )
+
         # Create async session if needed
         if self._async_session is None:
             self._async_session = aiohttp.ClientSession()
-            
+
         # Prepare request data
         request_data = {
             "model": model_name,
@@ -953,7 +933,7 @@ class OllamaAdapter(BaseModelAdapter):
             "top_p": top_p,
             "top_k": top_k,
             "num_predict": max_tokens,
-            "stream": stream
+            "stream": stream,
         }
 
         # Add system prompt if provided
@@ -992,17 +972,17 @@ class OllamaAdapter(BaseModelAdapter):
         # Create async session if needed
         if self._async_session is None:
             self._async_session = aiohttp.ClientSession()
-            
+
         async with self._async_session.post(
-            f"{self.base_url}/api/generate",
-            json=request_data,
-            timeout=self.timeout
+            f"{self.base_url}/api/generate", json=request_data, timeout=self.timeout
         ) as response:
             response.raise_for_status()
             data = await response.json()
             return data.get("response", "")
 
-    async def _generate_text_stream_async(self, request_data: Dict[str, Any]) -> AsyncGenerator[str, None]:
+    async def _generate_text_stream_async(
+        self, request_data: Dict[str, Any]
+    ) -> AsyncGenerator[str, None]:
         """
         Generate text as an async stream.
 
@@ -1015,14 +995,12 @@ class OllamaAdapter(BaseModelAdapter):
         # Create async session if needed
         if self._async_session is None:
             self._async_session = aiohttp.ClientSession()
-            
+
         async with self._async_session.post(
-            f"{self.base_url}/api/generate",
-            json=request_data,
-            timeout=self.timeout
+            f"{self.base_url}/api/generate", json=request_data, timeout=self.timeout
         ) as response:
             response.raise_for_status()
-            
+
             # Process the stream line by line
             async for line in response.content:
                 if line:
@@ -1048,7 +1026,7 @@ class OllamaAdapter(BaseModelAdapter):
         max_tokens: int = 2048,
         stop: Optional[List[str]] = None,
         stream: bool = False,
-        **kwargs
+        **kwargs,
     ) -> Union[Dict[str, Any], AsyncGenerator[Dict[str, Any], None]]:
         """
         Chat with an Ollama model asynchronously.
@@ -1075,7 +1053,7 @@ class OllamaAdapter(BaseModelAdapter):
             "top_p": top_p,
             "top_k": top_k,
             "num_predict": max_tokens,
-            "stream": stream
+            "stream": stream,
         }
 
         # Add stop sequences if provided
@@ -1110,16 +1088,16 @@ class OllamaAdapter(BaseModelAdapter):
         # Create async session if needed
         if self._async_session is None:
             self._async_session = aiohttp.ClientSession()
-            
+
         async with self._async_session.post(
-            f"{self.base_url}/api/chat",
-            json=request_data,
-            timeout=self.timeout
+            f"{self.base_url}/api/chat", json=request_data, timeout=self.timeout
         ) as response:
             response.raise_for_status()
             return await response.json()
 
-    async def _chat_stream_async(self, request_data: Dict[str, Any]) -> AsyncGenerator[Dict[str, Any], None]:
+    async def _chat_stream_async(
+        self, request_data: Dict[str, Any]
+    ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Chat as an async stream.
 
@@ -1132,14 +1110,12 @@ class OllamaAdapter(BaseModelAdapter):
         # Create async session if needed
         if self._async_session is None:
             self._async_session = aiohttp.ClientSession()
-            
+
         async with self._async_session.post(
-            f"{self.base_url}/api/chat",
-            json=request_data,
-            timeout=self.timeout
+            f"{self.base_url}/api/chat", json=request_data, timeout=self.timeout
         ) as response:
             response.raise_for_status()
-            
+
             # Process the stream line by line
             async for line in response.content:
                 if line:
@@ -1155,10 +1131,7 @@ class OllamaAdapter(BaseModelAdapter):
                         logger.warning(f"Could not decode JSON: {line}")
 
     async def create_embedding_async(
-        self,
-        model_name: str,
-        prompt: str,
-        **kwargs
+        self, model_name: str, prompt: str, **kwargs
     ) -> List[float]:
         """
         Create an embedding for a text asynchronously.
@@ -1172,10 +1145,7 @@ class OllamaAdapter(BaseModelAdapter):
             List of embedding values
         """
         # Prepare request data
-        request_data = {
-            "model": model_name,
-            "prompt": prompt
-        }
+        request_data = {"model": model_name, "prompt": prompt}
 
         # Add any additional parameters
         for key, value in kwargs.items():
@@ -1186,14 +1156,16 @@ class OllamaAdapter(BaseModelAdapter):
             async with self._async_session.post(
                 f"{self.base_url}/api/embeddings",
                 json=request_data,
-                timeout=self.timeout
+                timeout=self.timeout,
             ) as response:
                 response.raise_for_status()
                 data = await response.json()
                 return data.get("embedding", [])
 
         except aiohttp.ClientError as e:
-            logger.error(f"Error creating embedding with {model_name} asynchronously: {e}")
+            logger.error(
+                f"Error creating embedding with {model_name} asynchronously: {e}"
+            )
             raise
 
     async def pull_model_async(
@@ -1212,16 +1184,13 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with pull status
         """
         # Prepare request data
-        request_data = {
-            "name": model_name,
-            "insecure": insecure
-        }
+        request_data = {"name": model_name, "insecure": insecure}
 
         try:
             async with self._async_session.post(
                 f"{self.base_url}/api/pull",
                 json=request_data,
-                timeout=None  # No timeout for model pulling
+                timeout=None,  # No timeout for model pulling
             ) as response:
                 response.raise_for_status()
 

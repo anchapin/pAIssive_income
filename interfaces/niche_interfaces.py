@@ -6,7 +6,7 @@ and improve testability and maintainability.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 
 class IMarketAnalyzer(ABC):
@@ -106,7 +106,12 @@ class IOpportunityScorer(ABC):
     """Interface for opportunity scorer."""
 
     @abstractmethod
-    def score_opportunity(self, market_segment: str, market_data: Dict[str, Any], problems: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def score_opportunity(
+        self,
+        market_segment: str,
+        market_data: Dict[str, Any],
+        problems: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
         """
         Score an opportunity.
 
@@ -121,7 +126,9 @@ class IOpportunityScorer(ABC):
         pass
 
     @abstractmethod
-    def rank_opportunities(self, opportunities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def rank_opportunities(
+        self, opportunities: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Rank opportunities.
 

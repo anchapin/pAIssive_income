@@ -5,37 +5,39 @@ This module provides facilities for batch processing AI model inference operatio
 including text generation, embeddings, classification, and image processing.
 """
 
-import time
-import logging
 import asyncio
-from typing import List, Dict, Any, Optional, Union, TypeVar, Generic, Tuple
-from dataclasses import dataclass, field
 import concurrent.futures
-from datetime import datetime
+import logging
+import time
 import uuid
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar, Union
 
+from common_utils.batch_utils import BatchProcessingStats, BatchResult
+
+from .async_utils import AsyncModelProcessor, AsyncResult
 from .model_manager import ModelManager
 from .performance_monitor import PerformanceMonitor
-from common_utils.batch_utils import BatchResult, BatchProcessingStats
-from .async_utils import AsyncModelProcessor, AsyncResult
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')  # Input type
-R = TypeVar('R')  # Result type
+T = TypeVar("T")  # Input type
+R = TypeVar("R")  # Result type
 
 
 @dataclass
 class BatchInferenceRequest(Generic[T]):
     """A request to process a batch of inputs through a model."""
+
     model_id: str
     inputs: List[T]
     batch_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     model_version: Optional[str] = None
     parameters: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.now)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
@@ -44,28 +46,30 @@ class BatchInferenceRequest(Generic[T]):
             "model_version": self.model_version,
             "num_inputs": len(self.inputs),
             "parameters": self.parameters,
-            "created_at": self.created_at.isoformat()
+            "created_at": self.created_at.isoformat(),
         }
 
 
 @dataclass
 class BatchInferenceResult(Generic[T, R]):
     """Results of a batch inference operation."""
+
     request: BatchInferenceRequest[T]
     results: List[R]
     errors: Dict[int, Exception]
     stats: BatchProcessingStats
     completed_at: datetime = field(default_factory=datetime.now)
-    
+
     def get_successful_results(self) -> List[R]:
         """Get only the successful results."""
         return self.results
-    
+
     def get_failed_inputs(self) -> List[Tuple[int, T, Exception]]:
         """Get inputs that resulted in errors along with their exceptions."""
-        return [(idx, self.request.inputs[idx], error) 
-                for idx, error in self.errors.items()]
-    
+        return [
+            (idx, self.request.inputs[idx], error) for idx, error in self.errors.items()
+        ]
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
@@ -78,7 +82,7 @@ class BatchInferenceResult(Generic[T, R]):
             "processing_time_ms": self.stats.processing_time_ms,
             "items_per_second": self.stats.items_per_second,
             "created_at": self.request.created_at.isoformat(),
-            "completed_at": self.completed_at.isoformat()
+            "completed_at": self.completed_at.isoformat(),
         }
 
 
@@ -86,15 +90,17 @@ class BatchInferenceProcessor:
     """
     Processes inference requests in batches for improved efficiency.
     """
-    
-    def __init__(self, 
-                model_manager: ModelManager,
-                performance_monitor: Optional[PerformanceMonitor] = None,
-                default_batch_size: int = 16,
-                default_concurrency: int = 4):
+
+    def __init__(
+        self,
+        model_manager: ModelManager,
+        performance_monitor: Optional[PerformanceMonitor] = None,
+        default_batch_size: int = 16,
+        default_concurrency: int = 4,
+    ):
         """
         Initialize the batch inference processor.
-        
+
         Args:
             model_manager: Model manager instance for loading models
             performance_monitor: Optional performance monitor for tracking metrics
@@ -107,17 +113,19 @@ class BatchInferenceProcessor:
         self.default_concurrency = default_concurrency
         self.async_processor = AsyncModelProcessor(model_manager)
         self.batch_history = {}
-    
-    def generate_text_batch(self, 
-                          model_id: str, 
-                          prompts: List[str],
-                          model_version: Optional[str] = None,
-                          batch_size: Optional[int] = None,
-                          concurrency: Optional[int] = None,
-                          **kwargs) -> BatchInferenceResult[str, str]:
+
+    def generate_text_batch(
+        self,
+        model_id: str,
+        prompts: List[str],
+        model_version: Optional[str] = None,
+        batch_size: Optional[int] = None,
+        concurrency: Optional[int] = None,
+        **kwargs
+    ) -> BatchInferenceResult[str, str]:
         """
         Generate text for a batch of prompts.
-        
+
         Args:
             model_id: ID of the model to use
             prompts: List of prompts to process
@@ -125,7 +133,7 @@ class BatchInferenceProcessor:
             batch_size: Size of each batch (defaults to default_batch_size)
             concurrency: Concurrency level within each batch (defaults to default_concurrency)
             **kwargs: Additional parameters for text generation
-            
+
         Returns:
             Batch inference result with generated texts
         """
@@ -136,32 +144,30 @@ class BatchInferenceProcessor:
             model_id=model_id,
             inputs=prompts,
             model_version=model_version,
-            parameters=kwargs
+            parameters=kwargs,
         )
-        
+
         # Prepare stats
         stats = BatchProcessingStats(
-            batch_id=batch_id,
-            total_items=len(prompts),
-            start_time=datetime.now()
+            batch_id=batch_id, total_items=len(prompts), start_time=datetime.now()
         )
-        
+
         effective_batch_size = batch_size or self.default_batch_size
         effective_concurrency = concurrency or self.default_concurrency
-        
+
         # Process the batch asynchronously
         results = []
         errors = {}
-        
+
         # Get the event loop or create one if it doesn't exist
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-        
+
         start_time = time.time()
-        
+
         # Run the async processing
         async_results: List[AsyncResult[str]] = loop.run_until_complete(
             self.async_processor.generate_text_batch(
@@ -172,7 +178,7 @@ class BatchInferenceProcessor:
                 **kwargs
             )
         )
-        
+
         # Process results
         for i, result in enumerate(async_results):
             if result.success:
@@ -182,36 +188,35 @@ class BatchInferenceProcessor:
                 results.append(None)  # Add None placeholder for failed results
                 errors[i] = result.error
                 stats.failed_items += 1
-            
+
             stats.processed_items += 1
-        
+
         # Update stats
         stats.end_time = datetime.now()
         stats.processing_time_ms = (time.time() - start_time) * 1000
-        
+
         # Create the batch result
         batch_result = BatchInferenceResult(
-            request=request,
-            results=results,
-            errors=errors,
-            stats=stats
+            request=request, results=results, errors=errors, stats=stats
         )
-        
+
         # Store in history
         self.batch_history[batch_id] = batch_result
-        
+
         return batch_result
-    
-    def generate_embeddings_batch(self,
-                                model_id: str,
-                                texts: List[str],
-                                model_version: Optional[str] = None,
-                                batch_size: Optional[int] = None,
-                                concurrency: Optional[int] = None,
-                                **kwargs) -> BatchInferenceResult[str, List[float]]:
+
+    def generate_embeddings_batch(
+        self,
+        model_id: str,
+        texts: List[str],
+        model_version: Optional[str] = None,
+        batch_size: Optional[int] = None,
+        concurrency: Optional[int] = None,
+        **kwargs
+    ) -> BatchInferenceResult[str, List[float]]:
         """
         Generate embeddings for a batch of texts.
-        
+
         Args:
             model_id: ID of the model to use
             texts: List of texts to embed
@@ -219,7 +224,7 @@ class BatchInferenceProcessor:
             batch_size: Size of each batch (defaults to default_batch_size)
             concurrency: Concurrency level within each batch (defaults to default_concurrency)
             **kwargs: Additional parameters for embedding generation
-            
+
         Returns:
             Batch inference result with embeddings
         """
@@ -230,32 +235,30 @@ class BatchInferenceProcessor:
             model_id=model_id,
             inputs=texts,
             model_version=model_version,
-            parameters=kwargs
+            parameters=kwargs,
         )
-        
+
         # Prepare stats
         stats = BatchProcessingStats(
-            batch_id=batch_id,
-            total_items=len(texts),
-            start_time=datetime.now()
+            batch_id=batch_id, total_items=len(texts), start_time=datetime.now()
         )
-        
+
         effective_batch_size = batch_size or self.default_batch_size
         effective_concurrency = concurrency or self.default_concurrency
-        
+
         # Process the batch asynchronously
         results = []
         errors = {}
-        
+
         # Get the event loop or create one if it doesn't exist
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-        
+
         start_time = time.time()
-        
+
         # Run the async processing
         async_results: List[AsyncResult[List[float]]] = loop.run_until_complete(
             self.async_processor.generate_embeddings_batch(
@@ -266,7 +269,7 @@ class BatchInferenceProcessor:
                 **kwargs
             )
         )
-        
+
         # Process results
         for i, result in enumerate(async_results):
             if result.success:
@@ -276,45 +279,42 @@ class BatchInferenceProcessor:
                 results.append(None)  # Add None placeholder for failed results
                 errors[i] = result.error
                 stats.failed_items += 1
-            
+
             stats.processed_items += 1
-        
+
         # Update stats
         stats.end_time = datetime.now()
         stats.processing_time_ms = (time.time() - start_time) * 1000
-        
+
         # Create the batch result
         batch_result = BatchInferenceResult(
-            request=request,
-            results=results,
-            errors=errors,
-            stats=stats
+            request=request, results=results, errors=errors, stats=stats
         )
-        
+
         # Store in history
         self.batch_history[batch_id] = batch_result
-        
+
         return batch_result
-    
+
     def get_batch_result(self, batch_id: str) -> Optional[BatchInferenceResult]:
         """
         Get a batch result by its ID.
-        
+
         Args:
             batch_id: ID of the batch to retrieve
-            
+
         Returns:
             BatchInferenceResult if found, None otherwise
         """
         return self.batch_history.get(batch_id)
-    
+
     def get_recent_batches(self, limit: int = 10) -> List[Dict[str, Any]]:
         """
         Get information about recent batches.
-        
+
         Args:
             limit: Maximum number of batches to return
-            
+
         Returns:
             List of batch summary dictionaries
         """
@@ -322,24 +322,26 @@ class BatchInferenceProcessor:
         sorted_batches = sorted(
             self.batch_history.values(),
             key=lambda r: r.request.created_at,
-            reverse=True
+            reverse=True,
         )
-        
+
         # Return limited number of batch summaries
         return [batch.to_dict() for batch in sorted_batches[:limit]]
 
 
 # Convenience functions for batch processing
-def generate_text_batch(model_manager: ModelManager,
-                       model_id: str,
-                       prompts: List[str],
-                       model_version: Optional[str] = None,
-                       batch_size: int = 16,
-                       concurrency: int = 4,
-                       **kwargs) -> BatchInferenceResult[str, str]:
+def generate_text_batch(
+    model_manager: ModelManager,
+    model_id: str,
+    prompts: List[str],
+    model_version: Optional[str] = None,
+    batch_size: int = 16,
+    concurrency: int = 4,
+    **kwargs
+) -> BatchInferenceResult[str, str]:
     """
     Generate text for multiple prompts in batch mode.
-    
+
     Args:
         model_manager: Model manager instance
         model_id: ID of the model to use
@@ -348,7 +350,7 @@ def generate_text_batch(model_manager: ModelManager,
         batch_size: Size of each batch
         concurrency: Concurrency level within each batch
         **kwargs: Additional parameters for text generation
-        
+
     Returns:
         BatchInferenceResult with generated texts
     """
@@ -362,16 +364,18 @@ def generate_text_batch(model_manager: ModelManager,
     )
 
 
-def generate_embeddings_batch(model_manager: ModelManager,
-                             model_id: str,
-                             texts: List[str],
-                             model_version: Optional[str] = None,
-                             batch_size: int = 32,
-                             concurrency: int = 8,
-                             **kwargs) -> BatchInferenceResult[str, List[float]]:
+def generate_embeddings_batch(
+    model_manager: ModelManager,
+    model_id: str,
+    texts: List[str],
+    model_version: Optional[str] = None,
+    batch_size: int = 32,
+    concurrency: int = 8,
+    **kwargs
+) -> BatchInferenceResult[str, List[float]]:
     """
     Generate embeddings for multiple texts in batch mode.
-    
+
     Args:
         model_manager: Model manager instance
         model_id: ID of the model to use
@@ -380,7 +384,7 @@ def generate_embeddings_batch(model_manager: ModelManager,
         batch_size: Size of each batch
         concurrency: Concurrency level within each batch
         **kwargs: Additional parameters for embedding generation
-        
+
     Returns:
         BatchInferenceResult with embeddings
     """

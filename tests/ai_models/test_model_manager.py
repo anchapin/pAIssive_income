@@ -1,16 +1,18 @@
 """
 Tests for the ModelManager class.
 """
-import os
+
 import json
-import pytest
-from unittest.mock import patch, MagicMock, mock_open
-from pathlib import Path
-import tempfile
+import os
 import shutil
+import tempfile
+from pathlib import Path
+from unittest.mock import MagicMock, mock_open, patch
+
+import pytest
 
 from ai_models.model_manager import ModelInfo
-from interfaces.model_interfaces import IModelManager, IModelConfig, IModelInfo
+from interfaces.model_interfaces import IModelConfig, IModelInfo, IModelManager
 
 
 @pytest.fixture
@@ -89,7 +91,7 @@ def test_model_manager_init_model_registry(model_manager, mock_config):
             "description": "A test model",
             "type": "huggingface",
             "path": "/path/to/model1",
-            "capabilities": ["text-generation"]
+            "capabilities": ["text-generation"],
         },
         "model2": {
             "id": "model2",
@@ -97,13 +99,13 @@ def test_model_manager_init_model_registry(model_manager, mock_config):
             "description": "Another test model",
             "type": "embedding",
             "path": "/path/to/model2",
-            "capabilities": ["embedding"]
-        }
+            "capabilities": ["embedding"],
+        },
     }
 
     # Create the registry file
     os.makedirs(os.path.dirname(registry_path), exist_ok=True)
-    with open(registry_path, 'w') as f:
+    with open(registry_path, "w") as f:
         json.dump(registry_data, f)
 
     # Mock the _init_model_registry method
@@ -123,32 +125,33 @@ def test_model_manager_save_model_registry(model_manager, mock_config):
     model1 = MagicMock()
     model1.id = "model1"
     model1.name = "Model 1"
-    model1.to_dict = MagicMock(return_value={
-        "id": "model1",
-        "name": "Model 1",
-        "description": "A test model",
-        "type": "huggingface",
-        "path": "/path/to/model1",
-        "capabilities": ["text-generation"]
-    })
+    model1.to_dict = MagicMock(
+        return_value={
+            "id": "model1",
+            "name": "Model 1",
+            "description": "A test model",
+            "type": "huggingface",
+            "path": "/path/to/model1",
+            "capabilities": ["text-generation"],
+        }
+    )
 
     model2 = MagicMock()
     model2.id = "model2"
     model2.name = "Model 2"
-    model2.to_dict = MagicMock(return_value={
-        "id": "model2",
-        "name": "Model 2",
-        "description": "Another test model",
-        "type": "embedding",
-        "path": "/path/to/model2",
-        "capabilities": ["embedding"]
-    })
+    model2.to_dict = MagicMock(
+        return_value={
+            "id": "model2",
+            "name": "Model 2",
+            "description": "Another test model",
+            "type": "embedding",
+            "path": "/path/to/model2",
+            "capabilities": ["embedding"],
+        }
+    )
 
     # Add models to the manager
-    model_manager.models = {
-        "model1": model1,
-        "model2": model2
-    }
+    model_manager.models = {"model1": model1, "model2": model2}
 
     # Mock the _save_model_registry method
     save_registry_mock = MagicMock()
@@ -468,10 +471,7 @@ def test_model_manager_get_loaded_models(model_manager):
     # Create mock loaded models
     mock_model1 = MagicMock()
     mock_model2 = MagicMock()
-    loaded_models = {
-        "model1": mock_model1,
-        "model2": mock_model2
-    }
+    loaded_models = {"model1": mock_model1, "model2": mock_model2}
 
     # Set up the mock to return the loaded models
     get_loaded_models_mock.return_value = loaded_models
@@ -500,7 +500,7 @@ def test_model_manager_update_model_info(model_manager):
     updated_info = {
         "name": "Updated Model 1",
         "description": "An updated test model",
-        "capabilities": ["text-generation", "embedding"]
+        "capabilities": ["text-generation", "embedding"],
     }
 
     # Call the method

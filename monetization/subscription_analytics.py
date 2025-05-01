@@ -5,16 +5,17 @@ This module provides classes for analyzing subscription data, including
 metrics calculation, churn analysis, and revenue forecasting.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple, Callable
-from datetime import datetime, timedelta
 import math
 import statistics
-import numpy as np
 from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+import numpy as np
 
 from .subscription import SubscriptionPlan
-from .user_subscription import Subscription, SubscriptionStatus
 from .subscription_manager import SubscriptionManager
+from .user_subscription import Subscription, SubscriptionStatus
 
 
 class SubscriptionMetrics:
@@ -35,9 +36,7 @@ class SubscriptionMetrics:
         self.subscription_manager = subscription_manager
 
     def get_active_subscriptions(
-        self,
-        date: Optional[datetime] = None,
-        plan_id: Optional[str] = None
+        self, date: Optional[datetime] = None, plan_id: Optional[str] = None
     ) -> List[Subscription]:
         """
         Get active subscriptions at a specific date.
@@ -55,9 +54,11 @@ class SubscriptionMetrics:
 
         for subscription in self.subscription_manager.subscriptions.values():
             # Check if subscription was active at the given date
-            if (subscription.start_date <= date and
-                (not subscription.end_date or subscription.end_date >= date) and
-                subscription.is_active()):
+            if (
+                subscription.start_date <= date
+                and (not subscription.end_date or subscription.end_date >= date)
+                and subscription.is_active()
+            ):
 
                 # Filter by plan ID if provided
                 if plan_id and subscription.plan_id != plan_id:
@@ -72,7 +73,7 @@ class SubscriptionMetrics:
         status: Optional[str] = None,
         plan_id: Optional[str] = None,
         tier_id: Optional[str] = None,
-        date: Optional[datetime] = None
+        date: Optional[datetime] = None,
     ) -> int:
         """
         Get the count of subscriptions with a specific status.
@@ -114,7 +115,7 @@ class SubscriptionMetrics:
         self,
         plan_id: Optional[str] = None,
         tier_id: Optional[str] = None,
-        date: Optional[datetime] = None
+        date: Optional[datetime] = None,
     ) -> int:
         """
         Get the count of active subscriptions.
@@ -134,9 +135,11 @@ class SubscriptionMetrics:
 
         for subscription in self.subscription_manager.subscriptions.values():
             # Check if subscription was active at the given date
-            if (subscription.start_date <= date and
-                (not subscription.end_date or subscription.end_date >= date) and
-                subscription.status in active_statuses):
+            if (
+                subscription.start_date <= date
+                and (not subscription.end_date or subscription.end_date >= date)
+                and subscription.status in active_statuses
+            ):
 
                 # Filter by plan ID if provided
                 if plan_id and subscription.plan_id != plan_id:
@@ -154,7 +157,7 @@ class SubscriptionMetrics:
         self,
         plan_id: Optional[str] = None,
         tier_id: Optional[str] = None,
-        date: Optional[datetime] = None
+        date: Optional[datetime] = None,
     ) -> int:
         """
         Get the count of trial subscriptions.
@@ -168,17 +171,14 @@ class SubscriptionMetrics:
             Count of trial subscriptions
         """
         return self.get_subscription_count(
-            status=SubscriptionStatus.TRIAL,
-            plan_id=plan_id,
-            tier_id=tier_id,
-            date=date
+            status=SubscriptionStatus.TRIAL, plan_id=plan_id, tier_id=tier_id, date=date
         )
 
     def get_canceled_subscription_count(
         self,
         plan_id: Optional[str] = None,
         tier_id: Optional[str] = None,
-        date: Optional[datetime] = None
+        date: Optional[datetime] = None,
     ) -> int:
         """
         Get the count of canceled subscriptions.
@@ -195,14 +195,14 @@ class SubscriptionMetrics:
             status=SubscriptionStatus.CANCELED,
             plan_id=plan_id,
             tier_id=tier_id,
-            date=date
+            date=date,
         )
 
     def get_monthly_recurring_revenue(
         self,
         date: Optional[datetime] = None,
         plan_id: Optional[str] = None,
-        tier_id: Optional[str] = None
+        tier_id: Optional[str] = None,
     ) -> float:
         """
         Calculate monthly recurring revenue (MRR).
@@ -224,7 +224,10 @@ class SubscriptionMetrics:
                 continue
 
             # Skip trial subscriptions with no payment
-            if subscription.status == SubscriptionStatus.TRIAL and subscription.price == 0:
+            if (
+                subscription.status == SubscriptionStatus.TRIAL
+                and subscription.price == 0
+            ):
                 continue
 
             # Calculate monthly equivalent price
@@ -242,7 +245,7 @@ class SubscriptionMetrics:
         self,
         date: Optional[datetime] = None,
         plan_id: Optional[str] = None,
-        tier_id: Optional[str] = None
+        tier_id: Optional[str] = None,
     ) -> float:
         """
         Calculate annual recurring revenue (ARR).
@@ -259,9 +262,7 @@ class SubscriptionMetrics:
         return mrr * 12
 
     def get_average_revenue_per_user(
-        self,
-        date: Optional[datetime] = None,
-        plan_id: Optional[str] = None
+        self, date: Optional[datetime] = None, plan_id: Optional[str] = None
     ) -> float:
         """
         Calculate average revenue per user (ARPU).
@@ -282,10 +283,7 @@ class SubscriptionMetrics:
         mrr = self.get_monthly_recurring_revenue(date, plan_id)
         return mrr / active_count
 
-    def get_revenue_by_plan(
-        self,
-        date: Optional[datetime] = None
-    ) -> Dict[str, float]:
+    def get_revenue_by_plan(self, date: Optional[datetime] = None) -> Dict[str, float]:
         """
         Get revenue breakdown by plan.
 
@@ -305,9 +303,7 @@ class SubscriptionMetrics:
         return revenue_by_plan
 
     def get_revenue_by_tier(
-        self,
-        plan_id: str,
-        date: Optional[datetime] = None
+        self, plan_id: str, date: Optional[datetime] = None
     ) -> Dict[str, float]:
         """
         Get revenue breakdown by tier for a specific plan.
@@ -338,7 +334,7 @@ class SubscriptionMetrics:
         self,
         period: str = "month",
         plan_id: Optional[str] = None,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> float:
         """
         Calculate subscription growth rate.
@@ -383,7 +379,7 @@ class SubscriptionMetrics:
         self,
         period: str = "month",
         plan_id: Optional[str] = None,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> float:
         """
         Calculate revenue growth rate.
@@ -425,8 +421,7 @@ class SubscriptionMetrics:
         return growth_rate
 
     def get_subscription_distribution(
-        self,
-        date: Optional[datetime] = None
+        self, date: Optional[datetime] = None
     ) -> Dict[str, Dict[str, int]]:
         """
         Get distribution of subscriptions by plan and tier.
@@ -457,7 +452,7 @@ class SubscriptionMetrics:
         interval: str = "month",
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Get subscription count history over time.
@@ -503,10 +498,7 @@ class SubscriptionMetrics:
         for date in date_points:
             count = self.get_active_subscription_count(plan_id, date=date)
 
-            history.append({
-                "date": date.isoformat(),
-                "count": count
-            })
+            history.append({"date": date.isoformat(), "count": count})
 
         return history
 
@@ -515,7 +507,7 @@ class SubscriptionMetrics:
         interval: str = "month",
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Get revenue history over time.
@@ -561,16 +553,12 @@ class SubscriptionMetrics:
         for date in date_points:
             mrr = self.get_monthly_recurring_revenue(date, plan_id)
 
-            history.append({
-                "date": date.isoformat(),
-                "revenue": mrr
-            })
+            history.append({"date": date.isoformat(), "revenue": mrr})
 
         return history
 
     def get_subscription_summary(
-        self,
-        date: Optional[datetime] = None
+        self, date: Optional[datetime] = None
     ) -> Dict[str, Any]:
         """
         Get a summary of subscription metrics.
@@ -612,7 +600,7 @@ class SubscriptionMetrics:
             "arpu": arpu,
             "subscription_growth": subscription_growth,
             "revenue_growth": revenue_growth,
-            "distribution": distribution
+            "distribution": distribution,
         }
 
         return summary
@@ -640,7 +628,7 @@ class ChurnAnalysis:
         self,
         period: str = "month",
         plan_id: Optional[str] = None,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> float:
         """
         Calculate churn rate for a specific period.
@@ -681,7 +669,10 @@ class ChurnAnalysis:
 
         for subscription in active_at_start:
             # Check if subscription is still active at end date
-            if subscription.status not in [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]:
+            if subscription.status not in [
+                SubscriptionStatus.ACTIVE,
+                SubscriptionStatus.TRIAL,
+            ]:
                 churned_count += 1
                 continue
 
@@ -697,7 +688,7 @@ class ChurnAnalysis:
         self,
         period: str = "month",
         plan_id: Optional[str] = None,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> float:
         """
         Calculate retention rate for a specific period.
@@ -714,9 +705,7 @@ class ChurnAnalysis:
         return 100.0 - churn_rate
 
     def get_churn_by_plan(
-        self,
-        period: str = "month",
-        end_date: Optional[datetime] = None
+        self, period: str = "month", end_date: Optional[datetime] = None
     ) -> Dict[str, float]:
         """
         Get churn rate breakdown by plan.
@@ -738,10 +727,7 @@ class ChurnAnalysis:
         return churn_by_plan
 
     def get_churn_by_tier(
-        self,
-        plan_id: str,
-        period: str = "month",
-        end_date: Optional[datetime] = None
+        self, plan_id: str, period: str = "month", end_date: Optional[datetime] = None
     ) -> Dict[str, float]:
         """
         Get churn rate breakdown by tier for a specific plan.
@@ -783,7 +769,9 @@ class ChurnAnalysis:
             # Get active subscriptions at start date for this tier
             active_at_start = []
 
-            for subscription in self.metrics.get_active_subscriptions(start_date, plan_id):
+            for subscription in self.metrics.get_active_subscriptions(
+                start_date, plan_id
+            ):
                 if subscription.tier_id == tier_id:
                     active_at_start.append(subscription)
 
@@ -796,7 +784,10 @@ class ChurnAnalysis:
 
             for subscription in active_at_start:
                 # Check if subscription is still active at end date
-                if subscription.status not in [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]:
+                if subscription.status not in [
+                    SubscriptionStatus.ACTIVE,
+                    SubscriptionStatus.TRIAL,
+                ]:
                     churned_count += 1
                     continue
 
@@ -815,7 +806,7 @@ class ChurnAnalysis:
         interval: str = "month",
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Get churn rate history over time.
@@ -861,10 +852,7 @@ class ChurnAnalysis:
         for date in date_points:
             churn_rate = self.get_churn_rate(interval, plan_id, date)
 
-            history.append({
-                "date": date.isoformat(),
-                "churn_rate": churn_rate
-            })
+            history.append({"date": date.isoformat(), "churn_rate": churn_rate})
 
         return history
 
@@ -873,7 +861,7 @@ class ChurnAnalysis:
         cohort_interval: str = "month",
         periods: int = 6,
         end_date: Optional[datetime] = None,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> Dict[str, List[float]]:
         """
         Perform cohort analysis for retention rates.
@@ -921,8 +909,10 @@ class ChurnAnalysis:
                     cohort_start = cohort_date
                     cohort_end = cohort_date + timedelta(days=30)
 
-                if (subscription.start_date >= cohort_start and
-                    subscription.start_date < cohort_end):
+                if (
+                    subscription.start_date >= cohort_start
+                    and subscription.start_date < cohort_end
+                ):
 
                     # Filter by plan ID if provided
                     if plan_id and subscription.plan_id != plan_id:
@@ -952,8 +942,13 @@ class ChurnAnalysis:
 
                 for subscription in cohort_subscriptions:
                     # Check if subscription is still active at this period
-                    if (subscription.status in [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL] and
-                        (not subscription.end_date or subscription.end_date >= period_date)):
+                    if subscription.status in [
+                        SubscriptionStatus.ACTIVE,
+                        SubscriptionStatus.TRIAL,
+                    ] and (
+                        not subscription.end_date
+                        or subscription.end_date >= period_date
+                    ):
                         active_count += 1
 
                 # Calculate retention rate
@@ -970,7 +965,7 @@ class ChurnAnalysis:
         plan_id: Optional[str] = None,
         tier_id: Optional[str] = None,
         churn_rate: Optional[float] = None,
-        discount_rate: float = 0.1
+        discount_rate: float = 0.1,
     ) -> float:
         """
         Calculate customer lifetime value (LTV).
@@ -1027,29 +1022,50 @@ class ChurnAnalysis:
                 continue
 
             # Categorize reasons
-            if "price" in reason.lower() or "expensive" in reason.lower() or "cost" in reason.lower():
+            if (
+                "price" in reason.lower()
+                or "expensive" in reason.lower()
+                or "cost" in reason.lower()
+            ):
                 reasons["Price"] += 1
-            elif "feature" in reason.lower() or "missing" in reason.lower() or "lack" in reason.lower():
+            elif (
+                "feature" in reason.lower()
+                or "missing" in reason.lower()
+                or "lack" in reason.lower()
+            ):
                 reasons["Missing Features"] += 1
             elif "competitor" in reason.lower() or "alternative" in reason.lower():
                 reasons["Competitor"] += 1
-            elif "difficult" in reason.lower() or "complex" in reason.lower() or "confusing" in reason.lower():
+            elif (
+                "difficult" in reason.lower()
+                or "complex" in reason.lower()
+                or "confusing" in reason.lower()
+            ):
                 reasons["Usability"] += 1
-            elif "support" in reason.lower() or "help" in reason.lower() or "service" in reason.lower():
+            elif (
+                "support" in reason.lower()
+                or "help" in reason.lower()
+                or "service" in reason.lower()
+            ):
                 reasons["Support"] += 1
-            elif "temporary" in reason.lower() or "pause" in reason.lower() or "break" in reason.lower():
+            elif (
+                "temporary" in reason.lower()
+                or "pause" in reason.lower()
+                or "break" in reason.lower()
+            ):
                 reasons["Temporary"] += 1
-            elif "business" in reason.lower() or "company" in reason.lower() or "project" in reason.lower():
+            elif (
+                "business" in reason.lower()
+                or "company" in reason.lower()
+                or "project" in reason.lower()
+            ):
                 reasons["Business Changes"] += 1
             else:
                 reasons["Other"] += 1
 
         return dict(reasons)
 
-    def get_churn_prediction(
-        self,
-        subscription_id: str
-    ) -> float:
+    def get_churn_prediction(self, subscription_id: str) -> float:
         """
         Predict the likelihood of churn for a specific subscription.
 
@@ -1099,9 +1115,7 @@ class ChurnAnalysis:
         return min(100.0, churn_probability)
 
     def get_at_risk_subscriptions(
-        self,
-        threshold: float = 50.0,
-        plan_id: Optional[str] = None
+        self, threshold: float = 50.0, plan_id: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get subscriptions at risk of churning.
@@ -1128,13 +1142,15 @@ class ChurnAnalysis:
             churn_probability = self.get_churn_prediction(subscription.id)
 
             if churn_probability >= threshold:
-                at_risk.append({
-                    "subscription_id": subscription.id,
-                    "user_id": subscription.user_id,
-                    "plan_id": subscription.plan_id,
-                    "tier_id": subscription.tier_id,
-                    "churn_probability": churn_probability
-                })
+                at_risk.append(
+                    {
+                        "subscription_id": subscription.id,
+                        "user_id": subscription.user_id,
+                        "plan_id": subscription.plan_id,
+                        "tier_id": subscription.tier_id,
+                        "churn_probability": churn_probability,
+                    }
+                )
 
         # Sort by churn probability (highest first)
         at_risk.sort(key=lambda x: x["churn_probability"], reverse=True)
@@ -1142,9 +1158,7 @@ class ChurnAnalysis:
         return at_risk
 
     def get_churn_summary(
-        self,
-        period: str = "month",
-        end_date: Optional[datetime] = None
+        self, period: str = "month", end_date: Optional[datetime] = None
     ) -> Dict[str, Any]:
         """
         Get a summary of churn metrics.
@@ -1183,7 +1197,7 @@ class ChurnAnalysis:
             "churn_by_plan": churn_by_plan,
             "churn_reasons": churn_reasons,
             "at_risk_count": len(at_risk),
-            "lifetime_value": ltv
+            "lifetime_value": ltv,
         }
 
         return summary
@@ -1201,7 +1215,7 @@ class SubscriptionForecasting:
         self,
         subscription_manager: SubscriptionManager,
         metrics: Optional[SubscriptionMetrics] = None,
-        churn_analysis: Optional[ChurnAnalysis] = None
+        churn_analysis: Optional[ChurnAnalysis] = None,
     ):
         """
         Initialize subscription forecasting.
@@ -1221,7 +1235,7 @@ class SubscriptionForecasting:
         period_type: str = "month",
         growth_rate: Optional[float] = None,
         churn_rate: Optional[float] = None,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Forecast subscription count for future periods.
@@ -1261,18 +1275,18 @@ class SubscriptionForecasting:
         for i in range(periods):
             # Calculate next period date
             if period_type == "day":
-                period_date = current_date + timedelta(days=i+1)
+                period_date = current_date + timedelta(days=i + 1)
             elif period_type == "week":
-                period_date = current_date + timedelta(days=(i+1)*7)
+                period_date = current_date + timedelta(days=(i + 1) * 7)
             elif period_type == "month":
                 # Approximate a month as 30 days
-                period_date = current_date + timedelta(days=(i+1)*30)
+                period_date = current_date + timedelta(days=(i + 1) * 30)
             elif period_type == "year":
                 # Approximate a year as 365 days
-                period_date = current_date + timedelta(days=(i+1)*365)
+                period_date = current_date + timedelta(days=(i + 1) * 365)
             else:
                 # Default to month
-                period_date = current_date + timedelta(days=(i+1)*30)
+                period_date = current_date + timedelta(days=(i + 1) * 30)
 
             # Calculate forecasted count
             forecasted_count = current_count * (1 + net_growth_rate) ** (i + 1)
@@ -1281,11 +1295,13 @@ class SubscriptionForecasting:
             forecasted_count = round(forecasted_count)
 
             # Add to forecast
-            forecast.append({
-                "period": i + 1,
-                "date": period_date.isoformat(),
-                "subscriptions": forecasted_count
-            })
+            forecast.append(
+                {
+                    "period": i + 1,
+                    "date": period_date.isoformat(),
+                    "subscriptions": forecasted_count,
+                }
+            )
 
         return forecast
 
@@ -1296,7 +1312,7 @@ class SubscriptionForecasting:
         growth_rate: Optional[float] = None,
         churn_rate: Optional[float] = None,
         arpu_change_rate: float = 0.0,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Forecast revenue for future periods.
@@ -1324,7 +1340,7 @@ class SubscriptionForecasting:
             period_type=period_type,
             growth_rate=growth_rate,
             churn_rate=churn_rate,
-            plan_id=plan_id
+            plan_id=plan_id,
         )
 
         # Convert ARPU change rate to decimal
@@ -1341,13 +1357,15 @@ class SubscriptionForecasting:
             forecasted_revenue = period["subscriptions"] * forecasted_arpu
 
             # Add to forecast
-            forecast.append({
-                "period": period["period"],
-                "date": period["date"],
-                "subscriptions": period["subscriptions"],
-                "arpu": forecasted_arpu,
-                "revenue": forecasted_revenue
-            })
+            forecast.append(
+                {
+                    "period": period["period"],
+                    "date": period["date"],
+                    "subscriptions": period["subscriptions"],
+                    "arpu": forecasted_arpu,
+                    "revenue": forecasted_revenue,
+                }
+            )
 
         return forecast
 
@@ -1357,7 +1375,7 @@ class SubscriptionForecasting:
         churn_rate: Optional[float] = None,
         arpu_change_rate: float = 0.0,
         discount_rate: float = 0.1,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Forecast customer lifetime value for future periods.
@@ -1393,7 +1411,7 @@ class SubscriptionForecasting:
 
         for i in range(periods):
             # Calculate period date
-            period_date = current_date + timedelta(days=(i+1)*30)
+            period_date = current_date + timedelta(days=(i + 1) * 30)
 
             # Calculate forecasted ARPU
             forecasted_arpu = current_arpu * (1 + arpu_change_rate_decimal) ** (i + 1)
@@ -1405,12 +1423,14 @@ class SubscriptionForecasting:
             forecasted_ltv = forecasted_ltv * (1 - discount_rate)
 
             # Add to forecast
-            forecast.append({
-                "period": i + 1,
-                "date": period_date.isoformat(),
-                "arpu": forecasted_arpu,
-                "ltv": forecasted_ltv
-            })
+            forecast.append(
+                {
+                    "period": i + 1,
+                    "date": period_date.isoformat(),
+                    "arpu": forecasted_arpu,
+                    "ltv": forecasted_ltv,
+                }
+            )
 
         return forecast
 
@@ -1420,7 +1440,7 @@ class SubscriptionForecasting:
         period_type: str = "month",
         churn_rate: Optional[float] = None,
         churn_change_rate: float = 0.0,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Forecast churn rate for future periods.
@@ -1449,28 +1469,32 @@ class SubscriptionForecasting:
         for i in range(periods):
             # Calculate period date
             if period_type == "day":
-                period_date = current_date + timedelta(days=i+1)
+                period_date = current_date + timedelta(days=i + 1)
             elif period_type == "week":
-                period_date = current_date + timedelta(days=(i+1)*7)
+                period_date = current_date + timedelta(days=(i + 1) * 7)
             elif period_type == "month":
                 # Approximate a month as 30 days
-                period_date = current_date + timedelta(days=(i+1)*30)
+                period_date = current_date + timedelta(days=(i + 1) * 30)
             elif period_type == "year":
                 # Approximate a year as 365 days
-                period_date = current_date + timedelta(days=(i+1)*365)
+                period_date = current_date + timedelta(days=(i + 1) * 365)
             else:
                 # Default to month
-                period_date = current_date + timedelta(days=(i+1)*30)
+                period_date = current_date + timedelta(days=(i + 1) * 30)
 
             # Calculate forecasted churn rate
-            forecasted_churn_rate = churn_rate * (1 + churn_change_rate_decimal) ** (i + 1)
+            forecasted_churn_rate = churn_rate * (1 + churn_change_rate_decimal) ** (
+                i + 1
+            )
 
             # Add to forecast
-            forecast.append({
-                "period": i + 1,
-                "date": period_date.isoformat(),
-                "churn_rate": forecasted_churn_rate
-            })
+            forecast.append(
+                {
+                    "period": i + 1,
+                    "date": period_date.isoformat(),
+                    "churn_rate": forecasted_churn_rate,
+                }
+            )
 
         return forecast
 
@@ -1479,7 +1503,7 @@ class SubscriptionForecasting:
         periods: int = 12,
         period_type: str = "month",
         scenarios: List[Dict[str, Any]] = None,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> Dict[str, List[Dict[str, Any]]]:
         """
         Forecast subscription growth under different scenarios.
@@ -1496,25 +1520,27 @@ class SubscriptionForecasting:
         # Set default scenarios if not provided
         if scenarios is None:
             # Get current growth and churn rates
-            current_growth_rate = self.metrics.get_subscription_growth_rate("month", plan_id)
+            current_growth_rate = self.metrics.get_subscription_growth_rate(
+                "month", plan_id
+            )
             current_churn_rate = self.churn_analysis.get_churn_rate("month", plan_id)
 
             scenarios = [
                 {
                     "name": "Pessimistic",
                     "growth_rate": max(0, current_growth_rate - 5),
-                    "churn_rate": current_churn_rate + 2
+                    "churn_rate": current_churn_rate + 2,
                 },
                 {
                     "name": "Realistic",
                     "growth_rate": current_growth_rate,
-                    "churn_rate": current_churn_rate
+                    "churn_rate": current_churn_rate,
                 },
                 {
                     "name": "Optimistic",
                     "growth_rate": current_growth_rate + 5,
-                    "churn_rate": max(0, current_churn_rate - 2)
-                }
+                    "churn_rate": max(0, current_churn_rate - 2),
+                },
             ]
 
         # Generate forecasts for each scenario
@@ -1526,7 +1552,7 @@ class SubscriptionForecasting:
                 period_type=period_type,
                 growth_rate=scenario["growth_rate"],
                 churn_rate=scenario["churn_rate"],
-                plan_id=plan_id
+                plan_id=plan_id,
             )
 
             forecasts[scenario["name"]] = forecast
@@ -1538,7 +1564,7 @@ class SubscriptionForecasting:
         periods: int = 12,
         period_type: str = "month",
         scenarios: List[Dict[str, Any]] = None,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> Dict[str, List[Dict[str, Any]]]:
         """
         Forecast revenue under different scenarios.
@@ -1555,7 +1581,9 @@ class SubscriptionForecasting:
         # Set default scenarios if not provided
         if scenarios is None:
             # Get current growth and churn rates
-            current_growth_rate = self.metrics.get_subscription_growth_rate("month", plan_id)
+            current_growth_rate = self.metrics.get_subscription_growth_rate(
+                "month", plan_id
+            )
             current_churn_rate = self.churn_analysis.get_churn_rate("month", plan_id)
 
             scenarios = [
@@ -1563,20 +1591,20 @@ class SubscriptionForecasting:
                     "name": "Pessimistic",
                     "growth_rate": max(0, current_growth_rate - 5),
                     "churn_rate": current_churn_rate + 2,
-                    "arpu_change_rate": -1.0
+                    "arpu_change_rate": -1.0,
                 },
                 {
                     "name": "Realistic",
                     "growth_rate": current_growth_rate,
                     "churn_rate": current_churn_rate,
-                    "arpu_change_rate": 0.0
+                    "arpu_change_rate": 0.0,
                 },
                 {
                     "name": "Optimistic",
                     "growth_rate": current_growth_rate + 5,
                     "churn_rate": max(0, current_churn_rate - 2),
-                    "arpu_change_rate": 2.0
-                }
+                    "arpu_change_rate": 2.0,
+                },
             ]
 
         # Generate forecasts for each scenario
@@ -1589,7 +1617,7 @@ class SubscriptionForecasting:
                 growth_rate=scenario["growth_rate"],
                 churn_rate=scenario["churn_rate"],
                 arpu_change_rate=scenario.get("arpu_change_rate", 0.0),
-                plan_id=plan_id
+                plan_id=plan_id,
             )
 
             forecasts[scenario["name"]] = forecast
@@ -1605,7 +1633,7 @@ class SubscriptionForecasting:
         growth_rate: Optional[float] = None,
         churn_rate: Optional[float] = None,
         arpu_change_rate: float = 0.0,
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Forecast when the business will break even.
@@ -1630,7 +1658,7 @@ class SubscriptionForecasting:
             growth_rate=growth_rate,
             churn_rate=churn_rate,
             arpu_change_rate=arpu_change_rate,
-            plan_id=plan_id
+            plan_id=plan_id,
         )
 
         # Calculate costs and profit for each period
@@ -1661,7 +1689,7 @@ class SubscriptionForecasting:
         self,
         periods: int = 12,
         period_type: str = "month",
-        plan_id: Optional[str] = None
+        plan_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Get a summary of forecasted metrics.
@@ -1675,7 +1703,9 @@ class SubscriptionForecasting:
             Dictionary with forecasted metrics
         """
         # Get current metrics
-        current_subscriptions = self.metrics.get_active_subscription_count(plan_id=plan_id)
+        current_subscriptions = self.metrics.get_active_subscription_count(
+            plan_id=plan_id
+        )
         current_mrr = self.metrics.get_monthly_recurring_revenue(plan_id=plan_id)
         current_arpu = self.metrics.get_average_revenue_per_user(plan_id=plan_id)
         current_churn_rate = self.churn_analysis.get_churn_rate("month", plan_id)
@@ -1683,39 +1713,26 @@ class SubscriptionForecasting:
 
         # Get forecasts
         subscription_forecast = self.forecast_subscriptions(
-            periods=periods,
-            period_type=period_type,
-            plan_id=plan_id
+            periods=periods, period_type=period_type, plan_id=plan_id
         )
 
         revenue_forecast = self.forecast_revenue(
-            periods=periods,
-            period_type=period_type,
-            plan_id=plan_id
+            periods=periods, period_type=period_type, plan_id=plan_id
         )
 
         churn_forecast = self.forecast_churn(
-            periods=periods,
-            period_type=period_type,
-            plan_id=plan_id
+            periods=periods, period_type=period_type, plan_id=plan_id
         )
 
-        ltv_forecast = self.forecast_ltv(
-            periods=periods,
-            plan_id=plan_id
-        )
+        ltv_forecast = self.forecast_ltv(periods=periods, plan_id=plan_id)
 
         # Get scenario forecasts
         growth_scenarios = self.forecast_growth_scenarios(
-            periods=periods,
-            period_type=period_type,
-            plan_id=plan_id
+            periods=periods, period_type=period_type, plan_id=plan_id
         )
 
         revenue_scenarios = self.forecast_revenue_scenarios(
-            periods=periods,
-            period_type=period_type,
-            plan_id=plan_id
+            periods=periods, period_type=period_type, plan_id=plan_id
         )
 
         # Create summary
@@ -1725,18 +1742,15 @@ class SubscriptionForecasting:
                 "mrr": current_mrr,
                 "arpu": current_arpu,
                 "churn_rate": current_churn_rate,
-                "ltv": current_ltv
+                "ltv": current_ltv,
             },
             "forecast": {
                 "subscriptions": subscription_forecast,
                 "revenue": revenue_forecast,
                 "churn": churn_forecast,
-                "ltv": ltv_forecast
+                "ltv": ltv_forecast,
             },
-            "scenarios": {
-                "growth": growth_scenarios,
-                "revenue": revenue_scenarios
-            }
+            "scenarios": {"growth": growth_scenarios, "revenue": revenue_scenarios},
         }
 
         return summary
@@ -1745,8 +1759,8 @@ class SubscriptionForecasting:
 # Example usage
 if __name__ == "__main__":
     from .subscription import SubscriptionPlan
-    from .user_subscription import Subscription
     from .subscription_manager import SubscriptionManager
+    from .user_subscription import Subscription
 
     # Create a subscription manager
     manager = SubscriptionManager()
@@ -1754,7 +1768,7 @@ if __name__ == "__main__":
     # Create a subscription plan
     plan = SubscriptionPlan(
         name="AI Tool Subscription",
-        description="Subscription plan for an AI-powered tool"
+        description="Subscription plan for an AI-powered tool",
     )
 
     # Add tiers
@@ -1762,14 +1776,14 @@ if __name__ == "__main__":
         name="Basic",
         description="Essential features for individuals",
         price_monthly=9.99,
-        trial_days=14
+        trial_days=14,
     )
 
     pro_tier = plan.add_tier(
         name="Pro",
         description="Advanced features for professionals",
         price_monthly=19.99,
-        is_popular=True
+        is_popular=True,
     )
 
     # Add plan to manager
@@ -1781,10 +1795,7 @@ if __name__ == "__main__":
         tier_id = basic_tier["id"] if i < 7 else pro_tier["id"]
 
         subscription = manager.create_subscription(
-            user_id=user_id,
-            plan_id=plan.id,
-            tier_id=tier_id,
-            billing_cycle="monthly"
+            user_id=user_id, plan_id=plan.id, tier_id=tier_id, billing_cycle="monthly"
         )
 
     # Create metrics calculator
@@ -1857,14 +1868,18 @@ if __name__ == "__main__":
 
     print("\nSubscription forecast:")
     for period in subscription_forecast:
-        print(f"Period {period['period']} ({period['date'][:10]}): {period['subscriptions']} subscriptions")
+        print(
+            f"Period {period['period']} ({period['date'][:10]}): {period['subscriptions']} subscriptions"
+        )
 
     # Forecast revenue
     revenue_forecast = forecasting.forecast_revenue(periods=12)
 
     print("\nRevenue forecast:")
     for period in revenue_forecast:
-        print(f"Period {period['period']} ({period['date'][:10]}): ${period['revenue']:.2f}")
+        print(
+            f"Period {period['period']} ({period['date'][:10]}): ${period['revenue']:.2f}"
+        )
 
     # Forecast scenarios
     scenarios = forecasting.forecast_revenue_scenarios(periods=12)
@@ -1872,4 +1887,6 @@ if __name__ == "__main__":
     print("\nRevenue scenarios:")
     for scenario_name, forecast in scenarios.items():
         print(f"- {scenario_name}:")
-        print(f"  Period 12 ({forecast[11]['date'][:10]}): ${forecast[11]['revenue']:.2f}")
+        print(
+            f"  Period 12 ({forecast[11]['date'][:10]}): ${forecast[11]['revenue']:.2f}"
+        )

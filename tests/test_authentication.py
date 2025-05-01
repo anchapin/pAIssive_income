@@ -5,20 +5,33 @@ This module contains tests for the authentication, password reset,
 token refresh, and session management functionality.
 """
 
-import unittest
-import time
-import sys
 import os
+import sys
+import time
+import unittest
 from datetime import datetime, timedelta
 
 # Add the parent directory to the path so we can import the users module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from users.auth import (
+    create_auth_token,
+    hash_password,
+    verify_auth_token,
+    verify_password,
+)
 from users.models import User, UserCreate
-from users.auth import create_auth_token, verify_auth_token, hash_password, verify_password
 from users.password_reset import generate_password_reset_token, reset_password
-from users.token_refresh import create_refresh_token, refresh_auth_token, blacklist_token
-from users.session_management import create_session, get_user_sessions, terminate_session
+from users.session_management import (
+    create_session,
+    get_user_sessions,
+    terminate_session,
+)
+from users.token_refresh import (
+    blacklist_token,
+    create_refresh_token,
+    refresh_auth_token,
+)
 
 
 class TestAuthentication(unittest.TestCase):
@@ -43,7 +56,7 @@ class TestAuthentication(unittest.TestCase):
             roles=self.roles,
             is_active=True,
             created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            updated_at=datetime.utcnow(),
         )
 
     def test_password_hashing(self):

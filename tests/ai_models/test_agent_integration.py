@@ -1,13 +1,15 @@
 """
 Tests for the AgentModelProvider class.
 """
-import pytest
+
+from typing import Any, Dict, List, Optional
 from unittest.mock import MagicMock, patch
-from typing import Dict, List, Any, Optional
+
+import pytest
 
 from ai_models.agent_integration import AgentModelProvider
-from ai_models.model_manager import ModelManager, ModelInfo
-from interfaces.model_interfaces import IModelManager, IModelInfo
+from ai_models.model_manager import ModelInfo, ModelManager
+from interfaces.model_interfaces import IModelInfo, IModelManager
 
 
 class MockModelInfo(IModelInfo):
@@ -53,7 +55,7 @@ class MockModelInfo(IModelInfo):
             "description": self._description,
             "type": self._type,
             "path": self._path,
-            "capabilities": self._capabilities
+            "capabilities": self._capabilities,
         }
 
 
@@ -72,7 +74,7 @@ def mock_model_manager():
                     description="A test model",
                     type="huggingface",
                     path="/path/to/model1",
-                    capabilities=["text-generation"]
+                    capabilities=["text-generation"],
                 ),
                 MockModelInfo(
                     id="model2",
@@ -80,8 +82,8 @@ def mock_model_manager():
                     description="Another test model",
                     type="huggingface",
                     path="/path/to/model2",
-                    capabilities=["text-generation", "embedding"]
-                )
+                    capabilities=["text-generation", "embedding"],
+                ),
             ]
         elif model_type == "embedding":
             return [
@@ -91,7 +93,7 @@ def mock_model_manager():
                     description="An embedding model",
                     type="embedding",
                     path="/path/to/model3",
-                    capabilities=["embedding"]
+                    capabilities=["embedding"],
                 )
             ]
         else:
@@ -108,7 +110,7 @@ def mock_model_manager():
                 description="A test model",
                 type="huggingface",
                 path="/path/to/model1",
-                capabilities=["text-generation"]
+                capabilities=["text-generation"],
             )
         elif model_id == "model2":
             return MockModelInfo(
@@ -117,7 +119,7 @@ def mock_model_manager():
                 description="Another test model",
                 type="huggingface",
                 path="/path/to/model2",
-                capabilities=["text-generation", "embedding"]
+                capabilities=["text-generation", "embedding"],
             )
         elif model_id == "model3":
             return MockModelInfo(
@@ -126,7 +128,7 @@ def mock_model_manager():
                 description="An embedding model",
                 type="embedding",
                 path="/path/to/model3",
-                capabilities=["embedding"]
+                capabilities=["embedding"],
             )
         else:
             return None
@@ -160,8 +162,10 @@ def test_agent_model_provider_init(mock_model_manager):
     assert provider.agent_models == {}
 
 
-@patch('ai_models.agent_integration.get_container')
-def test_agent_model_provider_init_with_container(mock_get_container, mock_model_manager):
+@patch("ai_models.agent_integration.get_container")
+def test_agent_model_provider_init_with_container(
+    mock_get_container, mock_model_manager
+):
     """Test initializing with a model manager from the container."""
     # Mock the container
     container = MagicMock()
@@ -176,9 +180,11 @@ def test_agent_model_provider_init_with_container(mock_get_container, mock_model
     container.resolve.assert_called_once_with(IModelManager)
 
 
-@patch('ai_models.agent_integration.get_container')
-@patch('ai_models.agent_integration.ModelManager')
-def test_agent_model_provider_init_fallback(mock_model_manager_class, mock_get_container, mock_model_manager):
+@patch("ai_models.agent_integration.get_container")
+@patch("ai_models.agent_integration.ModelManager")
+def test_agent_model_provider_init_fallback(
+    mock_model_manager_class, mock_get_container, mock_model_manager
+):
     """Test initializing with fallback to ModelManager."""
     # Mock the container to raise an error
     container = MagicMock()
@@ -257,7 +263,10 @@ def test_get_agent_model_assignments(mock_model_manager):
 
     # Assign models to agents
     provider.agent_models["researcher"] = {"text-generation": "model1"}
-    provider.agent_models["developer"] = {"text-generation": "model2", "embedding": "model3"}
+    provider.agent_models["developer"] = {
+        "text-generation": "model2",
+        "embedding": "model3",
+    }
 
     # Get the agent model assignments
     assignments = provider.get_agent_model_assignments()

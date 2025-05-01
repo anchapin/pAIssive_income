@@ -4,13 +4,13 @@ This module contains tools for analyzing market segments and identifying profita
 """
 
 from .market_analyzer import MarketAnalyzer
-from .problem_identifier import ProblemIdentifier
-from .opportunity_scorer import OpportunityScorer
 from .niche_analyzer import NicheAnalyzer
+from .opportunity_scorer import OpportunityScorer
+from .problem_identifier import ProblemIdentifier
 
 __all__ = [
-    'MarketAnalyzer',
-    'ProblemIdentifier',
-    'OpportunityScorer',
-    'NicheAnalyzer',
+    "MarketAnalyzer",
+    "ProblemIdentifier",
+    "OpportunityScorer",
+    "NicheAnalyzer",
 ]

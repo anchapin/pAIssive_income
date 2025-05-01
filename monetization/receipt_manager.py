@@ -5,20 +5,24 @@ This module provides a class for managing receipts, including
 generation, storage, and retrieval.
 """
 
-from typing import Dict, List, Any, Optional, Union
-from datetime import datetime
-import os
 import copy
+import os
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 
 from common_utils import (
-    file_exists, create_directory, get_file_path,
-    load_from_json_file, is_date_in_range
+    create_directory,
+    file_exists,
+    get_file_path,
+    is_date_in_range,
+    load_from_json_file,
 )
+
+from .payment_method import PaymentMethod
+from .payment_method_manager import PaymentMethodManager
 from .receipt import Receipt, ReceiptItem
 from .transaction import Transaction
 from .transaction_manager import TransactionManager
-from .payment_method import PaymentMethod
-from .payment_method_manager import PaymentMethodManager
 
 
 class ReceiptManager:
@@ -34,7 +38,7 @@ class ReceiptManager:
         transaction_manager: Optional[TransactionManager] = None,
         payment_method_manager: Optional[PaymentMethodManager] = None,
         storage_dir: Optional[str] = None,
-        company_info: Optional[Dict[str, str]] = None
+        company_info: Optional[Dict[str, str]] = None,
     ):
         """
         Initialize a receipt manager.
@@ -66,7 +70,7 @@ class ReceiptManager:
         transaction: Union[Transaction, str],
         customer_info: Optional[Dict[str, str]] = None,
         items: Optional[List[Dict[str, Any]]] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Receipt:
         """
         Generate a receipt for a transaction.
@@ -83,7 +87,9 @@ class ReceiptManager:
         # Get transaction if ID was provided
         if isinstance(transaction, str):
             if not self.transaction_manager:
-                raise ValueError("Transaction manager is required to get transaction by ID")
+                raise ValueError(
+                    "Transaction manager is required to get transaction by ID"
+                )
 
             transaction_obj = self.transaction_manager.get_transaction(transaction)
 
@@ -98,7 +104,7 @@ class ReceiptManager:
             customer_id=transaction.customer_id,
             date=transaction.processed_at or transaction.created_at,
             currency=transaction.currency,
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
 
         # Set company information
@@ -109,7 +115,7 @@ class ReceiptManager:
                 email=self.company_info.get("email", ""),
                 phone=self.company_info.get("phone", ""),
                 website=self.company_info.get("website", ""),
-                logo_url=self.company_info.get("logo_url", "")
+                logo_url=self.company_info.get("logo_url", ""),
             )
 
         # Set customer information
@@ -117,7 +123,7 @@ class ReceiptManager:
             receipt.set_customer_info(
                 name=customer_info.get("name", ""),
                 email=customer_info.get("email", ""),
-                address=customer_info.get("address", "")
+                address=customer_info.get("address", ""),
             )
 
         # Set payment information
@@ -125,7 +131,9 @@ class ReceiptManager:
         payment_method_info = "Credit Card"  # Default
 
         if self.payment_method_manager and payment_method_id:
-            payment_method = self.payment_method_manager.get_payment_method(payment_method_id)
+            payment_method = self.payment_method_manager.get_payment_method(
+                payment_method_id
+            )
 
             if payment_method:
                 if payment_method.payment_type == PaymentMethod.TYPE_CARD:
@@ -142,10 +150,7 @@ class ReceiptManager:
                 else:
                     payment_method_info = payment_method.payment_type.capitalize()
 
-        receipt.set_payment_info(
-            method=payment_method_info,
-            payment_id=transaction.id
-        )
+        receipt.set_payment_info(method=payment_method_info, payment_id=transaction.id)
 
         # Add items
         if items:
@@ -156,7 +161,7 @@ class ReceiptManager:
                     unit_price=item.get("unit_price", 0.0),
                     discount=item.get("discount", 0.0),
                     tax_rate=item.get("tax_rate", 0.0),
-                    metadata=item.get("metadata")
+                    metadata=item.get("metadata"),
                 )
         else:
             # Add a single item based on the transaction
@@ -165,7 +170,7 @@ class ReceiptManager:
                 quantity=1.0,
                 unit_price=transaction.amount,
                 discount=0.0,
-                tax_rate=0.0
+                tax_rate=0.0,
             )
 
         # Store receipt
@@ -201,10 +206,7 @@ class ReceiptManager:
         """
         return self.receipts.get(receipt_id)
 
-    def get_transaction_receipts(
-        self,
-        transaction_id: str
-    ) -> List[Receipt]:
+    def get_transaction_receipts(self, transaction_id: str) -> List[Receipt]:
         """
         Get receipts for a transaction.
 
@@ -232,7 +234,7 @@ class ReceiptManager:
         customer_id: str,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Receipt]:
         """
         Get receipts for a customer.
@@ -258,9 +260,9 @@ class ReceiptManager:
                 continue
 
             # Filter by date range
-            if not is_date_in_range(receipt.date,
-                                   start_date or datetime.min,
-                                   end_date or datetime.max):
+            if not is_date_in_range(
+                receipt.date, start_date or datetime.min, end_date or datetime.max
+            ):
                 continue
 
             receipts.append(receipt)
@@ -319,7 +321,7 @@ class ReceiptManager:
         email: str,
         subject: Optional[str] = None,
         message: Optional[str] = None,
-        format: str = "html"
+        format: str = "html",
     ) -> bool:
         """
         Send a receipt by email.
@@ -436,7 +438,7 @@ if __name__ == "__main__":
         customer_id="cust_123",
         payment_method_id="pm_456",
         description="Premium subscription payment",
-        metadata={"subscription_id": "sub_789"}
+        metadata={"subscription_id": "sub_789"},
     )
 
     # Set transaction as successful
@@ -449,9 +451,9 @@ if __name__ == "__main__":
             "address": "123 Main St, San Francisco, CA 94111",
             "email": "support@aitools.com",
             "phone": "(555) 123-4567",
-            "website": "https://aitools.com"
+            "website": "https://aitools.com",
         },
-        storage_dir="receipts"
+        storage_dir="receipts",
     )
 
     # Generate a receipt
@@ -460,16 +462,16 @@ if __name__ == "__main__":
         customer_info={
             "name": "John Doe",
             "email": "john.doe@example.com",
-            "address": "456 Oak St, San Francisco, CA 94112"
+            "address": "456 Oak St, San Francisco, CA 94112",
         },
         items=[
             {
                 "description": "Premium Subscription (Monthly)",
                 "quantity": 1,
                 "unit_price": 29.99,
-                "tax_rate": 0.0825  # 8.25% tax
+                "tax_rate": 0.0825,  # 8.25% tax
             }
-        ]
+        ],
     )
 
     print(f"Receipt generated: {receipt}")
@@ -493,5 +495,5 @@ if __name__ == "__main__":
         receipt_id=receipt.id,
         email="john.doe@example.com",
         subject="Your AI Tools Inc. Receipt",
-        format="html"
+        format="html",
     )

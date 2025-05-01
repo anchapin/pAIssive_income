@@ -1,30 +1,34 @@
 """
 Tests for the service initialization module.
 """
-import pytest
+
 from unittest.mock import MagicMock, patch
 
-from service_initialization import (
-    initialize_services,
-    get_service,
-    _register_configuration,
-    _register_ai_models,
-    _register_agent_team,
-    _register_niche_analysis,
-    _register_monetization,
-    _register_marketing,
-    _register_ui_services
-)
+import pytest
 
 from dependency_container import DependencyContainer
-from interfaces.agent_interfaces import IAgentTeam, IAgentProfile, IResearchAgent
-from interfaces.model_interfaces import IModelManager, IModelConfig
-from interfaces.niche_interfaces import INicheAnalyzer
-from interfaces.monetization_interfaces import IMonetizationCalculator
+from interfaces.agent_interfaces import IAgentProfile, IAgentTeam, IResearchAgent
 from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.model_interfaces import IModelConfig, IModelManager
+from interfaces.monetization_interfaces import IMonetizationCalculator
+from interfaces.niche_interfaces import INicheAnalyzer
 from interfaces.ui_interfaces import (
-    IAgentTeamService, INicheAnalysisService, IDeveloperService,
-    IMonetizationService, IMarketingService
+    IAgentTeamService,
+    IDeveloperService,
+    IMarketingService,
+    IMonetizationService,
+    INicheAnalysisService,
+)
+from service_initialization import (
+    _register_agent_team,
+    _register_ai_models,
+    _register_configuration,
+    _register_marketing,
+    _register_monetization,
+    _register_niche_analysis,
+    _register_ui_services,
+    get_service,
+    initialize_services,
 )
 
 
@@ -35,8 +39,8 @@ def mock_container():
     return container
 
 
-@patch('service_initialization.ModelConfig')
-@patch('service_initialization.get_container')
+@patch("service_initialization.ModelConfig")
+@patch("service_initialization.get_container")
 def test_initialize_services(mock_get_container, mock_model_config, mock_container):
     """Test initialize_services function."""
     # Mock the get_container function
@@ -61,7 +65,7 @@ def test_initialize_services(mock_get_container, mock_model_config, mock_contain
     assert mock_container.register.call_count >= 10
 
 
-@patch('service_initialization.ModelConfig')
+@patch("service_initialization.ModelConfig")
 def test_register_configuration_with_config(mock_model_config, mock_container):
     """Test _register_configuration with a config dictionary."""
     # Mock the ModelConfig class
@@ -79,10 +83,10 @@ def test_register_configuration_with_config(mock_model_config, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IModelConfig
-    assert kwargs.get('singleton') == True
+    assert kwargs.get("singleton") == True
 
 
-@patch('service_initialization.ModelConfig')
+@patch("service_initialization.ModelConfig")
 def test_register_configuration_without_config(mock_model_config, mock_container):
     """Test _register_configuration without a config dictionary."""
     # Mock the ModelConfig class
@@ -99,12 +103,14 @@ def test_register_configuration_without_config(mock_model_config, mock_container
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IModelConfig
-    assert kwargs.get('singleton') == True
+    assert kwargs.get("singleton") == True
 
 
-@patch('service_initialization.ModelManager')
-@patch('service_initialization.get_adapter_factory')
-def test_register_ai_models(mock_get_adapter_factory, mock_model_manager, mock_container):
+@patch("service_initialization.ModelManager")
+@patch("service_initialization.get_adapter_factory")
+def test_register_ai_models(
+    mock_get_adapter_factory, mock_model_manager, mock_container
+):
     """Test _register_ai_models function."""
     # Mock the ModelManager class
     mock_manager_instance = MagicMock()
@@ -122,22 +128,25 @@ def test_register_ai_models(mock_get_adapter_factory, mock_model_manager, mock_c
     _register_ai_models(mock_container)
 
     # Verify that the container.register was called for IModelManager
-    mock_container.register.assert_called_with(IModelManager, mock_container.register.call_args[0][1], singleton=True)
+    mock_container.register.assert_called_with(
+        IModelManager, mock_container.register.call_args[0][1], singleton=True
+    )
     args, kwargs = mock_container.register.call_args
     assert args[0] == IModelManager
-    assert kwargs.get('singleton') == True
+    assert kwargs.get("singleton") == True
 
     # Verify that the container.register_instance was called for adapter_factory
     mock_container.register_instance.assert_called_once_with(
-        "adapter_factory",
-        mock_adapter_factory
+        "adapter_factory", mock_adapter_factory
     )
 
 
-@patch('service_initialization.AgentTeam')
-@patch('service_initialization.ResearchAgent')
-@patch('service_initialization.AgentProfile')
-def test_register_agent_team(mock_agent_profile, mock_research_agent, mock_agent_team, mock_container):
+@patch("service_initialization.AgentTeam")
+@patch("service_initialization.ResearchAgent")
+@patch("service_initialization.AgentProfile")
+def test_register_agent_team(
+    mock_agent_profile, mock_research_agent, mock_agent_team, mock_container
+):
     """Test _register_agent_team function."""
     # Mock the classes
     mock_profile_instance = MagicMock()
@@ -169,7 +178,7 @@ def test_register_agent_team(mock_agent_profile, mock_research_agent, mock_agent
     assert mock_container.register.call_count == 3
 
 
-@patch('service_initialization.NicheAnalyzer')
+@patch("service_initialization.NicheAnalyzer")
 def test_register_niche_analysis(mock_niche_analyzer, mock_container):
     """Test _register_niche_analysis function."""
     # Mock the NicheAnalyzer class
@@ -187,10 +196,10 @@ def test_register_niche_analysis(mock_niche_analyzer, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == INicheAnalyzer
-    assert kwargs.get('singleton') == True
+    assert kwargs.get("singleton") == True
 
 
-@patch('service_initialization.MonetizationCalculator')
+@patch("service_initialization.MonetizationCalculator")
 def test_register_monetization(mock_monetization_calculator, mock_container):
     """Test _register_monetization function."""
     # Mock the MonetizationCalculator class
@@ -204,10 +213,10 @@ def test_register_monetization(mock_monetization_calculator, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IMonetizationCalculator
-    assert kwargs.get('singleton') == True
+    assert kwargs.get("singleton") == True
 
 
-@patch('service_initialization.StrategyGenerator')
+@patch("service_initialization.StrategyGenerator")
 def test_register_marketing(mock_strategy_generator, mock_container):
     """Test _register_marketing function."""
     # Mock the StrategyGenerator class
@@ -225,17 +234,21 @@ def test_register_marketing(mock_strategy_generator, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IMarketingStrategy
-    assert kwargs.get('singleton') == True
+    assert kwargs.get("singleton") == True
 
 
-@patch('service_initialization.AgentTeamService')
-@patch('service_initialization.NicheAnalysisService')
-@patch('service_initialization.DeveloperService')
-@patch('service_initialization.MonetizationService')
-@patch('service_initialization.MarketingService')
+@patch("service_initialization.AgentTeamService")
+@patch("service_initialization.NicheAnalysisService")
+@patch("service_initialization.DeveloperService")
+@patch("service_initialization.MonetizationService")
+@patch("service_initialization.MarketingService")
 def test_register_ui_services(
-    mock_marketing_service, mock_monetization_service, mock_developer_service,
-    mock_niche_analysis_service, mock_agent_team_service, mock_container
+    mock_marketing_service,
+    mock_monetization_service,
+    mock_developer_service,
+    mock_niche_analysis_service,
+    mock_agent_team_service,
+    mock_container,
 ):
     """Test _register_ui_services function."""
     # Mock the service classes
@@ -271,10 +284,10 @@ def test_register_ui_services(
 
     # Verify that all services were registered as singletons
     for args in register_calls:
-        assert args[1].get('singleton') == True
+        assert args[1].get("singleton") == True
 
 
-@patch('service_initialization.get_container')
+@patch("service_initialization.get_container")
 def test_get_service(mock_get_container):
     """Test get_service function."""
     # Mock the get_container function

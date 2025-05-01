@@ -1,16 +1,18 @@
 """
 Tests for the PerformanceMonitor class.
 """
-import pytest
-from unittest.mock import patch, MagicMock
-from datetime import datetime
+
 import json
+from datetime import datetime
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from ai_models.performance_monitor import (
-    PerformanceMonitor,
-    InferenceTracker,
     InferenceMetrics,
-    ModelPerformanceReport
+    InferenceTracker,
+    ModelPerformanceReport,
+    PerformanceMonitor,
 )
 
 
@@ -31,7 +33,7 @@ def test_inference_metrics_init():
         tokens_per_second=10,
         memory_usage_mb=1000,
         input_tokens=10,
-        output_tokens=20
+        output_tokens=20,
     )
 
     # Check that the metrics have the expected attributes
@@ -52,7 +54,7 @@ def test_inference_metrics_to_dict():
         tokens_per_second=10,
         memory_usage_mb=1000,
         input_tokens=10,
-        output_tokens=20
+        output_tokens=20,
     )
 
     # Convert to dictionary
@@ -105,6 +107,7 @@ def test_inference_tracker_start_stop(mock_model):
 
     # Add a small delay to ensure latency is measurable
     import time
+
     time.sleep(0.01)
 
     # Stop tracking
@@ -138,9 +141,7 @@ def test_performance_monitor_track_inference(mock_model):
 
     # Track inference
     metrics = monitor.track_inference(
-        model=mock_model,
-        input_text="Hello, world!",
-        output_text="Hello, AI!"
+        model=mock_model, input_text="Hello, world!", output_text="Hello, AI!"
     )
 
     # Check that metrics were returned
@@ -167,7 +168,7 @@ def test_performance_monitor_get_model_metrics(mock_model):
         tokens_per_second=10,
         memory_usage_mb=1000,
         input_tokens=10,
-        output_tokens=20
+        output_tokens=20,
     )
 
     metrics2 = InferenceMetrics(
@@ -176,7 +177,7 @@ def test_performance_monitor_get_model_metrics(mock_model):
         tokens_per_second=20,
         memory_usage_mb=1100,
         input_tokens=15,
-        output_tokens=25
+        output_tokens=25,
     )
 
     monitor.metrics_history[mock_model.id] = [metrics1, metrics2]
@@ -202,7 +203,7 @@ def test_performance_monitor_generate_report(mock_model):
         tokens_per_second=10,
         memory_usage_mb=1000,
         input_tokens=10,
-        output_tokens=20
+        output_tokens=20,
     )
 
     metrics2 = InferenceMetrics(
@@ -211,7 +212,7 @@ def test_performance_monitor_generate_report(mock_model):
         tokens_per_second=20,
         memory_usage_mb=1100,
         input_tokens=15,
-        output_tokens=25
+        output_tokens=25,
     )
 
     monitor.metrics_history[mock_model.id] = [metrics1, metrics2]
@@ -239,7 +240,7 @@ def test_model_performance_report_init():
         avg_tokens_per_second=15,
         avg_memory_usage_mb=1050,
         total_input_tokens=100,
-        total_output_tokens=200
+        total_output_tokens=200,
     )
 
     # Check that the report has the expected attributes
@@ -262,7 +263,7 @@ def test_model_performance_report_to_dict():
         avg_tokens_per_second=15,
         avg_memory_usage_mb=1050,
         total_input_tokens=100,
-        total_output_tokens=200
+        total_output_tokens=200,
     )
 
     # Convert to dictionary

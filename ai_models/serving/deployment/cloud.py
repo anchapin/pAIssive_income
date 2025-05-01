@@ -4,16 +4,18 @@ Cloud deployment utilities for AI models.
 This module provides utilities for deploying AI models to cloud platforms.
 """
 
-import os
 import enum
 import logging
+import os
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List, Union
+from typing import Any, Dict, List, Optional, Union
+
+import boto3
+from botocore.exceptions import ClientError
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -22,6 +24,7 @@ class CloudProvider(enum.Enum):
     """
     Enumeration of cloud providers.
     """
+
     AWS = "aws"
     GCP = "gcp"
     AZURE = "azure"
@@ -32,54 +35,55 @@ class CloudConfig:
     """
     Configuration for cloud deployment.
     """
+
     # Basic configuration
     provider: CloudProvider
     name: str
     region: str
-    
+
     # Server configuration
     server_type: str = "rest"  # "rest" or "grpc"
     port: int = 8000
-    
+
     # Model configuration
     model_path: str = ""
     model_type: str = "text-generation"
     model_id: str = ""
-    
+
     # Resource configuration
     instance_type: str = ""
     cpu_count: int = 2
     memory_gb: int = 8
     gpu_type: Optional[str] = None
     gpu_count: int = 0
-    
+
     # Scaling configuration
     min_instances: int = 1
     max_instances: int = 1
-    
+
     # Network configuration
     vpc_id: Optional[str] = None
     subnet_ids: List[str] = field(default_factory=list)
     security_group_ids: List[str] = field(default_factory=list)
-    
+
     # Storage configuration
     storage_size_gb: int = 20
     storage_type: str = "ssd"
-    
+
     # Environment variables
     env_vars: Dict[str, str] = field(default_factory=dict)
-    
+
     # Authentication configuration
     auth_enabled: bool = False
     auth_type: str = "api_key"  # "api_key", "oauth", "iam"
-    
+
     # Additional configuration
     additional_params: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert the configuration to a dictionary.
-        
+
         Returns:
             Dictionary representation of the configuration
         """
@@ -107,17 +111,17 @@ class CloudConfig:
             "env_vars": self.env_vars,
             "auth_enabled": self.auth_enabled,
             "auth_type": self.auth_type,
-            **self.additional_params
+            **self.additional_params,
         }
-    
+
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> 'CloudConfig':
+    def from_dict(cls, config_dict: Dict[str, Any]) -> "CloudConfig":
         """
         Create a configuration from a dictionary.
-        
+
         Args:
             config_dict: Dictionary with configuration parameters
-            
+
         Returns:
             Cloud configuration
         """
@@ -127,40 +131,34 @@ class CloudConfig:
             provider = CloudProvider(provider_str)
         except ValueError:
             provider = CloudProvider.AWS
-        
+
         # Extract additional parameters
         additional_params = {}
         for key, value in list(config_dict.items()):
             if key not in cls.__annotations__:
                 additional_params[key] = config_dict.pop(key)
-        
+
         # Create configuration
-        config = cls(
-            provider=provider,
-            **config_dict
-        )
-        
+        config = cls(provider=provider, **config_dict)
+
         config.additional_params = additional_params
         return config
 
 
-def generate_cloud_config(
-    config: CloudConfig,
-    output_dir: str
-) -> str:
+def generate_cloud_config(config: CloudConfig, output_dir: str) -> str:
     """
     Generate cloud deployment configuration files.
-    
+
     Args:
         config: Cloud configuration
         output_dir: Directory to save the configuration files
-        
+
     Returns:
         Path to the generated configuration file
     """
     # Create output directory
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # Generate configuration based on provider
     if config.provider == CloudProvider.AWS:
         return _generate_aws_config(config, output_dir)
@@ -175,84 +173,84 @@ def generate_cloud_config(
 def _generate_aws_config(config: CloudConfig, output_dir: str) -> str:
     """
     Generate AWS deployment configuration files.
-    
+
     Args:
         config: Cloud configuration
         output_dir: Directory to save the configuration files
-        
+
     Returns:
         Path to the generated configuration file
     """
     # Generate CloudFormation template
     template_path = os.path.join(output_dir, "cloudformation.yaml")
     _generate_cloudformation_template(config, template_path)
-    
+
     # Generate deployment script
     script_path = os.path.join(output_dir, "deploy.sh")
     _generate_aws_deploy_script(config, script_path)
-    
+
     logger.info(f"AWS configuration files generated in {output_dir}")
-    
+
     return template_path
 
 
 def _generate_gcp_config(config: CloudConfig, output_dir: str) -> str:
     """
     Generate GCP deployment configuration files.
-    
+
     Args:
         config: Cloud configuration
         output_dir: Directory to save the configuration files
-        
+
     Returns:
         Path to the generated configuration file
     """
     # Generate Terraform configuration
     terraform_path = os.path.join(output_dir, "main.tf")
     _generate_gcp_terraform(config, terraform_path)
-    
+
     # Generate deployment script
     script_path = os.path.join(output_dir, "deploy.sh")
     _generate_gcp_deploy_script(config, script_path)
-    
+
     logger.info(f"GCP configuration files generated in {output_dir}")
-    
+
     return terraform_path
 
 
 def _generate_azure_config(config: CloudConfig, output_dir: str) -> str:
     """
     Generate Azure deployment configuration files.
-    
+
     Args:
         config: Cloud configuration
         output_dir: Directory to save the configuration files
-        
+
     Returns:
         Path to the generated configuration file
     """
     # Generate ARM template
     template_path = os.path.join(output_dir, "azuredeploy.json")
     _generate_arm_template(config, template_path)
-    
+
     # Generate deployment script
     script_path = os.path.join(output_dir, "deploy.sh")
     _generate_azure_deploy_script(config, script_path)
-    
+
     logger.info(f"Azure configuration files generated in {output_dir}")
-    
+
     return template_path
 
 
 def _generate_cloudformation_template(config: CloudConfig, output_path: str) -> None:
     """
     Generate an AWS CloudFormation template.
-    
+
     Args:
         config: Cloud configuration
         output_path: Path to save the CloudFormation template
     """
-    # Create CloudFormation template content
+    # Create CloudFormation template content using proper YAML format and !Ref functions
     content = f"""
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'AI Model Deployment'
@@ -300,7 +298,7 @@ Parameters:
 
 Resources:
   ModelRole:
-    Type: AWS::IAM::Role
+    Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
@@ -314,51 +312,44 @@ Resources:
         - 'arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'
 
   ModelEndpoint:
-    Type: AWS::SageMaker::Endpoint
+    Type: 'AWS::SageMaker::Endpoint'
     Properties:
-      EndpointName: !Ref ModelName
-      EndpointConfigName: !GetAtt ModelEndpointConfig.EndpointConfigName
+      EndpointName: !Ref 'ModelName'
+      EndpointConfigName: !GetAtt 'ModelEndpointConfig.EndpointConfigName'
 
   ModelEndpointConfig:
-    Type: AWS::SageMaker::EndpointConfig
+    Type: 'AWS::SageMaker::EndpointConfig'
     Properties:
       ProductionVariants:
-        - InitialInstanceCount: !Ref MinInstances
-          InstanceType: !Ref InstanceType
-          ModelName: !GetAtt Model.ModelName
+        - InitialInstanceCount: !Ref 'MinInstances'
+          InstanceType: !Ref 'InstanceType'
+          ModelName: !GetAtt 'Model.ModelName'
           VariantName: AllTraffic
           InitialVariantWeight: 1.0
 
   Model:
-    Type: AWS::SageMaker::Model
+    Type: 'AWS::SageMaker::Model'
     Properties:
-      ModelName: !Ref ModelName
-      ExecutionRoleArn: !GetAtt ModelRole.Arn
+      ModelName: !Ref 'ModelName'
+      ExecutionRoleArn: !GetAtt 'ModelRole.Arn'
       PrimaryContainer:
-        Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ModelName}:latest'
+        Image: !Sub '${{AWS::AccountId}}.dkr.ecr.${{AWS::Region}}.amazonaws.com/${{ModelName}}:latest'
         Environment:
-          MODEL_PATH: !Ref ModelPath
-          MODEL_TYPE: !Ref ModelType
-          SERVER_TYPE: !Ref ServerType
-          PORT: !Ref Port
-"""
-    
-    # Add environment variables
-    for key, value in config.env_vars.items():
-        content += f"          {key}: {value}\n"
-    
-    # Add outputs
-    content += """
+          MODEL_PATH: !Ref 'ModelPath'
+          MODEL_TYPE: !Ref 'ModelType'
+          SERVER_TYPE: !Ref 'ServerType'
+          PORT: !Ref 'Port'
+
 Outputs:
   EndpointName:
     Description: Name of the SageMaker endpoint
-    Value: !Ref ModelEndpoint
+    Value: !Ref 'ModelEndpoint'
   
   EndpointUrl:
     Description: URL of the SageMaker endpoint
-    Value: !Sub 'https://runtime.sagemaker.${AWS::Region}.amazonaws.com/endpoints/${ModelEndpoint}'
+    Value: !Sub 'https://runtime.sagemaker.${{AWS::Region}}.amazonaws.com/endpoints/${{ModelEndpoint}}'
 """
-    
+
     # Write CloudFormation template
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
@@ -367,7 +358,7 @@ Outputs:
 def _generate_aws_deploy_script(config: CloudConfig, output_path: str) -> None:
     """
     Generate an AWS deployment script.
-    
+
     Args:
         config: Cloud configuration
         output_path: Path to save the deployment script
@@ -416,11 +407,11 @@ aws cloudformation deploy \\
 echo "Deployment completed successfully!"
 echo "Endpoint URL: https://runtime.sagemaker.$REGION.amazonaws.com/endpoints/$MODEL_NAME"
 """
-    
+
     # Write deployment script
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
-    
+
     # Make script executable
     os.chmod(output_path, 0o755)
 
@@ -428,7 +419,7 @@ echo "Endpoint URL: https://runtime.sagemaker.$REGION.amazonaws.com/endpoints/$M
 def _generate_gcp_terraform(config: CloudConfig, output_path: str) -> None:
     """
     Generate a GCP Terraform configuration.
-    
+
     Args:
         config: Cloud configuration
         output_path: Path to save the Terraform configuration
@@ -491,7 +482,7 @@ resource "google_cloud_run_service" "model_service" {{
           value = "{config.port}"
         }}
 """
-    
+
     # Add environment variables
     for key, value in config.env_vars.items():
         content += f"""
@@ -499,7 +490,7 @@ resource "google_cloud_run_service" "model_service" {{
           name  = "{key}"
           value = "{value}"
         }}"""
-    
+
     # Add GPU configuration if needed
     if config.gpu_count > 0 and config.gpu_type:
         content += f"""
@@ -510,7 +501,7 @@ resource "google_cloud_run_service" "model_service" {{
             "nvidia.com/gpu" = {config.gpu_count}
           }}
         }}"""
-    
+
     # Add scaling configuration
     content += f"""
       }}
@@ -544,7 +535,7 @@ output "service_url" {{
   value = google_cloud_run_service.model_service.status[0].url
 }}
 """
-    
+
     # Write Terraform configuration
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
@@ -553,7 +544,7 @@ output "service_url" {{
 def _generate_gcp_deploy_script(config: CloudConfig, output_path: str) -> None:
     """
     Generate a GCP deployment script.
-    
+
     Args:
         config: Cloud configuration
         output_path: Path to save the deployment script
@@ -595,11 +586,11 @@ SERVICE_URL=$(terraform output -raw service_url)
 echo "Deployment completed successfully!"
 echo "Service URL: $SERVICE_URL"
 """
-    
+
     # Write deployment script
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
-    
+
     # Make script executable
     os.chmod(output_path, 0o755)
 
@@ -607,7 +598,7 @@ echo "Service URL: $SERVICE_URL"
 def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
     """
     Generate an Azure ARM template.
-    
+
     Args:
         config: Cloud configuration
         output_path: Path to save the ARM template
@@ -749,7 +740,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
                   "name": "PORT",
                   "value": "{config.port}"
                 }}"""
-    
+
     # Add environment variables
     for i, (key, value) in enumerate(config.env_vars.items()):
         if i > 0 or len(config.env_vars) > 0:
@@ -759,7 +750,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
                   "name": "{key}",
                   "value": "{value}"
                 }}"""
-    
+
     # Add scaling configuration
     content += f"""
               ]
@@ -784,7 +775,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
     }}
   }}
 }}"""
-    
+
     # Write ARM template
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
@@ -793,7 +784,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
 def _generate_azure_deploy_script(config: CloudConfig, output_path: str) -> None:
     """
     Generate an Azure deployment script.
-    
+
     Args:
         config: Cloud configuration
         output_path: Path to save the deployment script
@@ -847,10 +838,10 @@ CONTAINER_APP_URL=$(az deployment group show \\
 echo "Deployment completed successfully!"
 echo "Container App URL: https://$CONTAINER_APP_URL"
 """
-    
+
     # Write deployment script
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(content.strip())
-    
+
     # Make script executable
     os.chmod(output_path, 0o755)

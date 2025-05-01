@@ -6,8 +6,8 @@ and improve testability and maintainability.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 class IBaseService(ABC):
@@ -51,14 +51,16 @@ class IAgentTeamService(IBaseService):
     """Interface for the Agent Team service."""
 
     @abstractmethod
-    def create_project(self, project_name: str, config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def create_project(
+        self, project_name: str, config: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Create a new project with an agent team.
-        
+
         Args:
             project_name: Name of the project
             config: Optional configuration for the agent team
-            
+
         Returns:
             Project dictionary
         """
@@ -68,7 +70,7 @@ class IAgentTeamService(IBaseService):
     def get_projects(self) -> List[Dict[str, Any]]:
         """
         Get all projects.
-        
+
         Returns:
             List of project dictionaries
         """
@@ -78,24 +80,26 @@ class IAgentTeamService(IBaseService):
     def get_project(self, project_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a project by ID.
-        
+
         Args:
             project_id: ID of the project
-            
+
         Returns:
             Project dictionary, or None if not found
         """
         pass
 
     @abstractmethod
-    def update_project(self, project_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def update_project(
+        self, project_id: str, updates: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """
         Update a project.
-        
+
         Args:
             project_id: ID of the project
             updates: Dictionary of updates
-            
+
         Returns:
             Updated project dictionary, or None if not found
         """
@@ -105,10 +109,10 @@ class IAgentTeamService(IBaseService):
     def delete_project(self, project_id: str) -> bool:
         """
         Delete a project.
-        
+
         Args:
             project_id: ID of the project
-            
+
         Returns:
             True if successful, False otherwise
         """
@@ -122,7 +126,7 @@ class INicheAnalysisService(IBaseService):
     def get_market_segments(self) -> List[Dict[str, Any]]:
         """
         Get all market segments.
-        
+
         Returns:
             List of market segment dictionaries
         """
@@ -132,7 +136,7 @@ class INicheAnalysisService(IBaseService):
     def get_niches(self) -> List[Dict[str, Any]]:
         """
         Get all niches.
-        
+
         Returns:
             List of niche dictionaries
         """
@@ -142,10 +146,10 @@ class INicheAnalysisService(IBaseService):
     def get_niche(self, niche_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a niche by ID.
-        
+
         Args:
             niche_id: ID of the niche
-            
+
         Returns:
             Niche dictionary, or None if not found
         """
@@ -155,10 +159,10 @@ class INicheAnalysisService(IBaseService):
     def analyze_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
         """
         Analyze niches in market segments.
-        
+
         Args:
             market_segments: List of market segments to analyze
-            
+
         Returns:
             List of niche dictionaries
         """
@@ -168,10 +172,10 @@ class INicheAnalysisService(IBaseService):
     def save_niche(self, niche: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save a niche.
-        
+
         Args:
             niche: Niche dictionary
-            
+
         Returns:
             Saved niche dictionary
         """
@@ -185,7 +189,7 @@ class IDeveloperService(IBaseService):
     def get_solutions(self) -> List[Dict[str, Any]]:
         """
         Get all solutions.
-        
+
         Returns:
             List of solution dictionaries
         """
@@ -195,10 +199,10 @@ class IDeveloperService(IBaseService):
     def get_solution(self, solution_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a solution by ID.
-        
+
         Args:
             solution_id: ID of the solution
-            
+
         Returns:
             Solution dictionary, or None if not found
         """
@@ -208,10 +212,10 @@ class IDeveloperService(IBaseService):
     def create_solution(self, niche_id: str) -> Dict[str, Any]:
         """
         Create a solution for a niche.
-        
+
         Args:
             niche_id: ID of the niche
-            
+
         Returns:
             Solution dictionary
         """
@@ -221,10 +225,10 @@ class IDeveloperService(IBaseService):
     def save_solution(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save a solution.
-        
+
         Args:
             solution: Solution dictionary
-            
+
         Returns:
             Saved solution dictionary
         """
@@ -238,7 +242,7 @@ class IMonetizationService(IBaseService):
     def get_strategies(self) -> List[Dict[str, Any]]:
         """
         Get all monetization strategies.
-        
+
         Returns:
             List of strategy dictionaries
         """
@@ -248,10 +252,10 @@ class IMonetizationService(IBaseService):
     def get_strategy(self, strategy_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a monetization strategy by ID.
-        
+
         Args:
             strategy_id: ID of the strategy
-            
+
         Returns:
             Strategy dictionary, or None if not found
         """
@@ -261,10 +265,10 @@ class IMonetizationService(IBaseService):
     def create_strategy(self, solution_id: str) -> Dict[str, Any]:
         """
         Create a monetization strategy for a solution.
-        
+
         Args:
             solution_id: ID of the solution
-            
+
         Returns:
             Strategy dictionary
         """
@@ -274,10 +278,10 @@ class IMonetizationService(IBaseService):
     def save_strategy(self, strategy: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save a monetization strategy.
-        
+
         Args:
             strategy: Strategy dictionary
-            
+
         Returns:
             Saved strategy dictionary
         """
@@ -291,7 +295,7 @@ class IMarketingService(IBaseService):
     def get_campaigns(self) -> List[Dict[str, Any]]:
         """
         Get all marketing campaigns.
-        
+
         Returns:
             List of campaign dictionaries
         """
@@ -301,10 +305,10 @@ class IMarketingService(IBaseService):
     def get_campaign(self, campaign_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a marketing campaign by ID.
-        
+
         Args:
             campaign_id: ID of the campaign
-            
+
         Returns:
             Campaign dictionary, or None if not found
         """
@@ -314,11 +318,11 @@ class IMarketingService(IBaseService):
     def create_campaign(self, solution_id: str, strategy_id: str) -> Dict[str, Any]:
         """
         Create a marketing campaign for a solution and strategy.
-        
+
         Args:
             solution_id: ID of the solution
             strategy_id: ID of the monetization strategy
-            
+
         Returns:
             Campaign dictionary
         """
@@ -328,10 +332,10 @@ class IMarketingService(IBaseService):
     def save_campaign(self, campaign: Dict[str, Any]) -> Dict[str, Any]:
         """
         Save a marketing campaign.
-        
+
         Args:
             campaign: Campaign dictionary
-            
+
         Returns:
             Saved campaign dictionary
         """

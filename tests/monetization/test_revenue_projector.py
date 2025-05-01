@@ -1,12 +1,14 @@
 """
 Tests for the RevenueProjector class.
 """
-import os
+
 import json
-import pytest
-from unittest.mock import patch, MagicMock
-import tempfile
+import os
 import shutil
+import tempfile
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from monetization.revenue_projector import RevenueProjector
 from monetization.subscription_models import SubscriptionModel
@@ -30,7 +32,7 @@ def revenue_projector():
         user_acquisition_rate=50,
         conversion_rate=0.2,
         churn_rate=0.05,
-        tier_distribution={"basic": 0.6, "pro": 0.3, "premium": 0.1}
+        tier_distribution={"basic": 0.6, "pro": 0.3, "premium": 0.1},
     )
 
 
@@ -38,21 +40,16 @@ def revenue_projector():
 def subscription_model():
     """Create a SubscriptionModel instance for testing."""
     model = SubscriptionModel(
-        name="Test Subscription Model",
-        description="A test subscription model"
+        name="Test Subscription Model", description="A test subscription model"
     )
 
     # Add features
     feature1 = model.add_feature(
-        name="Feature 1",
-        description="A test feature",
-        feature_type="functional"
+        name="Feature 1", description="A test feature", feature_type="functional"
     )
 
     feature2 = model.add_feature(
-        name="Feature 2",
-        description="Another test feature",
-        feature_type="premium"
+        name="Feature 2", description="Another test feature", feature_type="premium"
     )
 
     # Add tiers
@@ -60,21 +57,21 @@ def subscription_model():
         name="Basic",
         description="Basic tier",
         price_monthly=9.99,
-        features=[feature1["id"]]
+        features=[feature1["id"]],
     )
 
     pro_tier = model.add_tier(
         name="Pro",
         description="Pro tier",
         price_monthly=19.99,
-        features=[feature1["id"], feature2["id"]]
+        features=[feature1["id"], feature2["id"]],
     )
 
     premium_tier = model.add_tier(
         name="Premium",
         description="Premium tier",
         price_monthly=29.99,
-        features=[feature1["id"], feature2["id"]]
+        features=[feature1["id"], feature2["id"]],
     )
 
     return model
@@ -89,7 +86,11 @@ def test_revenue_projector_init(revenue_projector):
     assert revenue_projector.user_acquisition_rate == 50
     assert revenue_projector.conversion_rate == 0.2
     assert revenue_projector.churn_rate == 0.05
-    assert revenue_projector.tier_distribution == {"basic": 0.6, "pro": 0.3, "premium": 0.1}
+    assert revenue_projector.tier_distribution == {
+        "basic": 0.6,
+        "pro": 0.3,
+        "premium": 0.1,
+    }
     assert hasattr(revenue_projector, "id")
     assert hasattr(revenue_projector, "created_at")
     assert hasattr(revenue_projector, "updated_at")
@@ -98,10 +99,7 @@ def test_revenue_projector_init(revenue_projector):
 def test_project_users(revenue_projector):
     """Test project_users method."""
     # Project users for 12 months
-    user_projections = revenue_projector.project_users(
-        months=12,
-        growth_rate=0.05
-    )
+    user_projections = revenue_projector.project_users(months=12, growth_rate=0.05)
 
     # Check that the projections list has the expected length
     assert len(user_projections) == 12
@@ -127,13 +125,12 @@ def test_project_users(revenue_projector):
     # Check that the last month's projection is correct
     last_month = user_projections[-1]
     assert last_month["month"] == 12
-    assert last_month["total_users"] > first_month["total_users"]  # Should grow over time
+    assert (
+        last_month["total_users"] > first_month["total_users"]
+    )  # Should grow over time
 
     # Test with different parameters
-    user_projections = revenue_projector.project_users(
-        months=24,
-        growth_rate=0.1
-    )
+    user_projections = revenue_projector.project_users(months=24, growth_rate=0.1)
 
     # Check that the projections list has the expected length
     assert len(user_projections) == 24
@@ -145,10 +142,7 @@ def test_project_users(revenue_projector):
 def test_project_revenue_without_model(revenue_projector):
     """Test project_revenue method without a subscription model."""
     # Project revenue for 12 months
-    revenue_projections = revenue_projector.project_revenue(
-        months=12,
-        growth_rate=0.05
-    )
+    revenue_projections = revenue_projector.project_revenue(months=12, growth_rate=0.05)
 
     # Check that the projections is a list
     assert isinstance(revenue_projections, list)
@@ -181,9 +175,7 @@ def test_project_revenue_with_model(revenue_projector, subscription_model):
     """Test project_revenue method with a subscription model."""
     # Project revenue for 12 months
     revenue_projections = revenue_projector.project_revenue(
-        months=12,
-        growth_rate=0.05,
-        subscription_model=subscription_model
+        months=12, growth_rate=0.05, subscription_model=subscription_model
     )
 
     # Check that the projections is a list
@@ -224,7 +216,7 @@ def test_project_revenue_with_prices(revenue_projector, subscription_model):
     prices = {
         subscription_model.tiers[0]["id"]: 14.99,  # Basic tier
         subscription_model.tiers[1]["id"]: 24.99,  # Pro tier
-        subscription_model.tiers[2]["id"]: 39.99   # Premium tier
+        subscription_model.tiers[2]["id"]: 39.99,  # Premium tier
     }
 
     # Project revenue for 12 months
@@ -232,7 +224,7 @@ def test_project_revenue_with_prices(revenue_projector, subscription_model):
         months=12,
         growth_rate=0.05,
         subscription_model=subscription_model,
-        prices=prices
+        prices=prices,
     )
 
     # Check that the projections is a list
@@ -295,7 +287,11 @@ def test_to_dict(revenue_projector):
     assert projector_dict["user_acquisition_rate"] == 50
     assert projector_dict["conversion_rate"] == 0.2
     assert projector_dict["churn_rate"] == 0.05
-    assert projector_dict["tier_distribution"] == {"basic": 0.6, "pro": 0.3, "premium": 0.1}
+    assert projector_dict["tier_distribution"] == {
+        "basic": 0.6,
+        "pro": 0.3,
+        "premium": 0.1,
+    }
 
 
 def test_to_json(revenue_projector):
@@ -365,7 +361,10 @@ def test_load_from_file(revenue_projector, temp_dir):
     assert loaded_projector.name == revenue_projector.name
     assert loaded_projector.description == revenue_projector.description
     assert loaded_projector.initial_users == revenue_projector.initial_users
-    assert loaded_projector.user_acquisition_rate == revenue_projector.user_acquisition_rate
+    assert (
+        loaded_projector.user_acquisition_rate
+        == revenue_projector.user_acquisition_rate
+    )
     assert loaded_projector.conversion_rate == revenue_projector.conversion_rate
     assert loaded_projector.churn_rate == revenue_projector.churn_rate
     assert loaded_projector.tier_distribution == revenue_projector.tier_distribution

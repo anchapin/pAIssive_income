@@ -1,204 +1,201 @@
-from flask import Flask, jsonify, request, send_from_directory, g
-from flask_cors import CORS
-import os
 import json
-import sys
 import logging
+import os
+import sys
+
+from flask import Flask, g, jsonify, request, send_from_directory
+from flask_cors import CORS
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Add the project root to the path so we can import modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from common_utils.validation import (
+    sanitize_input,
+    validate_dict,
+    validate_email,
+    validate_integer,
+    validate_list,
+    validate_number,
+    validate_request,
+    validate_string,
+)
+from marketing.content_generators import ContentGenerators
+from marketing.strategy_generator import StrategyGenerator
+from monetization.subscription_models import SubscriptionModels
+from niche_analysis.market_analyzer import MarketAnalyzer
+from niche_analysis.opportunity_scorer import OpportunityScorer
+from niche_analysis.problem_identifier import ProblemIdentifier
+from users.auth import create_session_for_user, verify_auth_token
+from users.middleware import audit_log, authenticate, require_permission
 
 # Import project modules
 from users.models import UserCreate, UserUpdate
-from users.services import authenticate_user, create_user, update_user, get_user_by_id, list_users, get_user_by_email
-from users.auth import create_session_for_user, verify_auth_token
-from users.middleware import authenticate, require_permission, audit_log
-from users.permissions import PERMISSION_LEVELS
 from users.password_reset import generate_password_reset_token, reset_password
-from users.token_refresh import create_refresh_token, refresh_auth_token, blacklist_token
+from users.permissions import PERMISSION_LEVELS
 from users.rate_limiting import rate_limit_login, record_login_attempt
-from users.session_management import create_session, get_user_sessions, terminate_session, terminate_all_user_sessions
-
-from niche_analysis.market_analyzer import MarketAnalyzer
-from niche_analysis.problem_identifier import ProblemIdentifier
-from niche_analysis.opportunity_scorer import OpportunityScorer
-from monetization.subscription_models import SubscriptionModels
-from marketing.strategy_generator import StrategyGenerator
-from marketing.content_generators import ContentGenerators
-from common_utils.validation import (
-    validate_request, sanitize_input, validate_string, validate_email,
-    validate_integer, validate_list, validate_dict, validate_number
+from users.services import (
+    authenticate_user,
+    create_user,
+    get_user_by_email,
+    get_user_by_id,
+    list_users,
+    update_user,
+)
+from users.session_management import (
+    create_session,
+    get_user_sessions,
+    terminate_all_user_sessions,
+    terminate_session,
+)
+from users.token_refresh import (
+    blacklist_token,
+    create_refresh_token,
+    refresh_auth_token,
 )
 
-app = Flask(__name__, static_folder='react_frontend/build')
+app = Flask(__name__, static_folder="react_frontend/build")
 CORS(app)  # Enable CORS for all routes
 
+
 # Serve React frontend
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
 def serve_react(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
+    if path != "" and os.path.exists(app.static_folder + "/" + path):
         return send_from_directory(app.static_folder, path)
     else:
-        return send_from_directory(app.static_folder, 'index.html')
+        return send_from_directory(app.static_folder, "index.html")
+
 
 # Define validation schemas
 LOGIN_SCHEMA = {
     "username": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=3, max_length=50)
+        "validator": lambda v: validate_string(v, min_length=3, max_length=50),
     },
     "password": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=6, max_length=100)
+        "validator": lambda v: validate_string(v, min_length=6, max_length=100),
     },
-    "remember_me": {
-        "validator": lambda v: isinstance(v, bool)
-    }
+    "remember_me": {"validator": lambda v: isinstance(v, bool)},
 }
 
 REGISTER_SCHEMA = {
     "username": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=3, max_length=50)
+        "validator": lambda v: validate_string(v, min_length=3, max_length=50),
     },
-    "email": {
-        "required": True,
-        "validator": validate_email
-    },
+    "email": {"required": True, "validator": validate_email},
     "password": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=8, max_length=100)
+        "validator": lambda v: validate_string(v, min_length=8, max_length=100),
     },
     "name": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=1, max_length=100)
-    }
+        "validator": lambda v: validate_string(v, min_length=1, max_length=100),
+    },
 }
 
 PROFILE_UPDATE_SCHEMA = {
-    "email": {
-        "validator": validate_email
-    },
-    "name": {
-        "validator": lambda v: validate_string(v, min_length=1, max_length=100)
-    }
+    "email": {"validator": validate_email},
+    "name": {"validator": lambda v: validate_string(v, min_length=1, max_length=100)},
 }
 
 PASSWORD_RESET_REQUEST_SCHEMA = {
-    "email": {
-        "required": True,
-        "validator": validate_email
-    }
+    "email": {"required": True, "validator": validate_email}
 }
 
 PASSWORD_RESET_SCHEMA = {
     "token": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=10)
+        "validator": lambda v: validate_string(v, min_length=10),
     },
     "password": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=8, max_length=100)
-    }
+        "validator": lambda v: validate_string(v, min_length=8, max_length=100),
+    },
 }
 
 PASSWORD_CHANGE_SCHEMA = {
     "current_password": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=6)
+        "validator": lambda v: validate_string(v, min_length=6),
     },
     "new_password": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=8, max_length=100)
-    }
+        "validator": lambda v: validate_string(v, min_length=8, max_length=100),
+    },
 }
 
 TOKEN_REFRESH_SCHEMA = {
     "refresh_token": {
         "required": True,
-        "validator": lambda v: validate_string(v, min_length=10)
+        "validator": lambda v: validate_string(v, min_length=10),
     }
 }
 
 SOLUTION_GENERATION_SCHEMA = {
-    "nicheId": {
-        "required": True,
-        "validator": validate_integer
-    },
-    "templateId": {
-        "required": True,
-        "validator": validate_integer
-    }
+    "nicheId": {"required": True, "validator": validate_integer},
+    "templateId": {"required": True, "validator": validate_integer},
 }
 
 MONETIZATION_STRATEGY_SCHEMA = {
-    "solutionId": {
-        "required": True,
-        "validator": validate_integer
-    },
-    "options": {
-        "validator": validate_dict
-    }
+    "solutionId": {"required": True, "validator": validate_integer},
+    "options": {"validator": validate_dict},
 }
 
 MARKETING_CAMPAIGN_SCHEMA = {
-    "solutionId": {
-        "required": True,
-        "validator": validate_integer
-    },
+    "solutionId": {"required": True, "validator": validate_integer},
     "audienceIds": {
         "required": True,
-        "validator": lambda v: validate_list(v, min_length=1)
+        "validator": lambda v: validate_list(v, min_length=1),
     },
     "channelIds": {
         "required": True,
-        "validator": lambda v: validate_list(v, min_length=1)
-    }
+        "validator": lambda v: validate_list(v, min_length=1),
+    },
 }
 
 NICHE_ANALYSIS_SCHEMA = {
     "segments": {
         "required": True,
-        "validator": lambda v: validate_list(v, min_length=1)
+        "validator": lambda v: validate_list(v, min_length=1),
     }
 }
 
+
 # Auth endpoints
-@app.route('/api/auth/login', methods=['POST'])
+@app.route("/api/auth/login", methods=["POST"])
 @sanitize_input
 @validate_request(LOGIN_SCHEMA)
 @rate_limit_login
 @audit_log("login", "user")
 def login():
     data = request.json
-    username = data.get('username')
-    password = data.get('password')
-    remember_me = data.get('remember_me', False)
+    username = data.get("username")
+    password = data.get("password")
+    remember_me = data.get("remember_me", False)
 
     # Get client IP for session tracking
     ip_address = request.remote_addr
 
     # Get device info from user agent
-    user_agent = request.headers.get('User-Agent', '')
-    device_info = {
-        'user_agent': user_agent
-    }
+    user_agent = request.headers.get("User-Agent", "")
+    device_info = {"user_agent": user_agent}
 
     # Authenticate user
     user = authenticate_user(username, password)
     if user:
         # Record successful login attempt
-        if hasattr(g, 'rate_limit_identifiers'):
-            record_login_attempt(g.rate_limit_identifiers['username'], True)
-            record_login_attempt(g.rate_limit_identifiers['ip'], True)
+        if hasattr(g, "rate_limit_identifiers"):
+            record_login_attempt(g.rate_limit_identifiers["username"], True)
+            record_login_attempt(g.rate_limit_identifiers["ip"], True)
 
         # Create auth token
         session_data = create_session_for_user(user)
@@ -206,36 +203,39 @@ def login():
         # Create refresh token if remember_me is enabled
         if remember_me:
             refresh_token = create_refresh_token(user.id)
-            session_data['refresh_token'] = refresh_token
+            session_data["refresh_token"] = refresh_token
 
         # Create session record
         create_session(
             user_id=user.id,
-            token=session_data['token'],
+            token=session_data["token"],
             device_info=device_info,
-            ip_address=ip_address
+            ip_address=ip_address,
         )
 
         return jsonify(session_data), 200
 
-    return jsonify({"error": "Authentication Error", "message": "Invalid credentials"}), 401
+    return (
+        jsonify({"error": "Authentication Error", "message": "Invalid credentials"}),
+        401,
+    )
 
 
-@app.route('/api/auth/logout', methods=['POST'])
+@app.route("/api/auth/logout", methods=["POST"])
 @authenticate
 @audit_log("logout", "user")
 def logout():
     # Get the token from the Authorization header
-    auth_header = request.headers.get('Authorization', '')
-    if auth_header.startswith('Bearer '):
-        token = auth_header.split('Bearer ')[1]
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header.split("Bearer ")[1]
         # Blacklist the token
         blacklist_token(token)
 
     return jsonify({"message": "Logged out successfully"}), 200
 
 
-@app.route('/api/auth/register', methods=['POST'])
+@app.route("/api/auth/register", methods=["POST"])
 @sanitize_input
 @validate_request(REGISTER_SCHEMA)
 @audit_log("register", "user")
@@ -243,10 +243,10 @@ def register():
     try:
         data = request.json
         user_data = UserCreate(
-            username=data.get('username'),
-            email=data.get('email'),
-            name=data.get('name'),
-            password=data.get('password')
+            username=data.get("username"),
+            email=data.get("email"),
+            name=data.get("name"),
+            password=data.get("password"),
         )
 
         # Create user with default 'user' role
@@ -259,17 +259,15 @@ def register():
         ip_address = request.remote_addr
 
         # Get device info from user agent
-        user_agent = request.headers.get('User-Agent', '')
-        device_info = {
-            'user_agent': user_agent
-        }
+        user_agent = request.headers.get("User-Agent", "")
+        device_info = {"user_agent": user_agent}
 
         # Create session record
         create_session(
             user_id=user.id,
-            token=session_data['token'],
+            token=session_data["token"],
             device_info=device_info,
-            ip_address=ip_address
+            ip_address=ip_address,
         )
 
         return jsonify(session_data), 201
@@ -280,29 +278,37 @@ def register():
         return jsonify({"error": "Server Error", "message": "Registration failed"}), 500
 
 
-@app.route('/api/auth/refresh', methods=['POST'])
+@app.route("/api/auth/refresh", methods=["POST"])
 @sanitize_input
 @validate_request(TOKEN_REFRESH_SCHEMA)
 @audit_log("refresh_token", "user")
 def refresh_token():
     data = request.json
-    refresh_token_str = data.get('refresh_token')
+    refresh_token_str = data.get("refresh_token")
 
     # Refresh the auth token
     result = refresh_auth_token(refresh_token_str)
     if result:
         return jsonify(result), 200
 
-    return jsonify({"error": "Authentication Error", "message": "Invalid or expired refresh token"}), 401
+    return (
+        jsonify(
+            {
+                "error": "Authentication Error",
+                "message": "Invalid or expired refresh token",
+            }
+        ),
+        401,
+    )
 
 
-@app.route('/api/auth/password/reset-request', methods=['POST'])
+@app.route("/api/auth/password/reset-request", methods=["POST"])
 @sanitize_input
 @validate_request(PASSWORD_RESET_REQUEST_SCHEMA)
 @audit_log("password_reset_request", "user")
 def request_password_reset():
     data = request.json
-    email = data.get('email')
+    email = data.get("email")
 
     # Generate password reset token
     result = generate_password_reset_token(email)
@@ -315,42 +321,70 @@ def request_password_reset():
         # Here you would send an email with the reset link
         # For demo purposes, we'll just log it
 
-    return jsonify({
-        "message": "If your email is registered, you will receive a password reset link shortly."
-    }), 200
+    return (
+        jsonify(
+            {
+                "message": "If your email is registered, you will receive a password reset link shortly."
+            }
+        ),
+        200,
+    )
 
 
-@app.route('/api/auth/password/reset', methods=['POST'])
+@app.route("/api/auth/password/reset", methods=["POST"])
 @sanitize_input
 @validate_request(PASSWORD_RESET_SCHEMA)
 @audit_log("password_reset", "user")
 def reset_password_endpoint():
     data = request.json
-    token = data.get('token')
-    new_password = data.get('password')
+    token = data.get("token")
+    new_password = data.get("password")
 
     # Reset the password
     success = reset_password(token, new_password)
     if success:
-        return jsonify({"message": "Password has been reset successfully. You can now log in with your new password."}), 200
+        return (
+            jsonify(
+                {
+                    "message": "Password has been reset successfully. You can now log in with your new password."
+                }
+            ),
+            200,
+        )
 
-    return jsonify({"error": "Reset Error", "message": "Invalid or expired token. Please request a new password reset."}), 400
+    return (
+        jsonify(
+            {
+                "error": "Reset Error",
+                "message": "Invalid or expired token. Please request a new password reset.",
+            }
+        ),
+        400,
+    )
 
 
-@app.route('/api/auth/password/change', methods=['POST'])
+@app.route("/api/auth/password/change", methods=["POST"])
 @authenticate
 @sanitize_input
 @validate_request(PASSWORD_CHANGE_SCHEMA)
 @audit_log("password_change", "user")
 def change_password():
     data = request.json
-    current_password = data.get('current_password')
-    new_password = data.get('new_password')
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
 
     # Verify current password
     user = authenticate_user(g.user.username, current_password)
     if not user:
-        return jsonify({"error": "Authentication Error", "message": "Current password is incorrect"}), 401
+        return (
+            jsonify(
+                {
+                    "error": "Authentication Error",
+                    "message": "Current password is incorrect",
+                }
+            ),
+            401,
+        )
 
     try:
         # Update password
@@ -358,20 +392,35 @@ def change_password():
         updated_user = update_user(g.user_id, user_data)
 
         if not updated_user:
-            return jsonify({"error": "Server Error", "message": "Failed to update password"}), 500
+            return (
+                jsonify(
+                    {"error": "Server Error", "message": "Failed to update password"}
+                ),
+                500,
+            )
 
         # Terminate all other sessions for security
         terminate_all_user_sessions(g.user_id)
 
-        return jsonify({"message": "Password changed successfully. Please log in with your new password."}), 200
+        return (
+            jsonify(
+                {
+                    "message": "Password changed successfully. Please log in with your new password."
+                }
+            ),
+            200,
+        )
     except ValueError as e:
         return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
         logger.error(f"Password change error: {str(e)}")
-        return jsonify({"error": "Server Error", "message": "Failed to change password"}), 500
+        return (
+            jsonify({"error": "Server Error", "message": "Failed to change password"}),
+            500,
+        )
 
 
-@app.route('/api/user/profile', methods=['GET'])
+@app.route("/api/user/profile", methods=["GET"])
 @authenticate
 def get_profile():
     # The user object is attached to the request by the authenticate middleware
@@ -379,10 +428,10 @@ def get_profile():
 
     # Create session data which includes the public user data
     session_data = create_session_for_user(user)
-    return jsonify(session_data['user']), 200
+    return jsonify(session_data["user"]), 200
 
 
-@app.route('/api/user/sessions', methods=['GET'])
+@app.route("/api/user/sessions", methods=["GET"])
 @authenticate
 @audit_log("view", "user_sessions")
 def get_user_sessions_endpoint():
@@ -396,17 +445,22 @@ def get_user_sessions_endpoint():
         for session in sessions:
             session_dict = session.to_dict()
             # Remove sensitive data
-            if 'token' in session_dict:
-                del session_dict['token']
+            if "token" in session_dict:
+                del session_dict["token"]
             session_list.append(session_dict)
 
         return jsonify(session_list), 200
     except Exception as e:
         logger.error(f"Get user sessions error: {str(e)}")
-        return jsonify({"error": "Server Error", "message": "Failed to retrieve sessions"}), 500
+        return (
+            jsonify(
+                {"error": "Server Error", "message": "Failed to retrieve sessions"}
+            ),
+            500,
+        )
 
 
-@app.route('/api/user/sessions/<session_id>', methods=['DELETE'])
+@app.route("/api/user/sessions/<session_id>", methods=["DELETE"])
 @authenticate
 @audit_log("terminate", "user_session")
 def terminate_session_endpoint(session_id):
@@ -430,24 +484,34 @@ def terminate_session_endpoint(session_id):
         if success:
             return jsonify({"message": "Session terminated successfully"}), 200
         else:
-            return jsonify({"error": "Server Error", "message": "Failed to terminate session"}), 500
+            return (
+                jsonify(
+                    {"error": "Server Error", "message": "Failed to terminate session"}
+                ),
+                500,
+            )
     except Exception as e:
         logger.error(f"Terminate session error: {str(e)}")
-        return jsonify({"error": "Server Error", "message": "Failed to terminate session"}), 500
+        return (
+            jsonify(
+                {"error": "Server Error", "message": "Failed to terminate session"}
+            ),
+            500,
+        )
 
 
-@app.route('/api/user/sessions', methods=['DELETE'])
+@app.route("/api/user/sessions", methods=["DELETE"])
 @authenticate
 @audit_log("terminate_all", "user_sessions")
 def terminate_all_sessions_endpoint():
     """Terminate all sessions for the current user except the current one."""
     try:
         # Get the current session ID from the request
-        auth_header = request.headers.get('Authorization', '')
+        auth_header = request.headers.get("Authorization", "")
         current_session_id = None
 
-        if auth_header.startswith('Bearer '):
-            token = auth_header.split('Bearer ')[1]
+        if auth_header.startswith("Bearer "):
+            token = auth_header.split("Bearer ")[1]
             # Find the session with this token
             sessions = get_user_sessions(g.user_id)
             for session in sessions:
@@ -458,16 +522,23 @@ def terminate_all_sessions_endpoint():
         # Terminate all sessions except the current one
         count = terminate_all_user_sessions(g.user_id, current_session_id)
 
-        return jsonify({
-            "message": f"Successfully terminated {count} sessions",
-            "count": count
-        }), 200
+        return (
+            jsonify(
+                {"message": f"Successfully terminated {count} sessions", "count": count}
+            ),
+            200,
+        )
     except Exception as e:
         logger.error(f"Terminate all sessions error: {str(e)}")
-        return jsonify({"error": "Server Error", "message": "Failed to terminate sessions"}), 500
+        return (
+            jsonify(
+                {"error": "Server Error", "message": "Failed to terminate sessions"}
+            ),
+            500,
+        )
 
 
-@app.route('/api/user/profile', methods=['PUT'])
+@app.route("/api/user/profile", methods=["PUT"])
 @authenticate
 @sanitize_input
 @validate_request(PROFILE_UPDATE_SCHEMA)
@@ -475,10 +546,7 @@ def terminate_all_sessions_endpoint():
 def update_profile():
     try:
         data = request.json
-        user_data = UserUpdate(
-            email=data.get('email'),
-            name=data.get('name')
-        )
+        user_data = UserUpdate(email=data.get("email"), name=data.get("name"))
 
         # Update user
         user = update_user(g.user_id, user_data)
@@ -487,33 +555,39 @@ def update_profile():
 
         # Create session data which includes the public user data
         session_data = create_session_for_user(user)
-        return jsonify(session_data['user']), 200
+        return jsonify(session_data["user"]), 200
     except ValueError as e:
         return jsonify({"error": "Validation Error", "message": str(e)}), 400
     except Exception as e:
         logger.error(f"User profile update error: {str(e)}")
-        return jsonify({"error": "Server Error", "message": "Profile update failed"}), 500
+        return (
+            jsonify({"error": "Server Error", "message": "Profile update failed"}),
+            500,
+        )
 
 
 # User management (admin only)
-@app.route('/api/users', methods=['GET'])
+@app.route("/api/users", methods=["GET"])
 @authenticate
-@require_permission('user:view')
+@require_permission("user:view")
 def get_users():
     try:
-        skip = request.args.get('skip', default=0, type=int)
-        limit = request.args.get('limit', default=100, type=int)
+        skip = request.args.get("skip", default=0, type=int)
+        limit = request.args.get("limit", default=100, type=int)
 
         users = list_users(skip=skip, limit=limit)
         return jsonify(users), 200
     except Exception as e:
         logger.error(f"List users error: {str(e)}")
-        return jsonify({"error": "Server Error", "message": "Failed to retrieve users"}), 500
+        return (
+            jsonify({"error": "Server Error", "message": "Failed to retrieve users"}),
+            500,
+        )
 
 
-@app.route('/api/users/<user_id>', methods=['GET'])
+@app.route("/api/users/<user_id>", methods=["GET"])
 @authenticate
-@require_permission('user:view')
+@require_permission("user:view")
 def get_user(user_id):
     try:
         user = get_user_by_id(user_id)
@@ -522,14 +596,17 @@ def get_user(user_id):
 
         # Create a public user object without sensitive data
         session_data = create_session_for_user(user)
-        return jsonify(session_data['user']), 200
+        return jsonify(session_data["user"]), 200
     except Exception as e:
         logger.error(f"Get user error: {str(e)}")
-        return jsonify({"error": "Server Error", "message": "Failed to retrieve user"}), 500
+        return (
+            jsonify({"error": "Server Error", "message": "Failed to retrieve user"}),
+            500,
+        )
 
 
 # Niche Analysis endpoints
-@app.route('/api/niche-analysis/segments', methods=['GET'])
+@app.route("/api/niche-analysis/segments", methods=["GET"])
 @authenticate
 def get_market_segments():
     # Mock data - in production, this would come from a database
@@ -546,20 +623,20 @@ def get_market_segments():
         {"id": 10, "name": "Hospitality"},
         {"id": 11, "name": "Manufacturing"},
         {"id": 12, "name": "Retail"},
-        {"id": 13, "name": "Transportation"}
+        {"id": 13, "name": "Transportation"},
     ]
     return jsonify(segments), 200
 
 
-@app.route('/api/niche-analysis/analyze', methods=['POST'])
+@app.route("/api/niche-analysis/analyze", methods=["POST"])
 @authenticate
-@require_permission('niche:create')
+@require_permission("niche:create")
 @sanitize_input
 @validate_request(NICHE_ANALYSIS_SCHEMA)
 @audit_log("analyze", "niche")
 def analyze_niches():
     data = request.json
-    segment_ids = data.get('segments', [])
+    segment_ids = data.get("segments", [])
 
     try:
         # Here we'd call our actual niche analysis logic
@@ -567,17 +644,25 @@ def analyze_niches():
         analysis_id = "analysis123"
         return jsonify({"analysisId": analysis_id, "message": "Analysis started"}), 202
     except Exception as e:
-        return jsonify({"error": "Processing Error", "message": f"Analysis failed: {str(e)}"}), 500
+        return (
+            jsonify(
+                {"error": "Processing Error", "message": f"Analysis failed: {str(e)}"}
+            ),
+            500,
+        )
 
 
-@app.route('/api/niche-analysis/results/<analysis_id>', methods=['GET'])
+@app.route("/api/niche-analysis/results/<analysis_id>", methods=["GET"])
 @authenticate
-@require_permission('niche:view')
+@require_permission("niche:view")
 def get_niche_results(analysis_id):
     # Validate the analysis_id format
     # (simple validation for demo purposes - in production you'd check if it exists in database)
     if not isinstance(analysis_id, str) or not analysis_id:
-        return jsonify({"error": "Validation Error", "message": "Invalid analysis ID"}), 400
+        return (
+            jsonify({"error": "Validation Error", "message": "Invalid analysis ID"}),
+            400,
+        )
 
     # Mock data - in production, this would retrieve actual analysis results
     results = {
@@ -595,8 +680,8 @@ def get_niche_results(analysis_id):
                 "problems": [
                     "Content creators struggle with SEO optimization",
                     "Manual keyword research is time-consuming",
-                    "Difficulty in maintaining voice consistency"
-                ]
+                    "Difficulty in maintaining voice consistency",
+                ],
             },
             {
                 "id": 2,
@@ -609,8 +694,8 @@ def get_niche_results(analysis_id):
                 "problems": [
                     "Privacy concerns with cloud-based coding assistants",
                     "Need for offline coding support",
-                    "Customized code suggestions for specific frameworks"
-                ]
+                    "Customized code suggestions for specific frameworks",
+                ],
             },
             {
                 "id": 3,
@@ -623,18 +708,18 @@ def get_niche_results(analysis_id):
                 "problems": [
                     "Complex data interpretation requires expertise",
                     "Real-time financial decision support is limited",
-                    "Personalized investment strategies are expensive"
-                ]
-            }
-        ]
+                    "Personalized investment strategies are expensive",
+                ],
+            },
+        ],
     }
     return jsonify(results), 200
 
 
 # Developer endpoints
-@app.route('/api/developer/niches', methods=['GET'])
+@app.route("/api/developer/niches", methods=["GET"])
 @authenticate
-@require_permission('solution:view')
+@require_permission("solution:view")
 def get_niches():
     # Mock data - these would normally be from past niche analyses
     niches = [
@@ -642,27 +727,27 @@ def get_niches():
             "id": 1,
             "name": "AI-powered content optimization",
             "segment": "Content Creation",
-            "opportunityScore": 0.87
+            "opportunityScore": 0.87,
         },
         {
             "id": 2,
             "name": "Local AI code assistant",
             "segment": "Software Development",
-            "opportunityScore": 0.92
+            "opportunityScore": 0.92,
         },
         {
             "id": 3,
             "name": "AI-powered financial analysis",
             "segment": "Finance",
-            "opportunityScore": 0.75
-        }
+            "opportunityScore": 0.75,
+        },
     ]
     return jsonify(niches), 200
 
 
-@app.route('/api/developer/templates', methods=['GET'])
+@app.route("/api/developer/templates", methods=["GET"])
 @authenticate
-@require_permission('solution:view')
+@require_permission("solution:view")
 def get_templates():
     # Mock data for solution templates
     templates = [
@@ -670,53 +755,69 @@ def get_templates():
             "id": 1,
             "name": "Web Application",
             "description": "A web-based tool with responsive design",
-            "technologies": ["React", "Node.js", "MongoDB"]
+            "technologies": ["React", "Node.js", "MongoDB"],
         },
         {
             "id": 2,
             "name": "Desktop Application",
             "description": "A native desktop application with local AI integration",
-            "technologies": ["Electron", "Python", "PyTorch"]
+            "technologies": ["Electron", "Python", "PyTorch"],
         },
         {
             "id": 3,
             "name": "Mobile Application",
             "description": "A cross-platform mobile app",
-            "technologies": ["React Native", "Node.js", "SQLite"]
+            "technologies": ["React Native", "Node.js", "SQLite"],
         },
         {
             "id": 4,
             "name": "CLI Tool",
             "description": "A command-line interface tool",
-            "technologies": ["Python", "Click", "SQLite"]
-        }
+            "technologies": ["Python", "Click", "SQLite"],
+        },
     ]
     return jsonify(templates), 200
 
 
-@app.route('/api/developer/solution', methods=['POST'])
+@app.route("/api/developer/solution", methods=["POST"])
 @authenticate
-@require_permission('solution:create')
+@require_permission("solution:create")
 @sanitize_input
 @validate_request(SOLUTION_GENERATION_SCHEMA)
 @audit_log("create", "solution")
 def generate_solution():
     data = request.json
-    niche_id = data.get('nicheId')
-    template_id = data.get('templateId')
+    niche_id = data.get("nicheId")
+    template_id = data.get("templateId")
 
     try:
         # Here we'd call our actual solution generation logic
         # For now, return a mock response
         solution_id = 12345  # Normally generated or from database
-        return jsonify({"solutionId": solution_id, "message": "Solution generated successfully"}), 201
+        return (
+            jsonify(
+                {
+                    "solutionId": solution_id,
+                    "message": "Solution generated successfully",
+                }
+            ),
+            201,
+        )
     except Exception as e:
-        return jsonify({"error": "Processing Error", "message": f"Solution generation failed: {str(e)}"}), 500
+        return (
+            jsonify(
+                {
+                    "error": "Processing Error",
+                    "message": f"Solution generation failed: {str(e)}",
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/developer/solutions/<solution_id>', methods=['GET'])
+@app.route("/api/developer/solutions/<solution_id>", methods=["GET"])
 @authenticate
-@require_permission('solution:view')
+@require_permission("solution:view")
 def get_solution_details(solution_id):
     try:
         # Validate the solution_id format
@@ -731,31 +832,34 @@ def get_solution_details(solution_id):
                 "id": 1,
                 "name": "AI-powered content optimization",
                 "segment": "Content Creation",
-                "opportunityScore": 0.87
+                "opportunityScore": 0.87,
             },
             "template": {
                 "id": 1,
                 "name": "Web Application",
-                "technologies": ["React", "Node.js", "MongoDB"]
+                "technologies": ["React", "Node.js", "MongoDB"],
             },
             "features": [
                 "User authentication and profiles",
                 "AI-powered analysis and recommendations",
                 "Data visualization dashboard",
                 "Custom reporting and exports",
-                "API integration capabilities"
+                "API integration capabilities",
             ],
             "technologies": ["React", "Node.js", "MongoDB"],
             "architecture": {
                 "frontend": "React",
                 "backend": "Node.js",
                 "database": "MongoDB",
-                "aiModels": ["Transformer-based model", "Fine-tuned for specific domain"]
+                "aiModels": [
+                    "Transformer-based model",
+                    "Fine-tuned for specific domain",
+                ],
             },
             "deploymentOptions": [
                 "Self-hosted option",
                 "Cloud deployment (AWS, Azure, GCP)",
-                "Docker container"
+                "Docker container",
             ],
             "developmentTime": "4-6 weeks",
             "nextSteps": [
@@ -766,17 +870,22 @@ def get_solution_details(solution_id):
                 "Create user interface",
                 "Add authentication and user management",
                 "Implement data storage",
-                "Test and refine"
-            ]
+                "Test and refine",
+            ],
         }
         return jsonify(solution), 200
     except ValueError:
-        return jsonify({"error": "Validation Error", "message": "Invalid solution ID format"}), 400
+        return (
+            jsonify(
+                {"error": "Validation Error", "message": "Invalid solution ID format"}
+            ),
+            400,
+        )
 
 
-@app.route('/api/developer/solutions', methods=['GET'])
+@app.route("/api/developer/solutions", methods=["GET"])
 @authenticate
-@require_permission('solution:view')
+@require_permission("solution:view")
 def get_all_solutions():
     # Mock data for all solutions
     solutions = [
@@ -786,14 +895,14 @@ def get_all_solutions():
             "description": "A powerful tool for content optimization.",
             "niche": "AI-powered content optimization",
             "template": "Web Application",
-            "dateCreated": "2025-04-28"
+            "dateCreated": "2025-04-28",
         }
     ]
     return jsonify(solutions), 200
 
 
 # Monetization endpoints
-@app.route('/api/monetization/solutions', methods=['GET'])
+@app.route("/api/monetization/solutions", methods=["GET"])
 @authenticate
 def get_monetization_solutions():
     # Mock data - normally these would be solutions from the developer module
@@ -802,30 +911,46 @@ def get_monetization_solutions():
             "id": 12345,
             "name": "AI Content Optimizer Tool",
             "description": "A powerful tool for content optimization.",
-            "niche": "AI-powered content optimization"
+            "niche": "AI-powered content optimization",
         }
     ]
     return jsonify(solutions), 200
 
 
-@app.route('/api/monetization/strategy', methods=['POST'])
+@app.route("/api/monetization/strategy", methods=["POST"])
 @sanitize_input
 @validate_request(MONETIZATION_STRATEGY_SCHEMA)
 def generate_monetization_strategy():
     data = request.json
-    solution_id = data.get('solutionId')
-    options = data.get('options', {})
+    solution_id = data.get("solutionId")
+    options = data.get("options", {})
 
     try:
         # Here we'd call our actual monetization strategy generation logic
         # For now, return a mock response
         strategy_id = 54321  # Normally generated or from database
-        return jsonify({"strategyId": strategy_id, "message": "Strategy generated successfully"}), 201
+        return (
+            jsonify(
+                {
+                    "strategyId": strategy_id,
+                    "message": "Strategy generated successfully",
+                }
+            ),
+            201,
+        )
     except Exception as e:
-        return jsonify({"error": "Processing Error", "message": f"Strategy generation failed: {str(e)}"}), 500
+        return (
+            jsonify(
+                {
+                    "error": "Processing Error",
+                    "message": f"Strategy generation failed: {str(e)}",
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/monetization/strategy/<strategy_id>', methods=['GET'])
+@app.route("/api/monetization/strategy/<strategy_id>", methods=["GET"])
 def get_strategy_details(strategy_id):
     try:
         # Validate the strategy_id format
@@ -846,8 +971,8 @@ def get_strategy_details(strategy_id):
                         "Limited access to basic features",
                         "3 projects",
                         "Community support",
-                        "7-day trial period"
-                    ]
+                        "7-day trial period",
+                    ],
                 },
                 {
                     "name": "Basic",
@@ -857,8 +982,8 @@ def get_strategy_details(strategy_id):
                         "Full access to basic features",
                         "10 projects",
                         "Email support",
-                        "Basic analytics"
-                    ]
+                        "Basic analytics",
+                    ],
                 },
                 {
                     "name": "Professional",
@@ -869,9 +994,9 @@ def get_strategy_details(strategy_id):
                         "Unlimited projects",
                         "Priority support",
                         "Advanced analytics",
-                        "Team collaboration"
+                        "Team collaboration",
                     ],
-                    "recommended": True
+                    "recommended": True,
                 },
                 {
                     "name": "Enterprise",
@@ -882,9 +1007,9 @@ def get_strategy_details(strategy_id):
                         "Dedicated support",
                         "Custom integrations",
                         "SLA guarantees",
-                        "Onboarding assistance"
-                    ]
-                }
+                        "Onboarding assistance",
+                    ],
+                },
             ],
             "projections": [
                 {
@@ -892,23 +1017,28 @@ def get_strategy_details(strategy_id):
                     "paidUsers": 5,
                     "monthlyRevenue": 199.95,
                     "annualRevenue": 2399.40,
-                    "lifetimeValue": 1799.55
+                    "lifetimeValue": 1799.55,
                 },
                 {
                     "userCount": 500,
                     "paidUsers": 25,
                     "monthlyRevenue": 999.75,
                     "annualRevenue": 11997.00,
-                    "lifetimeValue": 8997.75
-                }
-            ]
+                    "lifetimeValue": 8997.75,
+                },
+            ],
         }
         return jsonify(strategy), 200
     except ValueError:
-        return jsonify({"error": "Validation Error", "message": "Invalid strategy ID format"}), 400
+        return (
+            jsonify(
+                {"error": "Validation Error", "message": "Invalid strategy ID format"}
+            ),
+            400,
+        )
 
 
-@app.route('/api/monetization/strategies', methods=['GET'])
+@app.route("/api/monetization/strategies", methods=["GET"])
 def get_all_strategies():
     # Mock data for all monetization strategies
     strategies = [
@@ -918,14 +1048,14 @@ def get_all_strategies():
             "solutionName": "AI Content Optimizer Tool",
             "basePrice": 19.99,
             "tierCount": 4,
-            "dateCreated": "2025-04-28"
+            "dateCreated": "2025-04-28",
         }
     ]
     return jsonify(strategies), 200
 
 
 # Marketing endpoints
-@app.route('/api/marketing/solutions', methods=['GET'])
+@app.route("/api/marketing/solutions", methods=["GET"])
 @authenticate
 def get_marketing_solutions():
     # Mock data - normally these would be solutions from the developer module
@@ -934,57 +1064,113 @@ def get_marketing_solutions():
             "id": 12345,
             "name": "AI Content Optimizer Tool",
             "description": "A powerful tool for content optimization.",
-            "niche": "AI-powered content optimization"
+            "niche": "AI-powered content optimization",
         }
     ]
     return jsonify(solutions), 200
 
 
-@app.route('/api/marketing/audience-personas', methods=['GET'])
+@app.route("/api/marketing/audience-personas", methods=["GET"])
 def get_audience_personas():
     # Mock audience personas
     personas = [
-        { "id": 1, "name": "Content Creators", "interests": ["SEO", "Writing", "Social Media"] },
-        { "id": 2, "name": "Small Business Owners", "interests": ["Marketing", "Automation", "Analytics"] },
-        { "id": 3, "name": "Software Developers", "interests": ["Coding", "Productivity", "AI Tools"] },
-        { "id": 4, "name": "Financial Analysts", "interests": ["Data Analysis", "Market Trends", "Forecasting"] },
-        { "id": 5, "name": "Marketing Professionals", "interests": ["Campaign Management", "Analytics", "Content Creation"] }
+        {
+            "id": 1,
+            "name": "Content Creators",
+            "interests": ["SEO", "Writing", "Social Media"],
+        },
+        {
+            "id": 2,
+            "name": "Small Business Owners",
+            "interests": ["Marketing", "Automation", "Analytics"],
+        },
+        {
+            "id": 3,
+            "name": "Software Developers",
+            "interests": ["Coding", "Productivity", "AI Tools"],
+        },
+        {
+            "id": 4,
+            "name": "Financial Analysts",
+            "interests": ["Data Analysis", "Market Trends", "Forecasting"],
+        },
+        {
+            "id": 5,
+            "name": "Marketing Professionals",
+            "interests": ["Campaign Management", "Analytics", "Content Creation"],
+        },
     ]
     return jsonify(personas), 200
 
 
-@app.route('/api/marketing/channels', methods=['GET'])
+@app.route("/api/marketing/channels", methods=["GET"])
 def get_marketing_channels():
     # Mock marketing channels
     channels = [
-        { "id": 1, "name": "Social Media", "platforms": ["Twitter", "LinkedIn", "Facebook", "Instagram"] },
-        { "id": 2, "name": "Email Marketing", "platforms": ["Newsletters", "Drip Campaigns", "Announcements"] },
-        { "id": 3, "name": "Content Marketing", "platforms": ["Blog Posts", "Tutorials", "eBooks", "Webinars"] },
-        { "id": 4, "name": "Paid Advertising", "platforms": ["Google Ads", "Facebook Ads", "LinkedIn Ads"] },
-        { "id": 5, "name": "Community Engagement", "platforms": ["Reddit", "Discord", "Forums", "Q&A Sites"] }
+        {
+            "id": 1,
+            "name": "Social Media",
+            "platforms": ["Twitter", "LinkedIn", "Facebook", "Instagram"],
+        },
+        {
+            "id": 2,
+            "name": "Email Marketing",
+            "platforms": ["Newsletters", "Drip Campaigns", "Announcements"],
+        },
+        {
+            "id": 3,
+            "name": "Content Marketing",
+            "platforms": ["Blog Posts", "Tutorials", "eBooks", "Webinars"],
+        },
+        {
+            "id": 4,
+            "name": "Paid Advertising",
+            "platforms": ["Google Ads", "Facebook Ads", "LinkedIn Ads"],
+        },
+        {
+            "id": 5,
+            "name": "Community Engagement",
+            "platforms": ["Reddit", "Discord", "Forums", "Q&A Sites"],
+        },
     ]
     return jsonify(channels), 200
 
 
-@app.route('/api/marketing/campaign', methods=['POST'])
+@app.route("/api/marketing/campaign", methods=["POST"])
 @sanitize_input
 @validate_request(MARKETING_CAMPAIGN_SCHEMA)
 def generate_marketing_campaign():
     data = request.json
-    solution_id = data.get('solutionId')
-    audience_ids = data.get('audienceIds', [])
-    channel_ids = data.get('channelIds', [])
+    solution_id = data.get("solutionId")
+    audience_ids = data.get("audienceIds", [])
+    channel_ids = data.get("channelIds", [])
 
     try:
         # Here we'd call our actual marketing campaign generation logic
         # For now, return a mock response
         campaign_id = 67890  # Normally generated or from database
-        return jsonify({"campaignId": campaign_id, "message": "Campaign generated successfully"}), 201
+        return (
+            jsonify(
+                {
+                    "campaignId": campaign_id,
+                    "message": "Campaign generated successfully",
+                }
+            ),
+            201,
+        )
     except Exception as e:
-        return jsonify({"error": "Processing Error", "message": f"Campaign generation failed: {str(e)}"}), 500
+        return (
+            jsonify(
+                {
+                    "error": "Processing Error",
+                    "message": f"Campaign generation failed: {str(e)}",
+                }
+            ),
+            500,
+        )
 
 
-@app.route('/api/marketing/campaign/<campaign_id>', methods=['GET'])
+@app.route("/api/marketing/campaign/<campaign_id>", methods=["GET"])
 def get_campaign_details(campaign_id):
     try:
         # Validate the campaign_id format
@@ -1004,9 +1190,9 @@ def get_campaign_details(campaign_id):
                     "Highlight the AI-powered capabilities and unique features",
                     "Emphasize ease of use and quick implementation",
                     "Showcase real-world examples and case studies",
-                    "Leverage free trial to demonstrate value"
+                    "Leverage free trial to demonstrate value",
                 ],
-                "timeline": "3-month campaign with phased rollout"
+                "timeline": "3-month campaign with phased rollout",
             },
             "content": {
                 "socialMedia": [
@@ -1015,32 +1201,37 @@ def get_campaign_details(campaign_id):
                         "posts": [
                             "Tired of manual content optimization? Our new AI tool automates the entire process. Try it free: [link] #AI #ContentOptimization",
                             "Save 5+ hours every week with AI Content Optimizer. Our users are reporting incredible time savings and better results. Learn more: [link]",
-                            "\"I can't believe how much time this saves me\" - actual customer quote about AI Content Optimizer. See what the buzz is about: [link]"
-                        ]
+                            '"I can\'t believe how much time this saves me" - actual customer quote about AI Content Optimizer. See what the buzz is about: [link]',
+                        ],
                     },
                     {
                         "platform": "LinkedIn",
                         "posts": [
                             "Introducing AI Content Optimizer: The AI-powered solution professionals are using to automate content optimization and improve results by up to 40%. Learn more in the comments!",
                             "We analyzed 1,000+ user workflows and discovered the biggest time-wasters in content creation. Here's how our AI tool solves them: [link]",
-                        ]
-                    }
+                        ],
+                    },
                 ],
                 "emailMarketing": [
                     {
                         "type": "Welcome Email",
                         "subject": "Welcome to AI Content Optimizer! Here's How to Get Started",
-                        "content": "Hi [Name],\n\nThank you for signing up for AI Content Optimizer! We're excited to have you on board.\n\n..."
+                        "content": "Hi [Name],\n\nThank you for signing up for AI Content Optimizer! We're excited to have you on board.\n\n...",
                     }
-                ]
-            }
+                ],
+            },
         }
         return jsonify(campaign), 200
     except ValueError:
-        return jsonify({"error": "Validation Error", "message": "Invalid campaign ID format"}), 400
+        return (
+            jsonify(
+                {"error": "Validation Error", "message": "Invalid campaign ID format"}
+            ),
+            400,
+        )
 
 
-@app.route('/api/marketing/campaigns', methods=['GET'])
+@app.route("/api/marketing/campaigns", methods=["GET"])
 def get_all_campaigns():
     # Mock data for all marketing campaigns
     campaigns = [
@@ -1050,14 +1241,14 @@ def get_all_campaigns():
             "solutionName": "AI Content Optimizer Tool",
             "audiences": ["Content Creators", "Marketing Professionals"],
             "channels": ["Social Media", "Email Marketing"],
-            "dateCreated": "2025-04-28"
+            "dateCreated": "2025-04-28",
         }
     ]
     return jsonify(campaigns), 200
 
 
 # Dashboard endpoints
-@app.route('/api/dashboard/overview', methods=['GET'])
+@app.route("/api/dashboard/overview", methods=["GET"])
 def get_dashboard_overview():
     # Mock dashboard data
     overview = {
@@ -1068,7 +1259,7 @@ def get_dashboard_overview():
                 "status": "Active",
                 "revenue": 1250,
                 "subscribers": 48,
-                "progress": 100
+                "progress": 100,
             },
             {
                 "id": 2,
@@ -1076,7 +1267,7 @@ def get_dashboard_overview():
                 "status": "In Development",
                 "revenue": 0,
                 "subscribers": 0,
-                "progress": 65
+                "progress": 65,
             },
             {
                 "id": 3,
@@ -1084,51 +1275,47 @@ def get_dashboard_overview():
                 "status": "In Research",
                 "revenue": 0,
                 "subscribers": 0,
-                "progress": 25
-            }
+                "progress": 25,
+            },
         ],
         "totalRevenue": 1250,
         "totalSubscribers": 48,
-        "projectCount": 3
+        "projectCount": 3,
     }
     return jsonify(overview), 200
 
 
-@app.route('/api/dashboard/revenue', methods=['GET'])
+@app.route("/api/dashboard/revenue", methods=["GET"])
 def get_revenue_stats():
     # Mock revenue statistics
     revenue = {
         "monthly": [
-            { "month": "Jan", "revenue": 0 },
-            { "month": "Feb", "revenue": 0 },
-            { "month": "Mar", "revenue": 450 },
-            { "month": "Apr", "revenue": 1250 }
+            {"month": "Jan", "revenue": 0},
+            {"month": "Feb", "revenue": 0},
+            {"month": "Mar", "revenue": 450},
+            {"month": "Apr", "revenue": 1250},
         ],
-        "byProduct": [
-            { "name": "AI Writing Assistant", "revenue": 1250 }
-        ]
+        "byProduct": [{"name": "AI Writing Assistant", "revenue": 1250}],
     }
     return jsonify(revenue), 200
 
 
-@app.route('/api/dashboard/subscribers', methods=['GET'])
+@app.route("/api/dashboard/subscribers", methods=["GET"])
 def get_subscriber_stats():
     # Mock subscriber statistics
     subscribers = {
         "growth": [
-            { "month": "Jan", "subscribers": 0 },
-            { "month": "Feb", "subscribers": 0 },
-            { "month": "Mar", "subscribers": 22 },
-            { "month": "Apr", "subscribers": 48 }
+            {"month": "Jan", "subscribers": 0},
+            {"month": "Feb", "subscribers": 0},
+            {"month": "Mar", "subscribers": 22},
+            {"month": "Apr", "subscribers": 48},
         ],
-        "byProduct": [
-            { "name": "AI Writing Assistant", "subscribers": 48 }
-        ],
+        "byProduct": [{"name": "AI Writing Assistant", "subscribers": 48}],
         "byTier": [
-            { "tier": "Basic", "count": 28 },
-            { "tier": "Professional", "count": 16 },
-            { "tier": "Enterprise", "count": 4 }
-        ]
+            {"tier": "Basic", "count": 28},
+            {"tier": "Professional", "count": 16},
+            {"tier": "Enterprise", "count": 4},
+        ],
     }
     return jsonify(subscribers), 200
 
@@ -1138,16 +1325,16 @@ def get_subscriber_stats():
 def handle_exception(e):
     """Handle all unhandled exceptions"""
     # If it's a validation error from our validation system, return formatted response
-    if hasattr(e, 'to_dict') and callable(getattr(e, 'to_dict')):
-        return jsonify(e.to_dict()), getattr(e, 'http_status', 400)
+    if hasattr(e, "to_dict") and callable(getattr(e, "to_dict")):
+        return jsonify(e.to_dict()), getattr(e, "http_status", 400)
 
     # For all other exceptions, return generic server error
     app.logger.error(f"Unhandled exception: {str(e)}")
-    return jsonify({
-        "error": "Server Error",
-        "message": "An unexpected error occurred"
-    }), 500
+    return (
+        jsonify({"error": "Server Error", "message": "An unexpected error occurred"}),
+        500,
+    )
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

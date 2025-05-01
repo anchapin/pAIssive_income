@@ -5,11 +5,11 @@ This script demonstrates how to use the content optimization tools to analyze
 and optimize marketing content.
 """
 
-from marketing.user_personas import PersonaCreator
-from marketing.content_templates import BlogPostTemplate
 from marketing.content_generators import BlogPostGenerator
 from marketing.content_optimization import KeywordAnalyzer, ReadabilityAnalyzer
+from marketing.content_templates import BlogPostTemplate
 from marketing.tone_analyzer import ToneAnalyzer
+from marketing.user_personas import PersonaCreator
 
 
 def demo_keyword_analyzer():
@@ -26,12 +26,12 @@ def demo_keyword_analyzer():
         pain_points=[
             "time-consuming script writing",
             "maintaining viewer engagement",
-            "staying consistent with uploads"
+            "staying consistent with uploads",
         ],
         goals=[
             "increase video quality",
             "save time on content creation",
-            "grow audience and engagement"
+            "grow audience and engagement",
         ],
         demographics={
             "age_range": "25-45",
@@ -42,7 +42,7 @@ def demo_keyword_analyzer():
             "tech_savvy": "high",
             "price_sensitivity": "medium",
             "decision_making": "rational",
-        }
+        },
     )
 
     # Create a blog post template
@@ -53,13 +53,17 @@ def demo_keyword_analyzer():
             "The challenges of script writing for YouTube",
             "How AI can help streamline the process",
             "Step-by-step guide to using AI for script writing",
-            "Real results from content creators"
+            "Real results from content creators",
         ],
         tone="conversational",
         call_to_action="Sign up for a free trial of our AI script writing tool",
         target_word_count=1500,
         include_images=True,
-        seo_keywords=["YouTube script writing", "AI for content creators", "save time on YouTube"]
+        seo_keywords=[
+            "YouTube script writing",
+            "AI for content creators",
+            "save time on YouTube",
+        ],
     )
 
     # Create a blog post generator
@@ -85,7 +89,9 @@ def demo_keyword_analyzer():
 
     print("\nKeyword Density:")
     for keyword, data in results["keyword_density"]["keywords"].items():
-        print(f"- '{keyword}': {data['count']} occurrences, {data['density']:.2%} density, Optimal: {data['is_optimal']}")
+        print(
+            f"- '{keyword}': {data['count']} occurrences, {data['density']:.2%} density, Optimal: {data['is_optimal']}"
+        )
 
     print("\nKeyword Placement:")
     for keyword, data in results["keyword_placement"].items():
@@ -117,12 +123,12 @@ def demo_readability_analyzer():
         pain_points=[
             "time-consuming script writing",
             "maintaining viewer engagement",
-            "staying consistent with uploads"
+            "staying consistent with uploads",
         ],
         goals=[
             "increase video quality",
             "save time on content creation",
-            "grow audience and engagement"
+            "grow audience and engagement",
         ],
         demographics={
             "age_range": "25-45",
@@ -133,7 +139,7 @@ def demo_readability_analyzer():
             "tech_savvy": "high",
             "price_sensitivity": "medium",
             "decision_making": "rational",
-        }
+        },
     )
 
     # Create a blog post template
@@ -144,13 +150,17 @@ def demo_readability_analyzer():
             "The challenges of script writing for YouTube",
             "How AI can help streamline the process",
             "Step-by-step guide to using AI for script writing",
-            "Real results from content creators"
+            "Real results from content creators",
         ],
         tone="conversational",
         call_to_action="Sign up for a free trial of our AI script writing tool",
         target_word_count=1500,
         include_images=True,
-        seo_keywords=["YouTube script writing", "AI for content creators", "save time on YouTube"]
+        seo_keywords=[
+            "YouTube script writing",
+            "AI for content creators",
+            "save time on YouTube",
+        ],
     )
 
     # Create a blog post generator
@@ -183,38 +193,66 @@ def demo_readability_analyzer():
 
     print("\nReadability Scores:")
     scores = results["readability_scores"]
-    print(f"- Flesch Reading Ease: {scores['flesch_reading_ease']['score']:.1f} ({scores['flesch_reading_ease']['interpretation']})")
-    print(f"- Flesch-Kincaid Grade Level: {scores['flesch_kincaid_grade']['score']:.1f}")
+    print(
+        f"- Flesch Reading Ease: {scores['flesch_reading_ease']['score']:.1f} ({scores['flesch_reading_ease']['interpretation']})"
+    )
+    print(
+        f"- Flesch-Kincaid Grade Level: {scores['flesch_kincaid_grade']['score']:.1f}"
+    )
     print(f"- SMOG Index: {scores['smog_index']['score']:.1f}")
     print(f"- Coleman-Liau Index: {scores['coleman_liau_index']['score']:.1f}")
-    print(f"- Automated Readability Index: {scores['automated_readability_index']['score']:.1f}")
+    print(
+        f"- Automated Readability Index: {scores['automated_readability_index']['score']:.1f}"
+    )
     print(f"- Gunning Fog Index: {scores['gunning_fog_index']['score']:.1f}")
     print(f"- Average Grade Level: {scores['grade_level']:.1f}")
     print(f"- Reading Level: {scores['reading_level']}")
 
     print("\nSentence Analysis:")
     sentence = results["sentence_analysis"]["sentence_length"]
-    print(f"- Sentence Length: Min={sentence['min']}, Max={sentence['max']}, Avg={sentence['avg']:.1f}")
-    print(f"- Short Sentences: {sentence['short_count']} ({sentence['short_percentage']:.1%})")
-    print(f"- Long Sentences: {sentence['long_count']} ({sentence['long_percentage']:.1%})")
-    print(f"- Optimal Sentences: {sentence['optimal_count']} ({sentence['optimal_percentage']:.1%})")
+    print(
+        f"- Sentence Length: Min={sentence['min']}, Max={sentence['max']}, Avg={sentence['avg']:.1f}"
+    )
+    print(
+        f"- Short Sentences: {sentence['short_count']} ({sentence['short_percentage']:.1%})"
+    )
+    print(
+        f"- Long Sentences: {sentence['long_count']} ({sentence['long_percentage']:.1%})"
+    )
+    print(
+        f"- Optimal Sentences: {sentence['optimal_count']} ({sentence['optimal_percentage']:.1%})"
+    )
 
     print("\nParagraph Analysis:")
     paragraph = results["paragraph_analysis"]["paragraph_length"]
-    print(f"- Paragraph Length: Min={paragraph['min']}, Max={paragraph['max']}, Avg={paragraph['avg']:.1f}")
-    print(f"- Short Paragraphs: {paragraph['short_count']} ({paragraph['short_percentage']:.1%})")
-    print(f"- Long Paragraphs: {paragraph['long_count']} ({paragraph['long_percentage']:.1%})")
-    print(f"- Optimal Paragraphs: {paragraph['optimal_count']} ({paragraph['optimal_percentage']:.1%})")
+    print(
+        f"- Paragraph Length: Min={paragraph['min']}, Max={paragraph['max']}, Avg={paragraph['avg']:.1f}"
+    )
+    print(
+        f"- Short Paragraphs: {paragraph['short_count']} ({paragraph['short_percentage']:.1%})"
+    )
+    print(
+        f"- Long Paragraphs: {paragraph['long_count']} ({paragraph['long_percentage']:.1%})"
+    )
+    print(
+        f"- Optimal Paragraphs: {paragraph['optimal_count']} ({paragraph['optimal_percentage']:.1%})"
+    )
 
     print("\nWriting Style Analysis:")
     passive = results["style_analysis"]["passive_voice"]
-    print(f"- Passive Voice: {passive['passive_count']} instances ({passive['passive_percentage']:.1%})")
+    print(
+        f"- Passive Voice: {passive['passive_count']} instances ({passive['passive_percentage']:.1%})"
+    )
 
     adverbs = results["style_analysis"]["adverb_usage"]
-    print(f"- Adverbs: {adverbs['adverb_count']} instances ({adverbs['adverb_percentage']:.1%})")
+    print(
+        f"- Adverbs: {adverbs['adverb_count']} instances ({adverbs['adverb_percentage']:.1%})"
+    )
 
     complex_words = results["style_analysis"]["complex_words"]
-    print(f"- Complex Words: {complex_words['complex_word_count']} instances ({complex_words['complex_word_percentage']:.1%})")
+    print(
+        f"- Complex Words: {complex_words['complex_word_count']} instances ({complex_words['complex_word_percentage']:.1%})"
+    )
 
     print("\nRecommendations:")
     for recommendation in results["recommendations"]:
@@ -236,12 +274,12 @@ def demo_tone_analyzer():
         pain_points=[
             "time-consuming script writing",
             "maintaining viewer engagement",
-            "staying consistent with uploads"
+            "staying consistent with uploads",
         ],
         goals=[
             "increase video quality",
             "save time on content creation",
-            "grow audience and engagement"
+            "grow audience and engagement",
         ],
         demographics={
             "age_range": "25-45",
@@ -252,7 +290,7 @@ def demo_tone_analyzer():
             "tech_savvy": "high",
             "price_sensitivity": "medium",
             "decision_making": "rational",
-        }
+        },
     )
 
     # Create a blog post template
@@ -263,13 +301,17 @@ def demo_tone_analyzer():
             "The challenges of script writing for YouTube",
             "How AI can help streamline the process",
             "Step-by-step guide to using AI for script writing",
-            "Real results from content creators"
+            "Real results from content creators",
         ],
         tone="conversational",
         call_to_action="Sign up for a free trial of our AI script writing tool",
         target_word_count=1500,
         include_images=True,
-        seo_keywords=["YouTube script writing", "AI for content creators", "save time on YouTube"]
+        seo_keywords=[
+            "YouTube script writing",
+            "AI for content creators",
+            "save time on YouTube",
+        ],
     )
 
     # Create a blog post generator
@@ -293,26 +335,46 @@ def demo_tone_analyzer():
 
     print("\nTone Scores:")
     for tone, data in results["tone_analysis"]["tone_scores"].items():
-        print(f"- {tone}: {data['score']:.2f}" + (" (target)" if data["is_target"] else ""))
+        print(
+            f"- {tone}: {data['score']:.2f}"
+            + (" (target)" if data["is_target"] else "")
+        )
 
-    print(f"\nDominant Tone: {results['tone_analysis']['dominant_tone']} ({results['tone_analysis']['dominant_tone_score']:.2f})")
-    print(f"Target Tone: {results['tone_analysis']['target_tone']} ({results['tone_analysis']['target_tone_score']:.2f})")
+    print(
+        f"\nDominant Tone: {results['tone_analysis']['dominant_tone']} ({results['tone_analysis']['dominant_tone_score']:.2f})"
+    )
+    print(
+        f"Target Tone: {results['tone_analysis']['target_tone']} ({results['tone_analysis']['target_tone_score']:.2f})"
+    )
     print(f"Tone Consistency: {results['tone_analysis']['consistency']:.2f}")
     print(f"Is Consistent: {results['tone_analysis']['is_consistent']}")
 
     print("\nSentiment Analysis:")
     for sentiment, data in results["sentiment_analysis"]["sentiment_scores"].items():
-        print(f"- {sentiment}: {data['score']:.2f}" + (" (target)" if data["is_target"] else ""))
+        print(
+            f"- {sentiment}: {data['score']:.2f}"
+            + (" (target)" if data["is_target"] else "")
+        )
 
-    print(f"\nDominant Sentiment: {results['sentiment_analysis']['dominant_sentiment']} ({results['sentiment_analysis']['dominant_sentiment_score']:.2f})")
-    print(f"Target Sentiment: {results['sentiment_analysis']['target_sentiment']} ({results['sentiment_analysis']['target_sentiment_score']:.2f})")
+    print(
+        f"\nDominant Sentiment: {results['sentiment_analysis']['dominant_sentiment']} ({results['sentiment_analysis']['dominant_sentiment_score']:.2f})"
+    )
+    print(
+        f"Target Sentiment: {results['sentiment_analysis']['target_sentiment']} ({results['sentiment_analysis']['target_sentiment_score']:.2f})"
+    )
     print(f"Sentiment Consistency: {results['sentiment_analysis']['consistency']:.2f}")
     print(f"Is Consistent: {results['sentiment_analysis']['is_consistent']}")
 
     print("\nStyle Analysis:")
-    print(f"- Sentence Length Variety: {results['style_analysis']['sentence_length_variety']['score']:.2f}")
-    print(f"- Vocabulary Variety: {results['style_analysis']['vocabulary_variety']['score']:.2f}")
-    print(f"- Punctuation Density: {results['style_analysis']['punctuation']['density']:.2f}")
+    print(
+        f"- Sentence Length Variety: {results['style_analysis']['sentence_length_variety']['score']:.2f}"
+    )
+    print(
+        f"- Vocabulary Variety: {results['style_analysis']['vocabulary_variety']['score']:.2f}"
+    )
+    print(
+        f"- Punctuation Density: {results['style_analysis']['punctuation']['density']:.2f}"
+    )
 
     print("\nRecommendations:")
     for recommendation in results["recommendations"]:

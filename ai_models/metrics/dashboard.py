@@ -5,39 +5,38 @@ This module provides tools for generating interactive dashboards and reports
 to visualize model performance metrics, token usage, and cost data.
 """
 
-import os
-import logging
 import json
-from typing import Dict, List, Any, Optional, Union, Tuple
+import logging
+import os
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
-import time
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import metrics classes
-from ai_models.metrics import (
-    EnhancedPerformanceMonitor, 
-    EnhancedPerformanceReport
-)
+from ai_models.metrics import EnhancedPerformanceMonitor, EnhancedPerformanceReport
 
 
 class MetricsDashboard:
     """
     Dashboard generator for model performance metrics.
-    
+
     This class provides functionality to generate interactive dashboards and reports
     for visualizing model performance metrics, both as HTML reports and charts.
     """
-    
-    def __init__(self, 
-                performance_monitor: Optional[EnhancedPerformanceMonitor] = None,
-                output_dir: Optional[str] = None):
+
+    def __init__(
+        self,
+        performance_monitor: Optional[EnhancedPerformanceMonitor] = None,
+        output_dir: Optional[str] = None,
+    ):
         """
         Initialize the dashboard generator.
-        
+
         Args:
             performance_monitor: Performance monitor instance to use
             output_dir: Directory to save dashboard files (default: ./model_dashboards)
@@ -45,50 +44,52 @@ class MetricsDashboard:
         self.performance_monitor = performance_monitor or EnhancedPerformanceMonitor()
         self.output_dir = output_dir or os.path.join(os.getcwd(), "model_dashboards")
         os.makedirs(self.output_dir, exist_ok=True)
-        
+
         # Check for dependencies
         self._check_dependencies()
-        
+
     def _check_dependencies(self) -> None:
         """Check if required packages for visualization are installed."""
         missing_deps = []
-        
+
         try:
             import matplotlib
         except ImportError:
             missing_deps.append("matplotlib")
-            
+
         try:
             import pandas
         except ImportError:
             missing_deps.append("pandas")
-            
+
         try:
             import plotly
         except ImportError:
             missing_deps.append("plotly")
-            
+
         try:
             import jinja2
         except ImportError:
             missing_deps.append("jinja2")
-        
+
         if missing_deps:
             logger.warning(
                 f"Missing packages for full dashboard functionality: {', '.join(missing_deps)}. "
                 f"Install with: pip install {' '.join(missing_deps)}"
             )
-    
-    def generate_model_dashboard(self, 
-                               model_id: str, 
-                               days: int = 30,
-                               include_token_usage: bool = True,
-                               include_latency: bool = True,
-                               include_cost: bool = True,
-                               include_errors: bool = True) -> str:
+
+    def generate_model_dashboard(
+        self,
+        model_id: str,
+        days: int = 30,
+        include_token_usage: bool = True,
+        include_latency: bool = True,
+        include_cost: bool = True,
+        include_errors: bool = True,
+    ) -> str:
         """
         Generate a comprehensive dashboard for a model.
-        
+
         Args:
             model_id: ID of the model
             days: Number of days of data to include
@@ -96,7 +97,7 @@ class MetricsDashboard:
             include_latency: Whether to include latency/performance charts
             include_cost: Whether to include cost charts
             include_errors: Whether to include error charts
-            
+
         Returns:
             Path to the generated dashboard HTML file
         """
@@ -107,44 +108,44 @@ class MetricsDashboard:
             import plotly.graph_objects as go
             from plotly.subplots import make_subplots
         except ImportError:
-            logger.error("Dashboard generation requires additional packages. Install with: "
-                        "pip install pandas plotly jinja2")
+            logger.error(
+                "Dashboard generation requires additional packages. Install with: "
+                "pip install pandas plotly jinja2"
+            )
             return ""
-        
+
         # Get time range
         end_time = datetime.now()
         start_time = end_time - timedelta(days=days)
         time_range = (start_time, end_time)
-        
+
         # Get metrics data
         metrics_data = self.performance_monitor.metrics_db.get_metrics(
-            model_id=model_id,
-            time_range=time_range,
-            limit=10000
+            model_id=model_id, time_range=time_range, limit=10000
         )
-        
+
         if not metrics_data:
-            logger.warning(f"No metrics found for model {model_id} in the last {days} days")
+            logger.warning(
+                f"No metrics found for model {model_id} in the last {days} days"
+            )
             return ""
-        
+
         # Generate report
         report = self.performance_monitor.generate_enhanced_report(
-            model_id=model_id,
-            time_range=time_range,
-            include_metrics=True
+            model_id=model_id, time_range=time_range, include_metrics=True
         )
-        
+
         # Process metrics for visualization
         df = pd.DataFrame(metrics_data)
         df["timestamp"] = pd.to_datetime(df["timestamp"])
         df = df.sort_values("timestamp")
-        
+
         # Extract token usage and cost data from metadata
         token_data = []
         for metric in metrics_data:
             if not isinstance(metric.get("metadata"), dict):
                 continue
-                
+
             token_usage = metric.get("metadata", {}).get("token_usage", {})
             if token_usage:
                 entry = {
@@ -154,22 +155,24 @@ class MetricsDashboard:
                     "total_tokens": token_usage.get("total_tokens", 0),
                     "prompt_cost": token_usage.get("prompt_cost", 0.0),
                     "completion_cost": token_usage.get("completion_cost", 0.0),
-                    "total_cost": token_usage.get("total_cost", 0.0)
+                    "total_cost": token_usage.get("total_cost", 0.0),
                 }
                 token_data.append(entry)
-        
+
         token_df = pd.DataFrame(token_data)
-        
+
         # Create plots
         plots = {}
-        
+
         # 1. Latency over time
         if include_latency and not df["latency_ms"].isnull().all():
             fig = px.scatter(
-                df, x="timestamp", y="latency_ms",
+                df,
+                x="timestamp",
+                y="latency_ms",
                 title=f"Latency Over Time ({model_id})",
                 labels={"latency_ms": "Latency (ms)", "timestamp": "Time"},
-                color_discrete_sequence=["blue"]
+                color_discrete_sequence=["blue"],
             )
             fig.add_trace(
                 go.Scatter(
@@ -177,116 +180,155 @@ class MetricsDashboard:
                     y=df["latency_ms"].rolling(10).mean(),
                     mode="lines",
                     name="10-point Moving Average",
-                    line=dict(color="red", width=2)
+                    line=dict(color="red", width=2),
                 )
             )
             plots["latency_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
-            
+
         # 2. Token usage over time
         if include_token_usage and len(token_df) > 0:
             # Create a daily aggregation
-            token_df['date'] = token_df['timestamp'].dt.date
-            daily_tokens = token_df.groupby('date').agg({
-                'prompt_tokens': 'sum',
-                'completion_tokens': 'sum',
-                'total_tokens': 'sum'
-            }).reset_index()
-            daily_tokens['date'] = pd.to_datetime(daily_tokens['date'])
-            
+            token_df["date"] = token_df["timestamp"].dt.date
+            daily_tokens = (
+                token_df.groupby("date")
+                .agg(
+                    {
+                        "prompt_tokens": "sum",
+                        "completion_tokens": "sum",
+                        "total_tokens": "sum",
+                    }
+                )
+                .reset_index()
+            )
+            daily_tokens["date"] = pd.to_datetime(daily_tokens["date"])
+
             fig = go.Figure()
-            fig.add_trace(go.Bar(
-                x=daily_tokens["date"],
-                y=daily_tokens["prompt_tokens"],
-                name="Prompt Tokens",
-                marker_color="lightblue"
-            ))
-            fig.add_trace(go.Bar(
-                x=daily_tokens["date"],
-                y=daily_tokens["completion_tokens"],
-                name="Completion Tokens",
-                marker_color="darkblue"
-            ))
+            fig.add_trace(
+                go.Bar(
+                    x=daily_tokens["date"],
+                    y=daily_tokens["prompt_tokens"],
+                    name="Prompt Tokens",
+                    marker_color="lightblue",
+                )
+            )
+            fig.add_trace(
+                go.Bar(
+                    x=daily_tokens["date"],
+                    y=daily_tokens["completion_tokens"],
+                    name="Completion Tokens",
+                    marker_color="darkblue",
+                )
+            )
             fig.update_layout(
                 title=f"Daily Token Usage ({model_id})",
                 xaxis_title="Date",
                 yaxis_title="Tokens",
-                barmode="stack"
+                barmode="stack",
             )
-            plots["token_usage_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
+            plots["token_usage_plot"] = fig.to_html(
+                full_html=False, include_plotlyjs=False
+            )
 
         # 3. Cost over time
         if include_cost and len(token_df) > 0 and token_df["total_cost"].sum() > 0:
             # Create a daily aggregation
-            daily_costs = token_df.groupby('date').agg({
-                'prompt_cost': 'sum',
-                'completion_cost': 'sum',
-                'total_cost': 'sum'
-            }).reset_index()
-            
+            daily_costs = (
+                token_df.groupby("date")
+                .agg(
+                    {
+                        "prompt_cost": "sum",
+                        "completion_cost": "sum",
+                        "total_cost": "sum",
+                    }
+                )
+                .reset_index()
+            )
+
             fig = go.Figure()
-            fig.add_trace(go.Bar(
-                x=daily_costs["date"],
-                y=daily_costs["prompt_cost"],
-                name="Prompt Cost",
-                marker_color="lightgreen"
-            ))
-            fig.add_trace(go.Bar(
-                x=daily_costs["date"],
-                y=daily_costs["completion_cost"],
-                name="Completion Cost",
-                marker_color="darkgreen"
-            ))
+            fig.add_trace(
+                go.Bar(
+                    x=daily_costs["date"],
+                    y=daily_costs["prompt_cost"],
+                    name="Prompt Cost",
+                    marker_color="lightgreen",
+                )
+            )
+            fig.add_trace(
+                go.Bar(
+                    x=daily_costs["date"],
+                    y=daily_costs["completion_cost"],
+                    name="Completion Cost",
+                    marker_color="darkgreen",
+                )
+            )
             fig.update_layout(
                 title=f"Daily Token Cost ({model_id})",
                 xaxis_title="Date",
                 yaxis_title="Cost (USD)",
-                barmode="stack"
+                barmode="stack",
             )
             plots["cost_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
-            
+
             # Also create a cumulative cost plot
             daily_costs["cumulative_cost"] = daily_costs["total_cost"].cumsum()
             fig = px.line(
-                daily_costs, x="date", y="cumulative_cost",
+                daily_costs,
+                x="date",
+                y="cumulative_cost",
                 title=f"Cumulative Cost ({model_id})",
                 labels={"cumulative_cost": "Cumulative Cost (USD)", "date": "Date"},
-                color_discrete_sequence=["green"]
+                color_discrete_sequence=["green"],
             )
-            plots["cumulative_cost_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
+            plots["cumulative_cost_plot"] = fig.to_html(
+                full_html=False, include_plotlyjs=False
+            )
 
         # 4. Inference time distributions
         if "total_time" in df.columns and not df["total_time"].isnull().all():
             fig = px.histogram(
-                df, x="total_time",
+                df,
+                x="total_time",
                 title=f"Inference Time Distribution ({model_id})",
                 labels={"total_time": "Inference Time (s)"},
-                color_discrete_sequence=["purple"]
+                color_discrete_sequence=["purple"],
             )
-            plots["inference_time_hist"] = fig.to_html(full_html=False, include_plotlyjs=False)
+            plots["inference_time_hist"] = fig.to_html(
+                full_html=False, include_plotlyjs=False
+            )
 
         # 5. Error rate over time
         if include_errors and "error_occurred" in df.columns:
             # Group by date and calculate error rate
-            df['date'] = df['timestamp'].dt.date
-            daily_errors = df.groupby('date').agg({
-                'error_occurred': 'sum',
-                'model_id': 'count'
-            }).reset_index()
-            daily_errors['date'] = pd.to_datetime(daily_errors['date'])
-            daily_errors['error_rate'] = daily_errors['error_occurred'] / daily_errors['model_id']
-            
-            if not daily_errors["error_occurred"].isnull().all() and daily_errors["error_occurred"].sum() > 0:
+            df["date"] = df["timestamp"].dt.date
+            daily_errors = (
+                df.groupby("date")
+                .agg({"error_occurred": "sum", "model_id": "count"})
+                .reset_index()
+            )
+            daily_errors["date"] = pd.to_datetime(daily_errors["date"])
+            daily_errors["error_rate"] = (
+                daily_errors["error_occurred"] / daily_errors["model_id"]
+            )
+
+            if (
+                not daily_errors["error_occurred"].isnull().all()
+                and daily_errors["error_occurred"].sum() > 0
+            ):
                 fig = px.line(
-                    daily_errors, x="date", y="error_rate",
+                    daily_errors,
+                    x="date",
+                    y="error_rate",
                     title=f"Daily Error Rate ({model_id})",
                     labels={"error_rate": "Error Rate", "date": "Date"},
-                    color_discrete_sequence=["red"]
+                    color_discrete_sequence=["red"],
                 )
-                plots["error_rate_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
+                plots["error_rate_plot"] = fig.to_html(
+                    full_html=False, include_plotlyjs=False
+                )
 
         # Generate HTML dashboard using Jinja2
         env = jinja2.Environment(loader=jinja2.FileSystemLoader("."))
-        
+
         # Create a template string within the code instead of requiring an external file
         template_str = """
         <!DOCTYPE html>
@@ -431,19 +473,21 @@ class MetricsDashboard:
         </body>
         </html>
         """
-        
+
         template = env.from_string(template_str)
-        
+
         # Prepare template variables
         total_tokens = report.total_prompt_tokens + report.total_completion_tokens
         total_cost = report.total_prompt_cost + report.total_completion_cost
-        avg_cost_per_inference = total_cost / report.num_inferences if report.num_inferences > 0 else 0
-        error_rate = report.error_rate if hasattr(report, 'error_rate') else 0
-        
+        avg_cost_per_inference = (
+            total_cost / report.num_inferences if report.num_inferences > 0 else 0
+        )
+        error_rate = report.error_rate if hasattr(report, "error_rate") else 0
+
         # Prepare detailed metrics table
         detailed_metrics = {}
         for key, value in report.__dict__.items():
-            if isinstance(value, (int, float, str)) and not key.startswith('_'):
+            if isinstance(value, (int, float, str)) and not key.startswith("_"):
                 if isinstance(value, float):
                     # Format float values
                     if abs(value) >= 1000:
@@ -453,7 +497,7 @@ class MetricsDashboard:
                     detailed_metrics[key] = formatted_value
                 else:
                     detailed_metrics[key] = value
-        
+
         # Render template
         html_content = template.render(
             model_id=model_id,
@@ -466,30 +510,32 @@ class MetricsDashboard:
             total_cost=total_cost,
             avg_cost_per_inference=avg_cost_per_inference,
             error_rate=error_rate,
-            detailed_metrics=detailed_metrics
+            detailed_metrics=detailed_metrics,
         )
-        
+
         # Save dashboard HTML
         filename = f"{model_id}_dashboard_{int(time.time())}.html"
         filepath = os.path.join(self.output_dir, filename)
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
-            
+
         logger.info(f"Dashboard generated at: {filepath}")
         return filepath
-    
-    def generate_model_comparison_dashboard(self,
-                                         model_ids: List[str],
-                                         model_names: Optional[List[str]] = None,
-                                         days: int = 30) -> str:
+
+    def generate_model_comparison_dashboard(
+        self,
+        model_ids: List[str],
+        model_names: Optional[List[str]] = None,
+        days: int = 30,
+    ) -> str:
         """
         Generate a dashboard comparing multiple models.
-        
+
         Args:
             model_ids: List of model IDs to compare
             model_names: Optional list of model names
             days: Number of days of data to include
-            
+
         Returns:
             Path to the generated comparison dashboard HTML file
         """
@@ -499,43 +545,44 @@ class MetricsDashboard:
             import plotly.express as px
             import plotly.graph_objects as go
         except ImportError:
-            logger.error("Dashboard generation requires additional packages. Install with: "
-                        "pip install pandas plotly jinja2")
+            logger.error(
+                "Dashboard generation requires additional packages. Install with: "
+                "pip install pandas plotly jinja2"
+            )
             return ""
-        
+
         # Get time range
         end_time = datetime.now()
         start_time = end_time - timedelta(days=days)
         time_range = (start_time, end_time)
-        
+
         # Generate comparison report
         comparison = self.performance_monitor.compare_models_enhanced(
             model_ids=model_ids,
             model_names=model_names,
             time_range=time_range,
-            title="Model Performance Comparison"
+            title="Model Performance Comparison",
         )
-        
+
         # Create individual report for each model for more detailed data
         reports = {}
         for model_id in model_ids:
             report = self.performance_monitor.generate_enhanced_report(
-                model_id=model_id,
-                time_range=time_range
+                model_id=model_id, time_range=time_range
             )
             reports[model_id] = report
-            
+
         # Generate comparison charts
         plots = {}
-        
+
         # 1. Inference time comparison
         metrics_to_plot = {
             "avg_inference_time": "Average Inference Time (s)",
             "avg_latency_ms": "Average Latency (ms)",
             "avg_tokens_per_second": "Tokens per Second",
-            "cost_per_1k_tokens": "Cost per 1K Tokens ($)"
+            "cost_per_1k_tokens": "Cost per 1K Tokens ($)",
         }
-        
+
         for metric, title in metrics_to_plot.items():
             # Extract data
             plot_data = []
@@ -544,73 +591,103 @@ class MetricsDashboard:
                     model_data = comparison.comparison_metrics[model_id]
                     if metric in model_data and model_data[metric] > 0:
                         model_name = model_data.get("model_name", model_id)
-                        plot_data.append({
-                            "model": model_name,
-                            "value": model_data[metric],
-                            "percent_diff": model_data.get(f"{metric}_percent_diff", 0)
-                        })
-            
+                        plot_data.append(
+                            {
+                                "model": model_name,
+                                "value": model_data[metric],
+                                "percent_diff": model_data.get(
+                                    f"{metric}_percent_diff", 0
+                                ),
+                            }
+                        )
+
             if plot_data:
                 df = pd.DataFrame(plot_data)
                 fig = px.bar(
-                    df, x="model", y="value",
+                    df,
+                    x="model",
+                    y="value",
                     title=f"{title} Comparison",
                     labels={"value": title, "model": "Model"},
-                    color="model"
+                    color="model",
                 )
-                plots[f"{metric}_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
-        
+                plots[f"{metric}_comparison"] = fig.to_html(
+                    full_html=False, include_plotlyjs=False
+                )
+
         # 2. Cost comparison if available
         cost_data = []
         for model_id in model_ids:
             if model_id in reports:
                 report = reports[model_id]
-                if hasattr(report, 'total_prompt_cost') and hasattr(report, 'total_completion_cost'):
-                    model_name = comparison.comparison_metrics.get(model_id, {}).get("model_name", model_id)
-                    cost_data.append({
-                        "model": model_name,
-                        "prompt_cost": report.total_prompt_cost,
-                        "completion_cost": report.total_completion_cost,
-                        "total_cost": report.total_prompt_cost + report.total_completion_cost
-                    })
-                    
+                if hasattr(report, "total_prompt_cost") and hasattr(
+                    report, "total_completion_cost"
+                ):
+                    model_name = comparison.comparison_metrics.get(model_id, {}).get(
+                        "model_name", model_id
+                    )
+                    cost_data.append(
+                        {
+                            "model": model_name,
+                            "prompt_cost": report.total_prompt_cost,
+                            "completion_cost": report.total_completion_cost,
+                            "total_cost": report.total_prompt_cost
+                            + report.total_completion_cost,
+                        }
+                    )
+
         if cost_data:
             df = pd.DataFrame(cost_data)
             fig = px.bar(
-                df, x="model", y=["prompt_cost", "completion_cost"],
+                df,
+                x="model",
+                y=["prompt_cost", "completion_cost"],
                 title="Cost Comparison",
                 labels={"value": "Cost ($)", "model": "Model", "variable": "Cost Type"},
-                barmode="stack"
+                barmode="stack",
             )
-            plots["cost_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
-            
+            plots["cost_comparison"] = fig.to_html(
+                full_html=False, include_plotlyjs=False
+            )
+
         # 3. Token usage comparison
         token_data = []
         for model_id in model_ids:
             if model_id in reports:
                 report = reports[model_id]
-                if hasattr(report, 'total_prompt_tokens') and hasattr(report, 'total_completion_tokens'):
-                    model_name = comparison.comparison_metrics.get(model_id, {}).get("model_name", model_id)
-                    token_data.append({
-                        "model": model_name,
-                        "prompt_tokens": report.total_prompt_tokens,
-                        "completion_tokens": report.total_completion_tokens,
-                        "total_tokens": report.total_prompt_tokens + report.total_completion_tokens
-                    })
-                    
+                if hasattr(report, "total_prompt_tokens") and hasattr(
+                    report, "total_completion_tokens"
+                ):
+                    model_name = comparison.comparison_metrics.get(model_id, {}).get(
+                        "model_name", model_id
+                    )
+                    token_data.append(
+                        {
+                            "model": model_name,
+                            "prompt_tokens": report.total_prompt_tokens,
+                            "completion_tokens": report.total_completion_tokens,
+                            "total_tokens": report.total_prompt_tokens
+                            + report.total_completion_tokens,
+                        }
+                    )
+
         if token_data:
             df = pd.DataFrame(token_data)
             fig = px.bar(
-                df, x="model", y=["prompt_tokens", "completion_tokens"],
+                df,
+                x="model",
+                y=["prompt_tokens", "completion_tokens"],
                 title="Token Usage Comparison",
                 labels={"value": "Tokens", "model": "Model", "variable": "Token Type"},
-                barmode="stack"
+                barmode="stack",
             )
-            plots["token_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
-            
+            plots["token_comparison"] = fig.to_html(
+                full_html=False, include_plotlyjs=False
+            )
+
         # Generate HTML dashboard using Jinja2
         env = jinja2.Environment(loader=jinja2.FileSystemLoader("."))
-        
+
         # Create a template string within the code instead of requiring an external file
         template_str = """
         <!DOCTYPE html>
@@ -749,15 +826,17 @@ class MetricsDashboard:
         </body>
         </html>
         """
-        
+
         template = env.from_string(template_str)
-        
+
         # Prepare model names
         models_list = []
         for idx, model_id in enumerate(model_ids):
-            model_name = model_names[idx] if model_names and idx < len(model_names) else model_id
+            model_name = (
+                model_names[idx] if model_names and idx < len(model_names) else model_id
+            )
             models_list.append((model_id, model_name))
-            
+
         # Prepare metrics list
         metrics_list = {
             "num_inferences": "Number of Inferences",
@@ -772,9 +851,9 @@ class MetricsDashboard:
             "total_prompt_cost": "Total Prompt Cost ($)",
             "total_completion_cost": "Total Completion Cost ($)",
             "avg_memory_usage_mb": "Avg. Memory Usage (MB)",
-            "cost_per_1k_tokens": "Cost per 1K Tokens ($)"
+            "cost_per_1k_tokens": "Cost per 1K Tokens ($)",
         }
-        
+
         # Prepare model metrics
         model_metrics = {}
         for model_id in model_ids:
@@ -789,7 +868,7 @@ class MetricsDashboard:
                             model_metrics[model_id][key] = f"{value:.4f}"
                     else:
                         model_metrics[model_id][key] = value
-            
+
             # Add report metrics
             if model_id in reports:
                 for key, value in reports[model_id].__dict__.items():
@@ -801,7 +880,7 @@ class MetricsDashboard:
                                 model_metrics[model_id][key] = f"{value:.4f}"
                         else:
                             model_metrics[model_id][key] = value
-        
+
         # Render template
         html_content = template.render(
             models=models_list,
@@ -810,30 +889,29 @@ class MetricsDashboard:
             model_metrics=model_metrics,
             generation_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             start_date=start_time.strftime("%Y-%m-%d"),
-            end_date=end_time.strftime("%Y-%m-%d")
+            end_date=end_time.strftime("%Y-%m-%d"),
         )
-        
+
         # Save dashboard HTML
         filename = f"model_comparison_{int(time.time())}.html"
         filepath = os.path.join(self.output_dir, filename)
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
-            
+
         logger.info(f"Comparison dashboard generated at: {filepath}")
         return filepath
-    
-    def export_metrics_to_json(self, 
-                             model_id: str,
-                             days: int = 30,
-                             output_file: Optional[str] = None) -> str:
+
+    def export_metrics_to_json(
+        self, model_id: str, days: int = 30, output_file: Optional[str] = None
+    ) -> str:
         """
         Export metrics to a JSON file.
-        
+
         Args:
             model_id: ID of the model
             days: Number of days of data to include
             output_file: Optional output filename
-            
+
         Returns:
             Path to the exported JSON file
         """
@@ -841,45 +919,44 @@ class MetricsDashboard:
         end_time = datetime.now()
         start_time = end_time - timedelta(days=days)
         time_range = (start_time, end_time)
-        
+
         # Get metrics data
         metrics_data = self.performance_monitor.metrics_db.get_metrics(
-            model_id=model_id,
-            time_range=time_range,
-            limit=10000
+            model_id=model_id, time_range=time_range, limit=10000
         )
-        
+
         # Generate report
         report = self.performance_monitor.generate_enhanced_report(
-            model_id=model_id,
-            time_range=time_range
+            model_id=model_id, time_range=time_range
         )
-        
+
         # Prepare export data
         export_data = {
             "model_id": model_id,
             "export_date": datetime.now().isoformat(),
             "date_range": {
                 "start": start_time.isoformat(),
-                "end": end_time.isoformat()
+                "end": end_time.isoformat(),
             },
             "summary": {},
-            "metrics": metrics_data
+            "metrics": metrics_data,
         }
-        
+
         # Add report summary
         for key, value in report.__dict__.items():
             if not key.startswith("_") and key != "raw_metrics":
                 if isinstance(value, (int, float, str, bool, dict)) or value is None:
                     export_data["summary"][key] = value
-        
+
         # Determine output filename
         if not output_file:
-            output_file = os.path.join(self.output_dir, f"{model_id}_metrics_{int(time.time())}.json")
-        
+            output_file = os.path.join(
+                self.output_dir, f"{model_id}_metrics_{int(time.time())}.json"
+            )
+
         # Export to JSON
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2)
-        
+
         logger.info(f"Metrics exported to JSON: {output_file}")
         return output_file
