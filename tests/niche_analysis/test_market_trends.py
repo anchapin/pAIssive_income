@@ -317,6 +317,110 @@ class TestMarketTrendAnalysis:
         # Verify timestamp is updated in fresh result
         assert fresh_result != first_result
 
+    def test_seasonal_pattern_detection_with_irregular_intervals(self):
+        """Test detection of seasonal patterns with irregular time intervals."""
+        # Test data with irregular intervals
+        irregular_data = [
+            {"date": "2024-01-15", "value": 100},
+            {"date": "2024-03-02", "value": 120},
+            {"date": "2024-06-20", "value": 90},
+            {"date": "2024-08-05", "value": 110},
+            {"date": "2024-11-28", "value": 95},
+            {"date": "2025-01-10", "value": 105}
+        ]
+
+        # Analyze seasonal patterns
+        seasonality = self.historical_analyzer.analyze_seasonality_irregular(irregular_data)
+
+        # Validate seasonality analysis
+        assert "seasonal_patterns" in seasonality
+        assert "confidence_score" in seasonality
+        assert "period_length" in seasonality
+        assert "peak_months" in seasonality
+        assert "trough_months" in seasonality
+
+        # Validate confidence score range
+        assert 0 <= seasonality["confidence_score"] <= 1
+
+        # Verify peak and trough months are valid
+        for month in seasonality["peak_months"]:
+            assert 1 <= month <= 12
+        for month in seasonality["trough_months"]:
+            assert 1 <= month <= 12
+
+    def test_missing_data_handling_in_trends(self):
+        """Test handling of missing data points in trend analysis."""
+        # Test data with missing points
+        sparse_data = [
+            {"date": "2024-01-01", "value": 100},
+            {"date": "2024-02-01", "value": None},  # Missing data
+            {"date": "2024-03-01", "value": 120},
+            {"date": "2024-04-01", "value": None},  # Missing data
+            {"date": "2024-05-01", "value": 110},
+            {"date": "2024-06-01", "value": 115}
+        ]
+
+        # Analyze trends with missing data
+        trend_analysis = self.trend_analyzer.analyze_trends_with_gaps(sparse_data)
+
+        # Validate missing data handling
+        assert "interpolated_values" in trend_analysis
+        assert "gap_statistics" in trend_analysis
+        assert "trend_reliability" in trend_analysis
+
+        # Check interpolation results
+        interpolated = trend_analysis["interpolated_values"]
+        assert len(interpolated) == len(sparse_data)
+        assert all(isinstance(v["value"], (float, type(None))) for v in interpolated)
+        assert any(v["is_interpolated"] for v in interpolated)
+
+        # Verify trend reliability score
+        assert 0 <= trend_analysis["trend_reliability"] <= 1
+
+    def test_multiyear_seasonal_comparison(self):
+        """Test comparison of seasonal trends across multiple years."""
+        # Multi-year test data
+        yearly_data = {
+            "2023": [
+                {"date": "2023-01-01", "value": 100},
+                {"date": "2023-04-01", "value": 120},
+                {"date": "2023-07-01", "value": 90},
+                {"date": "2023-10-01", "value": 110}
+            ],
+            "2024": [
+                {"date": "2024-01-01", "value": 105},
+                {"date": "2024-04-01", "value": 125},
+                {"date": "2024-07-01", "value": 95},
+                {"date": "2024-10-01", "value": 115}
+            ],
+            "2025": [
+                {"date": "2025-01-01", "value": 110},
+                {"date": "2025-04-01", "value": 130},
+                {"date": "2025-07-01", "value": 100},
+                {"date": "2025-10-01", "value": 120}
+            ]
+        }
+
+        # Analyze multi-year seasonality
+        yearly_comparison = self.historical_analyzer.compare_yearly_seasonality(yearly_data)
+
+        # Validate yearly comparison
+        assert "seasonal_stability" in yearly_comparison
+        assert "year_over_year_changes" in yearly_comparison
+        assert "seasonal_strength_by_year" in yearly_comparison
+
+        # Verify year-over-year changes
+        yoy_changes = yearly_comparison["year_over_year_changes"]
+        assert all(isinstance(change, float) for change in yoy_changes.values())
+
+        # Check seasonal stability score
+        assert 0 <= yearly_comparison["seasonal_stability"] <= 1
+
+        # Verify seasonal strength calculation for each year
+        strength_by_year = yearly_comparison["seasonal_strength_by_year"]
+        assert all(isinstance(strength, float) for strength in strength_by_year.values())
+        assert all(0 <= strength <= 1 for strength in strength_by_year.values())
+
 
 if __name__ == "__main__":
     pytest.main(["-v", "test_market_trends.py"])

@@ -1,0 +1,635 @@
+[
+  {
+    "test_type": "sequential",
+    "num_webhooks": 1,
+    "num_events": 1,
+    "response_time": 0.01,
+    "total_deliveries": 1,
+    "total_time": 0.39508891105651855,
+    "deliveries_per_second": 2.531075846512299
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 1,
+    "num_events": 1,
+    "response_time": 0.05,
+    "total_deliveries": 1,
+    "total_time": 0.36083555221557617,
+    "deliveries_per_second": 2.7713455446944537
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 1,
+    "num_events": 1,
+    "response_time": 0.1,
+    "total_deliveries": 1,
+    "total_time": 0.4165198802947998,
+    "deliveries_per_second": 2.4008457874621283
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 1,
+    "num_events": 10,
+    "response_time": 0.01,
+    "total_deliveries": 10,
+    "total_time": 3.4878599643707275,
+    "deliveries_per_second": 2.867087584407701
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 1,
+    "num_events": 10,
+    "response_time": 0.05,
+    "total_deliveries": 10,
+    "total_time": 4.032796144485474,
+    "deliveries_per_second": 2.4796691034517577
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 1,
+    "num_events": 10,
+    "response_time": 0.1,
+    "total_deliveries": 10,
+    "total_time": 4.313928127288818,
+    "deliveries_per_second": 2.3180729267932234
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 10,
+    "num_events": 1,
+    "response_time": 0.01,
+    "total_deliveries": 10,
+    "total_time": 3.401310920715332,
+    "deliveries_per_second": 2.940042893196278
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 10,
+    "num_events": 1,
+    "response_time": 0.05,
+    "total_deliveries": 10,
+    "total_time": 3.9727835655212402,
+    "deliveries_per_second": 2.5171268041852093
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 10,
+    "num_events": 1,
+    "response_time": 0.1,
+    "total_deliveries": 10,
+    "total_time": 4.195858001708984,
+    "deliveries_per_second": 2.383302770476735
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.01,
+    "total_deliveries": 100,
+    "total_time": 33.091808557510376,
+    "deliveries_per_second": 3.021895881762087
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.05,
+    "total_deliveries": 100,
+    "total_time": 37.31571412086487,
+    "deliveries_per_second": 2.6798361589999846
+  },
+  {
+    "test_type": "sequential",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.1,
+    "total_deliveries": 100,
+    "total_time": 42.89450216293335,
+    "deliveries_per_second": 2.3313010982189115
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 1,
+    "total_deliveries": 100,
+    "total_time": 42.37300777435303,
+    "deliveries_per_second": 2.3599929590206403
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 5,
+    "total_deliveries": 100,
+    "total_time": 34.667142391204834,
+    "deliveries_per_second": 2.8845758000916257
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 10,
+    "total_deliveries": 100,
+    "total_time": 36.261757612228394,
+    "deliveries_per_second": 2.757726226879787
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 20,
+    "total_deliveries": 100,
+    "total_time": 34.05388140678406,
+    "deliveries_per_second": 2.936522824093657
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 50,
+    "total_deliveries": 100,
+    "total_time": 32.62925410270691,
+    "deliveries_per_second": 3.064734476774449
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 1,
+    "total_deliveries": 100,
+    "total_time": 44.77244997024536,
+    "deliveries_per_second": 2.2335163714841935
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 5,
+    "total_deliveries": 100,
+    "total_time": 32.096031665802,
+    "deliveries_per_second": 3.1156499669879434
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 10,
+    "total_deliveries": 100,
+    "total_time": 31.634506940841675,
+    "deliveries_per_second": 3.1611050612233558
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 20,
+    "total_deliveries": 100,
+    "total_time": 31.200438022613525,
+    "deliveries_per_second": 3.205083208367837
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 50,
+    "total_deliveries": 100,
+    "total_time": 33.29674983024597,
+    "deliveries_per_second": 3.003296132800397
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 1,
+    "total_deliveries": 500,
+    "total_time": 198.43032574653625,
+    "deliveries_per_second": 2.5197761386466295
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 5,
+    "total_deliveries": 500,
+    "total_time": 162.66854906082153,
+    "deliveries_per_second": 3.073734922250095
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 10,
+    "total_deliveries": 500,
+    "total_time": 169.3586962223053,
+    "deliveries_per_second": 2.9523137054839217
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 20,
+    "total_deliveries": 500,
+    "total_time": 161.90531754493713,
+    "deliveries_per_second": 3.0882246956541377
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 50,
+    "total_deliveries": 500,
+    "total_time": 159.95751810073853,
+    "deliveries_per_second": 3.125829944955188
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 1,
+    "total_deliveries": 500,
+    "total_time": 218.2837791442871,
+    "deliveries_per_second": 2.2905962227706187
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 5,
+    "total_deliveries": 500,
+    "total_time": 166.7186849117279,
+    "deliveries_per_second": 2.9990639637346805
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 10,
+    "total_deliveries": 500,
+    "total_time": 199.2878885269165,
+    "deliveries_per_second": 2.5089332005866893
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 20,
+    "total_deliveries": 500,
+    "total_time": 189.80875039100647,
+    "deliveries_per_second": 2.6342305029141113
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 50,
+    "total_deliveries": 500,
+    "total_time": 176.01923274993896,
+    "deliveries_per_second": 2.8405986788405277
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 1,
+    "total_deliveries": 500,
+    "total_time": 199.2374083995819,
+    "deliveries_per_second": 2.509568880745636
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 5,
+    "total_deliveries": 500,
+    "total_time": 8799.240161180496,
+    "deliveries_per_second": 0.0568230882259407
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 10,
+    "total_deliveries": 500,
+    "total_time": 167.47491097450256,
+    "deliveries_per_second": 2.9855218139278374
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 20,
+    "total_deliveries": 500,
+    "total_time": 172.46348404884338,
+    "deliveries_per_second": 2.8991644391133544
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.05,
+    "concurrency": 50,
+    "total_deliveries": 500,
+    "total_time": 183.6401069164276,
+    "deliveries_per_second": 2.7227167768288436
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 1,
+    "total_deliveries": 500,
+    "total_time": 232.3466658592224,
+    "deliveries_per_second": 2.151956853570463
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 5,
+    "total_deliveries": 500,
+    "total_time": 192.1537470817566,
+    "deliveries_per_second": 2.6020830069333103
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 10,
+    "total_deliveries": 500,
+    "total_time": 176.60172533988953,
+    "deliveries_per_second": 2.8312294177063944
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 20,
+    "total_deliveries": 500,
+    "total_time": 165.84454441070557,
+    "deliveries_per_second": 3.0148715580403747
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "response_time": 0.1,
+    "concurrency": 50,
+    "total_deliveries": 500,
+    "total_time": 190.07652354240417,
+    "deliveries_per_second": 2.6305194912114174
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 1,
+    "total_deliveries": 2500,
+    "total_time": 937.3575403690338,
+    "deliveries_per_second": 2.6670719467576482
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 5,
+    "total_deliveries": 2500,
+    "total_time": 821.2590487003326,
+    "deliveries_per_second": 3.044106489853994
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 10,
+    "total_deliveries": 2500,
+    "total_time": 906.9745707511902,
+    "deliveries_per_second": 2.756416861753254
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 20,
+    "total_deliveries": 2500,
+    "total_time": 854.7318201065063,
+    "deliveries_per_second": 2.9248940324796617
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.05,
+    "concurrency": 50,
+    "total_deliveries": 2500,
+    "total_time": 846.7960731983185,
+    "deliveries_per_second": 2.9523046682982237
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 1,
+    "total_deliveries": 2500,
+    "total_time": 1114.7609508037567,
+    "deliveries_per_second": 2.242633273256897
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 5,
+    "total_deliveries": 2500,
+    "total_time": 829.3780295848846,
+    "deliveries_per_second": 3.0143069997300085
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 10,
+    "total_deliveries": 2500,
+    "total_time": 825.545640707016,
+    "deliveries_per_second": 3.0283001650386567
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 20,
+    "total_deliveries": 2500,
+    "total_time": 940.9843993186951,
+    "deliveries_per_second": 2.656792186788735
+  },
+  {
+    "test_type": "concurrent",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "response_time": 0.1,
+    "concurrency": 50,
+    "total_deliveries": 2500,
+    "total_time": 1001.3015329837799,
+    "deliveries_per_second": 2.496750397006031
+  },
+  {
+    "test_type": "retry",
+    "retry_count": 1,
+    "retry_delay": 0.1,
+    "total_time": 0.7930378913879395,
+    "expected_time": 0.2,
+    "attempts": 2,
+    "final_status": "success"
+  },
+  {
+    "test_type": "retry",
+    "retry_count": 1,
+    "retry_delay": 0.5,
+    "total_time": 1.2627232074737549,
+    "expected_time": 0.6,
+    "attempts": 2,
+    "final_status": "success"
+  },
+  {
+    "test_type": "retry",
+    "retry_count": 1,
+    "retry_delay": 1.0,
+    "total_time": 1.6537582874298096,
+    "expected_time": 1.1,
+    "attempts": 2,
+    "final_status": "success"
+  },
+  {
+    "test_type": "retry",
+    "retry_count": 3,
+    "retry_delay": 0.1,
+    "total_time": 1.6096837520599365,
+    "expected_time": 0.5,
+    "attempts": 4,
+    "final_status": "success"
+  },
+  {
+    "test_type": "retry",
+    "retry_count": 3,
+    "retry_delay": 0.5,
+    "total_time": 2.848247766494751,
+    "expected_time": 1.7,
+    "attempts": 4,
+    "final_status": "success"
+  },
+  {
+    "test_type": "retry",
+    "retry_count": 3,
+    "retry_delay": 1.0,
+    "total_time": 4.6144468784332275,
+    "expected_time": 3.2,
+    "attempts": 4,
+    "final_status": "success"
+  },
+  {
+    "test_type": "retry",
+    "retry_count": 5,
+    "retry_delay": 0.1,
+    "total_time": 3.1470234394073486,
+    "expected_time": 0.8,
+    "attempts": 6,
+    "final_status": "success"
+  },
+  {
+    "test_type": "retry",
+    "retry_count": 5,
+    "retry_delay": 0.5,
+    "total_time": 4.857143878936768,
+    "expected_time": 2.8,
+    "attempts": 6,
+    "final_status": "success"
+  },
+  {
+    "test_type": "retry",
+    "retry_count": 5,
+    "retry_delay": 1.0,
+    "total_time": 7.3230366706848145,
+    "expected_time": 5.3,
+    "attempts": 6,
+    "final_status": "success"
+  },
+  {
+    "test_type": "memory",
+    "num_webhooks": 10,
+    "num_events": 10,
+    "total_deliveries": 100,
+    "initial_memory_mb": 128.01171875,
+    "after_creation_memory_mb": 128.01171875,
+    "final_memory_mb": 128.1015625,
+    "memory_increase_mb": 0.08984375,
+    "memory_per_delivery_kb": 0.92
+  },
+  {
+    "test_type": "memory",
+    "num_webhooks": 10,
+    "num_events": 50,
+    "total_deliveries": 500,
+    "initial_memory_mb": 128.10546875,
+    "after_creation_memory_mb": 128.10546875,
+    "final_memory_mb": 128.0625,
+    "memory_increase_mb": -0.04296875,
+    "memory_per_delivery_kb": -0.088
+  },
+  {
+    "test_type": "memory",
+    "num_webhooks": 50,
+    "num_events": 10,
+    "total_deliveries": 500,
+    "initial_memory_mb": 128.0625,
+    "after_creation_memory_mb": 128.0625,
+    "final_memory_mb": 128.40625,
+    "memory_increase_mb": 0.34375,
+    "memory_per_delivery_kb": 0.704
+  },
+  {
+    "test_type": "memory",
+    "num_webhooks": 50,
+    "num_events": 50,
+    "total_deliveries": 2500,
+    "initial_memory_mb": 128.40625,
+    "after_creation_memory_mb": 128.40625,
+    "final_memory_mb": 102.90234375,
+    "memory_increase_mb": -25.50390625,
+    "memory_per_delivery_kb": -10.4464
+  }
+]

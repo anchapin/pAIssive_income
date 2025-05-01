@@ -240,6 +240,74 @@ class TestCompetitiveAnalysis:
                 {"date": "invalid_date"}  # Invalid date format
             ])
 
+    def test_realtime_competitor_monitoring(self):
+        """Test real-time competitor monitoring capabilities."""
+        # Test data with historical changes
+        historical_data = [
+            {
+                "date": "2025-01-01",
+                "competitor": "CompetitorA",
+                "features": ["code completion"],
+                "pricing": {"monthly": 29.99},
+                "market_share": "20%"
+            },
+            {
+                "date": "2025-02-01",
+                "competitor": "CompetitorA",
+                "features": ["code completion", "test generation"],
+                "pricing": {"monthly": 34.99},
+                "market_share": "22%"
+            }
+        ]
+
+        # Monitor competitor changes
+        monitoring_result = self.competitor_analyzer.monitor_competitor_changes(historical_data)
+
+        # Validate monitoring capabilities
+        assert "changes_detected" in monitoring_result
+        assert "price_changes" in monitoring_result
+        assert "feature_changes" in monitoring_result
+        assert "market_share_changes" in monitoring_result
+
+        # Validate price change detection
+        price_changes = monitoring_result["price_changes"]
+        assert len(price_changes) > 0
+        assert price_changes[0]["old_price"] == 29.99
+        assert price_changes[0]["new_price"] == 34.99
+        assert price_changes[0]["change_percentage"] == pytest.approx(16.67, rel=0.01)
+
+        # Validate feature change detection
+        feature_changes = monitoring_result["feature_changes"]
+        assert len(feature_changes) > 0
+        assert "test generation" in feature_changes[0]["added_features"]
+        assert len(feature_changes[0]["removed_features"]) == 0
+
+    def test_pricing_change_pattern_detection(self):
+        """Test detection of pricing change patterns."""
+        # Test data with pricing history
+        pricing_history = [
+            {"date": "2025-01-01", "price": 29.99},
+            {"date": "2025-02-01", "price": 34.99},
+            {"date": "2025-03-01", "price": 39.99},
+            {"date": "2025-04-01", "price": 34.99}
+        ]
+
+        # Analyze pricing patterns
+        pattern_analysis = self.competitor_analyzer.analyze_pricing_patterns(pricing_history)
+
+        # Validate pattern detection
+        assert "trend_type" in pattern_analysis
+        assert "seasonality_detected" in pattern_analysis
+        assert "average_change" in pattern_analysis
+        assert "price_volatility" in pattern_analysis
+
+        # Validate trend detection
+        assert pattern_analysis["trend_type"] in ["increasing", "decreasing", "stable", "fluctuating"]
+        assert isinstance(pattern_analysis["seasonality_detected"], bool)
+        assert isinstance(pattern_analysis["average_change"], float)
+        assert isinstance(pattern_analysis["price_volatility"], float)
+        assert 0 <= pattern_analysis["price_volatility"] <= 1
+
 
 if __name__ == "__main__":
     pytest.main(["-v", "test_competitive_analysis.py"])
