@@ -139,32 +139,45 @@ def test_custom_metric_definition(metrics_api):
             super().__init__(**kwargs)
             self.custom_metric1 = kwargs.get('custom_metric1', 0)
             self.custom_metric2 = kwargs.get('custom_metric2', 0)
+            self.custom_timestamp = kwargs.get('timestamp', datetime.now().isoformat())
+
+        def to_dict(self):
+            base_dict = super().to_dict()
+            base_dict.update({
+                'custom_metric1': self.custom_metric1,
+                'custom_metric2': self.custom_metric2,
+                'timestamp': self.custom_timestamp
+            })
+            return base_dict
+
+        @classmethod
+        def from_dict(cls, data):
+            return cls(**data)
+
+    # Create and save custom metrics with timestamps over a time period
+    base_time = datetime.now()
+    custom_metrics_list = []
     
-    # Create and save custom metrics
-    custom_metrics = CustomMetrics(
-        model_id="custom-model",
-        latency_ms=100.0,
-        tokens_per_second=50.0,
-        memory_usage_mb=200.0,
-        input_tokens=15,
-        output_tokens=25,
-        custom_metric1=42,
-        custom_metric2=99
-    )
-    
-    # Save metrics using the raw database connection
-    # Note: This is a test-only approach as the standard API doesn't support custom metrics directly
+    for i in range(5):
+        timestamp = (base_time - timedelta(hours=i)).isoformat()
+        custom_metrics = CustomMetrics(
+            model_id="custom-model",
+            latency_ms=100.0 + i * 10,
+            tokens_per_second=50.0 - i * 2,
+            memory_usage_mb=200.0 + i * 20,
+            input_tokens=15 + i,
+            output_tokens=25 + i * 2,
+            custom_metric1=40 + i,
+            custom_metric2=95 + i * 2,
+            timestamp=timestamp
+        )
+        custom_metrics_list.append(custom_metrics)
+
+    # Create schema in database
     conn = sqlite3.connect(metrics_api.monitor.metrics_db.db_path)
     cursor = conn.cursor()
-    
-    # Convert metrics to dictionary
-    metrics_dict = custom_metrics.to_dict()
-    
-    # Add custom metrics to the dictionary
-    metrics_dict['custom_metric1'] = custom_metrics.custom_metric1
-    metrics_dict['custom_metric2'] = custom_metrics.custom_metric2
-    
-    # Create a table for custom metrics if it doesn't exist
+
+    # Create table with proper schema including time-series support
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS custom_metrics (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -176,45 +189,75 @@ def test_custom_metric_definition(metrics_api):
             input_tokens INTEGER,
             output_tokens INTEGER,
             custom_metric1 INTEGER,
-            custom_metric2 INTEGER
+            custom_metric2 INTEGER,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    
-    # Insert custom metrics
+
+    # Create index on timestamp for time-series queries
     cursor.execute("""
-        INSERT INTO custom_metrics (
-            model_id, timestamp, latency_ms, tokens_per_second, memory_usage_mb,
-            input_tokens, output_tokens, custom_metric1, custom_metric2
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        metrics_dict['model_id'],
-        metrics_dict['timestamp'],
-        metrics_dict['latency_ms'],
-        metrics_dict['tokens_per_second'],
-        metrics_dict['memory_usage_mb'],
-        metrics_dict['input_tokens'],
-        metrics_dict['output_tokens'],
-        metrics_dict['custom_metric1'],
-        metrics_dict['custom_metric2']
-    ))
-    
+        CREATE INDEX IF NOT EXISTS idx_custom_metrics_timestamp 
+        ON custom_metrics(timestamp)
+    """)
+
+    # Insert metrics with timestamps
+    for metrics in custom_metrics_list:
+        metrics_dict = metrics.to_dict()
+        cursor.execute("""
+            INSERT INTO custom_metrics (
+                model_id, timestamp, latency_ms, tokens_per_second, memory_usage_mb,
+                input_tokens, output_tokens, custom_metric1, custom_metric2
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            metrics_dict['model_id'],
+            metrics_dict['timestamp'],
+            metrics_dict['latency_ms'],
+            metrics_dict['tokens_per_second'],
+            metrics_dict['memory_usage_mb'],
+            metrics_dict['input_tokens'],
+            metrics_dict['output_tokens'],
+            metrics_dict['custom_metric1'],
+            metrics_dict['custom_metric2']
+        ))
+
     conn.commit()
-    
-    # Retrieve and verify custom metrics
+
+    # Test time-series queries
+    # Get metrics for last 3 hours
     cursor.execute("""
-        SELECT * FROM custom_metrics WHERE model_id = ?
-    """, (custom_metrics.model_id,))
-    
-    row = cursor.fetchone()
-    assert row is not None
-    
-    # Check that custom metrics were saved correctly
-    assert row[1] == custom_metrics.model_id  # model_id
-    assert abs(row[3] - custom_metrics.latency_ms) < 0.001  # latency_ms
-    assert row[7] == custom_metrics.input_tokens  # input_tokens
-    assert row[8] == custom_metrics.custom_metric1  # custom_metric1
-    assert row[9] == custom_metrics.custom_metric2  # custom_metric2
-    
+        SELECT * FROM custom_metrics 
+        WHERE timestamp >= ? 
+        ORDER BY timestamp DESC
+        LIMIT 3
+    """, ((base_time - timedelta(hours=3)).isoformat(),))
+
+    recent_metrics = cursor.fetchall()
+    assert len(recent_metrics) == 3
+
+    # Verify values are correctly stored and retrieved
+    first_metric = recent_metrics[0]
+    assert first_metric[1] == "custom-model"  # model_id
+    assert abs(first_metric[3] - 100.0) < 0.001  # latency_ms
+    assert first_metric[7] == 15  # input_tokens
+    assert first_metric[8] == 40  # custom_metric1
+    assert first_metric[9] == 95  # custom_metric2
+
+    # Test aggregations
+    cursor.execute("""
+        SELECT 
+            AVG(latency_ms) as avg_latency,
+            AVG(custom_metric1) as avg_custom1,
+            MAX(custom_metric2) as max_custom2
+        FROM custom_metrics
+        WHERE model_id = ?
+    """, ("custom-model",))
+
+    aggs = cursor.fetchone()
+    assert 100.0 <= aggs[0] <= 140.0  # avg_latency
+    assert 40 <= aggs[1] <= 44  # avg_custom1
+    assert aggs[2] >= 95  # max_custom2
+
+    # Clean up
     conn.close()
 
 
@@ -292,6 +335,99 @@ def test_metric_collection_over_time(metrics_api):
         else:
             # Weekdays have a mix of peak and off-peak hours
             assert 100.0 <= report["avg_latency"] <= 150.0
+
+
+def test_custom_metric_validation(metrics_api):
+    """Test validation and configuration of custom metrics."""
+    class ValidatedMetrics(EnhancedInferenceMetrics):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.custom_metric1 = self._validate_metric1(kwargs.get('custom_metric1', 0))
+            self.custom_metric2 = self._validate_metric2(kwargs.get('custom_metric2', 0))
+
+        def _validate_metric1(self, value):
+            """Validate custom_metric1 is within acceptable range."""
+            if not isinstance(value, int):
+                raise ValueError("custom_metric1 must be an integer")
+            if not 0 <= value <= 100:
+                raise ValueError("custom_metric1 must be between 0 and 100")
+            return value
+
+        def _validate_metric2(self, value):
+            """Validate custom_metric2 is within acceptable range."""
+            if not isinstance(value, int):
+                raise ValueError("custom_metric2 must be an integer")
+            if not 0 <= value <= 1000:
+                raise ValueError("custom_metric2 must be between 0 and 1000")
+            return value
+
+        @classmethod
+        def get_metric_config(cls):
+            """Get metric configuration including valid ranges."""
+            base_config = super().get_metric_config()
+            base_config.update({
+                'custom_metric1': {
+                    'type': 'integer',
+                    'range': [0, 100],
+                    'description': 'Custom metric 1 with range 0-100'
+                },
+                'custom_metric2': {
+                    'type': 'integer',
+                    'range': [0, 1000],
+                    'description': 'Custom metric 2 with range 0-1000'
+                }
+            })
+            return base_config
+
+    # Test valid metric creation
+    valid_metrics = ValidatedMetrics(
+        model_id="validated-model",
+        latency_ms=100.0,
+        tokens_per_second=50.0,
+        memory_usage_mb=200.0,
+        custom_metric1=50,  # Valid value
+        custom_metric2=500  # Valid value
+    )
+
+    # Verify valid metrics were created successfully
+    assert valid_metrics.custom_metric1 == 50
+    assert valid_metrics.custom_metric2 == 500
+
+    # Test invalid metric1 value
+    with pytest.raises(ValueError) as exc_info:
+        ValidatedMetrics(
+            model_id="validated-model",
+            latency_ms=100.0,
+            custom_metric1=150  # Invalid: > 100
+        )
+    assert "custom_metric1 must be between 0 and 100" in str(exc_info.value)
+
+    # Test invalid metric2 value
+    with pytest.raises(ValueError) as exc_info:
+        ValidatedMetrics(
+            model_id="validated-model",
+            latency_ms=100.0,
+            custom_metric2=1500  # Invalid: > 1000
+        )
+    assert "custom_metric2 must be between 0 and 1000" in str(exc_info.value)
+
+    # Test invalid type
+    with pytest.raises(ValueError) as exc_info:
+        ValidatedMetrics(
+            model_id="validated-model",
+            latency_ms=100.0,
+            custom_metric1=50.5  # Invalid: float instead of int
+        )
+    assert "custom_metric1 must be an integer" in str(exc_info.value)
+
+    # Verify metric configuration is correctly exposed
+    config = ValidatedMetrics.get_metric_config()
+    assert 'custom_metric1' in config
+    assert config['custom_metric1']['type'] == 'integer'
+    assert config['custom_metric1']['range'] == [0, 100]
+    assert 'custom_metric2' in config
+    assert config['custom_metric2']['type'] == 'integer'
+    assert config['custom_metric2']['range'] == [0, 1000]
 
 
 if __name__ == "__main__":
