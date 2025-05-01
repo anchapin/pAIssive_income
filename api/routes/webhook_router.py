@@ -6,9 +6,10 @@ This module provides route handlers for webhook operations.
 
 import logging
 from typing import Dict, List, Optional, Any
-from fastapi import APIRouter, HTTPException, Depends, Query, Path, Body, status
+from fastapi import APIRouter, HTTPException, Depends, Query, Path, Body, status, Request
+from contextlib import asynccontextmanager
 
-from ..middleware.auth import get_current_user
+from ..middleware.auth import get_current_user, get_api_key
 from ..schemas.webhook import (
     WebhookRequest,
     WebhookUpdate,
@@ -21,26 +22,29 @@ from ..schemas.webhook import (
 )
 from ..schemas.common import ErrorResponse, SuccessResponse
 from ..services.webhook_service import WebhookService
+from ..models.user import User
+from ..models.api_key import APIKey
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create router
-router = APIRouter()
-
-# Create webhook service (will be started when FastAPI app starts)
+# Create webhook service
 webhook_service = WebhookService()
 
-@router.on_event("startup")
-async def startup_event():
-    """Start webhook service when FastAPI app starts."""
+# Define lifespan context manager for FastAPI lifecycle events
+@asynccontextmanager
+async def lifespan(app):
+    # Startup: Start webhook service
+    logger.info("Starting webhook service")
     await webhook_service.start()
-
-@router.on_event("shutdown")
-async def shutdown_event():
-    """Stop webhook service when FastAPI app shuts down."""
+    yield
+    # Shutdown: Stop webhook service
+    logger.info("Stopping webhook service")
     await webhook_service.stop()
+
+# Create router with lifespan
+router = APIRouter(lifespan=lifespan)
 
 @router.post(
     "/",
@@ -51,10 +55,23 @@ async def shutdown_event():
         400: {"model": ErrorResponse, "description": "Bad request"}
     }
 )
-async def register_webhook(data: WebhookRequest = Body(...)):
+async def register_webhook(
+    request: Request,
+    data: WebhookRequest = Body(...),
+    current_user: User = Depends(get_current_user)
+):
     """Register a new webhook."""
     try:
-        webhook = await webhook_service.register_webhook(data.dict())
+        # Get client info for audit
+        client_host = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+        
+        webhook = await webhook_service.register_webhook(
+            data.dict(),
+            actor_id=current_user.id,
+            ip_address=client_host,
+            user_agent=user_agent
+        )
         return webhook
     except Exception as e:
         logger.error(f"Error registering webhook: {str(e)}")
@@ -70,7 +87,8 @@ async def register_webhook(data: WebhookRequest = Body(...)):
 )
 async def list_webhooks(
     page: int = Query(1, ge=1),
-    page_size: int = Query(10, ge=1, le=100)
+    page_size: int = Query(10, ge=1, le=100),
+    current_user: User = Depends(get_current_user)
 ):
     """List all webhooks."""
     try:
@@ -98,7 +116,10 @@ async def list_webhooks(
         404: {"model": ErrorResponse, "description": "Webhook not found"}
     }
 )
-async def get_webhook(webhook_id: str = Path(...)):
+async def get_webhook(
+    webhook_id: str = Path(...),
+    current_user: User = Depends(get_current_user)
+):
     """Get webhook details."""
     try:
         webhook = await webhook_service.get_webhook(webhook_id)
@@ -120,12 +141,24 @@ async def get_webhook(webhook_id: str = Path(...)):
     }
 )
 async def update_webhook(
+    request: Request,
     webhook_id: str = Path(...),
-    data: WebhookUpdate = Body(...)
+    data: WebhookUpdate = Body(...),
+    current_user: User = Depends(get_current_user)
 ):
     """Update a webhook."""
     try:
-        webhook = await webhook_service.update_webhook(webhook_id, data.dict())
+        # Get client info for audit
+        client_host = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+        
+        webhook = await webhook_service.update_webhook(
+            webhook_id,
+            data.dict(exclude_unset=True),
+            actor_id=current_user.id,
+            ip_address=client_host,
+            user_agent=user_agent
+        )
         if webhook is None:
             raise HTTPException(status_code=404, detail="Webhook not found")
         return webhook
@@ -143,10 +176,23 @@ async def update_webhook(
         404: {"model": ErrorResponse, "description": "Webhook not found"}
     }
 )
-async def delete_webhook(webhook_id: str = Path(...)):
+async def delete_webhook(
+    request: Request,
+    webhook_id: str = Path(...),
+    current_user: User = Depends(get_current_user)
+):
     """Delete a webhook."""
     try:
-        if await webhook_service.delete_webhook(webhook_id):
+        # Get client info for audit
+        client_host = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+        
+        if await webhook_service.delete_webhook(
+            webhook_id,
+            actor_id=current_user.id,
+            ip_address=client_host,
+            user_agent=user_agent
+        ):
             return {"message": "Webhook deleted successfully"}
         raise HTTPException(status_code=404, detail="Webhook not found")
     except HTTPException:
@@ -167,7 +213,8 @@ async def list_webhook_deliveries(
     webhook_id: str = Path(...),
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
-    status: Optional[WebhookDeliveryStatus] = Query(None)
+    status: Optional[WebhookDeliveryStatus] = Query(None),
+    current_user: User = Depends(get_current_user)
 ):
     """List deliveries for a webhook."""
     try:
@@ -194,4 +241,76 @@ async def list_webhook_deliveries(
         raise
     except Exception as e:
         logger.error(f"Error listing webhook deliveries: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post(
+    "/test",
+    response_model=SuccessResponse,
+    responses={
+        200: {"description": "Test webhook sent"},
+        400: {"model": ErrorResponse, "description": "Bad request"}
+    }
+)
+async def test_webhook(
+    request: Request,
+    url: str = Body(..., embed=True),
+    event_type: WebhookEventType = Body(..., embed=True),
+    current_user: User = Depends(get_current_user)
+):
+    """Send a test webhook to the specified URL."""
+    try:
+        # Create a temporary webhook
+        webhook = {
+            "id": "test-webhook",
+            "url": url,
+            "events": [event_type],
+            "description": "Test webhook",
+            "headers": {},
+            "is_active": True,
+            "created_at": datetime.utcnow().isoformat(),
+            "last_called_at": None,
+            "secret": f"whsec_{uuid.uuid4().hex}"
+        }
+        
+        # Create a test delivery
+        delivery = {
+            "id": f"test-delivery-{uuid.uuid4()}",
+            "webhook_id": webhook["id"],
+            "event_type": event_type,
+            "event_data": {
+                "test": True,
+                "message": "This is a test webhook event",
+                "timestamp": datetime.utcnow().isoformat()
+            },
+            "status": "pending",
+            "attempts": 0,
+            "max_attempts": 1,
+            "created_at": datetime.utcnow().isoformat(),
+            "next_attempt_at": datetime.utcnow().isoformat()
+        }
+        
+        # Deliver the webhook
+        success = await webhook_service._deliver_webhook(webhook, delivery)
+        
+        if success:
+            return {
+                "message": "Test webhook sent successfully",
+                "data": {
+                    "delivery_id": delivery["id"],
+                    "response_code": delivery.get("response_code"),
+                    "response_body": delivery.get("response_body")
+                }
+            }
+        else:
+            return {
+                "message": "Test webhook failed",
+                "data": {
+                    "delivery_id": delivery["id"],
+                    "error": delivery.get("error"),
+                    "response_code": delivery.get("response_code"),
+                    "response_body": delivery.get("response_body")
+                }
+            }
+    except Exception as e:
+        logger.error(f"Error sending test webhook: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

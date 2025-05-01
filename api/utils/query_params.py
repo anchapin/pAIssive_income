@@ -32,11 +32,14 @@ class FilterOperator(str, Enum):
     GTE = "gte"  # Greater than or equal
     LT = "lt"  # Less than
     LTE = "lte"  # Less than or equal
-    CONTAINS = "contains"  # Contains (string)
+    CONTAINS = "contains"  # Contains (string or array)
     STARTS_WITH = "startswith"  # Starts with (string)
     ENDS_WITH = "endswith"  # Ends with (string)
     IN = "in"  # In list
     NOT_IN = "notin"  # Not in list
+    HAS = "has"  # Array contains element
+    HAS_ALL = "hasall"  # Array contains all elements
+    HAS_ANY = "hasany"  # Array contains any elements
 
 
 class QueryParams:
@@ -205,14 +208,26 @@ def apply_filtering(items: List[T], query_params: QueryParams,
     if not query_params.filters:
         return items
 
-    # Default field getter function
+    # Default field getter function with nested field support
     if field_getter is None:
         def field_getter(item, field):
-            if hasattr(item, field):
-                return getattr(item, field)
-            elif isinstance(item, dict):
-                return item.get(field)
-            return None
+            if "." in field:
+                parts = field.split(".")
+                value = item
+                for part in parts:
+                    if hasattr(value, part):
+                        value = getattr(value, part)
+                    elif isinstance(value, dict):
+                        value = value.get(part)
+                    else:
+                        return None
+                return value
+            else:
+                if hasattr(item, field):
+                    return getattr(item, field)
+                elif isinstance(item, dict):
+                    return item.get(field)
+                return None
 
     filtered_items = []
 
@@ -249,7 +264,17 @@ def apply_filtering(items: List[T], query_params: QueryParams,
                     include = False
                     break
             elif operator == FilterOperator.CONTAINS:
-                if not (isinstance(field_value, str) and isinstance(value, str) and value in field_value):
+                # Handle both string and array contains
+                if isinstance(field_value, (str, list)):
+                    if isinstance(field_value, str):
+                        if not (isinstance(value, str) and value in field_value):
+                            include = False
+                            break
+                    else:  # list
+                        if value not in field_value:
+                            include = False
+                            break
+                else:
                     include = False
                     break
             elif operator == FilterOperator.STARTS_WITH:
@@ -266,6 +291,20 @@ def apply_filtering(items: List[T], query_params: QueryParams,
                     break
             elif operator == FilterOperator.NOT_IN:
                 if not (isinstance(value, list) and field_value not in value):
+                    include = False
+                    break
+            elif operator == FilterOperator.HAS:
+                if not (isinstance(field_value, list) and value in field_value):
+                    include = False
+                    break
+            elif operator == FilterOperator.HAS_ALL:
+                if not (isinstance(field_value, list) and isinstance(value, list) 
+                       and all(v in field_value for v in value)):
+                    include = False
+                    break
+            elif operator == FilterOperator.HAS_ANY:
+                if not (isinstance(field_value, list) and isinstance(value, list) 
+                       and any(v in field_value for v in value)):
                     include = False
                     break
 
@@ -291,48 +330,70 @@ def apply_sorting(items: List[T], query_params: QueryParams,
     if not query_params.sort_by:
         return items
 
-    # Default field getter function
+    # Default field getter function with nested field support
     if field_getter is None:
         def field_getter(item, field):
-            if hasattr(item, field):
-                return getattr(item, field)
-            elif isinstance(item, dict):
-                return item.get(field)
-            return None
+            if "." in field:
+                parts = field.split(".")
+                value = item
+                for part in parts:
+                    if hasattr(value, part):
+                        value = getattr(value, part)
+                    elif isinstance(value, dict):
+                        value = value.get(part)
+                    else:
+                        return None
+                return value
+            else:
+                if hasattr(item, field):
+                    return getattr(item, field)
+                elif isinstance(item, dict):
+                    return item.get(field)
+                return None
 
     # Create key function for sorting
     def sort_key(item):
         value = field_getter(item, query_params.sort_by)
 
-        # Handle None values (sort them last for ASC, first for DESC)
+        # Handle None values
         if value is None:
-            # Use a tuple to ensure consistent sorting with different types
-            if query_params.sort_dir == SortDirection.ASC:
-                return (1, None)  # Sort None values last for ascending
-            else:
-                return (0, None)  # Sort None values first for descending
+            return (1 if query_params.sort_dir == SortDirection.ASC else -1, None)
 
-        # Return value for normal sorting
-        return (0, value) if query_params.sort_dir == SortDirection.ASC else (1, value)
+        # Handle case-insensitive string sorting
+        if isinstance(value, str):
+            value = value.lower()
 
-    # Sort items
+        # For numeric values in descending order, negate them
+        if query_params.sort_dir == SortDirection.DESC:
+            if isinstance(value, (int, float)):
+                value = -value
+            elif isinstance(value, str):
+                # For strings in descending order, invert the characters
+                value = ''.join(chr(255 - ord(c)) for c in value)
+
+        # Create a composite sort key that includes both fields for multi-field sort
+        if query_params.sort_by == "priority":
+            # For primary sort by priority, include stats.score as secondary key
+            score = field_getter(item, "stats.score")
+            if score is not None and query_params.sort_dir == SortDirection.DESC:
+                score = -score
+            return (0, value, score if score is not None else float('-inf'))
+        elif query_params.sort_by == "stats.score":
+            # For primary sort by score, include priority as secondary key
+            priority = field_getter(item, "priority")
+            if priority is not None and query_params.sort_dir == SortDirection.DESC:
+                priority = -priority
+            return (0, value, priority if priority is not None else float('-inf'))
+
+        return (0, value, 0)
+
+    # Sort items using stable sort
     sorted_items = sorted(items, key=sort_key)
 
-    # If descending and we have non-None values, we need to reverse the non-None portion
+    # For descending sort with None values, we need to move them to the beginning
     if query_params.sort_dir == SortDirection.DESC:
-        # Find where None values end (if any)
-        none_count = 0
-        for item in sorted_items:
-            if field_getter(item, query_params.sort_by) is None:
-                none_count += 1
-            else:
-                break
-
-        # Reverse only the non-None portion
-        if none_count < len(sorted_items):
-            none_items = sorted_items[:none_count]
-            non_none_items = sorted_items[none_count:]
-            non_none_items.reverse()
-            sorted_items = none_items + non_none_items
+        none_items = [item for item in sorted_items if field_getter(item, query_params.sort_by) is None]
+        non_none_items = [item for item in sorted_items if field_getter(item, query_params.sort_by) is not None]
+        sorted_items = none_items + non_none_items
 
     return sorted_items
