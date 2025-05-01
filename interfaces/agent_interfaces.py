@@ -1,320 +1,174 @@
-"""
-Interfaces for the Agent Team module.
-
-This module provides interfaces for the agent profiles to enable dependency injection
-and improve testability and maintainability.
-"""
+"""Agent interfaces for the pAIssive Income system."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Protocol
 
 
-class IAgentProfile(ABC):
+class IAgentProfile(Protocol):
     """Interface for agent profiles."""
 
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """Get the profile name."""
-        pass
+    def is_configured(self) -> bool:
+        """Check if the agent is properly configured."""
+        ...
 
-    @property
-    @abstractmethod
-    def description(self) -> str:
-        """Get the profile description."""
-        pass
+    def configure(self, **kwargs: Any) -> None:
+        """Configure the agent."""
+        ...
 
-    @property
-    @abstractmethod
-    def capabilities(self) -> List[str]:
-        """Get the profile capabilities."""
-        pass
 
-    @property
-    @abstractmethod
-    def parameters(self) -> Dict[str, Any]:
-        """Get the profile parameters."""
-        pass
+class IResearchAgent(IAgentProfile):
+    """Interface for the research agent."""
 
     @abstractmethod
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the profile to a dictionary.
-
-        Returns:
-            Dictionary representation of the profile
-        """
-        pass
-
-
-class IAgentTeam(ABC):
-    """Interface for the Agent Team."""
-
-    @property
-    @abstractmethod
-    def project_name(self) -> str:
-        """Get the project name."""
-        pass
-
-    @property
-    @abstractmethod
-    def id(self) -> str:
-        """Get the team ID."""
-        pass
-
-    @property
-    @abstractmethod
-    def config(self) -> Dict[str, Any]:
-        """Get the team configuration."""
-        pass
+    def analyze_market_segments(self, segments: List[str]) -> List[Dict[str, Any]]:
+        """Analyze market segments and identify niche opportunities."""
+        ...
 
     @abstractmethod
-    def get_agent(self, agent_type: str) -> Any:
-        """
-        Get an agent by type.
-
-        Args:
-            agent_type: Type of agent to get
-
-        Returns:
-            Agent instance
-        """
-        pass
-
-
-class IResearchAgent(ABC):
-    """Interface for the Research Agent."""
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """Get the agent name."""
-        pass
-
-    @property
-    @abstractmethod
-    def description(self) -> str:
-        """Get the agent description."""
-        pass
+    def validate_niche(self, niche: Dict[str, Any]) -> bool:
+        """Validate a niche opportunity."""
+        ...
 
     @abstractmethod
-    def identify_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
-        """
-        Identify profitable niches within market segments.
-
-        Args:
-            market_segments: List of market segments to analyze
-
-        Returns:
-            List of niche dictionaries
-        """
-        pass
-
-    @abstractmethod
-    def analyze_problems(self, niche_name: str) -> List[Dict[str, Any]]:
-        """
-        Analyze problems in a niche.
-
-        Args:
-            niche_name: Name of the niche to analyze
-
-        Returns:
-            List of problem dictionaries
-        """
-        pass
-
-    @abstractmethod
-    def create_niche(
-        self,
-        name: str,
-        description: str,
-        problem_areas: List[str],
-        opportunity_score: float,
-    ) -> Dict[str, Any]:
-        """
-        Create a niche dictionary.
-
-        Args:
-            name: Name of the niche
-            description: Description of the niche
-            problem_areas: List of problem areas in the niche
-            opportunity_score: Opportunity score for the niche
-
-        Returns:
-            Niche dictionary
-        """
-        pass
+    def get_market_data(self, niche: Dict[str, Any]) -> Dict[str, Any]:
+        """Get detailed market data for a niche."""
+        ...
 
 
-class IDeveloperAgent(ABC):
-    """Interface for the Developer Agent."""
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """Get the agent name."""
-        pass
-
-    @property
-    @abstractmethod
-    def description(self) -> str:
-        """Get the agent description."""
-        pass
+class IDeveloperAgent(IAgentProfile):
+    """Interface for the developer agent."""
 
     @abstractmethod
     def design_solution(self, niche: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Design a solution for a niche.
-
-        Args:
-            niche: Niche dictionary
-
-        Returns:
-            Solution dictionary
-        """
-        pass
+        """Design an AI solution for a niche."""
+        ...
 
     @abstractmethod
-    def create_implementation_plan(self, solution: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create an implementation plan for a solution.
-
-        Args:
-            solution: Solution dictionary
-
-        Returns:
-            Implementation plan dictionary
-        """
-        pass
-
-
-class IMonetizationAgent(ABC):
-    """Interface for the Monetization Agent."""
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """Get the agent name."""
-        pass
-
-    @property
-    @abstractmethod
-    def description(self) -> str:
-        """Get the agent description."""
-        pass
+    def validate_design(self, design: Dict[str, Any]) -> bool:
+        """Validate a solution design."""
+        ...
 
     @abstractmethod
-    def create_monetization_strategy(self, solution: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a monetization strategy for a solution.
+    def estimate_development_effort(self, design: Dict[str, Any]) -> Dict[str, Any]:
+        """Estimate development effort for a solution."""
+        ...
 
-        Args:
-            solution: Solution dictionary
 
-        Returns:
-            Monetization strategy dictionary
-        """
-        pass
+class IMonetizationAgent(IAgentProfile):
+    """Interface for the monetization agent."""
 
     @abstractmethod
-    def analyze_pricing(self, strategy: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Analyze pricing for a monetization strategy.
-
-        Args:
-            strategy: Monetization strategy dictionary
-
-        Returns:
-            Pricing analysis dictionary
-        """
-        pass
-
-
-class IMarketingAgent(ABC):
-    """Interface for the Marketing Agent."""
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """Get the agent name."""
-        pass
-
-    @property
-    @abstractmethod
-    def description(self) -> str:
-        """Get the agent description."""
-        pass
+    def create_strategy(self, solution: Dict[str, Any]) -> Dict[str, Any]:
+        """Create a monetization strategy."""
+        ...
 
     @abstractmethod
-    def create_marketing_plan(
-        self, solution: Dict[str, Any], niche: Dict[str, Any]
+    def validate_strategy(self, strategy: Dict[str, Any]) -> bool:
+        """Validate a monetization strategy."""
+        ...
+
+    @abstractmethod
+    def project_revenue(self, strategy: Dict[str, Any]) -> Dict[str, Any]:
+        """Project revenue for a monetization strategy."""
+        ...
+
+
+class IMarketingAgent(IAgentProfile):
+    """Interface for the marketing agent."""
+
+    @abstractmethod
+    def create_plan(
+        self,
+        niche: Dict[str, Any],
+        solution: Dict[str, Any],
+        monetization: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """
-        Create a marketing plan for a solution.
-
-        Args:
-            solution: Solution dictionary
-            niche: Niche dictionary
-
-        Returns:
-            Marketing plan dictionary
-        """
-        pass
+        """Create a marketing plan."""
+        ...
 
     @abstractmethod
-    def create_content_strategy(
-        self, solution: Dict[str, Any], niche: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """
-        Create a content strategy for a solution.
-
-        Args:
-            solution: Solution dictionary
-            niche: Niche dictionary
-
-        Returns:
-            Content strategy dictionary
-        """
-        pass
-
-
-class IFeedbackAgent(ABC):
-    """Interface for the Feedback Agent."""
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """Get the agent name."""
-        pass
-
-    @property
-    @abstractmethod
-    def description(self) -> str:
-        """Get the agent description."""
-        pass
+    def validate_plan(self, plan: Dict[str, Any]) -> bool:
+        """Validate a marketing plan."""
+        ...
 
     @abstractmethod
-    def create_feedback_system(self, solution: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a feedback system for a solution.
+    def estimate_roi(self, plan: Dict[str, Any]) -> Dict[str, Any]:
+        """Estimate ROI for a marketing plan."""
+        ...
 
-        Args:
-            solution: Solution dictionary
 
-        Returns:
-            Feedback system dictionary
-        """
-        pass
+class IFeedbackAgent(IAgentProfile):
+    """Interface for the feedback agent."""
 
     @abstractmethod
     def analyze_feedback(self, feedback: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Analyze feedback for a solution.
+        """Analyze user feedback."""
+        ...
 
-        Args:
-            feedback: List of feedback dictionaries
+    @abstractmethod
+    def validate_feedback(self, feedback: Dict[str, Any]) -> bool:
+        """Validate user feedback."""
+        ...
 
-        Returns:
-            Feedback analysis dictionary
-        """
-        pass
+    @abstractmethod
+    def generate_recommendations(
+        self, feedback_analysis: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """Generate improvement recommendations."""
+        ...
+
+
+class IAgentTeam(Protocol):
+    """Interface for the agent team."""
+
+    @property
+    def researcher(self) -> IResearchAgent:
+        """Get the research agent."""
+        ...
+
+    @property
+    def developer(self) -> IDeveloperAgent:
+        """Get the developer agent."""
+        ...
+
+    @property
+    def monetization(self) -> IMonetizationAgent:
+        """Get the monetization agent."""
+        ...
+
+    @property
+    def marketing(self) -> IMarketingAgent:
+        """Get the marketing agent."""
+        ...
+
+    @property
+    def feedback(self) -> IFeedbackAgent:
+        """Get the feedback agent."""
+        ...
+
+    def run_niche_analysis(self, market_segments: List[str]) -> List[Dict[str, Any]]:
+        """Run niche analysis workflow."""
+        ...
+
+    def develop_solution(self, niche: Dict[str, Any]) -> Dict[str, Any]:
+        """Develop solution workflow."""
+        ...
+
+    def create_monetization_strategy(
+        self, solution: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Create monetization strategy workflow."""
+        ...
+
+    def create_marketing_plan(
+        self,
+        niche: Optional[Dict[str, Any]] = None,
+        solution: Optional[Dict[str, Any]] = None,
+        monetization: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Create marketing plan workflow."""
+        ...
+
+    def process_feedback(self, feedback: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Process feedback workflow."""
+        ...

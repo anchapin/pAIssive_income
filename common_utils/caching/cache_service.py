@@ -186,9 +186,7 @@ class CacheService:
             self.stats[namespace] = {"hits": 0, "misses": 0, "sets": 0, "clears": 0}
 
         # Get the value from the cache
-        value = self.cache_manager.get(
-            model_id=namespace, operation="get", inputs=key
-        )
+        value = self.cache_manager.get(model_id=namespace, operation="get", inputs=key)
 
         # Update stats
         if value is not None:

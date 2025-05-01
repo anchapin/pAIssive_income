@@ -5,7 +5,7 @@ Specializes in designing and developing AI-powered software solutions.
 
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 class DeveloperAgent:

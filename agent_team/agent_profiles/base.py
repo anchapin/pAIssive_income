@@ -9,10 +9,10 @@ import os
 import sys
 from typing import Any, Dict, List, Optional
 
+# Add parent directory to path to allow imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from interfaces.agent_interfaces import IAgentProfile
-
-from ..schemas import AgentProfileSchema
+# Import after path modification
+from interfaces.agent_interfaces import IAgentProfile  # noqa: E402
 
 # Set up logging
 logger = logging.getLogger(__name__)

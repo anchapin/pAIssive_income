@@ -8,11 +8,12 @@ specific to the Agent Team module.
 import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Optional
 
 # Add the project root to the Python path to import the errors module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from errors import (
+# Import after path modification
+from errors import (  # noqa: E402
     AgentError,
     AgentTeamError,
     ValidationError,

@@ -286,7 +286,7 @@ class AsyncModelProcessor:
         prompts: List[str],
         model_version: Optional[str] = None,
         concurrency: int = 4,
-        **kwargs
+        **kwargs,
     ) -> List[AsyncResult[str]]:
         """Generate text for multiple prompts asynchronously.
 
@@ -323,7 +323,7 @@ class AsyncModelProcessor:
         model_id: str,
         prompt: str,
         model_version: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> AsyncResult[str]:
         """Generate text with semaphore for concurrency control.
 
@@ -358,7 +358,7 @@ class AsyncModelProcessor:
         texts: List[str],
         model_version: Optional[str] = None,
         concurrency: int = 8,
-        **kwargs
+        **kwargs,
     ) -> List[AsyncResult[List[float]]]:
         """Generate embeddings for multiple texts asynchronously.
 
@@ -395,7 +395,7 @@ class AsyncModelProcessor:
         model_id: str,
         text: str,
         model_version: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> AsyncResult[List[float]]:
         """Generate embedding with semaphore for concurrency control.
 

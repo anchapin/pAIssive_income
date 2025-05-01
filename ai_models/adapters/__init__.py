@@ -13,6 +13,7 @@ from .openai_compatible_adapter import OpenAICompatibleAdapter
 # Import TensorRT adapter if available
 try:
     from .tensorrt_adapter import TensorRTAdapter
+
     TENSORRT_AVAILABLE = True
 except ImportError:
     TENSORRT_AVAILABLE = False

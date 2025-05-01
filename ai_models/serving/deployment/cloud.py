@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional, Union
 try:
     import boto3
     from botocore.exceptions import ClientError
+
     BOTO3_AVAILABLE = True
 except ImportError:
     BOTO3_AVAILABLE = False

@@ -5,7 +5,7 @@ Specializes in marketing strategies and user acquisition.
 
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 class MarketingAgent:
@@ -230,8 +230,8 @@ class MarketingAgent:
             "social_media": [
                 f"Tips for {niche['name']} professionals",
                 f"{solution['name']} feature highlights",
-                f"User success stories",
-                f"Industry news and trends",
+                "User success stories",
+                "Industry news and trends",
             ],
             "email_sequences": [
                 "Welcome sequence for new subscribers",
@@ -354,17 +354,25 @@ class MarketingAgent:
             content_type = content_types[i % len(content_types)]
 
             if content_type == "blog_post":
-                title = f"How to Solve {niche['problem_areas'][i % len(niche['problem_areas'])]} in {niche['name']}"
-                description = f"A detailed guide on solving {niche['problem_areas'][i % len(niche['problem_areas'])]} using {solution['name']}"
+                problem_area = niche["problem_areas"][i % len(niche["problem_areas"])]
+                title = f"How to Solve {problem_area} in {niche['name']}"
+                description = f"A detailed guide on solving {problem_area} using {solution['name']}"
             elif content_type == "video":
-                title = f"{solution['name']} Demo: {solution['features'][i % len(solution['features'])]['name']}"
-                description = f"A video demonstration of the {solution['features'][i % len(solution['features'])]['name']} feature"
+                feature = solution["features"][i % len(solution["features"])]["name"]
+                title = f"{solution['name']} Demo: {feature}"
+                description = f"A video demonstration of the {feature} feature"
             elif content_type == "social_media":
-                title = f"Tip: {niche['problem_areas'][i % len(niche['problem_areas'])]} Solution"
-                description = f"A quick tip on solving {niche['problem_areas'][i % len(niche['problem_areas'])]} using {solution['name']}"
+                problem_area = niche["problem_areas"][i % len(niche["problem_areas"])]
+                title = f"Tip: {problem_area} Solution"
+                description = (
+                    f"A quick tip on solving {problem_area} using {solution['name']}"
+                )
             elif content_type == "email":
-                title = f"Introducing {solution['features'][i % len(solution['features'])]['name']}"
-                description = f"An email introducing the {solution['features'][i % len(solution['features'])]['name']} feature to subscribers"
+                feature = solution["features"][i % len(solution["features"])]["name"]
+                title = f"Introducing {feature}"
+                description = (
+                    f"An email introducing the {feature} feature to subscribers"
+                )
             elif content_type == "webinar":
                 title = f"Mastering {niche['name']}: Advanced Techniques with {solution['name']}"
                 description = f"A webinar on advanced techniques for {niche['name']} using {solution['name']}"

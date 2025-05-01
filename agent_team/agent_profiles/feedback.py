@@ -5,7 +5,7 @@ Specializes in gathering and analyzing user feedback.
 
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 class FeedbackAgent:

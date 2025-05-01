@@ -5,7 +5,7 @@ Specializes in market research and niche identification.
 
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from interfaces.agent_interfaces import IAgentTeam, IResearchAgent
 
