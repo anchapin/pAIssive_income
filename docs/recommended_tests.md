@@ -1,6 +1,7 @@
 # Recommended Tests
 
 ## A/B Testing Module
+
 1. **User Journey Tracking Tests**
    - Test tracking multiple interactions from same user across different variants
    - Test user session management and attribution
@@ -12,6 +13,7 @@
    - Test confidence interval calculations with extreme values
 
 ## Market Analysis Module
+
 1. **Competitive Intelligence Tests**
    - Test real-time competitor monitoring
    - Test competitor pricing change detection
@@ -23,6 +25,7 @@
    - Test multi-year seasonal trend comparison
 
 ## Webhook Implementation
+
 1. **Webhook Security Advanced Tests**
    - Test handling of replayed webhook signatures
    - Test rate limit behavior during partial system outages
@@ -34,6 +37,7 @@
    - Test webhook queue prioritization
 
 ## Integration Tests
+
 1. **Cross-Module Workflow Tests**
    - Test niche analysis → market trend → A/B testing workflow
    - Test competitor analysis → pricing strategy → revenue projection workflow
@@ -45,6 +49,7 @@
    - Test transaction rollback scenarios
 
 ## AI Model Integration
+
 1. **Model Fallback Tests**
    - Test graceful degradation with model API failures
    - Test fallback chain behavior with multiple failures
@@ -56,17 +61,21 @@
    - Test version-specific feature availability
 
 ## Performance Testing
-1. **Load Distribution Tests**
-   - Test system behavior under geographically distributed load
-   - Test regional failover scenarios
-   - Test load balancing optimization
 
-2. **Resource Utilization Tests**
-   - Test memory usage patterns under sustained load
-   - Test CPU utilization during concurrent operations
-   - Test I/O bottleneck identification
+1. **Load Distribution Tests** ✅
+   - Test system behavior under geographically distributed load ✅
+   - Test regional failover scenarios ✅
+   - Test load balancing optimization ✅
+   - **File**: `tests/performance/test_load_distribution.py`
+
+2. **Resource Utilization Tests** ✅
+   - Test memory usage patterns under sustained load ✅
+   - Test CPU utilization during concurrent operations ✅
+   - Test I/O bottleneck identification ✅
+   - **File**: `tests/performance/test_resource_utilization.py`
 
 ## Security Testing
+
 1. **Advanced Authentication Tests**
    - Test token refresh scenarios
    - Test concurrent authentication attempts
@@ -78,6 +87,7 @@
    - Test temporary permission elevation
 
 ## Monitoring and Observability
+
 1. **Metric Collection Tests**
    - Test accuracy of performance metrics
    - Test metric aggregation at scale
@@ -89,6 +99,7 @@
    - Test alert suppression rules
 
 ## Data Consistency
+
 1. **Concurrent Operation Tests**
    - Test data consistency during parallel updates
    - Test race condition handling
@@ -102,6 +113,7 @@
 ## Implementation Notes
 
 Priority should be given to:
+
 1. Cross-Module Workflow Tests - these represent critical user paths
 2. Security Testing - essential for production readiness
 3. Performance Testing - important for scalability
