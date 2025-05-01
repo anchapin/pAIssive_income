@@ -151,13 +151,16 @@ class TestModelFallback(unittest.TestCase):
 
     def test_performance_impact_of_fallback(self):
         """Test the performance impact of fallback scenarios."""
-        # Configure the models with different response times
+        # Use a mock time approach instead of actual sleep delays
+        self.mock_time = 0.0
+
+        # Configure the models with different simulated response times
         def primary_model_generate(*args, **kwargs):
-            time.sleep(0.01)  # Simulate a 10ms response time
+            self.mock_time += 0.01  # Simulate a 10ms response time
             return "Primary model response"
 
         def fallback_model_generate(*args, **kwargs):
-            time.sleep(0.05)  # Simulate a 50ms response time
+            self.mock_time += 0.05  # Simulate a 50ms response time
             return "Fallback model response"
 
         self.primary_model.generate.side_effect = primary_model_generate
@@ -191,17 +194,17 @@ class TestModelFallback(unittest.TestCase):
 
         # Measure performance with primary model
         self.model_manager.load_model.side_effect = load_model_primary_case
-        start_time = time.time()
+        self.mock_time = 0.0  # Reset mock time
         model = self.provider.get_model_with_fallback("researcher", "primary_model", "text-generation")
         response = model.generate(prompt="Test prompt")
-        primary_time = time.time() - start_time
+        primary_time = self.mock_time
 
         # Measure performance with fallback model
         self.model_manager.load_model.side_effect = load_model_fallback_case
-        start_time = time.time()
+        self.mock_time = 0.0  # Reset mock time
         model = self.provider.get_model_with_fallback("researcher", "primary_model", "text-generation")
         response = model.generate(prompt="Test prompt")
-        fallback_time = time.time() - start_time
+        fallback_time = self.mock_time
 
         # Verify that fallback has performance impact
         self.assertGreater(fallback_time, primary_time)
