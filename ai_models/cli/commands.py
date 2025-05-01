@@ -10,6 +10,7 @@ import json
 import logging
 import os  # Used in _load_config and DownloadCommand
 import signal  # Used in _load_version
+import time  # Added for performance report timestamps
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -1784,14 +1785,11 @@ class PerformanceCommand(BaseCommand):
                 elif hasattr(model, "__call__"):
                     output_text = model(input_text)
                 else:
-                    # Just simulate an inference
-                    import time
-
-                    time.sleep(0.5)
-                    output_text = "Simulated output for " + input_text
+                    logger.error("Model does not support inference")
+                    return 1
             except Exception as e:
-                logger.error(f"Error during inference: {e}")
-                output_text = f"Error: {e}"
+                logger.error(f"Inference failed: {e}")
+                return 1
 
             # Stop tracking and get metrics
             metrics = tracker.stop(output_text=output_text)
@@ -1805,21 +1803,19 @@ class PerformanceCommand(BaseCommand):
             )
             print("")
 
-            # Show metrics if requested
             if self._get_arg("show_metrics"):
+                # Print performance metrics
                 print("Performance Metrics:")
-                print(f"- Inference Time: {metrics.total_time:.4f} seconds")
-                print(f"- Latency: {metrics.latency_ms:.2f} ms")
-                print(f"- Input Tokens: {metrics.input_tokens}")
-                print(f"- Output Tokens: {metrics.output_tokens}")
-                print(f"- Tokens per Second: {metrics.tokens_per_second:.2f}")
-                print(f"- Memory Usage: {metrics.memory_usage_mb:.2f} MB")
-                if metrics.peak_cpu_memory_mb > 0:
-                    print(f"- Peak CPU Memory: {metrics.peak_cpu_memory_mb:.2f} MB")
-                if metrics.peak_gpu_memory_mb > 0:
-                    print(f"- Peak GPU Memory: {metrics.peak_gpu_memory_mb:.2f} MB")
-            else:
-                print(f"Inference tracked in {metrics.total_time:.4f} seconds")
+                print(f"- Total time: {metrics.total_time:.2f}s")
+                print(f"- Latency: {metrics.latency_ms:.2f}ms")
+                print(f"- Tokens/sec: {metrics.tokens_per_second:.2f}")
+                if metrics.time_to_first_token:
+                    print(f"- Time to first token: {metrics.time_to_first_token:.2f}s")
+                print(f"- Memory usage: {metrics.memory_usage_mb:.2f} MB")
+                if metrics.cpu_percent:
+                    print(f"- CPU usage: {metrics.cpu_percent:.1f}%")
+                if metrics.gpu_percent:
+                    print(f"- GPU usage: {metrics.gpu_percent:.1f}%")
 
             return 0
 

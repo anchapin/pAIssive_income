@@ -5,10 +5,11 @@ Defines the overall structure and collaboration patterns for the agent team.
 
 import json
 import logging
+import logging.config
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type, TypeVar, cast
+from typing import Any, Dict, List, Optional, TypeVar, cast
 
 from ai_models.model_config import ModelConfig
 from interfaces.agent_interfaces import (
@@ -27,7 +28,6 @@ from .agent_profiles.monetization import MonetizationAgent
 from .agent_profiles.researcher import ResearchAgent
 from .errors import (
     AgentConfigError,
-    AgentInitializationError,
     AgentTeamError,
     ValidationError,
     WorkflowError,
@@ -36,13 +36,11 @@ from .errors import (
 from .schemas import (
     FeedbackItemSchema,
     MarketingPlanSchema,
-    ModelSettingsSchema,
     MonetizationStrategySchema,
     NicheSchema,
     ProjectStateSchema,
     SolutionSchema,
     TeamConfigSchema,
-    WorkflowSettingsSchema,
 )
 
 # Set up logging
@@ -58,31 +56,89 @@ class AgentTeam(IAgentTeam):
     monetizing niche AI tools for passive income generation.
     """
 
-    def __init__(self, config_path: Optional[str] = None):
-        """Initialize the agent team.
+    def __init__(self, project_name: str, config_path: Optional[str] = None):
+        self._project_name: str = project_name
+        self._config: Dict[str, Any] = self._load_config(config_path)
+        self._config["project_name"] = project_name
+        self._id: str = str(uuid.uuid4())
+        self._agent_registry: Dict[str, Any] = {}
+        self.model_configs: Dict[str, ModelConfig] = {}
+        self.default_model: ModelConfig
+        self.agents: Dict[str, Any] = {}
+        self.project_state: Dict[str, Any] = {
+            "identified_niches": [],
+            "selected_niche": None,
+            "solution_design": None,
+            "monetization_strategy": None,
+            "marketing_plan": None,
+            "feedback_data": [],
+            "updated_at": None,
+        }
+        self.logger: logging.Logger
 
-        Args:
-            config_path: Path to config file, uses default if not provided
-        """
-        self.config = self._load_config(config_path)
         self._init_logging()
         self._init_models()
         self._init_agents()
         self._validate_config()
 
+    @property
+    def researcher(self) -> IResearchAgent:
+        """Get the research agent."""
+        return cast(IResearchAgent, self.agents.get("research"))
+
+    @property
+    def developer(self) -> IDeveloperAgent:
+        """Get the developer agent."""
+        return cast(IDeveloperAgent, self.agents.get("developer"))
+
+    @property
+    def monetization(self) -> IMonetizationAgent:
+        """Get the monetization agent."""
+        return cast(IMonetizationAgent, self.agents.get("monetization"))
+
+    @property
+    def marketing(self) -> IMarketingAgent:
+        """Get the marketing agent."""
+        return cast(IMarketingAgent, self.agents.get("marketing"))
+
+    @property
+    def feedback(self) -> IFeedbackAgent:
+        """Get the feedback agent."""
+        return cast(IFeedbackAgent, self.agents.get("feedback"))
+
     def _init_logging(self):
         """Set up logging configuration."""
-        logging.config.dictConfig(self.config.logging)
+        # Set up basic logging if no config is provided
+        if not self._config.get("logging"):
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            )
+        else:
+            # Use the provided logging config
+            logging.config.dictConfig(self._config["logging"])
+
         self.logger = logging.getLogger(__name__)
 
     def _init_models(self):
         """Initialize AI model configurations."""
         self.model_configs = {}
-        for name, config in self.config.models.items():
+
+        # Use model_settings from config
+        model_settings = self._config.get("model_settings", {})
+        for name, config in model_settings.items():
             self.model_configs[name] = ModelConfig(**config)
 
+        # If no models were configured, add a default one
+        if not self.model_configs:
+            self.model_configs["default"] = ModelConfig(
+                model="gpt-4", temperature=0.7
+            )
+
+        # Set the default model
+        default_model_name = self._config.get("default_model", "researcher")
         self.default_model = self.model_configs.get(
-            self.config.default_model, next(iter(self.model_configs.values()))
+            default_model_name, next(iter(self.model_configs.values()))
         )
 
     def _init_agents(self):
@@ -96,38 +152,43 @@ class AgentTeam(IAgentTeam):
 
     def _init_research_agent(self):
         """Initialize the research agent."""
-        if self.config.research_agent:
-            self.agents["research"] = ResearchAgent(
-                model_config=self.default_model, **self.config.research_agent
-            )
+        researcher_config = self._config.get("research_agent", {})
+        researcher_model = self.model_configs.get("researcher", self.default_model)
+        self.agents["research"] = ResearchAgent(
+            model_config=researcher_model, **researcher_config
+        )
 
     def _init_developer_agent(self):
         """Initialize the developer agent."""
-        if self.config.developer_agent:
-            self.agents["developer"] = DeveloperAgent(
-                model_config=self.default_model, **self.config.developer_agent
-            )
+        developer_config = self._config.get("developer_agent", {})
+        developer_model = self.model_configs.get("developer", self.default_model)
+        self.agents["developer"] = DeveloperAgent(
+            model_config=developer_model, **developer_config
+        )
 
     def _init_monetization_agent(self):
         """Initialize the monetization agent."""
-        if self.config.monetization_agent:
-            self.agents["monetization"] = MonetizationAgent(
-                model_config=self.default_model, **self.config.monetization_agent
-            )
+        monetization_config = self._config.get("monetization_agent", {})
+        monetization_model = self.model_configs.get("monetization", self.default_model)
+        self.agents["monetization"] = MonetizationAgent(
+            model_config=monetization_model, **monetization_config
+        )
 
     def _init_marketing_agent(self):
         """Initialize the marketing agent."""
-        if self.config.marketing_agent:
-            self.agents["marketing"] = MarketingAgent(
-                model_config=self.default_model, **self.config.marketing_agent
-            )
+        marketing_config = self._config.get("marketing_agent", {})
+        marketing_model = self.model_configs.get("marketing", self.default_model)
+        self.agents["marketing"] = MarketingAgent(
+            model_config=marketing_model, **marketing_config
+        )
 
     def _init_feedback_agent(self):
         """Initialize the feedback agent."""
-        if self.config.feedback_agent:
-            self.agents["feedback"] = FeedbackAgent(
-                model_config=self.default_model, **self.config.feedback_agent
-            )
+        feedback_config = self._config.get("feedback_agent", {})
+        feedback_model = self.model_configs.get("feedback", self.default_model)
+        self.agents["feedback"] = FeedbackAgent(
+            model_config=feedback_model, **feedback_config
+        )
 
     def _validate_config(self):
         """Validate the loaded configuration."""
@@ -145,18 +206,15 @@ class AgentTeam(IAgentTeam):
 
     @property
     def project_name(self) -> str:
-        """Get the project name."""
         return self._project_name
 
     @property
     def id(self) -> str:
-        """Get the team ID."""
         return self._id
 
     @property
     def config(self) -> Dict[str, Any]:
-        """Get the team configuration."""
-        return self._config
+        return self._config.copy()
 
     def get_agent(self, agent_type: str) -> Any:
         """
@@ -193,7 +251,7 @@ class AgentTeam(IAgentTeam):
             AgentTeamError: If there's an issue loading the configuration
         """
         try:
-            default_config = {
+            default_config: Dict[str, Any] = {
                 "model_settings": {
                     "researcher": {"model": "gpt-4", "temperature": 0.7},
                     "developer": {"model": "gpt-4", "temperature": 0.2},

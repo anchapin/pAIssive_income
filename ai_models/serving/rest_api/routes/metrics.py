@@ -4,7 +4,7 @@ Metrics routes for REST API server.
 This module provides route handlers for metrics.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 # Try to import FastAPI
 try:
@@ -28,7 +28,7 @@ except ImportError:
 
 # Create router
 if FASTAPI_AVAILABLE:
-    router = APIRouter(tags=["Metrics"])
+    router = APIRouter(prefix="/v1/metrics", tags=["Metrics"])
 else:
     router = None
 
@@ -53,6 +53,32 @@ if FASTAPI_AVAILABLE:
         """
 
         metrics: List[MetricValue] = Field(..., description="List of metrics")
+
+    class ModelMetrics(BaseModel):
+        """Model performance metrics."""
+
+        model_id: str = Field(..., description="ID of the model")
+        latency_ms: float = Field(..., description="Inference latency in milliseconds")
+        throughput: float = Field(..., description="Requests per second")
+        memory_mb: float = Field(..., description="Memory usage in MB")
+        gpu_memory_mb: Optional[float] = Field(
+            None, description="GPU memory usage in MB"
+        )
+        error_rate: float = Field(..., description="Error rate percentage")
+        timestamp: str = Field(..., description="ISO format timestamp")
+
+    class ModelStats(BaseModel):
+        """Aggregate model statistics."""
+
+        total_requests: int = Field(..., description="Total number of requests")
+        avg_latency_ms: float = Field(
+            ..., description="Average latency in milliseconds"
+        )
+        p95_latency_ms: float = Field(..., description="95th percentile latency")
+        p99_latency_ms: float = Field(..., description="99th percentile latency")
+        success_rate: float = Field(..., description="Success rate percentage")
+        start_time: str = Field(..., description="Collection start time")
+        end_time: str = Field(..., description="Collection end time")
 
 
 # Define route handlers
@@ -109,3 +135,30 @@ if FASTAPI_AVAILABLE:
 
         # Return metrics
         return "\n".join(prometheus_metrics)
+
+    @router.get("/{model_id}/current", response_model=ModelMetrics)
+    async def get_current_metrics(model_id: str) -> ModelMetrics:
+        """Get current metrics for a model."""
+        # Implement metrics collection logic here
+        return ModelMetrics(
+            model_id=model_id,
+            latency_ms=10.5,
+            throughput=100.0,
+            memory_mb=1024.0,
+            error_rate=0.1,
+            timestamp="2025-04-30T12:00:00Z",
+        )
+
+    @router.get("/{model_id}/stats", response_model=ModelStats)
+    async def get_model_stats(model_id: str) -> ModelStats:
+        """Get aggregate statistics for a model."""
+        # Implement stats collection logic here
+        return ModelStats(
+            total_requests=1000,
+            avg_latency_ms=15.2,
+            p95_latency_ms=45.6,
+            p99_latency_ms=98.3,
+            success_rate=99.9,
+            start_time="2025-04-30T00:00:00Z",
+            end_time="2025-04-30T12:00:00Z",
+        )

@@ -57,21 +57,21 @@ class UsageTracker:
             os.makedirs(os.path.join(storage_dir, "quotas"), exist_ok=True)
 
         # Initialize storage
-        self.records = {}
-        self.limits = {}
-        self.quotas = {}
+        self.records: Dict[str, UsageRecord] = {}
+        self.limits: Dict[str, UsageLimit] = {}
+        self.quotas: Dict[str, UsageQuota] = {}
 
         # Initialize indexes
-        self.customer_records = {}
-        self.metric_records = {}
-        self.category_records = {}
-        self.resource_records = {}
+        self.customer_records: Dict[str, List[str]] = {}
+        self.metric_records: Dict[str, List[str]] = {}
+        self.category_records: Dict[str, List[str]] = {}
+        self.resource_records: Dict[str, List[str]] = {}
 
-        self.customer_limits = {}
-        self.metric_limits = {}
+        self.customer_limits: Dict[str, List[str]] = {}
+        self.metric_limits: Dict[str, List[str]] = {}
 
-        self.customer_quotas = {}
-        self.metric_quotas = {}
+        self.customer_quotas: Dict[str, List[str]] = {}
+        self.metric_quotas: Dict[str, List[str]] = {}
 
         # Load data if storage directory is set
         if storage_dir:

@@ -10,8 +10,13 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
 
-import boto3
-from botocore.exceptions import ClientError
+# Make boto3 import optional
+try:
+    import boto3
+    from botocore.exceptions import ClientError
+    BOTO3_AVAILABLE = True
+except ImportError:
+    BOTO3_AVAILABLE = False
 
 # Set up logging
 logging.basicConfig(
@@ -181,6 +186,10 @@ def _generate_aws_config(config: CloudConfig, output_dir: str) -> str:
     Returns:
         Path to the generated configuration file
     """
+    # Check if boto3 is available
+    if not BOTO3_AVAILABLE:
+        logger.warning("boto3 is not installed. AWS deployment will be limited.")
+
     # Generate CloudFormation template
     template_path = os.path.join(output_dir, "cloudformation.yaml")
     _generate_cloudformation_template(config, template_path)
@@ -260,37 +269,37 @@ Parameters:
     Type: String
     Default: {config.name}
     Description: Name of the model deployment
-  
+
   ModelPath:
     Type: String
     Default: {config.model_path}
     Description: Path to the model
-  
+
   ModelType:
     Type: String
     Default: {config.model_type}
     Description: Type of the model
-  
+
   ServerType:
     Type: String
     Default: {config.server_type}
     Description: Type of the server (rest or grpc)
-  
+
   Port:
     Type: Number
     Default: {config.port}
     Description: Port for the server
-  
+
   InstanceType:
     Type: String
     Default: {config.instance_type or "ml.m5.large"}
     Description: Instance type for the deployment
-  
+
   MinInstances:
     Type: Number
     Default: {config.min_instances}
     Description: Minimum number of instances
-  
+
   MaxInstances:
     Type: Number
     Default: {config.max_instances}
@@ -344,7 +353,7 @@ Outputs:
   EndpointName:
     Description: Name of the SageMaker endpoint
     Value: !Ref 'ModelEndpoint'
-  
+
   EndpointUrl:
     Description: URL of the SageMaker endpoint
     Value: !Sub 'https://runtime.sagemaker.${{AWS::Region}}.amazonaws.com/endpoints/${{ModelEndpoint}}'
@@ -450,33 +459,33 @@ resource "google_cloud_run_service" "model_service" {{
     spec {{
       containers {{
         image = "${{google_artifact_registry_repository.model_repository.location}}-docker.pkg.dev/${{var.project_id}}/${{google_artifact_registry_repository.model_repository.repository_id}}/{config.name}:latest"
-        
+
         resources {{
           limits = {{
             cpu    = "{config.cpu_count}"
             memory = "{config.memory_gb}Gi"
           }}
         }}
-        
+
         ports {{
           container_port = {config.port}
         }}
-        
+
         env {{
           name  = "MODEL_PATH"
           value = "{config.model_path}"
         }}
-        
+
         env {{
           name  = "MODEL_TYPE"
           value = "{config.model_type}"
         }}
-        
+
         env {{
           name  = "SERVER_TYPE"
           value = "{config.server_type}"
         }}
-        
+
         env {{
           name  = "PORT"
           value = "{config.port}"
@@ -494,7 +503,7 @@ resource "google_cloud_run_service" "model_service" {{
     # Add GPU configuration if needed
     if config.gpu_count > 0 and config.gpu_type:
         content += f"""
-        
+
         # GPU configuration
         resources {{
           limits {{
@@ -505,11 +514,11 @@ resource "google_cloud_run_service" "model_service" {{
     # Add scaling configuration
     content += f"""
       }}
-      
+
       container_concurrency = 80
       timeout_seconds       = 300
     }}
-    
+
     metadata {{
       annotations = {{
         "autoscaling.knative.dev/minScale" = "{config.min_instances}"
@@ -517,7 +526,7 @@ resource "google_cloud_run_service" "model_service" {{
       }}
     }}
   }}
-  
+
   traffic {{
     percent         = 100
     latest_revision = true

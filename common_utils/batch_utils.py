@@ -120,70 +120,43 @@ def chunk_list(items: List[T], batch_size: int) -> List[List[T]]:
 def process_batch(
     items: List[T],
     processor_func: Callable[[T], R],
-    max_workers: int = None,
-    batch_id: str = None,
-    timeout: float = None,
+    max_workers: Optional[int] = None,
+    batch_id: Optional[str] = None,
+    timeout: Optional[float] = None,
 ) -> BatchResult[T, R]:
-    """
-    Process a batch of items using a processor function.
+    """Process a batch of items in parallel using a thread pool."""
 
-    Args:
-        items: List of items to process
-        processor_func: Function to process each item
-        max_workers: Maximum number of workers for parallel processing (if None, uses CPU count)
-        batch_id: Optional ID for the batch (if None, generates a UUID)
-        timeout: Optional timeout in seconds for each item's processing
+    results: List[Optional[R]] = [None] * len(items)
+    errors: Dict[int, Exception] = {}
 
-    Returns:
-        BatchResult containing results, errors, and statistics
-    """
-    if not batch_id:
-        batch_id = str(uuid.uuid4())
-
-    stats = BatchProcessingStats(
-        batch_id=batch_id, total_items=len(items), start_time=datetime.now()
-    )
-
-    results = [None] * len(items)  # Pre-allocate results list
-    errors = {}  # Dictionary to track errors by index
-
-    start_time = time.time()
-
-    # Process items in parallel using ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all tasks
-        future_to_index = {
-            executor.submit(processor_func, item): i for i, item in enumerate(items)
+        future_to_idx = {
+            executor.submit(processor_func, item): idx for idx, item in enumerate(items)
         }
 
-        # Process results as they complete
-        for future in as_completed(future_to_index):
-            index = future_to_index[future]
+        for future in as_completed(future_to_idx, timeout=timeout):
+            idx = future_to_idx[future]
             try:
-                result = future.result(timeout=timeout)
-                results[index] = result
-                stats.successful_items += 1
-            except Exception as exc:
-                errors[index] = exc
-                stats.failed_items += 1
-                logger.warning(f"Item {index} in batch {batch_id} failed: {exc}")
+                results[idx] = future.result()
+            except Exception as e:
+                errors[idx] = e
+                results[idx] = None
 
-            stats.processed_items += 1
+    # Filter out None values from results
+    final_results = [r for r in results if r is not None]
 
-    # Update stats
-    stats.end_time = datetime.now()
-    stats.processing_time_ms = (time.time() - start_time) * 1000
-
-    return BatchResult(batch_id=batch_id, results=results, errors=errors, stats=stats)
+    return BatchResult(
+        items=items, results=final_results, errors=errors, batch_id=batch_id
+    )
 
 
 def process_batches(
     items: List[T],
     processor_func: Callable[[T], R],
     batch_size: int,
-    max_workers: int = None,
-    batch_id_prefix: str = None,
-    timeout: float = None,
+    max_workers: Optional[int] = None,
+    batch_id_prefix: Optional[str] = None,
+    timeout: Optional[float] = None,
 ) -> List[BatchResult[T, R]]:
     """
     Process a large list of items in batches.
@@ -222,7 +195,7 @@ def process_batches(
 
 def aggregate_batch_results(
     batch_results: List[BatchResult[T, R]],
-) -> BatchResult[T, R]:
+) -> Optional[BatchResult[T, R]]:
     """
     Aggregate multiple batch results into a single result.
 
@@ -300,8 +273,8 @@ class BatchProcessor(Generic[T, R]):
         self,
         processor_func: Callable[[T], R],
         batch_size: int = 100,
-        max_workers: int = None,
-        timeout: float = None,
+        max_workers: Optional[int] = None,
+        timeout: Optional[float] = None,
     ):
         """
         Initialize the batch processor.
@@ -318,7 +291,9 @@ class BatchProcessor(Generic[T, R]):
         self.timeout = timeout
         self.batch_results = []
 
-    def process(self, items: List[T], batch_size: int = None) -> BatchResult[T, R]:
+    def process(
+        self, items: List[T], batch_size: Optional[int] = None
+    ) -> BatchResult[T, R]:
         """
         Process items in batches and return the aggregated result.
 
@@ -369,8 +344,8 @@ class StreamingBatchProcessor(Generic[T, R]):
         self,
         processor_func: Callable[[T], R],
         batch_size: int = 100,
-        max_workers: int = None,
-        timeout: float = None,
+        max_workers: Optional[int] = None,
+        timeout: Optional[float] = None,
     ):
         """
         Initialize the streaming batch processor.

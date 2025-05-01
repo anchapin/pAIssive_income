@@ -12,6 +12,7 @@ from .list import ListCommand
 from .optimize import OptimizeCommand
 from .serve import ServeGRPCCommand, ServeRESTCommand
 from .validate import ValidateCommand
+from .version import VersionCommand
 
 __all__ = [
     "DownloadCommand",
@@ -23,4 +24,5 @@ __all__ = [
     "BenchmarkCommand",
     "DeployCommand",
     "ValidateCommand",
+    "VersionCommand",
 ]

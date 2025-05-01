@@ -15,12 +15,12 @@ from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, cast
 
 # Import the caching system from AI models module
-from ai_models.caching import CacheManager
+from ai_models.caching import CacheConfig, CacheManager
 from ai_models.caching.cache_backends import (
     DiskCache,
     MemoryCache,
     RedisCache,
-    SqliteCache,
+    SQLiteCache,
 )
 
 # Type variable for the decorator
@@ -56,15 +56,57 @@ class CacheService:
             db_path: Path to SQLite database
             redis_url: URL for Redis connection
         """
-        # Create the cache manager with the specified backend
-        self.cache_manager = CacheManager(
-            backend_type=backend_type,
+        # Create a cache config
+        backend_config = {}
+
+        # Add backend-specific configuration
+        if backend_type == "disk" and cache_dir:
+            backend_config["disk"] = {"cache_dir": cache_dir}
+        elif backend_type == "sqlite" and db_path:
+            backend_config["sqlite"] = {"db_path": db_path}
+        elif backend_type == "redis" and redis_url:
+            # Parse redis_url to get host, port, etc.
+            if "://" in redis_url:
+                # Format: redis://[:password@]host[:port][/db-number]
+                parts = redis_url.split("://", 1)[1].split("@")
+                if len(parts) > 1:
+                    password = parts[0]
+                    host_part = parts[1]
+                else:
+                    password = None
+                    host_part = parts[0]
+
+                # Parse host, port, db
+                if "/" in host_part:
+                    host_port, db = host_part.split("/", 1)
+                else:
+                    host_port = host_part
+                    db = "0"
+
+                if ":" in host_port:
+                    host, port = host_port.split(":", 1)
+                else:
+                    host = host_port
+                    port = "6379"
+
+                backend_config["redis"] = {
+                    "host": host,
+                    "port": int(port),
+                    "db": int(db),
+                    "password": password,
+                }
+
+        # Create the cache config
+        cache_config = CacheConfig(
+            enabled=True,
+            backend=backend_type,
             ttl=ttl,
             max_size=max_size,
-            cache_dir=cache_dir,
-            db_path=db_path,
-            redis_url=redis_url,
+            backend_config=backend_config,
         )
+
+        # Create the cache manager with the config
+        self.cache_manager = CacheManager(config=cache_config)
 
         # Default TTL in seconds
         self.default_ttl = ttl
@@ -108,10 +150,10 @@ class CacheService:
         actual_ttl = ttl if ttl is not None else self.default_ttl
 
         # Cache the value using model_id as namespace
-        success = self.cache_manager.cache_value(
+        success = self.cache_manager.set(
             model_id=namespace,
-            operation_type="set",
-            key=key,
+            operation="set",
+            inputs=key,
             value=value,
             ttl=actual_ttl,
         )
@@ -144,8 +186,8 @@ class CacheService:
             self.stats[namespace] = {"hits": 0, "misses": 0, "sets": 0, "clears": 0}
 
         # Get the value from the cache
-        value = self.cache_manager.get_cached_value(
-            model_id=namespace, operation_type="get", key=key
+        value = self.cache_manager.get(
+            model_id=namespace, operation="get", inputs=key
         )
 
         # Update stats
@@ -167,8 +209,8 @@ class CacheService:
         Returns:
             True if the value was deleted, False otherwise
         """
-        return self.cache_manager.delete_cached_value(
-            model_id=namespace, operation_type="delete", key=key
+        return self.cache_manager.delete(
+            model_id=namespace, operation="delete", inputs=key
         )
 
     def clear(self, namespace: str = "default") -> bool:
@@ -185,7 +227,7 @@ class CacheService:
         if namespace not in self.stats:
             self.stats[namespace] = {"hits": 0, "misses": 0, "sets": 0, "clears": 0}
 
-        success = self.cache_manager.clear_cache(model_id=namespace)
+        success = self.cache_manager.clear()
 
         # Update stats
         if success:
@@ -200,7 +242,7 @@ class CacheService:
         Returns:
             True if the cache was cleared, False otherwise
         """
-        success = self.cache_manager.clear_all_caches()
+        success = self.cache_manager.clear()
 
         # Reset stats
         if success:

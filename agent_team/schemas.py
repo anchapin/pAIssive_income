@@ -1,111 +1,67 @@
-"""
-Pydantic schemas for the Agent Team module.
-
-This module provides Pydantic models for data validation in the Agent Team module.
-"""
+"""Pydantic schemas for agent team data validation."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
 
-class ModelSettingSchema(BaseModel):
-    """Pydantic model for agent model settings."""
+class BaseSchema(BaseModel):
+    """Base schema for all agent team schemas."""
 
-    model: str = Field(..., description="The AI model to use for the agent")
-    temperature: float = Field(
-        ..., description="Temperature setting for the AI model", ge=0.0, le=1.0
-    )
-
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields for future model-specific parameters
-
-
-class ModelSettingsSchema(BaseModel):
-    """Pydantic model for all agents' model settings."""
-
-    researcher: ModelSettingSchema
-    developer: ModelSettingSchema
-    monetization: ModelSettingSchema
-    marketing: ModelSettingSchema
-    feedback: ModelSettingSchema
-
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields for future agents
-
-
-class WorkflowSettingsSchema(BaseModel):
-    """Pydantic model for workflow settings."""
-
-    auto_progression: bool = Field(
-        False, description="Whether to automatically progress through workflow steps"
-    )
-    review_required: bool = Field(
-        True, description="Whether review is required before progressing"
-    )
-
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields for future workflow settings
-
-
-class TeamConfigSchema(BaseModel):
-    """Pydantic model for team configuration."""
-
-    model_settings: ModelSettingsSchema = Field(
-        ..., description="Model settings for each agent"
-    )
-    workflow: WorkflowSettingsSchema = Field(..., description="Workflow settings")
-
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields for future configuration options
+    pass
 
 
 class AgentProfileSchema(BaseModel):
-    """Pydantic model for agent profiles."""
+    """Schema for agent profile configuration."""
 
-    name: str = Field(..., description="Name of the agent profile")
-    description: str = Field(..., description="Description of the agent profile")
-    capabilities: List[str] = Field(
-        default_factory=list, description="List of agent capabilities"
+    name: str = Field(..., description="Agent name")
+    role: str = Field(..., description="Agent role/responsibility")
+    model_name: str = Field(..., description="Name of the AI model to use")
+    temperature: float = Field(0.7, description="Model temperature parameter")
+    max_tokens: int = Field(2000, description="Maximum tokens per response")
+
+
+class ModelSettingsSchema(BaseModel):
+    """Schema for model configuration settings."""
+
+    model: str = Field(..., description="Model identifier/name")
+    temperature: float = Field(0.7, description="Model temperature parameter")
+    max_tokens: Optional[int] = Field(2000, description="Maximum tokens per response")
+
+
+class WorkflowSettingsSchema(BaseModel):
+    """Schema for workflow configuration settings."""
+
+    auto_progression: bool = Field(
+        False, description="Whether to auto-progress through workflow steps"
     )
-    parameters: Dict[str, Any] = Field(
-        default_factory=dict, description="Dictionary of parameters"
+    review_required: bool = Field(
+        True, description="Whether human review is required between steps"
     )
+
+
+class TeamConfigSchema(BaseModel):
+    """Configuration schema for the agent team."""
+
+    project_name: str = Field(default="unnamed")
+    model_settings: Dict[str, Any] = Field(default_factory=dict)
+    workflow: Dict[str, Any] = Field(default_factory=dict)
 
 
 class NicheSchema(BaseModel):
-    """Pydantic model for a niche."""
+    """Schema for niche market data."""
 
-    id: str = Field(..., description="Unique identifier for the niche")
-    name: str = Field(..., description="Name of the niche")
-    market_segment: str = Field(..., description="Market segment of the niche")
-    opportunity_score: float = Field(
-        ..., description="Opportunity score of the niche", ge=0.0, le=1.0
-    )
-    description: Optional[str] = Field(None, description="Description of the niche")
-    problems: Optional[List[Dict[str, Any]]] = Field(
-        None, description="Problems identified in the niche"
-    )
-    target_audience: Optional[List[str]] = Field(
-        None, description="Target audience for the niche"
-    )
-    competition: Optional[Dict[str, Any]] = Field(
-        None, description="Competition analysis for the niche"
-    )
-
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    name: str
+    description: str
+    market_size: float
+    competition_level: str
+    growth_potential: float
+    barriers_to_entry: List[str]
+    target_audience: Dict[str, Any]
+    problems: List[Dict[str, Any]]
+    opportunities: List[Dict[str, Any]]
 
 
 class TechnologyStackSchema(BaseModel):
@@ -136,26 +92,28 @@ class FeatureSchema(BaseModel):
         return v.lower()
 
 
+class SolutionComponentSchema(BaseModel):
+    """Schema for solution component specification."""
+
+    name: str
+    description: str
+    type: str
+    features: List[str]
+    technology_stack: List[str]
+    dependencies: Optional[List[str]] = None
+    api_spec: Optional[Dict[str, Any]] = None
+
+
 class SolutionSchema(BaseModel):
-    """Pydantic model for a solution."""
+    """Schema for AI solution design."""
 
-    id: str = Field(..., description="Unique identifier for the solution")
-    name: str = Field(..., description="Name of the solution")
-    description: str = Field(..., description="Description of the solution")
-    niche_id: str = Field(..., description="ID of the niche this solution addresses")
-    features: List[FeatureSchema] = Field(..., description="Features of the solution")
-    tech_stack: TechnologyStackSchema = Field(..., description="Technology stack")
-    architecture: Optional[Dict[str, Any]] = Field(
-        None, description="Architecture of the solution"
-    )
-    implementation_plan: Optional[Dict[str, Any]] = Field(
-        None, description="Implementation plan for the solution"
-    )
-
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    name: str
+    description: str
+    features: List[Dict[str, Any]]
+    architecture: Dict[str, Any]
+    technology_stack: List[str]
+    development_roadmap: List[Dict[str, Any]]
+    resource_requirements: Dict[str, Any]
 
 
 class PricingTierSchema(BaseModel):
@@ -165,6 +123,7 @@ class PricingTierSchema(BaseModel):
     price: float = Field(..., description="Price of the tier", ge=0.0)
     billing_period: str = Field(..., description="Billing period")
     features: List[str] = Field(..., description="Features included in this tier")
+    limits: Optional[Dict[str, Any]] = None
 
     @validator("billing_period")
     def validate_billing_period(cls, v):
@@ -177,22 +136,13 @@ class PricingTierSchema(BaseModel):
 
 
 class MonetizationStrategySchema(BaseModel):
-    """Pydantic model for a monetization strategy."""
+    """Schema for monetization strategy."""
 
-    id: str = Field(..., description="Unique identifier for the strategy")
-    solution_id: str = Field(..., description="ID of the solution")
-    model_type: str = Field(..., description="Type of monetization model")
-    pricing_tiers: List[PricingTierSchema] = Field(..., description="Pricing tiers")
-    target_revenue: Optional[float] = Field(None, description="Target revenue")
-    cost_structure: Optional[Dict[str, Any]] = Field(None, description="Cost structure")
-    revenue_projections: Optional[Dict[str, Any]] = Field(
-        None, description="Revenue projections"
-    )
-
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_type: str
+    pricing_tiers: List[Dict[str, Any]]
+    revenue_projections: Dict[str, Any]
+    cost_structure: Dict[str, Any]
+    break_even_analysis: Dict[str, Any]
 
 
 class MarketingChannelSchema(BaseModel):
@@ -207,65 +157,64 @@ class MarketingChannelSchema(BaseModel):
         ..., description="Types of content for this channel"
     )
     expected_roi: Optional[float] = Field(None, description="Expected ROI")
+    type: str
+    content_strategy: Dict[str, Any]
+    budget_allocation: float
+    success_metrics: Dict[str, Any]
 
 
 class MarketingPlanSchema(BaseModel):
-    """Pydantic model for a marketing plan."""
+    """Schema for marketing plan."""
 
-    id: str = Field(..., description="Unique identifier for the plan")
-    solution_id: str = Field(..., description="ID of the solution")
-    target_audience: List[str] = Field(..., description="Target audience")
-    value_proposition: str = Field(..., description="Value proposition")
-    channels: List[MarketingChannelSchema] = Field(
-        ..., description="Marketing channels"
-    )
-    content_strategy: Optional[Dict[str, Any]] = Field(
-        None, description="Content strategy"
-    )
-    launch_plan: Optional[Dict[str, Any]] = Field(None, description="Launch plan")
+    target_segments: List[Dict[str, Any]]
+    channels: List[Dict[str, Any]]
+    content_strategy: Dict[str, Any]
+    budget_allocation: Dict[str, Any]
+    campaign_schedule: List[Dict[str, Any]]
 
-    class Config:
-        """Configuration for the model."""
 
-        extra = "allow"  # Allow extra fields
+class FeedbackType(str, Enum):
+    """Enumeration of feedback types."""
+
+    FEATURE_REQUEST = "feature_request"
+    BUG_REPORT = "bug_report"
+    USABILITY = "usability"
+    PERFORMANCE = "performance"
+    PRICING = "pricing"
+    OTHER = "other"
 
 
 class FeedbackItemSchema(BaseModel):
-    """Pydantic model for a feedback item."""
+    """Schema for user feedback."""
 
-    id: str = Field(..., description="Unique identifier for the feedback")
-    user_id: str = Field(..., description="ID of the user providing feedback")
-    solution_id: str = Field(..., description="ID of the solution")
-    content: str = Field(..., description="Feedback content")
-    rating: Optional[int] = Field(None, description="Numerical rating", ge=1, le=5)
-    category: Optional[str] = Field(None, description="Feedback category")
-    timestamp: str = Field(..., description="Timestamp of the feedback")
+    user_id: str
+    timestamp: datetime
+    category: str
+    content: str
+    rating: Optional[int] = None
+    sentiment: Optional[str] = None
 
 
 class ProjectStateSchema(BaseModel):
-    """Pydantic model for the project state."""
+    """Schema for project state tracking."""
 
-    id: str = Field(..., description="Unique identifier for the project")
-    name: str = Field(..., description="Name of the project")
-    identified_niches: List[Dict[str, Any]] = Field(
-        default_factory=list, description="Identified niches"
-    )
-    selected_niche: Optional[Dict[str, Any]] = Field(None, description="Selected niche")
-    user_problems: List[Dict[str, Any]] = Field(
-        default_factory=list, description="User problems"
-    )
-    solution_design: Optional[Dict[str, Any]] = Field(
-        None, description="Solution design"
-    )
-    monetization_strategy: Optional[Dict[str, Any]] = Field(
-        None, description="Monetization strategy"
-    )
-    marketing_plan: Optional[Dict[str, Any]] = Field(None, description="Marketing plan")
-    feedback_data: List[Dict[str, Any]] = Field(
-        default_factory=list, description="Feedback data"
-    )
-    created_at: str = Field(..., description="Creation timestamp")
-    updated_at: str = Field(..., description="Last update timestamp")
+    identified_niches: List[Dict[str, Any]] = Field(default_factory=list)
+    selected_niche: Optional[Dict[str, Any]] = None
+    solution_design: Optional[Dict[str, Any]] = None
+    monetization_strategy: Optional[Dict[str, Any]] = None
+    marketing_plan: Optional[Dict[str, Any]] = None
+    feedback_data: List[Dict[str, Any]] = Field(default_factory=list)
+    updated_at: Optional[str] = None
+
+    @validator("updated_at")
+    def validate_timestamp(cls, v):
+        """Validate timestamp format."""
+        if v is not None:
+            try:
+                datetime.fromisoformat(v)
+            except ValueError:
+                raise ValueError("Invalid timestamp format")
+        return v
 
     class Config:
         """Configuration for the model."""

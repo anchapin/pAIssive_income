@@ -5,6 +5,7 @@ This module provides classes and functions for configuring AI models,
 including settings for model paths, cache, and performance options.
 """
 
+import enum
 import os
 import sys
 from dataclasses import asdict, dataclass, field
@@ -18,89 +19,92 @@ from interfaces.model_interfaces import IModelConfig
 from .schemas import ModelConfigSchema
 
 
-@dataclass
-class ModelConfig(IModelConfig):
-    """
-    Configuration for AI models.
-    """
+class ModelType(enum.Enum):
+    """Enum for model types."""
 
-    # Base directories
-    _models_dir: str = field(
-        default_factory=lambda: os.path.join(
-            os.path.expanduser("~"), ".pAIssive_income", "models"
-        )
-    )
-    _cache_dir: str = field(
-        default_factory=lambda: os.path.join(
-            os.path.expanduser("~"), ".pAIssive_income", "cache"
-        )
-    )
+    LLAMA_CPP = "llama_cpp"
+    TRANSFORMERS = "transformers"
+    SENTENCE_TRANSFORMERS = "sentence_transformers"
+    ONNX = "onnx"
+    TENSORRT = "tensorrt"
+    LMSTUDIO = "lmstudio"
+    OLLAMA = "ollama"
+    OPENAI_COMPATIBLE = "openai_compatible"
 
-    # Cache settings
-    cache_enabled: bool = True
-    cache_ttl: int = 86400  # 24 hours in seconds
-    max_cache_size: int = 1000  # Maximum number of items in memory cache
 
-    # Performance settings
-    default_device: str = "auto"  # "auto", "cpu", "cuda", "mps", etc.
-    _max_threads: Optional[int] = None  # None means use all available threads
+class ModelConfig:
+    """Configuration for model loading and management."""
 
-    # Model discovery
-    _auto_discover: bool = True
-    model_sources: List[str] = field(default_factory=lambda: ["local", "huggingface"])
+    def __init__(
+        self,
+        models_dir: str,
+        cache_dir: str,
+        model_sources: Optional[List[str]] = None,
+        auto_discover: bool = True,
+        max_threads: Optional[int] = None,
+    ) -> None:
+        """Initialize model configuration.
 
-    # Default models
-    default_text_model: str = "gpt2"
-    default_embedding_model: str = "all-MiniLM-L6-v2"
-
-    def __post_init__(self):
+        Args:
+            models_dir: Directory containing model files
+            cache_dir: Directory for caching model data
+            model_sources: List of model sources (e.g. ['local', 'huggingface'])
+            auto_discover: Whether to auto-discover models on init
+            max_threads: Maximum number of threads for model loading
         """
-        Create necessary directories after initialization.
-        """
+        self.models_dir = models_dir
+        self.cache_dir = cache_dir
+        self.model_sources = model_sources or ["local"]
+        self.auto_discover = auto_discover
+        self._max_threads = max_threads or os.cpu_count() or 4
+
+        # Create directories if they don't exist
         os.makedirs(self.models_dir, exist_ok=True)
         os.makedirs(self.cache_dir, exist_ok=True)
 
     @property
-    def models_dir(self) -> str:
-        """Get the models directory."""
-        return self._models_dir
-
-    @models_dir.setter
-    def models_dir(self, value: str):
-        """Set the models directory."""
-        self._models_dir = value
-        os.makedirs(self._models_dir, exist_ok=True)
-
-    @property
-    def cache_dir(self) -> str:
-        """Get the cache directory."""
-        return self._cache_dir
-
-    @cache_dir.setter
-    def cache_dir(self, value: str):
-        """Set the cache directory."""
-        self._cache_dir = value
-        os.makedirs(self._cache_dir, exist_ok=True)
-
-    @property
-    def auto_discover(self) -> bool:
-        """Get whether to auto-discover models."""
-        return self._auto_discover
-
-    @auto_discover.setter
-    def auto_discover(self, value: bool):
-        """Set whether to auto-discover models."""
-        self._auto_discover = value
-
-    @property
-    def max_threads(self) -> Optional[int]:
-        """Get the maximum number of threads to use."""
+    def max_threads(self) -> int:
+        """Get maximum number of threads."""
         return self._max_threads
 
-    @max_threads.setter
-    def max_threads(self, value: Optional[int]):
-        """Set the maximum number of threads to use."""
-        self._max_threads = value
+    @property
+    def cache_enabled(self) -> bool:
+        """Get whether caching is enabled."""
+        return True
+
+    @property
+    def cache_ttl(self) -> int:
+        """Get cache time-to-live in seconds."""
+        return 3600  # 1 hour default
+
+    @property
+    def max_cache_size(self) -> int:
+        """Get maximum cache size in bytes."""
+        return 1024 * 1024 * 1024  # 1GB default
+
+    @property
+    def default_device(self) -> str:
+        """Get default device for model inference."""
+        return "cpu"
+
+    @property
+    def default_text_model(self) -> Optional[str]:
+        """Get default text generation model ID."""
+        return None
+
+    @property
+    def default_embedding_model(self) -> Optional[str]:
+        """Get default text embedding model ID."""
+        return None
+
+    @classmethod
+    def get_default(cls) -> "ModelConfig":
+        """Get default configuration."""
+        default_dir = os.path.expanduser("~/.paissive_income")
+        return cls(
+            models_dir=os.path.join(default_dir, "models"),
+            cache_dir=os.path.join(default_dir, "cache"),
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         """

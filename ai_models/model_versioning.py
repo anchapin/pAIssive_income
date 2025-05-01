@@ -45,11 +45,11 @@ class ModelVersion:
         model_id: str,
         timestamp: str = "",
         hash_value: str = "",
-        features: List[str] = None,
-        dependencies: Dict[str, str] = None,
-        is_compatible_with: List[str] = None,
-        metadata: Dict[str, Any] = None,
-    ):
+        features: Optional[List[str]] = None,
+        dependencies: Optional[Dict[str, str]] = None,
+        is_compatible_with: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """
         Initialize a model version.
 
@@ -74,14 +74,14 @@ class ModelVersion:
                 f"Invalid version string: {version}. Must follow semver format (e.g., '1.0.0')"
             ) from e
 
-        self.version = version
-        self.model_id = model_id
-        self.timestamp = timestamp or datetime.now().isoformat()
-        self.hash_value = hash_value
-        self.features = features or []
-        self.dependencies = dependencies or {}
-        self.is_compatible_with = is_compatible_with or []
-        self.metadata = metadata or {}
+        self.version: str = version
+        self.model_id: str = model_id
+        self.timestamp: str = timestamp or datetime.now().isoformat()
+        self.hash_value: str = hash_value
+        self.features: List[str] = features or []
+        self.dependencies: Dict[str, str] = dependencies or {}
+        self.is_compatible_with: List[str] = is_compatible_with or []
+        self.metadata: Dict[str, Any] = metadata or {}
 
     @property
     def major(self) -> int:
@@ -222,14 +222,14 @@ class ModelVersionRegistry:
     Registry for tracking versions of AI models.
     """
 
-    def __init__(self, registry_path: str):
+    def __init__(self, registry_path: str) -> None:
         """
         Initialize the model version registry.
 
         Args:
             registry_path: Path to the registry file
         """
-        self.registry_path = registry_path
+        self.registry_path: str = registry_path
         self.versions: Dict[str, Dict[str, ModelVersion]] = (
             {}
         )  # model_id -> version_str -> ModelVersion
@@ -252,7 +252,7 @@ class ModelVersionRegistry:
 
         try:
             with open(self.registry_path, "r") as f:
-                data = json.load(f)
+                data: Dict[str, Dict[str, Any]] = json.load(f)
 
             for model_id, versions_data in data.items():
                 if model_id not in self.versions:
@@ -546,87 +546,51 @@ class ModelMigrationTool:
     Tool for migrating models between different versions.
     """
 
-    def __init__(self, version_registry: ModelVersionRegistry):
-        """
-        Initialize the model migration tool.
-
-        Args:
-            version_registry: ModelVersionRegistry instance
-        """
-        self.version_registry = version_registry
-        self.migration_functions: Dict[str, Dict[Tuple[str, str], Callable]] = {}
+    def __init__(self, version_registry: ModelVersionRegistry) -> None:
+        self.version_registry: ModelVersionRegistry = version_registry
+        self.migration_functions: Dict[
+            str, Dict[Tuple[str, str], Callable[..., ModelInfo]]
+        ] = {}
+        self.logger: logging.Logger = logging.getLogger(__name__)
 
     def register_migration_function(
         self,
         model_id: str,
         source_version: str,
         target_version: str,
-        migration_fn: Callable,
+        migration_fn: Callable[..., ModelInfo],
     ) -> None:
-        """
-        Register a migration function for a specific model version transition.
-
-        Args:
-            model_id: ID of the model
-            source_version: Source version string
-            target_version: Target version string
-            migration_fn: Function that handles the migration
-        """
         if model_id not in self.migration_functions:
             self.migration_functions[model_id] = {}
 
         self.migration_functions[model_id][
             (source_version, target_version)
         ] = migration_fn
-        logger.info(
+        self.logger.info(
             f"Registered migration function from {source_version} to {target_version} for model {model_id}"
         )
 
     def can_migrate(
         self, model_id: str, source_version: str, target_version: str
     ) -> bool:
-        """
-        Check if migration is possible between two versions.
-
-        Args:
-            model_id: ID of the model
-            source_version: Source version string
-            target_version: Target version string
-
-        Returns:
-            True if migration is possible, False otherwise
-        """
-        # Direct migration path exists
         if (
             model_id in self.migration_functions
             and (source_version, target_version) in self.migration_functions[model_id]
         ):
             return True
 
-        # Find a migration path
         migration_path = self._find_migration_path(
             model_id, source_version, target_version
         )
         return bool(migration_path)
 
     def migrate(
-        self, model_info: ModelInfo, source_version: str, target_version: str, **kwargs
+        self,
+        model_info: ModelInfo,
+        source_version: str,
+        target_version: str,
+        **kwargs: Any,
     ) -> ModelInfo:
-        """
-        Migrate a model from one version to another.
-
-        Args:
-            model_info: ModelInfo instance to migrate
-            source_version: Source version string
-            target_version: Target version string
-            **kwargs: Additional parameters for the migration
-
-        Returns:
-            Updated ModelInfo instance
-
-        Raises:
-            ValueError: If migration is not possible
-        """
         model_id = model_info.id
 
         # Check if direct migration is possible
@@ -634,7 +598,6 @@ class ModelMigrationTool:
             model_id in self.migration_functions
             and (source_version, target_version) in self.migration_functions[model_id]
         ):
-            # Execute direct migration
             migration_fn = self.migration_functions[model_id][
                 (source_version, target_version)
             ]
@@ -650,7 +613,7 @@ class ModelMigrationTool:
                 f"No migration path found from {source_version} to {target_version} for model {model_id}"
             )
 
-        logger.info(
+        self.logger.info(
             f"Found migration path for model {model_id}: {' -> '.join(migration_path)}"
         )
 
@@ -670,28 +633,12 @@ class ModelMigrationTool:
     def _find_migration_path(
         self, model_id: str, source_version: str, target_version: str
     ) -> List[str]:
-        """
-        Find a path of migrations from source to target version.
-
-        Uses breadth-first search to find the shortest path.
-
-        Args:
-            model_id: ID of the model
-            source_version: Source version string
-            target_version: Target version string
-
-        Returns:
-            List of version strings forming a path, or empty list if no path exists
-        """
         if model_id not in self.migration_functions:
             return []
 
-        # Get all available migrations for this model
         migrations = self.migration_functions[model_id]
-
-        # BFS to find shortest path
-        queue = [(source_version, [source_version])]
-        visited = set([source_version])
+        queue: List[Tuple[str, List[str]]] = [(source_version, [source_version])]
+        visited: Set[str] = {source_version}
 
         while queue:
             current_version, path = queue.pop(0)
@@ -713,28 +660,24 @@ class VersionedModelManager:
     Extension of ModelManager that adds versioning capabilities.
     """
 
-    def __init__(self, model_manager, models_dir: str):
-        """
-        Initialize the versioned model manager.
-
-        Args:
-            model_manager: ModelManager instance
-            models_dir: Directory where models are stored
-        """
-        self.model_manager = model_manager
-        self.version_registry = ModelVersionRegistry(
+    def __init__(self, model_manager: Any, models_dir: str) -> None:
+        self.model_manager: Any = model_manager
+        self.version_registry: ModelVersionRegistry = ModelVersionRegistry(
             os.path.join(models_dir, "version_registry.json")
         )
-        self.migration_tool = ModelMigrationTool(self.version_registry)
+        self.migration_tool: ModelMigrationTool = ModelMigrationTool(
+            self.version_registry
+        )
+        self.logger: logging.Logger = logging.getLogger(__name__)
 
     def register_model_version(
         self,
         model_info: ModelInfo,
         version_str: str,
-        features: List[str] = None,
-        dependencies: Dict[str, str] = None,
-        compatibility: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        features: Optional[List[str]] = None,
+        dependencies: Optional[Dict[str, str]] = None,
+        compatibility: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> ModelVersion:
         """
         Register a new version for a model.
@@ -760,7 +703,7 @@ class VersionedModelManager:
         )
 
     def get_model_version(
-        self, model_id: str, version_str: str = None
+        self, model_id: str, version_str: Optional[str] = None
     ) -> Optional[ModelVersion]:
         """
         Get a specific version of a model, or latest if version not specified.
@@ -790,7 +733,7 @@ class VersionedModelManager:
         return self.version_registry.get_all_versions(model_id)
 
     def load_model_version(
-        self, model_id: str, version_str: str = None, **kwargs
+        self, model_id: str, version_str: Optional[str] = None, **kwargs: Any
     ) -> Any:
         """
         Load a specific version of a model.
@@ -831,7 +774,7 @@ class VersionedModelManager:
                 )
 
             if current_hash != version.hash_value:
-                logger.warning(
+                self.logger.warning(
                     f"Model hash mismatch for {model_id} version {version.version}. "
                     f"The model may have been modified since this version was created."
                 )
@@ -844,7 +787,7 @@ class VersionedModelManager:
         model_id: str,
         source_version: str,
         target_version: str,
-        migration_fn: Callable,
+        migration_fn: Callable[..., ModelInfo],
     ) -> None:
         """
         Register a migration function for version transitions.
@@ -863,7 +806,7 @@ class VersionedModelManager:
         )
 
     def migrate_model(
-        self, model_info: ModelInfo, target_version: str, **kwargs
+        self, model_info: ModelInfo, target_version: str, **kwargs: Any
     ) -> ModelInfo:
         """
         Migrate a model to a specific version.

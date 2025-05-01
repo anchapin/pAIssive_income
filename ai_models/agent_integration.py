@@ -482,6 +482,86 @@ class AgentModelProvider:
         return self.fallback_manager.get_fallback_history(limit)
 
 
+from typing import Any, Dict, List, Optional, Type, Union
+
+from .fallbacks import FallbackManager
+from .model_manager import ModelConfig, ModelManager
+
+
+class AgentModelIntegration:
+    """Integrates AI models with agents."""
+
+    def __init__(
+        self,
+        model_manager: ModelManager,
+        model_config: Optional[ModelConfig] = None,
+        fallback_preferences: Optional[Dict[str, List[str]]] = None,
+        max_retries: int = 3,
+    ) -> None:
+        """Initialize agent-model integration.
+
+        Args:
+            model_manager: Model manager instance
+            model_config: Optional model configuration
+            fallback_preferences: Optional fallback preferences per capability
+            max_retries: Maximum number of retries on failure
+        """
+        self.model_manager = model_manager
+        self.model_config = model_config or ModelConfig.get_default()
+        self._fallback_manager = FallbackManager(
+            max_attempts=max_retries, fallback_preferences=fallback_preferences
+        )
+
+    async def get_completion(
+        self, prompt: str, model_id: Optional[str] = None, **kwargs
+    ) -> str:
+        """Get a text completion from an AI model.
+
+        Args:
+            prompt: Input prompt
+            model_id: Optional specific model ID to use
+            **kwargs: Additional arguments for the model
+
+        Returns:
+            Generated text completion
+        """
+
+        # Use fallback manager to handle retries and model switching
+        async def completion_attempt(current_model_id: str) -> str:
+            model = await self.model_manager.load_model_async(current_model_id)
+            return await model.generate_text(prompt, **kwargs)
+
+        return await self._fallback_manager.execute_with_fallbacks(
+            completion_attempt,
+            model_id or self.model_config.default_text_model,
+            capability="text-generation",
+        )
+
+    async def get_embedding(
+        self, text: str, model_id: Optional[str] = None, **kwargs
+    ) -> List[float]:
+        """Get embeddings from an AI model.
+
+        Args:
+            text: Input text
+            model_id: Optional specific model ID to use
+            **kwargs: Additional arguments for the model
+
+        Returns:
+            Text embeddings as list of floats
+        """
+
+        async def embedding_attempt(current_model_id: str) -> List[float]:
+            model = await self.model_manager.load_model_async(current_model_id)
+            return await model.generate_embeddings(text, **kwargs)
+
+        return await self._fallback_manager.execute_with_fallbacks(
+            embedding_attempt,
+            model_id or self.model_config.default_embedding_model,
+            capability="embedding",
+        )
+
+
 # Example usage
 if __name__ == "__main__":
     # Create a model manager
