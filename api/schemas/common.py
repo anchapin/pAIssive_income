@@ -1,7 +1,7 @@
 """
 Common schemas for the API server.
 
-This module provides common Pydantic models for API request and response validation.
+This module provides common schema models used throughout the API.
 """
 
 from typing import Dict, List, Optional, Any, Generic, TypeVar, Union
@@ -19,12 +19,25 @@ class ErrorResponse(BaseModel):
     code: Optional[str] = Field(None, description="Error code")
     path: Optional[str] = Field(None, description="Path where the error occurred")
     timestamp: Optional[str] = Field(None, description="Timestamp of the error")
+    error: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Error details",
+        example={
+            "code": "invalid_request",
+            "message": "Invalid request parameters",
+            "details": {
+                "field": "email",
+                "reason": "Invalid email format"
+            }
+        }
+    )
 
 
 class SuccessResponse(BaseModel):
     """Success response model."""
 
     message: str = Field(..., description="Success message")
+    data: Optional[Dict[str, Any]] = Field(None, description="Additional data")
 
 
 class IdResponse(BaseModel):
@@ -63,7 +76,7 @@ class FilterParam(BaseModel):
     field: str = Field(..., description="Field to filter by")
     operator: FilterOperator = Field(FilterOperator.EQ, description="Filter operator")
     value: Any = Field(..., description="Filter value")
-    
+
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="allow")
 
 
@@ -91,7 +104,7 @@ class QueryParams(BaseModel):
     filters: List[FilterParam] = Field(
         default_factory=list, description="Filter parameters"
     )
-    
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
@@ -103,5 +116,5 @@ class PaginatedResponse(BaseModel, Generic[T]):
     page: int = Field(..., description="Current page number")
     page_size: int = Field(..., description="Number of items per page")
     total_pages: int = Field(..., description="Total number of pages")
-    
+
     model_config = ConfigDict(arbitrary_types_allowed=True)

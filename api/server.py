@@ -4,8 +4,9 @@ RESTful API server for the pAIssive Income project.
 
 import logging
 from typing import List, Optional
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 # Import routers
 from .routes.niche_analysis_router import router as niche_analysis_router
@@ -21,7 +22,11 @@ from .routes.analytics_router import router as analytics_router
 from .routes.developer_router import router as developer_router
 
 # Import middleware
-from .middleware.auth import verify_token
+from .middleware.auth import AuthMiddleware, verify_token
+from .middleware.webhook_security import WebhookIPAllowlistMiddleware, WebhookRateLimitMiddleware
+
+# Import security services
+from .services.webhook_security import WebhookIPAllowlist, WebhookRateLimiter
 
 # Import config
 from .config import APIConfig, APIVersion
@@ -46,6 +51,7 @@ class APIServer:
         )
         self._setup_middleware()
         self._setup_routes()
+        self._setup_exception_handlers()
 
     def _setup_middleware(self) -> None:
         """Set up middleware for the server."""
@@ -57,9 +63,58 @@ class APIServer:
             allow_methods=["*"],
             allow_headers=["*"]
         )
+        
+        # Add security middleware
+        if self.config.enable_auth:
+            # Create security services
+            webhook_ip_allowlist = WebhookIPAllowlist()
+            webhook_rate_limiter = WebhookRateLimiter(limit=100, window_seconds=60)
+            
+            # Configure default allowed IPs for webhooks
+            for ip in self.config.webhook_allowed_ips:
+                webhook_ip_allowlist.add_ip(ip)
+            
+            # Add security middleware
+            self.app.add_middleware(
+                AuthMiddleware,
+                public_paths=["/health", "/version", "/docs", "/redoc", "/openapi.json"]
+            )
+            self.app.add_middleware(
+                WebhookIPAllowlistMiddleware,
+                allowlist=webhook_ip_allowlist,
+                webhook_path_prefix="/api/v1/webhooks"
+            )
+            self.app.add_middleware(
+                WebhookRateLimitMiddleware,
+                rate_limiter=webhook_rate_limiter,
+                webhook_path_prefix="/api/v1/webhooks"
+            )
+
+    def _setup_exception_handlers(self) -> None:
+        """Set up exception handlers for the server."""
+        @self.app.exception_handler(Exception)
+        async def global_exception_handler(request: Request, exc: Exception):
+            """Global exception handler."""
+            logger.error(f"Unhandled exception: {str(exc)}")
+            return JSONResponse(
+                status_code=500,
+                content={"error": {"message": "Internal server error", "details": str(exc)}}
+            )
 
     def _setup_routes(self) -> None:
         """Set up routes for the server."""
+        # Add health check endpoint
+        @self.app.get("/health")
+        async def health_check():
+            """Health check endpoint."""
+            return {"status": "ok"}
+
+        # Add API version endpoint
+        @self.app.get("/version")
+        async def version():
+            """API version endpoint."""
+            return {"version": self.config.version.value}
+            
         # Set up routes for each active version
         for version in self.config.active_versions:
             self._setup_version_routes(version)
@@ -145,6 +200,5 @@ class APIServer:
             self.app.include_router(
                 webhook_router, 
                 prefix=f"{version_prefix}/webhooks", 
-                tags=["Webhooks"],
-                dependencies=[Depends(verify_token)]
+                tags=["Webhooks"]
             )

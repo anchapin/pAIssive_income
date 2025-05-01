@@ -315,3 +315,320 @@ class TestGraphQLAPI:
             validate_field_exists(data, "__schema")
             validate_field_exists(data["__schema"], "types")
             assert len(data["__schema"]["types"]) > 0
+
+    def test_marketing_queries(self, api_test_client: APITestClient):
+        """Test marketing query operations."""
+        # Test getting all marketing strategies
+        query = """
+        query {
+            marketingStrategies(limit: 5) {
+                id
+                name
+                description
+                targetAudience {
+                    demographics
+                    interests
+                    painPoints
+                }
+                channels {
+                    name
+                    priority
+                    contentTypes
+                }
+                goals {
+                    metric
+                    targetValue
+                    timeframe
+                }
+                createdAt
+                updatedAt
+            }
+        }
+        """
+        
+        response = api_test_client.post("graphql", json={"query": query})
+        result = validate_json_response(response)
+        
+        # Validate response structure
+        validate_field_exists(result, "data")
+        validate_field_exists(result["data"], "marketingStrategies")
+        validate_field_type(result["data"]["marketingStrategies"], list)
+        
+        # Test getting specific marketing strategy
+        strategy_id = "test-strategy-id"
+        query = """
+        query($id: ID!) {
+            marketingStrategy(id: $id) {
+                id
+                name
+                description
+                channels {
+                    name
+                    effectivenessScore
+                    costPerLead
+                }
+            }
+        }
+        """
+        
+        response = api_test_client.post(
+            "graphql",
+            json={
+                "query": query,
+                "variables": {"id": strategy_id}
+            }
+        )
+        result = validate_json_response(response)
+        
+        # Validate response structure
+        validate_field_exists(result, "data")
+        validate_field_exists(result["data"], "marketingStrategy")
+        
+        # Test getting marketing channels
+        query = """
+        query {
+            marketingChannels {
+                id
+                name
+                description
+                platforms
+                effectivenessScore
+                costPerLead
+            }
+        }
+        """
+        
+        response = api_test_client.post("graphql", json={"query": query})
+        result = validate_json_response(response)
+        
+        # Validate response structure
+        validate_field_exists(result, "data")
+        validate_field_exists(result["data"], "marketingChannels")
+        validate_field_type(result["data"]["marketingChannels"], list)
+
+    def test_marketing_mutations(self, api_test_client: APITestClient):
+        """Test marketing mutation operations."""
+        # Test creating marketing strategy
+        mutation = """
+        mutation($input: MarketingStrategyInput!) {
+            createMarketingStrategy(input: $input) {
+                id
+                name
+                description
+                targetAudience {
+                    demographics
+                    interests
+                    painPoints
+                }
+                channels {
+                    name
+                    priority
+                    contentTypes
+                }
+                goals {
+                    metric
+                    targetValue
+                    timeframe
+                }
+            }
+        }
+        """
+        
+        variables = {
+            "input": {
+                "name": "Test Strategy",
+                "description": "A test marketing strategy",
+                "targetAudience": {
+                    "demographics": {"ageRange": ["25-34"], "location": ["US"]},
+                    "interests": ["technology", "marketing"],
+                    "painPoints": ["time-consuming content creation"]
+                },
+                "channels": [
+                    {
+                        "name": "social_media",
+                        "priority": "high",
+                        "contentTypes": ["posts", "stories"]
+                    }
+                ],
+                "goals": [
+                    {
+                        "metric": "engagement_rate",
+                        "targetValue": 0.05,
+                        "timeframe": "monthly"
+                    }
+                ]
+            }
+        }
+        
+        response = api_test_client.post(
+            "graphql",
+            json={
+                "query": mutation,
+                "variables": variables
+            }
+        )
+        result = validate_json_response(response)
+        
+        # Validate response structure
+        validate_field_exists(result, "data")
+        validate_field_exists(result["data"], "createMarketingStrategy")
+        strategy = result["data"]["createMarketingStrategy"]
+        if strategy:
+            validate_field_exists(strategy, "id")
+            validate_field_equals(strategy, "name", variables["input"]["name"])
+            validate_field_exists(strategy, "channels")
+            validate_field_type(strategy, "channels", list)
+        
+        # Test updating marketing strategy
+        strategy_id = strategy["id"] if strategy else "test-strategy-id"
+        mutation = """
+        mutation($id: ID!, $input: MarketingStrategyInput!) {
+            updateMarketingStrategy(id: $id, input: $input) {
+                id
+                name
+                description
+                channels {
+                    name
+                    priority
+                    contentTypes
+                }
+            }
+        }
+        """
+        
+        update_variables = {
+            "id": strategy_id,
+            "input": {
+                "name": "Updated Strategy",
+                "description": "An updated test strategy",
+                "channels": [
+                    {
+                        "name": "email",
+                        "priority": "medium",
+                        "contentTypes": ["newsletter", "drip_campaign"]
+                    }
+                ]
+            }
+        }
+        
+        response = api_test_client.post(
+            "graphql",
+            json={
+                "query": mutation,
+                "variables": update_variables
+            }
+        )
+        result = validate_json_response(response)
+        
+        # Validate response structure
+        validate_field_exists(result, "data")
+        validate_field_exists(result["data"], "updateMarketingStrategy")
+        updated = result["data"]["updateMarketingStrategy"]
+        if updated:
+            validate_field_equals(updated, "name", update_variables["input"]["name"])
+        
+        # Test deleting marketing strategy
+        mutation = """
+        mutation($id: ID!) {
+            deleteMarketingStrategy(id: $id)
+        }
+        """
+        
+        response = api_test_client.post(
+            "graphql",
+            json={
+                "query": mutation,
+                "variables": {"id": strategy_id}
+            }
+        )
+        result = validate_json_response(response)
+        
+        # Validate response structure
+        validate_field_exists(result, "data")
+        validate_field_exists(result["data"], "deleteMarketingStrategy")
+        validate_field_type(result["data"]["deleteMarketingStrategy"], bool)
+
+    def test_marketing_error_scenarios(self, api_test_client: APITestClient):
+        """Test error scenarios for marketing operations."""
+        # Test querying non-existent strategy
+        query = """
+        query($id: ID!) {
+            marketingStrategy(id: $id) {
+                id
+                name
+            }
+        }
+        """
+        
+        response = api_test_client.post(
+            "graphql",
+            json={
+                "query": query,
+                "variables": {"id": "non-existent-id"}
+            }
+        )
+        result = validate_json_response(response)
+        
+        # Should return null data without error
+        validate_field_exists(result, "data")
+        validate_field_exists(result["data"], "marketingStrategy")
+        assert result["data"]["marketingStrategy"] is None
+        
+        # Test creating strategy with invalid input
+        mutation = """
+        mutation($input: MarketingStrategyInput!) {
+            createMarketingStrategy(input: $input) {
+                id
+                name
+            }
+        }
+        """
+        
+        response = api_test_client.post(
+            "graphql",
+            json={
+                "query": mutation,
+                "variables": {
+                    "input": {
+                        # Missing required fields
+                        "description": "Invalid strategy"
+                    }
+                }
+            }
+        )
+        result = validate_json_response(response)
+        
+        # Should return validation error
+        validate_field_exists(result, "errors")
+        validate_field_type(result["errors"], list)
+        assert len(result["errors"]) > 0
+        
+        # Test updating non-existent strategy
+        mutation = """
+        mutation($id: ID!, $input: MarketingStrategyInput!) {
+            updateMarketingStrategy(id: $id, input: $input) {
+                id
+                name
+            }
+        }
+        """
+        
+        response = api_test_client.post(
+            "graphql",
+            json={
+                "query": mutation,
+                "variables": {
+                    "id": "non-existent-id",
+                    "input": {
+                        "name": "Test Strategy",
+                        "description": "Test description"
+                    }
+                }
+            }
+        )
+        result = validate_json_response(response)
+        
+        # Should return null data without error
+        validate_field_exists(result, "data")
+        validate_field_exists(result["data"], "updateMarketingStrategy")
+        assert result["data"]["updateMarketingStrategy"] is None

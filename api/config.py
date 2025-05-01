@@ -107,7 +107,7 @@ class APIConfig:
     host: str = "0.0.0.0"
     port: int = 8000
     debug: bool = False
-    title: str = "pAIssive Income API"  
+    title: str = "pAIssive Income API"
     description: str = "RESTful API for pAIssive Income services"
 
     # API configuration
@@ -142,7 +142,7 @@ class APIConfig:
     cors_origins: List[str] = field(default_factory=lambda: ["*"])  # Allow all origins by default
     enable_gzip: bool = True
     enable_https: bool = False
-    enable_auth: bool = False
+    enable_auth: bool = True  # Changed to match main branch default
     enable_rate_limit: bool = False
     enable_analytics: bool = True
 
@@ -158,6 +158,12 @@ class APIConfig:
     webhook_allowed_event_types: List[WebhookEventType] = field(
         default_factory=lambda: list(WebhookEventType)
     )
+    # Adding webhook_allowed_ips from main branch
+    webhook_allowed_ips: List[str] = field(
+        default_factory=lambda: ["192.0.2.1", "192.0.2.2", "192.0.2.3", "192.0.2.4"]
+    )
+    webhook_rate_limit: int = 100  # From main branch
+    webhook_rate_limit_window: int = 60  # From main branch
 
     # Analytics configuration
     analytics_db_path: Optional[str] = (
@@ -229,3 +235,7 @@ class APIConfig:
     # Logging configuration
     log_level: str = "INFO"
     log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+
+# Default configuration
+default_config = APIConfig()

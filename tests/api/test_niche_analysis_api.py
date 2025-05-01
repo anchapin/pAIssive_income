@@ -296,3 +296,174 @@ class TestNicheAnalysisAPI:
         
         # Validate error response
         validate_error_response(response, 404)  # Not Found
+
+    def test_update_niche(self, api_test_client: APITestClient):
+        """Test updating a niche."""
+        # Generate a random ID and test data
+        niche_id = generate_id()
+        data = {
+            "name": "Updated AI Assistant Niche",
+            "description": "Updated description for AI assistant tools",
+            "market_segments": ["productivity", "software-development", "content-creation"],
+            "target_audience": ["developers", "content creators", "knowledge workers"],
+            "opportunity_score_threshold": 0.8,
+            "metadata": {
+                "complexity": "medium",
+                "implementation_time": "3-6 months",
+                "initial_investment": "medium"
+            }
+        }
+
+        # Make request
+        response = api_test_client.put(f"niche-analysis/niches/{niche_id}", data)
+
+        # This might return 404 if the niche doesn't exist, which is fine for testing
+        if response.status_code == 404:
+            validate_error_response(response, 404)
+        else:
+            result = validate_success_response(response)
+
+            # Validate fields
+            validate_field_exists(result, "id")
+            validate_field_equals(result, "id", niche_id)
+            validate_field_exists(result, "name")
+            validate_field_equals(result, "name", data["name"])
+            validate_field_exists(result, "description")
+            validate_field_equals(result, "description", data["description"])
+            validate_field_exists(result, "market_segments")
+            validate_field_type(result, "market_segments", list)
+            for segment in data["market_segments"]:
+                validate_list_contains(result["market_segments"], segment)
+            validate_field_exists(result, "target_audience")
+            validate_field_type(result, "target_audience", list)
+            validate_field_exists(result, "opportunity_score")
+            assert isinstance(result["opportunity_score"], (int, float))
+            validate_field_exists(result, "metadata")
+            validate_field_type(result, "metadata", dict)
+            validate_field_exists(result, "updated_at")
+            validate_field_type(result, "updated_at", str)
+
+    def test_delete_niche(self, api_test_client: APITestClient):
+        """Test deleting a niche."""
+        # Generate a random ID
+        niche_id = generate_id()
+
+        # Make request
+        response = api_test_client.delete(f"niche-analysis/niches/{niche_id}")
+
+        # This might return 404 if the niche doesn't exist, which is fine for testing
+        if response.status_code == 404:
+            validate_error_response(response, 404)
+        else:
+            validate_success_response(response, 204)  # No Content
+
+    def test_bulk_update_niches(self, api_test_client: APITestClient):
+        """Test bulk updating niches."""
+        # Generate test data for multiple niches
+        niches = [
+            {
+                "id": generate_id(),
+                "name": f"Updated Niche {i}",
+                "description": f"Updated description for niche {i}",
+                "market_segments": ["segment-1", "segment-2"],
+                "opportunity_score_threshold": 0.7 + (i * 0.1)
+            }
+            for i in range(3)
+        ]
+
+        # Make request
+        response = api_test_client.bulk_update("niche-analysis/niches", niches)
+
+        # Validate response
+        result = validate_bulk_response(response)
+
+        # Validate stats
+        validate_field_exists(result, "stats")
+        validate_field_exists(result["stats"], "total")
+        validate_field_equals(result["stats"], "total", len(niches))
+        validate_field_exists(result["stats"], "updated")
+        validate_field_exists(result["stats"], "failed")
+        assert result["stats"]["updated"] + result["stats"]["failed"] == len(niches)
+
+        # Validate updated items
+        validate_field_exists(result, "items")
+        validate_field_type(result, "items", list)
+        for item in result["items"]:
+            validate_field_exists(item, "id")
+            validate_field_exists(item, "success")
+            if item["success"]:
+                validate_field_exists(item, "data")
+                validate_field_type(item, "data", dict)
+                validate_field_exists(item["data"], "name")
+                validate_field_exists(item["data"], "description")
+                validate_field_exists(item["data"], "market_segments")
+                validate_field_exists(item["data"], "opportunity_score")
+            else:
+                validate_field_exists(item, "error")
+                validate_field_type(item, "error", dict)
+
+    def test_bulk_delete_niches(self, api_test_client: APITestClient):
+        """Test bulk deleting niches."""
+        # Generate niche IDs to delete
+        niche_ids = [generate_id() for _ in range(3)]
+
+        # Make request
+        response = api_test_client.bulk_delete("niche-analysis/niches", niche_ids)
+
+        # Validate response
+        result = validate_bulk_response(response)
+
+        # Validate stats
+        validate_field_exists(result, "stats")
+        validate_field_exists(result["stats"], "total")
+        validate_field_equals(result["stats"], "total", len(niche_ids))
+        validate_field_exists(result["stats"], "deleted")
+        validate_field_exists(result["stats"], "failed")
+        assert result["stats"]["deleted"] + result["stats"]["failed"] == len(niche_ids)
+
+        # Validate results for each ID
+        validate_field_exists(result, "items")
+        validate_field_type(result, "items", list)
+        for item in result["items"]:
+            validate_field_exists(item, "id")
+            validate_field_exists(item, "success")
+            if not item["success"]:
+                validate_field_exists(item, "error")
+                validate_field_type(item, "error", dict)
+
+    def test_invalid_niche_operations(self, api_test_client: APITestClient):
+        """Test invalid niche operations."""
+        # Test invalid niche update
+        niche_id = generate_id()
+        response = api_test_client.put(f"niche-analysis/niches/{niche_id}", {
+            "name": "",  # Empty name
+            "market_segments": "invalid"  # Should be a list
+        })
+        validate_error_response(response, 422)  # Unprocessable Entity
+
+        # Test update with nonexistent ID
+        response = api_test_client.put("niche-analysis/niches/nonexistent-id", {
+            "name": "Valid Name",
+            "market_segments": ["valid-segment"]
+        })
+        validate_error_response(response, 404)  # Not Found
+
+        # Test bulk operations with empty lists
+        response = api_test_client.bulk_update("niche-analysis/niches", [])
+        validate_error_response(response, 422)
+
+        response = api_test_client.bulk_delete("niche-analysis/niches", [])
+        validate_error_response(response, 422)
+
+        # Test bulk operations with invalid data
+        response = api_test_client.bulk_update("niche-analysis/niches", [
+            {"id": "invalid-id"},  # Missing required fields
+            {"name": "No ID"}  # Missing ID
+        ])
+        validate_error_response(response, 422)
+
+        # Test bulk delete with invalid IDs
+        response = api_test_client.bulk_delete("niche-analysis/niches", 
+                                             ["invalid-id-1", "invalid-id-2"])
+        result = validate_bulk_response(response)
+        validate_field_equals(result["stats"], "failed", 2)
