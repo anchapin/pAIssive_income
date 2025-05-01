@@ -9,24 +9,16 @@ from typing import Dict, Any, List
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import generate_id, generate_marketing_strategy_data
+from tests.api.utils.test_data import (
+    generate_id, generate_marketing_strategy_data
+)
 from tests.api.utils.test_validators import (
-    validate_status_code,
-    validate_json_response,
-    validate_error_response,
-    validate_success_response,
-    validate_paginated_response,
-    validate_bulk_response,
-    validate_field_exists,
-    validate_field_equals,
-    validate_field_type,
-    validate_field_not_empty,
-    validate_list_not_empty,
-    validate_list_length,
-    validate_list_min_length,
-    validate_list_max_length,
-    validate_list_contains,
-    validate_list_contains_dict_with_field,
+    validate_status_code, validate_json_response, validate_error_response,
+    validate_success_response, validate_paginated_response, validate_bulk_response,
+    validate_field_exists, validate_field_equals, validate_field_type,
+    validate_field_not_empty, validate_list_not_empty, validate_list_length,
+    validate_list_min_length, validate_list_max_length, validate_list_contains,
+    validate_list_contains_dict_with_field
 )
 
 
@@ -178,21 +170,17 @@ class TestMarketingAPI:
             "topic": "How AI Can Improve Your Business",
             "target_audience": "small business owners",
             "tone": "informative",
-            "length": "medium",
+            "length": "medium"
         }
 
         # Make request
-        response = api_test_client.post(
-            f"marketing/strategies/{strategy_id}/content", data
-        )
+        response = api_test_client.post(f"marketing/strategies/{strategy_id}/content", data)
 
         # This might return 404 if the strategy doesn't exist, which is fine for testing
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
-            result = validate_success_response(
-                response, 202
-            )  # Accepted (async operation)
+            result = validate_success_response(response, 202)  # Accepted (async operation)
 
             # Validate fields
             validate_field_exists(result, "task_id")
@@ -225,8 +213,8 @@ class TestMarketingAPI:
                 "filter": "content_types:contains:blog_posts",
                 "sort": "created_at:desc",
                 "page": 1,
-                "page_size": 10,
-            },
+                "page_size": 10
+            }
         )
 
         # Validate response
@@ -259,3 +247,166 @@ class TestMarketingAPI:
 
         # Validate error response
         validate_error_response(response, 404)  # Not Found
+
+    def test_create_campaign(self, api_test_client: APITestClient):
+        """Test creating a marketing campaign."""
+        # Generate test data
+        data = {
+            "name": "Test Campaign",
+            "description": "A test marketing campaign",
+            "strategy_id": generate_id(),
+            "start_date": "2025-05-01",
+            "end_date": "2025-05-31",
+            "budget": 1000.00,
+            "channels": ["social_media", "email", "content"],
+            "target_audience": {
+                "demographics": {
+                    "age_range": ["25-34", "35-44"],
+                    "locations": ["US", "UK"],
+                    "interests": ["technology", "business"]
+                },
+                "behavior": {
+                    "purchase_history": ["software", "online_courses"],
+                    "engagement_level": "high"
+                }
+            },
+            "goals": {
+                "metrics": ["conversions", "engagement", "reach"],
+                "targets": {
+                    "conversions": 100,
+                    "engagement_rate": 0.05,
+                    "reach": 10000
+                }
+            }
+        }
+
+        # Make request
+        response = api_test_client.post("marketing/campaigns", data)
+
+        # Validate response
+        result = validate_success_response(response, 201)  # Created
+
+        # Validate fields
+        validate_field_exists(result, "id")
+        validate_field_type(result, "id", str)
+        validate_field_not_empty(result, "id")
+        validate_field_exists(result, "name")
+        validate_field_equals(result, "name", data["name"])
+        validate_field_exists(result, "description")
+        validate_field_equals(result, "description", data["description"])
+        validate_field_exists(result, "strategy_id")
+        validate_field_equals(result, "strategy_id", data["strategy_id"])
+        validate_field_exists(result, "status")
+        validate_field_equals(result, "status", "draft")
+        validate_field_exists(result, "budget")
+        validate_field_equals(result, "budget", data["budget"])
+        validate_field_exists(result, "channels")
+        validate_field_type(result, "channels", list)
+        validate_field_exists(result, "target_audience")
+        validate_field_type(result, "target_audience", dict)
+        validate_field_exists(result, "goals")
+        validate_field_type(result, "goals", dict)
+
+    def test_get_campaign(self, api_test_client: APITestClient):
+        """Test getting a specific campaign."""
+        # Generate a random ID
+        campaign_id = generate_id()
+
+        # Make request
+        response = api_test_client.get(f"marketing/campaigns/{campaign_id}")
+
+        # This might return 404 if the campaign doesn't exist
+        if response.status_code == 404:
+            validate_error_response(response, 404)
+        else:
+            result = validate_success_response(response)
+
+            # Validate fields
+            validate_field_exists(result, "id")
+            validate_field_equals(result, "id", campaign_id)
+            validate_field_exists(result, "name")
+            validate_field_type(result, "name", str)
+            validate_field_exists(result, "status")
+            validate_field_type(result, "status", str)
+            validate_field_exists(result, "metrics")
+            validate_field_type(result, "metrics", dict)
+            validate_field_exists(result, "created_at")
+            validate_field_type(result, "created_at", str)
+            validate_field_exists(result, "updated_at")
+            validate_field_type(result, "updated_at", str)
+
+    def test_update_campaign_status(self, api_test_client: APITestClient):
+        """Test updating a campaign's status."""
+        # Generate a random ID
+        campaign_id = generate_id()
+
+        # Generate test data
+        data = {
+            "status": "active",
+            "activation_date": "2025-05-01T00:00:00Z"
+        }
+
+        # Make request
+        response = api_test_client.patch(f"marketing/campaigns/{campaign_id}/status", data)
+
+        # This might return 404 if the campaign doesn't exist
+        if response.status_code == 404:
+            validate_error_response(response, 404)
+        else:
+            result = validate_success_response(response)
+
+            # Validate fields
+            validate_field_exists(result, "id")
+            validate_field_equals(result, "id", campaign_id)
+            validate_field_exists(result, "status")
+            validate_field_equals(result, "status", data["status"])
+            validate_field_exists(result, "activation_date")
+            validate_field_equals(result, "activation_date", data["activation_date"])
+
+    def test_get_campaign_metrics(self, api_test_client: APITestClient):
+        """Test getting campaign metrics."""
+        # Generate a random ID
+        campaign_id = generate_id()
+
+        # Make request
+        response = api_test_client.get(
+            f"marketing/campaigns/{campaign_id}/metrics",
+            params={
+                "start_date": "2025-05-01",
+                "end_date": "2025-05-31",
+                "metrics": ["conversions", "engagement", "reach"]
+            }
+        )
+
+        # This might return 404 if the campaign doesn't exist
+        if response.status_code == 404:
+            validate_error_response(response, 404)
+        else:
+            result = validate_success_response(response)
+
+            # Validate fields
+            validate_field_exists(result, "campaign_id")
+            validate_field_equals(result, "campaign_id", campaign_id)
+            validate_field_exists(result, "period")
+            validate_field_type(result, "period", dict)
+            validate_field_exists(result, "metrics")
+            validate_field_type(result, "metrics", dict)
+
+            # Validate metric values
+            metrics = result["metrics"]
+            validate_field_exists(metrics, "conversions")
+            assert isinstance(metrics["conversions"], int)
+            validate_field_exists(metrics, "engagement")
+            assert isinstance(metrics["engagement"], (int, float))
+            validate_field_exists(metrics, "reach")
+            assert isinstance(metrics["reach"], int)
+
+            # Validate time series data if available
+            if "time_series" in result:
+                validate_field_type(result, "time_series", list)
+                if result["time_series"]:
+                    data_point = result["time_series"][0]
+                    validate_field_exists(data_point, "date")
+                    validate_field_type(data_point, "date", str)
+                    validate_field_exists(data_point, "metrics")
+                    validate_field_type(data_point, "metrics", dict)

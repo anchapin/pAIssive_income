@@ -185,6 +185,147 @@ class TestMeteredBilling(unittest.TestCase):
         # Should be adjusted to maximum
         self.assertEqual(invoice["total_amount"], 20.0)
 
+    def test_usage_tracking_across_intervals(self):
+        """Test tracking usage across different billing intervals."""
+        customer_id = "customer123"
+        now = datetime.now()
+
+        # Test hourly aggregation
+        self.model.set_metering_interval(MeteringInterval.HOURLY)
+        hourly_usage = [
+            {"time": now - timedelta(minutes=30), "quantity": 50},
+            {"time": now - timedelta(minutes=45), "quantity": 30},
+            {"time": now - timedelta(minutes=15), "quantity": 20}
+        ]
+
+        # Mock usage tracker for hourly data
+        self.usage_tracker.get_usage_summary.return_value = {
+            "total": 100,
+            "grouped": {UsageMetric.API_CALL: {"quantity": 100}}
+        }
+
+        # Track hourly usage
+        for usage in hourly_usage:
+            self.model.track_usage_and_bill(
+                customer_id=customer_id,
+                metric=UsageMetric.API_CALL,
+                quantity=usage["quantity"],
+                category=UsageCategory.INFERENCE,
+                metadata={"timestamp": usage["time"]}
+            )
+
+        # Verify hourly aggregation
+        cost = self.model.calculate_current_usage_cost(customer_id=customer_id)
+        self.assertEqual(cost["total"], 1.23)  # Based on mocked calculator
+
+        # Test daily aggregation
+        self.model.set_metering_interval(MeteringInterval.DAILY)
+        daily_usage = [
+            {"time": now - timedelta(hours=1), "quantity": 100},
+            {"time": now - timedelta(hours=2), "quantity": 150},
+            {"time": now - timedelta(hours=3), "quantity": 250}
+        ]
+
+        # Mock usage tracker for daily data
+        self.usage_tracker.get_usage_summary.return_value = {
+            "total": 500,
+            "grouped": {UsageMetric.API_CALL: {"quantity": 500}}
+        }
+
+        # Track daily usage
+        for usage in daily_usage:
+            self.model.track_usage_and_bill(
+                customer_id=customer_id,
+                metric=UsageMetric.API_CALL,
+                quantity=usage["quantity"],
+                category=UsageCategory.INFERENCE,
+                metadata={"timestamp": usage["time"]}
+            )
+
+        # Verify daily aggregation
+        cost = self.model.calculate_current_usage_cost(customer_id=customer_id)
+        self.assertEqual(cost["total"], 1.23)  # Based on mocked calculator
+
+    def test_interval_boundary_conditions(self):
+        """Test usage tracking at interval boundaries."""
+        customer_id = "customer123"
+        now = datetime.now()
+
+        # Test interval transition
+        self.model.set_metering_interval(MeteringInterval.HOURLY)
+        
+        # Mock for first hour
+        self.billing_calculator.calculate_usage_cost.return_value = {
+            "total": 1.23,
+            "breakdown": {UsageMetric.API_CALL: 1.23}
+        }
+
+        # Track usage just before interval end
+        result1 = self.model.track_usage_and_bill(
+            customer_id=customer_id,
+            metric=UsageMetric.API_CALL,
+            quantity=50,
+            category=UsageCategory.INFERENCE,
+            metadata={"timestamp": now - timedelta(seconds=10)}
+        )
+
+        # Mock for second hour
+        self.billing_calculator.calculate_usage_cost.return_value = {
+            "total": 2.46,
+            "breakdown": {UsageMetric.API_CALL: 2.46}
+        }
+
+        # Track usage just after interval start
+        result2 = self.model.track_usage_and_bill(
+            customer_id=customer_id,
+            metric=UsageMetric.API_CALL,
+            quantity=50,
+            category=UsageCategory.INFERENCE,
+            metadata={"timestamp": now + timedelta(seconds=10)}
+        )
+
+        # Verify correct interval handling
+        self.assertNotEqual(result1["current_cost"], result2["current_cost"])
+        self.assertEqual(result1["current_cost"], 1.23)
+        self.assertEqual(result2["current_cost"], 2.46)
+
+    def test_partial_interval_proration(self):
+        """Test proration for partial billing intervals."""
+        customer_id = "customer123"
+        now = datetime.now()
+
+        # Enable proration
+        self.model.prorate_partial_periods = True
+        self.model.set_metering_interval(MeteringInterval.MONTHLY)
+
+        # Set up a mid-month billing period
+        mid_month_start = datetime(now.year, now.month, 15)
+        next_month = mid_month_start + timedelta(days=30)
+        next_month_start = datetime(next_month.year, next_month.month, 1)
+
+        self.model.set_custom_billing_period(
+            customer_id=customer_id,
+            start_time=mid_month_start,
+            end_time=next_month_start
+        )
+
+        # Mock the billing calculator for prorated amount
+        self.billing_calculator.calculate_usage_cost.return_value = {
+            "total": 0.615,  # Half of normal monthly rate
+            "breakdown": {UsageMetric.API_CALL: 0.615}
+        }
+
+        # Track usage in partial period
+        result = self.model.track_usage_and_bill(
+            customer_id=customer_id,
+            metric=UsageMetric.API_CALL,
+            quantity=50,
+            category=UsageCategory.INFERENCE
+        )
+
+        # Verify prorated billing
+        self.assertEqual(result["current_cost"], 0.615)  # Should be half of the normal 1.23 rate
+
 
 if __name__ == "__main__":
     unittest.main()

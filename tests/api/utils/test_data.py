@@ -343,3 +343,36 @@ def generate_webhook_data() -> Dict[str, Any]:
         "is_active": random.choice([True, False]),
         "secret": generate_string(16),
     }
+
+
+def generate_solution_data() -> Dict[str, Any]:
+    """Generate test data for a solution."""
+    return {
+        "name": f"Test Solution {generate_id()}",
+        "description": "A test solution for automated testing",
+        "tech_stack": ["python", "fastapi", "react", "postgresql"],
+        "niche_id": generate_id(),
+        "template_id": generate_id(),
+        "requirements": {
+            "features": ["user_auth", "api", "database"],
+            "scalability": "medium",
+            "deployment": "cloud"
+        }
+    }
+
+
+def generate_template_data() -> Dict[str, Any]:
+    """Generate test data for a template."""
+    return {
+        "name": f"Test Template {generate_id()}",
+        "description": "A test template for automated testing",
+        "tech_stack": ["python", "fastapi", "react", "postgresql"],
+        "features": ["user_auth", "api", "database"],
+        "complexity": "medium",
+        "estimated_time": "2-4 weeks",
+        "requirements": {
+            "min_experience": "intermediate",
+            "team_size": "1-3",
+            "tools": ["git", "docker", "vscode"]
+        }
+    }

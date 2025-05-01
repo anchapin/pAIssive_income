@@ -5,12 +5,8 @@ Tests for the query parameter utilities.
 import unittest
 from typing import Dict, Any, List
 from api.utils.query_params import (
-    QueryParams,
-    apply_pagination,
-    apply_filtering,
-    apply_sorting,
-    SortDirection,
-    FilterOperator,
+    QueryParams, apply_pagination, apply_filtering, apply_sorting,
+    SortDirection, FilterOperator
 )
 
 
@@ -37,7 +33,7 @@ class TestQueryParams(unittest.TestCase):
             sort_by="name",
             sort_dir=SortDirection.DESC,
             filters={"name": "test"},
-            filter_operators={"name": FilterOperator.EQ},
+            filter_operators={"name": FilterOperator.EQ}
         )
         self.assertEqual(params.page, 2)
         self.assertEqual(params.page_size, 20)
@@ -59,7 +55,7 @@ class TestQueryParams(unittest.TestCase):
             "page": "2",
             "page_size": "20",
             "sort_by": "name",
-            "sort_dir": "desc",
+            "sort_dir": "desc"
         }
         params = QueryParams.from_request(request_params)
         self.assertEqual(params.page, 2)
@@ -72,7 +68,7 @@ class TestQueryParams(unittest.TestCase):
             "filter[name]": "test",
             "filter[age][gt]": "18",
             "filter[active]": "true",
-            "filter[score][gte]": "4.5",
+            "filter[score][gte]": "4.5"
         }
         params = QueryParams.from_request(request_params)
         self.assertEqual(params.filters["name"], "test")
@@ -88,12 +84,12 @@ class TestQueryParams(unittest.TestCase):
         request_params = {
             "sort_by": "name",
             "filter[name]": "test",
-            "filter[age]": "18",
+            "filter[age]": "18"
         }
         params = QueryParams.from_request(
             request_params,
             allowed_sort_fields=["name", "created_at"],
-            allowed_filter_fields=["name"],
+            allowed_filter_fields=["name"]
         )
         self.assertEqual(params.sort_by, "name")
         self.assertEqual(params.filters, {"name": "test"})
@@ -102,7 +98,8 @@ class TestQueryParams(unittest.TestCase):
         # Test invalid sort field
         request_params = {"sort_by": "invalid"}
         params = QueryParams.from_request(
-            request_params, allowed_sort_fields=["name", "created_at"]
+            request_params,
+            allowed_sort_fields=["name", "created_at"]
         )
         self.assertIsNone(params.sort_by)
 
@@ -151,41 +148,18 @@ class TestFiltering(unittest.TestCase):
     def setUp(self):
         """Set up test data."""
         self.items = [
-            {
-                "id": 1,
-                "name": "Item 1",
-                "price": 10.5,
-                "active": True,
-                "tags": ["a", "b"],
-            },
-            {
-                "id": 2,
-                "name": "Item 2",
-                "price": 20.0,
-                "active": False,
-                "tags": ["b", "c"],
-            },
-            {
-                "id": 3,
-                "name": "Test 3",
-                "price": 15.0,
-                "active": True,
-                "tags": ["a", "c"],
-            },
+            {"id": 1, "name": "Item 1", "price": 10.5, "active": True, "tags": ["a", "b"]},
+            {"id": 2, "name": "Item 2", "price": 20.0, "active": False, "tags": ["b", "c"]},
+            {"id": 3, "name": "Test 3", "price": 15.0, "active": True, "tags": ["a", "c"]},
             {"id": 4, "name": "Test 4", "price": 25.5, "active": True, "tags": ["d"]},
-            {
-                "id": 5,
-                "name": "Item 5",
-                "price": 5.0,
-                "active": False,
-                "tags": ["a", "b", "c"],
-            },
+            {"id": 5, "name": "Item 5", "price": 5.0, "active": False, "tags": ["a", "b", "c"]}
         ]
 
     def test_apply_filtering_eq(self):
         """Test filtering with EQ operator."""
         params = QueryParams(
-            filters={"active": True}, filter_operators={"active": FilterOperator.EQ}
+            filters={"active": True},
+            filter_operators={"active": FilterOperator.EQ}
         )
         filtered = apply_filtering(self.items, params)
         self.assertEqual(len(filtered), 3)
@@ -194,7 +168,8 @@ class TestFiltering(unittest.TestCase):
     def test_apply_filtering_neq(self):
         """Test filtering with NEQ operator."""
         params = QueryParams(
-            filters={"active": True}, filter_operators={"active": FilterOperator.NEQ}
+            filters={"active": True},
+            filter_operators={"active": FilterOperator.NEQ}
         )
         filtered = apply_filtering(self.items, params)
         self.assertEqual(len(filtered), 2)
@@ -203,7 +178,8 @@ class TestFiltering(unittest.TestCase):
     def test_apply_filtering_gt(self):
         """Test filtering with GT operator."""
         params = QueryParams(
-            filters={"price": 15.0}, filter_operators={"price": FilterOperator.GT}
+            filters={"price": 15.0},
+            filter_operators={"price": FilterOperator.GT}
         )
         filtered = apply_filtering(self.items, params)
         self.assertEqual(len(filtered), 2)
@@ -212,7 +188,8 @@ class TestFiltering(unittest.TestCase):
     def test_apply_filtering_gte(self):
         """Test filtering with GTE operator."""
         params = QueryParams(
-            filters={"price": 15.0}, filter_operators={"price": FilterOperator.GTE}
+            filters={"price": 15.0},
+            filter_operators={"price": FilterOperator.GTE}
         )
         filtered = apply_filtering(self.items, params)
         self.assertEqual(len(filtered), 3)
@@ -221,7 +198,8 @@ class TestFiltering(unittest.TestCase):
     def test_apply_filtering_lt(self):
         """Test filtering with LT operator."""
         params = QueryParams(
-            filters={"price": 15.0}, filter_operators={"price": FilterOperator.LT}
+            filters={"price": 15.0},
+            filter_operators={"price": FilterOperator.LT}
         )
         filtered = apply_filtering(self.items, params)
         self.assertEqual(len(filtered), 2)
@@ -230,7 +208,8 @@ class TestFiltering(unittest.TestCase):
     def test_apply_filtering_lte(self):
         """Test filtering with LTE operator."""
         params = QueryParams(
-            filters={"price": 15.0}, filter_operators={"price": FilterOperator.LTE}
+            filters={"price": 15.0},
+            filter_operators={"price": FilterOperator.LTE}
         )
         filtered = apply_filtering(self.items, params)
         self.assertEqual(len(filtered), 3)
@@ -239,7 +218,8 @@ class TestFiltering(unittest.TestCase):
     def test_apply_filtering_contains(self):
         """Test filtering with CONTAINS operator."""
         params = QueryParams(
-            filters={"name": "Test"}, filter_operators={"name": FilterOperator.CONTAINS}
+            filters={"name": "Test"},
+            filter_operators={"name": FilterOperator.CONTAINS}
         )
         filtered = apply_filtering(self.items, params)
         self.assertEqual(len(filtered), 2)
@@ -249,7 +229,7 @@ class TestFiltering(unittest.TestCase):
         """Test filtering with STARTS_WITH operator."""
         params = QueryParams(
             filters={"name": "Item"},
-            filter_operators={"name": FilterOperator.STARTS_WITH},
+            filter_operators={"name": FilterOperator.STARTS_WITH}
         )
         filtered = apply_filtering(self.items, params)
         self.assertEqual(len(filtered), 3)
@@ -258,7 +238,8 @@ class TestFiltering(unittest.TestCase):
     def test_apply_filtering_ends_with(self):
         """Test filtering with ENDS_WITH operator."""
         params = QueryParams(
-            filters={"name": "3"}, filter_operators={"name": FilterOperator.ENDS_WITH}
+            filters={"name": "3"},
+            filter_operators={"name": FilterOperator.ENDS_WITH}
         )
         filtered = apply_filtering(self.items, params)
         self.assertEqual(len(filtered), 1)
@@ -268,14 +249,14 @@ class TestFiltering(unittest.TestCase):
         """Test filtering with multiple conditions."""
         params = QueryParams(
             filters={"name": "Item", "price": 10.0},
-            filter_operators={
-                "name": FilterOperator.STARTS_WITH,
-                "price": FilterOperator.GT,
-            },
+            filter_operators={"name": FilterOperator.STARTS_WITH, "price": FilterOperator.GT}
         )
         filtered = apply_filtering(self.items, params)
-        self.assertEqual(len(filtered), 1)
-        self.assertEqual([item["id"] for item in filtered], [2])
+        # Items 1, 2, and 5 have names starting with "Item"
+        # Items 1, 2, 3, and 4 have prices > 10.0 (note: 10.5 > 10.0)
+        # Therefore, items 1 and 2 match both conditions
+        self.assertEqual(len(filtered), 2)
+        self.assertEqual(sorted([item["id"] for item in filtered]), [1, 2])
 
 
 class TestSorting(unittest.TestCase):
@@ -288,42 +269,36 @@ class TestSorting(unittest.TestCase):
             {"id": 2, "name": "Item A", "price": 20.0, "active": False},
             {"id": 3, "name": "Item E", "price": 15.0, "active": True},
             {"id": 4, "name": "Item B", "price": 25.5, "active": True},
-            {"id": 5, "name": "Item D", "price": 5.0, "active": False},
+            {"id": 5, "name": "Item D", "price": 5.0, "active": False}
         ]
 
     def test_apply_sorting_asc(self):
         """Test sorting in ascending order."""
         params = QueryParams(sort_by="name", sort_dir=SortDirection.ASC)
         sorted_items = apply_sorting(self.items, params)
-        self.assertEqual(
-            [item["name"] for item in sorted_items],
-            ["Item A", "Item B", "Item C", "Item D", "Item E"],
-        )
+        self.assertEqual([item["name"] for item in sorted_items],
+                         ["Item A", "Item B", "Item C", "Item D", "Item E"])
 
     def test_apply_sorting_desc(self):
         """Test sorting in descending order."""
         params = QueryParams(sort_by="name", sort_dir=SortDirection.DESC)
         sorted_items = apply_sorting(self.items, params)
-        self.assertEqual(
-            [item["name"] for item in sorted_items],
-            ["Item E", "Item D", "Item C", "Item B", "Item A"],
-        )
+        self.assertEqual([item["name"] for item in sorted_items],
+                         ["Item E", "Item D", "Item C", "Item B", "Item A"])
 
     def test_apply_sorting_numeric(self):
         """Test sorting numeric values."""
         params = QueryParams(sort_by="price", sort_dir=SortDirection.ASC)
         sorted_items = apply_sorting(self.items, params)
-        self.assertEqual(
-            [item["price"] for item in sorted_items], [5.0, 10.5, 15.0, 20.0, 25.5]
-        )
+        self.assertEqual([item["price"] for item in sorted_items],
+                         [5.0, 10.5, 15.0, 20.0, 25.5])
 
     def test_apply_sorting_boolean(self):
         """Test sorting boolean values."""
         params = QueryParams(sort_by="active", sort_dir=SortDirection.ASC)
         sorted_items = apply_sorting(self.items, params)
-        self.assertEqual(
-            [item["active"] for item in sorted_items], [False, False, True, True, True]
-        )
+        self.assertEqual([item["active"] for item in sorted_items],
+                         [False, False, True, True, True])
 
     def test_apply_sorting_none(self):
         """Test sorting with None values."""
@@ -332,24 +307,20 @@ class TestSorting(unittest.TestCase):
             {"id": 2, "name": None, "price": 20.0},
             {"id": 3, "name": "Item B", "price": None},
             {"id": 4, "name": "Item C", "price": 25.5},
-            {"id": 5, "name": None, "price": None},
+            {"id": 5, "name": None, "price": None}
         ]
 
         # Test sorting with None values (ascending)
         params = QueryParams(sort_by="name", sort_dir=SortDirection.ASC)
         sorted_items = apply_sorting(items, params)
-        self.assertEqual(
-            [item["name"] for item in sorted_items],
-            ["Item A", "Item B", "Item C", None, None],
-        )
+        self.assertEqual([item["name"] for item in sorted_items],
+                         ["Item A", "Item B", "Item C", None, None])
 
         # Test sorting with None values (descending)
         params = QueryParams(sort_by="name", sort_dir=SortDirection.DESC)
         sorted_items = apply_sorting(items, params)
-        self.assertEqual(
-            [item["name"] for item in sorted_items],
-            [None, None, "Item C", "Item B", "Item A"],
-        )
+        self.assertEqual([item["name"] for item in sorted_items],
+                         [None, None, "Item C", "Item B", "Item A"])
 
 
 if __name__ == "__main__":

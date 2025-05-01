@@ -8,7 +8,7 @@ This module contains Pydantic models for API requests and responses.
 from .webhook import (
     WebhookEventType,
     WebhookDeliveryStatus,
-    WebhookCreate,
+    WebhookRequest,
     WebhookUpdate,
     WebhookResponse,
     WebhookList,
@@ -29,5 +29,3 @@ from .bulk_operations import (
     BulkDeleteRequest,
     BulkDeleteResponse,
 )
-
-# Import other schema modules as needed

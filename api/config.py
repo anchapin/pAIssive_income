@@ -107,6 +107,8 @@ class APIConfig:
     host: str = "0.0.0.0"
     port: int = 8000
     debug: bool = False
+    title: str = "pAIssive Income API"  
+    description: str = "RESTful API for pAIssive Income services"
 
     # API configuration
     version: APIVersion = APIVersion.latest_version()  # Default to latest version
@@ -137,6 +139,7 @@ class APIConfig:
 
     # Middleware configuration
     enable_cors: bool = True
+    cors_origins: List[str] = field(default_factory=lambda: ["*"])  # Allow all origins by default
     enable_gzip: bool = True
     enable_https: bool = False
     enable_auth: bool = False
@@ -215,6 +218,7 @@ class APIConfig:
     enable_agent_team: bool = True
     enable_user: bool = True
     enable_dashboard: bool = True
+    enable_developer: bool = True
 
     # Pagination, filtering, and sorting configuration
     max_page_size: int = 100  # Maximum number of items per page

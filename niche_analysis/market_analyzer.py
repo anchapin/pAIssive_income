@@ -568,12 +568,11 @@ class MarketAnalyzer:
                     logger.info(f"Using cached competition analysis for niche: {niche}")
                     return cached_result
 
-            # In a real implementation, this would use AI to analyze the competition
-            # For now, we'll return a placeholder implementation
-
             # Get current timestamp
             now = datetime.now()
 
+            # In a real implementation, this would use AI to analyze the competition
+            # For now, we'll return a placeholder implementation
             competition_analysis = {
                 "id": str(uuid.uuid4()),
                 "niche": niche,

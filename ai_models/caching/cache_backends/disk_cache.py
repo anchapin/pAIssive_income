@@ -79,13 +79,17 @@ class DiskCache(CacheBackend):
                     self._save_stats()
                     return None
 
+                # Load value
+                value = self._load_value(key)
+
+                # Initialize access_count if not present
+                if "access_count" not in metadata:
+                    metadata["access_count"] = 0
+
                 # Update access time and count in metadata
                 metadata["last_access_time"] = time.time()
                 metadata["access_count"] = metadata.get("access_count", 0) + 1
                 self._save_metadata(key, metadata)
-
-                # Load the actual value
-                value = self._load_value(key)
                 self.stats["hits"] += 1
                 self._save_stats()
                 return value
@@ -552,12 +556,12 @@ class DiskCache(CacheBackend):
                         creation_time = metadata.get("creation_time", float("inf"))
                         # Return tuple of (count, creation_time) for comparison
                         # Python will compare tuples element by element
-                        return (
-                            count,
-                            -creation_time,
-                        )  # Negative creation_time so older items are evicted first
+                        return (count, -creation_time)  # Negative creation_time so older items are evicted first
 
-                    key_to_evict = min(metadata_map.keys(), key=get_score)
+                    key_to_evict = min(
+                        metadata_map.keys(),
+                        key=get_score
+                    )
                 elif self.eviction_policy == "fifo":
                     # First In First Out - evict oldest item by creation time
                     key_to_evict = min(

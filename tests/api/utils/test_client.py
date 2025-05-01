@@ -4,10 +4,10 @@ Test client utilities for API tests.
 This module provides utilities for making requests to the API in tests.
 """
 
-import pytest
 from typing import Dict, Any, Optional, List, Union
 from fastapi.testclient import TestClient
 import json
+import pytest
 
 
 class APITestClient:
@@ -38,12 +38,8 @@ class APITestClient:
         """
         self.base_url = f"/api/{version}"
 
-    def get(
-        self,
-        path: str,
-        params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Any:
+    def get(self, path: str, params: Optional[Dict[str, Any]] = None,
+            headers: Optional[Dict[str, str]] = None) -> Any:
         """
         Make a GET request to the API.
 
@@ -59,33 +55,28 @@ class APITestClient:
         request_headers = {**self.headers, **(headers or {})}
         return self.client.get(url, params=params, headers=request_headers)
 
-    def post(
-        self,
-        path: str,
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Any:
+    def post(self, path: str, data: Optional[Dict[str, Any]] = None,
+             headers: Optional[Dict[str, str]] = None, json: Optional[Dict[str, Any]] = None) -> Any:
         """
         Make a POST request to the API.
 
         Args:
             path: API path (without base URL)
-            data: Request data
+            data: Request data (used if json is not provided)
             headers: Request headers (overrides default headers)
+            json: JSON data to send (takes precedence over data)
 
         Returns:
             Response from the API
         """
         url = f"{self.base_url}/{path.lstrip('/')}"
         request_headers = {**self.headers, **(headers or {})}
+        if json is not None:
+            return self.client.post(url, json=json, headers=request_headers)
         return self.client.post(url, json=data, headers=request_headers)
 
-    def put(
-        self,
-        path: str,
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Any:
+    def put(self, path: str, data: Optional[Dict[str, Any]] = None,
+            headers: Optional[Dict[str, str]] = None) -> Any:
         """
         Make a PUT request to the API.
 
@@ -101,12 +92,8 @@ class APITestClient:
         request_headers = {**self.headers, **(headers or {})}
         return self.client.put(url, json=data, headers=request_headers)
 
-    def patch(
-        self,
-        path: str,
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Any:
+    def patch(self, path: str, data: Optional[Dict[str, Any]] = None,
+              headers: Optional[Dict[str, str]] = None) -> Any:
         """
         Make a PATCH request to the API.
 
@@ -137,12 +124,8 @@ class APITestClient:
         request_headers = {**self.headers, **(headers or {})}
         return self.client.delete(url, headers=request_headers)
 
-    def bulk_create(
-        self,
-        path: str,
-        items: List[Dict[str, Any]],
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Any:
+    def bulk_create(self, path: str, items: List[Dict[str, Any]],
+                    headers: Optional[Dict[str, str]] = None) -> Any:
         """
         Make a bulk create request to the API.
 
@@ -158,12 +141,8 @@ class APITestClient:
         request_headers = {**self.headers, **(headers or {})}
         return self.client.post(url, json={"items": items}, headers=request_headers)
 
-    def bulk_update(
-        self,
-        path: str,
-        items: List[Dict[str, Any]],
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Any:
+    def bulk_update(self, path: str, items: List[Dict[str, Any]],
+                    headers: Optional[Dict[str, str]] = None) -> Any:
         """
         Make a bulk update request to the API.
 
@@ -179,9 +158,8 @@ class APITestClient:
         request_headers = {**self.headers, **(headers or {})}
         return self.client.put(url, json={"items": items}, headers=request_headers)
 
-    def bulk_delete(
-        self, path: str, ids: List[str], headers: Optional[Dict[str, str]] = None
-    ) -> Any:
+    def bulk_delete(self, path: str, ids: List[str],
+                    headers: Optional[Dict[str, str]] = None) -> Any:
         """
         Make a bulk delete request to the API.
 
@@ -199,26 +177,22 @@ class APITestClient:
 
 
 @pytest.fixture
-def api_test_client(
-    api_client: TestClient, api_headers: Dict[str, str]
-) -> APITestClient:
+def api_test_client(api_client: TestClient, api_unauth_headers: Dict[str, str]) -> APITestClient:
     """
-    Create an API test client.
+    Create an unauthenticated API test client.
 
     Args:
         api_client: FastAPI test client
-        api_headers: Default headers for requests
+        api_unauth_headers: Default headers for unauthenticated requests
 
     Returns:
-        API test client
+        Unauthenticated API test client
     """
-    return APITestClient(api_client, api_headers)
+    return APITestClient(api_client, api_unauth_headers)
 
 
 @pytest.fixture
-def auth_api_test_client(
-    api_client: TestClient, api_auth_headers: Dict[str, str]
-) -> APITestClient:
+def auth_api_test_client(api_client: TestClient, api_auth_headers: Dict[str, str]) -> APITestClient:
     """
     Create an authenticated API test client.
 

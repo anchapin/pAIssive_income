@@ -1,161 +1,46 @@
 """
 API key schemas for the API server.
-
-This module provides Pydantic models for API key management.
 """
 
-import uuid
-import secrets
+from typing import List, Optional
 from datetime import datetime
-from typing import Optional, List, Dict, Any
-
-from pydantic import BaseModel, Field, validator, ConfigDict
-
+from pydantic import BaseModel, Field
 
 class APIKeyCreate(BaseModel):
-    """
-    Schema for creating a new API key.
-    """
-
+    """Request model for creating an API key."""
     name: str = Field(..., description="Name of the API key")
     description: Optional[str] = Field(None, description="Description of the API key")
-    expires_at: Optional[datetime] = Field(
-        None, description="Expiration date of the API key"
-    )
-    scopes: List[str] = Field(
-        default_factory=list, description="Scopes (permissions) for the API key"
-    )
-
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "name": "My API Key",
-                "description": "API key for testing",
-                "expires_at": "2023-12-31T23:59:59",
-                "scopes": ["read:niche_analysis", "write:niche_analysis"],
-            }
-        }
-    )
-
+    expires_at: Optional[datetime] = Field(None, description="Expiration date of the API key")
+    scopes: Optional[List[str]] = Field(None, description="List of permission scopes")
 
 class APIKeyResponse(BaseModel):
-    """
-    Schema for API key response.
-    """
-
-    id: str = Field(..., description="Unique identifier for the API key")
-    prefix: str = Field(..., description="Prefix of the API key (first 8 characters)")
+    """Response model for API key operations."""
+    id: str = Field(..., description="API key ID")
+    prefix: str = Field(..., description="API key prefix")
     name: str = Field(..., description="Name of the API key")
     description: Optional[str] = Field(None, description="Description of the API key")
     created_at: datetime = Field(..., description="Creation timestamp")
-    expires_at: Optional[datetime] = Field(
-        None, description="Expiration date of the API key"
-    )
+    expires_at: Optional[datetime] = Field(None, description="Expiration timestamp")
     last_used_at: Optional[datetime] = Field(None, description="Last usage timestamp")
-    scopes: List[str] = Field(
-        default_factory=list, description="Scopes (permissions) for the API key"
-    )
-    is_active: bool = Field(..., description="Whether the API key is active")
-
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "id": "01234567-89ab-cdef-0123-456789abcdef",
-                "prefix": "sk_12345678",
-                "name": "My API Key",
-                "description": "API key for testing",
-                "created_at": "2023-01-01T00:00:00",
-                "expires_at": "2023-12-31T23:59:59",
-                "last_used_at": "2023-01-02T12:34:56",
-                "scopes": ["read:niche_analysis", "write:niche_analysis"],
-                "is_active": True,
-            }
-        }
-    )
-
+    scopes: List[str] = Field(default_factory=list, description="List of permission scopes")
+    is_active: bool = Field(True, description="Whether the API key is active")
 
 class APIKeyCreatedResponse(APIKeyResponse):
-    """
-    Schema for API key creation response, including the full key.
-    """
-
-    key: str = Field(..., description="Full API key (only shown once)")
-
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "id": "01234567-89ab-cdef-0123-456789abcdef",
-                "prefix": "sk_12345678",
-                "key": "sk_12345678abcdefghijklmnopqrstuvwxyz",
-                "name": "My API Key",
-                "description": "API key for testing",
-                "created_at": "2023-01-01T00:00:00",
-                "expires_at": "2023-12-31T23:59:59",
-                "last_used_at": None,
-                "scopes": ["read:niche_analysis", "write:niche_analysis"],
-                "is_active": True,
-            }
-        }
-    )
-
+    """Response model for API key creation, including the full key."""
+    key: str = Field(..., description="The full API key (only shown once)")
 
 class APIKeyUpdate(BaseModel):
-    """
-    Schema for updating an API key.
-    """
-
-    name: Optional[str] = Field(None, description="Name of the API key")
-    description: Optional[str] = Field(None, description="Description of the API key")
-    expires_at: Optional[datetime] = Field(
-        None, description="Expiration date of the API key"
-    )
-    scopes: Optional[List[str]] = Field(
-        None, description="Scopes (permissions) for the API key"
-    )
-    is_active: Optional[bool] = Field(None, description="Whether the API key is active")
-
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "name": "Updated API Key",
-                "description": "Updated description",
-                "expires_at": "2024-12-31T23:59:59",
-                "scopes": [
-                    "read:niche_analysis",
-                    "write:niche_analysis",
-                    "read:monetization",
-                ],
-                "is_active": True,
-            }
-        }
-    )
-
+    """Request model for updating an API key."""
+    name: Optional[str] = Field(None, description="New name for the API key")
+    description: Optional[str] = Field(None, description="New description for the API key")
+    expires_at: Optional[datetime] = Field(None, description="New expiration timestamp")
+    scopes: Optional[List[str]] = Field(None, description="New list of permission scopes")
+    is_active: Optional[bool] = Field(None, description="New active status")
 
 class APIKeyList(BaseModel):
-    """
-    Schema for a list of API keys.
-    """
-
+    """Response model for listing API keys."""
     items: List[APIKeyResponse] = Field(..., description="List of API keys")
-    total: int = Field(..., description="Total number of API keys")
-
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "items": [
-                    {
-                        "id": "01234567-89ab-cdef-0123-456789abcdef",
-                        "prefix": "sk_12345678",
-                        "name": "My API Key",
-                        "description": "API key for testing",
-                        "created_at": "2023-01-01T00:00:00",
-                        "expires_at": "2023-12-31T23:59:59",
-                        "last_used_at": "2023-01-02T12:34:56",
-                        "scopes": ["read:niche_analysis", "write:niche_analysis"],
-                        "is_active": True,
-                    }
-                ],
-                "total": 1,
-            }
-        }
-    )
+    total: int = Field(..., description="Total number of keys")
+    page: int = Field(1, description="Current page number")
+    page_size: int = Field(..., description="Number of keys per page")
+    pages: int = Field(..., description="Total number of pages")

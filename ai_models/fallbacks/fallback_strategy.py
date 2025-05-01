@@ -163,7 +163,27 @@ class FallbackManager:
         required_capabilities: Optional[List[str]] = None,
         strategy_override: Optional[FallbackStrategy] = None,
     ) -> Tuple[Optional[IModelInfo], Optional[FallbackEvent]]:
-        """Find a fallback model using configured strategies."""
+        """
+        Find a fallback model when the primary model is unavailable.
+
+        This method implements the core fallback algorithm:
+        1. If strategy_override is provided, use that strategy
+        2. Otherwise, try strategies in cascading order
+        3. Execute each strategy until a fallback model is found
+        4. Track the fallback event and return results
+
+        Args:
+            original_model_id: ID of the original model that failed (if any)
+            agent_type: Type of agent requesting the model (for preference matching)
+            task_type: Type of task the model will perform
+            required_capabilities: List of required model capabilities
+            strategy_override: Optional override for the fallback strategy
+
+        Returns:
+            Tuple containing:
+              - ModelInfo of the fallback model or None if no fallback found
+              - FallbackEvent describing the fallback or None if no fallback found
+        """
         if not self.fallback_enabled:
             self.logger.info("Fallback is disabled, not attempting model fallback")
             return None, None
@@ -175,6 +195,16 @@ class FallbackManager:
                 original_model_info = self.model_manager.get_model_info(original_model_id)
             except ModelNotFoundError:
                 pass
+
+        # Define the cascade order for strategies
+        cascade_order = [
+            FallbackStrategy.DEFAULT,
+            FallbackStrategy.SIMILAR_MODEL,
+            FallbackStrategy.MODEL_TYPE,
+            FallbackStrategy.CAPABILITY_BASED,
+            FallbackStrategy.SPECIFIED_LIST,
+            FallbackStrategy.ANY_AVAILABLE
+        ]
 
         # Build the list of strategies to try
         strategies_to_try = []
@@ -268,12 +298,24 @@ class FallbackManager:
 
             self.logger.warning(f"Strategy {current_strategy.value} failed to find a fallback model")
 
+        # If we get here, we've tried all strategies and found no fallback
+        event = FallbackEvent(
+            original_model_id=original_model_id,
+            fallback_model_id="none",
+            reason=f"No fallback found after {attempts} attempts",
+            agent_type=agent_type,
+            task_type=task_type,
+            strategy_used=strategies_to_try[-1],
+            details={
+                "attempts": attempts,
+                "original_model_type": original_model_info.type if original_model_info else None,
+            }
+        )
+        self.track_fallback_event(event, was_successful=False)
         self.logger.warning(f"No fallback model found after trying {attempts} strategies")
-        return None, last_event
+        return None, event
 
-    def track_fallback_event(
-        self, event: FallbackEvent, was_successful: bool = True
-    ) -> None:
+    def track_fallback_event(self, event: FallbackEvent, was_successful: bool = True) -> None:
         """
         Track a fallback event and update metrics.
 
@@ -457,16 +499,20 @@ class FallbackManager:
         task_type: Optional[str],
     ) -> Optional[IModelInfo]:
         """Try other models of the same type as the original model."""
+        # Try each strategy in sequence:
+        # 1. Same type as original model
+        # 2. Agent preferences
+        # 3. Default preferences
+
         # If we have an original model, try to find another of the same type
-        if original_model:
-            same_type_models = self.model_manager.get_models_by_type(
-                original_model.type
-            )
+        if original_model and original_model.type:
+            same_type_models = self.model_manager.get_models_by_type(original_model.type)
+            # Ensure we don't return the original model
             filtered_models = [m for m in same_type_models if m.id != original_model.id]
             if filtered_models:
                 return filtered_models[0]
 
-        # If no original model or no other models of the same type, try using agent/task preferences
+        # If no match with original type or no original model, try agent preferences
         if agent_type and agent_type in self.fallback_preferences:
             # Get preferred model types for this agent
             preferred_types = self.fallback_preferences[agent_type]
@@ -474,16 +520,17 @@ class FallbackManager:
             # Try each preferred type
             for model_type in preferred_types:
                 models = self.model_manager.get_models_by_type(model_type)
-                if models:
+                if models and (not original_model or models[0].id != original_model.id):
                     return models[0]
 
-        # If all else fails, try default preferences
+        # If still no match or no agent preferences, try default preferences
         if "default" in self.fallback_preferences:
             for model_type in self.fallback_preferences["default"]:
                 models = self.model_manager.get_models_by_type(model_type)
-                if models:
+                if models and (not original_model or models[0].id != original_model.id):
                     return models[0]
 
+        # If all strategies fail, return None
         return None
 
     def _apply_any_available_strategy(self) -> Optional[IModelInfo]:

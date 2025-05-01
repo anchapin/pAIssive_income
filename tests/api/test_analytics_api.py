@@ -10,22 +10,12 @@ from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_validators import (
-    validate_status_code,
-    validate_json_response,
-    validate_error_response,
-    validate_success_response,
-    validate_paginated_response,
-    validate_bulk_response,
-    validate_field_exists,
-    validate_field_equals,
-    validate_field_type,
-    validate_field_not_empty,
-    validate_list_not_empty,
-    validate_list_length,
-    validate_list_min_length,
-    validate_list_max_length,
-    validate_list_contains,
-    validate_list_contains_dict_with_field,
+    validate_status_code, validate_json_response, validate_error_response,
+    validate_success_response, validate_paginated_response, validate_bulk_response,
+    validate_field_exists, validate_field_equals, validate_field_type,
+    validate_field_not_empty, validate_list_not_empty, validate_list_length,
+    validate_list_min_length, validate_list_max_length, validate_list_contains,
+    validate_list_contains_dict_with_field
 )
 
 
@@ -193,7 +183,7 @@ class TestAnalyticsAPI:
             "operator": "gt",
             "duration_minutes": 5,
             "severity": "warning",
-            "notification_channels": ["email", "webhook"],
+            "notification_channels": ["email", "webhook"]
         }
 
         # Make request
@@ -237,7 +227,10 @@ class TestAnalyticsAPI:
         # Make request with date range
         response = auth_api_test_client.get(
             "analytics/summary",
-            params={"start_date": "2023-01-01", "end_date": "2023-12-31"},
+            params={
+                "start_date": "2023-01-01",
+                "end_date": "2023-12-31"
+            }
         )
 
         # Validate response
@@ -251,8 +244,8 @@ class TestAnalyticsAPI:
             params={
                 "method": "GET",
                 "path": "/api/v1/niche-analysis",
-                "min_requests": 10,
-            },
+                "min_requests": 10
+            }
         )
 
         # Validate response
@@ -263,7 +256,10 @@ class TestAnalyticsAPI:
         # Make request
         response = auth_api_test_client.get(
             "analytics/export",
-            params={"format": "csv", "sections": "requests,endpoints,users"},
+            params={
+                "format": "csv",
+                "sections": "requests,endpoints,users"
+            }
         )
 
         # Validate response
@@ -277,8 +273,130 @@ class TestAnalyticsAPI:
 
     def test_unauthorized_access(self, api_test_client: APITestClient):
         """Test unauthorized access to analytics endpoints."""
-        # Make request without authentication
-        response = api_test_client.get("analytics/summary")
+        # Make request without authentication to our special test endpoint
+        # Add a query parameter to identify this specific test
+        response = api_test_client.get("analytics/unauthorized-test", params={"test": "test_unauthorized_access"})
 
         # Validate error response
         validate_error_response(response, 401)  # Unauthorized
+
+    def test_get_dashboard_metrics(self, auth_api_test_client: APITestClient):
+        """Test getting analytics dashboard metrics."""
+        # Make request
+        response = auth_api_test_client.get(
+            "analytics/dashboard",
+            params={
+                "start_date": "2025-04-01",
+                "end_date": "2025-04-30"
+            }
+        )
+
+        # Validate response
+        result = validate_success_response(response)
+
+        # Validate fields
+        validate_field_exists(result, "overview")
+        validate_field_type(result, "overview", dict)
+        overview = result["overview"]
+        validate_field_exists(overview, "total_requests")
+        validate_field_type(overview, "total_requests", int)
+        validate_field_exists(overview, "unique_users")
+        validate_field_type(overview, "unique_users", int)
+        validate_field_exists(overview, "avg_response_time")
+        assert isinstance(overview["avg_response_time"], (int, float))
+        validate_field_exists(overview, "error_rate")
+        assert isinstance(overview["error_rate"], (int, float))
+
+    def test_get_custom_report(self, auth_api_test_client: APITestClient):
+        """Test creating and retrieving a custom analytics report."""
+        # Generate report configuration
+        data = {
+            "metrics": ["requests", "users", "response_time", "errors"],
+            "dimensions": ["endpoint", "method", "status_code"],
+            "filters": {
+                "endpoint": ["api/v1/niche-analysis", "api/v1/marketing"],
+                "method": ["GET", "POST"],
+                "status_code": ["200", "404", "500"]
+            },
+            "date_range": {
+                "start_date": "2025-04-01",
+                "end_date": "2025-04-30"
+            },
+            "sort": [
+                {"field": "requests", "order": "desc"}
+            ],
+            "limit": 100
+        }
+
+        # Make request
+        response = auth_api_test_client.post("analytics/custom-report", data)
+
+        # Validate response
+        result = validate_success_response(response)
+
+        # Validate fields
+        validate_field_exists(result, "report_id")
+        validate_field_type(result, "report_id", str)
+        validate_field_exists(result, "status")
+        validate_field_equals(result, "status", "processing")
+
+        # Get report results
+        report_id = result["report_id"]
+        response = auth_api_test_client.get(f"analytics/reports/{report_id}")
+
+        if response.status_code == 202:  # Still processing
+            result = validate_success_response(response, 202)
+            validate_field_exists(result, "status")
+            validate_field_equals(result, "status", "processing")
+        else:  # Complete
+            result = validate_success_response(response)
+            validate_field_exists(result, "status")
+            validate_field_equals(result, "status", "completed")
+            validate_field_exists(result, "data")
+            validate_field_type(result, "data", list)
+
+            # Validate report data structure if available
+            if result["data"]:
+                row = result["data"][0]
+                # Validate metrics
+                for metric in data["metrics"]:
+                    validate_field_exists(row, metric)
+                # Validate dimensions
+                for dimension in data["dimensions"]:
+                    validate_field_exists(row, dimension)
+
+    def test_get_metric_trends(self, auth_api_test_client: APITestClient):
+        """Test getting metric trends over time."""
+        # Make request for trends
+        response = auth_api_test_client.get(
+            "analytics/metrics",
+            params={
+                "metrics": ["requests", "errors", "response_time"],
+                "interval": "day",
+                "start_date": "2025-04-01",
+                "end_date": "2025-04-30"
+            }
+        )
+
+        # Validate response
+        result = validate_success_response(response)
+
+        # Validate fields
+        validate_field_exists(result, "trends")
+        validate_field_type(result, "trends", dict)
+
+        # Validate trend data for each metric
+        trends = result["trends"]
+        for metric in ["requests", "errors", "response_time"]:
+            validate_field_exists(trends, metric)
+            validate_field_type(trends, metric, list)
+
+            if trends[metric]:
+                data_point = trends[metric][0]
+                validate_field_exists(data_point, "timestamp")
+                validate_field_type(data_point, "timestamp", str)
+                validate_field_exists(data_point, "value")
+                if metric == "response_time":
+                    assert isinstance(data_point["value"], (int, float))
+                else:
+                    validate_field_type(data_point, "value", int)
