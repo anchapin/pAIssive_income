@@ -279,6 +279,41 @@ class ModelInferenceError(ModelError):
         )
 
 
+class ModelAPIError(ModelError):
+    """Error raised when there's an issue with the model API."""
+
+    def __init__(
+        self,
+        message: str,
+        model_id: Optional[str] = None,
+        endpoint: Optional[str] = None,
+        **kwargs
+    ):
+        """
+        Initialize the model API error.
+
+        Args:
+            message: Human-readable error message
+            model_id: ID of the model that had an API issue
+            endpoint: API endpoint that caused the error
+            **kwargs: Additional arguments to pass to the base class
+        """
+        details = kwargs.pop("details", {})
+        if endpoint:
+            details["endpoint"] = endpoint
+
+        # Only set code if it's not already provided in kwargs
+        if 'code' not in kwargs:
+            kwargs['code'] = "model_api_error"
+
+        super().__init__(
+            message=message,
+            model_id=model_id,
+            details=details,
+            **kwargs
+        )
+
+
 class ModelDownloadError(ModelError):
     """Error raised when model download fails."""
 
