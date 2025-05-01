@@ -9,7 +9,7 @@ import secrets
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, ConfigDict
 
 
 class APIKeyCreate(BaseModel):
@@ -26,10 +26,8 @@ class APIKeyCreate(BaseModel):
         default_factory=list, description="Scopes (permissions) for the API key"
     )
 
-    class Config:
-        """Pydantic config"""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "My API Key",
                 "description": "API key for testing",
@@ -37,6 +35,7 @@ class APIKeyCreate(BaseModel):
                 "scopes": ["read:niche_analysis", "write:niche_analysis"],
             }
         }
+    )
 
 
 class APIKeyResponse(BaseModel):
@@ -58,10 +57,8 @@ class APIKeyResponse(BaseModel):
     )
     is_active: bool = Field(..., description="Whether the API key is active")
 
-    class Config:
-        """Pydantic config"""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "01234567-89ab-cdef-0123-456789abcdef",
                 "prefix": "sk_12345678",
@@ -74,6 +71,7 @@ class APIKeyResponse(BaseModel):
                 "is_active": True,
             }
         }
+    )
 
 
 class APIKeyCreatedResponse(APIKeyResponse):
@@ -83,10 +81,8 @@ class APIKeyCreatedResponse(APIKeyResponse):
 
     key: str = Field(..., description="Full API key (only shown once)")
 
-    class Config:
-        """Pydantic config"""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "01234567-89ab-cdef-0123-456789abcdef",
                 "prefix": "sk_12345678",
@@ -100,6 +96,7 @@ class APIKeyCreatedResponse(APIKeyResponse):
                 "is_active": True,
             }
         }
+    )
 
 
 class APIKeyUpdate(BaseModel):
@@ -117,10 +114,8 @@ class APIKeyUpdate(BaseModel):
     )
     is_active: Optional[bool] = Field(None, description="Whether the API key is active")
 
-    class Config:
-        """Pydantic config"""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Updated API Key",
                 "description": "Updated description",
@@ -133,6 +128,7 @@ class APIKeyUpdate(BaseModel):
                 "is_active": True,
             }
         }
+    )
 
 
 class APIKeyList(BaseModel):
@@ -143,10 +139,8 @@ class APIKeyList(BaseModel):
     items: List[APIKeyResponse] = Field(..., description="List of API keys")
     total: int = Field(..., description="Total number of API keys")
 
-    class Config:
-        """Pydantic config"""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "items": [
                     {
@@ -164,3 +158,4 @@ class APIKeyList(BaseModel):
                 "total": 1,
             }
         }
+    )

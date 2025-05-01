@@ -85,6 +85,21 @@ class MemoryCache(CacheBackend):
                 return True
             return False
 
+    def exists(self, key: str) -> bool:
+        """Check if a key exists in the cache."""
+        with self.lock:
+            if key not in self.cache:
+                return False
+                
+            # Check if expired
+            _, expiration_time, _, _ = self.cache[key]
+            current_time = time.time()
+            if expiration_time is not None and current_time > expiration_time:
+                self.delete(key)
+                return False
+                
+            return True
+
     def clear(self) -> bool:
         """Clear all values from the cache."""
         with self.lock:
@@ -110,6 +125,44 @@ class MemoryCache(CacheBackend):
                 return [key for key in self.cache.keys() if regex.match(key)]
             except re.error:
                 return [key for key in self.cache.keys() if key.startswith(pattern.rstrip("^$"))]
+                
+    def get_stats(self) -> Dict[str, Any]:
+        """Get statistics about the cache."""
+        with self.lock:
+            return self.stats.copy()
+            
+    def get_ttl(self, key: str) -> Optional[int]:
+        """Get the time to live for a key."""
+        with self.lock:
+            if key not in self.cache:
+                return None
+                
+            _, expiration_time, _, _ = self.cache[key]
+            if expiration_time is None:
+                return None
+                
+            current_time = time.time()
+            remaining = expiration_time - current_time
+            
+            # If expired, delete and return None
+            if remaining <= 0:
+                self.delete(key)
+                return None
+                
+            return int(remaining)
+            
+    def set_ttl(self, key: str, ttl: int) -> bool:
+        """Set the time to live for a key."""
+        with self.lock:
+            if key not in self.cache:
+                return False
+                
+            value, _, access_count, last_access_time = self.cache[key]
+            current_time = time.time()
+            expiration_time = current_time + ttl if ttl is not None else None
+            
+            self.cache[key] = (value, expiration_time, access_count, last_access_time)
+            return True
 
     def _evict_item(self) -> None:
         """Evict an item based on the eviction policy."""

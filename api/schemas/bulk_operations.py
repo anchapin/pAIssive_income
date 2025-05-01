@@ -5,7 +5,7 @@ This module provides Pydantic models for bulk operation API request and response
 """
 
 from typing import Dict, List, Optional, Any, Generic, TypeVar, Union
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from uuid import UUID
 
@@ -38,7 +38,7 @@ class BulkOperationError(BaseModel):
     item_id: Optional[str] = Field(None, description="ID of the item if available")
 
 
-class BulkResponse(Generic[R]):
+class BulkResponse(BaseModel, Generic[R]):
     """Generic response model for bulk operations."""
 
     results: List[R] = Field(..., description="List of successful results")
@@ -47,7 +47,7 @@ class BulkResponse(Generic[R]):
     operation_id: str = Field(..., description="Unique ID for the bulk operation")
 
 
-class BulkCreateRequest(Generic[T]):
+class BulkCreateRequest(BaseModel, Generic[T]):
     """Generic request model for bulk create operations."""
 
     items: List[T] = Field(..., description="List of items to create")
@@ -56,7 +56,7 @@ class BulkCreateRequest(Generic[T]):
     )
 
 
-class BulkCreateResponse(Generic[R]):
+class BulkCreateResponse(BaseModel, Generic[R]):
     """Generic response model for bulk create operations."""
 
     items: List[R] = Field(..., description="List of created items")
@@ -65,7 +65,7 @@ class BulkCreateResponse(Generic[R]):
     operation_id: str = Field(..., description="Unique ID for the bulk operation")
 
 
-class BulkUpdateRequest(Generic[T]):
+class BulkUpdateRequest(BaseModel, Generic[T]):
     """Generic request model for bulk update operations."""
 
     items: List[Dict[str, Any]] = Field(
@@ -76,7 +76,7 @@ class BulkUpdateRequest(Generic[T]):
     )
 
 
-class BulkUpdateResponse(Generic[R]):
+class BulkUpdateResponse(BaseModel, Generic[R]):
     """Generic response model for bulk update operations."""
 
     items: List[R] = Field(..., description="List of updated items")

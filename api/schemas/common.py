@@ -6,7 +6,7 @@ This module provides common Pydantic models for API request and response validat
 
 from typing import Dict, List, Optional, Any, Generic, TypeVar, Union
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 # Define generic type variable
 T = TypeVar("T")
@@ -63,6 +63,8 @@ class FilterParam(BaseModel):
     field: str = Field(..., description="Field to filter by")
     operator: FilterOperator = Field(FilterOperator.EQ, description="Filter operator")
     value: Any = Field(..., description="Filter value")
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="allow")
 
 
 class SortParam(BaseModel):
@@ -82,13 +84,15 @@ class PaginationParams(BaseModel):
 class QueryParams(BaseModel):
     """Query parameters model."""
 
-    pagination: PaginationParams = Field(
-        default_factory=PaginationParams, description="Pagination parameters"
-    )
-    sort: Optional[SortParam] = Field(None, description="Sort parameters")
+    page: int = Field(1, description="Page number", ge=1)
+    page_size: int = Field(10, description="Number of items per page", ge=1, le=100)
+    sort_by: Optional[str] = Field(None, description="Field to sort by")
+    sort_direction: SortDirection = Field(SortDirection.ASC, description="Sort direction")
     filters: List[FilterParam] = Field(
         default_factory=list, description="Filter parameters"
     )
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class PaginatedResponse(BaseModel, Generic[T]):
@@ -98,4 +102,6 @@ class PaginatedResponse(BaseModel, Generic[T]):
     total: int = Field(..., description="Total number of items")
     page: int = Field(..., description="Current page number")
     page_size: int = Field(..., description="Number of items per page")
-    pages: int = Field(..., description="Total number of pages")
+    total_pages: int = Field(..., description="Total number of pages")
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)

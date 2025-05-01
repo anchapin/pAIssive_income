@@ -5,7 +5,7 @@ This module provides Pydantic models for Niche Analysis API request and response
 """
 
 from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from uuid import UUID
 
@@ -113,14 +113,12 @@ class NicheCreateRequest(BaseModel):
 
 class BulkNicheCreateRequest(BulkCreateRequest[NicheCreateRequest]):
     """Request model for bulk niche creation."""
-
-    pass
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class BulkNicheCreateResponse(BulkCreateResponse[NicheResponse]):
     """Response model for bulk niche creation."""
-
-    pass
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class NicheUpdateRequest(BaseModel):
@@ -140,23 +138,18 @@ class NicheUpdateRequest(BaseModel):
 
 class BulkNicheUpdateRequest(BulkUpdateRequest[NicheUpdateRequest]):
     """Request model for bulk niche updates."""
-
-    pass
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class BulkNicheUpdateResponse(BulkUpdateResponse[NicheResponse]):
     """Response model for bulk niche updates."""
-
-    pass
-
-
-class BulkNicheDeleteRequest(BulkDeleteRequest):
-    """Request model for bulk niche deletion."""
-
-    pass
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class BulkNicheDeleteResponse(BulkDeleteResponse):
-    """Response model for bulk niche deletion."""
-
-    pass
+# Error response model
+class ErrorResponse(BaseModel):
+    """Error response model."""
+    
+    error_code: str = Field(..., description="Error code")
+    error_message: str = Field(..., description="Error message")
+    details: Optional[Dict[str, Any]] = Field(None, description="Error details")

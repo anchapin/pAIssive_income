@@ -44,8 +44,6 @@ from ..schemas.niche_analysis import (
     NicheUpdateRequest,
     BulkNicheUpdateRequest,
     BulkNicheUpdateResponse,
-    BulkNicheDeleteRequest,
-    BulkNicheDeleteResponse,
 )
 from ..schemas.common import (
     ErrorResponse,
@@ -58,557 +56,323 @@ from ..schemas.common import (
     SortParam,
     QueryParams,
 )
-from ..schemas.bulk_operations import BulkOperationStats, BulkOperationError
 
-# Import utilities
-from ..utils.query_params import (
-    QueryParams as QueryParamsUtil,
-    apply_pagination,
-    apply_filtering,
-    apply_sorting,
+# Import dependencies
+from ..dependencies import (
+    get_niche_service,
+    get_market_segment_service,
+    get_problem_service,
+    get_opportunity_service,
+    get_current_user,
+    validate_token,
 )
 
 # Create router
-if FASTAPI_AVAILABLE:
-    router = APIRouter()
-else:
-    router = None
-
-# Try to import niche analysis module
-try:
-    from niche_analysis import (
-        MarketAnalyzer,
-        ProblemIdentifier,
-        OpportunityScorer,
-        NicheAnalyzer,
-    )
-
-    NICHE_ANALYSIS_AVAILABLE = True
-except ImportError:
-    logger.warning("Niche Analysis module not available")
-    NICHE_ANALYSIS_AVAILABLE = False
+router = APIRouter(
+    prefix="/api/v1/niche-analysis",
+    tags=["niche-analysis"],
+    responses={
+        404: {"model": ErrorResponse, "description": "Not found"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+)
 
 
-# Define route handlers
-if FASTAPI_AVAILABLE:
+@router.get(
+    "/niches",
+    response_model=PaginatedResponse[NicheResponse],
+    responses={
+        200: {"description": "List of niches"},
+        400: {"model": ErrorResponse, "description": "Bad request"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Get all niches",
+    description="Get a paginated list of all niches with optional filtering and sorting",
+)
+async def get_niches(
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(10, ge=1, le=100, description="Page size"),
+    sort_by: Optional[str] = Query(None, description="Field to sort by"),
+    sort_direction: SortDirection = Query(
+        SortDirection.ASC, description="Sort direction"
+    ),
+    niche_service=Depends(get_niche_service),
+):
+    """
+    Get a paginated list of all niches with optional filtering and sorting.
+    """
+    try:
+        # Create query parameters
+        query_params = QueryParams(
+            page=page,
+            page_size=page_size,
+            sort_by=sort_by,
+            sort_direction=sort_direction,
+            filters=[]
+        )
 
-    @router.post(
-        "/analyze",
-        response_model=IdResponse,
-        responses={
-            202: {"description": "Analysis started"},
-            400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"},
-        },
-        summary="Start a niche analysis",
-        description="Start a niche analysis for the specified market segments",
-    )
-    async def analyze_niches(request: NicheAnalysisRequest):
-        """
-        Start a niche analysis for the specified market segments.
+        # Get niches
+        niches, total = await niche_service.get_niches(query_params)
 
-        Args:
-            request: Niche analysis request
+        # Create response
+        response = PaginatedResponse[NicheResponse](
+            items=niches,
+            page=page,
+            page_size=page_size,
+            total=total,
+            total_pages=(total + page_size - 1) // page_size,
+        )
 
-        Returns:
-            Analysis ID
-        """
-        try:
-            # Check if niche analysis module is available
-            if not NICHE_ANALYSIS_AVAILABLE:
-                # Use a more specific error with appropriate status code
-                raise BaseError(
-                    message="Niche Analysis module not available",
-                    code="module_unavailable",
-                    http_status=HTTPStatus.SERVICE_UNAVAILABLE,
-                )
+        return response
 
-            # Generate analysis ID
-            analysis_id = str(uuid.uuid4())
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except BaseError as e:
+        logger.error(f"Error getting niches: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error getting niches: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting niches: {str(e)}")
 
-            # Here we would start the actual analysis
-            # For now, just return the analysis ID
 
-            return IdResponse(id=analysis_id, message="Analysis started")
+@router.get(
+    "/niches/{niche_id}",
+    response_model=NicheResponse,
+    responses={
+        200: {"description": "Niche details"},
+        404: {"model": ErrorResponse, "description": "Niche not found"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Get niche by ID",
+    description="Get detailed information about a specific niche",
+)
+async def get_niche(
+    niche_id: str = Path(..., description="Niche ID"),
+    niche_service=Depends(get_niche_service),
+):
+    """
+    Get detailed information about a specific niche.
+    """
+    try:
+        # Get niche
+        niche = await niche_service.get_niche(niche_id)
 
-        except BaseError as e:
-            # Let the global error handler handle BaseError exceptions
-            raise
+        # Check if niche exists
+        if not niche:
+            raise HTTPException(status_code=404, detail=f"Niche {niche_id} not found")
 
-        except Exception as e:
-            # Convert generic exceptions to BaseError with appropriate status code
-            logger.error(f"Error starting niche analysis: {str(e)}")
-            raise BaseError(
-                message=f"Analysis failed: {str(e)}",
-                code="analysis_error",
-                http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-                original_exception=e,
-            )
+        return niche
 
-    @router.get(
-        "/analyses",
-        response_model=PaginatedResponse[NicheAnalysisResponse],
-        responses={
-            200: {"description": "List of niche analyses"},
-            500: {"model": ErrorResponse, "description": "Internal server error"},
-        },
-        summary="Get all niche analyses",
-        description="Get a list of all niche analyses",
-    )
-    async def get_all_analyses(
-        page: int = Query(1, description="Page number"),
-        page_size: int = Query(10, description="Page size"),
-    ):
-        """
-        Get a list of all niche analyses.
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except BaseError as e:
+        logger.error(f"Error getting niche: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting niche: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting niche: {str(e)}")
 
-        Args:
-            page: Page number
-            page_size: Page size
 
-        Returns:
-            List of niche analyses
-        """
-        try:
-            # Check if niche analysis module is available
-            if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(
-                    status_code=500, detail="Niche Analysis module not available"
-                )
+@router.post(
+    "/niches",
+    response_model=NicheResponse,
+    responses={
+        201: {"description": "Niche created successfully"},
+        400: {"model": ErrorResponse, "description": "Bad request"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Create a new niche",
+    description="Create a new niche with the provided information",
+    status_code=201,
+)
+async def create_niche(
+    niche: NicheCreateRequest = Body(..., description="Niche to create"),
+    niche_service=Depends(get_niche_service),
+):
+    """
+    Create a new niche with the provided information.
+    """
+    try:
+        # Create niche
+        created_niche = await niche_service.create_niche(niche)
 
-            # Here we would get the actual analyses
-            # For now, return mock data
+        return created_niche
 
-            # Create mock analysis
-            analysis = NicheAnalysisResponse(
-                analysis_id="analysis123",
-                segments=["Content Creation", "Software Development"],
-                niches=[],
-                created_at=datetime.now(),
-            )
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except BaseError as e:
+        logger.error(f"Error creating niche: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error creating niche: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error creating niche: {str(e)}")
 
-            return PaginatedResponse(
-                items=[analysis], total=1, page=page, page_size=page_size, pages=1
-            )
 
-        except Exception as e:
-            logger.error(f"Error getting niche analyses: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Error getting niche analyses: {str(e)}"
-            )
+@router.put(
+    "/niches/{niche_id}",
+    response_model=NicheResponse,
+    responses={
+        200: {"description": "Niche updated successfully"},
+        404: {"model": ErrorResponse, "description": "Niche not found"},
+        400: {"model": ErrorResponse, "description": "Bad request"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Update a niche",
+    description="Update an existing niche with the provided information",
+)
+async def update_niche(
+    niche_id: str = Path(..., description="Niche ID"),
+    niche: NicheUpdateRequest = Body(..., description="Niche updates"),
+    niche_service=Depends(get_niche_service),
+):
+    """
+    Update an existing niche with the provided information.
+    """
+    try:
+        # Check if niche exists
+        existing_niche = await niche_service.get_niche(niche_id)
+        if not existing_niche:
+            raise HTTPException(status_code=404, detail=f"Niche {niche_id} not found")
 
-    @router.get(
-        "/analyses/{analysis_id}",
-        response_model=NicheAnalysisResponse,
-        responses={
-            200: {"description": "Niche analysis details"},
-            404: {"model": ErrorResponse, "description": "Analysis not found"},
-            500: {"model": ErrorResponse, "description": "Internal server error"},
-        },
-        summary="Get niche analysis details",
-        description="Get details of a specific niche analysis",
-    )
-    async def get_analysis(analysis_id: str = Path(..., description="Analysis ID")):
-        """
-        Get details of a specific niche analysis.
+        # Update niche
+        updated_niche = await niche_service.update_niche(niche_id, niche)
 
-        Args:
-            analysis_id: Analysis ID
+        return updated_niche
 
-        Returns:
-            Niche analysis details
-        """
-        try:
-            # Check if niche analysis module is available
-            if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(
-                    status_code=500, detail="Niche Analysis module not available"
-                )
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except BaseError as e:
+        logger.error(f"Error updating niche: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating niche: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error updating niche: {str(e)}")
 
-            # Here we would get the actual analysis
-            # For now, check if the ID matches our mock data
 
-            if analysis_id != "analysis123":
-                raise HTTPException(
-                    status_code=404, detail=f"Analysis not found: {analysis_id}"
-                )
+@router.delete(
+    "/niches/{niche_id}",
+    response_model=SuccessResponse,
+    responses={
+        200: {"description": "Niche deleted successfully"},
+        404: {"model": ErrorResponse, "description": "Niche not found"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Delete a niche",
+    description="Delete an existing niche",
+)
+async def delete_niche(
+    niche_id: str = Path(..., description="Niche ID"),
+    niche_service=Depends(get_niche_service),
+):
+    """
+    Delete an existing niche.
+    """
+    try:
+        # Check if niche exists
+        existing_niche = await niche_service.get_niche(niche_id)
+        if not existing_niche:
+            raise HTTPException(status_code=404, detail=f"Niche {niche_id} not found")
 
-            # Create mock analysis
-            analysis = NicheAnalysisResponse(
-                analysis_id=analysis_id,
-                segments=["Content Creation", "Software Development"],
-                niches=[],
-                created_at=datetime.now(),
-            )
+        # Delete niche
+        success = await niche_service.delete_niche(niche_id)
 
-            return analysis
+        return SuccessResponse(success=success)
 
-        except HTTPException:
-            raise
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except BaseError as e:
+        logger.error(f"Error deleting niche: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting niche: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting niche: {str(e)}")
 
-        except Exception as e:
-            logger.error(f"Error getting niche analysis: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Error getting niche analysis: {str(e)}"
-            )
 
-    @router.get(
-        "/niches",
-        response_model=PaginatedResponse[NicheResponse],
-        responses={
-            200: {"description": "List of niches"},
-            500: {"model": ErrorResponse, "description": "Internal server error"},
-        },
-        summary="Get all niches",
-        description="Get a list of all niches with pagination, filtering, and sorting",
-    )
-    async def get_all_niches(
-        request: Any = Depends(),
-        page: int = Query(1, description="Page number", ge=1),
-        page_size: int = Query(10, description="Page size", ge=1, le=100),
-        sort_by: Optional[str] = Query(None, description="Field to sort by"),
-        sort_dir: SortDirection = Query(
-            SortDirection.ASC, description="Sort direction"
-        ),
-        segment: Optional[str] = Query(None, description="Filter by market segment"),
-        name: Optional[str] = Query(None, description="Filter by name (contains)"),
-        min_score: Optional[float] = Query(
-            None, description="Filter by minimum opportunity score", ge=0, le=1
-        ),
-        max_score: Optional[float] = Query(
-            None, description="Filter by maximum opportunity score", ge=0, le=1
-        ),
-    ):
-        """
-        Get a list of all niches with pagination, filtering, and sorting.
+@router.post(
+    "/analyze",
+    response_model=NicheAnalysisResponse,
+    responses={
+        200: {"description": "Analysis completed successfully"},
+        400: {"model": ErrorResponse, "description": "Bad request"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Analyze niches",
+    description="Analyze niches based on the provided market segments",
+)
+async def analyze_niches(
+    request: NicheAnalysisRequest = Body(..., description="Analysis request"),
+    niche_service=Depends(get_niche_service),
+):
+    """
+    Analyze niches based on the provided market segments.
+    """
+    try:
+        # Analyze niches
+        analysis = await niche_service.analyze_niches(
+            request.segments, request.force_refresh, request.max_results
+        )
 
-        Args:
-            request: FastAPI request
-            page: Page number
-            page_size: Page size
-            sort_by: Field to sort by
-            sort_dir: Sort direction
-            segment: Filter by market segment
-            name: Filter by name (contains)
-            min_score: Filter by minimum opportunity score
-            max_score: Filter by maximum opportunity score
+        return analysis
 
-        Returns:
-            Paginated list of niches
-        """
-        try:
-            # Check if niche analysis module is available
-            if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(
-                    status_code=500, detail="Niche Analysis module not available"
-                )
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except BaseError as e:
+        logger.error(f"Error analyzing niches: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error analyzing niches: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error analyzing niches: {str(e)}"
+        )
 
-            # Here we would get the actual niches
-            # For now, return mock data
 
-            # Create mock niches
-            niches = [
-                NicheResponse(
-                    id="1",
-                    name="AI-powered content optimization",
-                    description="AI tools for content optimization",
-                    market_segment="Content Creation",
-                    opportunity_score=0.87,
-                    problems=[],
-                    opportunities=[],
-                    created_at=datetime.now(),
-                ),
-                NicheResponse(
-                    id="2",
-                    name="Local AI code assistant",
-                    description="AI tools for code assistance",
-                    market_segment="Software Development",
-                    opportunity_score=0.92,
-                    problems=[],
-                    opportunities=[],
-                    created_at=datetime.now(),
-                ),
-                NicheResponse(
-                    id="3",
-                    name="AI-powered financial analysis",
-                    description="AI tools for financial analysis",
-                    market_segment="Finance",
-                    opportunity_score=0.75,
-                    problems=[],
-                    opportunities=[],
-                    created_at=datetime.now(),
-                ),
-                NicheResponse(
-                    id="4",
-                    name="AI video editing assistant",
-                    description="AI tools for video editing",
-                    market_segment="Content Creation",
-                    opportunity_score=0.82,
-                    problems=[],
-                    opportunities=[],
-                    created_at=datetime.now(),
-                ),
-                NicheResponse(
-                    id="5",
-                    name="AI-powered market research",
-                    description="AI tools for market research",
-                    market_segment="Marketing",
-                    opportunity_score=0.79,
-                    problems=[],
-                    opportunities=[],
-                    created_at=datetime.now(),
-                ),
-            ]
+@router.get(
+    "/market-segments",
+    response_model=List[MarketSegmentResponse],
+    responses={
+        200: {"description": "List of market segments"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Get all market segments",
+    description="Get a list of all available market segments",
+)
+async def get_market_segments(
+    market_segment_service=Depends(get_market_segment_service),
+):
+    """
+    Get a list of all available market segments.
+    """
+    try:
+        # Get market segments
+        segments = await market_segment_service.get_market_segments()
 
-            # Create query parameters
-            filters = {}
-            filter_operators = {}
+        return segments
 
-            # Add filters based on query parameters
-            if segment:
-                filters["market_segment"] = segment
-                filter_operators["market_segment"] = FilterOperator.EQ
-
-            if name:
-                filters["name"] = name
-                filter_operators["name"] = FilterOperator.CONTAINS
-
-            if min_score is not None:
-                filters["opportunity_score_min"] = min_score
-                filter_operators["opportunity_score_min"] = FilterOperator.GTE
-
-            if max_score is not None:
-                filters["opportunity_score_max"] = max_score
-                filter_operators["opportunity_score_max"] = FilterOperator.LTE
-
-            query_params = QueryParamsUtil(
-                page=page,
-                page_size=page_size,
-                sort_by=sort_by,
-                sort_dir=sort_dir,
-                filters=filters,
-                filter_operators=filter_operators,
-            )
-
-            # Define a custom field getter for our NicheResponse objects
-            def field_getter(item, field):
-                if field == "opportunity_score_min" or field == "opportunity_score_max":
-                    return item.opportunity_score
-                return getattr(item, field, None)
-
-            # Apply filtering
-            filtered_niches = apply_filtering(niches, query_params, field_getter)
-
-            # Apply sorting
-            sorted_niches = apply_sorting(filtered_niches, query_params, field_getter)
-
-            # Apply pagination
-            paginated_niches, total = apply_pagination(sorted_niches, query_params)
-
-            # Calculate total pages
-            total_pages = (total + query_params.page_size - 1) // query_params.page_size
-
-            return PaginatedResponse(
-                items=paginated_niches,
-                total=total,
-                page=query_params.page,
-                page_size=query_params.page_size,
-                pages=total_pages,
-            )
-
-        except Exception as e:
-            logger.error(f"Error getting niches: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Error getting niches: {str(e)}"
-            )
-
-    @router.get(
-        "/niches/{niche_id}",
-        response_model=NicheResponse,
-        responses={
-            200: {"description": "Niche details"},
-            404: {"model": ErrorResponse, "description": "Niche not found"},
-            500: {"model": ErrorResponse, "description": "Internal server error"},
-        },
-        summary="Get niche details",
-        description="Get details of a specific niche",
-    )
-    async def get_niche(niche_id: str = Path(..., description="Niche ID")):
-        """
-        Get details of a specific niche.
-
-        Args:
-            niche_id: Niche ID
-
-        Returns:
-            Niche details
-        """
-        try:
-            # Check if niche analysis module is available
-            if not NICHE_ANALYSIS_AVAILABLE:
-                raise BaseError(
-                    message="Niche Analysis module not available",
-                    code="module_unavailable",
-                    http_status=HTTPStatus.SERVICE_UNAVAILABLE,
-                )
-
-            # Here we would get the actual niche
-            # For now, check if the ID matches our mock data
-
-            if niche_id not in ["1", "2", "3"]:
-                raise BaseError(
-                    message=f"Niche not found: {niche_id}",
-                    code="niche_not_found",
-                    http_status=HTTPStatus.NOT_FOUND,
-                    details={"niche_id": niche_id},
-                )
-
-            # Create mock niche
-            if niche_id == "1":
-                niche = NicheResponse(
-                    id=niche_id,
-                    name="AI-powered content optimization",
-                    description="AI tools for content optimization",
-                    market_segment="Content Creation",
-                    opportunity_score=0.87,
-                    problems=[],
-                    opportunities=[],
-                    created_at=datetime.now(),
-                )
-            elif niche_id == "2":
-                niche = NicheResponse(
-                    id=niche_id,
-                    name="Local AI code assistant",
-                    description="AI tools for code assistance",
-                    market_segment="Software Development",
-                    opportunity_score=0.92,
-                    problems=[],
-                    opportunities=[],
-                    created_at=datetime.now(),
-                )
-            else:
-                niche = NicheResponse(
-                    id=niche_id,
-                    name="AI-powered financial analysis",
-                    description="AI tools for financial analysis",
-                    market_segment="Finance",
-                    opportunity_score=0.75,
-                    problems=[],
-                    opportunities=[],
-                    created_at=datetime.now(),
-                )
-
-            return niche
-
-        except BaseError:
-            # Let the global error handler handle BaseError exceptions
-            raise
-
-        except Exception as e:
-            # Convert generic exceptions to BaseError with appropriate status code
-            logger.error(f"Error getting niche: {str(e)}")
-            raise BaseError(
-                message=f"Error getting niche: {str(e)}",
-                code="niche_retrieval_error",
-                http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-                original_exception=e,
-            )
-
-    @router.get(
-        "/segments",
-        response_model=PaginatedResponse[MarketSegmentResponse],
-        responses={
-            200: {"description": "List of market segments"},
-            500: {"model": ErrorResponse, "description": "Internal server error"},
-        },
-        summary="Get all market segments",
-        description="Get a list of all market segments",
-    )
-    async def get_all_segments(
-        page: int = Query(1, description="Page number"),
-        page_size: int = Query(10, description="Page size"),
-    ):
-        """
-        Get a list of all market segments.
-
-        Args:
-            page: Page number
-            page_size: Page size
-
-        Returns:
-            List of market segments
-        """
-        try:
-            # Check if niche analysis module is available
-            if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(
-                    status_code=500, detail="Niche Analysis module not available"
-                )
-
-            # Here we would get the actual market segments
-            # For now, return mock data
-
-            # Create mock segments
-            segments = [
-                MarketSegmentResponse(
-                    id="1",
-                    name="Content Creation",
-                    description="Tools for creating and optimizing content",
-                    size="Large",
-                    growth_rate=0.15,
-                    competition_level="Medium",
-                    barriers_to_entry="Medium",
-                    target_audience={
-                        "primary": "Content creators",
-                        "secondary": "Marketers",
-                    },
-                ),
-                MarketSegmentResponse(
-                    id="2",
-                    name="Software Development",
-                    description="Tools for software development and programming",
-                    size="Large",
-                    growth_rate=0.12,
-                    competition_level="High",
-                    barriers_to_entry="High",
-                    target_audience={
-                        "primary": "Developers",
-                        "secondary": "IT professionals",
-                    },
-                ),
-                MarketSegmentResponse(
-                    id="3",
-                    name="Finance",
-                    description="Tools for financial analysis and management",
-                    size="Medium",
-                    growth_rate=0.08,
-                    competition_level="High",
-                    barriers_to_entry="High",
-                    target_audience={
-                        "primary": "Financial analysts",
-                        "secondary": "Investors",
-                    },
-                ),
-            ]
-
-            return PaginatedResponse(
-                items=segments,
-                total=len(segments),
-                page=page,
-                page_size=page_size,
-                pages=(len(segments) + page_size - 1) // page_size,
-            )
-
-        except Exception as e:
-            logger.error(f"Error getting market segments: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Error getting market segments: {str(e)}"
-            )
+    except BaseError as e:
+        logger.error(f"Error getting market segments: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error getting market segments: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error getting market segments: {str(e)}"
+        )
 
     # Bulk operation endpoints
     @router.post(
         "/niches/bulk",
-        response_model=BulkNicheCreateResponse,
+        response_model=None,  # Disable response model generation from type annotation
         responses={
             201: {"description": "Niches created successfully"},
             400: {"model": ErrorResponse, "description": "Bad request"},
@@ -618,84 +382,73 @@ if FASTAPI_AVAILABLE:
         description="Create multiple niches in a single request for improved performance",
         status_code=201,
     )
-    async def create_niches_bulk(request: BulkNicheCreateRequest):
+    async def create_niches_bulk(
+        request: BulkNicheCreateRequest = Body(..., description="Bulk create request"),
+        niche_service=Depends(get_niche_service),
+    ):
         """
-        Create multiple niches in bulk.
-
-        Args:
-            request: Bulk niche creation request
-
-        Returns:
-            Bulk operation response with created niches
+        Create multiple niches in a single request for improved performance.
         """
         try:
-            # Check if niche analysis module is available
-            if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(
-                    status_code=500, detail="Niche Analysis module not available"
-                )
-
-            # Start timing the operation
+            # Start timing
             start_time = time.time()
 
-            # Process each niche creation request
-            async def create_niche(item: NicheCreateRequest) -> NicheResponse:
-                # In a real implementation, this would call the niche analysis service
-                # For now, create a mock niche with a generated ID
-                niche_id = str(uuid.uuid4())
-
-                return NicheResponse(
-                    id=niche_id,
-                    name=item.name,
-                    description=item.description,
-                    market_segment=item.market_segment,
-                    opportunity_score=0.85,  # Mock score
-                    problems=[],  # Would process item.problems in real implementation
-                    opportunities=[],  # Would process item.opportunities in real implementation
-                    created_at=datetime.now(),
-                )
-
-            # Process all items
-            created_niches = []
+            # Process batch
+            operation_id = str(uuid.uuid4())
+            results = []
             errors = []
 
+            # Process each item
             for i, item in enumerate(request.items):
                 try:
-                    niche = await create_niche(item)
-                    created_niches.append(niche)
+                    # Create niche
+                    niche = await niche_service.create_niche(item)
+                    results.append(niche)
                 except Exception as e:
+                    # Add error
                     errors.append(
-                        BulkOperationError(
-                            index=i, error_code="CREATION_FAILED", error_message=str(e)
-                        )
+                        {
+                            "index": i,
+                            "error_code": "NICHE_CREATE_ERROR",
+                            "error_message": str(e),
+                        }
                     )
 
             # Calculate stats
-            processing_time_ms = (time.time() - start_time) * 1000
-            stats = BulkOperationStats(
-                total_items=len(request.items),
-                successful_items=len(created_niches),
-                failed_items=len(errors),
-                processing_time_ms=processing_time_ms,
-            )
+            end_time = time.time()
+            stats = {
+                "total_items": len(request.items),
+                "successful_items": len(results),
+                "failed_items": len(errors),
+                "processing_time_ms": (end_time - start_time) * 1000,
+            }
 
-            # Return response
-            return BulkNicheCreateResponse(
-                items=created_niches,
-                errors=errors,
-                stats=stats,
-                operation_id=str(uuid.uuid4()),
-            )
+            # Create response
+            response = {
+                "items": results,
+                "errors": errors,
+                "stats": stats,
+                "operation_id": operation_id,
+            }
 
+            return response
+
+        except ValidationError as e:
+            logger.error(f"Validation error: {str(e)}")
+            raise HTTPException(status_code=400, detail=str(e))
+        except BaseError as e:
+            logger.error(f"Error creating niches: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
         except Exception as e:
-            logger.error(f"Error in bulk niche creation: {str(e)}")
+            logger.error(f"Error creating niches: {str(e)}")
             raise HTTPException(
-                status_code=500, detail=f"Bulk operation failed: {str(e)}"
+                status_code=500, detail=f"Error creating niches: {str(e)}"
             )
+
 
     @router.put(
         "/niches/bulk",
-        response_model=BulkNicheUpdateResponse,
+        response_model=None,  # Disable response model generation from type annotation
         responses={
             200: {"description": "Niches updated successfully"},
             400: {"model": ErrorResponse, "description": "Bad request"},
@@ -704,94 +457,84 @@ if FASTAPI_AVAILABLE:
         summary="Update multiple niches in bulk",
         description="Update multiple niches in a single request for improved performance",
     )
-    async def update_niches_bulk(request: BulkNicheUpdateRequest):
+    async def update_niches_bulk(
+        request: BulkNicheUpdateRequest = Body(..., description="Bulk update request"),
+        niche_service=Depends(get_niche_service),
+    ):
         """
-        Update multiple niches in bulk.
-
-        Args:
-            request: Bulk niche update request
-
-        Returns:
-            Bulk operation response with updated niches
+        Update multiple niches in a single request for improved performance.
         """
         try:
-            # Check if niche analysis module is available
-            if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(
-                    status_code=500, detail="Niche Analysis module not available"
-                )
-
-            # Start timing the operation
+            # Start timing
             start_time = time.time()
 
-            # Process each niche update request
-            async def update_niche(item: Dict[str, Any]) -> NicheResponse:
-                # In a real implementation, this would call the niche analysis service
-                # For now, check if the ID exists in our mock data
-                niche_id = item.get("id")
-                if niche_id not in ["1", "2", "3"]:
-                    raise HTTPException(
-                        status_code=404, detail=f"Niche not found: {niche_id}"
-                    )
-
-                # Create a mock updated niche
-                return NicheResponse(
-                    id=niche_id,
-                    name=item.get("name", f"Updated Niche {niche_id}"),
-                    description=item.get(
-                        "description", f"Updated description for niche {niche_id}"
-                    ),
-                    market_segment=item.get("market_segment", "Content Creation"),
-                    opportunity_score=0.85,
-                    problems=[],
-                    opportunities=[],
-                    created_at=datetime.now(),
-                )
-
-            # Process all items
-            updated_niches = []
+            # Process batch
+            operation_id = str(uuid.uuid4())
+            results = []
             errors = []
 
+            # Process each item
             for i, item in enumerate(request.items):
                 try:
-                    niche = await update_niche(item)
-                    updated_niches.append(niche)
+                    # Get niche ID
+                    niche_id = item.get("id")
+                    if not niche_id:
+                        raise ValueError("Niche ID is required")
+
+                    # Check if niche exists
+                    existing_niche = await niche_service.get_niche(niche_id)
+                    if not existing_niche:
+                        raise ValueError(f"Niche {niche_id} not found")
+
+                    # Update niche
+                    niche = await niche_service.update_niche(niche_id, item)
+                    results.append(niche)
                 except Exception as e:
+                    # Add error
                     errors.append(
-                        BulkOperationError(
-                            index=i,
-                            error_code="UPDATE_FAILED",
-                            error_message=str(e),
-                            item_id=item.get("id"),
-                        )
+                        {
+                            "index": i,
+                            "error_code": "NICHE_UPDATE_ERROR",
+                            "error_message": str(e),
+                            "item_id": item.get("id"),
+                        }
                     )
 
             # Calculate stats
-            processing_time_ms = (time.time() - start_time) * 1000
-            stats = BulkOperationStats(
-                total_items=len(request.items),
-                successful_items=len(updated_niches),
-                failed_items=len(errors),
-                processing_time_ms=processing_time_ms,
-            )
+            end_time = time.time()
+            stats = {
+                "total_items": len(request.items),
+                "successful_items": len(results),
+                "failed_items": len(errors),
+                "processing_time_ms": (end_time - start_time) * 1000,
+            }
 
-            # Return response
-            return BulkNicheUpdateResponse(
-                items=updated_niches,
-                errors=errors,
-                stats=stats,
-                operation_id=str(uuid.uuid4()),
-            )
+            # Create response
+            response = {
+                "items": results,
+                "errors": errors,
+                "stats": stats,
+                "operation_id": operation_id,
+            }
 
+            return response
+
+        except ValidationError as e:
+            logger.error(f"Validation error: {str(e)}")
+            raise HTTPException(status_code=400, detail=str(e))
+        except BaseError as e:
+            logger.error(f"Error updating niches: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
         except Exception as e:
-            logger.error(f"Error in bulk niche update: {str(e)}")
+            logger.error(f"Error updating niches: {str(e)}")
             raise HTTPException(
-                status_code=500, detail=f"Bulk operation failed: {str(e)}"
+                status_code=500, detail=f"Error updating niches: {str(e)}"
             )
+
 
     @router.delete(
         "/niches/bulk",
-        response_model=BulkNicheDeleteResponse,
+        response_model=None,  # Disable response model generation from type annotation
         responses={
             200: {"description": "Niches deleted successfully"},
             400: {"model": ErrorResponse, "description": "Bad request"},
@@ -800,75 +543,79 @@ if FASTAPI_AVAILABLE:
         summary="Delete multiple niches in bulk",
         description="Delete multiple niches in a single request for improved performance",
     )
-    async def delete_niches_bulk(request: BulkNicheDeleteRequest):
+    async def delete_niches_bulk(
+        request: Dict[str, Any] = Body(..., description="Bulk delete request"),
+        niche_service=Depends(get_niche_service),
+    ):
         """
-        Delete multiple niches in bulk.
-
-        Args:
-            request: Bulk niche deletion request
-
-        Returns:
-            Bulk operation response with deleted niche IDs
+        Delete multiple niches in a single request for improved performance.
         """
         try:
-            # Check if niche analysis module is available
-            if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(
-                    status_code=500, detail="Niche Analysis module not available"
-                )
-
-            # Start timing the operation
+            # Start timing
             start_time = time.time()
 
-            # Process each niche deletion request
-            async def delete_niche(niche_id: str) -> str:
-                # In a real implementation, this would call the niche analysis service
-                # For now, check if the ID exists in our mock data
-                if niche_id not in ["1", "2", "3"]:
-                    raise HTTPException(
-                        status_code=404, detail=f"Niche not found: {niche_id}"
-                    )
+            # Get niche IDs
+            niche_ids = request.get("ids", [])
+            if not niche_ids:
+                raise ValueError("Niche IDs are required")
 
-                # Return the ID of the deleted niche
-                return niche_id
-
-            # Process all items
+            # Process batch
+            operation_id = str(uuid.uuid4())
             deleted_ids = []
             errors = []
 
-            for i, niche_id in enumerate(request.ids):
+            # Process each item
+            for i, niche_id in enumerate(niche_ids):
                 try:
-                    deleted_id = await delete_niche(niche_id)
-                    deleted_ids.append(deleted_id)
+                    # Check if niche exists
+                    existing_niche = await niche_service.get_niche(niche_id)
+                    if not existing_niche:
+                        raise ValueError(f"Niche {niche_id} not found")
+
+                    # Delete niche
+                    success = await niche_service.delete_niche(niche_id)
+                    if success:
+                        deleted_ids.append(niche_id)
+                    else:
+                        raise ValueError(f"Failed to delete niche {niche_id}")
                 except Exception as e:
+                    # Add error
                     errors.append(
-                        BulkOperationError(
-                            index=i,
-                            error_code="DELETION_FAILED",
-                            error_message=str(e),
-                            item_id=niche_id,
-                        )
+                        {
+                            "index": i,
+                            "error_code": "NICHE_DELETE_ERROR",
+                            "error_message": str(e),
+                            "item_id": niche_id,
+                        }
                     )
 
             # Calculate stats
-            processing_time_ms = (time.time() - start_time) * 1000
-            stats = BulkOperationStats(
-                total_items=len(request.ids),
-                successful_items=len(deleted_ids),
-                failed_items=len(errors),
-                processing_time_ms=processing_time_ms,
-            )
+            end_time = time.time()
+            stats = {
+                "total_items": len(niche_ids),
+                "successful_items": len(deleted_ids),
+                "failed_items": len(errors),
+                "processing_time_ms": (end_time - start_time) * 1000,
+            }
 
-            # Return response
-            return BulkNicheDeleteResponse(
-                deleted_ids=deleted_ids,
-                errors=errors,
-                stats=stats,
-                operation_id=str(uuid.uuid4()),
-            )
+            # Create response
+            response = {
+                "deleted_ids": deleted_ids,
+                "errors": errors,
+                "stats": stats,
+                "operation_id": operation_id,
+            }
 
+            return response
+
+        except ValidationError as e:
+            logger.error(f"Validation error: {str(e)}")
+            raise HTTPException(status_code=400, detail=str(e))
+        except BaseError as e:
+            logger.error(f"Error deleting niches: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
         except Exception as e:
-            logger.error(f"Error in bulk niche deletion: {str(e)}")
+            logger.error(f"Error deleting niches: {str(e)}")
             raise HTTPException(
-                status_code=500, detail=f"Bulk operation failed: {str(e)}"
+                status_code=500, detail=f"Error deleting niches: {str(e)}"
             )

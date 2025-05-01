@@ -1,130 +1,205 @@
 """
-Pytest fixtures for API tests.
-
-This module provides fixtures that can be used across API tests.
+Fixtures for API tests.
 """
 
-import os
 import pytest
-from typing import Dict, Any, Optional, List, Generator
 from fastapi.testclient import TestClient
+from typing import Generator, Dict, Any, Optional, Union
+import json
 
-# Import API server
-from api.server import APIServer, APIConfig
-from api.config import APIVersion
+from api.app import app
+from api.utils.auth import create_access_token
 
-# Import mock fixtures
-from tests.mocks.fixtures import (
-    mock_openai_provider,
-    mock_ollama_provider,
-    mock_lmstudio_provider,
-    patch_model_providers,
-    mock_huggingface_api,
-    mock_payment_api,
-    mock_email_api,
-    mock_storage_api,
-    patch_external_apis,
-    mock_model_inference_result,
-    mock_embedding_result,
-    mock_subscription_data,
-    mock_niche_analysis_data,
-    mock_marketing_campaign_data,
-)
+
+class APITestClient:
+    """
+    Test client for API tests with helper methods.
+    """
+
+    def __init__(self, client: TestClient, headers: Dict[str, str] = None):
+        """
+        Initialize the API test client.
+
+        Args:
+            client: FastAPI test client
+            headers: Default headers to include in requests
+        """
+        self.client = client
+        self.headers = headers or {}
+
+    def get(self, url: str, **kwargs) -> Any:
+        """
+        Send a GET request.
+
+        Args:
+            url: URL to request
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response from the API
+        """
+        headers = {**self.headers, **kwargs.pop("headers", {})}
+        return self.client.get(url, headers=headers, **kwargs)
+
+    def post(self, url: str, json_data: Optional[Union[Dict, list]] = None, **kwargs) -> Any:
+        """
+        Send a POST request.
+
+        Args:
+            url: URL to request
+            json_data: JSON data to send in the request body
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response from the API
+        """
+        headers = {**self.headers, **kwargs.pop("headers", {})}
+        return self.client.post(url, json=json_data, headers=headers, **kwargs)
+
+    def put(self, url: str, json_data: Optional[Union[Dict, list]] = None, **kwargs) -> Any:
+        """
+        Send a PUT request.
+
+        Args:
+            url: URL to request
+            json_data: JSON data to send in the request body
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response from the API
+        """
+        headers = {**self.headers, **kwargs.pop("headers", {})}
+        return self.client.put(url, json=json_data, headers=headers, **kwargs)
+
+    def delete(self, url: str, **kwargs) -> Any:
+        """
+        Send a DELETE request.
+
+        Args:
+            url: URL to request
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response from the API
+        """
+        headers = {**self.headers, **kwargs.pop("headers", {})}
+        return self.client.delete(url, headers=headers, **kwargs)
+
+    def patch(self, url: str, json_data: Optional[Union[Dict, list]] = None, **kwargs) -> Any:
+        """
+        Send a PATCH request.
+
+        Args:
+            url: URL to request
+            json_data: JSON data to send in the request body
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response from the API
+        """
+        headers = {**self.headers, **kwargs.pop("headers", {})}
+        return self.client.patch(url, json=json_data, headers=headers, **kwargs)
+    
+    def bulk_create(self, url: str, items: list, **kwargs) -> Any:
+        """
+        Send a bulk create request.
+
+        Args:
+            url: URL to request
+            items: List of items to create
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response from the API
+        """
+        return self.post(url + "/bulk", json_data=items, **kwargs)
 
 
 @pytest.fixture
-def api_config() -> APIConfig:
+def api_client() -> TestClient:
     """
-    Create a test API configuration.
+    Create a FastAPI test client.
 
     Returns:
-        Test API configuration
+        FastAPI test client
     """
-    return APIConfig(
-        host="127.0.0.1",
-        port=8000,
-        debug=True,
-        version=APIVersion.V1,
-        active_versions=[APIVersion.V1],
-        prefix="/api",
-        docs_url="/docs",
-        openapi_url="/openapi.json",
-        redoc_url="/redoc",
-        enable_graphql=True,
-        graphql_path="/graphql",
-        graphiql=True,
-        enable_cors=True,
-        cors_origins=["*"],
-        enable_rate_limit=False,
-        enable_auth=False,
-        api_keys=["test-api-key"],
-        jwt_secret="test-jwt-secret",
-        enable_niche_analysis=True,
-        enable_monetization=True,
-        enable_marketing=True,
-        enable_ai_models=True,
-        enable_agent_team=True,
-        enable_user=True,
-        enable_dashboard=True,
-        enable_analytics=True,
-    )
-
-
-@pytest.fixture
-def api_server(api_config: APIConfig) -> APIServer:
-    """
-    Create a test API server.
-
-    Args:
-        api_config: Test API configuration
-
-    Returns:
-        Test API server
-    """
-    return APIServer(api_config)
-
-
-@pytest.fixture
-def api_client(api_server: APIServer) -> TestClient:
-    """
-    Create a test client for the API server.
-
-    Args:
-        api_server: Test API server
-
-    Returns:
-        Test client
-    """
-    return TestClient(api_server.app)
+    return TestClient(app)
 
 
 @pytest.fixture
 def api_headers() -> Dict[str, str]:
     """
-    Create headers for API requests.
+    Create default headers for API requests.
 
     Returns:
-        Headers for API requests
+        Default headers
     """
     return {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-API-Key": "test-api-key",
     }
 
 
 @pytest.fixture
-def api_auth_headers(api_headers: Dict[str, str]) -> Dict[str, str]:
+def api_auth_headers() -> Dict[str, str]:
     """
-    Create headers for authenticated API requests.
-
-    Args:
-        api_headers: Base API headers
+    Create authenticated headers for API requests.
 
     Returns:
-        Headers for authenticated API requests
+        Authenticated headers
     """
-    # In a real implementation, this would generate a JWT token
-    headers = api_headers.copy()
-    headers["Authorization"] = "Bearer test-jwt-token"
-    return headers
+    # Create a test user and token
+    user_data = {
+        "id": "test-user-id",
+        "email": "test@example.com",
+        "username": "testuser",
+        "role": "admin",
+    }
+    token = create_access_token(data=user_data)
+    
+    return {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+
+
+@pytest.fixture
+def api_test_client(api_client: TestClient, api_headers: Dict[str, str]) -> APITestClient:
+    """
+    Create an API test client.
+
+    Args:
+        api_client: FastAPI test client
+        api_headers: Default headers
+
+    Returns:
+        API test client
+    """
+    return APITestClient(api_client, api_headers)
+
+
+@pytest.fixture
+def auth_api_test_client(api_client: TestClient, api_auth_headers: Dict[str, str]) -> APITestClient:
+    """
+    Create an authenticated API test client.
+
+    Args:
+        api_client: FastAPI test client
+        api_auth_headers: Authenticated headers
+
+    Returns:
+        Authenticated API test client
+    """
+    return APITestClient(api_client, api_auth_headers)
+
+
+def generate_id() -> str:
+    """
+    Generate a random ID for testing.
+
+    Returns:
+        Random ID
+    """
+    import uuid
+    return str(uuid.uuid4())

@@ -14,6 +14,12 @@ huggingface-hub>=0.16.0
 # API and server dependencies
 fastapi>=0.95.0
 uvicorn>=0.22.0
+httpx>=0.24.0  # Required for TestClient
+python-multipart>=0.0.5  # Required for FastAPI form data
+flask>=2.0.0   # Required for UI
+flask-socketio>=5.0.0  # Required for UI WebSockets
+celery>=5.2.0  # Required for UI background tasks
+matplotlib>=3.5.0  # Required for visualization
 grpcio>=1.54.0
 grpcio-reflection>=1.54.0
 grpcio-health-checking>=1.54.0

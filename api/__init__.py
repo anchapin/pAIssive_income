@@ -8,13 +8,6 @@ from .server import APIServer, APIConfig
 from .middleware import AuthMiddleware, RateLimitMiddleware, CORSMiddleware
 from .routes import (
     niche_analysis_router,
-    monetization_router,
-    marketing_router,
-    ai_models_router,
-    agent_team_router,
-    user_router,
-    dashboard_router,
-    api_key_router,
 )
 
 __all__ = [
@@ -24,11 +17,4 @@ __all__ = [
     "RateLimitMiddleware",
     "CORSMiddleware",
     "niche_analysis_router",
-    "monetization_router",
-    "marketing_router",
-    "ai_models_router",
-    "agent_team_router",
-    "user_router",
-    "dashboard_router",
-    "api_key_router",
 ]
