@@ -57,7 +57,7 @@
   - Tests for rate limiting (4 tests) **Passed**
 
 ### Webhook Integration Tests
-- **Files**: 
+- **Files**:
   - `tests/integration/test_webhook_security_integration.py`
   - `tests/integration/test_webhook_middleware_integration.py`
   - `tests/integration/test_webhook_end_to_end.py`
@@ -117,6 +117,24 @@
   - Calculates scaling efficiency to identify bottlenecks
   - Provides insights for capacity planning
 
+### Load Distribution Tests
+- **File**: `tests/performance/test_load_distribution.py`
+- **Status**: ✅ Implemented
+- **Details**:
+  - Tests system behavior under geographically distributed load
+  - Tests regional failover scenarios
+  - Tests load balancing optimization with different strategies
+  - Provides insights for distributed deployment planning
+
+### Resource Utilization Tests
+- **File**: `tests/performance/test_resource_utilization.py`
+- **Status**: ✅ Implemented
+- **Details**:
+  - Tests memory usage patterns under sustained load
+  - Tests CPU utilization during concurrent operations
+  - Tests I/O bottleneck identification
+  - Helps identify resource constraints and optimization opportunities
+
 ### API Router Improvements
 - **File**: `api/routes/webhook_router.py`
 - **Status**: ✅ Completed
@@ -150,7 +168,7 @@
 - Implemented integration tests for webhook delivery functionality
 - Implemented error handling tests for webhook service
 - Verified webhook service functionality with manual testing
-- Implemented performance, load, and scalability tests
+- Implemented performance, load, scalability, load distribution, and resource utilization tests
 - Implemented security enhancements (IP allowlisting, signature verification, rate limiting)
 - Created comprehensive webhook integration documentation
 - Ran security tests and verified all tests pass
