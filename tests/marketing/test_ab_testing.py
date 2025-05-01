@@ -624,3 +624,437 @@ class TestABTesting:
         # Test ending an already ended test
         with pytest.raises(TestAlreadyEndedError):
             ab_testing.end_test(test_id)
+
+
+class TestUserJourneyTracking:
+    """Tests for user journey tracking in A/B tests."""
+
+    def test_user_multiple_interactions(self):
+        """Test tracking multiple interactions from same user across variants."""
+        ab_testing = ABTesting()
+        
+        variants = [
+            {"name": "Control", "is_control": True},
+            {"name": "Variant B"}
+        ]
+        
+        # Create test
+        test = ab_testing.create_test(
+            name="User Journey Test",
+            description="Testing user journey tracking",
+            content_type="email",
+            test_type="a_b",
+            variants=variants
+        )
+        
+        test_id = test["id"]
+        control_id = test["variants"][0]["id"]
+        variant_id = test["variants"][1]["id"]
+        user_id = "test_user_1"
+        
+        # Simulate user journey
+        # First sees control variant
+        interaction1 = ab_testing.record_interaction(
+            test_id=test_id,
+            variant_id=control_id,
+            interaction_type="impression",
+            user_id=user_id,
+            metadata={"source": "email"}
+        )
+        
+        # Then clicks control variant
+        interaction2 = ab_testing.record_interaction(
+            test_id=test_id,
+            variant_id=control_id,
+            interaction_type="click",
+            user_id=user_id,
+            metadata={"source": "email", "timestamp": datetime.now().isoformat()}
+        )
+        
+        # Later sees variant B
+        interaction3 = ab_testing.record_interaction(
+            test_id=test_id,
+            variant_id=variant_id,
+            interaction_type="impression",
+            user_id=user_id,
+            metadata={"source": "email", "campaign": "followup"}
+        )
+        
+        # Verify interactions were recorded with correct user attribution
+        assert interaction1["user_id"] == user_id
+        assert interaction2["user_id"] == user_id
+        assert interaction3["user_id"] == user_id
+        
+        # Verify metadata was preserved
+        assert interaction1["metadata"]["source"] == "email"
+        assert interaction2["metadata"]["source"] == "email"
+        assert interaction3["metadata"]["source"] == "email"
+        assert interaction3["metadata"]["campaign"] == "followup"
+        
+        # Verify test results show correct attribution
+        results = ab_testing.get_results(test_id)
+        control_result = next(v for v in results["variants"] if v["id"] == control_id)
+        variant_result = next(v for v in results["variants"] if v["id"] == variant_id)
+        
+        assert control_result["metrics"]["impressions"] == 1
+        assert control_result["metrics"]["clicks"] == 1
+        assert variant_result["metrics"]["impressions"] == 1
+        assert variant_result["metrics"]["clicks"] == 0
+
+    def test_user_session_management(self):
+        """Test user session management and attribution across variants."""
+        ab_testing = ABTesting()
+        
+        variants = [
+            {"name": "Control", "is_control": True},
+            {"name": "Variant B"}
+        ]
+        
+        test = ab_testing.create_test(
+            name="Session Management Test",
+            description="Testing session management",
+            content_type="landing_page",
+            test_type="a_b",
+            variants=variants
+        )
+        
+        test_id = test["id"]
+        control_id = test["variants"][0]["id"]
+        variant_id = test["variants"][1]["id"]
+        
+        # Simulate multiple users with different session patterns
+        users = ["user1", "user2"]
+        session_ids = ["session1", "session2"]
+        
+        # User 1 interactions in first session
+        ab_testing.record_interaction(
+            test_id=test_id,
+            variant_id=control_id,
+            interaction_type="impression",
+            user_id=users[0],
+            metadata={"session_id": session_ids[0]}
+        )
+        
+        ab_testing.record_interaction(
+            test_id=test_id,
+            variant_id=control_id,
+            interaction_type="click",
+            user_id=users[0],
+            metadata={"session_id": session_ids[0]}
+        )
+        
+        # User 1 interactions in second session
+        ab_testing.record_interaction(
+            test_id=test_id,
+            variant_id=variant_id,
+            interaction_type="impression",
+            user_id=users[0],
+            metadata={"session_id": session_ids[1]}
+        )
+        
+        # User 2 interactions in first session
+        ab_testing.record_interaction(
+            test_id=test_id,
+            variant_id=variant_id,
+            interaction_type="impression",
+            user_id=users[1],
+            metadata={"session_id": session_ids[0]}
+        )
+        
+        ab_testing.record_interaction(
+            test_id=test_id,
+            variant_id=variant_id,
+            interaction_type="click",
+            user_id=users[1],
+            metadata={"session_id": session_ids[0]}
+        )
+        
+        ab_testing.record_interaction(
+            test_id=test_id,
+            variant_id=variant_id,
+            interaction_type="conversion",
+            user_id=users[1],
+            metadata={"session_id": session_ids[0]}
+        )
+        
+        # Get test results
+        results = ab_testing.get_results(test_id)
+        
+        # Verify metrics reflect all sessions
+        assert results["total_impressions"] == 3  # Two for user1, one for user2
+        assert results["total_clicks"] == 2  # One from each user
+        assert results["total_conversions"] == 1  # One from user2
+        
+        # Verify control variant metrics
+        control_result = next(v for v in results["variants"] if v["id"] == control_id)
+        assert control_result["metrics"]["impressions"] == 1
+        assert control_result["metrics"]["clicks"] == 1
+        assert control_result["metrics"]["conversions"] == 0
+        
+        # Verify variant B metrics
+        variant_result = next(v for v in results["variants"] if v["id"] == variant_id)
+        assert variant_result["metrics"]["impressions"] == 2
+        assert variant_result["metrics"]["clicks"] == 1
+        assert variant_result["metrics"]["conversions"] == 1
+
+    def test_user_segmentation(self):
+        """Test user segmentation in A/B test analysis."""
+        ab_testing = ABTesting()
+        
+        variants = [
+            {"name": "Control", "is_control": True},
+            {"name": "Variant B"}
+        ]
+        
+        test = ab_testing.create_test(
+            name="User Segmentation Test",
+            description="Testing user segmentation",
+            content_type="landing_page",
+            test_type="a_b",
+            variants=variants
+        )
+        
+        test_id = test["id"]
+        control_id = test["variants"][0]["id"]
+        variant_id = test["variants"][1]["id"]
+        
+        # Simulate different user segments
+        mobile_users = ["mobile_user1", "mobile_user2"]
+        desktop_users = ["desktop_user1", "desktop_user2"]
+        
+        # Mobile users interactions
+        for user_id in mobile_users:
+            ab_testing.record_interaction(
+                test_id=test_id,
+                variant_id=control_id,
+                interaction_type="impression",
+                user_id=user_id,
+                metadata={"device": "mobile", "browser": "safari"}
+            )
+            
+            if user_id == "mobile_user1":
+                ab_testing.record_interaction(
+                    test_id=test_id,
+                    variant_id=control_id,
+                    interaction_type="click",
+                    user_id=user_id,
+                    metadata={"device": "mobile", "browser": "safari"}
+                )
+        
+        # Desktop users interactions
+        for user_id in desktop_users:
+            ab_testing.record_interaction(
+                test_id=test_id,
+                variant_id=variant_id,
+                interaction_type="impression",
+                user_id=user_id,
+                metadata={"device": "desktop", "browser": "chrome"}
+            )
+            
+            # Both desktop users click and convert
+            ab_testing.record_interaction(
+                test_id=test_id,
+                variant_id=variant_id,
+                interaction_type="click",
+                user_id=user_id,
+                metadata={"device": "desktop", "browser": "chrome"}
+            )
+            
+            ab_testing.record_interaction(
+                test_id=test_id,
+                variant_id=variant_id,
+                interaction_type="conversion",
+                user_id=user_id,
+                metadata={"device": "desktop", "browser": "chrome"}
+            )
+        
+        # Get test results
+        results = ab_testing.get_results(test_id)
+        
+        # Verify total metrics
+        assert results["total_impressions"] == 4  # 2 mobile + 2 desktop
+        assert results["total_clicks"] == 3  # 1 mobile + 2 desktop
+        assert results["total_conversions"] == 2  # 2 desktop
+        
+        # Verify control variant (mobile) metrics
+        control_result = next(v for v in results["variants"] if v["id"] == control_id)
+        assert control_result["metrics"]["impressions"] == 2
+        assert control_result["metrics"]["clicks"] == 1
+        assert control_result["metrics"]["conversions"] == 0
+        assert control_result["metrics"]["click_through_rate"] == 0.5  # 1/2
+        
+        # Verify variant B (desktop) metrics
+        variant_result = next(v for v in results["variants"] if v["id"] == variant_id)
+        assert variant_result["metrics"]["impressions"] == 2
+        assert variant_result["metrics"]["clicks"] == 2
+        assert variant_result["metrics"]["conversions"] == 2
+        assert variant_result["metrics"]["click_through_rate"] == 1.0  # 2/2
+        assert variant_result["metrics"]["conversion_rate"] == 1.0  # 2/2
+        
+        # Analyze test results
+        analysis = ab_testing.analyze_test(test_id)
+        
+        # Variant B (desktop) should show better performance
+        variant_analysis = next(v for v in analysis["variants"] if not v["is_control"])
+        assert variant_analysis["is_better_than_control"] is True
+
+
+class TestStatisticalEdgeCases:
+    """Tests for statistical edge cases in A/B testing."""
+
+    def test_uneven_sample_sizes(self):
+        """Test handling of extremely uneven sample sizes between variants."""
+        ab_testing = ABTesting()
+        
+        variants = [
+            {"name": "Control", "is_control": True},
+            {"name": "Variant B"}
+        ]
+        
+        test = ab_testing.create_test(
+            name="Uneven Sample Test",
+            description="Testing extremely uneven sample sizes",
+            content_type="email",
+            test_type="a_b",
+            variants=variants
+        )
+        
+        test_id = test["id"]
+        control_id = test["variants"][0]["id"]
+        variant_id = test["variants"][1]["id"]
+        
+        # Create highly uneven sample sizes (10:1 ratio)
+        # Control: 1000 impressions, 100 clicks (10% CTR)
+        for _ in range(1000):
+            ab_testing.record_interaction(test_id, control_id, "impression")
+        for _ in range(100):
+            ab_testing.record_interaction(test_id, control_id, "click")
+        
+        # Variant B: 100 impressions, 15 clicks (15% CTR)
+        for _ in range(100):
+            ab_testing.record_interaction(test_id, variant_id, "impression")
+        for _ in range(15):
+            ab_testing.record_interaction(test_id, variant_id, "click")
+        
+        # Analyze results
+        analysis = ab_testing.analyze_test(test_id)
+        
+        # Even with better performance, variant B shouldn't be significant due to small sample
+        variant_analysis = next(v for v in analysis["variants"] if not v["is_control"])
+        assert not variant_analysis["ctr_is_significant"]
+        
+        # Add more interactions to variant B to reach significance threshold
+        for _ in range(900):
+            ab_testing.record_interaction(test_id, variant_id, "impression")
+        for _ in range(135):  # Maintaining 15% CTR
+            ab_testing.record_interaction(test_id, variant_id, "click")
+        
+        # Re-analyze with balanced samples
+        analysis = ab_testing.analyze_test(test_id)
+        variant_analysis = next(v for v in analysis["variants"] if not v["is_control"])
+        assert variant_analysis["ctr_is_significant"]
+
+    def test_small_effect_sizes(self):
+        """Test behavior with very small effect sizes."""
+        ab_testing = ABTesting()
+        
+        variants = [
+            {"name": "Control", "is_control": True},
+            {"name": "Variant B"}
+        ]
+        
+        test = ab_testing.create_test(
+            name="Small Effect Size Test",
+            description="Testing very small effect sizes",
+            content_type="landing_page",
+            test_type="a_b",
+            variants=variants
+        )
+        
+        test_id = test["id"]
+        control_id = test["variants"][0]["id"]
+        variant_id = test["variants"][1]["id"]
+        
+        # Control: 10,000 impressions, 1000 clicks (10% CTR)
+        for _ in range(10000):
+            ab_testing.record_interaction(test_id, control_id, "impression")
+        for _ in range(1000):
+            ab_testing.record_interaction(test_id, control_id, "click")
+        
+        # Variant B: 10,000 impressions, 1020 clicks (10.2% CTR - only 0.2% improvement)
+        for _ in range(10000):
+            ab_testing.record_interaction(test_id, variant_id, "impression")
+        for _ in range(1020):
+            ab_testing.record_interaction(test_id, variant_id, "click")
+        
+        # Analyze results
+        analysis = ab_testing.analyze_test(test_id)
+        
+        # Very small improvement shouldn't be significant despite large sample
+        variant_analysis = next(v for v in analysis["variants"] if not v["is_control"])
+        assert not variant_analysis["ctr_is_significant"]
+        
+        # Add more clicks to create a larger effect size
+        for _ in range(80):  # Bringing total to 1100 clicks (11% CTR)
+            ab_testing.record_interaction(test_id, variant_id, "click")
+        
+        # Re-analyze with larger effect size
+        analysis = ab_testing.analyze_test(test_id)
+        variant_analysis = next(v for v in analysis["variants"] if not v["is_control"])
+        assert variant_analysis["ctr_is_significant"]
+
+    def test_extreme_values(self):
+        """Test confidence interval calculations with extreme values."""
+        ab_testing = ABTesting()
+        
+        variants = [
+            {"name": "Control", "is_control": True},
+            {"name": "Variant B"}
+        ]
+        
+        test = ab_testing.create_test(
+            name="Extreme Values Test",
+            description="Testing extreme conversion rates",
+            content_type="landing_page",
+            test_type="a_b",
+            variants=variants
+        )
+        
+        test_id = test["id"]
+        control_id = test["variants"][0]["id"]
+        variant_id = test["variants"][1]["id"]
+        
+        # Control: Very low conversion rate (0.1%)
+        for _ in range(10000):
+            ab_testing.record_interaction(test_id, control_id, "impression")
+        for _ in range(1000):
+            ab_testing.record_interaction(test_id, control_id, "click")
+        for _ in range(1):  # Just 1 conversion
+            ab_testing.record_interaction(test_id, control_id, "conversion")
+        
+        # Variant B: Very high conversion rate (99.9%)
+        for _ in range(10000):
+            ab_testing.record_interaction(test_id, variant_id, "impression")
+        for _ in range(1000):
+            ab_testing.record_interaction(test_id, variant_id, "click")
+        for _ in range(999):  # Almost all convert
+            ab_testing.record_interaction(test_id, variant_id, "conversion")
+        
+        # Analyze results
+        analysis = ab_testing.analyze_test(test_id)
+        
+        # Should detect significance with extreme difference
+        variant_analysis = next(v for v in analysis["variants"] if not v["is_control"])
+        assert variant_analysis["conversion_is_significant"]
+        assert variant_analysis["is_better_than_control"]
+        
+        # Verify metrics are calculated correctly for extreme values
+        results = ab_testing.get_results(test_id)
+        control_result = next(v for v in results["variants"] if v["id"] == control_id)
+        variant_result = next(v for v in results["variants"] if v["id"] == variant_id)
+        
+        # Control conversion rate should be 0.1%
+        assert abs(control_result["metrics"]["conversion_rate"] - 0.001) < 0.0001
+        
+        # Variant conversion rate should be 99.9%
+        assert abs(variant_result["metrics"]["conversion_rate"] - 0.999) < 0.0001
