@@ -181,26 +181,16 @@ class MemoryCache(CacheBackend):
             if not valid_items:
                 return
 
-            # Debug: Print all valid items with their last access times
-            print(f"Valid items before eviction: {len(valid_items)}")
-            for k, v in valid_items.items():
-                print(f"Key: {k}, Last access time: {v[3]}")
-
             if self.eviction_policy == "lru":
                 # Get least recently accessed key
-                # The last_access_time is at index 3 in the tuple
                 key_to_evict = min(valid_items.items(), key=lambda x: x[1][3])[0]
-                print(f"Evicting LRU key: {key_to_evict}")
             elif self.eviction_policy == "lfu":
                 # Get least frequently used key
-                # The access_count is at index 2 in the tuple
-                # Use last_access_time as a tiebreaker
                 key_to_evict = min(valid_items.items(), key=lambda x: (x[1][2], x[1][3]))[0]
             else:  # FIFO or default
                 # Get oldest item by creation time (approximated by order in the dict)
                 key_to_evict = next(iter(valid_items))
 
-            # Make sure the key exists before deleting
             if key_to_evict in self.cache:
                 del self.cache[key_to_evict]
                 self.stats["evictions"] += 1
