@@ -183,6 +183,188 @@ if (!isValid) {
 }
 ```
 
+**PHP**:
+```php
+function verifyWebhookSignature($payload, $signature, $secret) {
+    $expectedSignature = base64_encode(
+        hash_hmac('sha256', $payload, $secret, true)
+    );
+    
+    return hash_equals($expectedSignature, $signature);
+}
+
+// In your webhook handler:
+$payload = file_get_contents('php://input');
+$signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE'];
+
+if (!verifyWebhookSignature($payload, $signature, 'your_webhook_secret')) {
+    http_response_code(401);
+    exit('Invalid signature');
+}
+```
+
+**Ruby**:
+```ruby
+require 'openssl'
+require 'base64'
+
+def verify_webhook_signature(payload, signature, secret)
+  expected_signature = Base64.strict_encode64(
+    OpenSSL::HMAC.digest('SHA256', secret, payload)
+  )
+  
+  ActiveSupport::SecurityUtils.secure_compare(
+    expected_signature,
+    signature
+  )
+end
+
+# In your webhook handler:
+signature = request.headers['X-Webhook-Signature']
+payload = request.raw_post
+
+unless verify_webhook_signature(payload, signature, 'your_webhook_secret')
+  halt 401, 'Invalid signature'
+end
+```
+
+**Go**:
+```go
+import (
+    "crypto/hmac"
+    "crypto/sha256"
+    "encoding/base64"
+    "crypto/subtle"
+)
+
+func verifyWebhookSignature(payload []byte, signature, secret string) bool {
+    mac := hmac.New(sha256.New, []byte(secret))
+    mac.Write(payload)
+    expectedSignature := base64.StdEncoding.EncodeToString(mac.Sum(nil))
+    
+    return subtle.ConstantTimeCompare(
+        []byte(expectedSignature),
+        []byte(signature),
+    ) == 1
+}
+
+// In your webhook handler:
+func webhookHandler(w http.ResponseWriter, r *http.Request) {
+    payload, err := io.ReadAll(r.Body)
+    if err != nil {
+        http.Error(w, "Error reading body", http.StatusBadRequest)
+        return
+    }
+    
+    signature := r.Header.Get("X-Webhook-Signature")
+    if !verifyWebhookSignature(payload, signature, "your_webhook_secret") {
+        http.Error(w, "Invalid signature", http.StatusUnauthorized)
+        return
+    }
+    // Process the webhook...
+}
+```
+
+**Java**:
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+import java.security.MessageDigest;
+
+public class WebhookVerifier {
+    public static boolean verifyWebhookSignature(
+        String payload,
+        String signature,
+        String secret
+    ) {
+        try {
+            Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(
+                secret.getBytes("UTF-8"),
+                "HmacSHA256"
+            );
+            sha256Hmac.init(secretKey);
+            
+            String expectedSignature = Base64.getEncoder()
+                .encodeToString(sha256Hmac.doFinal(
+                    payload.getBytes("UTF-8")
+                ));
+            
+            return MessageDigest.isEqual(
+                expectedSignature.getBytes(),
+                signature.getBytes()
+            );
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}
+
+// In your webhook handler:
+@PostMapping("/webhook")
+public ResponseEntity<?> handleWebhook(
+    @RequestBody String payload,
+    @RequestHeader("X-Webhook-Signature") String signature
+) {
+    if (!WebhookVerifier.verifyWebhookSignature(
+        payload,
+        signature,
+        "your_webhook_secret"
+    )) {
+        return ResponseEntity.status(401).body("Invalid signature");
+    }
+    // Process the webhook...
+    return ResponseEntity.ok().build();
+}
+```
+
+**C#**:
+```csharp
+using System;
+using System.Security.Cryptography;
+using System.Text;
+
+public class WebhookVerifier
+{
+    public static bool VerifyWebhookSignature(
+        string payload,
+        string signature,
+        string secret)
+    {
+        using (var hmac = new HMACSHA256(
+            Encoding.UTF8.GetBytes(secret)))
+        {
+            var expectedSignature = Convert.ToBase64String(
+                hmac.ComputeHash(Encoding.UTF8.GetBytes(payload))
+            );
+            
+            return CryptographicOperations.FixedTimeEquals(
+                Convert.FromBase64String(expectedSignature),
+                Convert.FromBase64String(signature)
+            );
+        }
+    }
+}
+
+// In your webhook handler:
+[HttpPost]
+public IActionResult Webhook(
+    [FromBody] string payload,
+    [FromHeader(Name = "X-Webhook-Signature")] string signature)
+{
+    if (!WebhookVerifier.VerifyWebhookSignature(
+        payload,
+        signature,
+        "your_webhook_secret"))
+    {
+        return Unauthorized("Invalid signature");
+    }
+    // Process the webhook...
+    return Ok();
+}
+```
+
 ### IP Allowlisting
 
 For additional security, we recommend configuring your firewall to only accept webhook requests from our IP addresses:
@@ -191,6 +373,154 @@ For additional security, we recommend configuring your firewall to only accept w
 - `192.0.2.2`
 - `192.0.2.3`
 - `192.0.2.4`
+
+### Managing Security Settings
+
+Here are examples of how to manage webhook security settings in different languages:
+
+**Python (using requests)**:
+```python
+import requests
+
+def configure_ip_allowlist(webhook_id, allowed_ips, api_key):
+    response = requests.put(
+        f"https://api.paissiveincome.com/api/v1/webhooks/{webhook_id}/security/ip-allowlist",
+        headers={"Authorization": f"Bearer {api_key}"},
+        json={
+            "allowed_ips": allowed_ips,
+            "enabled": True
+        }
+    )
+    return response.json()
+
+def rotate_webhook_secret(webhook_id, api_key):
+    response = requests.post(
+        f"https://api.paissiveincome.com/api/v1/webhooks/{webhook_id}/security/rotate-secret",
+        headers={"Authorization": f"Bearer {api_key}"}
+    )
+    return response.json()
+
+def configure_rate_limits(webhook_id, per_minute, per_hour, api_key):
+    response = requests.put(
+        f"https://api.paissiveincome.com/api/v1/webhooks/{webhook_id}/security/rate-limits",
+        headers={"Authorization": f"Bearer {api_key}"},
+        json={
+            "per_minute": per_minute,
+            "per_hour": per_hour
+        }
+    )
+    return response.json()
+
+# Example usage:
+api_key = "your_api_key"
+webhook_id = "webhook-123"
+
+# Configure IP allowlist
+allowlist_response = configure_ip_allowlist(
+    webhook_id,
+    ["203.0.113.1", "203.0.113.0/24"],
+    api_key
+)
+
+# Rotate webhook secret
+rotation_response = rotate_webhook_secret(webhook_id, api_key)
+new_secret = rotation_response["new_secret"]
+old_secret_expiry = rotation_response["old_secret_expiry"]
+
+# Configure rate limits
+rate_limit_response = configure_rate_limits(
+    webhook_id,
+    per_minute=200,
+    per_hour=2000,
+    api_key
+)
+```
+
+**Node.js (using axios)**:
+```javascript
+const axios = require('axios');
+
+class WebhookSecurityManager {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.client = axios.create({
+      baseURL: 'https://api.paissiveincome.com/api/v1',
+      headers: { Authorization: `Bearer ${apiKey}` }
+    });
+  }
+
+  async configureIpAllowlist(webhookId, allowedIps) {
+    const response = await this.client.put(
+      `/webhooks/${webhookId}/security/ip-allowlist`,
+      {
+        allowed_ips: allowedIps,
+        enabled: true
+      }
+    );
+    return response.data;
+  }
+
+  async rotateWebhookSecret(webhookId) {
+    const response = await this.client.post(
+      `/webhooks/${webhookId}/security/rotate-secret`
+    );
+    return response.data;
+  }
+
+  async configureRateLimits(webhookId, perMinute, perHour) {
+    const response = await this.client.put(
+      `/webhooks/${webhookId}/security/rate-limits`,
+      {
+        per_minute: perMinute,
+        per_hour: perHour
+      }
+    );
+    return response.data;
+  }
+}
+
+// Example usage:
+async function manageWebhookSecurity() {
+  const manager = new WebhookSecurityManager('your_api_key');
+  const webhookId = 'webhook-123';
+
+  try {
+    // Configure IP allowlist
+    const allowlistResponse = await manager.configureIpAllowlist(
+      webhookId,
+      ['203.0.113.1', '203.0.113.0/24']
+    );
+    console.log('IP allowlist configured:', allowlistResponse);
+
+    // Rotate webhook secret
+    const rotationResponse = await manager.rotateWebhookSecret(webhookId);
+    console.log(
+      'New secret:', rotationResponse.new_secret,
+      'Old secret expires:', rotationResponse.old_secret_expiry
+    );
+
+    // Configure rate limits
+    const rateLimitResponse = await manager.configureRateLimits(
+      webhookId,
+      200, // per minute
+      2000 // per hour
+    );
+    console.log('Rate limits configured:', rateLimitResponse);
+  } catch (error) {
+    console.error('Error managing webhook security:', error);
+  }
+}
+```
+
+These examples show how to:
+1. Configure IP allowlisting to restrict which IP addresses can send webhooks
+2. Rotate webhook secrets for security maintenance
+3. Configure custom rate limits for high-volume webhook endpoints
+
+Remember to:
+- Update your webhook handlers when rotating secrets (the old secret remains valid for 7 days)
+- Set appropriate rate limits based on your expected webhook volume
+- Keep your API keys secure and never expose them in client-side code
 
 ## Handling Webhook Deliveries
 

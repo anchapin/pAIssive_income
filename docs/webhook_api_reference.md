@@ -4,22 +4,29 @@ This document provides a comprehensive reference for the pAIssive Income Webhook
 
 ## Table of Contents
 
-1. [Authentication](#authentication)
-2. [Endpoints](#endpoints)
-   - [Register Webhook](#register-webhook)
-   - [List Webhooks](#list-webhooks)
-   - [Get Webhook](#get-webhook)
-   - [Update Webhook](#update-webhook)
-   - [Delete Webhook](#delete-webhook)
-   - [List Webhook Deliveries](#list-webhook-deliveries)
-   - [Test Webhook](#test-webhook)
-3. [Security Features](#security-features)
-   - [Signature Verification](#signature-verification)
-   - [IP Allowlisting](#ip-allowlisting)
-   - [Rate Limiting](#rate-limiting)
-4. [Webhook Events](#webhook-events)
-5. [Error Handling](#error-handling)
-6. [Best Practices](#best-practices)
+- [Webhook API Reference](#webhook-api-reference)
+  - [Table of Contents](#table-of-contents)
+  - [Authentication](#authentication)
+  - [Endpoints](#endpoints)
+    - [Register Webhook](#register-webhook)
+    - [List Webhooks](#list-webhooks)
+    - [Get Webhook](#get-webhook)
+    - [Update Webhook](#update-webhook)
+    - [Delete Webhook](#delete-webhook)
+    - [List Webhook Deliveries](#list-webhook-deliveries)
+    - [Test Webhook](#test-webhook)
+  - [Security Features](#security-features)
+    - [Signature Verification](#signature-verification)
+      - [Verifying Signatures](#verifying-signatures)
+    - [IP Allowlisting](#ip-allowlisting)
+    - [Rate Limiting](#rate-limiting)
+    - [Security Endpoints](#security-endpoints)
+      - [Configure IP Allowlist](#configure-ip-allowlist)
+      - [Rotate Webhook Secret](#rotate-webhook-secret)
+      - [Configure Rate Limits](#configure-rate-limits)
+  - [Webhook Events](#webhook-events)
+  - [Error Handling](#error-handling)
+  - [Best Practices](#best-practices)
 
 ## Authentication
 
@@ -424,6 +431,104 @@ To protect your systems from being overwhelmed, we implement rate limiting on we
 - Maximum of 1000 webhook deliveries per hour per endpoint
 
 If you need higher limits, please contact our support team.
+
+### Security Endpoints
+
+#### Configure IP Allowlist
+
+**Endpoint:** `PUT /api/v1/webhooks/{webhook_id}/security/ip-allowlist`
+
+**Path Parameters:**
+- `webhook_id`: ID of the webhook to configure
+
+**Request Body:**
+```json
+{
+  "allowed_ips": [
+    "203.0.113.1",
+    "203.0.113.0/24",
+    "2001:db8::/32"
+  ],
+  "enabled": true
+}
+```
+
+**Response:**
+```json
+{
+  "webhook_id": "webhook-123",
+  "allowed_ips": [
+    "203.0.113.1",
+    "203.0.113.0/24",
+    "2001:db8::/32"
+  ],
+  "enabled": true,
+  "updated_at": "2025-04-30T22:15:00Z"
+}
+```
+
+**Status Codes:**
+- `200 OK`: IP allowlist updated successfully
+- `400 Bad Request`: Invalid IP addresses
+- `401 Unauthorized`: Invalid API key
+- `404 Not Found`: Webhook not found
+
+#### Rotate Webhook Secret
+
+**Endpoint:** `POST /api/v1/webhooks/{webhook_id}/security/rotate-secret`
+
+**Path Parameters:**
+- `webhook_id`: ID of the webhook
+
+**Response:**
+```json
+{
+  "webhook_id": "webhook-123",
+  "new_secret": "whsec_newSecretKey123",
+  "old_secret_expiry": "2025-05-07T22:15:00Z"
+}
+```
+
+The old secret will continue to work for 7 days after rotation to allow for a smooth transition.
+
+**Status Codes:**
+- `200 OK`: Secret rotated successfully
+- `401 Unauthorized`: Invalid API key
+- `404 Not Found`: Webhook not found
+
+#### Configure Rate Limits
+
+**Endpoint:** `PUT /api/v1/webhooks/{webhook_id}/security/rate-limits`
+
+**Path Parameters:**
+- `webhook_id`: ID of the webhook
+
+**Request Body:**
+```json
+{
+  "per_minute": 200,
+  "per_hour": 2000
+}
+```
+
+**Response:**
+```json
+{
+  "webhook_id": "webhook-123",
+  "rate_limits": {
+    "per_minute": 200,
+    "per_hour": 2000
+  },
+  "updated_at": "2025-04-30T22:15:00Z"
+}
+```
+
+**Status Codes:**
+- `200 OK`: Rate limits updated successfully
+- `400 Bad Request`: Invalid rate limits
+- `401 Unauthorized`: Invalid API key
+- `404 Not Found`: Webhook not found
+- `403 Forbidden`: Rate limit increase not allowed
 
 ## Webhook Events
 

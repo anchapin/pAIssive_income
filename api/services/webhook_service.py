@@ -15,6 +15,15 @@ from typing import List, Dict, Any, Optional
 
 from .audit_service import AuditService, AuditEvent
 from .webhook_security import WebhookSignatureVerifier
+from .metrics import (
+    track_webhook_delivery,
+    track_webhook_error,
+    track_webhook_retry,
+    update_webhook_health,
+    update_queue_size,
+    track_queue_latency,
+    update_rate_limit
+)
 
 # Configure logger
 logging.basicConfig(level=logging.INFO)
@@ -340,6 +349,12 @@ class WebhookService:
                 success = await self._deliver_webhook(webhook, delivery)
                 
                 if not success and delivery["attempts"] < delivery["max_attempts"]:
+                    # Track retry attempt
+                    track_webhook_retry(
+                        webhook_id=webhook["id"],
+                        event_type=delivery["event_type"]
+                    )
+                    
                     # Calculate next attempt time (exponential backoff)
                     backoff = min(2 ** delivery["attempts"], 60)  # Max 60 minutes
                     next_attempt = datetime.utcnow().timestamp() + backoff * 60
@@ -366,6 +381,13 @@ class WebhookService:
                     # Requeue for later
                     await asyncio.sleep(1)  # Small delay to avoid tight loop
                     await self.delivery_queue.put(delivery_id)
+                elif not success:
+                    # Track max retries exceeded
+                    delivery["status"] = "max_retries_exceeded"
+                    WEBHOOK_MAX_RETRIES_EXCEEDED.labels(
+                        webhook_id=webhook["id"],
+                        event_type=delivery["event_type"]
+                    ).inc()
                 
                 self.delivery_queue.task_done()
             
@@ -386,10 +408,19 @@ class WebhookService:
         Returns:
             True if delivery was successful, False otherwise
         """
+        start_time = datetime.utcnow().timestamp()
+        
         # Increment attempt counter
         delivery["attempts"] += 1
         delivery["status"] = "retrying" if delivery["attempts"] > 1 else "pending"
+
+        # Update queue size metric
+        update_queue_size(self.delivery_queue.qsize())
         
+        # Track queue latency
+        queued_time = start_time - datetime.fromisoformat(delivery["created_at"]).timestamp()
+        track_queue_latency(queued_time)
+
         # Prepare payload
         payload = {
             "id": delivery["id"],
@@ -429,16 +460,28 @@ class WebhookService:
                     status_code = response.status
                     response_body = await response.text()
                     
-                    # Update delivery
+                    # Calculate delivery duration
+                    duration = datetime.utcnow().timestamp() - start_time
+                    
+                    # Update delivery record
                     delivery["response_code"] = status_code
                     delivery["response_body"] = response_body
                     
                     # Check if successful
                     if 200 <= status_code < 300:
                         delivery["status"] = "success"
-                        
-                        # Update webhook last called timestamp
                         webhook["last_called_at"] = datetime.utcnow().isoformat()
+                        
+                        # Track successful delivery
+                        track_webhook_delivery(
+                            webhook_id=webhook["id"],
+                            event_type=delivery["event_type"],
+                            duration=duration,
+                            status="success"
+                        )
+                        
+                        # Update health status
+                        update_webhook_health(webhook["id"], webhook["url"], True)
                         
                         logger.info(f"Webhook delivered successfully: {delivery['id']} to {webhook['url']}")
                         
@@ -464,6 +507,24 @@ class WebhookService:
                     else:
                         delivery["status"] = "failed"
                         logger.warning(f"Webhook delivery failed with status {status_code}: {delivery['id']} to {webhook['url']}")
+                        
+                        # Track failed delivery
+                        track_webhook_delivery(
+                            webhook_id=webhook["id"],
+                            event_type=delivery["event_type"],
+                            duration=duration,
+                            status="failed"
+                        )
+                        
+                        # Update health status
+                        update_webhook_health(webhook["id"], webhook["url"], False)
+                        
+                        # Track error
+                        track_webhook_error(
+                            webhook_id=webhook["id"],
+                            event_type=delivery["event_type"],
+                            error_type=f"http_{status_code}"
+                        )
                         
                         # Record failure audit event
                         self.audit_service.create_event(
@@ -491,6 +552,25 @@ class WebhookService:
             # Update delivery
             delivery["status"] = "failed"
             delivery["error"] = str(e)
+            
+            # Track failed delivery
+            duration = datetime.utcnow().timestamp() - start_time
+            track_webhook_delivery(
+                webhook_id=webhook["id"],
+                event_type=delivery["event_type"],
+                duration=duration,
+                status="failed"
+            )
+            
+            # Update health status
+            update_webhook_health(webhook["id"], webhook["url"], False)
+            
+            # Track error
+            track_webhook_error(
+                webhook_id=webhook["id"],
+                event_type=delivery["event_type"],
+                error_type="connection_error"
+            )
             
             logger.warning(f"Webhook delivery failed with error: {str(e)}")
             

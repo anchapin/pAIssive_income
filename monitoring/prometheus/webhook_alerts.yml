@@ -1,0 +1,76 @@
+groups:
+- name: webhook_alerts
+  rules:
+  # High failure rate alert
+  - alert: WebhookHighFailureRate
+    expr: |
+      rate(webhook_deliveries_total{status="failed"}[5m]) /
+      rate(webhook_deliveries_total[5m]) > 0.05
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High webhook failure rate
+      description: Webhook failure rate is {{ $value | humanizePercentage }} over the last 5 minutes (threshold: 5%)
+
+  # Webhook endpoint down
+  - alert: WebhookEndpointDown
+    expr: webhook_health == 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: Webhook endpoint is down
+      description: Webhook endpoint {{ $labels.url }} has been down for more than 2 minutes
+
+  # High latency alert
+  - alert: WebhookHighLatency
+    expr: histogram_quantile(0.95, rate(webhook_delivery_duration_seconds_bucket[5m])) > 2
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High webhook delivery latency
+      description: 95th percentile webhook delivery latency is above 2 seconds
+
+  # Queue backlog alert
+  - alert: WebhookQueueBacklog
+    expr: webhook_queue_size > 1000
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: Large webhook delivery queue
+      description: Webhook delivery queue has {{ $value }} items waiting
+
+  # Retry rate alert
+  - alert: WebhookHighRetryRate
+    expr: |
+      rate(webhook_retry_count_total[5m]) /
+      rate(webhook_deliveries_total[5m]) > 0.10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High webhook retry rate
+      description: Webhook retry rate is {{ $value | humanizePercentage }} over the last 5 minutes (threshold: 10%)
+
+  # Rate limit alert
+  - alert: WebhookRateLimitApproaching
+    expr: webhook_rate_limit_remaining < 100
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: Webhook rate limit approaching
+      description: Only {{ $value }} webhook deliveries remaining before rate limit
+
+  # Max retries exceeded
+  - alert: WebhookMaxRetriesExceeded
+    expr: rate(webhook_max_retries_exceeded_total[5m]) > 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: Webhooks exceeding max retries
+      description: Some webhooks are exceeding maximum retry attempts
