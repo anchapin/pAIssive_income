@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class BaseSchema(BaseModel):
@@ -81,7 +81,7 @@ class FeatureSchema(BaseModel):
     priority: str = Field(..., description="Priority of the feature (high, medium, low)")
     complexity: Optional[str] = Field(None, description="Complexity of the feature")
 
-    @validator("priority")
+    @field_validator("priority")
     def validate_priority(cls, v):
         """Validate that priority is one of the allowed values."""
         if v.lower() not in ["high", "medium", "low"]:
@@ -122,7 +122,7 @@ class PricingTierSchema(BaseModel):
     features: List[str] = Field(..., description="Features included in this tier")
     limits: Optional[Dict[str, Any]] = None
 
-    @validator("billing_period")
+    @field_validator("billing_period")
     def validate_billing_period(cls, v):
         """Validate that billing period is one of the allowed values."""
         if v.lower() not in ["monthly", "quarterly", "yearly", "one-time"]:
@@ -197,7 +197,7 @@ class ProjectStateSchema(BaseModel):
     feedback_data: List[Dict[str, Any]] = Field(default_factory=list)
     updated_at: Optional[str] = None
 
-    @validator("updated_at")
+    @field_validator("updated_at")
     def validate_timestamp(cls, v):
         """Validate timestamp format."""
         if v is not None:
@@ -207,7 +207,6 @@ class ProjectStateSchema(BaseModel):
                 raise ValueError("Invalid timestamp format")
         return v
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = {
+        "extra": "allow"  # Allow extra fields
+    }

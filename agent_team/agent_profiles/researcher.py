@@ -29,6 +29,15 @@ class ResearchAgent(IResearchAgent):
         self._description = "Specializes in market research and niche identification"
         self.model_settings = team.config["model_settings"]["researcher"]
 
+    def is_configured(self) -> bool:
+        """Check if the agent is properly configured."""
+        return hasattr(self, "team") and hasattr(self, "model_settings")
+
+    def configure(self, **kwargs: Any) -> None:
+        """Configure the agent."""
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
     @property
     def name(self) -> str:
         """Get the agent name."""
@@ -98,6 +107,65 @@ class ResearchAgent(IResearchAgent):
         """
         # This method is kept for backward compatibility
         return self.identify_niches(segments)
+
+    def validate_niche(self, niche: Dict[str, Any]) -> bool:
+        """
+        Validate a niche opportunity.
+
+        Args:
+            niche: Niche dictionary to validate
+
+        Returns:
+            True if the niche is valid, False otherwise
+        """
+        # Check if the niche has all required fields
+        required_fields = ["name", "description", "problem_areas", "opportunity_score"]
+        for field in required_fields:
+            if field not in niche:
+                return False
+
+        # Check if the opportunity score is valid
+        if not isinstance(niche["opportunity_score"], (int, float)):
+            return False
+
+        if niche["opportunity_score"] < 0 or niche["opportunity_score"] > 1:
+            return False
+
+        return True
+
+    def get_market_data(self, niche: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Get detailed market data for a niche.
+
+        Args:
+            niche: Niche dictionary
+
+        Returns:
+            Dictionary containing market data
+        """
+        # In a real implementation, this would fetch actual market data
+        # For now, we'll return placeholder data
+        return {
+            "market_size": "$500M - $1B",
+            "growth_rate": "15% annually",
+            "key_players": ["Company A", "Company B", "Company C"],
+            "target_audience": {
+                "demographics": {
+                    "age_range": "25-45",
+                    "income_level": "middle to upper",
+                    "education": "college degree or higher",
+                },
+                "psychographics": {
+                    "pain_points": niche["problem_areas"],
+                    "goals": ["efficiency", "cost reduction", "quality improvement"],
+                },
+            },
+            "trends": [
+                "Increasing adoption of AI solutions",
+                "Growing demand for specialized tools",
+                "Shift towards subscription-based models",
+            ],
+        }
 
     def identify_niches_in_segment(self, segment: str) -> List[Dict[str, Any]]:
         """

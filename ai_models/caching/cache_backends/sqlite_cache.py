@@ -6,7 +6,6 @@ This module provides a SQLite-based cache backend.
 
 import json
 import os
-import pickle
 import re
 import sqlite3
 import threading
@@ -27,11 +26,12 @@ class SQLiteCache(CacheBackend):
 
         Args:
             db_path: Path to the SQLite database file
-            serialization: Serialization format (json, pickle)
+            serialization: Serialization format (only json is supported for security reasons)
             **kwargs: Additional parameters for the cache
         """
         self.db_path = os.path.abspath(db_path)
-        self.serialization = serialization.lower()
+        # Always use JSON for security reasons
+        self.serialization = "json"
 
         # Create database directory if it doesn't exist
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
@@ -495,13 +495,8 @@ class SQLiteCache(CacheBackend):
         Returns:
             Serialized value
         """
-        if self.serialization == "json":
-            return json.dumps(value).encode("utf-8")
-        elif self.serialization == "pickle":
-            return pickle.dumps(value)
-        else:
-            # Default to JSON
-            return json.dumps(value).encode("utf-8")
+        # Always use JSON for security reasons
+        return json.dumps(value).encode("utf-8")
 
     def _deserialize(self, value_blob: bytes) -> Dict[str, Any]:
         """
@@ -513,13 +508,8 @@ class SQLiteCache(CacheBackend):
         Returns:
             Deserialized value
         """
-        if self.serialization == "json":
-            return json.loads(value_blob.decode("utf-8"))
-        elif self.serialization == "pickle":
-            return pickle.loads(value_blob)
-        else:
-            # Default to JSON
-            return json.loads(value_blob.decode("utf-8"))
+        # Always use JSON for security reasons
+        return json.loads(value_blob.decode("utf-8"))
 
     def _load_stats(self) -> None:
         """

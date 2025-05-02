@@ -311,7 +311,7 @@ class ServeRESTCommand(BaseCommand):
         """
         Add command-specific arguments to the parser.
         """
-        parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+        parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
         parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
         parser.add_argument(
             "--model-id",
@@ -358,7 +358,7 @@ class ServeGRPCCommand(BaseCommand):
         """
         Add command-specific arguments to the parser.
         """
-        parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+        parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
         parser.add_argument("--port", type=int, default=50051, help="Port to bind to")
         parser.add_argument(
             "--model-id",

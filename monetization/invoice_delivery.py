@@ -509,7 +509,7 @@ class InvoiceFormatter:
         pdf_body += "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
         pdf_body += "3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n"
         pdf_body += "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n"
-        pdf_body += "5 0 obj\n<< /Length {len(html)} >>\nstream\n{html}\nendstream\nendobj\n"
+        pdf_body += f"5 0 obj\n<< /Length {len(html)} >>\nstream\n{html}\nendstream\nendobj\n"
 
         # Create a simple PDF trailer
         pdf_trailer = b"xref\n0 6\n0000000000 65535 f\n0000000010 00000 n\n0000000056 00000 n\n0000000111 00000 n\n0000000212 00000 n\n0000000277 00000 n\ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n408\n%%EOF"
@@ -646,8 +646,8 @@ class InvoiceDelivery:
         # Print email details (for demo purposes)
         print(f"Sending invoice {invoice.number} to {to_email}")
         print(f"Subject: {subject}")
-        print("Format: {}".format(format))
-        print("Attach PDF: {}".format(attach_pdf))
+        print(f"Format: {format}")
+        print(f"Attach PDF: {attach_pdf}")
 
         # In a real implementation, this would send an email
         # For now, just return True

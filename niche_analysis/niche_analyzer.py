@@ -11,11 +11,10 @@ import os
 import sys
 from typing import Any, Dict, List, Optional
 
+# Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-# Import async utilities
+# Import after path modification
 from ai_models.async_utils import run_in_thread
-
-# Import the centralized caching service
 from common_utils.caching import default_cache
 from interfaces.agent_interfaces import IAgentTeam
 from interfaces.niche_interfaces import INicheAnalyzer

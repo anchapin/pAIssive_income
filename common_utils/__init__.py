@@ -2,7 +2,7 @@
 Common utilities for the pAIssive Income project.
 
 This package provides common utility functions used across the project,
-including date handling, JSON serialization, and file operations.
+including date handling, JSON serialization, file operations, and error classes.
 """
 
 from .date_utils import (
@@ -28,6 +28,18 @@ from .date_utils import (
     is_same_day,
     is_same_month,
     is_same_year,
+)
+from .errors import (
+    APIError,
+    AuthenticationError,
+    AuthorizationError,
+    BaseError,
+    ConfigurationError,
+    DatabaseError,
+    ModelError,
+    NetworkError,
+    NicheAnalysisError,
+    ValidationError,
 )
 from .file_utils import (
     create_directory,
@@ -86,6 +98,17 @@ __all__ = [
     "is_same_day",
     "is_same_month",
     "is_same_year",
+    # Error classes
+    "APIError",
+    "AuthenticationError",
+    "AuthorizationError",
+    "BaseError",
+    "ConfigurationError",
+    "DatabaseError",
+    "ModelError",
+    "NetworkError",
+    "NicheAnalysisError",
+    "ValidationError",
     # JSON utilities
     "to_json",
     "from_json",

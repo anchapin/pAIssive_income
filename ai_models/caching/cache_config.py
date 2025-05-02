@@ -19,7 +19,7 @@ class CacheConfig:
     ttl: Optional[int] = None  # Time to live in seconds (None for no expiration)
     max_size: Optional[int] = None  # Maximum number of items in the cache
     eviction_policy: str = "lru"  # Eviction policy (lru, lfu, fifo)
-    serialization: str = "json"  # Serialization format (json, pickle)
+    serialization: str = "json"  # Only JSON serialization is supported for security reasons
 
     # Backend-specific configuration
     backend_config: Dict[str, Any] = field(default_factory=dict)

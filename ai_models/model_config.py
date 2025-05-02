@@ -56,17 +56,33 @@ class ModelConfig(IModelConfig):
     def models_dir(self) -> str:
         return self._config.get("models_dir", os.path.join(os.path.dirname(__file__), "models"))
 
+    @models_dir.setter
+    def models_dir(self, value: str) -> None:
+        self._config["models_dir"] = value
+
     @property
     def cache_dir(self) -> str:
         return self._config.get("cache_dir", os.path.join(os.path.dirname(__file__), "cache"))
+
+    @cache_dir.setter
+    def cache_dir(self, value: str) -> None:
+        self._config["cache_dir"] = value
 
     @property
     def max_threads(self) -> int:
         return self._config.get("max_threads", 4)
 
+    @max_threads.setter
+    def max_threads(self, value: int) -> None:
+        self._config["max_threads"] = value
+
     @property
     def auto_discover(self) -> bool:
         return self._config.get("auto_discover", True)
+
+    @auto_discover.setter
+    def auto_discover(self, value: bool) -> None:
+        self._config["auto_discover"] = value
 
     @classmethod
     def get_default(cls) -> "IModelConfig":

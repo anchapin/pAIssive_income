@@ -7,7 +7,7 @@ This module provides Pydantic models for data validation in the Marketing module
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class BusinessType(str, Enum):
@@ -96,10 +96,7 @@ class BudgetSchema(BaseModel):
     )
     currency: str = Field("USD", description="Currency code (e.g., USD, EUR)")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class TimeframeSchema(BaseModel):
@@ -111,10 +108,7 @@ class TimeframeSchema(BaseModel):
         description="Timeframe unit (days, weeks, months, quarters, years)",
     )
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class DemographicsSchema(BaseModel):
@@ -128,10 +122,7 @@ class DemographicsSchema(BaseModel):
         None, description="Education level (e.g., high school, college, graduate)"
     )
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class TargetAudienceSchema(BaseModel):
@@ -142,10 +133,7 @@ class TargetAudienceSchema(BaseModel):
     pain_points: List[str] = Field(..., description="Audience pain points")
     goals: List[str] = Field(..., description="Audience goals")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class ConfigSchema(BaseModel):
@@ -167,10 +155,7 @@ class ConfigSchema(BaseModel):
     )
     timestamp: str = Field(..., description="Timestamp of configuration")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class MarketingTacticSchema(BaseModel):
@@ -191,10 +176,7 @@ class MarketingTacticSchema(BaseModel):
     steps: List[str] = Field(..., description="Implementation steps")
     metrics: List[str] = Field(..., description="Success metrics")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class MetricSchema(BaseModel):
@@ -211,10 +193,7 @@ class MetricSchema(BaseModel):
     tracking_frequency: str = Field(..., description="How often to track the metric")
     data_source: Optional[str] = Field(None, description="Source of data for the metric")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class MarketingMetricSchema(BaseModel):
@@ -240,10 +219,7 @@ class MarketingMetricSchema(BaseModel):
     notes: Optional[str] = Field(None, description="Additional notes about the metric")
     last_updated: Optional[str] = Field(None, description="Last updated timestamp")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class ContentItemSchema(BaseModel):
@@ -261,10 +237,7 @@ class ContentItemSchema(BaseModel):
     expected_impact: str = Field(..., description="Expected impact")
     timeline: str = Field(..., description="Production timeline")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class ContentCalendarSchema(BaseModel):
@@ -278,10 +251,7 @@ class ContentCalendarSchema(BaseModel):
     channels: List[str] = Field(..., description="Marketing channels included")
     content_items: List[Dict[str, Any]] = Field(..., description="Content items in the calendar")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class PersonaSchema(BaseModel):
@@ -304,10 +274,7 @@ class PersonaSchema(BaseModel):
     decision_factors: List[str] = Field(..., description="Decision-making factors")
     bio: Optional[str] = Field(None, description="Brief biography of the persona")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class MarketingChannelSchema(BaseModel):
@@ -329,10 +296,7 @@ class MarketingChannelSchema(BaseModel):
     integration_points: List[str] = Field(..., description="Integration points with other channels")
     tools_and_resources: List[Dict[str, Any]] = Field(..., description="Tools and resources")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class ChannelAnalysisSchema(BaseModel):
@@ -352,10 +316,7 @@ class ChannelAnalysisSchema(BaseModel):
     implementation_timeline: Dict[str, Any] = Field(..., description="Implementation timeline")
     metrics_to_track: List[str] = Field(..., description="Metrics to track for this channel")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class MarketingPlanSchema(BaseModel):
@@ -379,10 +340,7 @@ class MarketingPlanSchema(BaseModel):
     created_at: str = Field(..., description="Creation timestamp")
     updated_at: str = Field(..., description="Last update timestamp")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class MarketingStrategyInputSchema(BaseModel):
@@ -396,10 +354,7 @@ class MarketingStrategyInputSchema(BaseModel):
     timeframe: TimeframeSchema = Field(..., description="Marketing timeframe")
     config: Optional[Dict[str, Any]] = Field(None, description="Optional configuration")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class MarketingStrategyResultsSchema(BaseModel):
@@ -418,10 +373,7 @@ class MarketingStrategyResultsSchema(BaseModel):
     content_plan: Optional[Dict[str, Any]] = Field(None, description="Content marketing plan")
     created_at: str = Field(..., description="Creation timestamp")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class AudienceAnalysisSchema(BaseModel):
@@ -444,10 +396,7 @@ class AudienceAnalysisSchema(BaseModel):
     )
     timestamp: str = Field(..., description="Timestamp of analysis")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class BusinessAnalysisSchema(BaseModel):
@@ -463,10 +412,7 @@ class BusinessAnalysisSchema(BaseModel):
     threats: List[str] = Field(..., description="Business threats")
     timestamp: str = Field(..., description="Timestamp of analysis")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class ContentGeneratorConfigSchema(BaseModel):
@@ -543,10 +489,7 @@ class ContentGeneratorConfigSchema(BaseModel):
     )
     timestamp: str = Field(..., description="Timestamp when the configuration was created/updated")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields for template-specific configurations
+    model_config = ConfigDict(extra="allow")  # Allow extra fields for template-specific configurations
 
 
 class ContentTemplateSchema(BaseModel):
@@ -559,10 +502,7 @@ class ContentTemplateSchema(BaseModel):
     created_at: str = Field(..., description="Creation timestamp")
     updated_at: Optional[str] = Field(None, description="Last update timestamp")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class BlogPostTemplateSchema(ContentTemplateSchema):
@@ -617,10 +557,7 @@ class EmailContentSchema(BaseModel):
     footer_text: Optional[str] = Field(None, description="Text for the email footer")
     template_id: Optional[str] = Field(None, description="ID of the email template to use")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class SocialMediaPostSchema(BaseModel):
@@ -634,10 +571,7 @@ class SocialMediaPostSchema(BaseModel):
     call_to_action: Optional[str] = Field(None, description="Call to action for the post")
     post_time: Optional[str] = Field(None, description="Suggested posting time")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class AdCopySchema(BaseModel):
@@ -652,10 +586,7 @@ class AdCopySchema(BaseModel):
     ad_format: str = Field(..., description="Format of the ad")
     character_count: Optional[Dict[str, int]] = Field(None, description="Character count limits")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class PressReleaseSchema(BaseModel):
@@ -671,10 +602,7 @@ class PressReleaseSchema(BaseModel):
     boilerplate: str = Field(..., description="Company boilerplate")
     contact_info: Dict[str, str] = Field(..., description="Contact information")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class WhitePaperSchema(BaseModel):
@@ -688,10 +616,7 @@ class WhitePaperSchema(BaseModel):
     references: Optional[List[Dict[str, str]]] = Field(None, description="References/citations")
     figures: Optional[List[Dict[str, Any]]] = Field(None, description="Figures and tables")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class ContentGeneratorInputSchema(BaseModel):
@@ -711,10 +636,7 @@ class ContentGeneratorInputSchema(BaseModel):
         None, description="Generator configuration"
     )
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class ContentGeneratorOutputSchema(BaseModel):
@@ -726,10 +648,27 @@ class ContentGeneratorOutputSchema(BaseModel):
     recommendations: Optional[List[str]] = Field(None, description="Content recommendations")
     timestamp: str = Field(..., description="Generation timestamp")
 
-    class Config:
-        """Configuration for the model."""
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
-        extra = "allow"  # Allow extra fields
+
+class MarketingStrategySchema(BaseModel):
+    """Pydantic model for marketing strategy."""
+
+    id: str = Field(..., description="Unique identifier for the strategy")
+    name: str = Field(..., description="Name of the strategy")
+    business_type: str = Field(..., description="Type of business")
+    business_size: Optional[str] = Field(None, description="Size of business")
+    goals: List[str] = Field(..., description="Marketing goals")
+    target_audience: TargetAudienceSchema = Field(..., description="Target audience")
+    budget: BudgetSchema = Field(..., description="Marketing budget")
+    channels: List[MarketingChannelSchema] = Field(..., description="Marketing channels")
+    tactics: List[MarketingTacticSchema] = Field(..., description="Marketing tactics")
+    allocated_budget: Dict[str, float] = Field(..., description="Budget allocation by channel")
+    metrics: List[MarketingMetricSchema] = Field(..., description="Marketing metrics")
+    created_at: str = Field(..., description="Creation timestamp")
+    previous_version_id: Optional[str] = Field(None, description="ID of the previous version")
+
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class GeneratedBlogPostSchema(BaseModel):
@@ -749,10 +688,7 @@ class GeneratedBlogPostSchema(BaseModel):
     featured_image: Dict[str, Any] = Field(..., description="Featured image information")
     seo_data: Dict[str, Any] = Field(..., description="SEO data")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class GeneratedSocialMediaPostSchema(BaseModel):
@@ -769,10 +705,7 @@ class GeneratedSocialMediaPostSchema(BaseModel):
     call_to_action: Optional[str] = Field(None, description="Call to action")
     optimal_posting_times: Optional[List[str]] = Field(None, description="Optimal posting times")
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields
 
 
 class GeneratedEmailNewsletterSchema(BaseModel):
@@ -791,7 +724,4 @@ class GeneratedEmailNewsletterSchema(BaseModel):
     links: Optional[List[Dict[str, Any]]] = Field(None, description="Links to include")
     spam_score: Optional[float] = Field(None, description="Spam score", ge=0.0, le=1.0)
 
-    class Config:
-        """Configuration for the model."""
-
-        extra = "allow"  # Allow extra fields
+    model_config = ConfigDict(extra="allow")  # Allow extra fields

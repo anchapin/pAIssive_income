@@ -5,7 +5,7 @@ User-related models for the pAIssive_income project.
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 class Permission(BaseModel):
@@ -46,7 +46,7 @@ class User(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     preferences: Dict[str, Any] = {}
 
-    @validator("username")
+    @field_validator("username")
     def username_must_be_valid(cls, v):
         if len(v) < 3:
             raise ValueError("Username must be at least 3 characters")
@@ -56,11 +56,9 @@ class User(BaseModel):
             raise ValueError("Username can only contain letters, numbers, underscores, and hyphens")
         return v
 
-    class Config:
-        """Configuration for the User model."""
-
+    model_config = {
         # Don't include password_hash in JSON output
-        schema_extra = {
+        "json_schema_extra": {
             "example": {
                 "id": "user123",
                 "username": "johndoe",
@@ -70,6 +68,7 @@ class User(BaseModel):
                 "is_active": True,
             }
         }
+    }
 
 
 # Define a model for user input without sensitive fields
@@ -99,7 +98,7 @@ class UserCreate(BaseModel):
     name: str
     password: str
 
-    @validator("password")
+    @field_validator("password")
     def password_must_be_strong(cls, v):
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters")

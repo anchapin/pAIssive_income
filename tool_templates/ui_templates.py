@@ -321,15 +321,15 @@ class WebAppTemplate(BaseUITemplate):
             </ul>
         </nav>
     </header>
-    
+
     <main>
         {% block content %}{% endblock %}
     </main>
-    
+
     <footer>
         <p>&copy; {{ now.year }} {{ author or app_name }}. All rights reserved.</p>
     </footer>
-    
+
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
@@ -532,11 +532,11 @@ footer {
     nav {
         flex-direction: column;
     }
-    
+
     nav ul {
         margin-top: 1rem;
     }
-    
+
     .feature-grid {
         grid-template-columns: 1fr;
     }
@@ -550,14 +550,14 @@ footer {
 document.addEventListener('DOMContentLoaded', function() {
     // Get the CTA button
     const ctaButton = document.querySelector('.cta-button');
-    
+
     // Add click event listener if the button exists
     if (ctaButton) {
         ctaButton.addEventListener('click', function() {
             alert('Welcome to ' + document.title + '!');
         });
     }
-    
+
     // Initialize any components or features
     initializeApp();
 });
@@ -652,7 +652,7 @@ class DesktopAppTemplate(BaseUITemplate):
         # Add a label with the app description
         description_label = QtWidgets.QLabel(self.description)
         description_label.setAlignment(QtCore.Qt.AlignCenter)
-        description_label.setStyleSheet(f"font-size: 16px; margin: 20px;")
+        description_label.setStyleSheet("font-size: 16px; margin: 20px;")
         layout.addWidget(description_label)
 
         # Add a button
@@ -731,67 +731,67 @@ class MainWindow(QtWidgets.QMainWindow):
     \"\"\"
     Main window for the {self.app_name} application.
     \"\"\"
-    
+
     def __init__(self):
         super().__init__()
-        
+
         # Set window properties
         self.setWindowTitle("{self.app_name}")
         self.resize({self.window_width}, {self.window_height})
-        
+
         # Create central widget
         self.central_widget = QtWidgets.QWidget()
         self.setCentralWidget(self.central_widget)
-        
+
         # Create layout
         self.layout = QtWidgets.QVBoxLayout(self.central_widget)
-        
+
         # Initialize UI components
         self.init_ui()
-        
+
         # Create menus
         self.create_menus()
-    
+
     def init_ui(self):
         \"\"\"Initialize UI components.\"\"\"
         # Add a label with the app description
-        description_label = QtWidgets.QLabel("{self.description}")
+        description_label = QtWidgets.QLabel(f"{self.description}")
         description_label.setAlignment(QtCore.Qt.AlignCenter)
         description_label.setStyleSheet("font-size: 16px; margin: 20px;")
         self.layout.addWidget(description_label)
-        
+
         # Add a button
         button = QtWidgets.QPushButton("Get Started")
-        button.setStyleSheet("background-color: {self.config['theme']['primary_color']}; color: white; padding: 10px; font-size: 14px;")
+        button.setStyleSheet(f"background-color: {self.config['theme']['primary_color']}; color: white; padding: 10px; font-size: 14px;")
         button.clicked.connect(self.on_button_click)
         self.layout.addWidget(button, alignment=QtCore.Qt.AlignCenter)
-    
+
     def create_menus(self):
         \"\"\"Create application menus.\"\"\"
         # Create menu bar
         menu_bar = self.menuBar()
-        
+
         # File menu
         file_menu = menu_bar.addMenu("File")
-        
+
         # Exit action
         exit_action = QtWidgets.QAction("Exit", self)
         exit_action.setShortcut("Ctrl+Q")
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
-        
+
         # Help menu
         help_menu = menu_bar.addMenu("Help")
-        
+
         # About action
         about_action = QtWidgets.QAction("About", self)
         about_action.triggered.connect(self.show_about_dialog)
         help_menu.addAction(about_action)
-    
+
     def on_button_click(self):
         \"\"\"Handle button click event.\"\"\"
-        QtWidgets.QMessageBox.information(self, "Welcome", "Welcome to {self.app_name}!")
-    
+        QtWidgets.QMessageBox.information(self, "Welcome", f"Welcome to {self.app_name}!")
+
     def show_about_dialog(self):
         \"\"\"Show about dialog.\"\"\"
         QtWidgets.QMessageBox.about(
@@ -806,10 +806,10 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setApplicationName("{self.app_name}")
     app.setApplicationVersion("{self.version}")
-    
+
     window = MainWindow()
     window.show()
-    
+
     sys.exit(app.exec_())
 
 

@@ -12,9 +12,7 @@ import os
 import uuid
 from datetime import timedelta
 
-from flask import (
-    Flask,
-)
+from flask import Flask
 from service_initialization import initialize_services
 
 # Set up logging
@@ -34,14 +32,14 @@ app = Flask(
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev_key_" + str(uuid.uuid4()))
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
 
-# Initialize Celery
+# Import these modules after app is created to avoid circular imports
 from .celery_app import create_celery_app
+from .socketio_app import init_socketio
 
+# Initialize Celery
 celery = create_celery_app(app)
 
 # Initialize SocketIO
-from .socketio_app import init_socketio
-
 init_socketio(app)
 
 # Import routes after app is created to avoid circular imports
@@ -72,7 +70,7 @@ def init_app():
             logger.error(f"Error loading configuration from {config_path}: {e}")
 
     # Initialize services with dependency injection
-    initialize_services(config)
+    initialize_services()
     logger.info("Services initialized with dependency injection")
 
     logger.info("pAIssive Income UI initialized")

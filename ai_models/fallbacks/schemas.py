@@ -8,7 +8,7 @@ fallback configurations.
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class FallbackStrategyEnum(str, Enum):
@@ -75,10 +75,8 @@ class FallbackConfig(BaseModel):
         description="Whether to use any general purpose model as a last resort",
     )
 
-    class Config:
-        """Pydantic configuration."""
-
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "enabled": True,
                 "default_strategy": "default",
@@ -95,6 +93,7 @@ class FallbackConfig(BaseModel):
                 "use_general_purpose_fallback": True,
             }
         }
+    }
 
 
 class FallbackEventSchema(BaseModel):

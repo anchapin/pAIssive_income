@@ -5,7 +5,6 @@ This module provides a Redis-based cache backend.
 """
 
 import json
-import pickle
 import re
 import time
 from typing import Any, Dict, List, Optional
@@ -33,7 +32,7 @@ class RedisCache(CacheBackend):
         db: int = 0,
         password: Optional[str] = None,
         prefix: str = "model_cache:",
-        serialization: str = "json",
+        serialization: str = "json",  # Only json is supported for security reasons
         **kwargs,
     ):
         """
@@ -45,7 +44,7 @@ class RedisCache(CacheBackend):
             db: Redis database number
             password: Redis password
             prefix: Key prefix for cache items
-            serialization: Serialization format (json, pickle)
+            serialization: Serialization format (only json is supported for security reasons)
             **kwargs: Additional parameters for the Redis client
         """
         if not REDIS_AVAILABLE:
@@ -56,7 +55,8 @@ class RedisCache(CacheBackend):
         self.db = db
         self.password = password
         self.prefix = prefix
-        self.serialization = serialization.lower()
+        # Always use JSON for security reasons
+        self.serialization = "json"
 
         # Create Redis client
         self.redis = redis.Redis(
@@ -378,13 +378,8 @@ class RedisCache(CacheBackend):
         Returns:
             Serialized value
         """
-        if self.serialization == "json":
-            return json.dumps(value).encode("utf-8")
-        elif self.serialization == "pickle":
-            return pickle.dumps(value)
-        else:
-            # Default to JSON
-            return json.dumps(value).encode("utf-8")
+        # Always use JSON for security reasons
+        return json.dumps(value).encode("utf-8")
 
     def _deserialize(self, value_blob: bytes) -> Dict[str, Any]:
         """
@@ -396,13 +391,8 @@ class RedisCache(CacheBackend):
         Returns:
             Deserialized value
         """
-        if self.serialization == "json":
-            return json.loads(value_blob.decode("utf-8"))
-        elif self.serialization == "pickle":
-            return pickle.loads(value_blob)
-        else:
-            # Default to JSON
-            return json.loads(value_blob.decode("utf-8"))
+        # Always use JSON for security reasons
+        return json.loads(value_blob.decode("utf-8"))
 
     def _load_stats(self) -> None:
         """

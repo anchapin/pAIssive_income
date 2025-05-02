@@ -7,15 +7,14 @@ This file is the entry point for running the web interface.
 import logging
 import os
 
+# Import the UI module
+from ui import app
 
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
-# Import the UI module
-from ui import app
 
 if __name__ == "__main__":
     # Log startup information

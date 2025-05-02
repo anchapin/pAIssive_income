@@ -7,7 +7,6 @@ This module provides a disk-based cache backend.
 import hashlib
 import json
 import os
-import pickle
 import re
 import shutil
 import threading
@@ -27,7 +26,7 @@ class DiskCache(CacheBackend):
         cache_dir: str,
         max_size: Optional[int] = None,
         eviction_policy: str = "lru",
-        serialization: str = "json",
+        serialization: str = "json",  # Only json is supported for security reasons
         **kwargs,
     ):
         """
@@ -37,13 +36,14 @@ class DiskCache(CacheBackend):
             cache_dir: Directory to store cache files
             max_size: Maximum number of items in the cache (None for unlimited)
             eviction_policy: Eviction policy (lru, lfu, fifo)
-            serialization: Serialization format (json, pickle)
+            serialization: Serialization format (only json is supported for security reasons)
             **kwargs: Additional parameters for the cache
         """
         self.cache_dir = os.path.abspath(cache_dir)
         self.max_size = max_size
         self.eviction_policy = eviction_policy.lower()
-        self.serialization = serialization.lower()
+        # Always use JSON for security reasons
+        self.serialization = "json"
 
         # Create cache directory if it doesn't exist
         os.makedirs(self.cache_dir, exist_ok=True)
@@ -407,16 +407,9 @@ class DiskCache(CacheBackend):
         """
         file_path = self._get_file_path(key)
 
-        if self.serialization == "json":
-            with open(file_path, "w", encoding="utf-8") as f:
-                json.dump(value, f)
-        elif self.serialization == "pickle":
-            with open(file_path, "wb") as f:
-                pickle.dump(value, f)
-        else:
-            # Default to JSON
-            with open(file_path, "w", encoding="utf-8") as f:
-                json.dump(value, f)
+        # Always use JSON for security reasons
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(value, f)
 
     def _load_value(self, key: str) -> Dict[str, Any]:
         """
@@ -430,16 +423,9 @@ class DiskCache(CacheBackend):
         """
         file_path = self._get_file_path(key)
 
-        if self.serialization == "json":
-            with open(file_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        elif self.serialization == "pickle":
-            with open(file_path, "rb") as f:
-                return pickle.load(f)
-        else:
-            # Default to JSON
-            with open(file_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+        # Always use JSON for security reasons
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
 
     def _save_metadata(self, key: str, metadata: Dict[str, Any]) -> None:
         """

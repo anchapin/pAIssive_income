@@ -43,26 +43,36 @@ class TeamConfig:
         }
         self.workflow = workflow or {"auto_progression": False, "review_required": True}
 
+    def __getitem__(self, key):
+        """Make TeamConfig subscriptable.
+
+        Args:
+            key: The key to access
+
+        Returns:
+            The value for the key
+
+        Raises:
+            KeyError: If the key is not found
+        """
+        if key == "model_settings":
+            return self.model_settings
+        elif key == "workflow":
+            return self.workflow
+        else:
+            raise KeyError(f"Invalid key: {key}")
+
 
 class AgentTeam(IAgentTeam):
     """Manages a team of AI agents working on niche analysis and solution development."""
 
-    def __init__(self, model_manager: IModelManager, team_config: Optional[Dict] = None):
+    def __init__(self, model_manager: IModelManager, team_config: Optional[TeamConfig] = None):
         """Initialize agent team."""
         self.model_manager = model_manager
         self.project_state: Dict = {}
 
         # Load or create configuration
-        self.config = team_config or {
-            "model_settings": {
-                "researcher": {"model": "gpt-4", "temperature": 0.7},
-                "developer": {"model": "gpt-4", "temperature": 0.2},
-                "monetization": {"model": "gpt-4", "temperature": 0.5},
-                "marketing": {"model": "gpt-4", "temperature": 0.8},
-                "feedback": {"model": "gpt-4", "temperature": 0.3},
-            },
-            "workflow": {"auto_progression": False, "review_required": True},
-        }
+        self.config = team_config or TeamConfig()
 
         # Initialize agents
         self._researcher = ResearchAgent(self)

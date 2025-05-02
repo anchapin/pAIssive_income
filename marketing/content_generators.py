@@ -480,7 +480,7 @@ class ContentGenerator(ABC):
         key_str = json.dumps(key_data, sort_keys=True)
 
         # Hash to get a fixed-length key
-        return hashlib.md5(key_str.encode()).hexdigest()
+        return hashlib.sha256(key_str.encode()).hexdigest()
 
     def set_cache_ttl(self, ttl_seconds: int) -> None:
         """

@@ -398,7 +398,7 @@ from ai_models.serving import RESTServer, RESTConfig, ServerProtocol
 config = RESTConfig(
     model_path="path/to/model",
     model_type="text-generation",
-    host="0.0.0.0",
+    host="127.0.0.1",  # Bind to localhost for security
     port=8000,
     enable_text_generation=True,
     enable_embedding=True,

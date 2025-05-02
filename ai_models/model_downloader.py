@@ -114,7 +114,7 @@ class DownloadTask:
             params: Additional parameters for the download
             callback: Optional callback function for progress updates
         """
-        self.id = hashlib.md5(f"{model_id}_{source}_{destination}".encode()).hexdigest()
+        self.id = hashlib.sha256(f"{model_id}_{source}_{destination}".encode()).hexdigest()[:32]  # Truncate to same length as MD5 for compatibility
         self.model_id = model_id
         self.source = source
         self.url = url
@@ -1081,8 +1081,17 @@ class ModelDownloader:
             logger.error(f"File not found: {file_path}")
             return False
 
+        # Determine hash algorithm based on checksum length
+        # MD5: 32 chars, SHA-256: 64 chars
+        if len(expected_checksum) == 32:
+            # For backward compatibility with existing MD5 checksums
+            hasher = hashlib.md5(usedforsecurity=False)  # Explicitly mark as not for security purposes
+            logger.warning(f"Using MD5 for checksum verification of {file_path} (not for security purposes)")
+        else:
+            # Prefer SHA-256 for new checksums
+            hasher = hashlib.sha256()
+
         # Calculate the checksum
-        hasher = hashlib.md5()
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 hasher.update(chunk)

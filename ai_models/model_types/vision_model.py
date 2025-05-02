@@ -249,8 +249,8 @@ class VisionModel:
         logger.info(f"Loading PyTorch vision model: {self.model_path}")
 
         try:
-            # Load model
-            self.model = torch.load(self.model_path, map_location=self.device)
+            # Load model with safe_load to prevent arbitrary code execution
+            self.model = torch.load(self.model_path, map_location=self.device, weights_only=True)
 
             # If it's a state dict, try to load it into a model
             if isinstance(self.model, dict):

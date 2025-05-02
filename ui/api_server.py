@@ -1,21 +1,14 @@
 import logging
 import os
 import sys
-
-from flask_cors import CORS
-
 from flask import Flask, g, jsonify, request, send_from_directory
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+from flask_cors import CORS
 
 # Add the project root to the path so we can import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from common_utils.validation import (
+# Import project modules
+from common_utils.validation import (  # noqa: E402
     sanitize_input,
     validate_dict,
     validate_email,
@@ -24,31 +17,35 @@ from common_utils.validation import (
     validate_request,
     validate_string,
 )
-from users.auth import create_session_for_user
-from users.middleware import audit_log, authenticate, require_permission
-
-# Import project modules
-from users.models import UserCreate, UserUpdate
-from users.password_reset import generate_password_reset_token, reset_password
-from users.rate_limiting import rate_limit_login, record_login_attempt
-from users.services import (
+from users.auth import create_session_for_user  # noqa: E402
+from users.middleware import audit_log, authenticate, require_permission  # noqa: E402
+from users.models import UserCreate, UserUpdate  # noqa: E402
+from users.password_reset import generate_password_reset_token, reset_password  # noqa: E402
+from users.rate_limiting import rate_limit_login, record_login_attempt  # noqa: E402
+from users.services import (  # noqa: E402
     authenticate_user,
     create_user,
     get_user_by_id,
     list_users,
     update_user,
 )
-from users.session_management import (
+from users.session_management import (  # noqa: E402
     create_session,
     get_user_sessions,
     terminate_all_user_sessions,
     terminate_session,
 )
-from users.token_refresh import (
+from users.token_refresh import (  # noqa: E402
     blacklist_token,
     create_refresh_token,
     refresh_auth_token,
 )
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder="react_frontend/build")
 CORS(app)  # Enable CORS for all routes
@@ -313,7 +310,7 @@ def request_password_reset():
     return (
         jsonify(
             {
-                "message": "If your email is registered, you will receive a password reset link shortly."
+                "message": "If your email is registered, you will receive a password reset link."
             }
         ),
         200,
@@ -335,7 +332,7 @@ def reset_password_endpoint():
         return (
             jsonify(
                 {
-                    "message": "Password has been reset successfully. You can now log in with your new password."
+                    "message": "Password reset successful."
                 }
             ),
             200,
@@ -611,7 +608,8 @@ def get_market_segments():
 @audit_log("analyze", "niche")
 def analyze_niches():
     data = request.json
-    segment_ids = data.get("segments", [])
+    # Get segments but not using them in this mock implementation
+    _ = data.get("segments", [])
 
     try:
         # Here we'd call our actual niche analysis logic
@@ -760,8 +758,9 @@ def get_templates():
 @audit_log("create", "solution")
 def generate_solution():
     data = request.json
-    niche_id = data.get("nicheId")
-    template_id = data.get("templateId")
+    # Get IDs but not using them in this mock implementation
+    _ = data.get("nicheId")
+    _ = data.get("templateId")
 
     try:
         # Here we'd call our actual solution generation logic
@@ -800,7 +799,7 @@ def get_solution_details(solution_id):
         solution = {
             "id": solution_id,
             "name": "AI Content Optimizer Tool",
-            "description": "A powerful tool for AI-powered content optimization built with React, Node.js, MongoDB.",
+            "description": "A tool for AI-powered content optimization.",
             "niche": {
                 "id": 1,
                 "name": "AI-powered content optimization",
@@ -893,8 +892,9 @@ def get_monetization_solutions():
 @validate_request(MONETIZATION_STRATEGY_SCHEMA)
 def generate_monetization_strategy():
     data = request.json
-    solution_id = data.get("solutionId")
-    options = data.get("options", {})
+    # Get data but not using them in this mock implementation
+    _ = data.get("solutionId")
+    _ = data.get("options", {})
 
     try:
         # Here we'd call our actual monetization strategy generation logic
@@ -1110,9 +1110,10 @@ def get_marketing_channels():
 @validate_request(MARKETING_CAMPAIGN_SCHEMA)
 def generate_marketing_campaign():
     data = request.json
-    solution_id = data.get("solutionId")
-    audience_ids = data.get("audienceIds", [])
-    channel_ids = data.get("channelIds", [])
+    # Get data but not using them in this mock implementation
+    _ = data.get("solutionId")
+    _ = data.get("audienceIds", [])
+    _ = data.get("channelIds", [])
 
     try:
         # Here we'd call our actual marketing campaign generation logic
@@ -1153,7 +1154,7 @@ def get_campaign_details(campaign_id):
             "solutionName": "AI Content Optimizer Tool",
             "strategy": {
                 "title": "Marketing Strategy for AI Content Optimizer Tool",
-                "summary": "A comprehensive marketing approach targeting Content Creators, Marketing Professionals through Social Media, Email Marketing.",
+                "summary": "Marketing approach targeting Content Creators and Marketing Pros.",
                 "keyPoints": [
                     "Focus on solving specific pain points for each audience segment",
                     "Highlight the AI-powered capabilities and unique features",
@@ -1168,16 +1169,16 @@ def get_campaign_details(campaign_id):
                     {
                         "platform": "Twitter",
                         "posts": [
-                            "Tired of manual content optimization? Our new AI tool automates the entire process. Try it free: [link] #AI #ContentOptimization",
-                            "Save 5+ hours every week with AI Content Optimizer. Our users are reporting incredible time savings and better results. Learn more: [link]",
-                            '"I can\'t believe how much time this saves me" - actual customer quote about AI Content Optimizer. See what the buzz is about: [link]',
+                            "Tired of manual optimization? Our AI tool automates the process.",
+                            "Save hours weekly with AI Content Optimizer. Users report results.",
+                            '"I can\'t believe how much time this saves me" - customer quote.',
                         ],
                     },
                     {
                         "platform": "LinkedIn",
                         "posts": [
-                            "Introducing AI Content Optimizer: The AI-powered solution professionals are using to automate content optimization and improve results by up to 40%. Learn more in the comments!",
-                            "We analyzed 1,000+ user workflows and discovered the biggest time-wasters in content creation. Here's how our AI tool solves them: [link]",
+                            "Introducing AI Content Optimizer: Automate and improve results.",
+                            "We analyzed workflows and found the biggest content creation issues.",
                         ],
                     },
                 ],
@@ -1185,7 +1186,8 @@ def get_campaign_details(campaign_id):
                     {
                         "type": "Welcome Email",
                         "subject": "Welcome to AI Content Optimizer! Here's How to Get Started",
-                        "content": "Hi [Name],\n\nThank you for signing up for AI Content Optimizer! We're excited to have you on board.\n\n...",
+                        "content": "Hi [Name],\n\nThanks for signing up for AI Content Optimizer! "
+                                   "We're excited to have you on board.\n\n...",
                     }
                 ],
             },

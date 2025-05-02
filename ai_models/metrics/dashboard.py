@@ -311,7 +311,7 @@ class MetricsDashboard:
                 plots["error_rate_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
 
         # Generate HTML dashboard using Jinja2
-        env = jinja2.Environment(loader=jinja2.FileSystemLoader("."))
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader("."), autoescape=True)
 
         # Create a template string within the code instead of requiring an external file
         template_str = """
@@ -332,7 +332,7 @@ class MetricsDashboard:
             <div class="container">
                 <h1>{{ model_id }} - Performance Dashboard</h1>
                 <p class="text-muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
-                
+
                 <div class="row">
                     <div class="col-md-4">
                         <div class="card summary-card">
@@ -365,7 +365,7 @@ class MetricsDashboard:
                         </div>
                     </div>
                 </div>
-                
+
                 {% if 'latency_plot' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -376,7 +376,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'token_usage_plot' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -387,7 +387,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'cost_plot' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -398,7 +398,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'cumulative_cost_plot' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -409,7 +409,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'inference_time_hist' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -420,7 +420,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'error_rate_plot' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -431,7 +431,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Detailed Metrics</h5>
@@ -660,7 +660,7 @@ class MetricsDashboard:
             plots["token_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
 
         # Generate HTML dashboard using Jinja2
-        env = jinja2.Environment(loader=jinja2.FileSystemLoader("."))
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader("."), autoescape=True)
 
         # Create a template string within the code instead of requiring an external file
         template_str = """
@@ -681,7 +681,7 @@ class MetricsDashboard:
             <div class="container">
                 <h1>Model Performance Comparison</h1>
                 <p class="text-muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
-                
+
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
@@ -696,7 +696,7 @@ class MetricsDashboard:
                         </div>
                     </div>
                 </div>
-                
+
                 {% if 'avg_inference_time_comparison' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -707,7 +707,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'avg_latency_ms_comparison' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -718,7 +718,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'avg_tokens_per_second_comparison' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -729,7 +729,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'cost_per_1k_tokens_comparison' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -740,7 +740,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'cost_comparison' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -751,7 +751,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if 'token_comparison' in plots %}
                 <div class="card">
                     <div class="card-body">
@@ -762,7 +762,7 @@ class MetricsDashboard:
                     </div>
                 </div>
                 {% endif %}
-                
+
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Detailed Comparison Table</h5>

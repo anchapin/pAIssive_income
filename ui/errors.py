@@ -14,6 +14,7 @@ from flask import jsonify
 
 # Add the project root to the Python path to import the errors module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Import after path modification
 from errors import APIError, UIError, ValidationError, handle_exception
 
 # Set up logging

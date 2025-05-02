@@ -588,7 +588,7 @@ class OpportunityScorer:
         key_str = json.dumps(key_data, sort_keys=True)
 
         # Hash to get a fixed-length key
-        return hashlib.md5(key_str.encode()).hexdigest()
+        return hashlib.sha256(key_str.encode()).hexdigest()
 
     def _normalize_problems_for_cache(self, problems: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """

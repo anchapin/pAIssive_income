@@ -36,7 +36,7 @@ class ServerConfig:
 
     # Basic configuration
     protocol: ServerProtocol = ServerProtocol.REST
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"  # Bind to localhost for security
     port: int = 8000
 
     # Model configuration

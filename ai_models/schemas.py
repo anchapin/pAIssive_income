@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ModelConfigSchema(BaseModel):
@@ -53,14 +53,13 @@ class ModelConfigSchema(BaseModel):
         default="all-MiniLM-L6-v2", description="Default text embedding model"
     )
 
-    class Config:
-        """Pydantic config"""
+    model_config = {
+        "validate_assignment": True,
+        "extra": "ignore",
+        "arbitrary_types_allowed": True
+    }
 
-        validate_assignment = True
-        extra = "ignore"
-        arbitrary_types_allowed = True
-
-    @validator("max_threads")
+    @field_validator("max_threads")
     def validate_max_threads(cls, v):
         """Validate max_threads"""
         if v is not None and v <= 0:
@@ -86,12 +85,11 @@ class ModelInfoSchema(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.now, description="Last update timestamp")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
-    class Config:
-        """Pydantic config"""
-
-        validate_assignment = True
-        extra = "ignore"
-        json_encoders = {datetime: lambda v: v.isoformat()}
+    model_config = {
+        "validate_assignment": True,
+        "extra": "ignore",
+        "json_encoders": {datetime: lambda v: v.isoformat()}
+    }
 
 
 class ModelParametersSchema(BaseModel):
@@ -116,11 +114,10 @@ class ModelParametersSchema(BaseModel):
         default_factory=list, description="Sequences that stop generation"
     )
 
-    class Config:
-        """Pydantic config"""
-
-        validate_assignment = True
-        extra = "allow"
+    model_config = {
+        "validate_assignment": True,
+        "extra": "allow"
+    }
 
 
 class TextGenerationRequestSchema(BaseModel):
@@ -134,11 +131,10 @@ class TextGenerationRequestSchema(BaseModel):
         default_factory=ModelParametersSchema, description="Generation parameters"
     )
 
-    class Config:
-        """Pydantic config"""
-
-        validate_assignment = True
-        extra = "ignore"
+    model_config = {
+        "validate_assignment": True,
+        "extra": "ignore"
+    }
 
 
 class TextGenerationResponseSchema(BaseModel):
@@ -154,12 +150,11 @@ class TextGenerationResponseSchema(BaseModel):
     generation_time: float = Field(..., description="Time taken for generation in seconds")
     created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
 
-    class Config:
-        """Pydantic config"""
-
-        validate_assignment = True
-        extra = "ignore"
-        json_encoders = {datetime: lambda v: v.isoformat()}
+    model_config = {
+        "validate_assignment": True,
+        "extra": "ignore",
+        "json_encoders": {datetime: lambda v: v.isoformat()}
+    }
 
 
 class EmbeddingRequestSchema(BaseModel):
@@ -170,11 +165,10 @@ class EmbeddingRequestSchema(BaseModel):
     text: Union[str, List[str]] = Field(..., description="Text to embed")
     model_id: Optional[str] = Field(None, description="ID of the model to use")
 
-    class Config:
-        """Pydantic config"""
-
-        validate_assignment = True
-        extra = "ignore"
+    model_config = {
+        "validate_assignment": True,
+        "extra": "ignore"
+    }
 
 
 class EmbeddingResponseSchema(BaseModel):
@@ -189,12 +183,11 @@ class EmbeddingResponseSchema(BaseModel):
     embedding_time: float = Field(..., description="Time taken for embedding in seconds")
     created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
 
-    class Config:
-        """Pydantic config"""
-
-        validate_assignment = True
-        extra = "ignore"
-        json_encoders = {datetime: lambda v: v.isoformat()}
+    model_config = {
+        "validate_assignment": True,
+        "extra": "ignore",
+        "json_encoders": {datetime: lambda v: v.isoformat()}
+    }
 
 
 class BenchmarkConfigSchema(BaseModel):
@@ -212,11 +205,10 @@ class BenchmarkConfigSchema(BaseModel):
     batch_size: int = Field(default=1, description="Batch size for evaluation", gt=0)
     timeout: Optional[float] = Field(None, description="Timeout in seconds")
 
-    class Config:
-        """Pydantic config"""
-
-        validate_assignment = True
-        extra = "ignore"
+    model_config = {
+        "validate_assignment": True,
+        "extra": "ignore"
+    }
 
 
 class BenchmarkResultSchema(BaseModel):
@@ -233,9 +225,8 @@ class BenchmarkResultSchema(BaseModel):
     custom_metrics: Dict[str, Any] = Field(default_factory=dict, description="Custom metrics")
     raw_data: Dict[str, Any] = Field(default_factory=dict, description="Raw benchmark data")
 
-    class Config:
-        """Pydantic config"""
-
-        validate_assignment = True
-        extra = "ignore"
-        json_encoders = {datetime: lambda v: v.isoformat()}
+    model_config = {
+        "validate_assignment": True,
+        "extra": "ignore",
+        "json_encoders": {datetime: lambda v: v.isoformat()}
+    }

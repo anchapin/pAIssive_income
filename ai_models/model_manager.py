@@ -39,16 +39,26 @@ class ModelManager(IModelManager):
     """Manages AI model loading, caching, and inference."""
 
     def __init__(self, config: IModelConfig):
-        self.config = config
+        self._config = config
         self._models_dir = config.models_dir
         self._cache_dir = config.cache_dir
         self._model_downloader = ModelDownloader(self._models_dir, config)
         self.loaded_models: Dict[str, BaseModelAdapter] = {}
         self._discover_models()
 
-    def _discover_models(self) -> None:
-        if not self.config.auto_discover:
-            return
+    @property
+    def config(self) -> IModelConfig:
+        """Get the model configuration."""
+        return self._config
+
+    def discover_models(self) -> List[Any]:
+        """
+        Discover models in the models directory.
+
+        Returns:
+            List of discovered model information
+        """
+        discovered_models = []
 
         if not os.path.exists(self._models_dir):
             os.makedirs(self._models_dir)
@@ -58,9 +68,19 @@ class ModelManager(IModelManager):
             model_path = os.path.join(self._models_dir, model_dir)
             if os.path.isdir(model_path):
                 try:
-                    self._model_downloader.register_local_model(model_dir, model_path)
+                    model_info = self._model_downloader.register_local_model(model_dir, model_path)
+                    if model_info:
+                        discovered_models.append(model_info)
                 except Exception as e:
                     logger.warning(f"Failed to register local model {model_dir}: {e}")
+
+        return discovered_models
+
+    def _discover_models(self) -> None:
+        if not self.config.auto_discover:
+            return
+
+        self.discover_models()
 
     def load_model(self, model_id: str) -> BaseModelAdapter:
         if model_id in self.loaded_models:
@@ -95,3 +115,14 @@ class ModelManager(IModelManager):
 
     def get_model_info(self, model_id: str) -> Optional[Any]:
         return self._model_downloader.get_model_info(model_id)
+
+    def list_models(self) -> List[Any]:
+        """
+        List all available models.
+
+        Returns:
+            List of model information
+        """
+        # This would typically query the model downloader for all registered models
+        # For now, we'll just return an empty list as a placeholder
+        return []

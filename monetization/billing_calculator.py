@@ -628,7 +628,7 @@ class BillingCalculator:
             f"resource_type:{resource_type or 'None'}",
         ]
 
-        return hashlib.md5("|".join(key_parts).encode()).hexdigest()
+        return hashlib.sha256("|".join(key_parts).encode()).hexdigest()
 
     def _invalidate_rule_cache(self) -> None:
         """Invalidate the pricing rule cache."""
@@ -700,7 +700,7 @@ class BillingCalculator:
             f"resource_type:{resource_type or 'None'}",
         ]
 
-        return hashlib.md5("|".join(key_parts).encode()).hexdigest()
+        return hashlib.sha256("|".join(key_parts).encode()).hexdigest()
 
     def calculate_usage_cost(
         self,
@@ -879,7 +879,7 @@ class BillingCalculator:
 
         key_parts = [f"customer:{customer_id}", f"start:{start_str}", f"end:{end_str}"]
 
-        return hashlib.md5("|".join(key_parts).encode()).hexdigest()
+        return hashlib.sha256("|".join(key_parts).encode()).hexdigest()
 
     def estimate_cost(self, usage_estimates: Dict[str, Dict[str, float]]) -> Dict[str, Any]:
         """
@@ -1013,7 +1013,7 @@ class BillingCalculator:
         usage_str = json.dumps(usage_estimates, sort_keys=True)
 
         # Create a hash of the string
-        return hashlib.md5(usage_str.encode()).hexdigest()
+        return hashlib.sha256(usage_str.encode()).hexdigest()
 
     def invalidate_cost_cache(self) -> None:
         """Invalidate all cost calculation caches."""

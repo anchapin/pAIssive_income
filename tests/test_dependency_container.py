@@ -19,7 +19,7 @@ class ITestService(ABC):
         """Get the service name."""
 
 
-class TestService(ITestService):
+class TestServiceImpl(ITestService):
     """Test service implementation."""
 
     def __init__(self, name: str = "TestService"):
@@ -60,20 +60,20 @@ def container():
 def test_register_and_resolve(container):
     """Test registering and resolving a dependency."""
     # Register a dependency
-    container.register(ITestService, lambda: TestService())
+    container.register(ITestService, lambda: TestServiceImpl(name="TestService"))
 
     # Resolve the dependency
     service = container.resolve(ITestService)
 
     # Verify the result
-    assert isinstance(service, TestService)
+    assert isinstance(service, TestServiceImpl)
     assert service.get_name() == "TestService"
 
 
 def test_register_instance(container):
     """Test registering and resolving an instance."""
     # Create an instance
-    instance = TestService("InstanceService")
+    instance = TestServiceImpl("InstanceService")
 
     # Register the instance
     container.register_instance("test_service", instance)
@@ -89,7 +89,7 @@ def test_register_instance(container):
 def test_singleton(container):
     """Test singleton behavior."""
     # Register a singleton
-    container.register(ITestService, lambda: TestService(), singleton=True)
+    container.register(ITestService, lambda: TestServiceImpl(name="TestService"), singleton=True)
 
     # Resolve the singleton twice
     service1 = container.resolve(ITestService)
@@ -102,7 +102,7 @@ def test_singleton(container):
 def test_non_singleton(container):
     """Test non-singleton behavior."""
     # Register a non-singleton
-    container.register(ITestService, lambda: TestService(), singleton=False)
+    container.register(ITestService, lambda: TestServiceImpl(name="TestService"), singleton=False)
 
     # Resolve the service twice
     service1 = container.resolve(ITestService)
@@ -129,9 +129,9 @@ def test_resolve_named_unregistered(container):
 def test_clear(container):
     """Test clearing the container."""
     # Register some dependencies
-    container.register(ITestService, lambda: TestService())
-    container.register(IListService, lambda: ListService())
-    container.register_instance("test_service", TestService())
+    container.register(ITestService, lambda: TestServiceImpl(name="TestService"))
+    container.register(IListService, lambda: ListService(items=["item1", "item2", "item3"]))
+    container.register_instance("test_service", TestServiceImpl(name="TestService"))
 
     # Clear the container
     container.clear()
@@ -160,11 +160,11 @@ def test_get_container():
     assert container1 is container2
 
     # Register a dependency
-    container1.register(ITestService, lambda: TestService())
+    container1.register(ITestService, lambda: TestServiceImpl(name="TestService"))
 
     # Verify that the dependency is available in container2
     service = container2.resolve(ITestService)
-    assert isinstance(service, TestService)
+    assert isinstance(service, TestServiceImpl)
 
     # Clear the global container
     clear_container()

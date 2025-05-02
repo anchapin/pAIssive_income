@@ -170,6 +170,7 @@ class DemographicAnalyzer:
         if niche:
             recommendations.append(f"Tailor marketing to address specific needs of {niche} users")
 
+        # Return the complete analysis including the recommendations
         return {
             "id": analysis_id,
             "niche": niche or "general",

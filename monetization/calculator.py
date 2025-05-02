@@ -10,7 +10,9 @@ import os
 import sys
 from typing import Any, Dict, List
 
+# Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Import after path modification
 from interfaces.monetization_interfaces import IMonetizationCalculator
 from monetization.errors import MonetizationError
 
