@@ -32,7 +32,7 @@ COPY ui/requirements.txt ui-requirements.txt
 RUN pip install --no-cache-dir -r requirements-dev.txt \
     && pip install --no-cache-dir -r ai_models-requirements.txt \
     && pip install --no-cache-dir -r ui-requirements.txt \
-    && pip install --no-cache-dir flask-cors flask-socketio
+    && pip install --no-cache-dir flask-cors flask-socketio python-multipart
 
 # Copy package.json files
 COPY package.json package-lock.json ./

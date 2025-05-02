@@ -1306,7 +1306,8 @@ def handle_exception(e):
 if __name__ == "__main__":
     # Use environment variables to configure the server
     debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
-    host = "127.0.0.1" if debug_mode else "0.0.0.0"
+    # Always bind to localhost for security
+    host = "127.0.0.1"
     port = int(os.environ.get("FLASK_PORT", "5000"))
 
     app.run(host=host, port=port, debug=debug_mode)

@@ -377,8 +377,9 @@ class DiskCache(CacheBackend):
         Returns:
             File path
         """
-        # Hash the key to create a valid filename
-        hashed_key = hashlib.md5(key.encode("utf-8")).hexdigest()
+        # Hash the key to create a valid filename - using SHA-256 for better security
+        # This is not used for security purposes, just for filename generation
+        hashed_key = hashlib.sha256(key.encode("utf-8")).hexdigest()
         return os.path.join(self.cache_dir, hashed_key)
 
     def _get_metadata_path(self, key: str) -> str:
@@ -391,8 +392,9 @@ class DiskCache(CacheBackend):
         Returns:
             Metadata file path
         """
-        # Hash the key to create a valid filename
-        hashed_key = hashlib.md5(key.encode("utf-8")).hexdigest()
+        # Hash the key to create a valid filename - using SHA-256 for better security
+        # This is not used for security purposes, just for filename generation
+        hashed_key = hashlib.sha256(key.encode("utf-8")).hexdigest()
         return os.path.join(self.metadata_dir, f"{hashed_key}.json")
 
     def _save_value(self, key: str, value: Dict[str, Any]) -> None:

@@ -14,6 +14,23 @@ from .errors import ChannelStrategyError, handle_exception
 logger = logging.getLogger(__name__)
 
 
+class ChannelStrategy:
+    """Base class for all marketing channel strategies."""
+
+    def __init__(self, name: str, description: str):
+        """Initialize a channel strategy.
+
+        Args:
+            name: Name of the channel strategy
+            description: Description of the channel strategy
+        """
+        self.id = str(uuid.uuid4())
+        self.name = name
+        self.description = description
+        self.created_at = datetime.now().isoformat()
+        self.channel_type = "generic"
+
+
 class MarketingStrategy:
     """
     Base class for all marketing channel strategies.

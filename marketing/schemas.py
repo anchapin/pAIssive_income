@@ -217,6 +217,35 @@ class MetricSchema(BaseModel):
         extra = "allow"  # Allow extra fields
 
 
+class MarketingMetricSchema(BaseModel):
+    """Pydantic model for marketing metric with additional fields."""
+
+    id: str = Field(..., description="Unique identifier for the metric")
+    name: str = Field(..., description="Name of the metric")
+    description: str = Field(..., description="Description of the metric")
+    category: str = Field(..., description="Metric category")
+    formula: Optional[str] = Field(None, description="Formula for calculating the metric")
+    unit: Optional[str] = Field(None, description="Unit of measurement")
+    target: Optional[Dict[str, Any]] = Field(None, description="Target value(s)")
+    benchmarks: Optional[Dict[str, Any]] = Field(None, description="Industry benchmarks")
+    tracking_frequency: str = Field(..., description="How often to track the metric")
+    data_source: Optional[str] = Field(None, description="Source of data for the metric")
+    baseline_value: Optional[float] = Field(None, description="Baseline value for the metric")
+    current_value: Optional[float] = Field(None, description="Current value of the metric")
+    goal_value: Optional[float] = Field(None, description="Goal value for the metric")
+    trend: Optional[str] = Field(None, description="Trend direction (up, down, stable)")
+    importance: Optional[str] = Field(None, description="Importance level (high, medium, low)")
+    visualization_type: Optional[str] = Field(None, description="Type of visualization for the metric")
+    related_metrics: Optional[List[str]] = Field(None, description="Related metrics")
+    notes: Optional[str] = Field(None, description="Additional notes about the metric")
+    last_updated: Optional[str] = Field(None, description="Last updated timestamp")
+
+    class Config:
+        """Configuration for the model."""
+
+        extra = "allow"  # Allow extra fields
+
+
 class ContentItemSchema(BaseModel):
     """Pydantic model for content item."""
 
@@ -274,6 +303,31 @@ class PersonaSchema(BaseModel):
     preferred_channels: List[str] = Field(..., description="Preferred communication channels")
     decision_factors: List[str] = Field(..., description="Decision-making factors")
     bio: Optional[str] = Field(None, description="Brief biography of the persona")
+
+    class Config:
+        """Configuration for the model."""
+
+        extra = "allow"  # Allow extra fields
+
+
+class MarketingChannelSchema(BaseModel):
+    """Pydantic model for marketing channel."""
+
+    id: str = Field(..., description="Unique identifier for the channel")
+    name: str = Field(..., description="Name of the channel")
+    description: str = Field(..., description="Description of the channel")
+    type: str = Field(..., description="Type of channel (e.g., social media, email, content)")
+    audience_fit: Dict[str, Any] = Field(..., description="Audience fit information")
+    cost_structure: Dict[str, Any] = Field(..., description="Cost structure information")
+    effectiveness_metrics: Dict[str, Any] = Field(..., description="Effectiveness metrics")
+    implementation_difficulty: DifficultyLevel = Field(
+        DifficultyLevel.MEDIUM, description="Implementation difficulty"
+    )
+    time_to_results: str = Field(..., description="Estimated time to see results")
+    best_practices: List[str] = Field(..., description="Best practices for this channel")
+    common_pitfalls: List[str] = Field(..., description="Common pitfalls to avoid")
+    integration_points: List[str] = Field(..., description="Integration points with other channels")
+    tools_and_resources: List[Dict[str, Any]] = Field(..., description="Tools and resources")
 
     class Config:
         """Configuration for the model."""
@@ -538,6 +592,18 @@ class SocialMediaTemplateSchema(ContentTemplateSchema):
     character_limit: Optional[int] = Field(None, description="Character limit", ge=1)
 
 
+class EmailNewsletterTemplateSchema(ContentTemplateSchema):
+    """Pydantic model for email newsletter templates."""
+
+    sections: List[Dict[str, Any]] = Field(..., description="Content sections")
+    subject_line_options: List[str] = Field(..., description="Subject line options")
+    preview_text_options: List[str] = Field(..., description="Preview text options")
+    include_header: bool = Field(True, description="Whether to include a header")
+    include_footer: bool = Field(True, description="Whether to include a footer")
+    include_social_links: bool = Field(True, description="Whether to include social links")
+    include_call_to_action: bool = Field(True, description="Whether to include a call to action")
+
+
 class EmailContentSchema(BaseModel):
     """Pydantic model for email content."""
 
@@ -659,6 +725,71 @@ class ContentGeneratorOutputSchema(BaseModel):
     metrics: Optional[Dict[str, Any]] = Field(None, description="Content metrics")
     recommendations: Optional[List[str]] = Field(None, description="Content recommendations")
     timestamp: str = Field(..., description="Generation timestamp")
+
+    class Config:
+        """Configuration for the model."""
+
+        extra = "allow"  # Allow extra fields
+
+
+class GeneratedBlogPostSchema(BaseModel):
+    """Pydantic model for generated blog post."""
+
+    id: str = Field(..., description="Unique identifier for the content")
+    template_id: str = Field(..., description="ID of the template used")
+    timestamp: str = Field(..., description="Generation timestamp")
+    title: str = Field(..., description="Blog post title")
+    meta_description: str = Field(..., description="Meta description for SEO")
+    introduction: str = Field(..., description="Blog post introduction")
+    sections: List[Dict[str, Any]] = Field(..., description="Blog post sections")
+    conclusion: str = Field(..., description="Blog post conclusion")
+    call_to_action: str = Field(..., description="Call to action")
+    tags: List[str] = Field(..., description="Blog post tags")
+    categories: List[str] = Field(..., description="Blog post categories")
+    featured_image: Dict[str, Any] = Field(..., description="Featured image information")
+    seo_data: Dict[str, Any] = Field(..., description="SEO data")
+
+    class Config:
+        """Configuration for the model."""
+
+        extra = "allow"  # Allow extra fields
+
+
+class GeneratedSocialMediaPostSchema(BaseModel):
+    """Pydantic model for generated social media post."""
+
+    id: str = Field(..., description="Unique identifier for the content")
+    template_id: str = Field(..., description="ID of the template used")
+    timestamp: str = Field(..., description="Generation timestamp")
+    platform: str = Field(..., description="Social media platform")
+    content: str = Field(..., description="Post content")
+    hashtags: List[str] = Field(..., description="Hashtags")
+    image_suggestions: Optional[List[Dict[str, Any]]] = Field(None, description="Image suggestions")
+    link: Optional[str] = Field(None, description="Link to include")
+    call_to_action: Optional[str] = Field(None, description="Call to action")
+    optimal_posting_times: Optional[List[str]] = Field(None, description="Optimal posting times")
+
+    class Config:
+        """Configuration for the model."""
+
+        extra = "allow"  # Allow extra fields
+
+
+class GeneratedEmailNewsletterSchema(BaseModel):
+    """Pydantic model for generated email newsletter."""
+
+    id: str = Field(..., description="Unique identifier for the content")
+    template_id: str = Field(..., description="ID of the template used")
+    timestamp: str = Field(..., description="Generation timestamp")
+    subject_line: str = Field(..., description="Email subject line")
+    preview_text: str = Field(..., description="Email preview text")
+    content_sections: List[Dict[str, Any]] = Field(..., description="Email content sections")
+    header: Optional[Dict[str, Any]] = Field(None, description="Email header")
+    footer: Dict[str, Any] = Field(..., description="Email footer")
+    call_to_action: Dict[str, Any] = Field(..., description="Call to action")
+    images: Optional[List[Dict[str, Any]]] = Field(None, description="Images to include")
+    links: Optional[List[Dict[str, Any]]] = Field(None, description="Links to include")
+    spam_score: Optional[float] = Field(None, description="Spam score", ge=0.0, le=1.0)
 
     class Config:
         """Configuration for the model."""

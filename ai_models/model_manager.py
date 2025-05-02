@@ -2,7 +2,8 @@
 
 import logging
 import os
-from typing import Any, Dict, Optional
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 from interfaces.model_interfaces import IModelConfig, IModelManager
 
@@ -11,9 +12,27 @@ from .adapters import (
     BaseModelAdapter,
     LMStudioAdapter,
 )
+from .model_config import ModelConfig
 from .model_downloader import ModelDownloader
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ModelInfo:
+    """Information about a model."""
+
+    id: str
+    name: str
+    provider: str
+    model_type: str
+    path: str
+    description: str = ""
+    tags: List[str] = None
+
+    def __post_init__(self):
+        if self.tags is None:
+            self.tags = []
 
 
 class ModelManager(IModelManager):

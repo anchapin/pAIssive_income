@@ -11,8 +11,7 @@ from .sqlite_cache import SQLiteCache
 
 # Import Redis cache if available
 try:
-    pass
-
+    from .redis_cache import RedisCache
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False

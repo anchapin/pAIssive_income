@@ -24,6 +24,26 @@ from .agent_profiles import (
 logger = logging.getLogger(__name__)
 
 
+class TeamConfig:
+    """Configuration for an agent team."""
+
+    def __init__(self, model_settings: Dict = None, workflow: Dict = None):
+        """Initialize team configuration.
+
+        Args:
+            model_settings: Model settings for each agent
+            workflow: Workflow settings
+        """
+        self.model_settings = model_settings or {
+            "researcher": {"model": "gpt-4", "temperature": 0.7},
+            "developer": {"model": "gpt-4", "temperature": 0.2},
+            "monetization": {"model": "gpt-4", "temperature": 0.5},
+            "marketing": {"model": "gpt-4", "temperature": 0.8},
+            "feedback": {"model": "gpt-4", "temperature": 0.3},
+        }
+        self.workflow = workflow or {"auto_progression": False, "review_required": True}
+
+
 class AgentTeam(IAgentTeam):
     """Manages a team of AI agents working on niche analysis and solution development."""
 

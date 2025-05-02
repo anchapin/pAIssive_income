@@ -90,10 +90,14 @@ class OpenAICompatibleAdapter(BaseModelAdapter):
             "Authorization": f"Bearer {self.api_key}",
         }
 
+        # Use a default timeout of 30 seconds if not specified in config
+        timeout = self.config.get("timeout", 30)
+
         response = requests.post(
             f"{self.api_base}/{endpoint}",
             headers=headers,
             json=payload,
+            timeout=timeout,
         )
 
         if response.status_code != 200:

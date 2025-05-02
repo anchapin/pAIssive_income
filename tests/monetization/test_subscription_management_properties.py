@@ -17,7 +17,7 @@ from monetization.user_subscription import Subscription, SubscriptionStatus
 # Strategies for generating subscription data
 user_ids = st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")
 tier_names = st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")
-tier_prices = st.floats(min_value=0.01, max_value=999.99, places=2)
+tier_prices = st.floats(min_value=0.01, max_value=999.99)
 billing_cycles = st.sampled_from(["monthly", "annual"])
 start_dates = st.datetimes(min_value=datetime(2020, 1, 1), max_value=datetime(2030, 1, 1))
 

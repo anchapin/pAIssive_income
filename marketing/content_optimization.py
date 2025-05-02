@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from collections import Counter
 
 # Standard library imports
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Third-party imports
 try:
@@ -27,6 +27,7 @@ except ImportError:
 
 
 # Local imports
+from marketing.schemas import ContentTemplateSchema
 
 
 class SEOAnalyzer(ABC):
@@ -2279,4 +2280,347 @@ def calculate_readability_score(text: str) -> float:
 
 def calculate_flesch_score(text: str, min_flesh: float = 60.0) -> float:
     """Calculate the Flesch reading ease score."""
-    # ...existing code...
+    # Simple implementation
+    sentences = text.split(".")
+    words = text.split()
+    syllables = sum(count_syllables(word) for word in words)
+
+    # Calculate Flesch Reading Ease score
+    if len(words) == 0 or len(sentences) == 0:
+        return 0
+
+    words_per_sentence = len(words) / len(sentences)
+    syllables_per_word = syllables / len(words)
+
+    score = 206.835 - (1.015 * words_per_sentence) - (84.6 * syllables_per_word)
+    return max(0, min(100, score))
+
+
+class ContentOptimizer:
+    """
+    Class for optimizing marketing content.
+
+    This class provides methods for optimizing content based on SEO, readability,
+    and tone/style guidelines.
+    """
+
+    def __init__(
+        self,
+        content: Optional[Dict[str, Any]] = None,
+        template: Optional[ContentTemplateSchema] = None,
+        config: Optional[Dict[str, Any]] = None,
+    ):
+        """
+        Initialize a content optimizer.
+
+        Args:
+            content: Optional content to optimize
+            template: Optional content template
+            config: Optional configuration dictionary
+        """
+        self.id = str(uuid.uuid4())
+        self.content = content or {}
+        self.template = template
+        self.config = config or self.get_default_config()
+        self.created_at = datetime.datetime.now().isoformat()
+        self.seo_analyzer = KeywordAnalyzer(content=content, config=self.config.get("seo", {}))
+        self.readability_analyzer = ReadabilityAnalyzer(content=content, config=self.config.get("readability", {}))
+        self.results = None
+
+    def get_default_config(self) -> Dict[str, Any]:
+        """
+        Get the default configuration for the content optimizer.
+
+        Returns:
+            Default configuration dictionary
+        """
+        return {
+            "seo": {
+                "min_keyword_density": 0.01,  # 1%
+                "max_keyword_density": 0.03,  # 3%
+                "min_word_count": 300,
+                "optimal_word_count": 1500,
+                "min_title_length": 30,
+                "max_title_length": 60,
+                "min_meta_description_length": 120,
+                "max_meta_description_length": 160,
+                "min_heading_count": 3,
+                "min_internal_links": 2,
+                "min_external_links": 1,
+                "max_paragraph_length": 300,  # characters
+                "check_image_alt_text": True,
+                "check_keyword_in_title": True,
+                "check_keyword_in_headings": True,
+                "check_keyword_in_first_paragraph": True,
+                "check_keyword_in_url": True,
+                "check_keyword_in_meta_description": True,
+            },
+            "readability": {
+                "target_reading_level": "intermediate",  # beginner, intermediate, advanced
+                "max_sentence_length": 25,  # words
+                "min_sentence_length": 5,  # words
+                "max_paragraph_length": 150,  # words
+                "min_paragraph_length": 30,  # words
+                "max_passive_voice_percentage": 0.15,  # 15%
+                "max_complex_word_percentage": 0.1,  # 10%
+                "min_flesch_reading_ease": 60.0,  # 60-70 is standard
+                "max_flesch_kincaid_grade": 9.0,  # 9th grade level
+            },
+            "tone": {
+                "target_tone": "professional",  # casual, professional, academic, conversational
+                "formality_level": "medium",  # low, medium, high
+                "emotion_level": "medium",  # low, medium, high
+                "use_active_voice": True,
+                "use_personal_pronouns": True,
+                "avoid_jargon": True,
+                "avoid_cliches": True,
+            },
+            "style": {
+                "sentence_variety": True,
+                "paragraph_variety": True,
+                "transition_words": True,
+                "consistent_tense": True,
+                "consistent_voice": True,
+                "consistent_point_of_view": True,
+            },
+            "timestamp": datetime.datetime.now().isoformat(),
+        }
+
+    def set_content(self, content: Dict[str, Any]) -> None:
+        """
+        Set the content to optimize.
+
+        Args:
+            content: Content dictionary
+        """
+        self.content = content
+        self.seo_analyzer.set_content(content)
+        self.readability_analyzer.set_content(content)
+        self.results = None  # Reset results
+
+    def set_template(self, template: ContentTemplateSchema) -> None:
+        """
+        Set the content template.
+
+        Args:
+            template: Content template
+        """
+        self.template = template
+        self.results = None  # Reset results
+
+    def set_config(self, config: Dict[str, Any]) -> None:
+        """
+        Set the configuration dictionary.
+
+        Args:
+            config: Configuration dictionary
+        """
+        self.config = config
+
+        # Update analyzer configs
+        if "seo" in config:
+            self.seo_analyzer.set_config(config["seo"])
+
+        if "readability" in config:
+            self.readability_analyzer.set_config(config["readability"])
+
+        self.results = None  # Reset results
+
+    def optimize(self, keywords: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        Optimize the content based on SEO, readability, and tone/style guidelines.
+
+        Args:
+            keywords: Optional list of keywords for SEO optimization
+
+        Returns:
+            Dictionary with optimization results
+        """
+        if not self.content:
+            raise ValueError("No content provided for optimization")
+
+        # Initialize results
+        self.results = {
+            "id": str(uuid.uuid4()),
+            "timestamp": datetime.datetime.now().isoformat(),
+            "content_id": self.content.get("id", "unknown"),
+            "seo_results": None,
+            "readability_results": None,
+            "tone_results": None,
+            "style_results": None,
+            "overall_score": 0.0,
+            "recommendations": [],
+            "optimized_content": None,
+        }
+
+        # Analyze SEO
+        if keywords:
+            self.seo_analyzer.set_keywords(keywords)
+
+        try:
+            self.results["seo_results"] = self.seo_analyzer.analyze()
+        except ValueError as e:
+            self.results["seo_results"] = {"error": str(e)}
+
+        # Analyze readability
+        try:
+            self.results["readability_results"] = self.readability_analyzer.analyze()
+        except ValueError as e:
+            self.results["readability_results"] = {"error": str(e)}
+
+        # Analyze tone and style (placeholder)
+        self.results["tone_results"] = self._analyze_tone()
+        self.results["style_results"] = self._analyze_style()
+
+        # Calculate overall score
+        self.results["overall_score"] = self._calculate_overall_score()
+
+        # Generate recommendations
+        self.results["recommendations"] = self._generate_recommendations()
+
+        # Generate optimized content
+        self.results["optimized_content"] = self._generate_optimized_content()
+
+        return self.results
+
+    def _analyze_tone(self) -> Dict[str, Any]:
+        """
+        Analyze the tone of the content.
+
+        Returns:
+            Dictionary with tone analysis results
+        """
+        # Placeholder implementation
+        return {
+            "target_tone": self.config["tone"]["target_tone"],
+            "formality_level": self.config["tone"]["formality_level"],
+            "emotion_level": self.config["tone"]["emotion_level"],
+            "active_voice_percentage": 0.8,  # Placeholder
+            "personal_pronouns_count": 10,  # Placeholder
+            "jargon_count": 5,  # Placeholder
+            "cliche_count": 3,  # Placeholder
+            "tone_score": 0.7,  # Placeholder
+        }
+
+    def _analyze_style(self) -> Dict[str, Any]:
+        """
+        Analyze the style of the content.
+
+        Returns:
+            Dictionary with style analysis results
+        """
+        # Placeholder implementation
+        return {
+            "sentence_variety_score": 0.8,  # Placeholder
+            "paragraph_variety_score": 0.7,  # Placeholder
+            "transition_words_score": 0.6,  # Placeholder
+            "tense_consistency_score": 0.9,  # Placeholder
+            "voice_consistency_score": 0.8,  # Placeholder
+            "point_of_view_consistency_score": 0.9,  # Placeholder
+            "style_score": 0.8,  # Placeholder
+        }
+
+    def _calculate_overall_score(self) -> float:
+        """
+        Calculate the overall optimization score.
+
+        Returns:
+            Overall optimization score (0-1)
+        """
+        scores = []
+
+        # Add SEO score if available
+        if isinstance(self.results["seo_results"], dict) and "overall_score" in self.results["seo_results"]:
+            scores.append(self.results["seo_results"]["overall_score"])
+
+        # Add readability score if available
+        if isinstance(self.results["readability_results"], dict) and "overall_score" in self.results["readability_results"]:
+            scores.append(self.results["readability_results"]["overall_score"])
+
+        # Add tone score if available
+        if isinstance(self.results["tone_results"], dict) and "tone_score" in self.results["tone_results"]:
+            scores.append(self.results["tone_results"]["tone_score"])
+
+        # Add style score if available
+        if isinstance(self.results["style_results"], dict) and "style_score" in self.results["style_results"]:
+            scores.append(self.results["style_results"]["style_score"])
+
+        # Calculate average score
+        if scores:
+            return sum(scores) / len(scores)
+        else:
+            return 0.0
+
+    def _generate_recommendations(self) -> List[Dict[str, Any]]:
+        """
+        Generate recommendations for content optimization.
+
+        Returns:
+            List of recommendation dictionaries
+        """
+        recommendations = []
+
+        # Add SEO recommendations if available
+        if isinstance(self.results["seo_results"], dict) and "recommendations" in self.results["seo_results"]:
+            recommendations.extend(self.results["seo_results"]["recommendations"])
+
+        # Add readability recommendations if available
+        if isinstance(self.results["readability_results"], dict) and "recommendations" in self.results["readability_results"]:
+            recommendations.extend(self.results["readability_results"]["recommendations"])
+
+        # Add tone recommendations (placeholder)
+        recommendations.append({
+            "id": str(uuid.uuid4()),
+            "type": "tone",
+            "severity": "low",
+            "message": "Consider adjusting the tone to match the target audience.",
+            "suggestion": f"Aim for a {self.config['tone']['target_tone']} tone with {self.config['tone']['formality_level']} formality.",
+        })
+
+        # Add style recommendations (placeholder)
+        recommendations.append({
+            "id": str(uuid.uuid4()),
+            "type": "style",
+            "severity": "low",
+            "message": "Consider improving sentence and paragraph variety.",
+            "suggestion": "Vary sentence length and structure to improve readability and engagement.",
+        })
+
+        return recommendations
+
+    def _generate_optimized_content(self) -> Dict[str, Any]:
+        """
+        Generate optimized content based on analysis results.
+
+        Returns:
+            Dictionary with optimized content
+        """
+        # Placeholder implementation
+        # In a real implementation, this would apply the recommendations to the content
+        return self.content.copy()
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the content optimizer to a dictionary.
+
+        Returns:
+            Dictionary representation of the content optimizer
+        """
+        return {
+            "id": self.id,
+            "config": self.config,
+            "created_at": self.created_at,
+            "results": self.results,
+        }
+
+    def to_json(self, indent: int = 2) -> str:
+        """
+        Convert the content optimizer to a JSON string.
+
+        Args:
+            indent: Number of spaces for indentation
+
+        Returns:
+            JSON string representation of the content optimizer
+        """
+        return json.dumps(self.to_dict(), indent=indent)
