@@ -294,7 +294,7 @@ def _generate_cache_key(func: Callable, args: Tuple, kwargs: Dict[str, Any]) -> 
 
     # Convert to a string and hash
     arg_str = json.dumps(arg_dict, sort_keys=True, default=str)
-    key = f"{module}.{name}:{hashlib.md5(arg_str.encode()).hexdigest()}"
+    key = f"{module}.{name}:{hashlib.sha256(arg_str.encode()).hexdigest()}"
 
     return key
 

@@ -55,12 +55,9 @@ class TeamConfig:
         Raises:
             KeyError: If the key is not found
         """
-        if key == "model_settings":
-            return self.model_settings
-        elif key == "workflow":
-            return self.workflow
-        else:
-            raise KeyError(f"Invalid key: {key}")
+        if key in self.__dict__:
+            return self.__dict__[key]
+        raise KeyError(f"Invalid key: {key}")
 
 
 class AgentTeam(IAgentTeam):

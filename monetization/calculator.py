@@ -4,15 +4,16 @@ Monetization calculator for the Monetization module.
 This module provides the MonetizationCalculator class that calculates monetization metrics.
 """
 
-import logging
-import math
 import os
 import sys
-from typing import Any, Dict, List
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-# Import after path modification
+
+import logging
+import math
+from typing import Any, Dict, List
+
 from interfaces.monetization_interfaces import IMonetizationCalculator
 from monetization.errors import MonetizationError
 

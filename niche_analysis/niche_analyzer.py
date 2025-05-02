@@ -4,26 +4,25 @@ Niche analyzer for the Niche Analysis module.
 This module provides the NicheAnalyzer class that analyzes niches and identifies opportunities.
 """
 
-import asyncio
-import hashlib
-import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-# Import after path modification
+
+import asyncio
+import hashlib
+import logging
+from typing import Any, Dict, List, Optional
+
 from ai_models.async_utils import run_in_thread
 from common_utils.caching import default_cache
 from interfaces.agent_interfaces import IAgentTeam
 from interfaces.niche_interfaces import INicheAnalyzer
 from niche_analysis.errors import NicheAnalysisError
 
-
 # Set up logging
 logger = logging.getLogger(__name__)
-
 
 class NicheAnalyzer(INicheAnalyzer):
     """
@@ -208,7 +207,7 @@ class NicheAnalyzer(INicheAnalyzer):
 
         # Generate a cache key based on the market segments
         segments_str = ",".join(sorted(market_segments))
-        cache_key = f"identify_niches:{hashlib.md5(segments_str.encode()).hexdigest()}"
+        cache_key = f"identify_niches:{hashlib.sha256(segments_str.encode(), usedforsecurity=False).hexdigest()}"
 
         # Try to get from cache first if not forcing refresh
         if not force_refresh:
@@ -262,7 +261,7 @@ class NicheAnalyzer(INicheAnalyzer):
 
         # Generate a cache key based on the market segments
         segments_str = ",".join(sorted(market_segments))
-        cache_key = f"identify_niches:{hashlib.md5(segments_str.encode()).hexdigest()}"
+        cache_key = f"identify_niches:{hashlib.sha256(segments_str.encode(), usedforsecurity=False).hexdigest()}"
 
         # Try to get from cache first if not forcing refresh
         if not force_refresh:

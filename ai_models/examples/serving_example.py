@@ -33,7 +33,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def test_rest_server(model_path: str, host: str = "0.0.0.0", port: int = 8000) -> None:
+def test_rest_server(model_path: str, host: str = "127.0.0.1", port: int = 8000) -> None:
     """
     Test the REST API server.
 
@@ -84,7 +84,7 @@ def test_rest_server(model_path: str, host: str = "0.0.0.0", port: int = 8000) -
         print(f"Error running REST API server: {e}")
 
 
-def test_grpc_server(model_path: str, host: str = "0.0.0.0", port: int = 50051) -> None:
+def test_grpc_server(model_path: str, host: str = "127.0.0.1", port: int = 50051) -> None:
     """
     Test the gRPC server.
 
@@ -350,7 +350,7 @@ def main():
         default="none",
         help="Server to run",
     )
-    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind the server to")
+    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind the server to")
     parser.add_argument("--port", type=int, default=None, help="Port to bind the server to")
     parser.add_argument(
         "--deployment",

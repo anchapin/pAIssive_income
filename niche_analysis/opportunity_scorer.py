@@ -642,7 +642,7 @@ class OpportunityScorer:
 
         # Convert to stable string representation and hash
         key_str = json.dumps(key_parts, sort_keys=True)
-        return hashlib.md5(key_str.encode()).hexdigest()
+        return hashlib.sha256(key_str.encode()).hexdigest()
 
     def invalidate_opportunity_cache(self, niche: Optional[str] = None) -> bool:
         """

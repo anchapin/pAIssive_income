@@ -27,7 +27,7 @@ class ResearchAgent(IResearchAgent):
         self.team = team
         self._name = "Research Agent"
         self._description = "Specializes in market research and niche identification"
-        self.model_settings = team.config["model_settings"]["researcher"]
+        self.model_settings = team.config.model_settings["researcher"]
 
     def is_configured(self) -> bool:
         """Check if the agent is properly configured."""

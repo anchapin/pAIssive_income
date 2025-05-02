@@ -528,14 +528,16 @@ class InvoiceDelivery:
     including email delivery, PDF generation, and export functionality.
     """
 
-    def __init__(self, email_config: Optional[Dict[str, Any]] = None):
+    def __init__(self, email_config: Optional[Dict[str, Any]] = None, timeout: int = 30):
         """
         Initialize an invoice delivery system.
 
         Args:
             email_config: Email configuration
+            timeout: Request timeout in seconds (default: 30)
         """
         self.email_config = email_config or {}
+        self.timeout = timeout
 
     def send_invoice_by_email(
         self,

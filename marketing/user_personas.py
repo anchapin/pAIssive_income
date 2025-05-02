@@ -82,10 +82,23 @@ class PersonaCreator:
             len(persona["pain_points"]), len(niche["problem_areas"]), 1
         )
 
-        # Calculate overall fit score (0-1)
-        fit_score = pain_point_score
+        # Calculate demographic fit score
+        demographic_score = 0.0
+        if "demographics" in persona and "target_demographics" in niche:
+            matches = sum(1 for k, v in persona["demographics"].items() 
+                         if k in niche["target_demographics"] and v == niche["target_demographics"][k])
+            total = len(niche["target_demographics"]) if niche["target_demographics"] else 1
+            demographic_score = matches / total
 
-        # TODO: Implement more sophisticated fit analysis based on demographics, behavior, etc.
+        # Calculate behavior fit score
+        behavior_score = 0.0
+        if "behaviors" in persona and "target_behaviors" in niche:
+            matches = sum(1 for b in persona["behaviors"] if b in niche["target_behaviors"])
+            total = len(niche["target_behaviors"]) if niche["target_behaviors"] else 1
+            behavior_score = matches / total
+
+        # Calculate overall fit score (weighted average)
+        fit_score = (0.5 * pain_point_score) + (0.3 * demographic_score) + (0.2 * behavior_score)
 
         return {
             "persona_id": persona["id"],

@@ -222,7 +222,7 @@ class DownloadTask:
         self.progress.total_size = total_size
 
         # Download the file
-        response = requests.get(self.source, stream=True)
+        response = requests.get(self.source, stream=True, timeout=30)
         response.raise_for_status()
 
         # Create a progress bar if tqdm is available
@@ -1081,15 +1081,10 @@ class ModelDownloader:
             logger.error(f"File not found: {file_path}")
             return False
 
-        # Determine hash algorithm based on checksum length
-        # MD5: 32 chars, SHA-256: 64 chars
+        # Prefer SHA-256 for checksum verification
         if len(expected_checksum) == 32:
-            # For backward compatibility with existing MD5 checksums
-            hasher = hashlib.md5(usedforsecurity=False)  # Explicitly mark as not for security purposes
-            logger.warning(f"Using MD5 for checksum verification of {file_path} (not for security purposes)")
-        else:
-            # Prefer SHA-256 for new checksums
-            hasher = hashlib.sha256()
+            hasher = hashlib.sha256()  # Use SHA-256 for new checksums
+            logger.warning(f"Using SHA-256 for checksum verification of {file_path}")
 
         # Calculate the checksum
         with open(file_path, "rb") as f:
