@@ -165,7 +165,7 @@ class ModelConfig(IModelConfig):
 
             # Validate using Pydantic schema
             try:
-                from pydantic import ValidationError
+                from pydantic import ValidationError, ConfigDict
 
                 # Use the Pydantic schema to validate the config
                 validated_config = ModelConfigSchema.model_validate(config_dict)

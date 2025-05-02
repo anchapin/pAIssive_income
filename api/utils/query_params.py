@@ -33,6 +33,7 @@ class FilterOperator(str, Enum):
 
 
 class FilterParam(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Filter parameter for query parameters."""
     field: str = Field(..., description="Field to filter by")
     operator: FilterOperator = Field(FilterOperator.EQ, description="Filter operator")
@@ -42,6 +43,7 @@ class FilterParam(BaseModel):
 
 
 class QueryParams(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Query parameters for API endpoints."""
     page: int = Field(1, ge=1, description="Page number")
     page_size: int = Field(10, ge=1, le=100, description="Page size")

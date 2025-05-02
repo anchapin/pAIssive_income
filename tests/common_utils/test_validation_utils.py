@@ -6,7 +6,7 @@ import os
 import json
 import tempfile
 import unittest
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from common_utils.validation_utils import (
     is_valid_email,
@@ -315,6 +315,7 @@ class TestValidationUtils(unittest.TestCase):
 
         # Define a Pydantic model for testing
         class TestConfig(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
             name: str = Field(..., min_length=1)
             value: int = Field(..., ge=0)
 

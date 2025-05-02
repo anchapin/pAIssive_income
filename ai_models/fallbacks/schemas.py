@@ -24,6 +24,7 @@ class FallbackStrategyEnum(str, Enum):
 
 
 class FallbackPreferences(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Model for fallback preferences configuration."""
 
     preferred_model_types: Dict[str, List[str]] = Field(
@@ -33,8 +34,7 @@ class FallbackPreferences(BaseModel):
             "monetization": ["huggingface", "general-purpose"],
             "marketing": ["huggingface", "general-purpose"],
             "default": ["huggingface", "general-purpose"],
-        },
-        description="Mapping of agent types to their preferred model types for fallbacks",
+        }, description="Mapping of agent types to their preferred model types for fallbacks",
     )
 
     def get_preferences_for_agent(self, agent_type: str) -> List[str]:
@@ -45,6 +45,7 @@ class FallbackPreferences(BaseModel):
 
 
 class FallbackConfig(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Configuration model for fallback behavior."""
 
     enabled: bool = Field(
@@ -52,8 +53,7 @@ class FallbackConfig(BaseModel):
     )
 
     default_strategy: FallbackStrategyEnum = Field(
-        default=FallbackStrategyEnum.DEFAULT,
-        description="Default fallback strategy to use",
+        default=FallbackStrategyEnum.DEFAULT, description="Default fallback strategy to use",
     )
 
     max_attempts: int = Field(
@@ -65,8 +65,7 @@ class FallbackConfig(BaseModel):
     )
 
     preferences: FallbackPreferences = Field(
-        default_factory=FallbackPreferences,
-        description="Fallback preferences configuration",
+        default_factory=FallbackPreferences, description="Fallback preferences configuration",
     )
 
     logging_level: str = Field(
@@ -74,8 +73,7 @@ class FallbackConfig(BaseModel):
     )
 
     use_general_purpose_fallback: bool = Field(
-        default=True,
-        description="Whether to use any general purpose model as a last resort",
+        default=True, description="Whether to use any general purpose model as a last resort",
     )
 
     model_config = ConfigDict(
@@ -100,6 +98,7 @@ class FallbackConfig(BaseModel):
 
 
 class FallbackEventSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for a model fallback event."""
 
     original_model_id: Optional[str] = Field(
@@ -121,8 +120,7 @@ class FallbackEventSchema(BaseModel):
     )
 
     strategy_used: FallbackStrategyEnum = Field(
-        default=FallbackStrategyEnum.DEFAULT,
-        description="The fallback strategy that was used",
+        default=FallbackStrategyEnum.DEFAULT, description="The fallback strategy that was used",
     )
 
     timestamp: float = Field(description="Timestamp of the fallback event")
@@ -133,6 +131,7 @@ class FallbackEventSchema(BaseModel):
 
 
 class FallbackMetrics(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for fallback metrics."""
 
     success_count: int = Field(
@@ -144,8 +143,7 @@ class FallbackMetrics(BaseModel):
     )
 
     success_rate: float = Field(
-        default=0.0,
-        description="Success rate of this strategy (0.0 to 1.0)",
+        default=0.0, description="Success rate of this strategy (0.0 to 1.0)",
         ge=0.0,
         le=1.0,
     )

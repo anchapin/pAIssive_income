@@ -174,6 +174,42 @@ class APITestClient:
         request_headers = {**self.headers, **(headers or {})}
         return self.client.delete(url, json={"ids": ids}, headers=request_headers)
 
+    def graphql_query(self, query: str, variables: Optional[Dict[str, Any]] = None,
+                     headers: Optional[Dict[str, str]] = None) -> Any:
+        """
+        Make a GraphQL query request.
+
+        Args:
+            query: GraphQL query string
+            variables: GraphQL variables
+            headers: Request headers (overrides default headers)
+
+        Returns:
+            Response from the GraphQL API
+        """
+        url = f"{self.base_url}/graphql"
+        request_headers = {**self.headers, **(headers or {})}
+        request_data = {"query": query}
+        if variables:
+            request_data["variables"] = variables
+        return self.client.post(url, json=request_data, headers=request_headers)
+
+    def graphql_mutation(self, mutation: str, variables: Optional[Dict[str, Any]] = None,
+                        headers: Optional[Dict[str, str]] = None) -> Any:
+        """
+        Make a GraphQL mutation request.
+
+        Args:
+            mutation: GraphQL mutation string
+            variables: GraphQL variables
+            headers: Request headers (overrides default headers)
+
+        Returns:
+            Response from the GraphQL API
+        """
+        # GraphQL mutations use the same endpoint as queries
+        return self.graphql_query(mutation, variables, headers)
+
 
 @pytest.fixture
 def api_test_client(api_client: TestClient, api_unauth_headers: Dict[str, str]) -> APITestClient:

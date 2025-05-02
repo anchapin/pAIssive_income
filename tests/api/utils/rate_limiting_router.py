@@ -10,22 +10,25 @@ import asyncio
 import threading
 from typing import Dict, Any
 from fastapi import APIRouter, Request, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class RateLimitConfig(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Rate limit configuration."""
     tier: str
     limits: Dict[str, int]
 
 
 class ThrottleConfig(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Throttling configuration."""
     max_concurrent_requests: int
     timeout_seconds: int
 
 
 class QuotaConfig(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Quota configuration."""
     customer_id: str
     daily_limit: int

@@ -12,6 +12,7 @@ from uuid import UUID
 
 
 class NicheAnalysisRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for niche analysis request validation."""
 
     market_segments: List[str] = Field(
@@ -26,6 +27,7 @@ class NicheAnalysisRequest(BaseModel):
 
 
 class DeveloperSolutionRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for solution development request validation."""
 
     niche_id: str = Field(
@@ -45,11 +47,11 @@ class DeveloperSolutionRequest(BaseModel):
 
 
 class MonetizationStrategyRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for monetization strategy request validation."""
 
     solution_id: str = Field(
-        ...,
-        description="ID of the solution to create a monetization strategy for",
+        ..., description="ID of the solution to create a monetization strategy for",
         min_length=1,
     )
 
@@ -66,11 +68,11 @@ class MonetizationStrategyRequest(BaseModel):
 
 
 class MarketingCampaignRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for marketing campaign request validation."""
 
     solution_id: str = Field(
-        ...,
-        description="ID of the solution to create a marketing campaign for",
+        ..., description="ID of the solution to create a marketing campaign for",
         min_length=1,
     )
 
@@ -87,6 +89,7 @@ class MarketingCampaignRequest(BaseModel):
 
 
 class TaskRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for task-related requests."""
 
     task_id: UUID = Field(..., description="ID of the task to operate on")
@@ -95,6 +98,7 @@ class TaskRequest(BaseModel):
 
 
 class ApiQueryParams(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for common API query parameters."""
 
     limit: Optional[int] = Field(

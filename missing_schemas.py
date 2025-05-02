@@ -16,6 +16,7 @@ from marketing.schemas.strategy import MarketingStrategySchema
 
 
 class TimeframeSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for timeframe specifications."""
     value: int = Field(..., description="The numeric value of the timeframe", gt=0)
     unit: TimeframeUnit = Field(..., description="The unit of the timeframe")
@@ -28,6 +29,7 @@ class TimeframeSchema(BaseModel):
 
 
 class ConfigSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for general configuration settings."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the config")
     name: str = Field(..., description="Name of the configuration")
@@ -40,6 +42,7 @@ class ConfigSchema(BaseModel):
 
 
 class MetricSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for marketing metrics."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the metric")
     name: str = Field(..., description="Name of the metric")
@@ -53,6 +56,7 @@ class MetricSchema(BaseModel):
 
 
 class ContentItemSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for content calendar items."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the content item")
     title: str = Field(..., description="Title of the content item")
@@ -70,6 +74,7 @@ class ContentItemSchema(BaseModel):
 
 
 class ContentCalendarSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for content calendars."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the calendar")
     name: str = Field(..., description="Name of the calendar")
@@ -84,6 +89,7 @@ class ContentCalendarSchema(BaseModel):
 
 
 class PersonaSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for user personas."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the persona")
     name: str = Field(..., description="Name of the persona")
@@ -101,6 +107,7 @@ class PersonaSchema(BaseModel):
 
 
 class ChannelAnalysisSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for channel analysis."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the analysis")
     channel_name: str = Field(..., description="Name of the channel")
@@ -116,6 +123,7 @@ class ChannelAnalysisSchema(BaseModel):
 
 
 class MarketingPlanSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for marketing plans."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the plan")
     name: str = Field(..., description="Name of the plan")
@@ -134,6 +142,7 @@ class MarketingPlanSchema(BaseModel):
 
 
 class MarketingStrategyInputSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for marketing strategy inputs."""
     business_type: BusinessType = Field(..., description="Type of business")
     business_size: BusinessSize = Field(..., description="Size of business")
@@ -151,6 +160,7 @@ class MarketingStrategyInputSchema(BaseModel):
 
 
 class MarketingStrategyResultsSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for marketing strategy results."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the results")
     strategy_id: str = Field(..., description="ID of the strategy")
@@ -166,6 +176,7 @@ class MarketingStrategyResultsSchema(BaseModel):
 
 
 class AudienceAnalysisSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for audience analysis."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the analysis")
     segment_name: str = Field(..., description="Name of the audience segment")
@@ -185,6 +196,7 @@ class AudienceAnalysisSchema(BaseModel):
 
 
 class BusinessAnalysisSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for business analysis."""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for the analysis")
     business_name: str = Field(..., description="Name of the business")

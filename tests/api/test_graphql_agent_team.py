@@ -46,10 +46,7 @@ class TestAgentTeamGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
+        response = api_test_client.graphql_query(query)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -110,13 +107,7 @@ class TestAgentTeamGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"id": team_id}
-            }
-        )
+        response = api_test_client.graphql_query(query, {"id": team_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -126,7 +117,7 @@ class TestAgentTeamGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "agentTeam")
-            
+
             # The team might not exist, which is fine
             if data["agentTeam"]:
                 team = data["agentTeam"]
@@ -172,13 +163,7 @@ class TestAgentTeamGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"teamId": team_id}
-            }
-        )
+        response = api_test_client.graphql_query(query, {"teamId": team_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -244,13 +229,7 @@ class TestAgentTeamGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, variables)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -260,7 +239,7 @@ class TestAgentTeamGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "createAgentTeam")
-            
+
             if data["createAgentTeam"]:
                 team = data["createAgentTeam"]
                 validate_field_exists(team, "id")
@@ -317,13 +296,7 @@ class TestAgentTeamGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, variables)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -333,7 +306,7 @@ class TestAgentTeamGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "updateAgentTeam")
-            
+
             # The update might return None if team doesn't exist
             if data["updateAgentTeam"]:
                 team = data["updateAgentTeam"]
@@ -362,13 +335,7 @@ class TestAgentTeamGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": {"id": team_id}
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, {"id": team_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -429,13 +396,7 @@ class TestAgentTeamGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, variables)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -445,7 +406,7 @@ class TestAgentTeamGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "runAgentTask")
-            
+
             if data["runAgentTask"]:
                 task = data["runAgentTask"]
                 validate_field_exists(task, "taskId")
@@ -468,10 +429,7 @@ class TestAgentTeamGraphQLAPI:
         }
         """
 
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
+        response = api_test_client.graphql_query(query)
         result = validate_json_response(response)
         validate_field_exists(result, "errors")
 
@@ -485,15 +443,12 @@ class TestAgentTeamGraphQLAPI:
         }
         """
 
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": {
-                    "input": {
-                        # Missing required fields
-                        "description": "Invalid team"
-                    }
+        response = api_test_client.graphql_mutation(
+            mutation,
+            {
+                "input": {
+                    # Missing required fields
+                    "description": "Invalid team"
                 }
             }
         )

@@ -45,10 +45,7 @@ class TestAIModelsGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
+        response = api_test_client.graphql_query(query)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -102,13 +99,7 @@ class TestAIModelsGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"id": model_id}
-            }
-        )
+        response = api_test_client.graphql_query(query, {"id": model_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -118,7 +109,7 @@ class TestAIModelsGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "aiModel")
-            
+
             # The model might not exist, which is fine
             if data["aiModel"]:
                 model = data["aiModel"]
@@ -163,13 +154,7 @@ class TestAIModelsGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, variables)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -179,7 +164,7 @@ class TestAIModelsGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "runInference")
-            
+
             # The inference response might be None if model doesn't exist
             if data["runInference"]:
                 inference = data["runInference"]
@@ -210,13 +195,7 @@ class TestAIModelsGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"modelId": model_id}
-            }
-        )
+        response = api_test_client.graphql_query(query, {"modelId": model_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -250,13 +229,7 @@ class TestAIModelsGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"modelId": model_id}
-            }
-        )
+        response = api_test_client.graphql_query(query, {"modelId": model_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -266,7 +239,7 @@ class TestAIModelsGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "modelMetrics")
-            
+
             # Metrics might be None if model doesn't exist
             if data["modelMetrics"]:
                 metrics = data["modelMetrics"]
@@ -313,13 +286,7 @@ class TestAIModelsGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, variables)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -329,7 +296,7 @@ class TestAIModelsGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "createModel")
-            
+
             if data["createModel"]:
                 model = data["createModel"]
                 validate_field_exists(model, "id")
@@ -381,13 +348,7 @@ class TestAIModelsGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, variables)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -397,7 +358,7 @@ class TestAIModelsGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "updateModel")
-            
+
             # The update might return None if model doesn't exist
             if data["updateModel"]:
                 model = data["updateModel"]
@@ -429,13 +390,7 @@ class TestAIModelsGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": {"id": model_id}
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, {"id": model_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -458,10 +413,7 @@ class TestAIModelsGraphQLAPI:
         }
         """
 
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
+        response = api_test_client.graphql_query(query)
         result = validate_json_response(response)
         validate_field_exists(result, "errors")
 
@@ -475,15 +427,12 @@ class TestAIModelsGraphQLAPI:
         }
         """
 
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": {
-                    "input": {
-                        # Missing required fields
-                        "description": "Invalid model"
-                    }
+        response = api_test_client.graphql_mutation(
+            mutation,
+            {
+                "input": {
+                    # Missing required fields
+                    "description": "Invalid model"
                 }
             }
         )

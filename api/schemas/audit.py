@@ -5,7 +5,7 @@ Audit schemas for the API server.
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class AuditEventType(str, Enum):
     """Types of audit events."""
@@ -78,6 +78,7 @@ class AuditActorType(str, Enum):
     SERVICE = "service"
 
 class AuditEventBase(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Base schema for audit events."""
     event_type: AuditEventType = Field(..., description="Type of event")
     resource_type: AuditResourceType = Field(..., description="Type of resource")
@@ -104,6 +105,7 @@ class AuditEventResponse(AuditEventBase):
         orm_mode = True
 
 class AuditEventList(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for listing audit events."""
     items: List[AuditEventResponse] = Field(..., description="List of audit events")
     total: int = Field(..., description="Total number of audit events")
@@ -112,6 +114,7 @@ class AuditEventList(BaseModel):
     pages: int = Field(..., description="Total number of pages")
 
 class AuditEventFilter(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for filtering audit events."""
     event_type: Optional[AuditEventType] = Field(None, description="Filter by event type")
     resource_type: Optional[AuditResourceType] = Field(None, description="Filter by resource type")

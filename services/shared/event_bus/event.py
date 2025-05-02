@@ -10,7 +10,7 @@ import logging
 from enum import Enum
 from typing import Dict, Any, Optional, Union, TypeVar, Generic, Type, Callable
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 # Set up logging
 logging.basicConfig(
@@ -39,6 +39,7 @@ class EventType(str, Enum):
 
 
 class EventMetadata(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Metadata for events."""
 
     # Event ID (UUID)
@@ -70,6 +71,7 @@ class EventMetadata(BaseModel):
 
 
 class Event(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Base event schema for all events published through the event bus.
     """
@@ -83,7 +85,7 @@ class Event(BaseModel):
     # Event data
     data: Dict[str, Any] = Field(default_factory=dict)
 
-    @validator("metadata", pre=True)
+    @field_validator("metadata", pre=True)
     def validate_metadata(cls, v, values):
         """Validate and convert metadata if needed."""
         if isinstance(v, dict):

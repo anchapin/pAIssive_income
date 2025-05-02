@@ -3,7 +3,7 @@ Tests for edge cases in webhook schema validation.
 """
 
 import pytest
-from pydantic import ValidationError
+from pydantic import ValidationError, ConfigDict
 from api.schemas.webhook import WebhookRequest, WebhookEventType, WebhookUpdate
 
 def test_webhook_request_empty_events():

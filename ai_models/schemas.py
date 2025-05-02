@@ -11,6 +11,7 @@ import os
 
 
 class ModelConfigSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for AI model configuration.
     """
@@ -37,19 +38,16 @@ class ModelConfigSchema(BaseModel):
         default=1000, description="Maximum number of items in memory cache", gt=0
     )
     default_device: str = Field(
-        default="auto",
-        description="Default device for model inference (auto, cpu, cuda, mps, etc.)",
+        default="auto", description="Default device for model inference (auto, cpu, cuda, mps, etc.)",
     )
     max_threads: Optional[int] = Field(
-        default=None,
-        description="Maximum number of threads to use (None means use all available threads)",
+        default=None, description="Maximum number of threads to use (None means use all available threads)",
     )
     auto_discover: bool = Field(
         default=True, description="Whether to automatically discover models"
     )
     model_sources: List[str] = Field(
-        default_factory=lambda: ["local", "huggingface"],
-        description="Sources for model discovery",
+        default_factory=lambda: ["local", "huggingface"], description="Sources for model discovery",
     )
     default_text_model: str = Field(
         default="gpt2", description="Default text generation model"
@@ -72,6 +70,7 @@ class ModelConfigSchema(BaseModel):
 
 
 class ModelInfoSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for AI model information.
     """
@@ -103,6 +102,7 @@ class ModelInfoSchema(BaseModel):
 
 
 class ModelParametersSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for AI model parameters.
     """
@@ -130,6 +130,7 @@ class ModelParametersSchema(BaseModel):
 
 
 class TextGenerationRequestSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for text generation request.
     """
@@ -144,6 +145,7 @@ class TextGenerationRequestSchema(BaseModel):
 
 
 class TextGenerationResponseSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for text generation response.
     """
@@ -170,6 +172,7 @@ class TextGenerationResponseSchema(BaseModel):
 
 
 class EmbeddingRequestSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for text embedding request.
     """
@@ -181,6 +184,7 @@ class EmbeddingRequestSchema(BaseModel):
 
 
 class EmbeddingResponseSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for text embedding response.
     """
@@ -204,6 +208,7 @@ class EmbeddingResponseSchema(BaseModel):
 
 
 class BenchmarkConfigSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for benchmark configuration.
     """
@@ -224,6 +229,7 @@ class BenchmarkConfigSchema(BaseModel):
 
 
 class BenchmarkResultSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for benchmark result.
     """

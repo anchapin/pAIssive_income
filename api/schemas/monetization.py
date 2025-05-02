@@ -5,7 +5,7 @@ This module provides Pydantic models for Monetization API request and response v
 """
 
 from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from enum import Enum
 
@@ -29,6 +29,7 @@ class BillingPeriod(str, Enum):
 
 
 class FeatureResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Feature response model."""
 
     id: str = Field(..., description="Feature ID")
@@ -39,6 +40,7 @@ class FeatureResponse(BaseModel):
 
 
 class PricingTierResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pricing tier response model."""
 
     id: str = Field(..., description="Tier ID")
@@ -57,6 +59,7 @@ class PricingTierResponse(BaseModel):
 
 
 class SubscriptionModelRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Subscription model request model."""
 
     name: str = Field(..., description="Model name")
@@ -68,6 +71,7 @@ class SubscriptionModelRequest(BaseModel):
 
 
 class SubscriptionModelResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Subscription model response model."""
 
     id: str = Field(..., description="Model ID")
@@ -82,6 +86,7 @@ class SubscriptionModelResponse(BaseModel):
 
 
 class RevenueProjectionRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Revenue projection request model."""
 
     subscription_model_id: str = Field(..., description="Subscription model ID")
@@ -95,6 +100,7 @@ class RevenueProjectionRequest(BaseModel):
 
 
 class RevenueProjectionResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Revenue projection response model."""
 
     id: str = Field(..., description="Projection ID")

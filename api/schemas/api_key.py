@@ -4,9 +4,10 @@ API key schemas for the API server.
 
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class APIKeyBase(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Base schema for API key operations."""
     name: str = Field(..., description="Name of the API key")
     description: Optional[str] = Field(None, description="Description of the API key")
@@ -17,6 +18,7 @@ class APIKeyCreate(APIKeyBase):
     expires_at: Optional[datetime] = Field(None, description="Expiration timestamp")
 
 class APIKeyUpdate(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for updating an API key."""
     name: Optional[str] = Field(None, description="New name of the API key")
     description: Optional[str] = Field(None, description="New description of the API key")
@@ -39,6 +41,7 @@ class APIKeyResponse(APIKeyBase):
         orm_mode = True
 
 class APIKeyList(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for listing API keys."""
     items: List[APIKeyResponse] = Field(..., description="List of API keys")
     total: int = Field(..., description="Total number of API keys")

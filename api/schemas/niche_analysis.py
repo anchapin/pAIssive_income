@@ -17,6 +17,7 @@ from .bulk_operations import (
 
 
 class ProblemResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Problem response model."""
 
     id: str = Field(..., description="Problem ID")
@@ -29,6 +30,7 @@ class ProblemResponse(BaseModel):
 
 
 class MarketSegmentResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Market segment response model."""
 
     id: str = Field(..., description="Market segment ID")
@@ -44,6 +46,7 @@ class MarketSegmentResponse(BaseModel):
 
 
 class OpportunityResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Opportunity response model."""
 
     id: str = Field(..., description="Opportunity ID")
@@ -58,6 +61,7 @@ class OpportunityResponse(BaseModel):
 
 
 class NicheResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Niche response model."""
 
     id: str = Field(..., description="Niche ID")
@@ -73,6 +77,7 @@ class NicheResponse(BaseModel):
 
 
 class NicheAnalysisRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Niche analysis request model."""
 
     segments: List[str] = Field(..., description="Market segments to analyze")
@@ -83,6 +88,7 @@ class NicheAnalysisRequest(BaseModel):
 
 
 class NicheAnalysisResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Niche analysis response model."""
 
     analysis_id: str = Field(..., description="Analysis ID")
@@ -93,6 +99,7 @@ class NicheAnalysisResponse(BaseModel):
 
 # Bulk operation schemas for niches
 class NicheCreateRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Request model for creating a niche."""
 
     name: str = Field(..., description="Niche name")
@@ -117,6 +124,7 @@ class BulkNicheCreateResponse(BulkCreateResponse[NicheResponse]):
 
 
 class NicheUpdateRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Request model for updating a niche."""
 
     id: str = Field(..., description="Niche ID")
@@ -143,6 +151,7 @@ class BulkNicheUpdateResponse(BulkUpdateResponse[NicheResponse]):
 
 # Error response model
 class ErrorResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Error response model."""
     
     error_code: str = Field(..., description="Error code")

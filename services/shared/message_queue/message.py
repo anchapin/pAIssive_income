@@ -12,7 +12,7 @@ from enum import Enum
 from typing import Dict, Any, Optional, Union, TypeVar, Generic, Type
 
 import msgpack
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 # Set up logging
 logging.basicConfig(
@@ -73,6 +73,7 @@ class MessageStatus(str, Enum):
 
 
 class Message(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """
     Base message schema for all messages sent through the message queue.
     """
@@ -113,7 +114,7 @@ class Message(BaseModel):
     # Message status
     status: MessageStatus = Field(default=MessageStatus.CREATED)
 
-    @validator("correlation_id", pre=True, always=True)
+    @field_validator("correlation_id", pre=True, always=True)
     def set_correlation_id(cls, v, values):
         """Set correlation ID if not provided."""
         if v is None and "id" in values:

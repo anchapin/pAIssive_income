@@ -10,7 +10,7 @@ from typing import Optional, List
 try:
     from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
     from fastapi.responses import StreamingResponse
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel, Field, ConfigDict
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -37,6 +37,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class GenerationRequest(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Request model for text generation.
         """
@@ -53,6 +54,7 @@ if FASTAPI_AVAILABLE:
         stream: bool = Field(False, description="Whether to stream the response")
 
     class GenerationResponse(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Response model for text generation.
         """
@@ -66,6 +68,7 @@ if FASTAPI_AVAILABLE:
         finish_reason: str = Field(..., description="Reason for finishing generation")
 
     class ChatMessage(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Chat message model.
         """
@@ -74,6 +77,7 @@ if FASTAPI_AVAILABLE:
         content: str = Field(..., description="Content of the message")
 
     class ChatRequest(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Request model for chat completion.
         """
@@ -90,6 +94,7 @@ if FASTAPI_AVAILABLE:
         stream: bool = Field(False, description="Whether to stream the response")
 
     class ChatResponse(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Response model for chat completion.
         """

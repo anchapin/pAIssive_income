@@ -49,7 +49,12 @@ def remove_unused_imports(file_path):
                         break
                 elif name.name not in used_names:
                     to_remove.append(
-                        (imp.lineno, imp.col_offset, imp.end_lineno, imp.end_col_offset)
+                        (
+                            imp.lineno,
+                            imp.col_offset,
+                            imp.end_lineno,
+                            imp.end_col_offset,
+                        )
                     )
                     break
         elif isinstance(imp, ast.ImportFrom):
@@ -67,7 +72,12 @@ def remove_unused_imports(file_path):
                     break
             if all_unused:
                 to_remove.append(
-                    (imp.lineno, imp.col_offset, imp.end_lineno, imp.end_col_offset)
+                    (
+                        imp.lineno,
+                        imp.col_offset,
+                        imp.end_lineno,
+                        imp.end_col_offset,
+                    )
                 )
 
     # Sort in reverse order to avoid index issues when removing
@@ -225,7 +235,8 @@ def fix_undefined_names(file_path):
                 if (
                     not re.search(r"^\s*import\s+" + re.escape(name), line)
                     and not re.search(
-                        r"^\s*from\s+.*\s+import\s+.*\b" + re.escape(name) + r"\b", line
+                        r"^\s*from\s+.*\s+import\s+.*\b" + re.escape(name) + r"\b",
+                        line,
                     )
                     and not re.search(r"\bdef\s+" + re.escape(name) + r"\b", line)
                     and not re.search(r"\bclass\s+" + re.escape(name) + r"\b", line)

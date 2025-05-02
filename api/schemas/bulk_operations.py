@@ -5,7 +5,7 @@ This module provides Pydantic models for bulk operation API request and response
 """
 
 from typing import Dict, List, Optional, Any, Generic, TypeVar
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 # Define generic type variable for bulk operations
 T = TypeVar("T")
@@ -13,6 +13,7 @@ R = TypeVar("R")
 
 
 class BulkOperationStats(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Statistics for a bulk operation."""
 
     total_items: int = Field(..., description="Total number of items in the request")
@@ -26,6 +27,7 @@ class BulkOperationStats(BaseModel):
 
 
 class BulkOperationError(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Error information for a failed item in a bulk operation."""
 
     index: int = Field(
@@ -84,6 +86,7 @@ class BulkUpdateResponse(BaseModel, Generic[R]):
 
 
 class BulkDeleteRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Request model for bulk delete operations."""
 
     ids: List[str] = Field(..., description="List of IDs to delete")
@@ -93,6 +96,7 @@ class BulkDeleteRequest(BaseModel):
 
 
 class BulkDeleteResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Response model for bulk delete operations."""
 
     deleted_ids: List[str] = Field(..., description="List of successfully deleted IDs")

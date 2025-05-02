@@ -376,3 +376,95 @@ def generate_template_data() -> Dict[str, Any]:
             "tools": ["git", "docker", "vscode"]
         }
     }
+
+
+def generate_monetization_strategy_data() -> Dict[str, Any]:
+    """
+    Generate test data for monetization strategy.
+
+    Returns:
+        Test data for monetization strategy
+    """
+    return {
+        "id": generate_id(),
+        "name": f"Strategy-{generate_string(6)}",
+        "description": f"A monetization strategy for {generate_string(12)}",
+        "model_type": random.choice(["subscription", "freemium", "one-time", "usage-based"]),
+        "pricing_tiers": [
+            {
+                "name": "Basic",
+                "price": random.uniform(10, 30),
+                "features": ["Feature 1", "Feature 2"],
+                "billing_cycle": random.choice(["monthly", "quarterly", "annual"]),
+            },
+            {
+                "name": "Pro",
+                "price": random.uniform(30, 70),
+                "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
+                "billing_cycle": random.choice(["monthly", "quarterly", "annual"]),
+            },
+            {
+                "name": "Enterprise",
+                "price": random.uniform(70, 150),
+                "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5"],
+                "billing_cycle": random.choice(["monthly", "quarterly", "annual"]),
+            },
+        ],
+        "revenue_projections": {
+            "initial_users": random.randint(10, 100),
+            "growth_rate": random.uniform(0.05, 0.2),
+            "churn_rate": random.uniform(0.01, 0.1),
+            "time_period_months": random.randint(12, 60),
+        },
+        "payment_providers": [
+            random.choice(["stripe", "paypal", "braintree", "square"])
+            for _ in range(random.randint(1, 3))
+        ],
+        "created_at": generate_date(10),
+        "updated_at": generate_date(),
+    }
+
+
+def generate_ui_component_data() -> Dict[str, Any]:
+    """
+    Generate test data for UI component.
+
+    Returns:
+        Test data for UI component
+    """
+    return {
+        "id": generate_id(),
+        "name": f"Component-{generate_string(6)}",
+        "description": f"A UI component for {generate_string(12)}",
+        "type": random.choice(["button", "form", "card", "modal", "table", "chart"]),
+        "framework": random.choice(["react", "vue", "angular", "svelte"]),
+        "properties": {
+            "color": random.choice(["primary", "secondary", "success", "danger", "warning", "info"]),
+            "size": random.choice(["small", "medium", "large"]),
+            "variant": random.choice(["outlined", "contained", "text"]),
+            "disabled": random.choice([True, False]),
+        },
+        "events": [
+            {
+                "name": random.choice(["click", "hover", "focus", "blur"]),
+                "description": f"Event triggered on {random.choice(['click', 'hover', 'focus', 'blur'])}",
+            }
+            for _ in range(random.randint(1, 4))
+        ],
+        "children": [
+            {
+                "id": generate_id(),
+                "name": f"Child-{generate_string(4)}",
+                "type": random.choice(["text", "icon", "image"]),
+            }
+            for _ in range(random.randint(0, 3))
+        ],
+        "styles": {
+            "padding": f"{random.randint(0, 20)}px",
+            "margin": f"{random.randint(0, 20)}px",
+            "borderRadius": f"{random.randint(0, 10)}px",
+            "backgroundColor": random.choice(["#f5f5f5", "#e0e0e0", "#ffffff", "#000000"]),
+        },
+        "created_at": generate_date(10),
+        "updated_at": generate_date(),
+    }

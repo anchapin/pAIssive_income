@@ -9,7 +9,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 import uuid
 import json
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class UsageMetric:
@@ -37,6 +37,7 @@ class UsageCategory:
 
 
 class UsageRecordSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     id: str = Field(..., description="Unique identifier for the usage record")
     customer_id: str = Field(..., description="ID of the customer")
     metric: str = Field(

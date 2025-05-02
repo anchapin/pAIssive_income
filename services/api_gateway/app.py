@@ -13,7 +13,7 @@ from typing import Dict, Any, Optional
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import httpx
 
 from services.service_discovery.registration import (
@@ -144,6 +144,7 @@ async def health_check():
 
 # Service token models
 class ServiceTokenRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Request model for service token generation."""
 
     service_name: str = Field(
@@ -160,6 +161,7 @@ class ServiceTokenRequest(BaseModel):
 
 
 class ServiceTokenResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Response model for service token generation."""
 
     token: str = Field(..., description="The generated JWT token")

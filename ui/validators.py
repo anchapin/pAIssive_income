@@ -9,7 +9,7 @@ and handle validation errors consistently.
 import logging
 from typing import Type, TypeVar
 from flask import request
-from pydantic import BaseModel, ValidationError as PydanticValidationError
+from pydantic import BaseModel, ValidationError as PydanticValidationError, ConfigDict
 
 from .errors import ValidationError
 

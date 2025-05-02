@@ -1,4 +1,4 @@
-from pydantic import ValidationError
+from pydantic import ValidationError, ConfigDict
 from api.schemas.webhook import WebhookRequest, WebhookUpdate
 
 # Test empty events list in WebhookRequest

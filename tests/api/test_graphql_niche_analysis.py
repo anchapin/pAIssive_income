@@ -37,10 +37,7 @@ class TestNicheAnalysisGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
+        response = api_test_client.graphql_query(query)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -106,13 +103,7 @@ class TestNicheAnalysisGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, variables)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -175,13 +166,7 @@ class TestNicheAnalysisGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"nicheId": niche_id}
-            }
-        )
+        response = api_test_client.graphql_query(query, {"nicheId": niche_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -267,13 +252,7 @@ class TestNicheAnalysisGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"id": opportunity_id}
-            }
-        )
+        response = api_test_client.graphql_query(query, {"id": opportunity_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -283,7 +262,7 @@ class TestNicheAnalysisGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "opportunityMetrics")
-            
+
             # The metrics might be None if opportunity doesn't exist
             if data["opportunityMetrics"]:
                 metrics = data["opportunityMetrics"]
@@ -328,13 +307,7 @@ class TestNicheAnalysisGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, variables)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -344,7 +317,7 @@ class TestNicheAnalysisGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "createNicheAnalysis")
-            
+
             if data["createNicheAnalysis"]:
                 niche = data["createNicheAnalysis"]
                 validate_field_exists(niche, "id")
@@ -396,13 +369,7 @@ class TestNicheAnalysisGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, variables)
 
         # Validate response structure
         result = validate_json_response(response)
@@ -412,7 +379,7 @@ class TestNicheAnalysisGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "updateNiche")
-            
+
             # The update might return None if niche doesn't exist
             if data["updateNiche"]:
                 niche = data["updateNiche"]
@@ -444,13 +411,7 @@ class TestNicheAnalysisGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": {"id": niche_id}
-            }
-        )
+        response = api_test_client.graphql_mutation(mutation, {"id": niche_id})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -500,13 +461,7 @@ class TestNicheAnalysisGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"ids": opportunity_ids}
-            }
-        )
+        response = api_test_client.graphql_query(query, {"ids": opportunity_ids})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -516,7 +471,7 @@ class TestNicheAnalysisGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "compareOpportunities")
-            
+
             if data["compareOpportunities"]:
                 comparison = data["compareOpportunities"]
                 validate_field_exists(comparison, "opportunities")
@@ -534,10 +489,7 @@ class TestNicheAnalysisGraphQLAPI:
         }
         """
 
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
+        response = api_test_client.graphql_query(query)
         result = validate_json_response(response)
         validate_field_exists(result, "errors")
 
@@ -551,17 +503,11 @@ class TestNicheAnalysisGraphQLAPI:
         }
         """
 
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": {
-                    "input": {
-                        # Missing required fields
-                        "description": "Invalid analysis"
-                    }
-                }
+        response = api_test_client.graphql_mutation(mutation, {
+            "input": {
+                # Missing required fields
+                "description": "Invalid analysis"
             }
-        )
+        })
         result = validate_json_response(response)
         validate_field_exists(result, "errors")

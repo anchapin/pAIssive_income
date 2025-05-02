@@ -1,5 +1,5 @@
 import pytest
-from pydantic import ValidationError
+from pydantic import ValidationError, ConfigDict
 from api.schemas.webhook import WebhookRequest, WebhookEventType
 
 def test_webhook_request_schema_valid():

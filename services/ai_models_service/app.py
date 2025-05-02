@@ -11,7 +11,7 @@ from typing import Dict, Any, List
 
 from fastapi import FastAPI, HTTPException, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from services.service_discovery.registration import (
     register_service,
@@ -47,6 +47,7 @@ service_registration = None
 
 # Define models for the API
 class ModelRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Request model for AI model inference."""
 
     model_name: str = Field(..., description="Name of the AI model to use")
@@ -57,6 +58,7 @@ class ModelRequest(BaseModel):
 
 
 class ModelResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Response model for AI model inference."""
 
     model_name: str = Field(..., description="Name of the AI model used")
@@ -71,6 +73,7 @@ class ModelResponse(BaseModel):
 
 
 class ModelInfo(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Information about an AI model."""
 
     name: str = Field(..., description="Name of the model")

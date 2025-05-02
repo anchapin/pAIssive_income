@@ -8,7 +8,7 @@ This module provides route handlers for health checks.
 # Try to import FastAPI
 try:
     from fastapi import APIRouter, Depends
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel, Field, ConfigDict
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -38,6 +38,7 @@ if FASTAPI_AVAILABLE:
         """
         Response model for health check.
         """
+        model_config = ConfigDict(protected_namespaces=())
 
         status: str = Field(..., description="Status of the server")
         version: str = Field(..., description="Version of the server")

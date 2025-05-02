@@ -11,7 +11,7 @@ from typing import Dict, List, Union
 try:
     from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Form
     from fastapi.responses import Response
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel, Field, ConfigDict
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -41,6 +41,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class ImageGenerationRequest(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Request model for image generation.
         """
@@ -53,6 +54,7 @@ if FASTAPI_AVAILABLE:
         )
 
     class ImageGenerationResponse(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Response model for image generation.
         """
@@ -61,6 +63,7 @@ if FASTAPI_AVAILABLE:
         data: List[Dict[str, str]] = Field(..., description="Generated images")
 
     class ImageClassificationResponse(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Response model for image classification.
         """

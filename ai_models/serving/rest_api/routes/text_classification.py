@@ -9,7 +9,7 @@ from typing import List
 # Try to import FastAPI
 try:
     from fastapi import APIRouter, HTTPException, Depends
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel, Field, ConfigDict
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -36,6 +36,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class ClassificationRequest(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Request model for text classification.
         """
@@ -43,6 +44,7 @@ if FASTAPI_AVAILABLE:
         text: str = Field(..., description="Input text for classification")
 
     class ClassificationLabel(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Model for a classification label.
         """
@@ -51,6 +53,7 @@ if FASTAPI_AVAILABLE:
         score: float = Field(..., description="Confidence score")
 
     class ClassificationResponse(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Response model for text classification.
         """

@@ -9,7 +9,7 @@ from typing import Dict, Optional, List, Union
 # Try to import FastAPI
 try:
     from fastapi import APIRouter, HTTPException, Depends
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel, Field, ConfigDict
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -36,6 +36,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class EmbeddingRequest(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Request model for embeddings.
         """
@@ -46,6 +47,7 @@ if FASTAPI_AVAILABLE:
         model: Optional[str] = Field(None, description="Model to use for embedding")
 
     class EmbeddingData(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Model for embedding data.
         """
@@ -54,6 +56,7 @@ if FASTAPI_AVAILABLE:
         index: int = Field(..., description="Index of the input")
 
     class EmbeddingResponse(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Response model for embeddings.
         """

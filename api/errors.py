@@ -15,7 +15,7 @@ try:
     from fastapi import FastAPI, Request, Response, status
     from fastapi.exceptions import RequestValidationError
     from fastapi.responses import JSONResponse
-    from pydantic import ValidationError as PydanticValidationError
+    from pydantic import ValidationError as PydanticValidationError, ConfigDict
 
     FASTAPI_AVAILABLE = True
 except ImportError:

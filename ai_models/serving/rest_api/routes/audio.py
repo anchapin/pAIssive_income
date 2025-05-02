@@ -11,7 +11,7 @@ from typing import Optional
 try:
     from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Form
     from fastapi.responses import Response, StreamingResponse
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel, Field, ConfigDict
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -41,6 +41,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class SpeechToTextRequest(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Request model for speech-to-text.
         """
@@ -50,6 +51,7 @@ if FASTAPI_AVAILABLE:
         language: Optional[str] = Field(None, description="Language of the audio")
 
     class SpeechToTextResponse(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Response model for speech-to-text.
         """
@@ -57,6 +59,7 @@ if FASTAPI_AVAILABLE:
         text: str = Field(..., description="Transcribed text")
 
     class TextToSpeechRequest(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Request model for text-to-speech.
         """
@@ -68,6 +71,7 @@ if FASTAPI_AVAILABLE:
         )
 
     class TextToSpeechResponse(BaseModel):
+        model_config = ConfigDict(protected_namespaces=())
         """
         Response model for text-to-speech.
         """

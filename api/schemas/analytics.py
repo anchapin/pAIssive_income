@@ -5,10 +5,11 @@ This module provides Pydantic models for API analytics.
 """
 
 from typing import Dict, List, Any, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class RequestStatsResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for API request statistics."""
 
     id: str = Field(..., description="Request ID")
@@ -32,6 +33,7 @@ class RequestStatsResponse(BaseModel):
 
 
 class DailyMetricsResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for daily aggregated metrics."""
 
     date: str = Field(..., description="Date in YYYY-MM-DD format")
@@ -58,6 +60,7 @@ class DailyMetricsResponse(BaseModel):
 
 
 class EndpointStatsResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for endpoint statistics."""
 
     endpoint: str = Field(..., description="Endpoint name")
@@ -82,6 +85,7 @@ class EndpointStatsResponse(BaseModel):
 
 
 class UserStatsResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for user statistics."""
 
     date: str = Field(..., description="Date in YYYY-MM-DD format")
@@ -95,6 +99,7 @@ class UserStatsResponse(BaseModel):
 
 
 class ApiKeyStatsResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for API key statistics."""
 
     date: str = Field(..., description="Date in YYYY-MM-DD format")
@@ -108,6 +113,7 @@ class ApiKeyStatsResponse(BaseModel):
 
 
 class AnalyticsSummaryResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for API usage summary."""
 
     total_requests: int = Field(..., description="Total number of requests")
@@ -124,6 +130,7 @@ class AnalyticsSummaryResponse(BaseModel):
 
 
 class EndpointRealTimeMetrics(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for real-time metrics for a specific endpoint."""
 
     request_count: int = Field(..., description="Number of requests")
@@ -136,6 +143,7 @@ class EndpointRealTimeMetrics(BaseModel):
 
 
 class RealTimeMetricsResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for real-time API metrics."""
 
     request_count: int = Field(..., description="Total number of requests")
@@ -155,6 +163,7 @@ class RealTimeMetricsResponse(BaseModel):
 
 
 class AlertResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for API alert."""
 
     title: str = Field(..., description="Alert title")
@@ -164,6 +173,7 @@ class AlertResponse(BaseModel):
 
 
 class AlertThresholdRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for setting alert thresholds."""
 
     metric: str = Field(
@@ -173,6 +183,7 @@ class AlertThresholdRequest(BaseModel):
 
 
 class AlertThresholdResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Schema for alert threshold response."""
 
     metric: str = Field(..., description="Metric name")

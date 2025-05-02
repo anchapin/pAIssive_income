@@ -11,7 +11,7 @@ import logging
 from typing import Dict, Any, Optional
 
 import jwt
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 # Set up logging
 logging.basicConfig(
@@ -33,6 +33,7 @@ class ServiceTokenError(Exception):
 
 
 class ServiceTokenPayload(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Payload for service-to-service JWT tokens."""
 
     # Service that issued the token

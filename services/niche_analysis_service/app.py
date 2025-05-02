@@ -11,7 +11,7 @@ from typing import Dict, Any, List
 
 from fastapi import FastAPI, HTTPException, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from services.service_discovery.registration import (
     register_service,
@@ -50,6 +50,7 @@ niche_analyzer = None
 
 # Models
 class NicheRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Request model for niche analysis."""
 
     market_segments: List[str] = Field(
@@ -59,6 +60,7 @@ class NicheRequest(BaseModel):
 
 
 class NicheResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Response model for niche analysis."""
 
     niches: List[Dict[str, Any]] = Field(..., description="List of analyzed niches")
@@ -66,6 +68,7 @@ class NicheResponse(BaseModel):
 
 
 class OpportunityRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Request model for opportunity analysis."""
 
     niche_name: str = Field(..., description="Name of the niche to analyze")
@@ -73,6 +76,7 @@ class OpportunityRequest(BaseModel):
 
 
 class OpportunityResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Response model for opportunity analysis."""
 
     opportunities: List[Dict[str, Any]] = Field(

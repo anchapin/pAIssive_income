@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 
 class ModelSettingSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for agent model settings."""
 
     model: str = Field(..., description="The AI model to use for the agent")
@@ -22,6 +23,7 @@ class ModelSettingSchema(BaseModel):
 
 
 class ModelSettingsSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for all agents' model settings."""
 
     researcher: ModelSettingSchema
@@ -34,6 +36,7 @@ class ModelSettingsSchema(BaseModel):
 
 
 class WorkflowSettingsSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for workflow settings."""
 
     auto_progression: bool = Field(
@@ -49,6 +52,7 @@ class WorkflowSettingsSchema(BaseModel):
 
 
 class TeamConfigSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for team configuration."""
 
     model_settings: ModelSettingsSchema = Field(
@@ -62,6 +66,7 @@ class TeamConfigSchema(BaseModel):
 
 
 class AgentProfileSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for agent profiles."""
 
     name: str = Field(..., description="Name of the agent profile")
@@ -75,6 +80,7 @@ class AgentProfileSchema(BaseModel):
 
 
 class NicheSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for a niche."""
 
     id: str = Field(..., description="Unique identifier for the niche")
@@ -98,6 +104,7 @@ class NicheSchema(BaseModel):
 
 
 class TechnologyStackSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for a solution's technology stack."""
 
     language: str = Field(..., description="Programming language")
@@ -108,6 +115,7 @@ class TechnologyStackSchema(BaseModel):
 
 
 class FeatureSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for a solution feature."""
 
     name: str = Field(..., description="Name of the feature")
@@ -127,6 +135,7 @@ class FeatureSchema(BaseModel):
 
 
 class SolutionSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for a solution."""
 
     id: str = Field(..., description="Unique identifier for the solution")
@@ -146,6 +155,7 @@ class SolutionSchema(BaseModel):
 
 
 class PricingTierSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for a pricing tier."""
 
     name: str = Field(..., description="Name of the pricing tier")
@@ -165,6 +175,7 @@ class PricingTierSchema(BaseModel):
 
 
 class MonetizationStrategySchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for a monetization strategy."""
 
     id: str = Field(..., description="Unique identifier for the strategy")
@@ -181,6 +192,7 @@ class MonetizationStrategySchema(BaseModel):
 
 
 class MarketingChannelSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for a marketing channel."""
 
     name: str = Field(..., description="Name of the marketing channel")
@@ -195,6 +207,7 @@ class MarketingChannelSchema(BaseModel):
 
 
 class MarketingPlanSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for a marketing plan."""
 
     id: str = Field(..., description="Unique identifier for the plan")
@@ -213,6 +226,7 @@ class MarketingPlanSchema(BaseModel):
 
 
 class FeedbackItemSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for a feedback item."""
 
     id: str = Field(..., description="Unique identifier for the feedback")
@@ -225,6 +239,7 @@ class FeedbackItemSchema(BaseModel):
 
 
 class ProjectStateSchema(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for the project state."""
 
     id: str = Field(..., description="Unique identifier for the project")
