@@ -48,48 +48,48 @@ class WebhookDeliveryStatus(str, Enum):
 # Recreate the security classes
 class WebhookIPAllowlist:
     """IP allowlisting for webhook endpoints."""
-    
+
     def __init__(self):
         """Initialize the IP allowlist."""
         self.allowlisted_ips: Set[str] = set()
         self.allowlisted_networks = []
         self.allowlisted_networks_v6 = []
-    
+
     def add_ip(self, ip: str) -> bool:
         """Add an IP address to the allowlist."""
         self.allowlisted_ips.add(ip)
         return True
-    
+
     def add_network(self, network: str) -> bool:
         """Add an IP network to the allowlist."""
         return True
-    
+
     def remove_ip(self, ip: str) -> bool:
         """Remove an IP address from the allowlist."""
         if ip in self.allowlisted_ips:
             self.allowlisted_ips.remove(ip)
             return True
         return False
-    
+
     def remove_network(self, network: str) -> bool:
         """Remove an IP network from the allowlist."""
         return True
-    
+
     def is_allowed(self, ip: str) -> bool:
         """Check if an IP address is allowed."""
         # If no allowlist is configured, allow all IPs
         if not self.allowlisted_ips and not self.allowlisted_networks and not self.allowlisted_networks_v6:
             return True
-        
+
         # Check if IP is directly in the allowlist
         if ip in self.allowlisted_ips:
             return True
-        
+
         return False
 
 class WebhookSignatureVerifier:
     """Webhook signature verification."""
-    
+
     @staticmethod
     def create_signature(secret: str, payload: str) -> str:
         """Create a signature for a webhook payload."""
@@ -99,19 +99,19 @@ class WebhookSignatureVerifier:
             hashlib.sha256
         ).digest()
         return base64.b64encode(signature).decode()
-    
+
     @staticmethod
     def verify_signature(secret: str, payload: str, signature: str) -> bool:
         """Verify a webhook signature."""
         expected_signature = WebhookSignatureVerifier.create_signature(secret, payload)
-        
+
         # Use constant-time comparison to prevent timing attacks
         return hmac.compare_digest(expected_signature, signature)
-    
+
     @staticmethod
     def verify_request_signature(
-        secret: str, 
-        payload: str, 
+        secret: str,
+        payload: str,
         headers: Dict[str, str],
         signature_header: str = "X-Webhook-Signature"
     ) -> bool:
@@ -122,80 +122,80 @@ class WebhookSignatureVerifier:
             if header.lower() == signature_header.lower():
                 signature = value
                 break
-        
+
         if not signature:
             return False
-        
+
         return WebhookSignatureVerifier.verify_signature(secret, payload, signature)
 
 class WebhookRateLimiter:
     """Rate limiting for webhook deliveries."""
-    
+
     def __init__(self, limit: int = 100, window_seconds: int = 60):
         """Initialize the rate limiter."""
         self.limit = limit
         self.window_seconds = window_seconds
         self.requests: Dict[str, List[float]] = {}
-    
+
     def is_rate_limited(self, key: str) -> bool:
         """Check if a key is rate limited."""
         current_time = time.time()
-        
+
         # Initialize if key doesn't exist
         if key not in self.requests:
             self.requests[key] = []
-        
+
         # Remove requests outside the time window
         self.requests[key] = [
             t for t in self.requests[key]
             if current_time - t <= self.window_seconds
         ]
-        
+
         # Check if limit is exceeded
         return len(self.requests[key]) >= self.limit
-    
+
     def add_request(self, key: str) -> None:
         """Record a request for rate limiting."""
         current_time = time.time()
-        
+
         # Initialize if key doesn't exist
         if key not in self.requests:
             self.requests[key] = []
-        
+
         # Add current request
         self.requests[key].append(current_time)
-        
+
         # Remove requests outside the time window
         self.requests[key] = [
             t for t in self.requests[key]
             if current_time - t <= self.window_seconds
         ]
-    
+
     def get_remaining_requests(self, key: str) -> int:
         """Get the number of remaining requests allowed."""
         current_time = time.time()
-        
+
         # Initialize if key doesn't exist
         if key not in self.requests:
             return self.limit
-        
+
         # Remove requests outside the time window
         self.requests[key] = [
             t for t in self.requests[key]
             if current_time - t <= self.window_seconds
         ]
-        
+
         # Calculate remaining requests
         return max(0, self.limit - len(self.requests[key]))
-    
+
     def get_reset_time(self, key: str) -> Optional[float]:
         """Get the time when the rate limit will reset."""
         if key not in self.requests or not self.requests[key]:
             return None
-        
+
         # Get the oldest request in the window
         oldest_request = min(self.requests[key])
-        
+
         # Calculate reset time
         return oldest_request + self.window_seconds
 
@@ -208,15 +208,15 @@ class WebhookService:
         self.webhooks = {}
         self.deliveries = {}
         self.running = False
-    
+
     async def start(self):
         """Start the webhook service."""
         self.running = True
-    
+
     async def stop(self):
         """Stop the webhook service."""
         self.running = False
-    
+
     async def register_webhook(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Register a new webhook."""
         webhook_id = str(uuid.uuid4())
@@ -231,22 +231,22 @@ class WebhookService:
             "last_called_at": None,
             "secret": self._generate_secret()
         }
-        
+
         self.webhooks[webhook_id] = webhook
         return webhook
-    
+
     async def get_webhook(self, webhook_id: str) -> Optional[Dict[str, Any]]:
         """Get a webhook by ID."""
         return self.webhooks.get(webhook_id)
-    
+
     def _generate_secret(self) -> str:
         """Generate a secret for the webhook."""
         return base64.b64encode(uuid.uuid4().bytes).decode()
-    
+
     async def deliver_event(
-        self, 
-        webhook_id: str, 
-        event_type: WebhookEventType, 
+        self,
+        webhook_id: str,
+        event_type: WebhookEventType,
         event_data: Dict[str, Any],
         retry_count: int = 0,
         retry_delay: float = 60.0
@@ -256,18 +256,18 @@ class WebhookService:
         webhook = await self.get_webhook(webhook_id)
         if not webhook:
             raise ValueError(f"Webhook not found: {webhook_id}")
-        
+
         # Check if webhook is active
         if not webhook.get("is_active", True):
             raise ValueError(f"Webhook is inactive: {webhook_id}")
-        
+
         # Check if webhook is subscribed to this event type
         if event_type not in webhook.get("events", []):
             raise ValueError(f"Webhook is not subscribed to event type: {event_type}")
-        
+
         # Create delivery ID
         delivery_id = str(uuid.uuid4())
-        
+
         # Create delivery record
         delivery = {
             "id": delivery_id,
@@ -276,9 +276,9 @@ class WebhookService:
             "timestamp": datetime.now(timezone.utc),
             "attempts": []
         }
-        
+
         self.deliveries[delivery_id] = delivery
-        
+
         # Create the payload
         payload = {
             "id": delivery_id,
@@ -286,10 +286,10 @@ class WebhookService:
             "created_at": datetime.now(timezone.utc).isoformat(),
             "data": event_data
         }
-        
+
         # Create the signature
         signature = WebhookSignatureVerifier.create_signature(webhook["secret"], json.dumps(payload))
-        
+
         # Prepare headers
         headers = {
             "Content-Type": "application/json",
@@ -297,11 +297,11 @@ class WebhookService:
             "X-Webhook-ID": webhook["id"],
             "X-Webhook-Signature": signature
         }
-        
+
         # Add custom headers from webhook configuration
         if webhook.get("headers"):
             headers.update(webhook["headers"])
-        
+
         # Create attempt record
         attempt_id = str(uuid.uuid4())
         attempt = {
@@ -319,16 +319,16 @@ class WebhookService:
             "retries": 0,
             "next_retry": None
         }
-        
+
         # Add attempt to delivery
         delivery["attempts"].append(attempt)
-        
+
         # For testing purposes, simulate a successful delivery
         attempt["status"] = WebhookDeliveryStatus.SUCCESS
         attempt["response_code"] = 200
         attempt["response_body"] = '{"status":"success"}'
         delivery["status"] = WebhookDeliveryStatus.SUCCESS
-        
+
         return delivery
 
 # Test data
@@ -357,12 +357,12 @@ TEST_EVENT = {
 
 class TestWebhookSecurityIntegration(unittest.TestCase):
     """Integration tests for webhook security features."""
-    
+
     def test_signature_verification_with_webhook_service(self):
         """Test signature verification with the webhook service."""
         # Create a webhook service
         webhook_service = WebhookService()
-        
+
         # Create a webhook
         webhook_data = {
             "url": "https://example.com/webhook",
@@ -371,11 +371,11 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
             "headers": {"Authorization": "Bearer test-token"},
             "is_active": True
         }
-        
+
         # Mock the register_webhook method to return a test webhook
         with patch.object(webhook_service, "register_webhook", return_value=TEST_WEBHOOK):
             webhook = asyncio.run(webhook_service.register_webhook(webhook_data))
-        
+
         # Create a payload
         payload = json.dumps({
             "id": "evt-123",
@@ -386,47 +386,47 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
                 "username": "testuser"
             }
         })
-        
+
         # Create a signature
         signature = WebhookSignatureVerifier.create_signature(webhook["secret"], payload)
-        
+
         # Verify the signature
         self.assertTrue(WebhookSignatureVerifier.verify_signature(webhook["secret"], payload, signature))
-        
+
         # Verify with headers
         headers = {
             "Content-Type": "application/json",
             "X-Webhook-Signature": signature
         }
         self.assertTrue(WebhookSignatureVerifier.verify_request_signature(webhook["secret"], payload, headers))
-    
+
     def test_webhook_delivery_with_security(self):
         """Test webhook delivery with security features."""
         # Create a webhook service
         webhook_service = WebhookService()
-        
+
         # Create a mock response
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.text = "OK"
         mock_response.raise_for_status = MagicMock()
-        
+
         # Create a mock for httpx.AsyncClient.post
         async def mock_post(url, headers=None, json=None, **kwargs):
             # Verify that the signature header is present
             self.assertIn("X-Webhook-Signature", headers)
-            
+
             # Verify the signature
             payload = json_dumps(json)
             signature = headers["X-Webhook-Signature"]
             self.assertTrue(WebhookSignatureVerifier.verify_signature(TEST_WEBHOOK["secret"], payload, signature))
-            
+
             return mock_response
-        
+
         # Helper function to match json.dumps behavior in the service
         def json_dumps(obj):
             return json.dumps(obj)
-        
+
         # Patch the httpx.AsyncClient.post method
         with patch("httpx.AsyncClient.post", mock_post):
             # Patch the get_webhook method to return our test webhook
@@ -437,7 +437,7 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
                     event_type=WebhookEventType.USER_CREATED,
                     event_data=TEST_EVENT["data"]
                 ))
-                
+
                 # Check delivery status
                 self.assertEqual(delivery["status"], WebhookDeliveryStatus.SUCCESS)
                 self.assertEqual(len(delivery["attempts"]), 1)
@@ -445,19 +445,19 @@ class TestWebhookSecurityIntegration(unittest.TestCase):
 
 class TestWebhookRateLimitIntegration(unittest.TestCase):
     """Integration tests for webhook rate limiting."""
-    
+
     async def _test_webhook_service_with_rate_limiting(self):
         """Test webhook service with rate limiting."""
         # Create services
         webhook_service = WebhookService()
         rate_limiter = WebhookRateLimiter(limit=3, window_seconds=1)
-        
+
         # Create a mock response
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.text = "OK"
         mock_response.raise_for_status = MagicMock()
-        
+
         # Patch the httpx.AsyncClient.post method
         with patch("httpx.AsyncClient.post", return_value=mock_response):
             # Patch the get_webhook method to return our test webhook
@@ -467,50 +467,49 @@ class TestWebhookRateLimitIntegration(unittest.TestCase):
                     # Check if rate limited
                     if rate_limiter.is_rate_limited(TEST_WEBHOOK["url"]):
                         break
-                    
+
                     # Add request to rate limiter
                     rate_limiter.add_request(TEST_WEBHOOK["url"])
-                    
+
                     # Deliver an event
                     await webhook_service.deliver_event(
                         webhook_id=TEST_WEBHOOK_ID,
                         event_type=WebhookEventType.USER_CREATED,
                         event_data=TEST_EVENT["data"]
                     )
-                
+
                 # Next request should be rate limited
                 self.assertTrue(rate_limiter.is_rate_limited(TEST_WEBHOOK["url"]))
-                
+
                 # Get remaining requests
                 remaining = rate_limiter.get_remaining_requests(TEST_WEBHOOK["url"])
                 self.assertEqual(remaining, 0)
-                
+
                 # Get reset time
                 reset_time = rate_limiter.get_reset_time(TEST_WEBHOOK["url"])
                 self.assertIsNotNone(reset_time)
-    
+
     def test_webhook_service_with_rate_limiting(self):
         """Run the async test."""
         asyncio.run(self._test_webhook_service_with_rate_limiting())
 
 class TestIPAllowlistIntegration(unittest.TestCase):
     """Integration tests for IP allowlisting."""
-    
+
     def test_ip_allowlist_with_webhook_service(self):
         """Test IP allowlisting with the webhook service."""
         # Create services
-        webhook_service = WebhookService()
         ip_allowlist = WebhookIPAllowlist()
-        
+
         # Add some IPs to the allowlist
         ip_allowlist.add_ip("192.168.1.1")
         ip_allowlist.add_ip("10.0.0.1")
-        
+
         # Check if IPs are allowed
         self.assertTrue(ip_allowlist.is_allowed("192.168.1.1"))
         self.assertTrue(ip_allowlist.is_allowed("10.0.0.1"))
         self.assertFalse(ip_allowlist.is_allowed("8.8.8.8"))
-        
+
         # Remove an IP
         self.assertTrue(ip_allowlist.remove_ip("192.168.1.1"))
         self.assertFalse(ip_allowlist.is_allowed("192.168.1.1"))
@@ -519,26 +518,26 @@ class TestIPAllowlistIntegration(unittest.TestCase):
 def run_tests():
     """Run the integration tests."""
     print("Running webhook integration tests...")
-    
+
     # Create test suite
     test_suite = unittest.TestSuite()
-    
+
     # Add test cases
     test_suite.addTest(unittest.makeSuite(TestWebhookSecurityIntegration))
     test_suite.addTest(unittest.makeSuite(TestWebhookRateLimitIntegration))
     test_suite.addTest(unittest.makeSuite(TestIPAllowlistIntegration))
-    
+
     # Run tests
     test_runner = unittest.TextTestRunner(verbosity=2)
     result = test_runner.run(test_suite)
-    
+
     # Print summary
     print("\nTest Summary:")
     print(f"  Ran {result.testsRun} tests")
     print(f"  Failures: {len(result.failures)}")
     print(f"  Errors: {len(result.errors)}")
     print(f"  Skipped: {len(result.skipped)}")
-    
+
     # Return exit code
     return 0 if result.wasSuccessful() else 1
 

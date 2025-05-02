@@ -1,11 +1,27 @@
-'
+"""
+Schema definitions for marketing tools.
+"""
+
+from datetime import datetime
+import uuid
+from typing import Dict, List, Optional, Any
+
+from pydantic import BaseModel, Field, ConfigDict
+
+from marketing.enums import BusinessType, BusinessSize, PriorityLevel, TimeframeUnit
+from marketing.schemas.demographics import DemographicsSchema
+from marketing.schemas.budget import BudgetSchema
+from marketing.schemas.target_audience import TargetAudienceSchema
+from marketing.schemas.strategy import MarketingStrategySchema
+
+
 class TimeframeSchema(BaseModel):
     """Schema for timeframe specifications."""
     value: int = Field(..., description="The numeric value of the timeframe", gt=0)
     unit: TimeframeUnit = Field(..., description="The unit of the timeframe")
-    
+
     model_config = ConfigDict(extra="allow")
-    
+
     def __str__(self) -> str:
         """Return a string representation of the timeframe."""
         return f"{self.value} {self.unit.value}"
@@ -187,4 +203,3 @@ class BusinessAnalysisSchema(BaseModel):
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Analysis timestamp")
 
     model_config = ConfigDict(extra="allow")
-'

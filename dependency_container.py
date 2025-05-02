@@ -141,7 +141,7 @@ class DependencyContainer:
 
 
 # Global container instance
-_container: Optional<DependencyContainer] = None
+_container: Optional[DependencyContainer] = None
 
 
 def get_container() -> DependencyContainer:

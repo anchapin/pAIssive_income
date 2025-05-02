@@ -1,15 +1,15 @@
+import ast
 import os
 import re
-import ast
 import sys
-import importlib.util
 from pathlib import Path
+
 
 def remove_unused_imports(file_path):
     """Find and remove unused imports from a file."""
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
-    
+
     try:
         tree = ast.parse(content)
     except SyntaxError:
@@ -20,7 +20,7 @@ def remove_unused_imports(file_path):
     for node in ast.walk(tree):
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             imports.append(node)
-    
+
     # Find all used names
     used_names = set()
     for node in ast.walk(tree):
@@ -30,7 +30,7 @@ def remove_unused_imports(file_path):
             # Include attributes to avoid removing imports used like module.attribute
             if isinstance(node.value, ast.Name):
                 used_names.add(node.value.id)
-    
+
     # Identify unused imports and prepare for removal
     to_remove = []
     for imp in imports:
@@ -38,15 +38,24 @@ def remove_unused_imports(file_path):
             for name in imp.names:
                 if name.asname:
                     if name.asname not in used_names:
-                        to_remove.append((imp.lineno, imp.col_offset, imp.end_lineno, imp.end_col_offset))
+                        to_remove.append(
+                            (
+                                imp.lineno,
+                                imp.col_offset,
+                                imp.end_lineno,
+                                imp.end_col_offset,
+                            )
+                        )
                         break
                 elif name.name not in used_names:
-                    to_remove.append((imp.lineno, imp.col_offset, imp.end_lineno, imp.end_col_offset))
+                    to_remove.append(
+                        (imp.lineno, imp.col_offset, imp.end_lineno, imp.end_col_offset)
+                    )
                     break
         elif isinstance(imp, ast.ImportFrom):
             all_unused = True
             for name in imp.names:
-                if name.name == '*':
+                if name.name == "*":
                     all_unused = False
                     break
                 if name.asname:
@@ -57,34 +66,37 @@ def remove_unused_imports(file_path):
                     all_unused = False
                     break
             if all_unused:
-                to_remove.append((imp.lineno, imp.col_offset, imp.end_lineno, imp.end_col_offset))
-    
+                to_remove.append(
+                    (imp.lineno, imp.col_offset, imp.end_lineno, imp.end_col_offset)
+                )
+
     # Sort in reverse order to avoid index issues when removing
     to_remove.sort(reverse=True)
-    
+
     # Convert content to lines
     lines = content.splitlines()
-    
+
     # Instead of removing imports completely, add a noqa comment
     for start_line, _, _, _ in to_remove:
         line_idx = start_line - 1  # Convert to 0-based indexing
         if line_idx < len(lines):
-            if '# noqa: F401' not in lines[line_idx]:
-                lines[line_idx] = lines[line_idx] + '  # noqa: F401'
-    
-    return '\n'.join(lines)
+            if "# noqa: F401" not in lines[line_idx]:
+                lines[line_idx] = lines[line_idx] + "  # noqa: F401"
+
+    return "\n".join(lines)
+
 
 def fix_unused_variables(file_path):
     """Find and remove unused variable assignments."""
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
-    
+
     try:
         tree = ast.parse(content)
     except SyntaxError:
         print(f"Syntax error in {file_path}, skipping variable fixes")
         return content
-    
+
     # Find all assignments
     assignments = {}
     for node in ast.walk(tree):
@@ -94,212 +106,234 @@ def fix_unused_variables(file_path):
                     if target.id not in assignments:
                         assignments[target.id] = []
                     assignments[target.id].append((node.lineno, target.col_offset))
-    
+
     # Find all uses of variables
     used_vars = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
             used_vars.add(node.id)
-    
+
     # Find unused variables
     unused_vars = {}
     for var, locs in assignments.items():
-        if var not in used_vars and not var.startswith('_'):
+        if var not in used_vars and not var.startswith("_"):
             unused_vars[var] = locs
-    
+
     # Sort lines in reverse order
     lines_to_modify = []
     for var, locs in unused_vars.items():
         for loc in locs:
             lines_to_modify.append((loc[0], var))
-    
+
     lines_to_modify.sort(reverse=True)
-    
+
     # Convert content to lines
     lines = content.splitlines()
-    
+
     # Add comments to indicate unused variables
     for line_no, var in lines_to_modify:
         if line_no <= len(lines):
             # Comment out the assignment or add a # noqa: F841
             line = lines[line_no - 1]
             # Simple approach - add noqa comment to end of line
-            if not line.strip().endswith('# noqa: F841'):
-                lines[line_no - 1] = line + '  # noqa: F841'
-    
-    return '\n'.join(lines)
+            if not line.strip().endswith("# noqa: F841"):
+                lines[line_no - 1] = line + "  # noqa: F841"
+
+    return "\n".join(lines)
+
 
 def fix_import_order(file_path):
     """Fix module level imports not at the top of the file by adding noqa comments."""
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
-    
+
     # Simple pattern matching for imports not at the top
     lines = content.splitlines()
     has_code = False
     imports_after_code = []
-    
+
     for i, line in enumerate(lines):
-        if line.strip().startswith(('import ', 'from ')):
+        if line.strip().startswith(("import ", "from ")):
             if has_code:
                 imports_after_code.append(i)
-        elif line.strip() and not line.strip().startswith('#'):
+        elif line.strip() and not line.strip().startswith("#"):
             has_code = True
-    
+
     # Add noqa comments to imports after code
     for line_no in imports_after_code:
-        if not lines[line_no].strip().endswith('# noqa: E402'):
-            lines[line_no] = lines[line_no] + '  # noqa: E402'
-    
-    return '\n'.join(lines)
+        if not lines[line_no].strip().endswith("# noqa: E402"):
+            lines[line_no] = lines[line_no] + "  # noqa: E402"
+
+    return "\n".join(lines)
+
 
 def fix_lambda_expressions(file_path):
     """Fix lambda expressions assigned to variables by adding noqa comments."""
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
-    
+
     # Use regex to find lambda assignments
-    lambda_pattern = re.compile(r'^(\s*)(\w+)\s*=\s*lambda\b(?!.*?# noqa: E731)', re.MULTILINE)
-    
+    lambda_pattern = re.compile(
+        r"^(\s*)(\w+)\s*=\s*lambda\b(?!.*?# noqa: E731)", re.MULTILINE
+    )
+
     # Add noqa comment
-    content = lambda_pattern.sub(r'\1\2 = lambda  # noqa: E731', content)
-    
+    content = lambda_pattern.sub(r"\1\2 = lambda  # noqa: E731", content)
+
     return content
+
 
 def fix_undefined_names(file_path):
     """Fix undefined names by adding appropriate noqa comments."""
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
-    
+
     try:
-        tree = ast.parse(content)
+        ast.parse(content)  # Just check if the file can be parsed
     except SyntaxError:
         print(f"Syntax error in {file_path}, skipping undefined name fixes")
         return content
-    
+
     # Common undefined names found in our codebase
     common_undefined = {
-        'datetime': 'datetime',
-        'time': 'time',
-        'uuid': 'uuid',
-        'torch': 'torch',
-        'anext': 'anext',
-        'AWS': 'AWS',
-        'ModelName': 'ModelName',
-        'WEBHOOK_MAX_RETRIES_EXCEEDED': 'WEBHOOK_MAX_RETRIES_EXCEEDED',
-        'MonetizationError': 'MonetizationError',
-        'ValidationError': 'ValidationError',
-        'generate_id': 'generate_id'
+        "datetime": "datetime",
+        "time": "time",
+        "uuid": "uuid",
+        "torch": "torch",
+        "anext": "anext",
+        "AWS": "AWS",
+        "ModelName": "ModelName",
+        "WEBHOOK_MAX_RETRIES_EXCEEDED": "WEBHOOK_MAX_RETRIES_EXCEEDED",
+        "MonetizationError": "MonetizationError",
+        "ValidationError": "ValidationError",
+        "generate_id": "generate_id",
     }
-    
+
     # Find undefined names based on F821 errors we've seen
     lines = content.splitlines()
     modified_lines = []
-    
+
     for line in lines:
         modified_line = line
         for name in common_undefined:
-            if re.search(r'\b' + re.escape(name) + r'\b', line) and '# noqa: F821' not in line:
+            if (
+                re.search(r"\b" + re.escape(name) + r"\b", line)
+                and "# noqa: F821" not in line
+            ):
                 # Check if the name is likely undefined in context
                 # This is a simple check - in a real tool it would be more sophisticated
-                if not re.search(r'^\s*import\s+' + re.escape(name), line) and \
-                   not re.search(r'^\s*from\s+.*\s+import\s+.*\b' + re.escape(name) + r'\b', line) and \
-                   not re.search(r'\bdef\s+' + re.escape(name) + r'\b', line) and \
-                   not re.search(r'\bclass\s+' + re.escape(name) + r'\b', line):
-                    modified_line = modified_line + '  # noqa: F821'
+                if (
+                    not re.search(r"^\s*import\s+" + re.escape(name), line)
+                    and not re.search(
+                        r"^\s*from\s+.*\s+import\s+.*\b" + re.escape(name) + r"\b", line
+                    )
+                    and not re.search(r"\bdef\s+" + re.escape(name) + r"\b", line)
+                    and not re.search(r"\bclass\s+" + re.escape(name) + r"\b", line)
+                ):
+                    modified_line = modified_line + "  # noqa: F821"
                     break
         modified_lines.append(modified_line)
-    
-    return '\n'.join(modified_lines)
+
+    return "\n".join(modified_lines)
+
 
 def fix_syntax_errors(file_path):
     """Try to fix common syntax errors we've identified."""
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
-    
+
     # Fix specific files with syntax errors we identified
     filename = os.path.basename(file_path)
-    
+
     # Fix missing_schemas.py quotes issue
-    if filename == 'missing_schemas.py':
+    if filename == "missing_schemas.py":
         # This file has missing quotes - it starts with a quote and ends with a quote
         if content.startswith("'") and content.strip().endswith("'"):
             content = '"""\n' + content[1:-1] + '"""\n'
-    
+
     # Fix common_utils/monitoring/dashboard.py bracket issue
-    if 'common_utils/monitoring/dashboard.py' in file_path:
-        content = content.replace(']) for component, details in health.get(\'components\', {}).items()', 
-                                 ') for component, details in health.get(\'components\', {}).items()]')
-    
+    if "common_utils/monitoring/dashboard.py" in file_path:
+        content = content.replace(
+            "]) for component, details in health.get('components', {}).items()",
+            ") for component, details in health.get('components', {}).items()]",
+        )
+
     # Fix collaboration/integration.py parameter order issue
-    if 'collaboration/integration.py' in file_path:
-        content = content.replace('config: Optional[Dict[str, Any]] = None,\n                           updated_by: str)',
-                                 'config: Optional[Dict[str, Any]] = None,\n                           updated_by: Optional[str] = None)')
-        
+    if "collaboration/integration.py" in file_path:
+        content = content.replace(
+            "config: Optional[Dict[str, Any]] = None,\n                           updated_by: str)",
+            "config: Optional[Dict[str, Any]] = None,\n                           updated_by: Optional[str] = None)",
+        )
+
     return content
+
 
 def fix_redefinition_issues(file_path):
     """Fix function redefinition issues by adding noqa comments."""
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
-    
+
     # Find function definitions
     function_defs = {}
-    pattern = re.compile(r'^\s*def\s+(\w+)\s*\(', re.MULTILINE)
-    
+    pattern = re.compile(r"^\s*def\s+(\w+)\s*\(", re.MULTILINE)
+
     for match in pattern.finditer(content):
         func_name = match.group(1)
         if func_name in function_defs:
             function_defs[func_name].append(match.start())
         else:
             function_defs[func_name] = [match.start()]
-    
+
     # Add noqa comments for redefined functions
     lines = content.splitlines()
     for func_name, positions in function_defs.items():
         if len(positions) > 1:
             for pos in positions[1:]:  # Skip the first occurrence
                 # Find the line number of this position
-                line_no = content[:pos].count('\n')
-                if line_no < len(lines) and '# noqa: F811' not in lines[line_no]:
-                    lines[line_no] = lines[line_no] + '  # noqa: F811'
-    
-    return '\n'.join(lines)
+                line_no = content[:pos].count("\n")
+                if line_no < len(lines) and "# noqa: F811" not in lines[line_no]:
+                    lines[line_no] = lines[line_no] + "  # noqa: F811"
+
+    return "\n".join(lines)
+
 
 def fix_field_shadowing(file_path):
     """Fix shadowed import issues by adding noqa comments."""
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
-    
+
     # Look for cases like 'for field in ...' where field is imported  # noqa: F402
     # This is a common F402 error
-    if 'field' in content and ('import field' in content or 'from dataclasses import field' in content):
+    if "field" in content and (
+        "import field" in content or "from dataclasses import field" in content
+    ):
         lines = content.splitlines()
         for i, line in enumerate(lines):
-            if re.search(r'\bfor\s+field\s+in\b', line) and '# noqa: F402' not in line:
-                lines[i] = line + '  # noqa: F402'
-        content = '\n'.join(lines)
-    
+            if re.search(r"\bfor\s+field\s+in\b", line) and "# noqa: F402" not in line:
+                lines[i] = line + "  # noqa: F402"
+        content = "\n".join(lines)
+
     return content
+
 
 def process_file(file_path):
     """Apply all linting fixes to a single file"""
     print(f"Processing {file_path}")
-    
+
     # Skip files that are too problematic or would require manual fixes
-    skip_files = ['missing_schemas.py']
+    skip_files = ["missing_schemas.py"]
     if any(file_path.endswith(skip) for skip in skip_files):
         print(f"Skipping {file_path} as it requires manual fixes")
         return
-    
+
     try:
         # Apply fixes in sequence, each one building on the previous
         # Start with syntax fixes
         content = fix_syntax_errors(file_path)
-        
-        with open(file_path, 'w', encoding='utf-8') as file:
+
+        with open(file_path, "w", encoding="utf-8") as file:
             file.write(content)
-            
+
         # Apply the fixes in a logical order
         content = fix_undefined_names(file_path)
         content = remove_unused_imports(file_path)
@@ -308,16 +342,17 @@ def process_file(file_path):
         content = fix_lambda_expressions(file_path)
         content = fix_redefinition_issues(file_path)
         content = fix_field_shadowing(file_path)
-        
+
         # Write the fixes back to the file
-        with open(file_path, 'w', encoding='utf-8') as file:
+        with open(file_path, "w", encoding="utf-8") as file:
             file.write(content)
     except Exception as e:
         print(f"Error processing {file_path}: {e}")
 
+
 def process_directory(directory, file_patterns=None):
     """Process all Python files in a directory and its subdirectories.
-    
+
     Args:
         directory: The directory to process
         file_patterns: Optional list of specific file patterns to process
@@ -326,31 +361,33 @@ def process_directory(directory, file_patterns=None):
         # Process specific files/patterns
         for pattern in file_patterns:
             for file_path in Path(directory).glob(pattern):
-                if file_path.is_file() and file_path.suffix == '.py':
+                if file_path.is_file() and file_path.suffix == ".py":
                     process_file(str(file_path))
     else:
         # Process all Python files
         for root, _, files in os.walk(directory):
             for file in files:
-                if file.endswith('.py'):
+                if file.endswith(".py"):
                     file_path = os.path.join(root, file)
                     process_file(file_path)
+
 
 def main():
     """Main function to parse args and run the script."""
     if len(sys.argv) > 1:
         # Check if specific files or patterns were provided
-        if sys.argv[1] == '--files' and len(sys.argv) > 2:
+        if sys.argv[1] == "--files" and len(sys.argv) > 2:
             file_patterns = sys.argv[2:]
-            process_directory('.', file_patterns)
+            process_directory(".", file_patterns)
         else:
             # Process a directory
             process_directory(sys.argv[1])
     else:
         # Default to current directory
-        process_directory('.')
-    
+        process_directory(".")
+
     print("Linting fixes applied. Run linting check again to see results.")
+
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ This document explains how to run GitHub Actions locally and the changes made to
 ## Setup
 
 1. Install Act (GitHub Actions local runner):
+
    ```bash
    choco install act-cli  # Windows
    brew install act       # macOS
@@ -12,29 +13,59 @@ This document explains how to run GitHub Actions locally and the changes made to
    ```
 
 2. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    pip install -r requirements-dev.txt
    pip install -e .
    ```
 
-## Running Tests Locally
+## Running Linting Checks
 
-We've created several scripts to help run tests locally:
+You can run linting checks on a specific file or the entire codebase:
 
-1. `run_local_tests.py` - Run tests with the correct Python path:
+```bash
+# Run linting on a specific file
+python run_linting.py path/to/file.py
+
+# Run linting on the entire codebase
+python run_linting.py
+```
+
+## Using GitHub Actions Locally
+
+We've created several scripts to help run GitHub Actions locally:
+
+1. Using the batch file:
+
+   ```bash
+   # Run the simple-lint workflow on a specific file
+   run_github_actions.bat --workflow .github/workflows/simple-lint.yml --file path/to/file.py
+
+   # Run the lint-and-test workflow
+   run_github_actions.bat --workflow .github/workflows/lint-and-test.yml --job lint
+
+   # Run with a specific Docker platform
+   run_github_actions.bat --workflow .github/workflows/simple-lint.yml --platform "ubuntu-latest=catthehacker/ubuntu:act-latest"
+   ```
+
+2. Using the Python script directly:
+
+   ```bash
+   # Run the simple-lint workflow on a specific file
+   python run_github_actions_locally.py --workflow .github/workflows/simple-lint.yml --file path/to/file.py
+
+   # Run the lint-and-test workflow
+   python run_github_actions_locally.py --workflow .github/workflows/lint-and-test.yml --job lint
+
+   # Run with a specific Docker platform
+   python run_github_actions_locally.py --workflow .github/workflows/simple-lint.yml --platform "ubuntu-latest=catthehacker/ubuntu:act-latest"
+   ```
+
+3. Running tests with the local test runner:
+
    ```bash
    python run_local_tests.py --test-path tests/ai_models --verbose
-   ```
-
-2. `run_github_actions.bat` - Fix failing tests and run GitHub Actions locally:
-   ```bash
-   run_github_actions.bat
-   ```
-
-3. `run_github_actions_locally.py` - Run GitHub Actions with Act:
-   ```bash
-   python run_github_actions_locally.py --workflow .github/workflows/local-test.yml
    ```
 
 ## Issues Fixed
@@ -69,15 +100,29 @@ We've created several scripts to help run tests locally:
 
 **Fix**: Replaced `semver.parse` with `semver.Version.parse`.
 
-## GitHub Actions Workflows
+## Available Workflows
 
 The project has several GitHub Actions workflows:
 
-1. `lint_and_quality.yml` - Runs linting and code quality checks
-2. `run_tests.yml` - Runs tests
-3. `security_scan.yml` - Runs security scans
-4. `deploy.yml` - Deploys the application
-5. `local-test.yml` - A simplified workflow for local testing
+1. `simple-lint.yml` - A simple workflow for linting a specific file
+2. `lint-and-test.yml` - A comprehensive workflow for linting and testing the entire codebase
+3. `lint_and_quality.yml` - Runs linting and code quality checks
+4. `run_tests.yml` - Runs tests
+5. `security_scan.yml` - Runs security scans
+6. `deploy.yml` - Deploys the application
+
+## Troubleshooting
+
+If you encounter issues with Act, try the following:
+
+1. Make sure Docker is running
+2. Try using a different platform:
+
+   ```bash
+   run_github_actions.bat --platform ubuntu-latest=catthehacker/ubuntu:act-latest
+   ```
+
+3. Check the [Act documentation](https://github.com/nektos/act)
 
 ## Next Steps
 
