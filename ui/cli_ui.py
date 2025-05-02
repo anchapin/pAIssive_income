@@ -279,7 +279,7 @@ class CommandLineInterface:
             return "No marketing plan available. Run 'create marketing' first."
 
         # Create the plan
-        plan = {
+        {
             "niche": self.current_niches[0] if self.current_niches else None,
             "solution": self.current_solution,
             "monetization": self.current_monetization,

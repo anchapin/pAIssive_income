@@ -6,21 +6,19 @@ microservices using a message queue (RabbitMQ).
 """
 
 from .client import (
-    MessageQueueClient,
+    AsyncMessageHandler,
     AsyncMessageQueueClient,
     MessageHandler,
-    AsyncMessageHandler,
+    MessageQueueClient,
 )
-
-from .message import Message, MessageSchema, MessagePriority, MessageStatus, MessageType
-
 from .exceptions import (
-    MessageQueueError,
     ConnectionError,
-    PublishError,
     ConsumeError,
+    MessageQueueError,
+    PublishError,
     SchemaError,
 )
+from .message import Message, MessagePriority, MessageSchema, MessageStatus, MessageType
 
 __all__ = [
     "MessageQueueClient",

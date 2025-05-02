@@ -2,11 +2,12 @@
 Tests for the RevenueProjector class.
 """
 
-import os
 import json
-import pytest
-import tempfile
+import os
 import shutil
+import tempfile
+
+import pytest
 
 from monetization.revenue_projector import RevenueProjector
 from monetization.subscription_models import SubscriptionModel
@@ -51,21 +52,21 @@ def subscription_model():
     )
 
     # Add tiers
-    basic_tier = model.add_tier(
+    model.add_tier(
         name="Basic",
         description="Basic tier",
         price_monthly=9.99,
         features=[feature1["id"]],
     )
 
-    pro_tier = model.add_tier(
+    model.add_tier(
         name="Pro",
         description="Pro tier",
         price_monthly=19.99,
         features=[feature1["id"], feature2["id"]],
     )
 
-    premium_tier = model.add_tier(
+    model.add_tier(
         name="Premium",
         description="Premium tier",
         price_monthly=29.99,

@@ -5,16 +5,16 @@ This module provides a comprehensive system for managing versioning of AI models
 including version tracking, compatibility checking, and version migration.
 """
 
-import os
+import copy
+import hashlib
 import json
 import logging
-import hashlib
-import copy
-import semver
-from datetime import datetime
-from typing import Dict, List, Any, Optional, Union, Tuple, Callable
-
+import os
 import sys
+from datetime import datetime
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+import semver
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from errors import ConfigurationError

@@ -5,10 +5,10 @@ This module provides classes for delivering invoices to customers,
 including email delivery, PDF generation, and export functionality.
 """
 
-from typing import Dict, List, Any, Optional, Union
-from datetime import datetime
-import json
 import base64
+import json
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 
 from .invoice import Invoice
 
@@ -656,16 +656,15 @@ class InvoiceDelivery:
 
         # Generate invoice content
         if format == "html":
-            content = InvoiceFormatter.to_html(invoice)
+            InvoiceFormatter.to_html(invoice)
         else:
-            content = InvoiceFormatter.to_text(invoice)
+            InvoiceFormatter.to_text(invoice)
 
         # Generate PDF attachment if requested
-        pdf_attachment = None
 
         if attach_pdf:
             pdf_data = InvoiceFormatter.to_pdf(invoice)
-            pdf_attachment = {
+            {
                 "filename": f"Invoice_{invoice.number}.pdf",
                 "content": base64.b64encode(pdf_data).decode("utf-8"),
                 "content_type": "application/pdf",
@@ -771,23 +770,18 @@ class InvoiceDelivery:
         # Generate export data
         if format == "json":
             data = invoice.to_json()
-            content_type = "application/json"
             binary = False
         elif format == "html":
             data = InvoiceFormatter.to_html(invoice)
-            content_type = "text/html"
             binary = False
         elif format == "text":
             data = InvoiceFormatter.to_text(invoice)
-            content_type = "text/plain"
             binary = False
         elif format == "csv":
             data = InvoiceFormatter.to_csv(invoice)
-            content_type = "text/csv"
             binary = False
         elif format == "pdf":
             data = InvoiceFormatter.to_pdf(invoice)
-            content_type = "application/pdf"
             binary = True
         else:
             raise ValueError(f"Unsupported format: {format}")

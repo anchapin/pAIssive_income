@@ -3,10 +3,10 @@ Content Templates module for the pAIssive Income project.
 Provides templates for creating marketing content.
 """
 
-from typing import Dict, List, Any, Optional
+import logging
 import uuid
 from datetime import datetime
-import logging
+from typing import Any, Dict, List, Optional
 
 from .errors import ContentTemplateError, ValidationError, handle_exception
 
@@ -162,7 +162,7 @@ class ContentTemplate:
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=ContentTemplateError,
                 message=f"Failed to generate outline for content: {self.title}",
@@ -472,7 +472,7 @@ class ContentTemplate:
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=ContentTemplateError,
                 message=f"Failed to generate content for: {self.title}",

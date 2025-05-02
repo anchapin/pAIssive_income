@@ -5,11 +5,11 @@ This module provides utility functions to simplify the integration of service di
 into microservices in the pAIssive income platform.
 """
 
+import atexit
 import logging
 import os
 import signal
-import atexit
-from typing import Callable, Optional, Dict, Any, List
+from typing import Any, Callable, Dict, List, Optional
 
 from services.service_discovery.discovery_client import ServiceDiscoveryClient
 

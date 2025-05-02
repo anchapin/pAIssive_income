@@ -4,9 +4,10 @@ Dependencies for API endpoints.
 This module provides dependencies for FastAPI routes.
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
+from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 
 from .utils.auth import get_user_from_token, verify_token
 
@@ -140,7 +141,7 @@ def validate_api_key(api_key: str = Depends(api_key_header)) -> Dict[str, Any]:
             detail="Invalid API key",
             headers={"WWW-Authenticate": "ApiKey"},
         )
-    
+
     # Return mock API key data
     return {
         "id": "api-key-id",

@@ -5,8 +5,8 @@ This script tests the basic functionality of the metered billing module
 without importing the entire module structure.
 """
 
-from datetime import datetime, timedelta
 import unittest
+from datetime import datetime, timedelta
 from unittest.mock import MagicMock
 
 

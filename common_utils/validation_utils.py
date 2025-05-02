@@ -5,15 +5,15 @@ This module provides common validation functions that can be used across the pro
 to ensure consistent validation of user inputs, configuration files, and other data.
 """
 
-import re
-import os
-import uuid
+import html
 import json
 import logging
-from typing import Any, Type, TypeVar, Callable
+import os
+import re
+import uuid
 from datetime import datetime
 from pathlib import Path
-import html
+from typing import Any, Callable, Type, TypeVar
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -213,7 +213,7 @@ def is_valid_file_path(file_path: str) -> bool:
         return False
 
     try:
-        path = Path(file_path)
+        Path(file_path)
         return True
     except Exception:
         return False
@@ -368,7 +368,12 @@ def sanitize_path(path_str: str) -> str:
         result = str(path)
 
         # Ensure the drive letter case matches the current directory
-        if len(result) >= 2 and result[1] == ':' and len(current_dir) >= 2 and current_dir[1] == ':':
+        if (
+            len(result) >= 2
+            and result[1] == ":"
+            and len(current_dir) >= 2
+            and current_dir[1] == ":"
+        ):
             result = current_dir[0] + result[1:]
 
         return result

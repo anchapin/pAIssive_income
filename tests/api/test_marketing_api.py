@@ -4,16 +4,18 @@ Tests for the marketing API.
 This module contains tests for the marketing API endpoints.
 """
 
-
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_marketing_strategy_data
-)
+from tests.api.utils.test_data import generate_id, generate_marketing_strategy_data
 from tests.api.utils.test_validators import (
+    validate_bulk_response,
     validate_error_response,
-    validate_success_response, validate_paginated_response, validate_bulk_response,
-    validate_field_exists, validate_field_equals, validate_field_type,
-    validate_field_not_empty, validate_list_contains
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_not_empty,
+    validate_field_type,
+    validate_list_contains,
+    validate_paginated_response,
+    validate_success_response,
 )
 
 
@@ -165,17 +167,21 @@ class TestMarketingAPI:
             "topic": "How AI Can Improve Your Business",
             "target_audience": "small business owners",
             "tone": "informative",
-            "length": "medium"
+            "length": "medium",
         }
 
         # Make request
-        response = api_test_client.post(f"marketing/strategies/{strategy_id}/content", data)
+        response = api_test_client.post(
+            f"marketing/strategies/{strategy_id}/content", data
+        )
 
         # This might return 404 if the strategy doesn't exist, which is fine for testing
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
-            result = validate_success_response(response, 202)  # Accepted (async operation)
+            result = validate_success_response(
+                response, 202
+            )  # Accepted (async operation)
 
             # Validate fields
             validate_field_exists(result, "task_id")
@@ -208,8 +214,8 @@ class TestMarketingAPI:
                 "filter": "content_types:contains:blog_posts",
                 "sort": "created_at:desc",
                 "page": 1,
-                "page_size": 10
-            }
+                "page_size": 10,
+            },
         )
 
         # Validate response
@@ -258,21 +264,21 @@ class TestMarketingAPI:
                 "demographics": {
                     "age_range": ["25-34", "35-44"],
                     "locations": ["US", "UK"],
-                    "interests": ["technology", "business"]
+                    "interests": ["technology", "business"],
                 },
                 "behavior": {
                     "purchase_history": ["software", "online_courses"],
-                    "engagement_level": "high"
-                }
+                    "engagement_level": "high",
+                },
             },
             "goals": {
                 "metrics": ["conversions", "engagement", "reach"],
                 "targets": {
                     "conversions": 100,
                     "engagement_rate": 0.05,
-                    "reach": 10000
-                }
-            }
+                    "reach": 10000,
+                },
+            },
         }
 
         # Make request
@@ -336,13 +342,12 @@ class TestMarketingAPI:
         campaign_id = generate_id()
 
         # Generate test data
-        data = {
-            "status": "active",
-            "activation_date": "2025-05-01T00:00:00Z"
-        }
+        data = {"status": "active", "activation_date": "2025-05-01T00:00:00Z"}
 
         # Make request
-        response = api_test_client.patch(f"marketing/campaigns/{campaign_id}/status", data)
+        response = api_test_client.patch(
+            f"marketing/campaigns/{campaign_id}/status", data
+        )
 
         # This might return 404 if the campaign doesn't exist
         if response.status_code == 404:
@@ -369,8 +374,8 @@ class TestMarketingAPI:
             params={
                 "start_date": "2025-05-01",
                 "end_date": "2025-05-31",
-                "metrics": ["conversions", "engagement", "reach"]
-            }
+                "metrics": ["conversions", "engagement", "reach"],
+            },
         )
 
         # This might return 404 if the campaign doesn't exist
@@ -424,12 +429,12 @@ class TestMarketingAPI:
                 "demographics": {
                     "age_range": ["25-34", "35-44", "45-54"],
                     "locations": ["US", "UK", "CA"],
-                    "interests": ["technology", "business", "marketing"]
+                    "interests": ["technology", "business", "marketing"],
                 },
                 "behavior": {
                     "purchase_history": ["software", "online_courses", "consulting"],
-                    "engagement_level": "very_high"
-                }
+                    "engagement_level": "very_high",
+                },
             },
             "goals": {
                 "metrics": ["conversions", "engagement", "reach", "roi"],
@@ -437,14 +442,14 @@ class TestMarketingAPI:
                     "conversions": 200,
                     "engagement_rate": 0.08,
                     "reach": 20000,
-                    "roi": 3.5
-                }
+                    "roi": 3.5,
+                },
             },
             "optimization": {
                 "auto_budget_allocation": True,
                 "a_b_testing": True,
-                "bid_strategy": "maximize_conversions"
-            }
+                "bid_strategy": "maximize_conversions",
+            },
         }
 
         # Make request
@@ -496,28 +501,28 @@ class TestMarketingAPI:
         """Test invalid campaign update requests."""
         # Generate a random ID
         campaign_id = generate_id()
-        
+
         # Test with empty data
         response = api_test_client.put(f"marketing/campaigns/{campaign_id}", {})
         validate_error_response(response, 422)  # Unprocessable Entity
-        
+
         # Test with invalid date format
-        response = api_test_client.put(f"marketing/campaigns/{campaign_id}", {
-            "start_date": "invalid-date"
-        })
+        response = api_test_client.put(
+            f"marketing/campaigns/{campaign_id}", {"start_date": "invalid-date"}
+        )
         validate_error_response(response, 422)
-        
+
         # Test with end date before start date
-        response = api_test_client.put(f"marketing/campaigns/{campaign_id}", {
-            "start_date": "2025-06-01",
-            "end_date": "2025-05-01"
-        })
+        response = api_test_client.put(
+            f"marketing/campaigns/{campaign_id}",
+            {"start_date": "2025-06-01", "end_date": "2025-05-01"},
+        )
         validate_error_response(response, 422)
-        
+
         # Test with invalid budget
-        response = api_test_client.put(f"marketing/campaigns/{campaign_id}", {
-            "budget": -1000.00
-        })
+        response = api_test_client.put(
+            f"marketing/campaigns/{campaign_id}", {"budget": -1000.00}
+        )
         validate_error_response(response, 422)
 
     def test_delete_campaign(self, api_test_client: APITestClient):
@@ -539,7 +544,7 @@ class TestMarketingAPI:
         # Test deleting with invalid ID format
         response = api_test_client.delete("marketing/campaigns/invalid-id-format")
         validate_error_response(response, 422)  # Unprocessable Entity
-        
+
         # Test deleting already deleted campaign
         campaign_id = generate_id()
         response = api_test_client.delete(f"marketing/campaigns/{campaign_id}")
@@ -560,8 +565,8 @@ class TestMarketingAPI:
                 "channels": ["social_media", "email", "ppc"],
                 "optimization": {
                     "auto_budget_allocation": True,
-                    "bid_strategy": "maximize_conversions"
-                }
+                    "bid_strategy": "maximize_conversions",
+                },
             }
             for i in range(3)
         ]
@@ -610,7 +615,9 @@ class TestMarketingAPI:
         validate_field_equals(result["stats"], "total", len(campaign_ids))
         validate_field_exists(result["stats"], "deleted")
         validate_field_exists(result["stats"], "failed")
-        assert result["stats"]["deleted"] + result["stats"]["failed"] == len(campaign_ids)
+        assert result["stats"]["deleted"] + result["stats"]["failed"] == len(
+            campaign_ids
+        )
 
         # Validate results for each ID
         validate_field_exists(result, "items")
@@ -629,10 +636,13 @@ class TestMarketingAPI:
         validate_error_response(response, 422)
 
         # Test bulk update with invalid data
-        response = api_test_client.bulk_update("marketing/campaigns", [
-            {"id": "invalid-id"},  # Missing required fields
-            {"name": "No ID"}  # Missing ID
-        ])
+        response = api_test_client.bulk_update(
+            "marketing/campaigns",
+            [
+                {"id": "invalid-id"},  # Missing required fields
+                {"name": "No ID"},  # Missing ID
+            ],
+        )
         validate_error_response(response, 422)
 
         # Test bulk delete with empty list
@@ -640,46 +650,40 @@ class TestMarketingAPI:
         validate_error_response(response, 422)
 
         # Test bulk delete with invalid IDs
-        response = api_test_client.bulk_delete("marketing/campaigns", ["invalid-id-1", "invalid-id-2"])
+        response = api_test_client.bulk_delete(
+            "marketing/campaigns", ["invalid-id-1", "invalid-id-2"]
+        )
         result = validate_bulk_response(response)
         validate_field_equals(result["stats"], "failed", 2)
 
     def test_update_campaign_validation(self, api_test_client: APITestClient):
         """Test validation scenarios when updating a campaign."""
         campaign_id = generate_id()
-        
+
         # Test invalid date range
         data = {
             "start_date": "2025-05-31",
-            "end_date": "2025-05-01"  # End date before start date
+            "end_date": "2025-05-01",  # End date before start date
         }
         response = api_test_client.put(f"marketing/campaigns/{campaign_id}", data)
         validate_error_response(response, 422)
-        
+
         # Test invalid budget allocation
         data = {
             "budget": 1000,
             "channels": [
-                {
-                    "name": "social_media",
-                    "allocation": 800
-                },
-                {
-                    "name": "email",
-                    "allocation": 400  # Total allocation exceeds budget
-                }
-            ]
+                {"name": "social_media", "allocation": 800},
+                {"name": "email", "allocation": 400},  # Total allocation exceeds budget
+            ],
         }
         response = api_test_client.put(f"marketing/campaigns/{campaign_id}", data)
         validate_error_response(response, 422)
-        
+
         # Test invalid metrics configuration
         data = {
             "goals": {
                 "metrics": ["invalid_metric"],  # Unknown metric type
-                "targets": {
-                    "invalid_metric": 100
-                }
+                "targets": {"invalid_metric": 100},
             }
         }
         response = api_test_client.put(f"marketing/campaigns/{campaign_id}", data)
@@ -692,18 +696,17 @@ class TestMarketingAPI:
         response = api_test_client.post("marketing/campaigns", data)
         result = validate_success_response(response, 201)
         campaign_id = result["id"]
-        
+
         # Activate the campaign
         response = api_test_client.patch(
-            f"marketing/campaigns/{campaign_id}/status",
-            {"status": "active"}
+            f"marketing/campaigns/{campaign_id}/status", {"status": "active"}
         )
         validate_success_response(response)
-        
+
         # Attempt to delete the active campaign
         response = api_test_client.delete(f"marketing/campaigns/{campaign_id}")
         validate_error_response(response, 409)  # Conflict
-        
+
         # Verify campaign still exists
         response = api_test_client.get(f"marketing/campaigns/{campaign_id}")
         result = validate_success_response(response)
@@ -716,27 +719,23 @@ class TestMarketingAPI:
         response = api_test_client.post("marketing/campaigns", data)
         result = validate_success_response(response, 201)
         campaign_id = result["id"]
-        
+
         # Get initial version
         response = api_test_client.get(f"marketing/campaigns/{campaign_id}")
         initial_version = response.headers.get("ETag")
-        
+
         # Attempt update with wrong version
         headers = {"If-Match": "wrong-version"}
         update_data = {"name": "Updated Campaign"}
         response = api_test_client.put(
-            f"marketing/campaigns/{campaign_id}",
-            update_data,
-            headers=headers
+            f"marketing/campaigns/{campaign_id}", update_data, headers=headers
         )
         validate_error_response(response, 412)  # Precondition Failed
-        
+
         # Update with correct version
         headers = {"If-Match": initial_version}
         response = api_test_client.put(
-            f"marketing/campaigns/{campaign_id}",
-            update_data,
-            headers=headers
+            f"marketing/campaigns/{campaign_id}", update_data, headers=headers
         )
         result = validate_success_response(response)
         validate_field_equals(result, "name", "Updated Campaign")

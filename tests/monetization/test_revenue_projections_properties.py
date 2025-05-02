@@ -5,10 +5,10 @@ These tests verify that the RevenueProjector produces sensible
 projections across a wide range of input parameters.
 """
 
-from hypothesis import given, strategies as st, assume
+from hypothesis import assume, given
+from hypothesis import strategies as st
 from monetization.revenue_projector import RevenueProjector
 from monetization.subscription_models import SubscriptionModel
-
 
 # Strategies for generating valid RevenueProjector parameters
 names = st.text(min_size=1, max_size=100)
@@ -425,14 +425,13 @@ def test_revenue_projection_calculation_properties(
 
     # Property 2: Custom prices should lead to higher revenue (when prices are higher)
     if months > 0:
-        total_revenue_default = revenue_projections_default[-1]["cumulative_revenue"]
-        total_revenue_model = revenue_projections_model[-1]["cumulative_revenue"]
-        total_revenue_custom = revenue_projections_custom[-1]["cumulative_revenue"]
+        revenue_projections_default[-1]["cumulative_revenue"]
+        revenue_projections_model[-1]["cumulative_revenue"]
+        revenue_projections_custom[-1]["cumulative_revenue"]
 
         # The custom prices are higher than model prices, so should generate more revenue
         # However, we need to be careful as some tiers might not be used in different projections
         # We'll just check a few projections to see if the trend holds
-        found_valid_comparison = False
         for month in range(
             min(months, 12)
         ):  # Check first 12 months or all months if fewer
@@ -448,7 +447,6 @@ def test_revenue_projection_calculation_properties(
                 proj_model["tier_users"][t] == proj_custom["tier_users"][t]
                 for t in matching_tiers
             ):
-                found_valid_comparison = True
                 # The custom prices are higher, so revenue should be higher
                 # But only if there are actually paid users
                 if any(proj_custom["tier_users"].values()):
@@ -536,7 +534,7 @@ def test_revenue_projection_monthly_to_annual_conversion(
     # But with high churn rates, revenue can decrease even with user growth
     if months >= 24 and initial_users > 0 and growth_rate > 0 and churn_rate < 0.3:
         # Get user counts from the start and end of year 1 and 2
-        users_start_y1 = revenue_projections[0]["total_users"]
+        revenue_projections[0]["total_users"]
         users_end_y1 = revenue_projections[11]["total_users"]
 
         if len(revenue_projections) >= 24:

@@ -5,20 +5,20 @@ This module provides classes for generating marketing strategies tailored to
 different business types, goals, and target audiences.
 """
 
-from typing import Dict, List, Any, Optional
+import json
 import uuid
 from datetime import datetime
-import json
+from typing import Any, Dict, List, Optional
 
-from interfaces.marketing_interfaces import IMarketingStrategy
 from interfaces.agent_interfaces import IAgentTeam
+from interfaces.marketing_interfaces import IMarketingStrategy
 from marketing.schemas import (
-    TargetAudienceSchema,
     BudgetSchema,
     MarketingChannelSchema,
-    MarketingTacticSchema,
     MarketingMetricSchema,
     MarketingStrategySchema,
+    MarketingTacticSchema,
+    TargetAudienceSchema,
 )
 
 

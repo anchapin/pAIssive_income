@@ -5,9 +5,9 @@ This script demonstrates how to use the ModelManager to discover, register,
 and load AI models.
 """
 
+import logging
 import os
 import sys
-import logging
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -75,7 +75,7 @@ def main():
         print(f"\nTrying to load model: {model_to_load.name}")
 
         try:
-            loaded_model = manager.load_model(model_to_load.id)
+            manager.load_model(model_to_load.id)
             print(f"Successfully loaded model: {model_to_load.name}")
 
             # Unload the model

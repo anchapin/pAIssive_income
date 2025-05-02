@@ -5,25 +5,25 @@ This module provides generators for different types of marketing content.
 """
 
 import datetime
-import uuid
-import random
-import json
 import hashlib
-from typing import Dict, List, Any, Optional, Union
+import json
+import random
+import uuid
 from abc import ABC, abstractmethod
-
-from .schemas import (
-    ContentGeneratorConfigSchema,
-    BlogPostTemplateSchema,
-    SocialMediaTemplateSchema,
-    EmailNewsletterTemplateSchema,
-    GeneratedBlogPostSchema,
-    GeneratedSocialMediaPostSchema,
-    GeneratedEmailNewsletterSchema,
-)
+from typing import Any, Dict, List, Optional, Union
 
 # Import the centralized caching service
 from common_utils.caching import default_cache
+
+from .schemas import (
+    BlogPostTemplateSchema,
+    ContentGeneratorConfigSchema,
+    EmailNewsletterTemplateSchema,
+    GeneratedBlogPostSchema,
+    GeneratedEmailNewsletterSchema,
+    GeneratedSocialMediaPostSchema,
+    SocialMediaTemplateSchema,
+)
 
 
 # Class definitions for content templates

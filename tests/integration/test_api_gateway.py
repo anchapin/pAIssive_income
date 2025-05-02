@@ -2,23 +2,20 @@
 Integration tests for API gateway functionality.
 """
 
-import pytest
-import jwt
-import requests
-from unittest.mock import patch
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
+import jwt
+import pytest
+import requests
+
+from services.errors import AuthenticationError, RateLimitExceededError, RoutingError
 from services.gateway import (
     APIGateway,
-    RouteManager,
     AuthManager,
+    GatewayConfig,
     RateLimiter,
-    GatewayConfig
-)
-from services.errors import (
-    AuthenticationError,
-    RateLimitExceededError,
-    RoutingError
+    RouteManager,
 )
 
 
@@ -33,7 +30,7 @@ class TestAPIGateway:
             jwt_secret="test_secret",
             rate_limit_window=60,  # seconds
             rate_limit_max_requests=100,
-            auth_cache_ttl=300  # seconds
+            auth_cache_ttl=300,  # seconds
         )
         self.gateway = APIGateway(self.config)
         self.route_manager = RouteManager(self.config)
@@ -56,25 +53,22 @@ class TestAPIGateway:
                 "service": "user-service",
                 "methods": ["GET", "POST"],
                 "version": "1.0",
-                "timeout": 5000
+                "timeout": 5000,
             },
             {
                 "path": "/api/v1/orders",
                 "service": "order-service",
                 "methods": ["GET", "POST", "PUT"],
                 "version": "1.0",
-                "timeout": 10000
-            }
+                "timeout": 10000,
+            },
         ]
 
         for route in routes:
             self.route_manager.register_route(**route)
 
         # Test route resolution
-        resolved = self.route_manager.resolve_route(
-            path="/api/v1/users",
-            method="GET"
-        )
+        resolved = self.route_manager.resolve_route(path="/api/v1/users", method="GET")
         assert resolved["service"] == "user-service"
         assert "GET" in resolved["methods"]
 
@@ -83,30 +77,21 @@ class TestAPIGateway:
             path="/api/v2/users",
             service="user-service-v2",
             methods=["GET"],
-            version="2.0"
+            version="2.0",
         )
 
-        v2_route = self.route_manager.resolve_route(
-            path="/api/v2/users",
-            method="GET"
-        )
+        v2_route = self.route_manager.resolve_route(path="/api/v2/users", method="GET")
         assert v2_route["service"] == "user-service-v2"
         assert v2_route["version"] == "2.0"
 
         # Test method not allowed
         with pytest.raises(RoutingError) as exc:
-            self.route_manager.resolve_route(
-                path="/api/v1/users",
-                method="DELETE"
-            )
+            self.route_manager.resolve_route(path="/api/v1/users", method="DELETE")
         assert "Method not allowed" in str(exc.value)
 
         # Test route not found
         with pytest.raises(RoutingError) as exc:
-            self.route_manager.resolve_route(
-                path="/api/v1/invalid",
-                method="GET"
-            )
+            self.route_manager.resolve_route(path="/api/v1/invalid", method="GET")
         assert "Route not found" in str(exc.value)
 
     def test_authentication(self):
@@ -115,7 +100,7 @@ class TestAPIGateway:
         payload = {
             "user_id": "123",
             "roles": ["user"],
-            "exp": datetime.utcnow() + timedelta(hours=1)
+            "exp": datetime.utcnow() + timedelta(hours=1),
         }
         token = jwt.encode(payload, self.config.jwt_secret, algorithm="HS256")
 
@@ -129,12 +114,10 @@ class TestAPIGateway:
         expired_payload = {
             "user_id": "123",
             "roles": ["user"],
-            "exp": datetime.utcnow() - timedelta(hours=1)
+            "exp": datetime.utcnow() - timedelta(hours=1),
         }
         expired_token = jwt.encode(
-            expired_payload,
-            self.config.jwt_secret,
-            algorithm="HS256"
+            expired_payload, self.config.jwt_secret, algorithm="HS256"
         )
 
         with pytest.raises(AuthenticationError) as exc:
@@ -149,12 +132,10 @@ class TestAPIGateway:
         admin_payload = {
             "user_id": "456",
             "roles": ["admin"],
-            "exp": datetime.utcnow() + timedelta(hours=1)
+            "exp": datetime.utcnow() + timedelta(hours=1),
         }
         admin_token = jwt.encode(
-            admin_payload,
-            self.config.jwt_secret,
-            algorithm="HS256"
+            admin_payload, self.config.jwt_secret, algorithm="HS256"
         )
 
         # Admin can access admin routes
@@ -189,10 +170,7 @@ class TestAPIGateway:
         assert limit_info["reset_time"] is not None
 
         # Test rate limit exceeded
-        self.rate_limiter.update_config(
-            max_requests=5,
-            window=60
-        )
+        self.rate_limiter.update_config(max_requests=5, window=60)
 
         # Next request should fail
         with pytest.raises(RateLimitExceededError) as exc:
@@ -211,10 +189,7 @@ class TestAPIGateway:
         """Test complete request lifecycle through gateway."""
         # Setup test route
         self.route_manager.register_route(
-            path="/api/test",
-            service="test-service",
-            methods=["GET"],
-            version="1.0"
+            path="/api/test", service="test-service", methods=["GET"], version="1.0"
         )
 
         # Create auth token
@@ -222,23 +197,20 @@ class TestAPIGateway:
             {
                 "user_id": "123",
                 "roles": ["user"],
-                "exp": datetime.utcnow() + timedelta(hours=1)
+                "exp": datetime.utcnow() + timedelta(hours=1),
             },
             self.config.jwt_secret,
-            algorithm="HS256"
+            algorithm="HS256",
         )
 
         # Mock backend service
         with patch("services.gateway.APIGateway._forward_request") as mock_forward:
-            mock_forward.return_value = {
-                "status": 200,
-                "data": {"message": "success"}
-            }
+            mock_forward.return_value = {"status": 200, "data": {"message": "success"}}
 
             # Make request through gateway
             response = requests.get(
                 "http://localhost:8000/api/test",
-                headers={"Authorization": f"Bearer {token}"}
+                headers={"Authorization": f"Bearer {token}"},
             )
 
             # Verify response
@@ -259,7 +231,7 @@ class TestAPIGateway:
             self.route_manager.register_route(
                 path="/invalid/path/",  # Missing leading /api
                 service="test-service",
-                methods=["GET"]
+                methods=["GET"],
             )
 
         # Test service timeout
@@ -267,24 +239,20 @@ class TestAPIGateway:
             path="/api/slow",
             service="slow-service",
             methods=["GET"],
-            timeout=100  # Very short timeout
+            timeout=100,  # Very short timeout
         )
 
         with patch("services.gateway.APIGateway._forward_request") as mock_forward:
             mock_forward.side_effect = TimeoutError("Service timeout")
-            
-            response = requests.get(
-                "http://localhost:8000/api/slow"
-            )
+
+            response = requests.get("http://localhost:8000/api/slow")
             assert response.status_code == 504  # Gateway Timeout
 
         # Test service unavailable
         with patch("services.gateway.APIGateway._forward_request") as mock_forward:
             mock_forward.side_effect = ConnectionError("Service unavailable")
-            
-            response = requests.get(
-                "http://localhost:8000/api/test"
-            )
+
+            response = requests.get("http://localhost:8000/api/test")
             assert response.status_code == 503  # Service Unavailable
 
     def test_request_transformation(self):
@@ -295,28 +263,20 @@ class TestAPIGateway:
             service="transform-service",
             methods=["POST"],
             request_transform="camelToSnake",
-            response_transform="snakeToCamel"
+            response_transform="snakeToCamel",
         )
 
         # Test request with camelCase
-        request_data = {
-            "userId": 123,
-            "firstName": "John",
-            "lastName": "Doe"
-        }
+        request_data = {"userId": 123, "firstName": "John", "lastName": "Doe"}
 
         with patch("services.gateway.APIGateway._forward_request") as mock_forward:
             mock_forward.return_value = {
                 "status": 200,
-                "data": {
-                    "user_id": 123,
-                    "full_name": "John Doe"
-                }
+                "data": {"user_id": 123, "full_name": "John Doe"},
             }
 
             response = requests.post(
-                "http://localhost:8000/api/transform",
-                json=request_data
+                "http://localhost:8000/api/transform", json=request_data
             )
 
             # Verify request transformation

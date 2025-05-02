@@ -3,24 +3,24 @@ Market Analyzer for the pAIssive Income project.
 Analyzes market segments to identify potential niches.
 """
 
-from typing import Dict, List, Any
+import asyncio
+import logging
 import uuid
 from datetime import datetime
-import logging
-import asyncio
+from typing import Any, Dict, List
 
-from .errors import (
-    MarketSegmentError,
-    CompetitionAnalysisError,
-    ValidationError,
-    handle_exception,
-)
+# Import async utilities
+from ai_models.async_utils import run_in_thread
 
 # Import the centralized caching service
 from common_utils.caching import default_cache
 
-# Import async utilities
-from ai_models.async_utils import run_in_thread
+from .errors import (
+    CompetitionAnalysisError,
+    MarketSegmentError,
+    ValidationError,
+    handle_exception,
+)
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -263,7 +263,7 @@ class MarketAnalyzer:
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e, error_class=MarketSegmentError, reraise=True, log_level=logging.ERROR
             )
             return {}  # This line won't be reached due to reraise=True
@@ -501,7 +501,7 @@ class MarketAnalyzer:
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e, error_class=MarketSegmentError, reraise=True, log_level=logging.ERROR
             )
             return {}  # This line won't be reached due to reraise=True
@@ -602,7 +602,7 @@ class MarketAnalyzer:
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=CompetitionAnalysisError,
                 reraise=True,
@@ -708,7 +708,7 @@ class MarketAnalyzer:
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=CompetitionAnalysisError,
                 reraise=True,

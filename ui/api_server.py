@@ -1,7 +1,9 @@
-from flask import Flask, jsonify, request, send_from_directory
-from flask_cors import CORS
 import os
 import sys
+
+from flask_cors import CORS
+
+from flask import Flask, jsonify, request, send_from_directory
 
 # Add the project root to the path so we can import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -60,7 +62,6 @@ def logout():
 
 @app.route("/api/auth/register", methods=["POST"])
 def register():
-    data = request.json
     # In a real app, you'd validate and store user data
     return jsonify(MOCK_USERS["user1"]), 201
 
@@ -76,7 +77,6 @@ def get_profile():
 
 @app.route("/api/user/profile", methods=["PUT"])
 def update_profile():
-    data = request.json
     # In a real app, you'd update the user's profile
     return jsonify(MOCK_USERS["user1"]), 200
 
@@ -106,7 +106,7 @@ def get_market_segments():
 @app.route("/api/niche-analysis/analyze", methods=["POST"])
 def analyze_niches():
     data = request.json
-    segment_ids = data.get("segments", [])
+    data.get("segments", [])
 
     try:
         # Here we'd call our actual niche analysis logic
@@ -247,8 +247,8 @@ def get_templates():
 @app.route("/api/developer/solution", methods=["POST"])
 def generate_solution():
     data = request.json
-    niche_id = data.get("nicheId")
-    template_id = data.get("templateId")
+    data.get("nicheId")
+    data.get("templateId")
 
     try:
         # Here we'd call our actual solution generation logic
@@ -353,8 +353,8 @@ def get_monetization_solutions():
 @app.route("/api/monetization/strategy", methods=["POST"])
 def generate_monetization_strategy():
     data = request.json
-    solution_id = data.get("solutionId")
-    options = data.get("options", {})
+    data.get("solutionId")
+    data.get("options", {})
 
     try:
         # Here we'd call our actual monetization strategy generation logic
@@ -550,9 +550,9 @@ def get_marketing_channels():
 @app.route("/api/marketing/campaign", methods=["POST"])
 def generate_marketing_campaign():
     data = request.json
-    solution_id = data.get("solutionId")
-    audience_ids = data.get("audienceIds", [])
-    channel_ids = data.get("channelIds", [])
+    data.get("solutionId")
+    data.get("audienceIds", [])
+    data.get("channelIds", [])
 
     try:
         # Here we'd call our actual marketing campaign generation logic

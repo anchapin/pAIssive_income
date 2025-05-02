@@ -3,9 +3,9 @@ Marketing Agent for the pAIssive Income project.
 Specializes in marketing strategies and user acquisition.
 """
 
-from typing import Dict, List, Any
 import uuid
 from datetime import datetime
+from typing import Any, Dict, List
 
 
 class MarketingAgent:

@@ -3,21 +3,25 @@ Query parameter utilities for API endpoints.
 
 This module provides utilities for handling query parameters in API endpoints.
 """
-from typing import Dict, Any, List, Optional, TypeVar, Generic, Callable
+
 from enum import Enum
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
 
+from pydantic import BaseModel, ConfigDict, Field
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class SortDirection(str, Enum):
     """Sort direction for query parameters."""
+
     ASC = "asc"
     DESC = "desc"
 
 
 class FilterOperator(str, Enum):
     """Filter operator for query parameters."""
+
     EQ = "eq"  # Equal
     NE = "ne"  # Not equal
     GT = "gt"  # Greater than
@@ -59,6 +63,7 @@ class QueryParams(BaseModel):
 
 class PaginatedResponse(BaseModel, Generic[T]):
     """Paginated response for API endpoints."""
+
     items: List[T] = Field(..., description="List of items")
     total: int = Field(..., description="Total number of items")
     page: int = Field(..., description="Current page number")
@@ -93,8 +98,11 @@ def apply_pagination(items: List[Any], params: QueryParams) -> Dict[str, Any]:
     }
 
 
-def apply_filtering(items: List[T], query_params: QueryParams,
-                  field_getter: Callable[[T, str], Any] = None) -> List[T]:
+def apply_filtering(
+    items: List[T],
+    query_params: QueryParams,
+    field_getter: Callable[[T, str], Any] = None,
+) -> List[T]:
     """
     Apply filtering to a list of items.
 
@@ -111,6 +119,7 @@ def apply_filtering(items: List[T], query_params: QueryParams,
 
     # Default field getter function
     if field_getter is None:
+
         def field_getter(item, field):
             if hasattr(item, field):
                 return getattr(item, field)
@@ -153,18 +162,27 @@ def apply_filtering(items: List[T], query_params: QueryParams,
                     include = False
                     break
             elif operator == FilterOperator.CONTAINS:
-                if not (isinstance(field_value, str) and isinstance(value, str) 
-                       and value in field_value):
+                if not (
+                    isinstance(field_value, str)
+                    and isinstance(value, str)
+                    and value in field_value
+                ):
                     include = False
                     break
             elif operator == FilterOperator.STARTS_WITH:
-                if not (isinstance(field_value, str) and isinstance(value, str) 
-                       and field_value.startswith(value)):
+                if not (
+                    isinstance(field_value, str)
+                    and isinstance(value, str)
+                    and field_value.startswith(value)
+                ):
                     include = False
                     break
             elif operator == FilterOperator.ENDS_WITH:
-                if not (isinstance(field_value, str) and isinstance(value, str) 
-                       and field_value.endswith(value)):
+                if not (
+                    isinstance(field_value, str)
+                    and isinstance(value, str)
+                    and field_value.endswith(value)
+                ):
                     include = False
                     break
             elif operator == FilterOperator.IN:
@@ -177,8 +195,12 @@ def apply_filtering(items: List[T], query_params: QueryParams,
                     break
             elif operator == FilterOperator.REGEX:
                 import re
-                if not (isinstance(field_value, str) and isinstance(value, str) 
-                       and bool(re.search(value, field_value))):
+
+                if not (
+                    isinstance(field_value, str)
+                    and isinstance(value, str)
+                    and bool(re.search(value, field_value))
+                ):
                     include = False
                     break
 
@@ -188,8 +210,11 @@ def apply_filtering(items: List[T], query_params: QueryParams,
     return filtered_items
 
 
-def apply_sorting(items: List[T], query_params: QueryParams,
-                field_getter: Callable[[T, str], Any] = None) -> List[T]:
+def apply_sorting(
+    items: List[T],
+    query_params: QueryParams,
+    field_getter: Callable[[T, str], Any] = None,
+) -> List[T]:
     """
     Apply sorting to a list of items.
 
@@ -206,6 +231,7 @@ def apply_sorting(items: List[T], query_params: QueryParams,
 
     # Default field getter function
     if field_getter is None:
+
         def field_getter(item, field):
             if hasattr(item, field):
                 return getattr(item, field)
@@ -218,7 +244,9 @@ def apply_sorting(items: List[T], query_params: QueryParams,
         value = field_getter(item, query_params.sort_by)
         if value is None:
             # Sort None values last in ascending order, first in descending
-            return (1, None) if query_params.sort_dir == SortDirection.ASC else (0, None)
+            return (
+                (1, None) if query_params.sort_dir == SortDirection.ASC else (0, None)
+            )
         return (0, value) if query_params.sort_dir == SortDirection.ASC else (1, value)
 
     # Sort items

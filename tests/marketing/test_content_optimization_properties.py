@@ -5,12 +5,14 @@ This module tests properties that should hold true for content optimization algo
 in the marketing.content_optimization module, using the Hypothesis framework for property-based testing.
 """
 
-import pytest
 import uuid
 from datetime import datetime
-from hypothesis import given, strategies as st, assume
+
+import pytest
 from hypothesis.strategies import composite
 
+from hypothesis import assume, given
+from hypothesis import strategies as st
 from marketing.content_optimization import (
     KeywordAnalyzer,
     ReadabilityAnalyzer,

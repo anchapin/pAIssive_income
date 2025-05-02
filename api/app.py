@@ -35,23 +35,25 @@ app.include_router(
     tags=["Niche Analysis"],
 )
 
+
 # Add health check endpoint
 @app.get("/api/health", tags=["Health"])
 async def health_check():
     """
     Health check endpoint.
-    
+
     Returns:
         Health status
     """
     return {"status": "ok"}
+
 
 # Add version endpoint
 @app.get("/api/version", tags=["Version"])
 async def get_version():
     """
     Get API version.
-    
+
     Returns:
         API version information
     """
@@ -60,16 +62,17 @@ async def get_version():
         "name": "pAIssive Income API",
     }
 
+
 # Error handlers
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     """
     Handle HTTP exceptions.
-    
+
     Args:
         request: Request that caused the exception
         exc: HTTP exception
-        
+
     Returns:
         JSON response with error details
     """
@@ -78,15 +81,16 @@ async def http_exception_handler(request, exc):
         content={"error": {"code": exc.status_code, "message": exc.detail}},
     )
 
+
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     """
     Handle general exceptions.
-    
+
     Args:
         request: Request that caused the exception
         exc: Exception
-        
+
     Returns:
         JSON response with error details
     """

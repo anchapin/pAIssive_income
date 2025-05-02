@@ -2,9 +2,10 @@
 Test script for the RevenueProjector class.
 """
 
+import os
+
 from revenue_projector import RevenueProjector
 from subscription_models import SubscriptionModel
-import os
 
 
 def test_revenue_projector():

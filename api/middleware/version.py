@@ -5,7 +5,7 @@ This module provides middleware for handling API versioning.
 """
 
 import logging
-from typing import Callable, Any
+from typing import Any, Callable
 
 from ..config import APIConfig, APIVersion
 from ..version_manager import VersionManager

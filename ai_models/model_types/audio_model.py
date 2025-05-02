@@ -5,11 +5,12 @@ This module provides specialized classes for working with audio models,
 including speech recognition, text-to-speech, and audio classification.
 """
 
-import os
 import json
 import logging
+import os
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from typing import Dict, List, Any, Optional, Tuple
 
 # Set up logging
 logging.basicConfig(
@@ -183,8 +184,8 @@ class AudioModel:
 
             elif self.model_type == "audio-classification":
                 from transformers import (
-                    AutoModelForAudioClassification,
                     AutoFeatureExtractor,
+                    AutoModelForAudioClassification,
                 )
 
                 self.processor = AutoFeatureExtractor.from_pretrained(

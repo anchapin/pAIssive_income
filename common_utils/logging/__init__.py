@@ -7,11 +7,11 @@ monitoring systems.
 """
 
 from common_utils.logging.logger import (
-    get_logger,
-    setup_logging,
     LogLevel,
     add_context,
     clear_context,
+    get_logger,
+    setup_logging,
 )
 
 __all__ = [

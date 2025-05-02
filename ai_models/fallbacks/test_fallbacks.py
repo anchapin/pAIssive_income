@@ -1,3 +1,11 @@
+
+import logging
+import os
+import sys
+from ai_models.agent_integration import AgentModelProvider
+from ai_models.fallbacks import FallbackManager, FallbackStrategy
+from ai_models.model_manager import ModelInfo, ModelManager
+
 """
 Test script for model fallback functionality.
 
@@ -5,18 +13,18 @@ This script demonstrates and tests the model fallback mechanisms to ensure
 they work as expected under various scenarios.
 """
 
+import logging
 import os
 import sys
-import logging
 
 # Add the project root to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-from ai_models.model_manager import ModelManager, ModelInfo
 from ai_models.agent_integration import AgentModelProvider
-from ai_models.fallbacks import FallbackStrategy, FallbackManager
+from ai_models.fallbacks import FallbackManager, FallbackStrategy
+from ai_models.model_manager import ModelInfo, ModelManager
 
 
 def setup_test_environment():
@@ -96,7 +104,7 @@ def test_basic_fallback(manager: ModelManager):
         provider.agent_models["researcher"] = {"text-generation": "non_existent_model"}
 
         # Try to get a model for the researcher agent
-        model = provider.get_model_for_agent("researcher", "text-generation")
+        provider.get_model_for_agent("researcher", "text-generation")
 
         # Check which model was used as fallback
         assignments = provider.get_agent_model_assignments()
@@ -224,7 +232,7 @@ def test_agent_integration(manager: ModelManager):
 
     for agent_type in agent_types:
         try:
-            model = provider.get_model_for_agent(agent_type, "text-generation")
+            provider.get_model_for_agent(agent_type, "text-generation")
 
             # Get the model info
             assignments = provider.get_agent_model_assignments()
@@ -236,7 +244,7 @@ def test_agent_integration(manager: ModelManager):
             print(f"Error getting model for {agent_type}: {e}")
 
     # Check fallback metrics
-    metrics = provider.get_fallback_metrics()
+    provider.get_fallback_metrics()
     history = provider.get_fallback_history(limit=5)
 
     print("\nFallback events recorded:", len(history))

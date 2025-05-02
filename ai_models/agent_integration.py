@@ -5,19 +5,18 @@ This module provides functions and classes for integrating the AI Models module
 with the agent team, allowing agents to use local AI models for their tasks.
 """
 
-import os
 import logging
-from typing import Dict, Any, Optional
-
+import os
 import sys
+from typing import Any, Dict, Optional
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from interfaces.model_interfaces import IModelManager, IModelInfo
-from .model_manager import ModelManager
 from dependency_container import get_container
+from interfaces.model_interfaces import IModelInfo, IModelManager
 
 # Import the fallback manager classes
 from .fallbacks import FallbackManager, FallbackStrategy
+from .model_manager import ModelManager
 
 # Import specific error types
 

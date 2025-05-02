@@ -5,14 +5,13 @@ This module provides a factory for creating model adapters based on adapter type
 """
 
 import logging
+import os
+import sys
 from typing import Dict, List, Type
 
-import sys
-import os
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from interfaces.model_interfaces import IModelAdapter
 from errors import ModelError
+from interfaces.model_interfaces import IModelAdapter
 
 # Set up logging
 logger = logging.getLogger(__name__)

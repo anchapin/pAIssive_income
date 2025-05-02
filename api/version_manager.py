@@ -5,8 +5,8 @@ This module provides classes and functions for managing API versions.
 """
 
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from .config import APIVersion
 

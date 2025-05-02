@@ -2,12 +2,12 @@
 Tests for namespace-specific cache clearing functionality.
 """
 
-import unittest
 import logging
-from unittest.mock import patch, MagicMock
+import unittest
+from unittest.mock import MagicMock, patch
 
-from common_utils.caching.cache_service import CacheService
 from ai_models.caching import CacheManager
+from common_utils.caching.cache_service import CacheService
 
 # Set up logging
 logging.basicConfig(

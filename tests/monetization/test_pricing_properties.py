@@ -6,9 +6,10 @@ functions in the monetization module, using the Hypothesis framework for propert
 """
 
 import pytest
-from hypothesis import given, strategies as st, assume, example
 from hypothesis.strategies import composite
 
+from hypothesis import assume, example, given
+from hypothesis import strategies as st
 from monetization.calculator import MonetizationCalculator
 from monetization.pricing_calculator import PricingCalculator
 
@@ -451,8 +452,8 @@ class TestPricingCalculatorProperties:
 
         # Special case handling for the "Pro" tier
         if price_params["tier_name"] != "Pro":
-            price1 = calculator1.calculate_optimal_price(**price_params)
-            price2 = calculator2.calculate_optimal_price(**price_params)
+            calculator1.calculate_optimal_price(**price_params)
+            calculator2.calculate_optimal_price(**price_params)
 
             # Note: We don't assert price1 != price2 because strategies could
             # calculate the same price by chance, but this test ensures the

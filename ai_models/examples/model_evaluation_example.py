@@ -5,11 +5,11 @@ This script demonstrates how to use the model evaluation tools to evaluate
 and compare fine-tuned models.
 """
 
-import os
-import sys
 import argparse
 import logging
-from typing import List, Dict, Any, Optional
+import os
+import sys
+from typing import Any, Dict, List, Optional
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -17,8 +17,8 @@ sys.path.append(
 )
 
 from ai_models.fine_tuning import (
-    evaluate_model,
     compare_models,
+    evaluate_model,
     generate_evaluation_report,
 )
 

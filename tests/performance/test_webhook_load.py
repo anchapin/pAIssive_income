@@ -1,3 +1,16 @@
+
+import asyncio
+import json
+import random
+import time
+import uuid
+from datetime import datetime, timezone
+from unittest.mock import patch
+import httpx
+from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
+from api.services.webhook_service import WebhookService
+import pytest
+
 """
 Load testing for the webhook system.
 
@@ -5,32 +18,54 @@ This module contains tests to evaluate the webhook system's performance under he
 """
 
 import asyncio
-import time
-import random
 import json
+import random
+import time
 import uuid
 from datetime import datetime, timezone
-import httpx
 from unittest.mock import patch
 
+import httpx
+
+from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
-from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
 
 # Test configuration
-WEBHOOK_COUNT = 100          # Number of webhooks to create
-EVENT_BATCH_SIZE = 1000      # Number of events per batch
-TOTAL_EVENTS = 10000         # Total number of events to process
-MAX_CONCURRENCY = 100        # Maximum number of concurrent deliveries
-TEST_DURATION_SECONDS = 60   # Duration of the load test in seconds
+WEBHOOK_COUNT = 100  # Number of webhooks to create
+EVENT_BATCH_SIZE = 1000  # Number of events per batch
+TOTAL_EVENTS = 10000  # Total number of events to process
+MAX_CONCURRENCY = 100  # Maximum number of concurrent deliveries
+TEST_DURATION_SECONDS = 60  # Duration of the load test in seconds
 
 # Mock server configuration
 MOCK_SERVERS = [
-    {"url": "https://server1.example.com/webhook", "avg_response_time": 0.05, "error_rate": 0.01},
-    {"url": "https://server2.example.com/webhook", "avg_response_time": 0.1, "error_rate": 0.05},
-    {"url": "https://server3.example.com/webhook", "avg_response_time": 0.2, "error_rate": 0.1},
-    {"url": "https://server4.example.com/webhook", "avg_response_time": 0.5, "error_rate": 0.2},
-    {"url": "https://server5.example.com/webhook", "avg_response_time": 1.0, "error_rate": 0.3},
+    {
+        "url": "https://server1.example.com/webhook",
+        "avg_response_time": 0.05,
+        "error_rate": 0.01,
+    },
+    {
+        "url": "https://server2.example.com/webhook",
+        "avg_response_time": 0.1,
+        "error_rate": 0.05,
+    },
+    {
+        "url": "https://server3.example.com/webhook",
+        "avg_response_time": 0.2,
+        "error_rate": 0.1,
+    },
+    {
+        "url": "https://server4.example.com/webhook",
+        "avg_response_time": 0.5,
+        "error_rate": 0.2,
+    },
+    {
+        "url": "https://server5.example.com/webhook",
+        "avg_response_time": 1.0,
+        "error_rate": 0.3,
+    },
 ]
+
 
 class MockServer:
     """Mock server for load testing."""
@@ -48,7 +83,9 @@ class MockServer:
         self.requests_received += 1
 
         # Simulate network delay with some randomness
-        delay = random.normalvariate(self.avg_response_time, self.avg_response_time * 0.2)
+        delay = random.normalvariate(
+            self.avg_response_time, self.avg_response_time * 0.2
+        )
         delay = max(0.01, delay)  # Ensure delay is at least 10ms
         await asyncio.sleep(delay)
 
@@ -60,17 +97,20 @@ class MockServer:
             response = httpx.Response(
                 status_code=random.choice([429, 500, 502, 503, 504]),
                 content=f"Error processing webhook: {random.choice(['Timeout', 'Server Error', 'Rate Limited'])}".encode(),
-                request=request
+                request=request,
             )
         else:
             self.successful_requests += 1
             response = httpx.Response(
                 status_code=200,
-                content=json.dumps({"success": True, "message": "Webhook received"}).encode(),
-                request=request
+                content=json.dumps(
+                    {"success": True, "message": "Webhook received"}
+                ).encode(),
+                request=request,
             )
 
         return response
+
 
 class LoadTestEnvironment:
     """Environment for load testing webhooks."""
@@ -98,7 +138,7 @@ class LoadTestEnvironment:
                 "p90": 0,
                 "p95": 0,
                 "p99": 0,
-            }
+            },
         }
         self.latencies = []
 
@@ -118,11 +158,11 @@ class LoadTestEnvironment:
                 "events": [
                     WebhookEventType.USER_CREATED,
                     WebhookEventType.PAYMENT_RECEIVED,
-                    WebhookEventType.SUBSCRIPTION_CREATED
+                    WebhookEventType.SUBSCRIPTION_CREATED,
                 ],
                 "description": f"Load test webhook {i}",
                 "headers": {"Authorization": f"Bearer test-token-{i}"},
-                "is_active": True
+                "is_active": True,
             }
 
             # Register webhook
@@ -152,8 +192,8 @@ class LoadTestEnvironment:
                 "metadata": {
                     "source": "load_test",
                     "batch": i // EVENT_BATCH_SIZE,
-                    "index": i
-                }
+                    "index": i,
+                },
             }
 
             # Select a random webhook and event type
@@ -170,12 +210,15 @@ class LoadTestEnvironment:
                 # Get next event from queue with timeout
                 try:
                     webhook, event_type, event_data = await asyncio.wait_for(
-                        self.events_queue.get(),
-                        timeout=0.1
+                        self.events_queue.get(), timeout=0.1
                     )
                 except asyncio.TimeoutError:
                     # Check if we should continue
-                    if self.events_queue.empty() and time.time() - self.results["start_time"] >= TEST_DURATION_SECONDS:
+                    if (
+                        self.events_queue.empty()
+                        and time.time() - self.results["start_time"]
+                        >= TEST_DURATION_SECONDS
+                    ):
                         break
                     continue
 
@@ -184,7 +227,9 @@ class LoadTestEnvironment:
 
                 # Patch httpx.AsyncClient.post to use our mock server
                 async def mock_post(*args, **kwargs):
-                    return await server.handle_request(httpx.Request("POST", server.url))
+                    return await server.handle_request(
+                        httpx.Request("POST", server.url)
+                    )
 
                 with patch("httpx.AsyncClient.post", mock_post):
                     # Record start time
@@ -195,7 +240,7 @@ class LoadTestEnvironment:
                         delivery = await self.service.deliver_event(
                             webhook_id=webhook["id"],
                             event_type=event_type,
-                            event_data=event_data
+                            event_data=event_data,
                         )
 
                         # Record latency
@@ -231,31 +276,51 @@ class LoadTestEnvironment:
         sorted_latencies = sorted(self.latencies)
         self.results["latency_stats"]["min"] = sorted_latencies[0]
         self.results["latency_stats"]["max"] = sorted_latencies[-1]
-        self.results["latency_stats"]["avg"] = sum(sorted_latencies) / len(sorted_latencies)
-        self.results["latency_stats"]["p50"] = sorted_latencies[int(len(sorted_latencies) * 0.5)]
-        self.results["latency_stats"]["p90"] = sorted_latencies[int(len(sorted_latencies) * 0.9)]
-        self.results["latency_stats"]["p95"] = sorted_latencies[int(len(sorted_latencies) * 0.95)]
-        self.results["latency_stats"]["p99"] = sorted_latencies[int(len(sorted_latencies) * 0.99)]
+        self.results["latency_stats"]["avg"] = sum(sorted_latencies) / len(
+            sorted_latencies
+        )
+        self.results["latency_stats"]["p50"] = sorted_latencies[
+            int(len(sorted_latencies) * 0.5)
+        ]
+        self.results["latency_stats"]["p90"] = sorted_latencies[
+            int(len(sorted_latencies) * 0.9)
+        ]
+        self.results["latency_stats"]["p95"] = sorted_latencies[
+            int(len(sorted_latencies) * 0.95)
+        ]
+        self.results["latency_stats"]["p99"] = sorted_latencies[
+            int(len(sorted_latencies) * 0.99)
+        ]
 
     def collect_stats(self):
         """Collect statistics from the test."""
         # Calculate duration
         self.results["end_time"] = time.time()
-        self.results["total_duration"] = self.results["end_time"] - self.results["start_time"]
+        self.results["total_duration"] = (
+            self.results["end_time"] - self.results["start_time"]
+        )
 
         # Calculate events per second
         if self.results["total_duration"] > 0:
-            self.results["events_per_second"] = self.results["total_events"] / self.results["total_duration"]
+            self.results["events_per_second"] = (
+                self.results["total_events"] / self.results["total_duration"]
+            )
 
         # Collect server stats
         for server in self.mock_servers:
-            self.results["server_stats"].append({
-                "url": server.url,
-                "requests_received": server.requests_received,
-                "successful_requests": server.successful_requests,
-                "failed_requests": server.failed_requests,
-                "success_rate": server.successful_requests / server.requests_received if server.requests_received > 0 else 0
-            })
+            self.results["server_stats"].append(
+                {
+                    "url": server.url,
+                    "requests_received": server.requests_received,
+                    "successful_requests": server.successful_requests,
+                    "failed_requests": server.failed_requests,
+                    "success_rate": (
+                        server.successful_requests / server.requests_received
+                        if server.requests_received > 0
+                        else 0
+                    ),
+                }
+            )
 
         # Calculate latency percentiles
         self.calculate_latency_percentiles()
@@ -283,7 +348,10 @@ class LoadTestEnvironment:
 
             # Generate events periodically
             events_generated = EVENT_BATCH_SIZE
-            while time.time() - self.results["start_time"] < TEST_DURATION_SECONDS and events_generated < TOTAL_EVENTS:
+            while (
+                time.time() - self.results["start_time"] < TEST_DURATION_SECONDS
+                and events_generated < TOTAL_EVENTS
+            ):
                 # Generate more events if queue is getting empty
                 if self.events_queue.qsize() < EVENT_BATCH_SIZE / 2:
                     batch_size = min(EVENT_BATCH_SIZE, TOTAL_EVENTS - events_generated)
@@ -317,8 +385,12 @@ class LoadTestEnvironment:
             with open("webhook_load_test_results.json", "w") as f:
                 # Convert datetime to string for JSON serialization
                 results_copy = self.results.copy()
-                results_copy["start_time"] = datetime.fromtimestamp(results_copy["start_time"]).isoformat()
-                results_copy["end_time"] = datetime.fromtimestamp(results_copy["end_time"]).isoformat()
+                results_copy["start_time"] = datetime.fromtimestamp(
+                    results_copy["start_time"]
+                ).isoformat()
+                results_copy["end_time"] = datetime.fromtimestamp(
+                    results_copy["end_time"]
+                ).isoformat()
                 json.dump(results_copy, f, indent=2)
 
         finally:
@@ -331,8 +403,12 @@ class LoadTestEnvironment:
         print("\n=== Webhook Load Test Results ===")
         print(f"Duration: {self.results['total_duration']:.2f} seconds")
         print(f"Total events: {self.results['total_events']}")
-        print(f"Successful events: {self.results['successful_events']} ({self.results['successful_events'] / self.results['total_events'] * 100:.2f}%)")
-        print(f"Failed events: {self.results['failed_events']} ({self.results['failed_events'] / self.results['total_events'] * 100:.2f}%)")
+        print(
+            f"Successful events: {self.results['successful_events']} ({self.results['successful_events'] / self.results['total_events'] * 100:.2f}%)"
+        )
+        print(
+            f"Failed events: {self.results['failed_events']} ({self.results['failed_events'] / self.results['total_events'] * 100:.2f}%)"
+        )
         print(f"Events per second: {self.results['events_per_second']:.2f}")
 
         print("\nLatency Statistics:")
@@ -350,16 +426,19 @@ class LoadTestEnvironment:
             print(f"    Requests: {server['requests_received']}")
             print(f"    Success rate: {server['success_rate'] * 100:.2f}%")
 
+
 async def main():
     """Run the load test."""
     env = LoadTestEnvironment()
     await env.run_load_test()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
 
 # Add a simple test function for pytest to collect
 import pytest
+
 
 @pytest.mark.asyncio
 async def test_webhook_load_environment_initialization():

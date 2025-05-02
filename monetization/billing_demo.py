@@ -4,17 +4,17 @@ Billing calculation demo for the pAIssive Income project.
 This script demonstrates how to use the billing calculation system.
 """
 
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
+from .prorated_billing import ProratedBilling
+from .tiered_pricing import TieredPricingCalculator
+from .usage_tracker import UsageTracker
 from .usage_tracking import (
-    UsageMetric,
     UsageCategory,
     UsageLimit,
+    UsageMetric,
 )
-from .usage_tracker import UsageTracker
-from .tiered_pricing import TieredPricingCalculator
-from .prorated_billing import ProratedBilling
 
 
 def print_separator():
@@ -78,13 +78,7 @@ def run_demo():
     # Define metrics and categories
     metrics = [UsageMetric.API_CALL, UsageMetric.TOKEN, UsageMetric.STORAGE]
 
-    categories = [
-        UsageCategory.INFERENCE,
-        UsageCategory.TRAINING,
-        UsageCategory.STORAGE,
-    ]
 
-    resource_types = ["model", "storage"]
 
     # Generate random usage records
     now = datetime.now()

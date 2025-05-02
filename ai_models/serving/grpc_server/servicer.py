@@ -4,8 +4,8 @@ gRPC servicer for AI models.
 This module provides a gRPC servicer for handling model requests.
 """
 
-import time
 import logging
+import time
 from typing import Dict, List
 
 # Set up logging

@@ -5,7 +5,7 @@ This module provides CORS middleware for the API server.
 """
 
 import logging
-from typing import List, Any
+from typing import Any, List
 
 from ..config import APIConfig
 

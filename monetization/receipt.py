@@ -4,9 +4,9 @@ Receipt generation for the pAIssive Income project.
 This module provides classes for generating and managing receipts for transactions.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from common_utils import to_json, write_file
 

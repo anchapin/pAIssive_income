@@ -4,13 +4,13 @@ Tests for the GraphQL API.
 This module contains tests for GraphQL queries, mutations, and subscriptions.
 """
 
-
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id
-)
+from tests.api.utils.test_data import generate_id
 from tests.api.utils.test_validators import (
-    validate_json_response, validate_field_exists, validate_field_equals, validate_field_type
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_type,
+    validate_json_response,
 )
 
 
@@ -43,9 +43,7 @@ class TestGraphQLAPI:
         """
 
         # Variables
-        variables = {
-            "id": generate_id()
-        }
+        variables = {"id": generate_id()}
 
         # Make request
         response = api_test_client.graphql_query(query, variables)
@@ -98,9 +96,7 @@ class TestGraphQLAPI:
         """
 
         # Variables
-        variables = {
-            "id": generate_id()
-        }
+        variables = {"id": generate_id()}
 
         # Make request
         response = api_test_client.graphql_query(query, variables)
@@ -156,9 +152,9 @@ class TestGraphQLAPI:
                 "targetAudience": {
                     "demographics": {
                         "ageRanges": ["25_34", "35_44"],
-                        "locations": ["US", "UK"]
+                        "locations": ["US", "UK"],
                     }
-                }
+                },
             }
         }
 
@@ -203,9 +199,7 @@ class TestGraphQLAPI:
         """
 
         # Variables
-        variables = {
-            "campaignId": generate_id()
-        }
+        variables = {"campaignId": generate_id()}
 
         # Make request to set up subscription
         response = api_test_client.graphql_query(subscription, variables)
@@ -231,10 +225,7 @@ class TestGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
+        response = api_test_client.post("graphql", json={"query": query})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -400,22 +391,22 @@ class TestGraphQLAPI:
                 "targetAudience": {
                     "demographics": {"ageRange": ["25-34"], "location": ["US"]},
                     "interests": ["technology", "marketing"],
-                    "painPoints": ["time-consuming content creation"]
+                    "painPoints": ["time-consuming content creation"],
                 },
                 "channels": [
                     {
                         "name": "social_media",
                         "priority": "high",
-                        "contentTypes": ["posts", "stories"]
+                        "contentTypes": ["posts", "stories"],
                     }
                 ],
                 "goals": [
                     {
                         "metric": "engagement_rate",
                         "targetValue": 0.05,
-                        "timeframe": "monthly"
+                        "timeframe": "monthly",
                     }
-                ]
+                ],
             }
         }
 
@@ -458,10 +449,10 @@ class TestGraphQLAPI:
                     {
                         "name": "email",
                         "priority": "medium",
-                        "contentTypes": ["newsletter", "drip_campaign"]
+                        "contentTypes": ["newsletter", "drip_campaign"],
                     }
-                ]
-            }
+                ],
+            },
         }
 
         response = api_test_client.graphql_mutation(mutation, update_variables)
@@ -519,12 +510,15 @@ class TestGraphQLAPI:
         }
         """
 
-        response = api_test_client.graphql_mutation(mutation, {
-            "input": {
-                # Missing required fields
-                "description": "Invalid strategy"
-            }
-        })
+        response = api_test_client.graphql_mutation(
+            mutation,
+            {
+                "input": {
+                    # Missing required fields
+                    "description": "Invalid strategy"
+                }
+            },
+        )
         result = validate_json_response(response)
 
         # Should return validation error
@@ -542,13 +536,13 @@ class TestGraphQLAPI:
         }
         """
 
-        response = api_test_client.graphql_mutation(mutation, {
-            "id": "non-existent-id",
-            "input": {
-                "name": "Test Strategy",
-                "description": "Test description"
-            }
-        })
+        response = api_test_client.graphql_mutation(
+            mutation,
+            {
+                "id": "non-existent-id",
+                "input": {"name": "Test Strategy", "description": "Test description"},
+            },
+        )
         result = validate_json_response(response)
 
         # Should return null data without error

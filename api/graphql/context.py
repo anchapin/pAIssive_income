@@ -6,7 +6,8 @@ services, repositories, and other dependencies needed by resolvers.
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
+
 from fastapi import Request
 
 # Set up logging

@@ -4,9 +4,10 @@ Common schemas for the API server.
 This module provides common schema models used throughout the API.
 """
 
-from typing import Dict, List, Optional, Any, Generic, TypeVar
 from enum import Enum
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Any, Dict, Generic, List, Optional, TypeVar
+
+from pydantic import BaseModel, ConfigDict, Field
 
 # Define generic type variable
 T = TypeVar("T")
@@ -21,15 +22,13 @@ class ErrorResponse(BaseModel):
     path: Optional[str] = Field(None, description="Path where the error occurred")
     timestamp: Optional[str] = Field(None, description="Timestamp of the error")
     error: Optional[Dict[str, Any]] = Field(
-        None, description="Error details",
+        None,
+        description="Error details",
         example={
             "code": "invalid_request",
             "message": "Invalid request parameters",
-            "details": {
-                "field": "email",
-                "reason": "Invalid email format"
-            }
-        }
+            "details": {"field": "email", "reason": "Invalid email format"},
+        },
     )
 
 
@@ -106,7 +105,9 @@ class QueryParams(BaseModel):
     page: int = Field(1, description="Page number", ge=1)
     page_size: int = Field(10, description="Number of items per page", ge=1, le=100)
     sort_by: Optional[str] = Field(None, description="Field to sort by")
-    sort_direction: SortDirection = Field(SortDirection.ASC, description="Sort direction")
+    sort_direction: SortDirection = Field(
+        SortDirection.ASC, description="Sort direction"
+    )
     filters: List[FilterParam] = Field(
         default_factory=list, description="Filter parameters"
     )

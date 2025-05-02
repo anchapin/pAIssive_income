@@ -5,28 +5,26 @@ This package provides utilities for event-driven architecture in the
 pAIssive income microservices platform.
 """
 
-from .event import (
-    Event,
-    EventSchema,
-    EventType,
-    EventMetadata,
-    EventHandler,
-    AsyncEventHandler,
-)
-
 from .bus import (
-    EventBus,
     AsyncEventBus,
-    EventSubscription,
+    EventBus,
     EventPublisher,
     EventSubscriber,
+    EventSubscription,
 )
-
+from .event import (
+    AsyncEventHandler,
+    Event,
+    EventHandler,
+    EventMetadata,
+    EventSchema,
+    EventType,
+)
 from .exceptions import (
     EventBusError,
+    EventHandlingError,
     EventPublishError,
     EventSubscribeError,
-    EventHandlingError,
     EventValidationError,
 )
 

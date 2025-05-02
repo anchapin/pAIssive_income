@@ -4,12 +4,12 @@ gRPC server for AI models.
 This module provides a gRPC server for serving AI models.
 """
 
-import os
-import time
 import logging
+import os
 import threading
+import time
 from concurrent import futures
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 from ..server import ModelServer
 from .config import GRPCConfig
@@ -24,10 +24,8 @@ logger = logging.getLogger(__name__)
 # Try to import gRPC
 try:
     import grpc
+    from grpc_health.v1 import health, health_pb2, health_pb2_grpc
     from grpc_reflection.v1alpha import reflection
-    from grpc_health.v1 import health
-    from grpc_health.v1 import health_pb2
-    from grpc_health.v1 import health_pb2_grpc
 
     GRPC_AVAILABLE = True
 except ImportError:

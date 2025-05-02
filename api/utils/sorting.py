@@ -4,8 +4,8 @@ Sorting utilities for API endpoints.
 This module provides utilities for sorting data in API endpoints.
 """
 
-from typing import List, Dict, Any, Callable, Optional
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
 
 class SortDirection(str, Enum):
@@ -75,7 +75,9 @@ def multi_sort_items(
         sort_dirs = [SortDirection.ASC] * len(sort_fields)
     # If fewer directions than fields, use ASC for the rest
     elif len(sort_dirs) < len(sort_fields):
-        sort_dirs = sort_dirs + [SortDirection.ASC] * (len(sort_fields) - len(sort_dirs))
+        sort_dirs = sort_dirs + [SortDirection.ASC] * (
+            len(sort_fields) - len(sort_dirs)
+        )
 
     # Sort by each field in reverse order to get the correct multi-field sort
     for i in range(len(sort_fields) - 1, -1, -1):

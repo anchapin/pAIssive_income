@@ -5,13 +5,13 @@ This module provides tools for evaluating fine-tuned AI models, including
 performance measurement, comparison, and report generation.
 """
 
-import os
 import json
 import logging
+import os
 import time
-from enum import Enum
-from typing import Dict, List, Any, Optional, Union, Callable
 from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
@@ -634,7 +634,7 @@ class ModelEvaluator:
             sns.set_style("whitegrid")
 
             # Create bar plot
-            ax = sns.barplot(x="Metric", y="Value", data=df)
+            sns.barplot(x="Metric", y="Value", data=df)
 
             # Add labels and title
             plt.title(
@@ -792,7 +792,7 @@ class ModelEvaluator:
             sns.set_style("whitegrid")
 
             # Create grouped bar plot
-            ax = sns.catplot(
+            sns.catplot(
                 x="Metric",
                 y="Value",
                 hue="Model",

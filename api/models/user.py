@@ -5,12 +5,13 @@ This module provides the User model for user management.
 """
 
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 from uuid import uuid4
+
 
 class User:
     """User model."""
-    
+
     def __init__(
         self,
         id: Optional[str] = None,
@@ -23,11 +24,11 @@ class User:
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
         last_login: Optional[datetime] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a user.
-        
+
         Args:
             id: User ID
             username: Username
@@ -52,11 +53,11 @@ class User:
         self.updated_at = updated_at or self.created_at
         self.last_login = last_login
         self.metadata = metadata or {}
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert the user to a dictionary.
-        
+
         Returns:
             Dictionary representation of the user
         """
@@ -70,25 +71,37 @@ class User:
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "last_login": self.last_login.isoformat() if self.last_login else None,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "User":
         """
         Create a user from a dictionary.
-        
+
         Args:
             data: Dictionary representation of the user
-            
+
         Returns:
             User instance
         """
         # Convert ISO format strings to datetime objects
-        created_at = datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None
-        updated_at = datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else None
-        last_login = datetime.fromisoformat(data["last_login"]) if data.get("last_login") else None
-        
+        created_at = (
+            datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else None
+        )
+        updated_at = (
+            datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else None
+        )
+        last_login = (
+            datetime.fromisoformat(data["last_login"])
+            if data.get("last_login")
+            else None
+        )
+
         return cls(
             id=data.get("id"),
             username=data.get("username", ""),
@@ -100,31 +113,31 @@ class User:
             created_at=created_at,
             updated_at=updated_at,
             last_login=last_login,
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
-    
+
     def update_login(self) -> None:
         """Update the last login timestamp."""
         self.last_login = datetime.utcnow()
-    
+
     def update(self) -> None:
         """Update the last update timestamp."""
         self.updated_at = datetime.utcnow()
-    
+
     def has_permission(self, permission: str) -> bool:
         """
         Check if the user has a specific permission.
-        
+
         Args:
             permission: Permission to check
-            
+
         Returns:
             True if the user has the permission, False otherwise
         """
         # Admin users have all permissions
         if self.is_admin:
             return True
-        
+
         # Check user-specific permissions (could be stored in metadata)
         permissions = self.metadata.get("permissions", [])
         return permission in permissions

@@ -7,7 +7,7 @@ This module provides the base classes and interfaces for model quantization.
 import abc
 import enum
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
 
 class QuantizationMethod(enum.Enum):

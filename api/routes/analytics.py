@@ -1,12 +1,25 @@
+
+import logging
+from datetime import datetime
+from typing import List, Optional
+from api.analytics import analytics_service
+from ..schemas.analytics import (
+    AlertThresholdRequest,
+    AlertThresholdResponse,
+    AnalyticsSummaryResponse,
+    ApiKeyStatsResponse,
+    EndpointStatsResponse,
+    RealTimeMetricsResponse,
+    RequestStatsResponse,
+    UserStatsResponse,
+)
+from ..schemas.common import SuccessResponse
+
 """
 API routes for analytics.
 
 This module provides API routes for accessing analytics data.
 """
-
-import logging
-from typing import List, Optional
-from datetime import datetime
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -14,29 +27,13 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, Depends, Query, Path, HTTPException, Response
+    from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
     from fastapi.responses import JSONResponse, StreamingResponse
 
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for analytics routes")
     FASTAPI_AVAILABLE = False
-
-# Import analytics service
-from api.analytics import analytics_service
-
-# Import schemas
-from ..schemas.analytics import (
-    RequestStatsResponse,
-    EndpointStatsResponse,
-    UserStatsResponse,
-    ApiKeyStatsResponse,
-    AnalyticsSummaryResponse,
-    RealTimeMetricsResponse,
-    AlertThresholdRequest,
-    AlertThresholdResponse,
-)
-from ..schemas.common import SuccessResponse
 
 # Create router
 if FASTAPI_AVAILABLE:

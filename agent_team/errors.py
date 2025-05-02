@@ -5,14 +5,14 @@ This module provides custom exceptions and error handling utilities
 specific to the Agent Team module.
 """
 
-import sys
-import os
-from typing import Optional
 import logging
+import os
+import sys
+from typing import Optional
 
 # Add the project root to the Python path to import the errors module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from errors import AgentTeamError, AgentError, ValidationError, handle_exception
+from errors import AgentError, AgentTeamError, ValidationError, handle_exception
 
 # Set up logging
 logger = logging.getLogger(__name__)

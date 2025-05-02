@@ -5,7 +5,7 @@ This module provides resolvers for AI models queries and mutations.
 """
 
 import logging
-from typing import Optional, List
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -24,13 +24,13 @@ except ImportError:
 
 if STRAWBERRY_AVAILABLE:
     from ..schemas.ai_models import (
-        ModelType,
-        ModelVersionType,
-        ModelMetricsType,
+        InferenceInput,
         InferenceResponseType,
         ModelInput,
-        InferenceInput,
+        ModelMetricsType,
+        ModelType,
         ModelTypeEnum,
+        ModelVersionType,
     )
 
     @strawberry.type

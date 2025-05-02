@@ -4,11 +4,11 @@ Test data utilities for API tests.
 This module provides utilities for generating test data for API tests.
 """
 
-import uuid
 import random
 import string
-from typing import Dict, Any
+import uuid
 from datetime import datetime, timedelta
+from typing import Any, Dict
 
 
 def generate_id() -> str:
@@ -356,8 +356,8 @@ def generate_solution_data() -> Dict[str, Any]:
         "requirements": {
             "features": ["user_auth", "api", "database"],
             "scalability": "medium",
-            "deployment": "cloud"
-        }
+            "deployment": "cloud",
+        },
     }
 
 
@@ -373,8 +373,8 @@ def generate_template_data() -> Dict[str, Any]:
         "requirements": {
             "min_experience": "intermediate",
             "team_size": "1-3",
-            "tools": ["git", "docker", "vscode"]
-        }
+            "tools": ["git", "docker", "vscode"],
+        },
     }
 
 
@@ -389,7 +389,9 @@ def generate_monetization_strategy_data() -> Dict[str, Any]:
         "id": generate_id(),
         "name": f"Strategy-{generate_string(6)}",
         "description": f"A monetization strategy for {generate_string(12)}",
-        "model_type": random.choice(["subscription", "freemium", "one-time", "usage-based"]),
+        "model_type": random.choice(
+            ["subscription", "freemium", "one-time", "usage-based"]
+        ),
         "pricing_tiers": [
             {
                 "name": "Basic",
@@ -406,7 +408,13 @@ def generate_monetization_strategy_data() -> Dict[str, Any]:
             {
                 "name": "Enterprise",
                 "price": random.uniform(70, 150),
-                "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5"],
+                "features": [
+                    "Feature 1",
+                    "Feature 2",
+                    "Feature 3",
+                    "Feature 4",
+                    "Feature 5",
+                ],
                 "billing_cycle": random.choice(["monthly", "quarterly", "annual"]),
             },
         ],
@@ -439,7 +447,9 @@ def generate_ui_component_data() -> Dict[str, Any]:
         "type": random.choice(["button", "form", "card", "modal", "table", "chart"]),
         "framework": random.choice(["react", "vue", "angular", "svelte"]),
         "properties": {
-            "color": random.choice(["primary", "secondary", "success", "danger", "warning", "info"]),
+            "color": random.choice(
+                ["primary", "secondary", "success", "danger", "warning", "info"]
+            ),
             "size": random.choice(["small", "medium", "large"]),
             "variant": random.choice(["outlined", "contained", "text"]),
             "disabled": random.choice([True, False]),
@@ -463,7 +473,9 @@ def generate_ui_component_data() -> Dict[str, Any]:
             "padding": f"{random.randint(0, 20)}px",
             "margin": f"{random.randint(0, 20)}px",
             "borderRadius": f"{random.randint(0, 10)}px",
-            "backgroundColor": random.choice(["#f5f5f5", "#e0e0e0", "#ffffff", "#000000"]),
+            "backgroundColor": random.choice(
+                ["#f5f5f5", "#e0e0e0", "#ffffff", "#000000"]
+            ),
         },
         "created_at": generate_date(10),
         "updated_at": generate_date(),

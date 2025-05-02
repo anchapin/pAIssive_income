@@ -4,23 +4,23 @@ REST API server for AI models.
 This module provides a REST API server for serving AI models.
 """
 
-import os
-import time
 import logging
+import os
 import threading
-from typing import Dict, Any, List
+import time
+from typing import Any, Dict, List
 
 from ..server import ModelServer
 from .config import RESTConfig
 from .middleware import setup_middleware
 from .routes import (
-    text_generation_router,
-    text_classification_router,
-    embedding_router,
-    image_router,
     audio_router,
+    embedding_router,
     health_router,
+    image_router,
     metrics_router,
+    text_classification_router,
+    text_generation_router,
 )
 
 # Set up logging
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 # Try to import FastAPI
 try:
     import uvicorn
-    from fastapi import FastAPI, Depends
+    from fastapi import Depends, FastAPI
 
     FASTAPI_AVAILABLE = True
 except ImportError:

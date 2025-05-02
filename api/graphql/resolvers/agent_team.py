@@ -5,7 +5,7 @@ This module provides resolvers for agent team queries and mutations.
 """
 
 import logging
-from typing import Optional, List
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -24,15 +24,15 @@ except ImportError:
 
 if STRAWBERRY_AVAILABLE:
     from ..schemas.agent_team import (
-        AgentType,
-        TeamType,
-        TaskType,
         AgentInput,
-        TeamInput,
-        TaskInput,
         AgentRoleEnum,
-        TaskStatusEnum,
+        AgentType,
+        TaskInput,
         TaskPriorityEnum,
+        TaskStatusEnum,
+        TaskType,
+        TeamInput,
+        TeamType,
     )
 
     @strawberry.type

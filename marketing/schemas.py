@@ -5,10 +5,11 @@ This module provides Pydantic models for data validation in the Marketing module
 """
 
 import uuid
-from typing import Dict, List, Any, Optional, Union
-from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # Enums
@@ -213,7 +214,8 @@ class BudgetSchema(BaseModel):
 
     total_amount: float = Field(..., description="Total budget amount")
     timeframe: str = Field(
-        default="monthly", description="Budget timeframe (e.g., 'monthly', 'quarterly', 'annual')",
+        default="monthly",
+        description="Budget timeframe (e.g., 'monthly', 'quarterly', 'annual')",
     )
     allocation_strategy: Optional[str] = Field(
         default=None, description="Strategy for budget allocation"
@@ -589,7 +591,8 @@ class MarketingChannelSchema(BaseModel):
         default_factory=list, description="Platforms within this channel"
     )
     relevance_score: float = Field(
-        default=0.5, description="Relevance score for this channel (0.0 to 1.0)",
+        default=0.5,
+        description="Relevance score for this channel (0.0 to 1.0)",
         ge=0.0,
         le=1.0,
     )

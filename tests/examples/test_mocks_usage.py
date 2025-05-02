@@ -5,9 +5,10 @@ This module provides example tests that showcase how to effectively use
 the mock implementations of external dependencies for testing.
 """
 
-import pytest
 from datetime import datetime
 from unittest.mock import patch
+
+import pytest
 
 
 def test_openai_provider_usage(mock_openai_provider):

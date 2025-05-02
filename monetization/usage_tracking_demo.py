@@ -4,15 +4,15 @@ Usage tracking demo for the pAIssive Income project.
 This script demonstrates how to use the usage tracking system.
 """
 
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
+from .usage_tracker import UsageTracker
 from .usage_tracking import (
-    UsageMetric,
     UsageCategory,
     UsageLimit,
+    UsageMetric,
 )
-from .usage_tracker import UsageTracker
 
 
 def print_separator():

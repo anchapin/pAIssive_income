@@ -2,18 +2,25 @@
 Script to run tests locally with the correct Python path.
 """
 
-import os
-import sys
-import subprocess
 import argparse
+import os
+import subprocess
+import sys
+
 
 def main():
     """Run tests with the correct Python path."""
     # Parse command-line arguments
-    parser = argparse.ArgumentParser(description="Run tests locally with the correct Python path.")
+    parser = argparse.ArgumentParser(
+        description="Run tests locally with the correct Python path."
+    )
     parser.add_argument("--test-path", default="tests", help="Path to the tests to run")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Run tests in verbose mode")
-    parser.add_argument("--coverage", action="store_true", help="Run tests with coverage")
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Run tests in verbose mode"
+    )
+    parser.add_argument(
+        "--coverage", action="store_true", help="Run tests with coverage"
+    )
     args = parser.parse_args()
 
     # Get the current directory
@@ -45,6 +52,7 @@ def main():
 
     # Return the exit code
     return result.returncode
+
 
 if __name__ == "__main__":
     sys.exit(main())

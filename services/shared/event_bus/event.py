@@ -4,13 +4,13 @@ Event schemas and utilities for the event bus.
 This module provides schemas and utilities for events published through the event bus.
 """
 
-import uuid
-import time
 import logging
+import time
+import uuid
 from enum import Enum
-from typing import Dict, Any, Optional, Union, TypeVar, Generic, Type, Callable
+from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, Union
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 # Set up logging
 logging.basicConfig(

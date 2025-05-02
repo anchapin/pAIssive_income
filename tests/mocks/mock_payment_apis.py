@@ -5,13 +5,13 @@ This module provides mock implementations of various payment gateway APIs
 that can be used for consistent testing without external dependencies.
 """
 
+import copy
 import logging
 import random
 import uuid
-from typing import Dict, List, Any, Optional, Union
 from datetime import datetime, timedelta
 from enum import Enum
-import copy
+from typing import Any, Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ class MockPaymentGateway:
 
     def _simulate_network_error(self) -> bool:
         """Simulate a network error based on error rate."""
-        if self.config.get("simulate_network_errors", True)  is False:
+        if self.config.get("simulate_network_errors", True) is False:
             return False
         return random.random() < self.network_error_rate
 
@@ -1480,7 +1480,7 @@ class MockStripeGateway(MockPaymentGateway):
             card_type = self.get_card_type(payment_details["number"])
 
             # Mask card number
-            masked_number = self.mask_card_number(payment_details["number"])
+            self.mask_card_number(payment_details["number"])
 
             # Create token details
             token_details = {

@@ -4,9 +4,10 @@ Celery configuration for the pAIssive Income UI.
 This module sets up Celery for background task processing.
 """
 
-from celery import Celery
-import os
 import logging
+import os
+
+from celery import Celery
 
 # Set up logging
 logging.basicConfig(

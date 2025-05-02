@@ -11,12 +11,12 @@ from typing import Dict, List
 import consul
 
 from services.service_discovery.service_registry import (
-    ServiceInstance,
-    ServiceRegistry,
-    ServiceRegistrationError,
     ServiceDeregistrationError,
-    ServiceLookupError,
     ServiceHealthCheckError,
+    ServiceInstance,
+    ServiceLookupError,
+    ServiceRegistrationError,
+    ServiceRegistry,
 )
 
 logger = logging.getLogger(__name__)

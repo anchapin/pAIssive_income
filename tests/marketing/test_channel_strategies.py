@@ -2,12 +2,11 @@
 Tests for the channel strategies components in the Marketing module.
 """
 
-
 from marketing.channel_strategies import (
-    MarketingStrategy,
     ContentMarketingStrategy,
-    SocialMediaStrategy,
     EmailMarketingStrategy,
+    MarketingStrategy,
+    SocialMediaStrategy,
 )
 
 
@@ -356,7 +355,7 @@ def test_channel_performance_metrics():
     )
 
     # Create a plan with initial metrics
-    plan = strategy.create_plan(
+    strategy.create_plan(
         niche="e-commerce",
         target_audience="Small business owners",
         budget=10000,

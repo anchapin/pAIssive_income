@@ -5,15 +5,14 @@ This module provides a base class for adapters that connect to various AI model 
 """
 
 import logging
-from abc import abstractmethod
-from typing import Dict, List, Any
-
-import sys
 import os
+import sys
+from abc import abstractmethod
+from typing import Any, Dict, List
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from interfaces.model_interfaces import IModelAdapter
 from errors import ModelError
+from interfaces.model_interfaces import IModelAdapter
 
 # Set up logging
 logger = logging.getLogger(__name__)

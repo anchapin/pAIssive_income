@@ -10,7 +10,7 @@ from typing import Dict, List
 try:
     from fastapi import APIRouter, Depends
     from fastapi.responses import PlainTextResponse
-    from pydantic import BaseModel, Field, ConfigDict
+    from pydantic import BaseModel, ConfigDict, Field
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -23,7 +23,8 @@ except ImportError:
     class BaseModel:
         pass
 
-    Field = lambda *args, **kwargs: None
+    def Field(*args, **kwargs):
+        return None
 
 
 # Create router
@@ -40,6 +41,7 @@ if FASTAPI_AVAILABLE:
         """
         Model for a metric value.
         """
+
         model_config = ConfigDict(protected_namespaces=())
 
         name: str = Field(..., description="Name of the metric")
@@ -52,6 +54,7 @@ if FASTAPI_AVAILABLE:
         """
         Response model for metrics.
         """
+
         model_config = ConfigDict(protected_namespaces=())
 
         metrics: List[MetricValue] = Field(..., description="List of metrics")

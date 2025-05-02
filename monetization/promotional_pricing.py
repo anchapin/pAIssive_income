@@ -6,12 +6,11 @@ including time-limited promotions, coupon codes, referral discounts,
 bundle discounts, loyalty rewards, free trials, and special offers.
 """
 
-from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime, timedelta
-import uuid
 import random
 import string
-
+import uuid
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class PromotionStatus:

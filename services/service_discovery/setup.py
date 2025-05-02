@@ -9,7 +9,7 @@ import logging
 import os
 import subprocess
 import time
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 import requests
 

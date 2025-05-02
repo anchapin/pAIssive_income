@@ -6,8 +6,8 @@ This module provides a base class for adapters that connect to various social me
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logger = logging.getLogger(__name__)

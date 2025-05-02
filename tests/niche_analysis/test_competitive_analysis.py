@@ -6,8 +6,8 @@ import pytest
 
 from niche_analysis.competitive_analysis import (
     CompetitorAnalyzer,
+    MarketPositionMapper,
     StrengthWeaknessAnalyzer,
-    MarketPositionMapper
 )
 from niche_analysis.errors import InvalidCompetitorDataError
 
@@ -28,7 +28,7 @@ class TestCompetitiveAnalysis:
             "niche": "AI Development Tools",
             "target_audience": "Software Developers",
             "price_range": {"min": 0, "max": 500},
-            "features": ["code completion", "test generation", "refactoring"]
+            "features": ["code completion", "test generation", "refactoring"],
         }
 
         # Identify competitors
@@ -60,7 +60,7 @@ class TestCompetitiveAnalysis:
             "market_share": 0.15,
             "customer_ratings": 4.2,
             "support_quality": 0.8,
-            "technology_score": 0.75
+            "technology_score": 0.75,
         }
 
         # Analyze strengths and weaknesses
@@ -73,7 +73,9 @@ class TestCompetitiveAnalysis:
         assert "vulnerability_points" in analysis
         assert isinstance(analysis["strengths"], list)
         assert isinstance(analysis["weaknesses"], list)
-        assert all(isinstance(score, float) for score in analysis["strength_scores"].values())
+        assert all(
+            isinstance(score, float) for score in analysis["strength_scores"].values()
+        )
         assert all(0 <= score <= 1 for score in analysis["strength_scores"].values())
 
     def test_market_position_mapping(self):
@@ -83,13 +85,13 @@ class TestCompetitiveAnalysis:
             {
                 "name": "CompetitorA",
                 "price_point": 0.8,  # High price
-                "feature_score": 0.9  # High features
+                "feature_score": 0.9,  # High features
             },
             {
                 "name": "CompetitorB",
                 "price_point": 0.3,  # Low price
-                "feature_score": 0.4  # Low features
-            }
+                "feature_score": 0.4,  # Low features
+            },
         ]
 
         # Map market positions
@@ -114,20 +116,13 @@ class TestCompetitiveAnalysis:
         # Test data
         market_needs = ["automation", "integration", "customization"]
         competitor_offerings = [
-            {
-                "name": "CompetitorA",
-                "features": ["automation", "integration"]
-            },
-            {
-                "name": "CompetitorB",
-                "features": ["integration", "analytics"]
-            }
+            {"name": "CompetitorA", "features": ["automation", "integration"]},
+            {"name": "CompetitorB", "features": ["integration", "analytics"]},
         ]
 
         # Analyze gaps
         gaps = self.competitor_analyzer.analyze_market_gaps(
-            market_needs,
-            competitor_offerings
+            market_needs, competitor_offerings
         )
 
         # Validate gap analysis
@@ -144,25 +139,24 @@ class TestCompetitiveAnalysis:
         our_offering = {
             "features": ["code completion", "test generation", "refactoring"],
             "pricing": {"monthly": 25.99},
-            "unique_selling_points": ["AI-powered", "real-time", "customizable"]
+            "unique_selling_points": ["AI-powered", "real-time", "customizable"],
         }
         competitor_offerings = [
             {
                 "name": "CompetitorA",
                 "features": ["code completion", "refactoring"],
-                "pricing": {"monthly": 29.99}
+                "pricing": {"monthly": 29.99},
             },
             {
                 "name": "CompetitorB",
                 "features": ["code completion", "test generation"],
-                "pricing": {"monthly": 19.99}
-            }
+                "pricing": {"monthly": 19.99},
+            },
         ]
 
         # Analyze competitive advantages
         advantages = self.competitor_analyzer.analyze_competitive_advantages(
-            our_offering,
-            competitor_offerings
+            our_offering, competitor_offerings
         )
 
         # Validate advantage analysis
@@ -180,13 +174,13 @@ class TestCompetitiveAnalysis:
             {
                 "date": "2025-01-01",
                 "features": ["code completion"],
-                "pricing": {"monthly": 29.99}
+                "pricing": {"monthly": 29.99},
             },
             {
                 "date": "2025-04-01",
                 "features": ["code completion", "test generation"],
-                "pricing": {"monthly": 34.99}
-            }
+                "pricing": {"monthly": 34.99},
+            },
         ]
 
         # Track competitor changes
@@ -207,11 +201,13 @@ class TestCompetitiveAnalysis:
             "CompetitorA": 0.3,
             "CompetitorB": 0.25,
             "CompetitorC": 0.15,
-            "Others": 0.3
+            "Others": 0.3,
         }
 
         # Analyze market concentration
-        concentration = self.competitor_analyzer.analyze_market_concentration(market_shares)
+        concentration = self.competitor_analyzer.analyze_market_concentration(
+            market_shares
+        )
 
         # Validate concentration analysis
         assert "herfindahl_index" in concentration
@@ -219,7 +215,11 @@ class TestCompetitiveAnalysis:
         assert "market_type" in concentration
         assert 0 <= concentration["herfindahl_index"] <= 1
         assert 0 <= concentration["concentration_ratio"] <= 1
-        assert concentration["market_type"] in ["concentrated", "moderately_concentrated", "competitive"]
+        assert concentration["market_type"] in [
+            "concentrated",
+            "moderately_concentrated",
+            "competitive",
+        ]
 
     def test_invalid_competitor_data_handling(self):
         """Test handling of invalid competitor data."""
@@ -229,15 +229,15 @@ class TestCompetitiveAnalysis:
 
         # Test with invalid market shares
         with pytest.raises(ValueError):
-            self.competitor_analyzer.analyze_market_concentration({
-                "CompetitorA": 1.5  # Invalid market share > 1
-            })
+            self.competitor_analyzer.analyze_market_concentration(
+                {"CompetitorA": 1.5}  # Invalid market share > 1
+            )
 
         # Test with invalid competitor history
         with pytest.raises(ValueError):
-            self.competitor_analyzer.track_competitor_changes([
-                {"date": "invalid_date"}  # Invalid date format
-            ])
+            self.competitor_analyzer.track_competitor_changes(
+                [{"date": "invalid_date"}]  # Invalid date format
+            )
 
 
 if __name__ == "__main__":

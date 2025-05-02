@@ -5,10 +5,10 @@ This script demonstrates how to use the benchmarking tools to measure
 the performance of AI models.
 """
 
+import argparse
+import logging
 import os
 import sys
-import logging
-import argparse
 from typing import List
 
 # Add the parent directory to the path to import the ai_models module
@@ -18,12 +18,12 @@ sys.path.append(
 
 from ai_models.benchmarking import (
     BenchmarkType,
-    run_benchmark,
     compare_models,
     plot_benchmark_results,
     plot_comparison,
     plot_latency_distribution,
     plot_memory_usage,
+    run_benchmark,
 )
 
 # Set up logging

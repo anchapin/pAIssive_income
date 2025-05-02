@@ -5,11 +5,11 @@ This script demonstrates how to use the style adjuster to analyze and adjust
 the style of marketing content.
 """
 
-from marketing.user_personas import PersonaCreator
-from marketing.content_templates import BlogPostTemplate
 from marketing.content_generators import BlogPostGenerator
-from marketing.tone_analyzer import ToneAnalyzer
+from marketing.content_templates import BlogPostTemplate
 from marketing.style_adjuster import StyleAdjuster
+from marketing.tone_analyzer import ToneAnalyzer
+from marketing.user_personas import PersonaCreator
 
 
 def demo_style_adjuster():

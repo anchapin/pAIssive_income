@@ -6,6 +6,7 @@ This module provides middleware for processing query parameters in API requests.
 
 import logging
 from typing import Callable, Dict, List
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 

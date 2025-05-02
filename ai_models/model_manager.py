@@ -1,3 +1,25 @@
+
+import json
+import logging
+import os
+import threading
+import asyncio
+import hashlib
+import sys
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+from .model_config import ModelConfig
+from .model_versioning import ModelVersion, VersionedModelManager
+from errors import (
+    ConfigurationError,
+    ModelError,
+    ModelLoadError,
+    ModelNotFoundError,
+    ValidationError,
+    handle_exception,
+)
+from interfaces.model_interfaces import IModelManager
+from .model_base_types import ModelInfo
+
 """
 Model manager for the AI Models module.
 
@@ -5,51 +27,11 @@ This module provides a central system for managing AI models, including
 model discovery, loading, caching, and monitoring.
 """
 
-import os
-import json
-import logging
-import threading
-
-
-def get_model_provider(provider_type: str = "openai", **kwargs):
-    """
-    Get a model provider of the specified type.
-
-    Args:
-        provider_type: Type of provider to get (e.g., "openai", "huggingface")
-        **kwargs: Additional parameters for the provider
-
-    Returns:
-        A model provider instance
-    """
-    from tests.mocks.mock_model_providers import create_mock_provider
-
-    return create_mock_provider(provider_type, kwargs.get("config"))
-
-
-import asyncio
-from typing import Dict, List, Any, Optional, Callable, Tuple
-import hashlib
-
-from .model_config import ModelConfig
-
-# Added import for the versioning system
-from .model_versioning import VersionedModelManager, ModelVersion
-from typing import TYPE_CHECKING
-import sys
-
-# Add the project root to the Python path to import the errors module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from errors import (
-    ModelError,
-    ModelNotFoundError,
-    ModelLoadError,
-    ConfigurationError,
-    ValidationError,
-    handle_exception,
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-from interfaces.model_interfaces import IModelManager
-from .model_base_types import ModelInfo
+logger = logging.getLogger(__name__)
 
 # Import only for type checking to avoid circular imports
 if TYPE_CHECKING:

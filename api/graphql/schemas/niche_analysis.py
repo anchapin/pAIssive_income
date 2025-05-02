@@ -5,7 +5,7 @@ This module provides GraphQL types and resolvers for the niche analysis module.
 """
 
 import logging
-from typing import Optional, List
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(

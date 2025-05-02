@@ -4,16 +4,18 @@ Developer API router.
 This module provides routes for the developer API.
 """
 
-from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, status, Body, Query, Path
-from datetime import datetime
 import logging
+from datetime import datetime
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Body, HTTPException, Path, Query, status
 
 # Create router
 router = APIRouter()
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
 
 # Define route handlers
 @router.get("/")
@@ -27,21 +29,19 @@ async def get_developer_info():
     return {
         "message": "Developer API is available",
         "status": "active",
-        "endpoints": [
-            "/niches",
-            "/templates",
-            "/solutions",
-            "/solution"
-        ]
+        "endpoints": ["/niches", "/templates", "/solutions", "/solution"],
     }
+
 
 @router.get("/niches")
 async def get_niches(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Page size"),
-    sort: Optional[str] = Query(None, description="Sort field and direction (e.g., name:asc)"),
+    sort: Optional[str] = Query(
+        None, description="Sort field and direction (e.g., name:asc)"
+    ),
     name: Optional[str] = Query(None, description="Filter by name"),
-    description: Optional[str] = Query(None, description="Filter by description")
+    description: Optional[str] = Query(None, description="Filter by description"),
 ):
     """
     Get all development niches.
@@ -63,21 +63,33 @@ async def get_niches(
                 "id": "niche-1",
                 "name": "AI Chatbots",
                 "description": "Conversational AI applications for customer service and support",
-                "technical_requirements": ["NLP", "Machine Learning", "API Integration"]
+                "technical_requirements": [
+                    "NLP",
+                    "Machine Learning",
+                    "API Integration",
+                ],
             },
             {
                 "id": "niche-2",
                 "name": "Data Analytics",
                 "description": "Tools for analyzing and visualizing data",
-                "technical_requirements": ["Data Processing", "Visualization", "Statistical Analysis"]
-            }
+                "technical_requirements": [
+                    "Data Processing",
+                    "Visualization",
+                    "Statistical Analysis",
+                ],
+            },
         ]
 
         # Apply filters if provided
         if name:
             items = [item for item in items if name.lower() in item["name"].lower()]
         if description:
-            items = [item for item in items if description.lower() in item["description"].lower()]
+            items = [
+                item
+                for item in items
+                if description.lower() in item["description"].lower()
+            ]
 
         # Calculate pagination
         total = len(items)
@@ -89,22 +101,25 @@ async def get_niches(
             "items": paginated_items,
             "total": total,
             "page": page,
-            "page_size": page_size
+            "page_size": page_size,
         }
     except Exception as e:
         logger.error(f"Error getting niches: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get niches: {str(e)}"
+            detail=f"Failed to get niches: {str(e)}",
         )
+
 
 @router.get("/templates")
 async def get_templates(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Page size"),
-    sort: Optional[str] = Query(None, description="Sort field and direction (e.g., name:asc)"),
+    sort: Optional[str] = Query(
+        None, description="Sort field and direction (e.g., name:asc)"
+    ),
     name: Optional[str] = Query(None, description="Filter by name"),
-    technology: Optional[str] = Query(None, description="Filter by technology")
+    technology: Optional[str] = Query(None, description="Filter by technology"),
 ):
     """
     Get all development templates.
@@ -127,22 +142,37 @@ async def get_templates(
                 "name": "FastAPI Web Service",
                 "description": "RESTful API service using FastAPI and PostgreSQL",
                 "technology_stack": ["Python", "FastAPI", "PostgreSQL", "Docker"],
-                "features": ["Authentication", "Rate Limiting", "Swagger Documentation"]
+                "features": [
+                    "Authentication",
+                    "Rate Limiting",
+                    "Swagger Documentation",
+                ],
             },
             {
                 "id": "template-2",
                 "name": "React Dashboard",
                 "description": "Interactive dashboard using React and D3.js",
                 "technology_stack": ["JavaScript", "React", "D3.js", "Material UI"],
-                "features": ["Data Visualization", "Responsive Design", "Theme Customization"]
-            }
+                "features": [
+                    "Data Visualization",
+                    "Responsive Design",
+                    "Theme Customization",
+                ],
+            },
         ]
 
         # Apply filters if provided
         if name:
             items = [item for item in items if name.lower() in item["name"].lower()]
         if technology:
-            items = [item for item in items if any(tech.lower() == technology.lower() for tech in item["technology_stack"])]
+            items = [
+                item
+                for item in items
+                if any(
+                    tech.lower() == technology.lower()
+                    for tech in item["technology_stack"]
+                )
+            ]
 
         # Calculate pagination
         total = len(items)
@@ -154,14 +184,15 @@ async def get_templates(
             "items": paginated_items,
             "total": total,
             "page": page,
-            "page_size": page_size
+            "page_size": page_size,
         }
     except Exception as e:
         logger.error(f"Error getting templates: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get templates: {str(e)}"
+            detail=f"Failed to get templates: {str(e)}",
         )
+
 
 @router.post("/solution", status_code=status.HTTP_201_CREATED)
 async def create_solution(data: Dict[str, Any] = Body(...)):
@@ -181,7 +212,7 @@ async def create_solution(data: Dict[str, Any] = Body(...)):
             if field not in data:
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    detail=f"Field '{field}' is required"
+                    detail=f"Field '{field}' is required",
                 )
 
         # Create solution
@@ -195,7 +226,7 @@ async def create_solution(data: Dict[str, Any] = Body(...)):
             "features": data.get("features", []),
             "status": "created",
             "created_at": datetime.now().isoformat(),
-            "updated_at": None
+            "updated_at": None,
         }
 
         return solution
@@ -205,16 +236,19 @@ async def create_solution(data: Dict[str, Any] = Body(...)):
         logger.error(f"Error creating solution: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create solution: {str(e)}"
+            detail=f"Failed to create solution: {str(e)}",
         )
+
 
 @router.get("/solutions")
 async def get_solutions(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Page size"),
-    sort: Optional[str] = Query(None, description="Sort field and direction (e.g., name:asc)"),
+    sort: Optional[str] = Query(
+        None, description="Sort field and direction (e.g., name:asc)"
+    ),
     status: Optional[str] = Query(None, description="Filter by status"),
-    technology: Optional[str] = Query(None, description="Filter by technology")
+    technology: Optional[str] = Query(None, description="Filter by technology"),
 ):
     """
     Get all development solutions.
@@ -239,10 +273,14 @@ async def get_solutions(
                 "niche_id": "niche-1",
                 "template_id": "template-1",
                 "technology_stack": ["Python", "FastAPI", "TensorFlow", "Docker"],
-                "features": ["Intent Recognition", "Entity Extraction", "Conversation Management"],
+                "features": [
+                    "Intent Recognition",
+                    "Entity Extraction",
+                    "Conversation Management",
+                ],
                 "status": "in_progress",
                 "created_at": "2025-04-29T21:30:00Z",
-                "updated_at": "2025-04-29T21:35:00Z"
+                "updated_at": "2025-04-29T21:35:00Z",
             },
             {
                 "id": "solution-2",
@@ -251,10 +289,14 @@ async def get_solutions(
                 "niche_id": "niche-2",
                 "template_id": "template-2",
                 "technology_stack": ["JavaScript", "React", "D3.js", "Material UI"],
-                "features": ["Sales Trends", "Customer Segmentation", "Revenue Forecasting"],
+                "features": [
+                    "Sales Trends",
+                    "Customer Segmentation",
+                    "Revenue Forecasting",
+                ],
                 "status": "completed",
                 "created_at": "2025-04-28T21:30:00Z",
-                "updated_at": "2025-04-29T21:35:00Z"
+                "updated_at": "2025-04-29T21:35:00Z",
             },
             {
                 "id": "solution-3",
@@ -263,18 +305,29 @@ async def get_solutions(
                 "niche_id": "niche-2",
                 "template_id": "template-1",
                 "technology_stack": ["python", "pandas", "numpy", "matplotlib"],
-                "features": ["Data Cleaning", "Data Transformation", "Data Visualization"],
+                "features": [
+                    "Data Cleaning",
+                    "Data Transformation",
+                    "Data Visualization",
+                ],
                 "status": "in_progress",
                 "created_at": "2025-04-27T21:30:00Z",
-                "updated_at": "2025-04-29T21:35:00Z"
-            }
+                "updated_at": "2025-04-29T21:35:00Z",
+            },
         ]
 
         # Apply filters if provided
         if status:
             items = [item for item in items if item["status"] == status]
         if technology:
-            items = [item for item in items if any(tech.lower() == technology.lower() for tech in item["technology_stack"])]
+            items = [
+                item
+                for item in items
+                if any(
+                    tech.lower() == technology.lower()
+                    for tech in item["technology_stack"]
+                )
+            ]
 
         # Apply sorting if provided
         if sort:
@@ -292,14 +345,15 @@ async def get_solutions(
             "items": paginated_items,
             "total": total,
             "page": page,
-            "page_size": page_size
+            "page_size": page_size,
         }
     except Exception as e:
         logger.error(f"Error getting solutions: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get solutions: {str(e)}"
+            detail=f"Failed to get solutions: {str(e)}",
         )
+
 
 @router.get("/solutions/{solution_id}")
 async def get_solution(solution_id: str = Path(..., description="Solution ID")):
@@ -316,8 +370,7 @@ async def get_solution(solution_id: str = Path(..., description="Solution ID")):
         # Check if the solution ID starts with "nonexistent-" for testing
         if solution_id.startswith("nonexistent-"):
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Solution not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Solution not found"
             )
 
         # Mock data for testing
@@ -328,10 +381,14 @@ async def get_solution(solution_id: str = Path(..., description="Solution ID")):
             "niche_id": "niche-1",
             "template_id": "template-1",
             "technology_stack": ["Python", "FastAPI", "TensorFlow", "Docker"],
-            "features": ["Intent Recognition", "Entity Extraction", "Conversation Management"],
+            "features": [
+                "Intent Recognition",
+                "Entity Extraction",
+                "Conversation Management",
+            ],
             "status": "in_progress",
             "created_at": "2025-04-29T21:30:00Z",
-            "updated_at": "2025-04-29T21:35:00Z"
+            "updated_at": "2025-04-29T21:35:00Z",
         }
 
         return solution
@@ -341,13 +398,14 @@ async def get_solution(solution_id: str = Path(..., description="Solution ID")):
         logger.error(f"Error getting solution: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get solution: {str(e)}"
+            detail=f"Failed to get solution: {str(e)}",
         )
+
 
 @router.put("/solutions/{solution_id}")
 async def update_solution(
     solution_id: str = Path(..., description="Solution ID"),
-    data: Dict[str, Any] = Body(...)
+    data: Dict[str, Any] = Body(...),
 ):
     """
     Update a development solution.
@@ -363,8 +421,7 @@ async def update_solution(
         # Check if the solution ID starts with "nonexistent-" for testing
         if solution_id.startswith("nonexistent-"):
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Solution not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Solution not found"
             )
 
         # Update solution
@@ -374,11 +431,16 @@ async def update_solution(
             "description": data.get("description", "Updated Description"),
             "niche_id": data.get("niche_id", "niche-1"),
             "template_id": data.get("template_id", "template-1"),
-            "technology_stack": data.get("technology_stack", ["Python", "FastAPI", "TensorFlow", "Docker"]),
-            "features": data.get("features", ["Intent Recognition", "Entity Extraction", "Conversation Management"]),
+            "technology_stack": data.get(
+                "technology_stack", ["Python", "FastAPI", "TensorFlow", "Docker"]
+            ),
+            "features": data.get(
+                "features",
+                ["Intent Recognition", "Entity Extraction", "Conversation Management"],
+            ),
             "status": data.get("status", "in_progress"),
             "created_at": "2025-04-29T21:30:00Z",
-            "updated_at": datetime.now().isoformat()
+            "updated_at": datetime.now().isoformat(),
         }
 
         return solution
@@ -388,8 +450,9 @@ async def update_solution(
         logger.error(f"Error updating solution: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update solution: {str(e)}"
+            detail=f"Failed to update solution: {str(e)}",
         )
+
 
 @router.delete("/solutions/{solution_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_solution(solution_id: str = Path(..., description="Solution ID")):
@@ -406,8 +469,7 @@ async def delete_solution(solution_id: str = Path(..., description="Solution ID"
         # Check if the solution ID starts with "nonexistent-" for testing
         if solution_id.startswith("nonexistent-"):
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Solution not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Solution not found"
             )
 
         # Delete solution (no content to return)
@@ -418,5 +480,5 @@ async def delete_solution(solution_id: str = Path(..., description="Solution ID"
         logger.error(f"Error deleting solution: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete solution: {str(e)}"
+            detail=f"Failed to delete solution: {str(e)}",
         )

@@ -4,14 +4,14 @@ SQLite cache backend for the model cache system.
 This module provides a SQLite-based cache backend.
 """
 
-import os
 import json
-import time
+import os
+import pickle
+import re
 import sqlite3
 import threading
-import pickle
-from typing import Dict, Any, Optional, List
-import re
+import time
+from typing import Any, Dict, List, Optional
 
 from .base import CacheBackend
 

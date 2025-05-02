@@ -5,10 +5,10 @@ This script demonstrates how to use the SocialMediaIntegration class to connect 
 various social media platforms, post content, and retrieve analytics.
 """
 
+import json
+import logging
 import os
 import sys
-import logging
-import json
 from datetime import datetime, timedelta
 from pathlib import Path
 

@@ -5,14 +5,14 @@ This script demonstrates how to use the various content templates
 to create marketing content for different channels.
 """
 
-from user_personas import PersonaCreator
 from content_templates import (
     BlogPostTemplate,
-    SocialMediaTemplate,
     EmailNewsletterTemplate,
-    VideoScriptTemplate,
     LandingPageTemplate,
+    SocialMediaTemplate,
+    VideoScriptTemplate,
 )
+from user_personas import PersonaCreator
 
 
 def main():

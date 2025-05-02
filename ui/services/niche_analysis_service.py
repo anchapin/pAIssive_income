@@ -5,11 +5,12 @@ This service provides methods for interacting with the Niche Analysis module.
 """
 
 import logging
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from interfaces.ui_interfaces import INicheAnalysisService
+
 from .base_service import BaseService
 
 # Set up logging
@@ -31,8 +32,8 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
         try:
             from niche_analysis import (
                 MarketAnalyzer,
-                ProblemIdentifier,
                 OpportunityScorer,
+                ProblemIdentifier,
             )
 
             self.niche_analysis_available = True

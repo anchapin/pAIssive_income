@@ -4,13 +4,13 @@ Text generation routes for REST API server.
 This module provides route handlers for text generation.
 """
 
-from typing import Optional, List
+from typing import List, Optional
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+    from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
     from fastapi.responses import StreamingResponse
-    from pydantic import BaseModel, Field, ConfigDict
+    from pydantic import BaseModel, ConfigDict, Field
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -23,7 +23,8 @@ except ImportError:
     class BaseModel:
         pass
 
-    Field = lambda *args, **kwargs: None
+    def Field(*args, **kwargs):
+        return None
 
 
 # Create router

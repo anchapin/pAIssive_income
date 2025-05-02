@@ -4,10 +4,10 @@ Memory cache backend for the model cache system.
 This module provides an in-memory cache backend.
 """
 
-import time
-import threading
-from typing import Dict, Any, Optional, List, Tuple
 import re
+import threading
+import time
+from typing import Any, Dict, List, Optional, Tuple
 
 from .base import CacheBackend
 
@@ -124,7 +124,11 @@ class MemoryCache(CacheBackend):
                 regex = re.compile(pattern)
                 return [key for key in self.cache.keys() if regex.match(key)]
             except re.error:
-                return [key for key in self.cache.keys() if key.startswith(pattern.rstrip("^$"))]
+                return [
+                    key
+                    for key in self.cache.keys()
+                    if key.startswith(pattern.rstrip("^$"))
+                ]
 
     def get_stats(self) -> Dict[str, Any]:
         """Get statistics about the cache."""
@@ -174,7 +178,8 @@ class MemoryCache(CacheBackend):
 
             # Filter out expired items first
             valid_items = {
-                k: v for k, v in self.cache.items()
+                k: v
+                for k, v in self.cache.items()
                 if v[1] is None or v[1] > current_time
             }
 
@@ -186,7 +191,9 @@ class MemoryCache(CacheBackend):
                 key_to_evict = min(valid_items.items(), key=lambda x: x[1][3])[0]
             elif self.eviction_policy == "lfu":
                 # Get least frequently used key
-                key_to_evict = min(valid_items.items(), key=lambda x: (x[1][2], x[1][3]))[0]
+                key_to_evict = min(
+                    valid_items.items(), key=lambda x: (x[1][2], x[1][3])
+                )[0]
             else:  # FIFO or default
                 # Get oldest item by creation time (approximated by order in the dict)
                 key_to_evict = next(iter(valid_items))
@@ -201,7 +208,8 @@ class MemoryCache(CacheBackend):
         with self.lock:
             current_time = time.time()
             expired_keys = [
-                key for key, (_, exp, _, _) in self.cache.items()
+                key
+                for key, (_, exp, _, _) in self.cache.items()
                 if exp is not None and current_time > exp
             ]
             for key in expired_keys:

@@ -9,9 +9,9 @@ This script demonstrates how to:
 - Compare multiple campaigns
 """
 
+import random
 from datetime import datetime, timedelta
 from typing import List
-import random
 
 from marketing.campaign_tracking import CampaignTracker
 

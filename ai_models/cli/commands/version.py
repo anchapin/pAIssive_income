@@ -7,8 +7,8 @@ This module provides the version command for the command-line interface.
 import argparse
 import logging
 
-from ..base import BaseCommand
 from ...model_manager import ModelManager
+from ..base import BaseCommand
 
 # Set up logging
 logging.basicConfig(

@@ -8,23 +8,23 @@ This module provides utilities for batch processing operations, such as:
 - Tracking batch processing progress
 """
 
-import time
 import logging
-from typing import (
-    List,
-    Dict,
-    Any,
-    TypeVar,
-    Generic,
-    Callable,
-    Iterator,
-    Union,
-)
+import math
+import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime
-import uuid
-import math
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterator,
+    List,
+    TypeVar,
+    Union,
+)
 
 # Type variables for generic functions
 T = TypeVar("T")  # Input item type

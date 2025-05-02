@@ -5,20 +5,20 @@ This script provides a tool for benchmarking and comparing the performance
 of different AI models.
 """
 
-import os
-import sys
-import logging
-import time
 import argparse
 import json
-from typing import Dict, List, Any, Optional
+import logging
+import os
+import sys
+import time
+from typing import Any, Dict, List, Optional
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from ai_models import ModelManager, ModelInfo, PerformanceMonitor, ModelConfig
+from ai_models import ModelConfig, ModelInfo, ModelManager, PerformanceMonitor
 
 # Set up logging
 logging.basicConfig(

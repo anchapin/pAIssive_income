@@ -4,9 +4,9 @@ SQLite adapter implementation of the database interface.
 This module provides a concrete implementation of DatabaseInterface for SQLite databases.
 """
 
+import logging
 import sqlite3
 from typing import Any, Dict, List, Optional
-import logging
 
 from common_utils.db.interfaces import DatabaseInterface, UnitOfWork
 

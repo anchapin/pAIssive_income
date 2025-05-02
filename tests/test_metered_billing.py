@@ -1,14 +1,22 @@
+
+import os
+import sys
+import unittest
+from datetime import datetime, timedelta
+from unittest.mock import MagicMock
+from monetization.metered_billing import MeteredBillingPricing, MeteringInterval
+
 """
 Tests for the metered billing module.
 """
 
-import unittest
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock
+import os
 
 # We'll use direct imports to avoid circular import issues
 import sys
-import os
+import unittest
+from datetime import datetime, timedelta
+from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -195,13 +203,13 @@ class TestMeteredBilling(unittest.TestCase):
         hourly_usage = [
             {"time": now - timedelta(minutes=30), "quantity": 50},
             {"time": now - timedelta(minutes=45), "quantity": 30},
-            {"time": now - timedelta(minutes=15), "quantity": 20}
+            {"time": now - timedelta(minutes=15), "quantity": 20},
         ]
 
         # Mock usage tracker for hourly data
         self.usage_tracker.get_usage_summary.return_value = {
             "total": 100,
-            "grouped": {UsageMetric.API_CALL: {"quantity": 100}}
+            "grouped": {UsageMetric.API_CALL: {"quantity": 100}},
         }
 
         # Track hourly usage
@@ -211,7 +219,7 @@ class TestMeteredBilling(unittest.TestCase):
                 metric=UsageMetric.API_CALL,
                 quantity=usage["quantity"],
                 category=UsageCategory.INFERENCE,
-                metadata={"timestamp": usage["time"]}
+                metadata={"timestamp": usage["time"]},
             )
 
         # Verify hourly aggregation
@@ -223,13 +231,13 @@ class TestMeteredBilling(unittest.TestCase):
         daily_usage = [
             {"time": now - timedelta(hours=1), "quantity": 100},
             {"time": now - timedelta(hours=2), "quantity": 150},
-            {"time": now - timedelta(hours=3), "quantity": 250}
+            {"time": now - timedelta(hours=3), "quantity": 250},
         ]
 
         # Mock usage tracker for daily data
         self.usage_tracker.get_usage_summary.return_value = {
             "total": 500,
-            "grouped": {UsageMetric.API_CALL: {"quantity": 500}}
+            "grouped": {UsageMetric.API_CALL: {"quantity": 500}},
         }
 
         # Track daily usage
@@ -239,7 +247,7 @@ class TestMeteredBilling(unittest.TestCase):
                 metric=UsageMetric.API_CALL,
                 quantity=usage["quantity"],
                 category=UsageCategory.INFERENCE,
-                metadata={"timestamp": usage["time"]}
+                metadata={"timestamp": usage["time"]},
             )
 
         # Verify daily aggregation
@@ -253,11 +261,11 @@ class TestMeteredBilling(unittest.TestCase):
 
         # Test interval transition
         self.model.set_metering_interval(MeteringInterval.HOURLY)
-        
+
         # Mock for first hour
         self.billing_calculator.calculate_usage_cost.return_value = {
             "total": 1.23,
-            "breakdown": {UsageMetric.API_CALL: 1.23}
+            "breakdown": {UsageMetric.API_CALL: 1.23},
         }
 
         # Track usage just before interval end
@@ -266,13 +274,13 @@ class TestMeteredBilling(unittest.TestCase):
             metric=UsageMetric.API_CALL,
             quantity=50,
             category=UsageCategory.INFERENCE,
-            metadata={"timestamp": now - timedelta(seconds=10)}
+            metadata={"timestamp": now - timedelta(seconds=10)},
         )
 
         # Mock for second hour
         self.billing_calculator.calculate_usage_cost.return_value = {
             "total": 2.46,
-            "breakdown": {UsageMetric.API_CALL: 2.46}
+            "breakdown": {UsageMetric.API_CALL: 2.46},
         }
 
         # Track usage just after interval start
@@ -281,7 +289,7 @@ class TestMeteredBilling(unittest.TestCase):
             metric=UsageMetric.API_CALL,
             quantity=50,
             category=UsageCategory.INFERENCE,
-            metadata={"timestamp": now + timedelta(seconds=10)}
+            metadata={"timestamp": now + timedelta(seconds=10)},
         )
 
         # Verify correct interval handling
@@ -306,13 +314,13 @@ class TestMeteredBilling(unittest.TestCase):
         self.model.set_custom_billing_period(
             customer_id=customer_id,
             start_time=mid_month_start,
-            end_time=next_month_start
+            end_time=next_month_start,
         )
 
         # Mock the billing calculator for prorated amount
         self.billing_calculator.calculate_usage_cost.return_value = {
             "total": 0.615,  # Half of normal monthly rate
-            "breakdown": {UsageMetric.API_CALL: 0.615}
+            "breakdown": {UsageMetric.API_CALL: 0.615},
         }
 
         # Track usage in partial period
@@ -320,11 +328,13 @@ class TestMeteredBilling(unittest.TestCase):
             customer_id=customer_id,
             metric=UsageMetric.API_CALL,
             quantity=50,
-            category=UsageCategory.INFERENCE
+            category=UsageCategory.INFERENCE,
         )
 
         # Verify prorated billing
-        self.assertEqual(result["current_cost"], 0.615)  # Should be half of the normal 1.23 rate
+        self.assertEqual(
+            result["current_cost"], 0.615
+        )  # Should be half of the normal 1.23 rate
 
 
 if __name__ == "__main__":

@@ -4,8 +4,9 @@ Bulk operation schemas for the API server.
 This module provides Pydantic models for bulk operation API request and response validation.
 """
 
-from typing import Dict, List, Optional, Any, Generic, TypeVar
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Any, Dict, Generic, List, Optional, TypeVar
+
+from pydantic import BaseModel, ConfigDict, Field
 
 # Define generic type variable for bulk operations
 T = TypeVar("T")

@@ -6,19 +6,20 @@ retrieving analytics, and managing social media campaigns.
 """
 
 import logging
-import requests
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
+import requests
+
 from marketing.errors import (
     AuthenticationError,
     ContentValidationError,
-    PostNotFoundError,
-    PostingError,
     DeletionError,
+    PostingError,
+    PostNotFoundError,
     SchedulingError,
 )
+from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -551,7 +552,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             author = self._get_author_urn()
 
             # Prepare the base post data
-            post_data = {
+            {
                 "author": author,
                 "lifecycleState": "PUBLISHED",
                 "visibility": self._get_visibility_setting(visibility),

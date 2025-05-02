@@ -2,14 +2,15 @@
 Tests for the ModelManager class.
 """
 
-import os
 import json
-import pytest
-from unittest.mock import MagicMock
-import tempfile
+import os
 import shutil
+import tempfile
+from unittest.mock import MagicMock
 
-from interfaces.model_interfaces import IModelManager, IModelConfig, IModelInfo
+import pytest
+
+from interfaces.model_interfaces import IModelConfig, IModelInfo, IModelManager
 
 
 @pytest.fixture

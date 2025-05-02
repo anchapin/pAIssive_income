@@ -5,10 +5,10 @@ This module provides custom exceptions and error handling utilities
 specific to the Marketing module.
 """
 
-import sys
-import os
-from typing import Dict, Any, Optional, List
 import logging
+import os
+import sys
+from typing import Any, Dict, List, Optional
 
 # Add the project root to the Python path to import the errors module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))

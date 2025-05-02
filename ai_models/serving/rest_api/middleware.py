@@ -5,11 +5,11 @@ This module provides middleware for the REST API server.
 """
 
 import time
-from typing import List, Callable
+from typing import Callable, List
 
 # Try to import FastAPI
 try:
-    from fastapi import FastAPI, Request, Response, HTTPException, Depends
+    from fastapi import Depends, FastAPI, HTTPException, Request, Response
     from fastapi.security import APIKeyHeader
     from starlette.middleware.base import BaseHTTPMiddleware
 

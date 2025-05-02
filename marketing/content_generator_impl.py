@@ -2,9 +2,9 @@
 Concrete implementation of ContentGenerator for use in tests and examples.
 """
 
-from typing import Dict, List, Any
 import uuid
 from datetime import datetime
+from typing import Any, Dict, List
 
 from .content_generators import ContentGenerator
 

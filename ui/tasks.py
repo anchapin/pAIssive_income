@@ -6,19 +6,21 @@ This module defines Celery tasks for asynchronous processing.
 
 import logging
 import time
-from typing import Dict, Any, List
-from celery import current_task
 import traceback
+from typing import Any, Dict, List
+
+from celery import current_task
+
+from interfaces.ui_interfaces import (
+    IAgentTeamService,
+    IDeveloperService,
+    IMarketingService,
+    IMonetizationService,
+    INicheAnalysisService,
+)
 
 from .celery_app import celery_app
 from .service_registry import get_service
-from interfaces.ui_interfaces import (
-    IAgentTeamService,
-    INicheAnalysisService,
-    IDeveloperService,
-    IMonetizationService,
-    IMarketingService,
-)
 
 # Set up logging
 logging.basicConfig(

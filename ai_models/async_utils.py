@@ -6,21 +6,21 @@ making it easier to perform batch inference, parallel processing, and handle asy
 """
 
 import asyncio
+import functools
 import logging
+import time
+from dataclasses import dataclass
 from typing import (
-    List,
-    Dict,
     Any,
+    AsyncIterator,
+    Awaitable,
+    Callable,
+    Dict,
+    Generic,
+    List,
     Optional,
     TypeVar,
-    Generic,
-    Callable,
-    Awaitable,
-    AsyncIterator,
 )
-import functools
-from dataclasses import dataclass
-import time
 
 # Set up logging
 logging.basicConfig(
@@ -192,7 +192,6 @@ async def stream_processor(
     Yields:
         Processed results as they become available
     """
-    buffer = []
     pending = set()
 
     async def process_item(item):
@@ -203,7 +202,7 @@ async def stream_processor(
         # Fill the initial buffer
         for _ in range(buffer_size):
             try:
-                item = await anext(input_stream)
+                item = await asyncio.anext(input_stream)
                 task = asyncio.create_task(process_item(item))
                 pending.add(task)
                 task.add_done_callback(pending.discard)
@@ -224,7 +223,7 @@ async def stream_processor(
             # Refill the buffer
             try:
                 for _ in range(buffer_size - len(pending)):
-                    item = await anext(input_stream)
+                    item = await asyncio.anext(input_stream)
                     task = asyncio.create_task(process_item(item))
                     pending.add(task)
                     task.add_done_callback(pending.discard)

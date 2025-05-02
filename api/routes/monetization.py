@@ -1,3 +1,4 @@
+
 """
 Monetization routes for the API server.
 
@@ -5,9 +6,9 @@ This module provides route handlers for Monetization operations.
 """
 
 import logging
-from typing import Optional
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Optional
 
 # Set up logging
 logging.basicConfig(
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, HTTPException, Depends, Query, Path, Body
+    from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
     from fastapi.responses import JSONResponse
 
     FASTAPI_AVAILABLE = True
@@ -25,20 +26,21 @@ except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
 
-# Import schemas
-from ..schemas.monetization import (
-    SubscriptionModelRequest,
-    SubscriptionModelResponse,
-    PricingTierResponse,
-    FeatureResponse,
-    RevenueProjectionRequest,
-    RevenueProjectionResponse,
-    SubscriptionType,
-)
 from ..schemas.common import (
     ErrorResponse,
     IdResponse,
     PaginatedResponse,
+)
+
+# Import schemas
+from ..schemas.monetization import (
+    FeatureResponse,
+    PricingTierResponse,
+    RevenueProjectionRequest,
+    RevenueProjectionResponse,
+    SubscriptionModelRequest,
+    SubscriptionModelResponse,
+    SubscriptionType,
 )
 
 # Create router
@@ -50,11 +52,11 @@ else:
 # Try to import monetization module
 try:
     from monetization import (
-        SubscriptionModel,
         FreemiumModel,
+        MonetizationCalculator,
         PricingCalculator,
         RevenueProjector,
-        MonetizationCalculator,
+        SubscriptionModel,
     )
 
     MONETIZATION_AVAILABLE = True

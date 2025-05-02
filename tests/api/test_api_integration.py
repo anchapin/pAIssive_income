@@ -8,16 +8,16 @@ import pytest
 
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import (
-    generate_niche_analysis_data,
-    generate_monetization_data,
-    generate_marketing_strategy_data,
     generate_agent_team_data,
+    generate_marketing_strategy_data,
+    generate_monetization_data,
+    generate_niche_analysis_data,
 )
 from tests.api.utils.test_validators import (
-    validate_success_response,
-    validate_paginated_response,
     validate_field_exists,
     validate_field_type,
+    validate_paginated_response,
+    validate_success_response,
 )
 
 
@@ -93,7 +93,7 @@ class TestAPIIntegration:
         # Validate response
         monetization_result = validate_success_response(response, 201)  # Created
         validate_field_exists(monetization_result, "id")
-        monetization_id = monetization_result["id"]
+        monetization_result["id"]
 
         # Step 6: Create a marketing strategy for the solution
         marketing_data = generate_marketing_strategy_data()

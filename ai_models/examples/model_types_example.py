@@ -5,17 +5,17 @@ This script demonstrates how to use the different model types
 (ONNX, Quantized, Vision, Audio) in the AI Models module.
 """
 
+import argparse
+import logging
 import os
 import sys
-import logging
-import argparse
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from ai_models.model_types import ONNXModel, QuantizedModel, VisionModel, AudioModel
+from ai_models.model_types import AudioModel, ONNXModel, QuantizedModel, VisionModel
 
 # Set up logging
 logging.basicConfig(

@@ -4,11 +4,12 @@ Tests for mock external API implementations.
 This module demonstrates how to use the mock external API implementations in tests.
 """
 
-import unittest
+import json
 import os
 import sys
+import unittest
+
 import pytest
-import json
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))

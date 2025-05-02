@@ -5,17 +5,17 @@ This module provides utility functions for quantizing models and analyzing
 the effects of quantization.
 """
 
-import os
-import logging
-import time
 import json
-from typing import Dict, Any, Optional, Union
+import logging
+import os
+import time
+from typing import Any, Dict, Optional, Union
 
 import numpy as np
 
+from .awq_quantizer import AWQQuantizer
 from .base import QuantizationConfig, QuantizationMethod
 from .bitsandbytes_quantizer import BitsAndBytesQuantizer
-from .awq_quantizer import AWQQuantizer
 from .gptq_quantizer import GPTQQuantizer
 
 # Set up logging

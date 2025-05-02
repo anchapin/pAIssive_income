@@ -3,9 +3,9 @@ Monetization Agent for the pAIssive Income project.
 Specializes in designing subscription models and pricing strategies.
 """
 
-from typing import Dict, Any
 import uuid
 from datetime import datetime
+from typing import Any, Dict
 
 
 class MonetizationAgent:

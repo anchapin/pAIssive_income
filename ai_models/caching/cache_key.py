@@ -6,8 +6,8 @@ This module provides utilities for generating and managing cache keys.
 
 import hashlib
 import json
-from typing import Dict, Any, Union, List, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Union
 
 
 @dataclass

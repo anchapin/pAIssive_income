@@ -6,7 +6,7 @@ to ensure they implement proper health monitoring capabilities.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 class IHealthCheckable(ABC):

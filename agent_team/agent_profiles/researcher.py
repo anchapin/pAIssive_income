@@ -3,11 +3,11 @@ Research Agent for the pAIssive Income project.
 Specializes in market research and niche identification.
 """
 
-from typing import Dict, List, Any
 import uuid
 from datetime import datetime
+from typing import Any, Dict, List
 
-from interfaces.agent_interfaces import IResearchAgent, IAgentTeam
+from interfaces.agent_interfaces import IAgentTeam, IResearchAgent
 
 
 class ResearchAgent(IResearchAgent):

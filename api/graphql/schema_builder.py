@@ -26,20 +26,20 @@ except ImportError:
 # Import resolvers
 if STRAWBERRY_AVAILABLE:
     from .resolvers import (
-        Query,
-        Mutation,
-        NicheAnalysisQuery,
-        NicheAnalysisMutation,
-        MonetizationQuery,
-        MonetizationMutation,
-        MarketingQuery,
-        MarketingMutation,
-        AIModelsQuery,
-        AIModelsMutation,
-        AgentTeamQuery,
         AgentTeamMutation,
-        UserQuery,
+        AgentTeamQuery,
+        AIModelsMutation,
+        AIModelsQuery,
+        MarketingMutation,
+        MarketingQuery,
+        MonetizationMutation,
+        MonetizationQuery,
+        Mutation,
+        NicheAnalysisMutation,
+        NicheAnalysisQuery,
+        Query,
         UserMutation,
+        UserQuery,
     )
 
 

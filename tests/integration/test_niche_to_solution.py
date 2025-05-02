@@ -2,8 +2,9 @@
 Integration tests for the niche-to-solution workflow.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from agent_team import AgentTeam
 

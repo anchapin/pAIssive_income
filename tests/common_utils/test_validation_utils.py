@@ -315,7 +315,7 @@ class TestValidationUtils(unittest.TestCase):
 
         # Define a Pydantic model for testing
         class TestConfig(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+            model_config = ConfigDict(protected_namespaces=())
             name: str = Field(..., min_length=1)
             value: int = Field(..., ge=0)
 

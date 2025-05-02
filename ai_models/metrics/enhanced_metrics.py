@@ -1,3 +1,14 @@
+
+import logging
+import os
+import statistics
+import time
+import uuid
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
+from ai_models.performance_monitor import (
+
 """
 Enhanced performance metrics for AI models.
 
@@ -5,14 +16,14 @@ This module extends the base performance monitoring with advanced metrics tracki
 cost calculation, and model comparison features.
 """
 
-import os
-import time
 import logging
+import os
 import statistics
-from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime, timedelta
-from dataclasses import dataclass, field, asdict
+import time
 import uuid
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -21,8 +32,8 @@ logger = logging.getLogger(__name__)
 # Import base metrics classes
 from ai_models.performance_monitor import (
     InferenceMetrics,
-    ModelPerformanceReport,
     ModelComparisonReport,
+    ModelPerformanceReport,
     PerformanceMonitor,
 )
 
@@ -592,8 +603,8 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
         """
         try:
             import matplotlib.pyplot as plt
-            import pandas as pd
             import numpy as np
+            import pandas as pd
             from matplotlib.dates import DateFormatter
         except ImportError:
             logger.error(

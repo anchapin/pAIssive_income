@@ -6,10 +6,10 @@ centralized caching service from common_utils. This allows the AI models
 to use the same caching infrastructure as the rest of the project.
 """
 
-import logging
-from typing import Optional, Callable
 import functools
 import inspect
+import logging
+from typing import Callable, Optional
 
 from common_utils.caching import CacheService, default_cache
 

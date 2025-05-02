@@ -1,3 +1,10 @@
+
+import logging
+from .app_factory import create_app
+from .celery_app import create_celery_app
+from .socketio_app import init_socketio, socketio
+from . import routes
+
 """
 UI module for the pAIssive Income project.
 
@@ -25,7 +32,7 @@ from .celery_app import create_celery_app
 celery = create_celery_app(app)
 
 # Initialize SocketIO
-from .socketio_app import socketio, init_socketio
+from .socketio_app import init_socketio, socketio
 
 init_socketio(app)
 
@@ -37,6 +44,7 @@ from . import routes
 def init_app_with_services():
     """Initialize the application with services."""
     from service_initialization import initialize_services
+
     from .app_factory import init_app
 
     init_app(app, initialize_services)

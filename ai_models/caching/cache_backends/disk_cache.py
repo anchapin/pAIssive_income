@@ -4,15 +4,15 @@ Disk cache backend for the model cache system.
 This module provides a disk-based cache backend.
 """
 
-import os
+import hashlib
 import json
-import time
+import os
+import pickle
+import re
 import shutil
 import threading
-import pickle
-from typing import Dict, Any, Optional, List
-import re
-import hashlib
+import time
+from typing import Any, Dict, List, Optional
 
 from .base import CacheBackend
 
@@ -556,12 +556,12 @@ class DiskCache(CacheBackend):
                         creation_time = metadata.get("creation_time", float("inf"))
                         # Return tuple of (count, creation_time) for comparison
                         # Python will compare tuples element by element
-                        return (count, -creation_time)  # Negative creation_time so older items are evicted first
+                        return (
+                            count,
+                            -creation_time,
+                        )  # Negative creation_time so older items are evicted first
 
-                    key_to_evict = min(
-                        metadata_map.keys(),
-                        key=get_score
-                    )
+                    key_to_evict = min(metadata_map.keys(), key=get_score)
                 elif self.eviction_policy == "fifo":
                     # First In First Out - evict oldest item by creation time
                     key_to_evict = min(

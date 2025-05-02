@@ -5,7 +5,7 @@ This module provides GraphQL types and resolvers for the AI models module.
 """
 
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(

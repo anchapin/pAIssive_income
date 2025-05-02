@@ -5,23 +5,22 @@ This module provides functionality for downloading AI models from various source
 including Hugging Face Hub and other repositories.
 """
 
-import os
-import sys
-import logging
 import hashlib
+import logging
+import os
+import shutil
+import sys
 import threading
 import time
-import shutil
-from typing import Dict, List, Any, Optional, Callable
-from urllib.parse import urlparse
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from urllib.parse import urlparse
 
 from .model_config import ModelConfig
-from typing import TYPE_CHECKING
 
 # Import ModelManager only for type checking to avoid circular imports
 if TYPE_CHECKING:
-    from .model_manager import ModelManager, ModelInfo
+    from .model_manager import ModelInfo, ModelManager
 
 # Set up logging
 logging.basicConfig(
@@ -47,7 +46,7 @@ except ImportError:
     TQDM_AVAILABLE = False
 
 try:
-    from huggingface_hub import hf_hub_download, snapshot_download, list_models, login
+    from huggingface_hub import hf_hub_download, list_models, login, snapshot_download
     from huggingface_hub.utils import HfHubHTTPError
 
     HUGGINGFACE_HUB_AVAILABLE = True

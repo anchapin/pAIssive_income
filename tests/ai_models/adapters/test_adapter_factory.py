@@ -5,8 +5,8 @@ Tests for the AdapterFactory class.
 import pytest
 
 from ai_models.adapters import AdapterFactory, BaseModelAdapter
-from interfaces.model_interfaces import IModelAdapter
 from errors import ModelError
+from interfaces.model_interfaces import IModelAdapter
 
 
 class MockAdapter(BaseModelAdapter):

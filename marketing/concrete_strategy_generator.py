@@ -5,12 +5,13 @@ This module provides a concrete implementation of the StrategyGenerator class
 that implements all the required abstract methods from IMarketingStrategy.
 """
 
-from typing import Dict, List, Any, Optional, Tuple
 import uuid
 from datetime import datetime
-from marketing.strategy_generator import StrategyGenerator
-from marketing.schemas import TargetAudienceSchema, BudgetSchema
+from typing import Any, Dict, List, Optional, Tuple
+
 from interfaces.agent_interfaces import IAgentTeam
+from marketing.schemas import BudgetSchema, TargetAudienceSchema
+from marketing.strategy_generator import StrategyGenerator
 
 
 class DefaultStrategyGenerator(StrategyGenerator):

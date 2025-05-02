@@ -13,11 +13,12 @@ These tools are designed to support data-driven decision making in marketing,
 particularly for A/B testing, campaign performance analysis, and ROI calculations.
 """
 
-import math
 import logging
+import math
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 from scipy import stats
-from typing import Dict, List, Tuple, Union, Optional, Any
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -186,7 +187,7 @@ class StatisticalAnalysis:
         sorted_data = np.sort(data_array)
 
         # Calculate median
-        n = len(sorted_data)
+        len(sorted_data)
         median = np.median(sorted_data)
 
         # Calculate quartiles using linear interpolation method

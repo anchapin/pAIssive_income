@@ -5,7 +5,7 @@ This module provides resolvers for niche analysis queries and mutations.
 """
 
 import logging
-from typing import Optional, List
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -24,10 +24,10 @@ except ImportError:
 
 if STRAWBERRY_AVAILABLE:
     from ..schemas.niche_analysis import (
-        NicheType,
-        OpportunityType,
         NicheAnalysisInput,
         NicheInput,
+        NicheType,
+        OpportunityType,
     )
 
     @strawberry.type

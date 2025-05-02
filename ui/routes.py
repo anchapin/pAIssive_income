@@ -5,33 +5,34 @@ This module defines the routes for the web interface, handling requests
 for different parts of the application.
 """
 
-from flask import render_template, request, jsonify, redirect, url_for, session, flash
-import os
 import logging
-from datetime import datetime
-import uuid
+import os
 import traceback
+import uuid
+from datetime import datetime
+
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
 
 from . import app
 from .errors import (
-    UIError,
     RouteError,
     ServiceError,
+    UIError,
     ValidationError,
     api_error_handler,
     handle_exception,
 )
-from .tasks import (
-    analyze_niches,
-    create_solution,
-    create_monetization_strategy,
-    create_marketing_campaign,
-)
 from .task_manager import (
+    cancel_task,
+    get_task_id,
     get_task_status,
     store_task_id,
-    get_task_id,
-    cancel_task,
+)
+from .tasks import (
+    analyze_niches,
+    create_marketing_campaign,
+    create_monetization_strategy,
+    create_solution,
 )
 
 # Set up logging
@@ -50,14 +51,15 @@ def init_services():
     global agent_team_service, niche_analysis_service, developer_service, monetization_service, marketing_service
 
     # Import here to avoid circular imports
-    from .service_registry import get_ui_service
     from interfaces.ui_interfaces import (
         IAgentTeamService,
-        INicheAnalysisService,
         IDeveloperService,
-        IMonetizationService,
         IMarketingService,
+        IMonetizationService,
+        INicheAnalysisService,
     )
+
+    from .service_registry import get_ui_service
 
     # Initialize services
     agent_team_service = get_ui_service(IAgentTeamService)

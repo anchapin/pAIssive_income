@@ -5,11 +5,12 @@ This service provides methods for interacting with the Developer Agent module.
 """
 
 import logging
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from interfaces.ui_interfaces import IDeveloperService
+
 from .base_service import BaseService
 
 # Set up logging

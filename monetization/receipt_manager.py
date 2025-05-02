@@ -5,22 +5,23 @@ This module provides a class for managing receipts, including
 generation, storage, and retrieval.
 """
 
-from typing import Dict, List, Any, Optional, Union
-from datetime import datetime
 import os
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 
 from common_utils import (
-    file_exists,
     create_directory,
+    file_exists,
     get_file_path,
-    load_from_json_file,
     is_date_in_range,
+    load_from_json_file,
 )
+
+from .payment_method import PaymentMethod
+from .payment_method_manager import PaymentMethodManager
 from .receipt import Receipt
 from .transaction import Transaction
 from .transaction_manager import TransactionManager
-from .payment_method import PaymentMethod
-from .payment_method_manager import PaymentMethodManager
 
 
 class ReceiptManager:
@@ -345,9 +346,9 @@ class ReceiptManager:
 
         # Generate receipt content
         if format == "text":
-            content = receipt.to_text()
+            receipt.to_text()
         elif format == "html":
-            content = receipt.to_html()
+            receipt.to_html()
         else:
             raise ValueError(f"Unsupported format: {format}")
 

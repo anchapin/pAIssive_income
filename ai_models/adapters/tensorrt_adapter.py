@@ -4,10 +4,11 @@ TensorRT adapter for the AI Models module.
 This module provides an adapter for using TensorRT for GPU-accelerated inference.
 """
 
-import os
 import logging
+import os
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
-from typing import Dict, List, Any, Optional, Union, Tuple
 
 # Set up logging
 logging.basicConfig(
@@ -37,8 +38,8 @@ except ImportError:
     TENSORRT_AVAILABLE = False
 
 try:
-    import pycuda.driver as cuda
     import pycuda.autoinit
+    import pycuda.driver as cuda
 
     PYCUDA_AVAILABLE = True
 except ImportError:

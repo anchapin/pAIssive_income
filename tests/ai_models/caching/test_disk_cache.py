@@ -3,10 +3,11 @@ Tests for the DiskCache backend.
 """
 
 import os
-import time
-import pytest
-import tempfile
 import shutil
+import tempfile
+import time
+
+import pytest
 
 from ai_models.caching.cache_backends.disk_cache import DiskCache
 
@@ -202,8 +203,8 @@ def test_eviction_policies(temp_cache_dir):
 
 def test_concurrent_access(disk_cache):
     """Test thread safety of cache operations."""
-    from concurrent.futures import ThreadPoolExecutor
     import random
+    from concurrent.futures import ThreadPoolExecutor
 
     def cache_operation(i: int):
         # Randomly choose between get and set operations

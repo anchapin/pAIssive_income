@@ -5,12 +5,12 @@ This script demonstrates how to use the caching system to improve performance
 by caching model responses.
 """
 
+import argparse
+import logging
 import os
 import sys
 import time
-import logging
-import argparse
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -18,8 +18,8 @@ sys.path.append(
 )
 
 from ai_models.caching import (
-    CacheManager,
     CacheConfig,
+    CacheManager,
 )
 
 # Try to import Redis cache if available

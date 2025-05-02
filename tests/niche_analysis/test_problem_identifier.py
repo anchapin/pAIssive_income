@@ -2,8 +2,8 @@
 Tests for the ProblemIdentifier class.
 """
 
-from unittest.mock import patch
 from datetime import datetime
+from unittest.mock import patch
 
 from niche_analysis.problem_identifier import ProblemIdentifier
 

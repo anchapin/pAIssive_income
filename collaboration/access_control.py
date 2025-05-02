@@ -7,7 +7,7 @@ to control access to workspaces, projects, and resources.
 
 import enum
 import logging
-from typing import Dict, List, Set, Optional, Any
+from typing import Any, Dict, List, Optional, Set
 
 # Set up logging
 logger = logging.getLogger(__name__)

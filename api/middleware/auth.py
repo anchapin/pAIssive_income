@@ -5,16 +5,17 @@ This module provides middleware for API authentication and authorization.
 """
 
 import logging
-from typing import Optional, List, Callable, Dict, Any
-from fastapi import Request, Response, status, Depends, HTTPException, Security
-from fastapi.security import APIKeyHeader
-from fastapi.responses import JSONResponse
-from starlette.middleware.base import BaseHTTPMiddleware
-import jwt
+from typing import Any, Callable, Dict, List, Optional
 
-from ..services.api_key_service import APIKeyService
+import jwt
+from fastapi import Depends, HTTPException, Request, Response, Security, status
+from fastapi.responses import JSONResponse
+from fastapi.security import APIKeyHeader
+from starlette.middleware.base import BaseHTTPMiddleware
+
 from ..models.api_key import APIKey
 from ..models.user import User
+from ..services.api_key_service import APIKeyService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +30,7 @@ api_key_service = APIKeyService()
 # JWT settings
 JWT_SECRET = "your-secret-key"  # Should be loaded from environment variables
 JWT_ALGORITHM = "HS256"
+
 
 async def verify_token(token: str) -> Dict[str, Any]:
     """
@@ -47,19 +49,18 @@ async def verify_token(token: str) -> Dict[str, Any]:
         # Remove 'Bearer ' prefix if present
         if token.startswith("Bearer "):
             token = token[7:]
-            
+
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
         )
     except jwt.JWTError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
+
 
 class AuthMiddleware(BaseHTTPMiddleware):
     """Middleware for API authentication."""
@@ -69,7 +70,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         app,
         api_key_service: Optional[APIKeyService] = None,
         public_paths: List[str] = None,
-        auth_header: str = "Authorization"
+        auth_header: str = "Authorization",
     ):
         """
         Initialize the middleware.
@@ -82,7 +83,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
         """
         super().__init__(app)
         self.api_key_service = api_key_service or APIKeyService()
-        self.public_paths = public_paths or ["/docs", "/redoc", "/openapi.json", "/health"]
+        self.public_paths = public_paths or [
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/health",
+        ]
         self.auth_header = auth_header
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
@@ -108,7 +114,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             logger.warning("Missing authentication header")
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "Authentication required"}
+                content={"detail": "Authentication required"},
             )
 
         # Extract API key from header (Bearer token format)
@@ -124,7 +130,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             logger.warning("Invalid API key")
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "Invalid API key"}
+                content={"detail": "Invalid API key"},
             )
 
         # Check if API key is active
@@ -132,7 +138,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             logger.warning(f"Inactive API key: {api_key_obj.id}")
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "API key is inactive"}
+                content={"detail": "API key is inactive"},
             )
 
         # Check if API key is expired
@@ -140,7 +146,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             logger.warning(f"Expired API key: {api_key_obj.id}")
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "API key has expired"}
+                content={"detail": "API key has expired"},
             )
 
         # Add API key to request state
@@ -149,9 +155,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # Continue processing
         return await call_next(request)
 
-async def get_api_key(
-    api_key_header: str = Security(API_KEY_HEADER)
-) -> APIKey:
+
+async def get_api_key(api_key_header: str = Security(API_KEY_HEADER)) -> APIKey:
     """
     Get and validate the API key from the request header.
 
@@ -166,8 +171,7 @@ async def get_api_key(
     """
     if not api_key_header:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required"
         )
 
     # Extract API key from header (Bearer token format)
@@ -181,29 +185,25 @@ async def get_api_key(
 
     if not api_key_obj:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key"
         )
 
     # Check if API key is active
     if not api_key_obj.is_active:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="API key is inactive"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="API key is inactive"
         )
 
     # Check if API key is expired
     if not api_key_obj.is_valid():
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="API key has expired"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="API key has expired"
         )
 
     return api_key_obj
 
-async def get_current_user(
-    api_key: APIKey = Depends(get_api_key)
-) -> User:
+
+async def get_current_user(api_key: APIKey = Depends(get_api_key)) -> User:
     """
     Get the current user from the API key.
 
@@ -222,7 +222,7 @@ async def get_current_user(
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="API key not associated with a user"
+            detail="API key not associated with a user",
         )
 
     # Get user from database
@@ -232,11 +232,11 @@ async def get_current_user(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
 
     return user
+
 
 def require_scopes(required_scopes: List[str]):
     """
@@ -248,13 +248,14 @@ def require_scopes(required_scopes: List[str]):
     Returns:
         Dependency function
     """
+
     async def check_scopes(api_key: APIKey = Depends(get_api_key)):
         # Check if API key has all required scopes
         for scope in required_scopes:
             if scope not in api_key.scopes:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"API key missing required scope: {scope}"
+                    detail=f"API key missing required scope: {scope}",
                 )
         return api_key
 

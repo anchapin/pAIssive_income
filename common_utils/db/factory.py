@@ -6,11 +6,11 @@ based on configuration.
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 from common_utils.db.interfaces import DatabaseInterface, UnitOfWork
-from common_utils.db.sql_adapter import SQLiteAdapter, SQLiteUnitOfWork
 from common_utils.db.nosql_adapter import MongoDBAdapter, MongoDBUnitOfWork
+from common_utils.db.sql_adapter import SQLiteAdapter, SQLiteUnitOfWork
 
 logger = logging.getLogger(__name__)
 

@@ -4,11 +4,11 @@ Deploy command for the command-line interface.
 This module provides a command for deploying models.
 """
 
-import os
-import json
 import argparse
+import json
 import logging
-from typing import Dict, Any
+import os
+from typing import Any, Dict
 
 from ..base import BaseCommand
 

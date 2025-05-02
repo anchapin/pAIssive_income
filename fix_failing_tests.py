@@ -5,6 +5,7 @@ Script to fix failing tests in the pAIssive_income project.
 import os
 import re
 
+
 def fix_fallback_strategy():
     """Fix the fallback strategy implementation."""
     file_path = "ai_models/fallbacks/fallback_strategy.py"
@@ -129,7 +130,9 @@ def fix_memory_cache():
                 self.stats["evictions"] += 1
                 self.stats["deletes"] += 1"""
 
-    content = re.sub(evict_item_pattern, evict_item_replacement, content, flags=re.DOTALL)
+    content = re.sub(
+        evict_item_pattern, evict_item_replacement, content, flags=re.DOTALL
+    )
 
     # Write the updated content back to the file
     with open(file_path, "w") as f:

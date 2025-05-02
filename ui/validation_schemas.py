@@ -7,8 +7,9 @@ is properly validated before being processed.
 """
 
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator, ConfigDict
 from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class NicheAnalysisRequest(BaseModel):
@@ -51,7 +52,8 @@ class MonetizationStrategyRequest(BaseModel):
     """Schema for monetization strategy request validation."""
 
     solution_id: str = Field(
-        ..., description="ID of the solution to create a monetization strategy for",
+        ...,
+        description="ID of the solution to create a monetization strategy for",
         min_length=1,
     )
 
@@ -72,7 +74,8 @@ class MarketingCampaignRequest(BaseModel):
     """Schema for marketing campaign request validation."""
 
     solution_id: str = Field(
-        ..., description="ID of the solution to create a marketing campaign for",
+        ...,
+        description="ID of the solution to create a marketing campaign for",
         min_length=1,
     )
 

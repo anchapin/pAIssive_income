@@ -5,12 +5,13 @@ This service provides methods for interacting with the Agent Team module.
 """
 
 import logging
-from typing import Dict, List, Any, Optional
 import uuid
+from typing import Any, Dict, List, Optional
 
-from interfaces.ui_interfaces import IAgentTeamService
-from .base_service import BaseService
 from common_utils import format_datetime
+from interfaces.ui_interfaces import IAgentTeamService
+
+from .base_service import BaseService
 
 # Set up logging
 logger = logging.getLogger(__name__)

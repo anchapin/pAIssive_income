@@ -4,14 +4,13 @@ Tests for the UI/Frontend GraphQL API.
 This module contains tests for UI/Frontend GraphQL queries and mutations.
 """
 
-
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_ui_component_data
-)
+from tests.api.utils.test_data import generate_id, generate_ui_component_data
 from tests.api.utils.test_validators import (
-    validate_json_response, validate_field_exists,
-    validate_field_equals, validate_field_type
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_type,
+    validate_json_response,
 )
 
 
@@ -248,7 +247,7 @@ class TestUIGraphQLAPI:
                 "description": test_data["description"],
                 "configuration": test_data["configuration"],
                 "metadata": test_data["metadata"],
-                "accessibility": test_data["accessibility"]
+                "accessibility": test_data["accessibility"],
             }
         }
 
@@ -272,7 +271,9 @@ class TestUIGraphQLAPI:
                 validate_field_exists(component, "type")
                 validate_field_equals(component, "type", test_data["type"])
                 validate_field_exists(component, "description")
-                validate_field_equals(component, "description", test_data["description"])
+                validate_field_equals(
+                    component, "description", test_data["description"]
+                )
                 validate_field_exists(component, "configuration")
                 validate_field_exists(component, "metadata")
                 validate_field_exists(component, "accessibility")
@@ -323,8 +324,8 @@ class TestUIGraphQLAPI:
                 "description": test_data["description"],
                 "configuration": test_data["configuration"],
                 "metadata": test_data["metadata"],
-                "accessibility": test_data["accessibility"]
-            }
+                "accessibility": test_data["accessibility"],
+            },
         }
 
         # Make request
@@ -349,7 +350,9 @@ class TestUIGraphQLAPI:
                 validate_field_exists(component, "type")
                 validate_field_equals(component, "type", test_data["type"])
                 validate_field_exists(component, "description")
-                validate_field_equals(component, "description", test_data["description"])
+                validate_field_equals(
+                    component, "description", test_data["description"]
+                )
                 validate_field_exists(component, "configuration")
                 validate_field_exists(component, "metadata")
                 validate_field_exists(component, "accessibility")
@@ -417,9 +420,9 @@ class TestUIGraphQLAPI:
                 "component": {
                     "name": test_data["name"],
                     "type": test_data["type"],
-                    "configuration": test_data["configuration"]
+                    "configuration": test_data["configuration"],
                 },
-                "viewports": ["DESKTOP", "TABLET", "MOBILE"]
+                "viewports": ["DESKTOP", "TABLET", "MOBILE"],
             }
         }
 
@@ -477,7 +480,7 @@ class TestUIGraphQLAPI:
                     # Missing required fields
                     "description": "Invalid component"
                 }
-            }
+            },
         )
         result = validate_json_response(response)
         validate_field_exists(result, "errors")

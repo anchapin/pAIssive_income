@@ -4,9 +4,10 @@ Niche Analysis schemas for the API server.
 This module provides Pydantic models for Niche Analysis API request and response validation.
 """
 
-from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from .bulk_operations import (
     BulkCreateRequest,
@@ -115,11 +116,13 @@ class NicheCreateRequest(BaseModel):
 
 class BulkNicheCreateRequest(BulkCreateRequest[NicheCreateRequest]):
     """Request model for bulk niche creation."""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class BulkNicheCreateResponse(BulkCreateResponse[NicheResponse]):
     """Response model for bulk niche creation."""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
@@ -141,11 +144,13 @@ class NicheUpdateRequest(BaseModel):
 
 class BulkNicheUpdateRequest(BulkUpdateRequest[NicheUpdateRequest]):
     """Request model for bulk niche updates."""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class BulkNicheUpdateResponse(BulkUpdateResponse[NicheResponse]):
     """Response model for bulk niche updates."""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
@@ -153,7 +158,7 @@ class BulkNicheUpdateResponse(BulkUpdateResponse[NicheResponse]):
 class ErrorResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Error response model."""
-    
+
     error_code: str = Field(..., description="Error code")
     error_message: str = Field(..., description="Error message")
     details: Optional[Dict[str, Any]] = Field(None, description="Error details")

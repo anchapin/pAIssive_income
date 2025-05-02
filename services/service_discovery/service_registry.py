@@ -7,7 +7,7 @@ along with common data structures and exceptions used for service discovery.
 
 import abc
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 
 @dataclass

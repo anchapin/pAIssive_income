@@ -4,9 +4,9 @@ Memory metric for benchmarking AI models.
 This module provides a metric for measuring the memory usage of AI models.
 """
 
-import os
 import gc
-from typing import Optional, Callable
+import os
+from typing import Callable, Optional
 
 from .base_metric import BaseMetric
 
@@ -69,7 +69,7 @@ class MemoryMetric(BaseMetric):
 
         # Run function if provided
         if func is not None:
-            result = func(*args, **kwargs)
+            func(*args, **kwargs)
 
         # Get final memory usage
         final_memory = self._get_memory_usage()
@@ -128,7 +128,7 @@ class MemoryMetric(BaseMetric):
             torch.cuda.reset_peak_memory_stats()
 
         # Run function
-        result = func(*args, **kwargs)
+        func(*args, **kwargs)
 
         # Get peak memory usage
         if TORCH_AVAILABLE and self.device == "cuda" and torch.cuda.is_available():

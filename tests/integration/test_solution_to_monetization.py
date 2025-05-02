@@ -2,11 +2,12 @@
 Integration tests for the solution-to-monetization workflow.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from agent_team import AgentTeam
-from monetization import SubscriptionModel, PricingCalculator, RevenueProjector
+from monetization import PricingCalculator, RevenueProjector, SubscriptionModel
 
 
 @pytest.fixture
@@ -160,7 +161,7 @@ def test_solution_features_to_subscription_model_integration(mock_solution):
     ]
 
     # Add a free tier with basic features
-    free_tier = model.add_tier(
+    model.add_tier(
         name="Free",
         description="Basic features for free users",
         price_monthly=0.0,
@@ -170,7 +171,7 @@ def test_solution_features_to_subscription_model_integration(mock_solution):
     )
 
     # Add a pro tier with all features
-    pro_tier = model.add_tier(
+    model.add_tier(
         name="Pro",
         description="All features for professional users",
         price_monthly=19.99,
@@ -178,7 +179,7 @@ def test_solution_features_to_subscription_model_integration(mock_solution):
     )
 
     # Add a business tier with all features and higher limits
-    business_tier = model.add_tier(
+    model.add_tier(
         name="Business",
         description="All features with higher limits for business users",
         price_monthly=49.99,
@@ -204,7 +205,7 @@ def test_solution_to_pricing_calculator_integration(mock_solution):
     """Test the integration of solution data into pricing calculations."""
     # Calculate development costs based on solution features
     development_cost_map = {"low": 1000, "medium": 5000, "high": 10000}
-    total_development_cost = sum(
+    sum(
         development_cost_map[feature.get("development_cost", "medium")]
         for feature in mock_solution["features"]
     )
@@ -257,17 +258,17 @@ def test_solution_to_revenue_projector_integration(mock_solution):
         model.add_feature(name=feature["name"], description=feature["description"])
 
     # Add tiers
-    free_tier = model.add_tier(
+    model.add_tier(
         name="Free", description="Basic features for free users", price_monthly=0.0
     )
 
-    pro_tier = model.add_tier(
+    model.add_tier(
         name="Pro",
         description="All features for professional users",
         price_monthly=19.99,
     )
 
-    business_tier = model.add_tier(
+    model.add_tier(
         name="Business",
         description="All features with higher limits for business users",
         price_monthly=49.99,
@@ -355,7 +356,7 @@ def test_end_to_end_solution_to_monetization_workflow(mock_solution):
     ]
 
     # 4. Create a free tier with limited features
-    free_tier = model.add_tier(
+    model.add_tier(
         name="Free",
         description="Basic features for free users",
         price_monthly=0.0,

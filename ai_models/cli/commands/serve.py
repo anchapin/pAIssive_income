@@ -4,10 +4,10 @@ Serve commands for the command-line interface.
 This module provides commands for serving models.
 """
 
-import os
-import json
 import argparse
+import json
 import logging
+import os
 
 from ..base import BaseCommand
 
@@ -130,7 +130,7 @@ class ServeRESTCommand(BaseCommand):
 
         try:
             # Import required modules
-            from ...serving import RESTServer, RESTConfig
+            from ...serving import RESTConfig, RESTServer
 
             # Load configuration from file if provided
             config_dict = {}
@@ -291,7 +291,7 @@ class ServeGRPCCommand(BaseCommand):
 
         try:
             # Import required modules
-            from ...serving import GRPCServer, GRPCConfig
+            from ...serving import GRPCConfig, GRPCServer
 
             # Load configuration from file if provided
             config_dict = {}

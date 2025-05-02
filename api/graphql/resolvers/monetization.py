@@ -5,7 +5,7 @@ This module provides resolvers for monetization queries and mutations.
 """
 
 import logging
-from typing import Optional, List
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -24,11 +24,11 @@ except ImportError:
 
 if STRAWBERRY_AVAILABLE:
     from ..schemas.monetization import (
-        SubscriptionModelType,
-        RevenueProjectionType,
-        SubscriptionModelInput,
         PricingTierInput,
         RevenueProjectionInput,
+        RevenueProjectionType,
+        SubscriptionModelInput,
+        SubscriptionModelType,
         SubscriptionTypeEnum,
     )
 

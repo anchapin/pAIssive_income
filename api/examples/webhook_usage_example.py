@@ -4,12 +4,12 @@ Example of webhook usage in the application.
 This module demonstrates how to integrate webhooks with other parts of the application.
 """
 
-import logging
 import asyncio
-from typing import Dict, Any
+import logging
+from typing import Any, Dict
 
-from ..services.webhook_service import WebhookService
 from ..schemas.webhook import WebhookEventType
+from ..services.webhook_service import WebhookService
 
 # Set up logging
 logging.basicConfig(

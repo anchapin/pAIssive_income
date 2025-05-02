@@ -1,3 +1,13 @@
+
+import os
+import sys
+from datetime import datetime
+from unittest.mock import MagicMock
+import pytest
+from tests.mocks.fixtures import *  # noqa: F403  # Import all fixtures
+from tests.mocks.mock_external_apis import *  # noqa: F403  # Import all mock APIs
+from tests.mocks.mock_model_providers import *  # noqa: F403  # Import all mock providers
+
 """
 Pytest fixtures for the pAIssive_income project.
 
@@ -6,26 +16,27 @@ This module provides fixtures that can be used across tests.
 
 import os
 import sys
-import pytest
-from unittest.mock import MagicMock
 from datetime import datetime
+from unittest.mock import MagicMock
+
+import pytest
 
 # Add project root to Python path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Import our centralized mock fixtures
 from tests.mocks.fixtures import *  # noqa: F403  # Import all fixtures
-from tests.mocks.mock_model_providers import *  # noqa: F403  # Import all mock providers
 from tests.mocks.mock_external_apis import *  # noqa: F403  # Import all mock APIs
+from tests.mocks.mock_model_providers import *  # noqa: F403  # Import all mock providers
 
 # Keep existing mock payment APIs for backward compatibility
 try:
     from tests.mocks.mock_payment_apis import (
-        create_payment_gateway,
-        MockStripeGateway,
         MockPayPalGateway,
+        MockStripeGateway,
+        create_payment_gateway,
     )
 except ImportError:
     # Create mock versions if the module doesn't exist yet
@@ -76,7 +87,7 @@ def mock_stripe_gateway():
     )
 
     # Create a subscription
-    subscription = gateway.create_subscription(
+    gateway.create_subscription(
         customer_id=customer["id"],
         plan_id=plan["id"],
         payment_method_id=payment_method["id"],

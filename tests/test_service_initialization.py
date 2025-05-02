@@ -2,26 +2,26 @@
 Tests for the service initialization module.
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
 
-from service_initialization import (
-    initialize_services,
-    _register_configuration,
-    _register_ai_models,
-    _register_agent_team,
-    _register_niche_analysis,
-    _register_monetization,
-    _register_marketing,
-)
-from ui.service_registry import get_service
+import pytest
 
 from dependency_container import DependencyContainer
-from interfaces.agent_interfaces import IAgentTeam, IAgentProfile, IResearchAgent
-from interfaces.model_interfaces import IModelManager, IModelConfig
-from interfaces.niche_interfaces import INicheAnalyzer
-from interfaces.monetization_interfaces import IMonetizationCalculator
+from interfaces.agent_interfaces import IAgentProfile, IAgentTeam, IResearchAgent
 from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.model_interfaces import IModelConfig, IModelManager
+from interfaces.monetization_interfaces import IMonetizationCalculator
+from interfaces.niche_interfaces import INicheAnalyzer
+from service_initialization import (
+    _register_agent_team,
+    _register_ai_models,
+    _register_configuration,
+    _register_marketing,
+    _register_monetization,
+    _register_niche_analysis,
+    initialize_services,
+)
+from ui.service_registry import get_service
 
 
 @pytest.fixture
@@ -77,7 +77,7 @@ def test_register_configuration_with_config(mock_model_config, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IModelConfig
-    assert kwargs.get("singleton") 
+    assert kwargs.get("singleton")
 
 
 @patch("service_initialization.ModelConfig")
@@ -97,7 +97,7 @@ def test_register_configuration_without_config(mock_model_config, mock_container
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IModelConfig
-    assert kwargs.get("singleton") 
+    assert kwargs.get("singleton")
 
 
 @patch("service_initialization.ModelManager")
@@ -127,7 +127,7 @@ def test_register_ai_models(
     )
     args, kwargs = mock_container.register.call_args
     assert args[0] == IModelManager
-    assert kwargs.get("singleton") 
+    assert kwargs.get("singleton")
 
     # Verify that the container.register_instance was called for adapter_factory
     mock_container.register_instance.assert_called_once_with(
@@ -190,7 +190,7 @@ def test_register_niche_analysis(mock_niche_analyzer, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == INicheAnalyzer
-    assert kwargs.get("singleton") 
+    assert kwargs.get("singleton")
 
 
 @patch("service_initialization.MonetizationCalculator")
@@ -207,7 +207,7 @@ def test_register_monetization(mock_monetization_calculator, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IMonetizationCalculator
-    assert kwargs.get("singleton") 
+    assert kwargs.get("singleton")
 
 
 @patch("service_initialization.StrategyGenerator")
@@ -228,7 +228,7 @@ def test_register_marketing(mock_strategy_generator, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IMarketingStrategy
-    assert kwargs.get("singleton") 
+    assert kwargs.get("singleton")
 
 
 @patch("ui.service_registry.get_container")

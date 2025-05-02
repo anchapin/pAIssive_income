@@ -4,9 +4,9 @@ Benchmark configuration for AI models.
 This module provides configuration classes for benchmarking AI models.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List, Union
 import enum
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Union
 
 
 class BenchmarkType(enum.Enum):

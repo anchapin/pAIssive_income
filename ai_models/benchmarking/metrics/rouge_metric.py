@@ -4,7 +4,7 @@ ROUGE metric for benchmarking AI models.
 This module provides a metric for measuring the ROUGE scores of text generation models.
 """
 
-from typing import Dict, Any, List, Callable
+from typing import Any, Callable, Dict, List
 
 from .base_metric import BaseMetric
 

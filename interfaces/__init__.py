@@ -8,48 +8,48 @@ and improve testability and maintainability.
 # Import agent interfaces
 from .agent_interfaces import (
     IAgentTeam,
-    IResearchAgent,
     IDeveloperAgent,
-    IMonetizationAgent,
-    IMarketingAgent,
     IFeedbackAgent,
+    IMarketingAgent,
+    IMonetizationAgent,
+    IResearchAgent,
 )
+
+# Import marketing interfaces
+from .marketing_interfaces import IContentTemplate, IMarketingStrategy, IPersonaCreator
 
 # Import model interfaces
 from .model_interfaces import (
+    ICacheManager,
+    IModelAdapter,
     IModelConfig,
     IModelInfo,
     IModelManager,
-    IModelAdapter,
-    ICacheManager,
     IPerformanceMonitor,
 )
 
-# Import niche analysis interfaces
-from .niche_interfaces import IMarketAnalyzer, IProblemIdentifier, IOpportunityScorer
-
 # Import monetization interfaces
 from .monetization_interfaces import (
-    ISubscriptionModel,
     IPricingCalculator,
     IRevenueProjector,
     ISubscriptionManager,
+    ISubscriptionModel,
     SubscriptionStatus,
     TransactionStatus,
     TransactionType,
 )
 
-# Import marketing interfaces
-from .marketing_interfaces import IPersonaCreator, IMarketingStrategy, IContentTemplate
+# Import niche analysis interfaces
+from .niche_interfaces import IMarketAnalyzer, IOpportunityScorer, IProblemIdentifier
 
 # Import UI interfaces
 from .ui_interfaces import (
-    IBaseService,
     IAgentTeamService,
-    INicheAnalysisService,
+    IBaseService,
     IDeveloperService,
-    IMonetizationService,
     IMarketingService,
+    IMonetizationService,
+    INicheAnalysisService,
 )
 
 __all__ = [

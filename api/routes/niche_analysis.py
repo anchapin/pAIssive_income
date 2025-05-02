@@ -1,3 +1,4 @@
+
 """
 Niche Analysis routes for the API server.
 
@@ -5,9 +6,10 @@ This module provides route handlers for Niche Analysis operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
-import uuid
 import time
+import uuid
+from typing import Any, Dict, List, Optional
+
 from errors import BaseError, ValidationError
 
 # Set up logging
@@ -18,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, HTTPException, Depends, Query, Path, Body
+    from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
     from fastapi.responses import JSONResponse
 
     FASTAPI_AVAILABLE = True
@@ -26,29 +28,29 @@ except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
 
-# Import schemas
-from ..schemas.niche_analysis import (
-    NicheAnalysisRequest,
-    NicheAnalysisResponse,
-    NicheResponse,
-    MarketSegmentResponse,
-    NicheCreateRequest,
-    BulkNicheCreateRequest,
-    NicheUpdateRequest,
-    BulkNicheUpdateRequest,
+# Import dependencies
+from ..dependencies import (
+    get_market_segment_service,
+    get_niche_service,
 )
 from ..schemas.common import (
     ErrorResponse,
-    SuccessResponse,
     PaginatedResponse,
-    SortDirection,
     QueryParams,
+    SortDirection,
+    SuccessResponse,
 )
 
-# Import dependencies
-from ..dependencies import (
-    get_niche_service,
-    get_market_segment_service,
+# Import schemas
+from ..schemas.niche_analysis import (
+    BulkNicheCreateRequest,
+    BulkNicheUpdateRequest,
+    MarketSegmentResponse,
+    NicheAnalysisRequest,
+    NicheAnalysisResponse,
+    NicheCreateRequest,
+    NicheResponse,
+    NicheUpdateRequest,
 )
 
 # Create router
@@ -92,7 +94,7 @@ async def get_niches(
             page_size=page_size,
             sort_by=sort_by,
             sort_direction=sort_direction,
-            filters=[]
+            filters=[],
         )
 
         # Get niches
@@ -317,9 +319,7 @@ async def analyze_niches(
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         logger.error(f"Error analyzing niches: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Error analyzing niches: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Error analyzing niches: {str(e)}")
 
 
 @router.get(
@@ -429,7 +429,6 @@ async def get_market_segments(
                 status_code=500, detail=f"Error creating niches: {str(e)}"
             )
 
-
     @router.put(
         "/niches/bulk",
         response_model=None,  # Disable response model generation from type annotation
@@ -514,7 +513,6 @@ async def get_market_segments(
             raise HTTPException(
                 status_code=500, detail=f"Error updating niches: {str(e)}"
             )
-
 
     @router.delete(
         "/niches/bulk",

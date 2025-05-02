@@ -5,9 +5,9 @@ This script demonstrates how to use the ModelDownloader to download
 models from various sources.
 """
 
+import logging
 import os
 import sys
-import logging
 import time
 
 # Add the parent directory to the path to import the ai_models module
@@ -15,7 +15,7 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from ai_models import ModelDownloader, DownloadProgress, ModelManager
+from ai_models import DownloadProgress, ModelDownloader, ModelManager
 
 # Set up logging
 logging.basicConfig(

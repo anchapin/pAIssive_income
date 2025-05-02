@@ -4,14 +4,13 @@ Tests for the Niche Analysis GraphQL API.
 This module contains tests for Niche Analysis GraphQL queries and mutations.
 """
 
-
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_niche_analysis_data
-)
+from tests.api.utils.test_data import generate_id, generate_niche_analysis_data
 from tests.api.utils.test_validators import (
-    validate_json_response, validate_field_exists,
-    validate_field_equals, validate_field_type
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_type,
+    validate_json_response,
 )
 
 
@@ -97,8 +96,8 @@ class TestNicheAnalysisGraphQLAPI:
                 "analysisParameters": {
                     "minOpportunityScore": 0.7,
                     "considerTechnologicalTrends": True,
-                    "focusOnAiApplications": True
-                }
+                    "focusOnAiApplications": True,
+                },
             }
         }
 
@@ -302,7 +301,7 @@ class TestNicheAnalysisGraphQLAPI:
                 "description": test_data["description"],
                 "marketSize": test_data["market_size"],
                 "growthRate": test_data["growth_rate"],
-                "competitionLevel": test_data["competition_level"]
+                "competitionLevel": test_data["competition_level"],
             }
         }
 
@@ -330,7 +329,9 @@ class TestNicheAnalysisGraphQLAPI:
                 validate_field_exists(niche, "growthRate")
                 validate_field_equals(niche, "growthRate", test_data["growth_rate"])
                 validate_field_exists(niche, "competitionLevel")
-                validate_field_equals(niche, "competitionLevel", test_data["competition_level"])
+                validate_field_equals(
+                    niche, "competitionLevel", test_data["competition_level"]
+                )
                 validate_field_exists(niche, "createdAt")
                 validate_field_exists(niche, "updatedAt")
 
@@ -364,8 +365,8 @@ class TestNicheAnalysisGraphQLAPI:
                 "description": test_data["description"],
                 "marketSize": test_data["market_size"],
                 "growthRate": test_data["growth_rate"],
-                "competitionLevel": test_data["competition_level"]
-            }
+                "competitionLevel": test_data["competition_level"],
+            },
         }
 
         # Make request
@@ -394,7 +395,9 @@ class TestNicheAnalysisGraphQLAPI:
                 validate_field_exists(niche, "growthRate")
                 validate_field_equals(niche, "growthRate", test_data["growth_rate"])
                 validate_field_exists(niche, "competitionLevel")
-                validate_field_equals(niche, "competitionLevel", test_data["competition_level"])
+                validate_field_equals(
+                    niche, "competitionLevel", test_data["competition_level"]
+                )
                 validate_field_exists(niche, "createdAt")
                 validate_field_exists(niche, "updatedAt")
 
@@ -503,11 +506,14 @@ class TestNicheAnalysisGraphQLAPI:
         }
         """
 
-        response = api_test_client.graphql_mutation(mutation, {
-            "input": {
-                # Missing required fields
-                "description": "Invalid analysis"
-            }
-        })
+        response = api_test_client.graphql_mutation(
+            mutation,
+            {
+                "input": {
+                    # Missing required fields
+                    "description": "Invalid analysis"
+                }
+            },
+        )
         result = validate_json_response(response)
         validate_field_exists(result, "errors")

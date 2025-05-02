@@ -7,9 +7,9 @@ This example demonstrates how to register webhooks and emit events.
 import asyncio
 import json
 
+from ..config import WebhookEventType
 from ..services.event_emitter import EventEmitter
 from ..services.webhook_service import WebhookService
-from ..config import WebhookEventType
 
 
 async def register_webhook_example():
@@ -92,8 +92,8 @@ async def verify_webhook_signature_example():
     secret = "your-webhook-secret"
 
     # Verify the signature
-    import hmac
     import hashlib
+    import hmac
 
     expected_signature = hmac.new(
         secret.encode("utf-8"), raw_payload.encode("utf-8"), hashlib.sha256

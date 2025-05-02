@@ -5,27 +5,27 @@ This module provides functionality for managing a team of specialized AI agents
 that collaborate on developing and monetizing niche AI tools for passive income.
 """
 
-from .team_config import AgentTeam
-from .schemas import (
-    TeamConfigSchema,
-    ModelSettingsSchema,
-    WorkflowSettingsSchema,
-    AgentProfileSchema,
-    NicheSchema,
-    SolutionSchema,
-    MonetizationStrategySchema,
-    MarketingPlanSchema,
-    FeedbackItemSchema,
-    ProjectStateSchema,
-)
 from .agent_profiles import (
     AgentProfile,
-    ResearchAgent,
     DeveloperAgent,
-    MonetizationAgent,
-    MarketingAgent,
     FeedbackAgent,
+    MarketingAgent,
+    MonetizationAgent,
+    ResearchAgent,
 )
+from .schemas import (
+    AgentProfileSchema,
+    FeedbackItemSchema,
+    MarketingPlanSchema,
+    ModelSettingsSchema,
+    MonetizationStrategySchema,
+    NicheSchema,
+    ProjectStateSchema,
+    SolutionSchema,
+    TeamConfigSchema,
+    WorkflowSettingsSchema,
+)
+from .team_config import AgentTeam
 
 __all__ = [
     # Team configuration

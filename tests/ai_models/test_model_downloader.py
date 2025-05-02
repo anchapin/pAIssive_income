@@ -2,13 +2,14 @@
 Tests for the ModelDownloader class.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import os
-import tempfile
 import shutil
+import tempfile
+from unittest.mock import MagicMock, patch
 
-from ai_models.model_downloader import ModelDownloader, DownloadTask, DownloadProgress
+import pytest
+
+from ai_models.model_downloader import DownloadProgress, DownloadTask, ModelDownloader
 
 
 def test_download_progress_init():

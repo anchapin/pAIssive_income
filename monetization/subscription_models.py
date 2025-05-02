@@ -1,3 +1,4 @@
+import time
 """
 Subscription Models for the pAIssive Income project.
 
@@ -6,16 +7,17 @@ for AI-powered software tools. It includes base classes and specific implementat
 for various subscription models like freemium, tiered, usage-based, and hybrid models.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-import uuid
 import copy
 import logging
+import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from common_utils import to_json, save_to_json_file, load_from_json_file
+from common_utils import load_from_json_file, save_to_json_file, to_json
+
 from .errors import (
-    TierNotFoundError,
     FeatureNotFoundError,
+    TierNotFoundError,
     ValidationError,
     handle_exception,
 )
@@ -200,7 +202,7 @@ class SubscriptionModel:
             return False
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(e, error_class=MonetizationError, reraise=False)
+            handle_exception(e, error_class=MonetizationError, reraise=False)
             return False
 
     def get_tier_features(self, tier_id: str) -> List[Dict[str, Any]]:
@@ -301,7 +303,7 @@ class SubscriptionModel:
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(e, error_class=ValidationError, reraise=True)
+            handle_exception(e, error_class=ValidationError, reraise=True)
             return False  # This line won't be reached due to reraise=True
 
     def get_tier_by_id(self, tier_id: str) -> Optional[Dict[str, Any]]:

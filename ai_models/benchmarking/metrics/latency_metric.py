@@ -5,7 +5,7 @@ This module provides a metric for measuring the latency of AI models.
 """
 
 import time
-from typing import Dict, Callable
+from typing import Callable, Dict
 
 from .base_metric import BaseMetric
 
@@ -38,7 +38,7 @@ class LatencyMetric(BaseMetric):
         """
         # Measure latency
         start_time = time.time()
-        result = func(*args, **kwargs)
+        func(*args, **kwargs)
         end_time = time.time()
 
         # Calculate latency in milliseconds

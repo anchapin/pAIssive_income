@@ -4,10 +4,10 @@ Info command for the command-line interface.
 This module provides a command for getting information about a model.
 """
 
-import os
-import json
 import argparse
+import json
 import logging
+import os
 
 from ..base import BaseCommand
 

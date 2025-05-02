@@ -4,13 +4,13 @@ API Analytics Database.
 This module provides a database for storing and retrieving API analytics data.
 """
 
-import os
 import json
-import sqlite3
 import logging
+import os
+import sqlite3
 import threading
-from typing import Dict, List, Any, Tuple
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Tuple
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

@@ -5,7 +5,7 @@ This module provides resolvers for user queries and mutations.
 """
 
 import logging
-from typing import Optional, List
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -24,12 +24,12 @@ except ImportError:
 
 if STRAWBERRY_AVAILABLE:
     from ..schemas.user import (
-        UserType,
-        ProjectType,
         CollaborationType,
-        UserInput,
         ProjectInput,
+        ProjectType,
+        UserInput,
         UserRoleEnum,
+        UserType,
     )
 
     @strawberry.type

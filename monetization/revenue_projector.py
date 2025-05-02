@@ -5,10 +5,10 @@ This module provides classes for projecting revenue for AI-powered software tool
 It includes tools for user acquisition, conversion, churn, and lifetime value calculations.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-import uuid
 import json
+import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 class RevenueProjector:
@@ -584,8 +584,8 @@ class RevenueProjector:
 # Example usage
 if __name__ == "__main__":
     # Import required classes
-    from subscription_models import SubscriptionModel
     from pricing_calculator import PricingCalculator
+    from subscription_models import SubscriptionModel
 
     # Create a subscription model
     model = SubscriptionModel(

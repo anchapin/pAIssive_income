@@ -5,15 +5,14 @@ This module provides shared data structures used across the AI Models module
 to avoid circular imports between model_manager.py and model_versioning.py.
 """
 
-import os
 import json
-import time
 import logging
-from datetime import datetime
-from typing import Dict, List, Any
-from dataclasses import dataclass
-
+import os
 import sys
+import time
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, List
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from interfaces.model_interfaces import IModelInfo

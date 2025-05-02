@@ -8,8 +8,8 @@ from typing import List
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, HTTPException, Depends
-    from pydantic import BaseModel, Field, ConfigDict
+    from fastapi import APIRouter, Depends, HTTPException
+    from pydantic import BaseModel, ConfigDict, Field
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -22,7 +22,8 @@ except ImportError:
     class BaseModel:
         pass
 
-    Field = lambda *args, **kwargs: None
+    def Field(*args, **kwargs):
+        return None
 
 
 # Create router

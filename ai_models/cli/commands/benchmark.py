@@ -4,10 +4,10 @@ Benchmark command for the command-line interface.
 This module provides a command for benchmarking models.
 """
 
-import os
-import json
 import argparse
+import json
 import logging
+import os
 
 from ..base import BaseCommand
 
@@ -137,12 +137,12 @@ class BenchmarkCommand(BaseCommand):
             # Import required modules
             from ...benchmarking import (
                 BenchmarkType,
-                run_benchmark,
                 compare_models,
                 plot_benchmark_results,
                 plot_comparison,
                 plot_latency_distribution,
                 plot_memory_usage,
+                run_benchmark,
             )
 
             # Create output directory if it doesn't exist

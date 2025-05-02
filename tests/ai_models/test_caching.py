@@ -1,11 +1,13 @@
 """Tests for the model caching system."""
 
-import pytest
-import time
 import sqlite3
+import time
+
+import pytest
+
 from ai_models.caching import (
-    CacheManager,
     CacheConfig,
+    CacheManager,
 )
 
 # Test data
@@ -204,7 +206,7 @@ def test_sqlite_cache_features(sqlite_cache_config, tmp_path):
 
     # This should fail because the file exists but is not a valid SQLite database
     with pytest.raises(sqlite3.DatabaseError):
-        locked_cache = CacheManager(locked_config)
+        CacheManager(locked_config)
 
     # Verify the original cache still works
     result = cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_PARAMS)

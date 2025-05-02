@@ -4,7 +4,6 @@ Tests for the monetization API.
 This module contains tests for the monetization API endpoints.
 """
 
-
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import (
     generate_id,
@@ -12,14 +11,14 @@ from tests.api.utils.test_data import (
     generate_revenue_projection_data,
 )
 from tests.api.utils.test_validators import (
-    validate_error_response,
-    validate_success_response,
-    validate_paginated_response,
     validate_bulk_response,
-    validate_field_exists,
+    validate_error_response,
     validate_field_equals,
-    validate_field_type,
+    validate_field_exists,
     validate_field_not_empty,
+    validate_field_type,
+    validate_paginated_response,
+    validate_success_response,
 )
 
 
@@ -282,15 +281,15 @@ class TestMonetizationAPI:
             "subscription_id": generate_id(),
             "metric": "api_calls",
             "value": 100,
-            "timestamp": "2025-04-29T10:00:00Z"
+            "timestamp": "2025-04-29T10:00:00Z",
         }
-        
+
         # Make request
         response = api_test_client.post("monetization/usage/track", data)
-        
+
         # Validate response
         result = validate_success_response(response, 201)  # Created
-        
+
         # Validate fields
         validate_field_exists(result, "id")
         validate_field_type(result, "id", str)
@@ -308,23 +307,23 @@ class TestMonetizationAPI:
         """Test getting metered usage."""
         # Generate a subscription ID
         subscription_id = generate_id()
-        
+
         # Make request
         response = api_test_client.get(
             f"monetization/usage/{subscription_id}",
             params={
                 "metric": "api_calls",
                 "start_date": "2025-04-01T00:00:00Z",
-                "end_date": "2025-04-30T23:59:59Z"
-            }
+                "end_date": "2025-04-30T23:59:59Z",
+            },
         )
-        
+
         # This might return 404 if the subscription doesn't exist
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
             result = validate_success_response(response)
-            
+
             # Validate fields
             validate_field_exists(result, "subscription_id")
             validate_field_equals(result, "subscription_id", subscription_id)
@@ -339,21 +338,19 @@ class TestMonetizationAPI:
         """Test calculating metered billing."""
         # Generate a subscription ID
         subscription_id = generate_id()
-        
+
         # Make request
         response = api_test_client.get(
             f"monetization/billing/{subscription_id}/calculate",
-            params={
-                "billing_period": "2025-04"
-            }
+            params={"billing_period": "2025-04"},
         )
-        
+
         # This might return 404 if the subscription doesn't exist
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
             result = validate_success_response(response)
-            
+
             # Validate fields
             validate_field_exists(result, "subscription_id")
             validate_field_equals(result, "subscription_id", subscription_id)
@@ -365,7 +362,7 @@ class TestMonetizationAPI:
             validate_field_type(result, "currency", str)
             validate_field_exists(result, "line_items")
             validate_field_type(result, "line_items", list)
-            
+
             # Validate line items if they exist
             if result["line_items"]:
                 item = result["line_items"][0]
@@ -386,15 +383,15 @@ class TestMonetizationAPI:
             "metric": "api_calls",
             "threshold": 1000,
             "alert_type": "usage",
-            "notification_channels": ["email", "webhook"]
+            "notification_channels": ["email", "webhook"],
         }
-        
+
         # Make request
         response = api_test_client.post("monetization/billing/alerts", data)
-        
+
         # Validate response
         result = validate_success_response(response, 201)  # Created
-        
+
         # Validate fields
         validate_field_exists(result, "id")
         validate_field_type(result, "id", str)
@@ -415,19 +412,19 @@ class TestMonetizationAPI:
         """Test getting billing alerts."""
         # Generate a subscription ID
         subscription_id = generate_id()
-        
+
         # Make request
         response = api_test_client.get(f"monetization/billing/{subscription_id}/alerts")
-        
+
         # This might return 404 if the subscription doesn't exist
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
             result = validate_paginated_response(response)
-            
+
             # Validate items
             validate_field_type(result, "items", list)
-            
+
             # If there are items, validate their structure
             if result["items"]:
                 item = result["items"][0]

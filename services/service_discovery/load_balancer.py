@@ -7,7 +7,7 @@ requests across multiple instances of a service.
 
 import abc
 import random
-from typing import List, TypeVar, Generic, Optional
+from typing import Generic, List, Optional, TypeVar
 
 T = TypeVar("T")
 

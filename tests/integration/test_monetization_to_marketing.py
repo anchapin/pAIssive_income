@@ -2,11 +2,12 @@
 Integration tests for the monetization-to-marketing workflow.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from agent_team import AgentTeam
-from marketing import MarketingPlan, ConcreteContentGenerator, ChannelStrategy
+from marketing import ChannelStrategy, ConcreteContentGenerator, MarketingPlan
 
 
 @pytest.fixture
@@ -611,7 +612,7 @@ def test_end_to_end_monetization_to_marketing_workflow(
     """Test end-to-end workflow from monetization strategy to marketing plan."""
     # Step 1: Extract key information from monetization strategy
     subscription_model = mock_monetization_strategy["subscription_model"]
-    tiers = subscription_model["tiers"]
+    subscription_model["tiers"]
     target_audience = mock_monetization_strategy["target_audience"]
     pricing_strategy = mock_monetization_strategy["pricing_strategy"]
     revenue_projections = mock_monetization_strategy["revenue_projections"]

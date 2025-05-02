@@ -6,17 +6,17 @@ for different marketing assets including email campaigns, landing pages,
 ad copy, call-to-action elements, and more.
 """
 
-import uuid
 import logging
+import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from scipy import stats
 
 from interfaces.marketing_interfaces import IABTesting
 from marketing.errors import (
-    MarketingError,
     InvalidTestConfigurationError,
+    MarketingError,
     TestNotFoundError,
 )
 
@@ -90,16 +90,16 @@ class ABTest:
         if not any(v.get("is_control") for v in variants):
             raise InvalidTestConfigurationError("Test must have a control variant")
         if sum(1 for v in variants if v.get("is_control")) > 1:
-            raise InvalidTestConfigurationError("Test can only have one control variant")
+            raise InvalidTestConfigurationError(
+                "Test can only have one control variant"
+            )
 
         # Initialize metrics for each variant
         for variant in self.variants:
-            variant.setdefault("metrics", {
-                "impressions": 0,
-                "interactions": 0,
-                "conversions": 0,
-                "revenue": 0.0
-            })
+            variant.setdefault(
+                "metrics",
+                {"impressions": 0, "interactions": 0, "conversions": 0, "revenue": 0.0},
+            )
             variant.setdefault("user_ids", set())
 
     def to_dict(self) -> Dict[str, Any]:
@@ -116,16 +116,12 @@ class ABTest:
             "content_type": self.content_type,
             "test_type": self.test_type,
             "variants": [
-                {
-                    **v,
-                    "user_ids": list(v["user_ids"]),
-                    "metrics": v["metrics"]
-                }
+                {**v, "user_ids": list(v["user_ids"]), "metrics": v["metrics"]}
                 for v in self.variants
             ],
             "created_at": self.created_at.isoformat(),
             "ended_at": self.ended_at.isoformat() if self.ended_at else None,
-            "results": self.analyze_test() if self.ended_at else None
+            "results": self.analyze_test() if self.ended_at else None,
         }
 
     def _get_variant_index(self, variant_id: str) -> int:
@@ -216,28 +212,38 @@ class ABTest:
             "interactions": metrics["interactions"],
             "conversions": metrics["conversions"],
             "revenue": metrics["revenue"],
-            "unique_users": len(variant["user_ids"])
+            "unique_users": len(variant["user_ids"]),
         }
 
         # Calculate rates
         if metrics["impressions"] > 0:
-            result["interaction_rate"] = metrics["interactions"] / metrics["impressions"]
+            result["interaction_rate"] = (
+                metrics["interactions"] / metrics["impressions"]
+            )
             result["conversion_rate"] = metrics["conversions"] / metrics["impressions"]
-            result["revenue_per_impression"] = metrics["revenue"] / metrics["impressions"]
+            result["revenue_per_impression"] = (
+                metrics["revenue"] / metrics["impressions"]
+            )
         else:
             result["interaction_rate"] = 0
             result["conversion_rate"] = 0
             result["revenue_per_impression"] = 0
 
         if metrics["interactions"] > 0:
-            result["conversion_per_interaction"] = metrics["conversions"] / metrics["interactions"]
-            result["revenue_per_interaction"] = metrics["revenue"] / metrics["interactions"]
+            result["conversion_per_interaction"] = (
+                metrics["conversions"] / metrics["interactions"]
+            )
+            result["revenue_per_interaction"] = (
+                metrics["revenue"] / metrics["interactions"]
+            )
         else:
             result["conversion_per_interaction"] = 0
             result["revenue_per_interaction"] = 0
 
         if metrics["conversions"] > 0:
-            result["revenue_per_conversion"] = metrics["revenue"] / metrics["conversions"]
+            result["revenue_per_conversion"] = (
+                metrics["revenue"] / metrics["conversions"]
+            )
         else:
             result["revenue_per_conversion"] = 0
 
@@ -367,7 +373,7 @@ class ABTest:
         self,
         variant1: Dict[str, Any],
         variant2: Dict[str, Any],
-        metric: str = "conversion_rate"
+        metric: str = "conversion_rate",
     ) -> Tuple[float, bool]:
         """
         Calculate statistical significance between two variants.
@@ -394,7 +400,7 @@ class ABTest:
         # Create contingency table for Fisher's exact test
         table = [
             [variant1_conv, variant1_imp - variant1_conv],
-            [variant2_conv, variant2_imp - variant2_conv]
+            [variant2_conv, variant2_imp - variant2_conv],
         ]
 
         # Use one-tailed Fisher's exact test
@@ -402,7 +408,7 @@ class ABTest:
 
         # Test is significant if p < 0.05 and variant1 rate > variant2 rate
         is_significant = p_value < 0.05 and (
-            variant1_conv/variant1_imp > variant2_conv/variant2_imp
+            variant1_conv / variant1_imp > variant2_conv / variant2_imp
         )
 
         return p_value, is_significant
@@ -431,7 +437,7 @@ class ABTest:
             "ended_at": self.ended_at.isoformat(),
             "duration": (self.ended_at - self.created_at).total_seconds(),
             "total_users": len(set().union(*(v["user_ids"] for v in self.variants))),
-            "statistical_power": None  # Calculated below if possible
+            "statistical_power": None,  # Calculated below if possible
         }
 
         # Analyze each non-control variant
@@ -440,11 +446,10 @@ class ABTest:
                 continue
 
             variant_metrics = self._calculate_metrics(variant["id"])
-            
+
             # Calculate significance vs control
             p_value, is_significant = self._calculate_significance(
-                variant, 
-                next(v for v in self.variants if v.get("is_control"))
+                variant, next(v for v in self.variants if v.get("is_control"))
             )
 
             variant_result = {
@@ -453,27 +458,36 @@ class ABTest:
                 "is_significant": is_significant,
                 "lift": {
                     "interaction_rate": (
-                        variant_metrics["interaction_rate"] / control_metrics["interaction_rate"] - 1
-                        if control_metrics["interaction_rate"] > 0 else 0
+                        variant_metrics["interaction_rate"]
+                        / control_metrics["interaction_rate"]
+                        - 1
+                        if control_metrics["interaction_rate"] > 0
+                        else 0
                     ),
                     "conversion_rate": (
-                        variant_metrics["conversion_rate"] / control_metrics["conversion_rate"] - 1
-                        if control_metrics["conversion_rate"] > 0 else 0
+                        variant_metrics["conversion_rate"]
+                        / control_metrics["conversion_rate"]
+                        - 1
+                        if control_metrics["conversion_rate"] > 0
+                        else 0
                     ),
                     "revenue_per_impression": (
-                        variant_metrics["revenue_per_impression"] / control_metrics["revenue_per_impression"] - 1
-                        if control_metrics["revenue_per_impression"] > 0 else 0
-                    )
-                }
+                        variant_metrics["revenue_per_impression"]
+                        / control_metrics["revenue_per_impression"]
+                        - 1
+                        if control_metrics["revenue_per_impression"] > 0
+                        else 0
+                    ),
+                },
             }
 
             results["variants"].append(variant_result)
 
             # Update winner if this variant is significant and has highest conversion rate
-            if (
-                is_significant and
-                (results["winner"] is None or
-                 variant_metrics["conversion_rate"] > results["variants"][results["winner"]]["conversion_rate"])
+            if is_significant and (
+                results["winner"] is None
+                or variant_metrics["conversion_rate"]
+                > results["variants"][results["winner"]]["conversion_rate"]
             ):
                 results["winner"] = len(results["variants"]) - 1
 
@@ -491,7 +505,7 @@ class ABTest:
                     effect_size=max_effect_size,
                     nobs1=control_metrics["impressions"],
                     ratio=len(self.variants) - 1,  # Number of variant groups
-                    alpha=0.05
+                    alpha=0.05,
                 )
                 results["statistical_power"] = power
 
@@ -925,7 +939,7 @@ class ABTesting(IABTesting):
             )
 
         # Generate test variants based on persona and content type
-        persona_name = target_persona.get("name", "")
+        target_persona.get("name", "")
         persona_pain_points = target_persona.get("pain_points", [])
         persona_goals = target_persona.get("goals", [])
 

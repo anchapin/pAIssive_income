@@ -5,10 +5,10 @@ This module provides a manager for rate limiting.
 """
 
 import logging
-from typing import Dict, Any, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from ..config import APIConfig, RateLimitScope
-from .algorithms import create_rate_limiter, RateLimiter
+from .algorithms import RateLimiter, create_rate_limiter
 from .storage import create_storage
 
 # Set up logging

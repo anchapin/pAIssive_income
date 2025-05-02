@@ -4,8 +4,9 @@ API schemas for analytics.
 This module provides Pydantic models for API analytics.
 """
 
-from typing import Dict, List, Any, Optional
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class RequestStatsResponse(BaseModel):

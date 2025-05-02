@@ -5,7 +5,8 @@ This module provides Pydantic models for data validation in the niche analysis m
 """
 
 from typing import Dict, List, Optional
-from pydantic import BaseModel, Field, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CurrentSolutionSchema(BaseModel):
@@ -16,7 +17,8 @@ class CurrentSolutionSchema(BaseModel):
         ..., description="Description of manual processes used to solve the problem"
     )
     general_tools: str = Field(
-        ..., description="Description of general-purpose tools used to solve the problem",
+        ...,
+        description="Description of general-purpose tools used to solve the problem",
     )
     outsourcing: str = Field(
         ..., description="Description of outsourcing approach used to solve the problem"

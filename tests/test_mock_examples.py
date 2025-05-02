@@ -6,7 +6,6 @@ different components of the pAIssive_income project.
 """
 
 
-
 def test_openai_provider(mock_openai_provider):
     """Test the mock OpenAI provider."""
     # Call the create_completion method
@@ -118,11 +117,11 @@ def test_huggingface_api(mock_huggingface_api):
 
 def test_with_patched_model_providers(patch_model_providers, monkeypatch):
     """Test using the patched model providers."""
-    from ai_models.adapters.openai_compatible_adapter import OpenAICompatibleAdapter
     from unittest.mock import MagicMock
 
+    from ai_models.adapters.openai_compatible_adapter import OpenAICompatibleAdapter
+
     # Get the mock providers
-    mock_providers = patch_model_providers
 
     # Mock the API key and disable API status check
     monkeypatch.setenv("OPENAI_API_KEY", "sk-mock-key")

@@ -4,16 +4,17 @@ API key repository for the API server.
 This module provides a repository for API key storage and retrieval.
 """
 
-import logging
 import json
+import logging
 import os
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 from ..models.api_key import APIKey
 
 # Configure logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class APIKeyRepository:
     """
@@ -161,8 +162,7 @@ class APIKeyRepository:
             List of API keys for the user
         """
         return [
-            api_key for api_key in self.api_keys.values()
-            if api_key.user_id == user_id
+            api_key for api_key in self.api_keys.values() if api_key.user_id == user_id
         ]
 
     def get_all(self) -> List[APIKey]:

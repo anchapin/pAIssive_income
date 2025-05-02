@@ -2,8 +2,9 @@
 Test script for the FreemiumModel class.
 """
 
-from subscription_models import FreemiumModel
 import os
+
+from subscription_models import FreemiumModel
 
 
 def test_freemium_model():

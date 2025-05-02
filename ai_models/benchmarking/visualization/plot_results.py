@@ -5,10 +5,10 @@ This module provides functions for plotting benchmark results.
 """
 
 import os
-from typing import Optional, List
+from typing import List, Optional
 
-from ..benchmark_result import BenchmarkResult
 from ..benchmark_config import BenchmarkType
+from ..benchmark_result import BenchmarkResult
 
 # Try to import optional dependencies
 try:

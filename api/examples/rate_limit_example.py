@@ -4,16 +4,17 @@ Example of API rate limiting configuration.
 This module demonstrates how to configure API rate limiting.
 """
 
+import logging
 import os
 import sys
-import logging
 
 # Add the project root to the path so we can import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
+from api.config import APIConfig, RateLimitScope, RateLimitStrategy
+
 # Import API server
 from api.server import APIServer
-from api.config import APIConfig, RateLimitStrategy, RateLimitScope
 
 # Set up logging
 logging.basicConfig(

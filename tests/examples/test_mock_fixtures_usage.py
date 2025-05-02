@@ -5,8 +5,8 @@ This module contains example tests that demonstrate how to use
 the mock fixtures for external APIs in test scenarios.
 """
 
-import os
 import json
+import os
 
 
 # Test using mock_http fixture

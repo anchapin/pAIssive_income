@@ -8,7 +8,7 @@ import time
 import uuid
 from typing import Dict, List, Optional
 
-from .interfaces import ServiceRegistry, ServiceInstance, ServiceStatus
+from .interfaces import ServiceInstance, ServiceRegistry, ServiceStatus
 
 
 class InMemoryServiceRegistry(ServiceRegistry):

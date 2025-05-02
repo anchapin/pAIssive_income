@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 import time
-from typing import Any, Dict, Optional, Callable, Set, Tuple, Type
+from typing import Any, Callable, Dict, Optional, Set, Tuple, Type
 
 # Set up logging
 logger = logging.getLogger(__name__)

@@ -7,8 +7,9 @@ a local API server for running large language models.
 
 import json
 import logging
+from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Union
+
 import aiohttp
-from typing import Dict, List, Any, Optional, Union, Generator, AsyncGenerator
 
 from .base_adapter import BaseModelAdapter
 

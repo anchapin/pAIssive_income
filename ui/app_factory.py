@@ -5,12 +5,13 @@ This module provides functions for creating and initializing the Flask applicati
 used by the pAIssive Income UI.
 """
 
-from flask import Flask
-import os
 import json
 import logging
-from datetime import timedelta
+import os
 import uuid
+from datetime import timedelta
+
+from flask import Flask
 
 # Set up logging
 logging.basicConfig(

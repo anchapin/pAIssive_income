@@ -5,17 +5,17 @@ This script demonstrates how to use the usage-based pricing models
 to implement different pricing strategies.
 """
 
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
-from .usage_tracking import UsageMetric, UsageCategory
-from .usage_tracker import UsageTracker
 from .usage_pricing_strategies import (
-    PayAsYouGoPricing,
-    TieredUsagePricing,
     ConsumptionBasedPricing,
     HybridUsagePricing,
+    PayAsYouGoPricing,
+    TieredUsagePricing,
 )
+from .usage_tracker import UsageTracker
+from .usage_tracking import UsageCategory, UsageMetric
 
 
 def print_separator():

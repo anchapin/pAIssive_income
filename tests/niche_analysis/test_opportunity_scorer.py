@@ -2,7 +2,6 @@
 Tests for the OpportunityScorer class.
 """
 
-
 from niche_analysis.opportunity_scorer import OpportunityScorer
 
 

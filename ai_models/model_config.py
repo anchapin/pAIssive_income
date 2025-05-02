@@ -6,14 +6,14 @@ including settings for model paths, cache, and performance options.
 """
 
 import os
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, field
-
 import sys
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from common_utils import load_from_json_file, save_to_json_file, to_json
 from interfaces.model_interfaces import IModelConfig
-from common_utils import to_json, save_to_json_file, load_from_json_file
+
 from .schemas import ModelConfigSchema
 
 
@@ -165,7 +165,7 @@ class ModelConfig(IModelConfig):
 
             # Validate using Pydantic schema
             try:
-                from pydantic import ValidationError, ConfigDict
+                from pydantic import ConfigDict, ValidationError
 
                 # Use the Pydantic schema to validate the config
                 validated_config = ModelConfigSchema.model_validate(config_dict)

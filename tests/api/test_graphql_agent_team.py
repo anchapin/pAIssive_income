@@ -4,14 +4,13 @@ Tests for the Agent Team GraphQL API.
 This module contains tests for Agent Team GraphQL queries and mutations.
 """
 
-
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_agent_team_data
-)
+from tests.api.utils.test_data import generate_agent_team_data, generate_id
 from tests.api.utils.test_validators import (
-    validate_json_response, validate_field_exists,
-    validate_field_equals, validate_field_type
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_type,
+    validate_json_response,
 )
 
 
@@ -224,7 +223,7 @@ class TestAgentTeamGraphQLAPI:
                 "name": test_data["name"],
                 "description": test_data["description"],
                 "agents": test_data["agents"],
-                "workflowSettings": test_data["workflow_settings"]
+                "workflowSettings": test_data["workflow_settings"],
             }
         }
 
@@ -291,8 +290,8 @@ class TestAgentTeamGraphQLAPI:
                 "name": test_data["name"],
                 "description": test_data["description"],
                 "agents": test_data["agents"],
-                "workflowSettings": test_data["workflow_settings"]
-            }
+                "workflowSettings": test_data["workflow_settings"],
+            },
         }
 
         # Make request
@@ -389,9 +388,9 @@ class TestAgentTeamGraphQLAPI:
                     "type": "analyze_niche",
                     "parameters": {
                         "marketSegment": "e-commerce",
-                        "targetAudience": "small businesses"
-                    }
-                }
+                        "targetAudience": "small businesses",
+                    },
+                },
             }
         }
 
@@ -450,7 +449,7 @@ class TestAgentTeamGraphQLAPI:
                     # Missing required fields
                     "description": "Invalid team"
                 }
-            }
+            },
         )
         result = validate_json_response(response)
         validate_field_exists(result, "errors")

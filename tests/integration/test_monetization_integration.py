@@ -2,13 +2,14 @@
 Integration tests for the Monetization module.
 """
 
-import pytest
 import os
 
-from monetization.subscription_models import SubscriptionModel, FreemiumModel
-from monetization.subscription_manager import SubscriptionManager
+import pytest
+
 from monetization.pricing_calculator import PricingCalculator
 from monetization.revenue_projector import RevenueProjector
+from monetization.subscription_manager import SubscriptionManager
+from monetization.subscription_models import FreemiumModel, SubscriptionModel
 
 
 @pytest.fixture
@@ -36,14 +37,14 @@ def test_subscription_model_to_manager_integration(temp_subscription_dir):
     )
 
     # Add tiers
-    tier1 = model.add_tier(
+    model.add_tier(
         name="Basic",
         description="Basic tier",
         price_monthly=9.99,
         features=[feature1["id"]],
     )
 
-    tier2 = model.add_tier(
+    model.add_tier(
         name="Pro",
         description="Pro tier",
         price_monthly=19.99,
@@ -165,13 +166,13 @@ def test_subscription_model_to_revenue_projector_integration():
     )
 
     # Add tiers
-    basic_tier = model.add_tier(
+    model.add_tier(
         name="Basic", description="Basic tier", price_monthly=9.99
     )
 
-    pro_tier = model.add_tier(name="Pro", description="Pro tier", price_monthly=19.99)
+    model.add_tier(name="Pro", description="Pro tier", price_monthly=19.99)
 
-    premium_tier = model.add_tier(
+    model.add_tier(
         name="Premium", description="Premium tier", price_monthly=29.99
     )
 
@@ -329,7 +330,7 @@ def test_end_to_end_monetization_workflow(temp_subscription_dir):
     )
 
     # 8. Project revenue for 24 months
-    revenue_projections = projector.project_revenue(
+    projector.project_revenue(
         months=24, growth_rate=0.08, subscription_model=model
     )
 

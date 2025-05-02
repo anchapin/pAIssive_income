@@ -1,11 +1,16 @@
+
+import logging
+import os
+from ui import app
+
 """
 Main application file for the pAIssive Income UI.
 
 This file is the entry point for running the web interface.
 """
 
-import os
 import logging
+import os
 
 # Set up logging
 logging.basicConfig(

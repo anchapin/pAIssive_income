@@ -5,18 +5,19 @@ This module provides facilities for batch processing AI model inference operatio
 including text generation, embeddings, classification, and image processing.
 """
 
-import time
-import logging
 import asyncio
-from typing import List, Dict, Any, Optional, TypeVar, Generic, Tuple
+import logging
+import time
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-import uuid
+from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar
 
+from common_utils.batch_utils import BatchProcessingStats
+
+from .async_utils import AsyncModelProcessor, AsyncResult
 from .model_manager import ModelManager
 from .performance_monitor import PerformanceMonitor
-from common_utils.batch_utils import BatchProcessingStats
-from .async_utils import AsyncModelProcessor, AsyncResult
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -150,7 +151,6 @@ class BatchInferenceProcessor:
             batch_id=batch_id, total_items=len(prompts), start_time=datetime.now()
         )
 
-        effective_batch_size = batch_size or self.default_batch_size
         effective_concurrency = concurrency or self.default_concurrency
 
         # Process the batch asynchronously
@@ -241,7 +241,6 @@ class BatchInferenceProcessor:
             batch_id=batch_id, total_items=len(texts), start_time=datetime.now()
         )
 
-        effective_batch_size = batch_size or self.default_batch_size
         effective_concurrency = concurrency or self.default_concurrency
 
         # Process the batch asynchronously

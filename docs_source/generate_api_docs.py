@@ -7,12 +7,12 @@ This script:
 3. Updates index files with the latest module structure
 """
 
-import os
-import sys
 import importlib
 import inspect
+import os
 import pkgutil
-from typing import List, Dict, Set
+import sys
+from typing import Dict, List, Set
 
 
 def create_directory(path: str) -> None:

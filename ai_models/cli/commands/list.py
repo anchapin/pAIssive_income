@@ -4,8 +4,8 @@ List command for the command-line interface.
 This module provides a command for listing available models.
 """
 
-import json
 import argparse
+import json
 import logging
 
 from ..base import BaseCommand

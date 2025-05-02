@@ -3,9 +3,9 @@ User Personas module for the pAIssive Income project.
 Provides tools for defining and understanding target user personas.
 """
 
-from typing import Dict, List, Any, Optional, Union
 import uuid
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 
 
 class PersonaCreator:
@@ -584,7 +584,7 @@ class PainPointIdentifier:
         name = pain_point.get("name", "Unnamed Pain Point")
         description = pain_point.get("description", "")
         severity = pain_point.get("severity", "medium")
-        impact = pain_point.get("impact", "")
+        pain_point.get("impact", "")
 
         # Generate analysis based on severity
         if severity == "high":

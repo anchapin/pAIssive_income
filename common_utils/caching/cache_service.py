@@ -9,7 +9,7 @@ all parts of the project.
 import functools
 import hashlib
 import json
-from typing import Any, Dict, Optional, Callable, Tuple, TypeVar
+from typing import Any, Callable, Dict, Optional, Tuple, TypeVar
 
 # Import the caching system from AI models module
 from ai_models.caching import CacheManager

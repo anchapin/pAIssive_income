@@ -5,8 +5,8 @@ This module provides the base Query and Mutation classes that other
 module-specific resolvers will extend.
 """
 
-import logging
 import datetime
+import logging
 
 # Set up logging
 logging.basicConfig(

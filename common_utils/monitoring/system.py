@@ -6,14 +6,14 @@ disk usage, and network activity. It integrates with the metrics system to recor
 and track resource usage over time.
 """
 
+import platform
 import threading
 from enum import Enum
-from typing import Dict, Optional, Union, Any
-import platform
+from typing import Any, Dict, Optional, Union
 
 # Import our logging and metrics modules
 from common_utils.logging import get_logger
-from common_utils.monitoring.metrics import create_metric, record_value, MetricType
+from common_utils.monitoring.metrics import MetricType, create_metric, record_value
 
 logger = get_logger(__name__)
 

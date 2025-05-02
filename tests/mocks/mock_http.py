@@ -7,9 +7,9 @@ without actually making network calls.
 
 import json
 import re
-from typing import Dict, Any, Optional, Union, List, Callable, Iterator
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 from unittest.mock import MagicMock
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urlparse
 
 
 class MockResponse:
@@ -197,8 +197,7 @@ class MockRequests:
 
         # Parse the URL
         parsed_url = urlparse(url)
-        path = parsed_url.path
-        query = parse_qs(parsed_url.query)
+        parse_qs(parsed_url.query)
 
         # Find a matching response pattern
         response = None

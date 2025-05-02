@@ -5,7 +5,7 @@ This module provides rate limiting middleware for the API server.
 """
 
 import logging
-from typing import Dict, Optional, Any, Callable, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
 from ..config import APIConfig, RateLimitScope
 from ..rate_limit import RateLimitManager

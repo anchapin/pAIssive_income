@@ -2,10 +2,11 @@
 Tests for the AgentTeam class.
 """
 
-import os
 import json
+import os
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from agent_team.team_config import AgentTeam
 

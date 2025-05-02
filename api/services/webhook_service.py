@@ -4,24 +4,25 @@ Webhook service for the API server.
 This module provides services for webhook management and delivery.
 """
 
-import logging
-import json
-import uuid
 import asyncio
-import aiohttp
+import json
+import logging
+import uuid
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
+import aiohttp
 
 from .audit_service import AuditService
-from .webhook_security import WebhookSignatureVerifier
 from .metrics import (
+    track_queue_latency,
     track_webhook_delivery,
     track_webhook_error,
     track_webhook_retry,
-    update_webhook_health,
     update_queue_size,
-    track_queue_latency
+    update_webhook_health,
 )
+from .webhook_security import WebhookSignatureVerifier
 
 # Configure logger
 logging.basicConfig(level=logging.INFO)
@@ -47,7 +48,9 @@ class WebhookService:
         self.worker_task = None
         self.audit_service = audit_service or AuditService()
 
-    async def deliver_event(self, webhook_id: str, event_type: str, event_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def deliver_event(
+        self, webhook_id: str, event_type: str, event_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Deliver an event to a specific webhook immediately.
 
@@ -73,7 +76,9 @@ class WebhookService:
 
         # Check if webhook is subscribed to this event type
         if event_type not in webhook["events"]:
-            raise ValueError(f"Webhook {webhook_id} is not subscribed to event type: {event_type}")
+            raise ValueError(
+                f"Webhook {webhook_id} is not subscribed to event type: {event_type}"
+            )
 
         # Create delivery record
         delivery_id = str(uuid.uuid4())
@@ -84,14 +89,14 @@ class WebhookService:
             "event_data": event_data,
             "status": "pending",
             "attempts": 0,
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.utcnow().isoformat(),
         }
 
         # Store delivery
         self.deliveries[delivery_id] = delivery
 
         # Deliver webhook directly
-        success = await self._deliver_webhook(webhook, delivery)
+        await self._deliver_webhook(webhook, delivery)
 
         return delivery
 
@@ -122,7 +127,13 @@ class WebhookService:
                 pass
         logger.info("Webhook service stopped")
 
-    async def register_webhook(self, data: Dict[str, Any], actor_id: Optional[str] = None, ip_address: Optional[str] = None, user_agent: Optional[str] = None) -> Dict[str, Any]:
+    async def register_webhook(
+        self,
+        data: Dict[str, Any],
+        actor_id: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Register a new webhook.
 
@@ -145,7 +156,7 @@ class WebhookService:
             "is_active": data.get("is_active", True),
             "created_at": datetime.utcnow().isoformat(),
             "last_called_at": None,
-            "secret": f"whsec_{uuid.uuid4().hex}"
+            "secret": f"whsec_{uuid.uuid4().hex}",
         }
 
         self.webhooks[webhook_id] = webhook
@@ -164,10 +175,10 @@ class WebhookService:
                 "url": data["url"],
                 "events": data["events"],
                 "description": data.get("description"),
-                "is_active": data.get("is_active", True)
+                "is_active": data.get("is_active", True),
             },
             ip_address=ip_address,
-            user_agent=user_agent
+            user_agent=user_agent,
         )
 
         return webhook
@@ -193,7 +204,14 @@ class WebhookService:
         """
         return self.webhooks.get(webhook_id)
 
-    async def update_webhook(self, webhook_id: str, data: Dict[str, Any], actor_id: Optional[str] = None, ip_address: Optional[str] = None, user_agent: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    async def update_webhook(
+        self,
+        webhook_id: str,
+        data: Dict[str, Any],
+        actor_id: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
         """
         Update a webhook.
 
@@ -218,7 +236,7 @@ class WebhookService:
             "events": webhook["events"],
             "description": webhook.get("description"),
             "headers": webhook.get("headers", {}),
-            "is_active": webhook.get("is_active", True)
+            "is_active": webhook.get("is_active", True),
         }
 
         # Update webhook fields
@@ -251,17 +269,27 @@ class WebhookService:
                     "events": webhook["events"],
                     "description": webhook.get("description"),
                     "headers": webhook.get("headers", {}),
-                    "is_active": webhook.get("is_active", True)
+                    "is_active": webhook.get("is_active", True),
                 },
-                "changes": {k: data[k] for k in data if k in original_values and data[k] != original_values[k]}
+                "changes": {
+                    k: data[k]
+                    for k in data
+                    if k in original_values and data[k] != original_values[k]
+                },
             },
             ip_address=ip_address,
-            user_agent=user_agent
+            user_agent=user_agent,
         )
 
         return webhook
 
-    async def delete_webhook(self, webhook_id: str, actor_id: Optional[str] = None, ip_address: Optional[str] = None, user_agent: Optional[str] = None) -> bool:
+    async def delete_webhook(
+        self,
+        webhook_id: str,
+        actor_id: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+    ) -> bool:
         """
         Delete a webhook.
 
@@ -297,15 +325,17 @@ class WebhookService:
                 "url": webhook_data["url"],
                 "events": webhook_data["events"],
                 "description": webhook_data.get("description"),
-                "is_active": webhook_data.get("is_active", True)
+                "is_active": webhook_data.get("is_active", True),
             },
             ip_address=ip_address,
-            user_agent=user_agent
+            user_agent=user_agent,
         )
 
         return True
 
-    async def trigger_event(self, event_type: str, event_data: Dict[str, Any]) -> List[str]:
+    async def trigger_event(
+        self, event_type: str, event_data: Dict[str, Any]
+    ) -> List[str]:
         """
         Trigger an event and deliver it to subscribed webhooks.
 
@@ -335,7 +365,7 @@ class WebhookService:
                     "attempts": 0,
                     "max_attempts": 5,
                     "created_at": datetime.utcnow().isoformat(),
-                    "next_attempt_at": datetime.utcnow().isoformat()
+                    "next_attempt_at": datetime.utcnow().isoformat(),
                 }
 
                 self.deliveries[delivery_id] = delivery
@@ -343,11 +373,15 @@ class WebhookService:
 
                 # Queue delivery
                 await self.delivery_queue.put(delivery_id)
-                logger.info(f"Event queued for delivery: {event_type} to webhook {webhook['id']}")
+                logger.info(
+                    f"Event queued for delivery: {event_type} to webhook {webhook['id']}"
+                )
 
         return delivery_ids
 
-    async def get_deliveries(self, webhook_id: Optional[str] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
+    async def get_deliveries(
+        self, webhook_id: Optional[str] = None, status: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         """
         Get webhook deliveries.
 
@@ -397,14 +431,15 @@ class WebhookService:
                 if not success and delivery["attempts"] < delivery["max_attempts"]:
                     # Track retry attempt
                     track_webhook_retry(
-                        webhook_id=webhook["id"],
-                        event_type=delivery["event_type"]
+                        webhook_id=webhook["id"], event_type=delivery["event_type"]
                     )
 
                     # Calculate next attempt time (exponential backoff)
                     backoff = min(2 ** delivery["attempts"], 60)  # Max 60 minutes
                     next_attempt = datetime.utcnow().timestamp() + backoff * 60
-                    delivery["next_attempt_at"] = datetime.fromtimestamp(next_attempt).isoformat()
+                    delivery["next_attempt_at"] = datetime.fromtimestamp(
+                        next_attempt
+                    ).isoformat()
 
                     # Record retry audit event
                     self.audit_service.create_event(
@@ -420,8 +455,8 @@ class WebhookService:
                             "event_type": delivery["event_type"],
                             "attempt": delivery["attempts"],
                             "max_attempts": delivery["max_attempts"],
-                            "next_attempt_at": delivery["next_attempt_at"]
-                        }
+                            "next_attempt_at": delivery["next_attempt_at"],
+                        },
                     )
 
                     # Requeue for later
@@ -433,7 +468,7 @@ class WebhookService:
                     track_webhook_error(
                         webhook_id=webhook["id"],
                         event_type=delivery["event_type"],
-                        error_type="max_retries_exceeded"
+                        error_type="max_retries_exceeded",
                     )
 
                 self.delivery_queue.task_done()
@@ -444,7 +479,9 @@ class WebhookService:
                 logger.error(f"Error in delivery worker: {str(e)}")
                 await asyncio.sleep(1)  # Small delay to avoid tight loop
 
-    async def _deliver_webhook(self, webhook: Dict[str, Any], delivery: Dict[str, Any]) -> bool:
+    async def _deliver_webhook(
+        self, webhook: Dict[str, Any], delivery: Dict[str, Any]
+    ) -> bool:
         """
         Deliver a webhook.
 
@@ -465,7 +502,9 @@ class WebhookService:
         update_queue_size(self.delivery_queue.qsize())
 
         # Track queue latency
-        queued_time = start_time - datetime.fromisoformat(delivery["created_at"]).timestamp()
+        queued_time = (
+            start_time - datetime.fromisoformat(delivery["created_at"]).timestamp()
+        )
         track_queue_latency(queued_time)
 
         # Prepare payload
@@ -473,21 +512,23 @@ class WebhookService:
             "id": delivery["id"],
             "type": delivery["event_type"],
             "created_at": delivery["created_at"],
-            "data": delivery["event_data"]
+            "data": delivery["event_data"],
         }
 
         # Convert payload to JSON
         payload_json = json.dumps(payload)
 
         # Generate signature
-        signature = WebhookSignatureVerifier.create_signature(webhook["secret"], payload_json)
+        signature = WebhookSignatureVerifier.create_signature(
+            webhook["secret"], payload_json
+        )
 
         # Prepare headers
         headers = {
             "Content-Type": "application/json",
             "User-Agent": "pAIssive-Income-Webhook/1.0",
             "X-Webhook-ID": webhook["id"],
-            "X-Webhook-Signature": signature
+            "X-Webhook-Signature": signature,
         }
 
         # Add custom headers
@@ -498,10 +539,7 @@ class WebhookService:
             # Send webhook
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    webhook["url"],
-                    data=payload_json,
-                    headers=headers,
-                    timeout=10
+                    webhook["url"], data=payload_json, headers=headers, timeout=10
                 ) as response:
                     # Get response
                     status_code = response.status
@@ -524,13 +562,15 @@ class WebhookService:
                             webhook_id=webhook["id"],
                             event_type=delivery["event_type"],
                             duration=duration,
-                            status="success"
+                            status="success",
                         )
 
                         # Update health status
                         update_webhook_health(webhook["id"], webhook["url"], True)
 
-                        logger.info(f"Webhook delivered successfully: {delivery['id']} to {webhook['url']}")
+                        logger.info(
+                            f"Webhook delivered successfully: {delivery['id']} to {webhook['url']}"
+                        )
 
                         # Record success audit event
                         self.audit_service.create_event(
@@ -546,21 +586,23 @@ class WebhookService:
                                 "event_type": delivery["event_type"],
                                 "url": webhook["url"],
                                 "response_code": status_code,
-                                "attempt": delivery["attempts"]
-                            }
+                                "attempt": delivery["attempts"],
+                            },
                         )
 
                         return True
                     else:
                         delivery["status"] = "failed"
-                        logger.warning(f"Webhook delivery failed with status {status_code}: {delivery['id']} to {webhook['url']}")
+                        logger.warning(
+                            f"Webhook delivery failed with status {status_code}: {delivery['id']} to {webhook['url']}"
+                        )
 
                         # Track failed delivery
                         track_webhook_delivery(
                             webhook_id=webhook["id"],
                             event_type=delivery["event_type"],
                             duration=duration,
-                            status="failed"
+                            status="failed",
                         )
 
                         # Update health status
@@ -570,7 +612,7 @@ class WebhookService:
                         track_webhook_error(
                             webhook_id=webhook["id"],
                             event_type=delivery["event_type"],
-                            error_type=f"http_{status_code}"
+                            error_type=f"http_{status_code}",
                         )
 
                         # Record failure audit event
@@ -589,8 +631,8 @@ class WebhookService:
                                 "response_code": status_code,
                                 "response_body": response_body,
                                 "attempt": delivery["attempts"],
-                                "max_attempts": delivery["max_attempts"]
-                            }
+                                "max_attempts": delivery["max_attempts"],
+                            },
                         )
 
                         return False
@@ -606,7 +648,7 @@ class WebhookService:
                 webhook_id=webhook["id"],
                 event_type=delivery["event_type"],
                 duration=duration,
-                status="failed"
+                status="failed",
             )
 
             # Update health status
@@ -616,7 +658,7 @@ class WebhookService:
             track_webhook_error(
                 webhook_id=webhook["id"],
                 event_type=delivery["event_type"],
-                error_type="connection_error"
+                error_type="connection_error",
             )
 
             logger.warning(f"Webhook delivery failed with error: {str(e)}")
@@ -636,8 +678,8 @@ class WebhookService:
                     "url": webhook["url"],
                     "error": str(e),
                     "attempt": delivery["attempts"],
-                    "max_attempts": delivery["max_attempts"]
-                }
+                    "max_attempts": delivery["max_attempts"],
+                },
             )
 
             return False

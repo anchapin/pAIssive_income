@@ -1,11 +1,17 @@
+
+import logging
+import time
+from typing import Callable
+from api.analytics import analytics_service
+
 """
 Analytics middleware for the API server.
 
 This middleware collects analytics data for API requests.
 """
 
-import time
 import logging
+import time
 from typing import Callable
 
 # Set up logging

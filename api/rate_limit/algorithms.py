@@ -4,10 +4,10 @@ Rate limiting algorithms.
 This module provides various rate limiting algorithms.
 """
 
-import time
 import logging
-from typing import Dict, Any, Optional, Tuple, List
+import time
 from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional, Tuple
 
 # Set up logging
 logging.basicConfig(

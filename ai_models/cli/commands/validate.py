@@ -4,11 +4,11 @@ Validate command for the command-line interface.
 This module provides a command for validating models.
 """
 
-import os
-import json
 import argparse
+import json
 import logging
-from typing import Dict, Any, List
+import os
+from typing import Any, Dict, List
 
 from ..base import BaseCommand
 
@@ -192,7 +192,7 @@ class ValidateCommand(BaseCommand):
         """
         # Import required modules
         import torch
-        from transformers import AutoTokenizer, AutoModel
+        from transformers import AutoModel, AutoTokenizer
 
         # Initialize results
         results = {}
@@ -385,6 +385,7 @@ class ValidateCommand(BaseCommand):
         # Test inference
         try:
             import time
+
             import torch
 
             # Prepare input
@@ -401,7 +402,7 @@ class ValidateCommand(BaseCommand):
             # Measure inference time
             start_time = time.time()
             with torch.no_grad():
-                outputs = model(**inputs)
+                model(**inputs)
             inference_time = time.time() - start_time
 
             # Check inference time

@@ -5,10 +5,10 @@ This script directly imports the modules we need to test without
 going through the package structure, avoiding circular imports.
 """
 
-import time
 import logging
+import time
 from enum import Enum
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 
 # Define the fallback strategy enum directly instead of importing it

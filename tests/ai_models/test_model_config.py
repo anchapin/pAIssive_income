@@ -2,8 +2,8 @@
 Tests for the ModelConfig class.
 """
 
-import os
 import json
+import os
 
 from ai_models.model_config import ModelConfig
 

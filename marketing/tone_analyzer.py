@@ -4,20 +4,20 @@ Tone analyzer module for the pAIssive Income project.
 This module provides classes for analyzing and adjusting the tone of content.
 """
 
-from typing import Dict, List, Any, Optional, Tuple
-from abc import ABC, abstractmethod
-import uuid
-import json
 import datetime
-import re
+import json
 import math
+import re
 import string
+import uuid
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional, Tuple
 
 # Third-party imports
 try:
     import nltk
-    from nltk.tokenize import word_tokenize, sent_tokenize
     from nltk.corpus import stopwords
+    from nltk.tokenize import sent_tokenize, word_tokenize
 
     NLTK_AVAILABLE = True
 except ImportError:

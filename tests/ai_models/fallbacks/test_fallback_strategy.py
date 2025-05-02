@@ -1,3 +1,13 @@
+
+import os
+import sys
+import time
+import unittest
+from enum import Enum
+from typing import Any, Dict, List, Optional
+from unittest.mock import patch
+from errors import ModelLoadError, ModelNotFoundError
+
 """
 Tests for the fallback strategy implementation.
 
@@ -7,11 +17,11 @@ to ensure the fallback mechanism works correctly in different scenarios.
 
 import os
 import sys
-import unittest
-from unittest.mock import patch
-from typing import Dict, List, Any, Optional
-from enum import Enum
 import time
+import unittest
+from enum import Enum
+from typing import Any, Dict, List, Optional
+from unittest.mock import patch
 
 # Add the project root to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
@@ -19,7 +29,7 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 # Import the errors module
-from errors import ModelNotFoundError, ModelLoadError
+from errors import ModelLoadError, ModelNotFoundError
 
 
 # Mock the FallbackStrategy enum to avoid import issues
@@ -303,7 +313,7 @@ class TestFallbackManager(unittest.TestCase):
         # Accept either strategy as valid for this test
         self.assertIn(
             event.strategy_used,
-            [FallbackStrategy.SIMILAR_MODEL, FallbackStrategy.MODEL_TYPE]
+            [FallbackStrategy.SIMILAR_MODEL, FallbackStrategy.MODEL_TYPE],
         )
 
     @patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy)

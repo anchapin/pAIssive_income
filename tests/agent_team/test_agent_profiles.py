@@ -2,16 +2,17 @@
 Tests for the agent profiles in the agent_team module.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from agent_team.agent_profiles import (
     AgentProfile,
-    ResearchAgent,
     DeveloperAgent,
-    MonetizationAgent,
-    MarketingAgent,
     FeedbackAgent,
+    MarketingAgent,
+    MonetizationAgent,
+    ResearchAgent,
 )
 from interfaces.agent_interfaces import IAgentTeam
 
@@ -248,7 +249,7 @@ def test_monetization_agent_create_strategy(mock_team):
         }
         mock_create_strategy.return_value = mock_strategy
 
-        agent = MonetizationAgent(team=mock_team)
+        MonetizationAgent(team=mock_team)
 
         # Create a strategy
         solution = {

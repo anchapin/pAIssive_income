@@ -4,11 +4,12 @@ API key model for the API server.
 This module provides the API key model for API key management.
 """
 
-import secrets
 import hashlib
+import secrets
 from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
+
 
 class APIKey:
     """
@@ -38,7 +39,7 @@ class APIKey:
         is_active: bool = True,
         expires_at: Optional[datetime] = None,
         created_at: Optional[datetime] = None,
-        last_used_at: Optional[datetime] = None
+        last_used_at: Optional[datetime] = None,
     ):
         """
         Initialize an API key.
@@ -93,10 +94,10 @@ class APIKey:
         """
         # Remove the key prefix
         if key.startswith(cls.KEY_PREFIX):
-            key_without_prefix = key[len(cls.KEY_PREFIX):]
+            key_without_prefix = key[len(cls.KEY_PREFIX) :]
             # Return the first PREFIX_LENGTH characters
             return f"{cls.KEY_PREFIX}{key_without_prefix[:cls.PREFIX_LENGTH]}"
-        return key[:cls.PREFIX_LENGTH]
+        return key[: cls.PREFIX_LENGTH]
 
     @classmethod
     def hash_key(cls, key: str) -> str:
@@ -150,9 +151,11 @@ class APIKey:
             "is_active": self.is_active,
             "expires_at": self.expires_at.isoformat() if self.expires_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "last_used_at": self.last_used_at.isoformat() if self.last_used_at else None,
+            "last_used_at": (
+                self.last_used_at.isoformat() if self.last_used_at else None
+            ),
             "prefix": self.prefix,
-            "key_hash": self.key_hash
+            "key_hash": self.key_hash,
         }
 
     @classmethod
@@ -167,9 +170,21 @@ class APIKey:
             API key instance
         """
         # Convert ISO format strings to datetime objects
-        expires_at = datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
-        created_at = datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None
-        last_used_at = datetime.fromisoformat(data["last_used_at"]) if data.get("last_used_at") else None
+        expires_at = (
+            datetime.fromisoformat(data["expires_at"])
+            if data.get("expires_at")
+            else None
+        )
+        created_at = (
+            datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else None
+        )
+        last_used_at = (
+            datetime.fromisoformat(data["last_used_at"])
+            if data.get("last_used_at")
+            else None
+        )
 
         api_key = cls(
             id=data.get("id"),
@@ -181,7 +196,7 @@ class APIKey:
             is_active=data.get("is_active", True),
             expires_at=expires_at,
             created_at=created_at,
-            last_used_at=last_used_at
+            last_used_at=last_used_at,
         )
 
         # Set key-related fields if they exist in the data

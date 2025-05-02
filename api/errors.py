@@ -8,14 +8,15 @@ including HTTP status codes, error response formatting, and exception mapping.
 import logging
 import traceback
 from datetime import datetime
-from typing import Dict, Any, Optional, Type, List, Callable
+from typing import Any, Callable, Dict, List, Optional, Type
 
 # Try to import FastAPI
 try:
     from fastapi import FastAPI, Request, Response, status
     from fastapi.exceptions import RequestValidationError
     from fastapi.responses import JSONResponse
-    from pydantic import ValidationError as PydanticValidationError, ConfigDict
+    from pydantic import ConfigDict
+    from pydantic import ValidationError as PydanticValidationError
 
     FASTAPI_AVAILABLE = True
 except ImportError:

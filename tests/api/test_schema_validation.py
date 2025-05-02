@@ -4,17 +4,18 @@ Tests for API schema validation.
 This module contains tests for validating API schemas across different modules.
 """
 
+
 import pytest
-from pydantic import ValidationError, ConfigDict
-from typing import Dict, List, Any, Optional
+from pydantic import ValidationError
+
+from api.schemas.ai_models import ModelRequest
+from api.schemas.marketing import CampaignCreate, MarketingStrategyCreate
+from api.schemas.monetization import PricingTierCreate, SubscriptionModelCreate
+from api.schemas.niche_analysis import NicheAnalysisCreate, NicheCreate
+from api.schemas.user import UserCreate, UserRole, UserUpdate
 
 # Import schemas to test
-from api.schemas.webhook import WebhookRequest, WebhookEventType, WebhookUpdate
-from api.schemas.user import UserCreate, UserUpdate, UserRole
-from api.schemas.niche_analysis import NicheAnalysisCreate, NicheCreate
-from api.schemas.monetization import SubscriptionModelCreate, PricingTierCreate
-from api.schemas.marketing import MarketingStrategyCreate, CampaignCreate
-from api.schemas.ai_models import ModelRequest, ModelResponse
+from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
 
 class TestSchemaValidation:
@@ -25,10 +26,13 @@ class TestSchemaValidation:
         # Valid data
         valid_data = {
             "url": "https://example.com/webhook",
-            "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
+            "events": [
+                WebhookEventType.USER_CREATED,
+                WebhookEventType.PAYMENT_RECEIVED,
+            ],
             "description": "Test webhook",
             "headers": {"Authorization": "Bearer token"},
-            "is_active": True
+            "is_active": True,
         }
         webhook = WebhookRequest(**valid_data)
         assert str(webhook.url) == "https://example.com/webhook"
@@ -39,7 +43,7 @@ class TestSchemaValidation:
         invalid_url_data = {
             "url": "invalid-url",
             "events": [WebhookEventType.USER_CREATED],
-            "is_active": True
+            "is_active": True,
         }
         with pytest.raises(ValidationError):
             WebhookRequest(**invalid_url_data)
@@ -48,16 +52,13 @@ class TestSchemaValidation:
         empty_events_data = {
             "url": "https://example.com/webhook",
             "events": [],
-            "is_active": True
+            "is_active": True,
         }
         with pytest.raises(ValidationError):
             WebhookRequest(**empty_events_data)
 
         # Test update schema
-        update_data = {
-            "description": "Updated webhook",
-            "is_active": False
-        }
+        update_data = {"description": "Updated webhook", "is_active": False}
         webhook_update = WebhookUpdate(**update_data)
         assert webhook_update.description == "Updated webhook"
         assert webhook_update.is_active is False
@@ -70,7 +71,7 @@ class TestSchemaValidation:
             "email": "test@example.com",
             "password": "Password123!",
             "full_name": "Test User",
-            "role": UserRole.USER
+            "role": UserRole.USER,
         }
         user = UserCreate(**valid_data)
         assert user.username == "testuser"
@@ -81,7 +82,7 @@ class TestSchemaValidation:
         invalid_email_data = {
             "username": "testuser",
             "email": "invalid-email",
-            "password": "Password123!"
+            "password": "Password123!",
         }
         with pytest.raises(ValidationError):
             UserCreate(**invalid_email_data)
@@ -90,16 +91,13 @@ class TestSchemaValidation:
         weak_password_data = {
             "username": "testuser",
             "email": "test@example.com",
-            "password": "weak"
+            "password": "weak",
         }
         with pytest.raises(ValidationError):
             UserCreate(**weak_password_data)
 
         # Test update schema
-        update_data = {
-            "full_name": "Updated User",
-            "role": UserRole.ADMIN
-        }
+        update_data = {"full_name": "Updated User", "role": UserRole.ADMIN}
         user_update = UserUpdate(**update_data)
         assert user_update.full_name == "Updated User"
         assert user_update.role == UserRole.ADMIN
@@ -120,9 +118,9 @@ class TestSchemaValidation:
                     "description": "Tools for AI development",
                     "market_size": 1000000,
                     "growth_rate": 15.5,
-                    "competition_level": "Medium"
+                    "competition_level": "Medium",
                 }
-            ]
+            ],
         }
         niche_analysis = NicheAnalysisCreate(**valid_data)
         assert niche_analysis.name == "Test Niche Analysis"
@@ -145,7 +143,7 @@ class TestSchemaValidation:
             "description": "Tools for AI development",
             "market_size": 1000000,
             "growth_rate": 15.5,
-            "competition_level": "Medium"
+            "competition_level": "Medium",
         }
         niche = NicheCreate(**niche_data)
         assert niche.name == "AI Development Tools"
@@ -164,15 +162,15 @@ class TestSchemaValidation:
                     "name": "Basic",
                     "price": 9.99,
                     "features": ["Feature 1", "Feature 2"],
-                    "is_popular": False
+                    "is_popular": False,
                 },
                 {
                     "name": "Pro",
                     "price": 19.99,
                     "features": ["Feature 1", "Feature 2", "Feature 3"],
-                    "is_popular": True
-                }
-            ]
+                    "is_popular": True,
+                },
+            ],
         }
         subscription_model = SubscriptionModelCreate(**valid_subscription_data)
         assert subscription_model.name == "Premium Plan"
@@ -193,7 +191,7 @@ class TestSchemaValidation:
             "name": "Enterprise",
             "price": 99.99,
             "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
-            "is_popular": False
+            "is_popular": False,
         }
         pricing_tier = PricingTierCreate(**pricing_tier_data)
         assert pricing_tier.name == "Enterprise"
@@ -216,9 +214,9 @@ class TestSchemaValidation:
                     "channel": "Social Media",
                     "budget": 1000,
                     "start_date": "2023-06-01",
-                    "end_date": "2023-08-31"
+                    "end_date": "2023-08-31",
                 }
-            ]
+            ],
         }
         marketing_strategy = MarketingStrategyCreate(**valid_strategy_data)
         assert marketing_strategy.name == "Growth Strategy"
@@ -241,7 +239,7 @@ class TestSchemaValidation:
             "channel": "Email",
             "budget": 2000,
             "start_date": "2023-12-01",
-            "end_date": "2024-02-28"
+            "end_date": "2024-02-28",
         }
         campaign = CampaignCreate(**campaign_data)
         assert campaign.name == "Winter Campaign"
@@ -256,7 +254,7 @@ class TestSchemaValidation:
             "prompt": "Generate a marketing strategy",
             "max_tokens": 500,
             "temperature": 0.7,
-            "options": {"top_p": 0.9, "frequency_penalty": 0.5}
+            "options": {"top_p": 0.9, "frequency_penalty": 0.5},
         }
         model_request = ModelRequest(**valid_request_data)
         assert model_request.model_name == "gpt-3.5-turbo"

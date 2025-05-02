@@ -3,36 +3,37 @@ Team configuration for the pAIssive Income AI agent team.
 Defines the overall structure and collaboration patterns for the agent team.
 """
 
-from typing import Dict, List, Optional, Any, TypeVar
 import json
-import os
 import logging
+import os
 import uuid
 from datetime import datetime
+from typing import Any, Dict, List, Optional, TypeVar
 
 from interfaces.agent_interfaces import (
     IAgentTeam,
 )
-from .agent_profiles.researcher import ResearchAgent
+
 from .agent_profiles.developer import DeveloperAgent
-from .agent_profiles.monetization import MonetizationAgent
-from .agent_profiles.marketing import MarketingAgent
 from .agent_profiles.feedback import FeedbackAgent
+from .agent_profiles.marketing import MarketingAgent
+from .agent_profiles.monetization import MonetizationAgent
+from .agent_profiles.researcher import ResearchAgent
 from .errors import (
-    AgentTeamError,
     AgentInitializationError,
-    WorkflowError,
+    AgentTeamError,
     ValidationError,
+    WorkflowError,
     handle_exception,
 )
 from .schemas import (
-    TeamConfigSchema,
-    ProjectStateSchema,
-    NicheSchema,
-    SolutionSchema,
-    MonetizationStrategySchema,
-    MarketingPlanSchema,
     FeedbackItemSchema,
+    MarketingPlanSchema,
+    MonetizationStrategySchema,
+    NicheSchema,
+    ProjectStateSchema,
+    SolutionSchema,
+    TeamConfigSchema,
 )
 
 # Set up logging
@@ -178,7 +179,7 @@ class AgentTeam(IAgentTeam):
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=AgentTeamError,
                 message=f"Failed to initialize agent team for project {project_name}",
@@ -316,7 +317,7 @@ class AgentTeam(IAgentTeam):
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=AgentTeamError,
                 message=f"Failed to load configuration: {e}",
@@ -433,7 +434,7 @@ class AgentTeam(IAgentTeam):
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=WorkflowError,
                 message=f"Unexpected error in niche analysis workflow: {e}",
@@ -541,7 +542,7 @@ class AgentTeam(IAgentTeam):
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=WorkflowError,
                 message=f"Unexpected error in solution development workflow: {e}",
@@ -659,7 +660,7 @@ class AgentTeam(IAgentTeam):
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=WorkflowError,
                 message=f"Unexpected error in monetization strategy workflow: {e}",
@@ -818,7 +819,7 @@ class AgentTeam(IAgentTeam):
             raise
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=WorkflowError,
                 message=f"Unexpected error in marketing plan workflow: {e}",
@@ -870,7 +871,7 @@ class AgentTeam(IAgentTeam):
 
         except Exception as e:
             # Handle unexpected errors
-            error = handle_exception(
+            handle_exception(
                 e,
                 error_class=WorkflowError,
                 message=f"Unexpected error in feedback processing workflow: {e}",

@@ -5,17 +5,17 @@ This script demonstrates how to use the different model adapters
 (Ollama, LM Studio, OpenAI-compatible, TensorRT) in the AI Models module.
 """
 
+import argparse
+import logging
 import os
 import sys
-import logging
-import argparse
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from ai_models.adapters import OllamaAdapter, LMStudioAdapter, OpenAICompatibleAdapter
+from ai_models.adapters import LMStudioAdapter, OllamaAdapter, OpenAICompatibleAdapter
 
 # Try to import TensorRT adapter if available
 try:

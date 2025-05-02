@@ -2,14 +2,15 @@
 Tests for the PerformanceMonitor class.
 """
 
-import pytest
 from unittest.mock import MagicMock
 
+import pytest
+
 from ai_models.performance_monitor import (
-    PerformanceMonitor,
-    InferenceTracker,
     InferenceMetrics,
+    InferenceTracker,
     ModelPerformanceReport,
+    PerformanceMonitor,
 )
 
 

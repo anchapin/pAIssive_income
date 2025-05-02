@@ -4,18 +4,17 @@ Tests for the user API.
 This module contains tests for the user API endpoints.
 """
 
-
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id, generate_user_data
 from tests.api.utils.test_validators import (
-    validate_error_response,
-    validate_success_response,
-    validate_paginated_response,
     validate_bulk_response,
-    validate_field_exists,
+    validate_error_response,
     validate_field_equals,
-    validate_field_type,
+    validate_field_exists,
     validate_field_not_empty,
+    validate_field_type,
+    validate_paginated_response,
+    validate_success_response,
 )
 
 
@@ -227,13 +226,13 @@ class TestUserAPI:
                 "communication": {
                     "email_frequency": "daily",
                     "push_notifications": True,
-                    "marketing_emails": False
+                    "marketing_emails": False,
                 },
                 "display": {
                     "theme": "dark",
                     "compact_view": True,
-                    "show_tooltips": True
-                }
+                    "show_tooltips": True,
+                },
             }
         }
 
@@ -246,19 +245,31 @@ class TestUserAPI:
         # Validate fields
         validate_field_exists(result, "preferences")
         validate_field_type(result, "preferences", dict)
-        validate_field_equals(result["preferences"], "language", data["preferences"]["language"])
-        validate_field_equals(result["preferences"], "timezone", data["preferences"]["timezone"])
-        validate_field_equals(result["preferences"], "date_format", data["preferences"]["date_format"])
+        validate_field_equals(
+            result["preferences"], "language", data["preferences"]["language"]
+        )
+        validate_field_equals(
+            result["preferences"], "timezone", data["preferences"]["timezone"]
+        )
+        validate_field_equals(
+            result["preferences"], "date_format", data["preferences"]["date_format"]
+        )
         validate_field_exists(result["preferences"], "communication")
         validate_field_type(result["preferences"]["communication"], dict)
         validate_field_exists(result["preferences"], "display")
         validate_field_type(result["preferences"]["display"], dict)
 
         # Validate nested preferences
-        validate_field_equals(result["preferences"]["communication"], "email_frequency",
-                            data["preferences"]["communication"]["email_frequency"])
-        validate_field_equals(result["preferences"]["display"], "theme",
-                            data["preferences"]["display"]["theme"])
+        validate_field_equals(
+            result["preferences"]["communication"],
+            "email_frequency",
+            data["preferences"]["communication"]["email_frequency"],
+        )
+        validate_field_equals(
+            result["preferences"]["display"],
+            "theme",
+            data["preferences"]["display"]["theme"],
+        )
 
         # Validate update timestamp
         validate_field_exists(result, "updated_at")
@@ -278,13 +289,13 @@ class TestUserAPI:
         data = {
             "reason": "switching_provider",
             "feedback": "Found a better service for my needs",
-            "allow_data_retention": False
+            "allow_data_retention": False,
         }
 
         # Make request
-        response = auth_api_test_client.delete("user/account", headers={
-            "Content-Type": "application/json"
-        }, json=data)
+        response = auth_api_test_client.delete(
+            "user/account", headers={"Content-Type": "application/json"}, json=data
+        )
 
         # Validate response
         validate_success_response(response, 204)  # No Content
@@ -293,18 +304,9 @@ class TestUserAPI:
         """Test bulk updating user roles."""
         # Generate test data
         updates = [
-            {
-                "user_id": generate_id(),
-                "roles": ["admin", "developer"]
-            },
-            {
-                "user_id": generate_id(),
-                "roles": ["analyst"]
-            },
-            {
-                "user_id": generate_id(),
-                "roles": ["manager", "reviewer"]
-            }
+            {"user_id": generate_id(), "roles": ["admin", "developer"]},
+            {"user_id": generate_id(), "roles": ["analyst"]},
+            {"user_id": generate_id(), "roles": ["manager", "reviewer"]},
         ]
 
         # Make request
@@ -370,10 +372,13 @@ class TestUserAPI:
         validate_error_response(response, 422)
 
         # Test bulk role update with invalid data
-        response = auth_api_test_client.put("user/roles/bulk", [
-            {"user_id": "invalid-id"},  # Missing roles
-            {"roles": ["admin"]}  # Missing user_id
-        ])
+        response = auth_api_test_client.put(
+            "user/roles/bulk",
+            [
+                {"user_id": "invalid-id"},  # Missing roles
+                {"roles": ["admin"]},  # Missing user_id
+            ],
+        )
         validate_error_response(response, 422)
 
         # Test bulk delete with empty list
@@ -381,7 +386,9 @@ class TestUserAPI:
         validate_error_response(response, 422)
 
         # Test bulk delete with invalid IDs
-        response = auth_api_test_client.bulk_delete("user/accounts", ["invalid-id-1", "invalid-id-2"])
+        response = auth_api_test_client.bulk_delete(
+            "user/accounts", ["invalid-id-1", "invalid-id-2"]
+        )
         result = validate_bulk_response(response)
         validate_field_equals(result["stats"], "failed", 2)
 

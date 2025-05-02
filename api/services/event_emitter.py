@@ -5,10 +5,10 @@ This service provides a centralized event emitter to trigger events across the a
 and send webhook notifications.
 """
 
-import logging
 import asyncio
-from typing import Dict, Any, Callable, List, Union
+import logging
 from functools import wraps
+from typing import Any, Callable, Dict, List, Union
 
 from ..config import WebhookEventType
 from .webhook_service import WebhookService

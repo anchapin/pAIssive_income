@@ -5,18 +5,18 @@ This module provides the AI Models Service implementation, which manages AI mode
 inference, and optimization for the pAIssive income platform.
 """
 
-import logging
 import argparse
-from typing import Dict, Any, List
+import logging
+from typing import Any, Dict, List
 
-from fastapi import FastAPI, HTTPException, status, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from services.service_discovery.registration import (
-    register_service,
-    get_service_metadata,
     get_default_tags,
+    get_service_metadata,
+    register_service,
 )
 
 # Set up logging
@@ -152,8 +152,8 @@ async def get_model(model_name: str):
 @app.post("/api/generate", response_model=ModelResponse)
 async def generate_text(request: ModelRequest, background_tasks: BackgroundTasks):
     """Generate text using an AI model."""
-    import time
     import random
+    import time
 
     # Check if the requested model exists
     if request.model_name not in AVAILABLE_MODELS:

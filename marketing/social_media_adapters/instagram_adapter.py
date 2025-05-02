@@ -6,20 +6,21 @@ retrieving analytics, and managing social media campaigns.
 """
 
 import logging
-import requests
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
+import requests
+
 from marketing.errors import (
     AuthenticationError,
     ContentValidationError,
-    PostNotFoundError,
-    PostingError,
     DeletionError,
-    SchedulingError,
     NotSupportedError,
+    PostingError,
+    PostNotFoundError,
+    SchedulingError,
 )
+from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
 
 # Set up logging
 logger = logging.getLogger(__name__)

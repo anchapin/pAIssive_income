@@ -2,12 +2,14 @@
 Integration tests for UI interactions with backend services.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+
+from ui.cli_ui import CommandLineInterface
 
 # Import UI modules
 from ui.web_ui import WebUI
-from ui.cli_ui import CommandLineInterface
 
 # Import test fixtures
 

@@ -2,8 +2,9 @@
 Test script for the SubscriptionModel class.
 """
 
-from subscription_models import SubscriptionModel
 import os
+
+from subscription_models import SubscriptionModel
 
 
 def test_subscription_model():

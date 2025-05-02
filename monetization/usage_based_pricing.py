@@ -5,16 +5,16 @@ This module provides classes for implementing usage-based pricing models,
 where customers are charged based on their actual usage of a service.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
 import uuid
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
 from .billing_calculator import (
-    PricingRule,
     BillingCalculator,
+    PricingRule,
 )
-from .usage_tracking import UsageMetric, UsageCategory
 from .usage_tracker import UsageTracker
+from .usage_tracking import UsageCategory, UsageMetric
 
 
 class UsageBasedPricing:

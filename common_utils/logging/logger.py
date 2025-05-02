@@ -8,6 +8,7 @@ This module provides a structured logging system that:
 4. Provides a consistent interface across the application
 """
 
+import contextvars
 import json
 import logging
 import os
@@ -16,8 +17,6 @@ import traceback
 from enum import Enum
 from logging.handlers import RotatingFileHandler
 from typing import Optional, Union
-
-import contextvars
 
 # Context variables for storing request-specific information
 request_id_var = contextvars.ContextVar("request_id", default=None)

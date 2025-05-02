@@ -4,16 +4,18 @@ Tests for the developer API.
 This module contains tests for the developer API endpoints.
 """
 
-
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_solution_data
-)
+from tests.api.utils.test_data import generate_id, generate_solution_data
 from tests.api.utils.test_validators import (
+    validate_bulk_response,
     validate_error_response,
-    validate_success_response, validate_paginated_response, validate_bulk_response,
-    validate_field_exists, validate_field_equals, validate_field_type,
-    validate_field_not_empty, validate_list_contains
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_not_empty,
+    validate_field_type,
+    validate_list_contains,
+    validate_paginated_response,
+    validate_success_response,
 )
 
 
@@ -177,10 +179,7 @@ class TestDeveloperAPI:
             "description": "Updated solution description",
             "status": "in_progress",
             "technology_stack": ["python", "fastapi", "postgresql"],
-            "metadata": {
-                "version": "2.0",
-                "priority": "high"
-            }
+            "metadata": {"version": "2.0", "priority": "high"},
         }
 
         # Make request
@@ -209,8 +208,12 @@ class TestDeveloperAPI:
                 validate_list_contains(result["technology_stack"], tech)
             validate_field_exists(result, "metadata")
             validate_field_type(result, "metadata", dict)
-            validate_field_equals(result["metadata"], "version", data["metadata"]["version"])
-            validate_field_equals(result["metadata"], "priority", data["metadata"]["priority"])
+            validate_field_equals(
+                result["metadata"], "version", data["metadata"]["version"]
+            )
+            validate_field_equals(
+                result["metadata"], "priority", data["metadata"]["priority"]
+            )
 
             # Validate timestamps
             validate_field_exists(result, "updated_at")
@@ -240,8 +243,8 @@ class TestDeveloperAPI:
                 "technology": "python",
                 "sort": "created_at:desc",
                 "page": 1,
-                "page_size": 10
-            }
+                "page_size": 10,
+            },
         )
 
         # Validate response
@@ -255,8 +258,12 @@ class TestDeveloperAPI:
             for item in result["items"]:
                 validate_field_equals(item, "status", "in_progress")
                 # Check if any technology in the stack matches 'python' case-insensitively
-                tech_match = any(tech.lower() == "python" for tech in item["technology_stack"])
-                assert tech_match, f"Technology stack {item['technology_stack']} does not contain 'python' (case-insensitive)"
+                tech_match = any(
+                    tech.lower() == "python" for tech in item["technology_stack"]
+                )
+                assert (
+                    tech_match
+                ), f"Technology stack {item['technology_stack']} does not contain 'python' (case-insensitive)"
 
     def test_invalid_solution_request(self, api_test_client: APITestClient):
         """Test invalid solution request."""
@@ -281,21 +288,22 @@ class TestDeveloperAPI:
         """Test invalid solution update request."""
         # Generate a random ID
         solution_id = generate_id()
-        
+
         # Test with empty data
         response = api_test_client.put(f"developer/solutions/{solution_id}", {})
         validate_error_response(response, 422)  # Unprocessable Entity
-        
+
         # Test with invalid status
-        response = api_test_client.put(f"developer/solutions/{solution_id}", {
-            "status": "invalid_status"
-        })
+        response = api_test_client.put(
+            f"developer/solutions/{solution_id}", {"status": "invalid_status"}
+        )
         validate_error_response(response, 422)
-        
+
         # Test with invalid technology stack format
-        response = api_test_client.put(f"developer/solutions/{solution_id}", {
-            "technology_stack": "python,fastapi"  # Should be a list
-        })
+        response = api_test_client.put(
+            f"developer/solutions/{solution_id}",
+            {"technology_stack": "python,fastapi"},  # Should be a list
+        )
         validate_error_response(response, 422)
 
     def test_delete_solution_errors(self, api_test_client: APITestClient):
@@ -303,7 +311,7 @@ class TestDeveloperAPI:
         # Test deleting with invalid ID format
         response = api_test_client.delete("developer/solutions/invalid-id-format")
         validate_error_response(response, 422)  # Unprocessable Entity
-        
+
         # Test deleting already deleted solution
         solution_id = generate_id()
         response = api_test_client.delete(f"developer/solutions/{solution_id}")
@@ -320,7 +328,7 @@ class TestDeveloperAPI:
                 "id": generate_id(),
                 "name": f"Updated Solution {i}",
                 "status": "in_progress",
-                "metadata": {"batch_update": True}
+                "metadata": {"batch_update": True},
             }
             for i in range(3)
         ]
@@ -369,7 +377,9 @@ class TestDeveloperAPI:
         validate_field_equals(result["stats"], "total", len(solution_ids))
         validate_field_exists(result["stats"], "deleted")
         validate_field_exists(result["stats"], "failed")
-        assert result["stats"]["deleted"] + result["stats"]["failed"] == len(solution_ids)
+        assert result["stats"]["deleted"] + result["stats"]["failed"] == len(
+            solution_ids
+        )
 
         # Validate results for each ID
         validate_field_exists(result, "items")
@@ -388,10 +398,13 @@ class TestDeveloperAPI:
         validate_error_response(response, 422)
 
         # Test bulk update with invalid data
-        response = api_test_client.bulk_update("developer/solutions", [
-            {"id": "invalid-id"},  # Missing required fields
-            {"name": "No ID"}  # Missing ID
-        ])
+        response = api_test_client.bulk_update(
+            "developer/solutions",
+            [
+                {"id": "invalid-id"},  # Missing required fields
+                {"name": "No ID"},  # Missing ID
+            ],
+        )
         validate_error_response(response, 422)
 
         # Test bulk delete with empty list
@@ -399,6 +412,8 @@ class TestDeveloperAPI:
         validate_error_response(response, 422)
 
         # Test bulk delete with invalid IDs
-        response = api_test_client.bulk_delete("developer/solutions", ["invalid-id-1", "invalid-id-2"])
+        response = api_test_client.bulk_delete(
+            "developer/solutions", ["invalid-id-1", "invalid-id-2"]
+        )
         result = validate_bulk_response(response)
         validate_field_equals(result["stats"], "failed", 2)

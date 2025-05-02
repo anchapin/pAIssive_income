@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Set up logging before importing the dashboard
-from common_utils.logging import setup_logging, LogLevel
+from common_utils.logging import LogLevel, setup_logging
 
 setup_logging(
     level=LogLevel.INFO,

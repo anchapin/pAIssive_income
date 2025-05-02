@@ -5,7 +5,7 @@ This module provides event handlers for the UI.
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Set up logging
 logger = logging.getLogger(__name__)

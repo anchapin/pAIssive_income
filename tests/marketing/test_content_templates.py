@@ -2,12 +2,11 @@
 Tests for the content templates components in the Marketing module.
 """
 
-
 from marketing.content_templates import (
-    ContentTemplate,
     BlogPostTemplate,
-    SocialMediaTemplate,
+    ContentTemplate,
     EmailNewsletterTemplate,
+    SocialMediaTemplate,
 )
 
 

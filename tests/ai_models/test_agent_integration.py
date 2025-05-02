@@ -2,13 +2,14 @@
 Tests for the AgentModelProvider class.
 """
 
-import pytest
+from typing import Any, Dict
 from unittest.mock import MagicMock, patch
-from typing import Dict, Any
+
+import pytest
 
 from ai_models.agent_integration import AgentModelProvider
 from ai_models.model_manager import ModelManager
-from interfaces.model_interfaces import IModelManager, IModelInfo
+from interfaces.model_interfaces import IModelInfo, IModelManager
 
 
 class MockModelInfo(IModelInfo):
@@ -207,7 +208,7 @@ def test_get_model_for_agent_no_assignment(mock_model_manager):
     provider = AgentModelProvider(mock_model_manager)
 
     # Get a model for the researcher agent
-    model = provider.get_model_for_agent("researcher", "text-generation")
+    provider.get_model_for_agent("researcher", "text-generation")
 
     # Check that the model manager's get_models_by_type method was called
     mock_model_manager.get_models_by_type.assert_called_with("huggingface")
@@ -228,7 +229,7 @@ def test_get_model_for_agent_with_assignment(mock_model_manager):
     provider.agent_models["researcher"] = {"text-generation": "model1"}
 
     # Get a model for the researcher agent
-    model = provider.get_model_for_agent("researcher", "text-generation")
+    provider.get_model_for_agent("researcher", "text-generation")
 
     # Check that the model manager's load_model method was called with the assigned model ID
     mock_model_manager.load_model.assert_called_with("model1")

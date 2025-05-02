@@ -3,29 +3,30 @@ Opportunity Scorer for the pAIssive Income project.
 Scores niche opportunities based on various factors.
 """
 
-from typing import Dict, List, Any, Optional
-import uuid
+import asyncio
 import hashlib
 import json
-import asyncio
+import uuid
 from datetime import datetime
-from .schemas import (
-    OpportunityScoreSchema,
-    OpportunityComparisonSchema,
-    FactorScoreSchema,
-    FactorScoresSchema,
-    FactorsSchema,
-    RankedOpportunitySchema,
-    TopRecommendationSchema,
-    ComparativeAnalysisSchema,
-    ScoreDistributionSchema,
-)
+from typing import Any, Dict, List, Optional
+
+# Import async utilities
+from ai_models.async_utils import run_in_thread
 
 # Import the centralized caching service
 from common_utils.caching import default_cache
 
-# Import async utilities
-from ai_models.async_utils import run_in_thread
+from .schemas import (
+    ComparativeAnalysisSchema,
+    FactorScoreSchema,
+    FactorScoresSchema,
+    FactorsSchema,
+    OpportunityComparisonSchema,
+    OpportunityScoreSchema,
+    RankedOpportunitySchema,
+    ScoreDistributionSchema,
+    TopRecommendationSchema,
+)
 
 
 class OpportunityScorer:

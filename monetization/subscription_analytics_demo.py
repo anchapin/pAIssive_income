@@ -4,17 +4,17 @@ Subscription analytics demo for the pAIssive Income project.
 This script demonstrates how to use the subscription analytics functionality.
 """
 
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
 from .subscription import SubscriptionPlan
-from .user_subscription import SubscriptionStatus
-from .subscription_manager import SubscriptionManager
 from .subscription_analytics import (
-    SubscriptionMetrics,
     ChurnAnalysis,
     SubscriptionForecasting,
+    SubscriptionMetrics,
 )
+from .subscription_manager import SubscriptionManager
+from .user_subscription import SubscriptionStatus
 
 
 def print_separator():

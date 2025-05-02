@@ -4,15 +4,15 @@ Invoice generation and management demo for the pAIssive Income project.
 This script demonstrates how to use the invoice generation and management system.
 """
 
-from datetime import datetime, timedelta
-import random
 import os
+import random
+from datetime import datetime, timedelta
 
-from .usage_tracker import UsageTracker
 from .billing_calculator import BillingCalculator
 from .invoice import InvoiceStatus
-from .invoice_manager import InvoiceManager
 from .invoice_delivery import InvoiceDelivery
+from .invoice_manager import InvoiceManager
+from .usage_tracker import UsageTracker
 
 
 def print_separator():

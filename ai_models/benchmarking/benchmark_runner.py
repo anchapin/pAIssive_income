@@ -4,11 +4,11 @@ Benchmark runner for AI models.
 This module provides a runner for benchmarking AI models.
 """
 
+import gc
+import json
+import logging
 import os
 import time
-import logging
-import json
-import gc
 from typing import List, Tuple
 
 from .benchmark_config import BenchmarkConfig, BenchmarkType

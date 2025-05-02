@@ -6,12 +6,13 @@ and conflict resolution in the model versioning system.
 """
 
 import pytest
+
+from ai_models.model_base_types import ModelInfo
 from ai_models.model_versioning import (
+    ModelMigrationTool,
     ModelVersion,
     ModelVersionRegistry,
-    ModelMigrationTool,
 )
-from ai_models.model_base_types import ModelInfo
 
 
 @pytest.fixture

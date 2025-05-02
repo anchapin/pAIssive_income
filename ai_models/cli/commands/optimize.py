@@ -4,11 +4,11 @@ Optimize command for the command-line interface.
 This module provides a command for optimizing models.
 """
 
-import os
-import json
 import argparse
+import json
 import logging
-from typing import Dict, Any
+import os
+from typing import Any, Dict
 
 from ..base import BaseCommand
 
@@ -157,7 +157,7 @@ class OptimizeCommand(BaseCommand):
             Exit code
         """
         # Import required modules
-        from ...optimization import quantize_model, analyze_quantization
+        from ...optimization import analyze_quantization, quantize_model
 
         # Create configuration
         config = {
@@ -233,7 +233,7 @@ class OptimizeCommand(BaseCommand):
             Exit code
         """
         # Import required modules
-        from ...optimization import prune_model, analyze_pruning
+        from ...optimization import analyze_pruning, prune_model
 
         # Create configuration
         config = {

@@ -4,10 +4,11 @@ Pydantic schemas for the AI Models module.
 This module provides Pydantic models for data validation in the AI models module.
 """
 
-from typing import Dict, List, Any, Optional, Union
-from pydantic import BaseModel, Field, field_validator, ConfigDict
-from datetime import datetime
 import os
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ModelConfigSchema(BaseModel):
@@ -38,16 +39,19 @@ class ModelConfigSchema(BaseModel):
         default=1000, description="Maximum number of items in memory cache", gt=0
     )
     default_device: str = Field(
-        default="auto", description="Default device for model inference (auto, cpu, cuda, mps, etc.)",
+        default="auto",
+        description="Default device for model inference (auto, cpu, cuda, mps, etc.)",
     )
     max_threads: Optional[int] = Field(
-        default=None, description="Maximum number of threads to use (None means use all available threads)",
+        default=None,
+        description="Maximum number of threads to use (None means use all available threads)",
     )
     auto_discover: bool = Field(
         default=True, description="Whether to automatically discover models"
     )
     model_sources: List[str] = Field(
-        default_factory=lambda: ["local", "huggingface"], description="Sources for model discovery",
+        default_factory=lambda: ["local", "huggingface"],
+        description="Sources for model discovery",
     )
     default_text_model: str = Field(
         default="gpt2", description="Default text generation model"

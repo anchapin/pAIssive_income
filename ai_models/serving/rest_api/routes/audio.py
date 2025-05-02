@@ -9,9 +9,9 @@ from typing import Optional
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Form
+    from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
     from fastapi.responses import Response, StreamingResponse
-    from pydantic import BaseModel, Field, ConfigDict
+    from pydantic import BaseModel, ConfigDict, Field
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -24,10 +24,14 @@ except ImportError:
     class BaseModel:
         pass
 
-    Field = lambda *args, **kwargs: None
-    File = lambda *args, **kwargs: None
-    Form = lambda *args, **kwargs: None
-    UploadFile = lambda *args, **kwargs: None
+    def Field(*args, **kwargs):
+        return None
+    def File(*args, **kwargs):
+        return None
+    def Form(*args, **kwargs):
+        return None
+    def UploadFile(*args, **kwargs):
+        return None
 
 
 # Create router

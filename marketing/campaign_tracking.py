@@ -9,19 +9,19 @@ This module provides tools for:
 - Generating campaign reports
 """
 
-import uuid
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
 import json
-import os
 import logging
+import os
+import uuid
 from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-from marketing.errors import (
-    MarketingError,
-    InvalidParameterError,
-)
 from interfaces.marketing_interfaces import ICampaignTracker
+from marketing.errors import (
+    InvalidParameterError,
+    MarketingError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -979,7 +979,7 @@ class CampaignTracker(ICampaignTracker):
         }
 
         # Get metrics
-        metrics_data = self.get_metrics(
+        self.get_metrics(
             campaign_id=campaign_id,
             start_time=start_date,
             end_time=end_date,

@@ -5,16 +5,16 @@ This module provides classes for calculating billing based on usage,
 including different pricing models and cost estimation.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 import hashlib
 import json
-
-from .usage_tracking import UsageMetric, UsageCategory
-from .usage_tracker import UsageTracker
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 # Import the centralized caching service
 from common_utils.caching import default_cache
+
+from .usage_tracker import UsageTracker
+from .usage_tracking import UsageCategory, UsageMetric
 
 
 class PricingModel:
@@ -820,7 +820,7 @@ class BillingCalculator:
         # Calculate cost for each metric
         if "grouped" in summary:
             for metric, data in summary["grouped"].items():
-                quantity = data["quantity"]
+                data["quantity"]
 
                 # Get all records for this metric
                 records = []

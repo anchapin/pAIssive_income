@@ -5,6 +5,6 @@ when primary model selection fails. It includes configurable strategies
 for selecting alternative models based on various criteria.
 """
 
-from .fallback_strategy import FallbackStrategy, FallbackEvent, FallbackManager
+from .fallback_strategy import FallbackEvent, FallbackManager, FallbackStrategy
 
 __all__ = ["FallbackStrategy", "FallbackEvent", "FallbackManager"]

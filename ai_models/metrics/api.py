@@ -1,3 +1,12 @@
+
+import contextlib
+import logging
+from datetime import datetime, timedelta
+from functools import wraps
+from typing import Any, Dict, List, Optional
+from ai_models.metrics.dashboard import MetricsDashboard
+from ai_models.metrics.enhanced_metrics import (
+
 """
 API for model performance metrics.
 
@@ -5,23 +14,23 @@ This module provides simplified interfaces for recording and accessing
 model performance metrics throughout the application.
 """
 
-import logging
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
 import contextlib
+import logging
+from datetime import datetime, timedelta
 from functools import wraps
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from ai_models.metrics.dashboard import MetricsDashboard
+
 # Import metrics classes
 from ai_models.metrics.enhanced_metrics import (
-    EnhancedPerformanceMonitor,
     EnhancedInferenceTracker,
+    EnhancedPerformanceMonitor,
 )
-
-from ai_models.metrics.dashboard import MetricsDashboard
 
 
 class MetricsAPI:

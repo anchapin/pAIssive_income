@@ -2,11 +2,12 @@
 Tests for the dependency container.
 """
 
-import pytest
 from abc import ABC, abstractmethod
 from typing import List
 
-from dependency_container import DependencyContainer, get_container, clear_container
+import pytest
+
+from dependency_container import DependencyContainer, clear_container, get_container
 
 
 # Define some test interfaces and implementations

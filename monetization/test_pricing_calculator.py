@@ -2,9 +2,10 @@
 Test script for the PricingCalculator class.
 """
 
+import os
+
 from pricing_calculator import PricingCalculator
 from subscription_models import SubscriptionModel
-import os
 
 
 def test_pricing_calculator():

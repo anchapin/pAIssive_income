@@ -5,9 +5,9 @@ This module provides specialized classes for working with quantized models,
 including 4-bit and 8-bit quantized models.
 """
 
-import os
 import logging
-from typing import Dict, Any
+import os
+from typing import Any, Dict
 
 # Set up logging
 logging.basicConfig(

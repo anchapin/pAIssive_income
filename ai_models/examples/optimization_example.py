@@ -5,24 +5,22 @@ This script demonstrates how to use the optimization utilities to quantize
 and prune models for improved performance.
 """
 
+import argparse
+import logging
 import os
 import sys
 import time
-import logging
-import argparse
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from ai_models.optimization import (
-    # Quantization
-    quantize_model,
-    analyze_quantization,
-    # Pruning
-    prune_model,
+from ai_models.optimization import (  # Quantization; Pruning
     analyze_pruning,
+    analyze_quantization,
+    prune_model,
+    quantize_model,
 )
 
 # Set up logging

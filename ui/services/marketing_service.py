@@ -5,13 +5,14 @@ This service provides methods for interacting with the Marketing Agent module.
 """
 
 import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional
 import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
+from common_utils import add_days, format_datetime
 from interfaces.ui_interfaces import IMarketingService
+
 from .base_service import BaseService
-from common_utils import format_datetime, add_days
 
 # Set up logging
 logger = logging.getLogger(__name__)

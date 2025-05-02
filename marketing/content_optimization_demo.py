@@ -5,11 +5,11 @@ This script demonstrates how to use the content optimization tools to analyze
 and optimize marketing content.
 """
 
-from marketing.user_personas import PersonaCreator
-from marketing.content_templates import BlogPostTemplate
 from marketing.content_generators import BlogPostGenerator
 from marketing.content_optimization import KeywordAnalyzer, ReadabilityAnalyzer
+from marketing.content_templates import BlogPostTemplate
 from marketing.tone_analyzer import ToneAnalyzer
+from marketing.user_personas import PersonaCreator
 
 
 def demo_keyword_analyzer():

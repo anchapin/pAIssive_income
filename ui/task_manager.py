@@ -5,7 +5,8 @@ This module provides utilities for managing asynchronous tasks.
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from celery.result import AsyncResult
 
 from .tasks import celery_app

@@ -4,28 +4,28 @@ Message queue client for pAIssive income microservices.
 This module provides a client for interacting with the message queue (RabbitMQ).
 """
 
-import time
+import asyncio
 import json
 import logging
 import threading
+import time
 import uuid
 from typing import (
-    Dict,
     Any,
-    Optional,
-    Union,
     Callable,
-    TypeVar,
+    Dict,
+    Optional,
     Tuple,
+    TypeVar,
+    Union,
 )
 
+import aio_pika
 import pika
 from pika.exceptions import AMQPError
-import aio_pika
-import asyncio
 
+from .exceptions import ConnectionError, ConsumeError, PublishError
 from .message import Message, MessageStatus
-from .exceptions import ConnectionError, PublishError, ConsumeError
 
 # Set up logging
 logging.basicConfig(

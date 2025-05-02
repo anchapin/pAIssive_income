@@ -5,11 +5,12 @@ This module provides specialized classes for working with ONNX models,
 including loading, inference, and optimization.
 """
 
-import os
 import json
 import logging
+import os
+from typing import Any, Dict, List, Optional, Union
+
 import numpy as np
-from typing import Dict, List, Any, Optional, Union
 
 # Set up logging
 logging.basicConfig(

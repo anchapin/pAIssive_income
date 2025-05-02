@@ -5,13 +5,13 @@ This module provides utilities for services to communicate with each other
 using service-to-service authentication.
 """
 
-import os
 import logging
-from typing import Dict, Any, Optional
+import os
+from typing import Any, Dict, Optional
 
 import httpx
 
-from .jwt_auth import create_service_token, ServiceTokenError
+from .jwt_auth import ServiceTokenError, create_service_token
 
 # Set up logging
 logging.basicConfig(

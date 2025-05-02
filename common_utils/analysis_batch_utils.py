@@ -7,21 +7,22 @@ such as feature extraction, data transformation, and model evaluation.
 
 import logging
 import time
-from typing import (
-    List,
-    Dict,
-    Any,
-    Tuple,
-    Callable,
-    TypeVar,
-    Generic,
-)
 from dataclasses import dataclass
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    List,
+    Tuple,
+    TypeVar,
+)
+
 import numpy as np
 
 from .batch_utils import (
-    BatchResult,
     BatchProcessor,
+    BatchResult,
     process_batch,
 )
 
@@ -270,7 +271,6 @@ class AnalysisBatchProcessor(Generic[T, R]):
         Returns:
             List of results
         """
-        effective_batch_size = batch_size or self.config.batch_size
 
         result = process_batch(
             items=items,

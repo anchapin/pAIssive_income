@@ -4,17 +4,18 @@ Main entry point for the API server.
 This module provides the main entry point for running the API server.
 """
 
-import os
-import sys
 import argparse
 import logging
+import os
+import sys
 
 # Add the project root to the path so we can import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from api.config import APIConfig, APIVersion, RateLimitScope, RateLimitStrategy
+
 # Import API server
 from api.server import APIServer
-from api.config import APIConfig, APIVersion, RateLimitStrategy, RateLimitScope
 
 # Set up logging
 logging.basicConfig(

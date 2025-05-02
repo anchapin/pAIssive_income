@@ -7,7 +7,7 @@ a desktop application for running large language models locally.
 
 import json
 import logging
-from typing import Dict, List, Any, Optional, Union, Generator
+from typing import Any, Dict, Generator, List, Optional, Union
 
 # Set up logging
 logging.basicConfig(

@@ -6,14 +6,15 @@ of marketing content across different channels. It helps identify which content
 is performing best and provides insights to improve content strategy.
 """
 
+import json
+import logging
+
 # Standard library imports
 import os
-import json
 import uuid
-from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime, timedelta
 from collections import defaultdict
-import logging
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
 
 # Local imports
 from interfaces.marketing_interfaces import IContentPerformanceAnalyzer

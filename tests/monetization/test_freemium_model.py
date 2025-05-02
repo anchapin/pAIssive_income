@@ -122,12 +122,12 @@ def test_to_dict():
     )
 
     # Add a feature
-    feature = model.add_feature(
+    model.add_feature(
         name="Test Feature", description="A test feature", feature_type="functional"
     )
 
     # Add a paid tier
-    tier = model.add_tier(name="Pro", description="Pro tier", price_monthly=9.99)
+    model.add_tier(name="Pro", description="Pro tier", price_monthly=9.99)
 
     # Convert to dictionary
     model_dict = model.to_dict()
@@ -159,12 +159,12 @@ def test_save_load_file(temp_dir):
     )
 
     # Add a feature
-    feature = model.add_feature(
+    model.add_feature(
         name="Test Feature", description="A test feature", feature_type="functional"
     )
 
     # Add a paid tier
-    tier = model.add_tier(name="Pro", description="Pro tier", price_monthly=9.99)
+    model.add_tier(name="Pro", description="Pro tier", price_monthly=9.99)
 
     # Save to file
     file_path = os.path.join(temp_dir, "test_freemium_model.json")

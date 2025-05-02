@@ -4,25 +4,25 @@ Command implementations for the command-line interface.
 This module provides the implementation of all commands for the CLI.
 """
 
+import argparse
+import csv
+import json
+import logging
 import os
 import sys
-import json
-import argparse
-import logging
-from typing import Optional
 from datetime import datetime, timedelta
-import csv
+from typing import Optional
 
 from .base import BaseCommand
 
 # Add the project root to the Python path to import other modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from ai_models.model_manager import ModelManager
 from ai_models.model_config import ModelConfig
 from ai_models.model_downloader import ModelDownloader
+from ai_models.model_manager import ModelManager
 from ai_models.performance_monitor import (
-    PerformanceMonitor,
     InferenceTracker,
+    PerformanceMonitor,
 )
 
 # Set up logging
@@ -1617,7 +1617,6 @@ class PerformanceCommand(BaseCommand):
         try:
             import matplotlib
 
-            VISUALIZATION_AVAILABLE = True
         except ImportError:
             logger.error(
                 "Visualization requires matplotlib and pandas. Install with: pip install matplotlib pandas"

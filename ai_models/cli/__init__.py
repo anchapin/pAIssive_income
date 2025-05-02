@@ -7,14 +7,14 @@ including downloading, serving, and optimizing models.
 
 from .cli import main
 from .commands import (
-    DownloadCommand,
-    ListCommand,
-    InfoCommand,
-    ServeRESTCommand,
-    ServeGRPCCommand,
-    OptimizeCommand,
     BenchmarkCommand,
     DeployCommand,
+    DownloadCommand,
+    InfoCommand,
+    ListCommand,
+    OptimizeCommand,
+    ServeGRPCCommand,
+    ServeRESTCommand,
     ValidateCommand,
 )
 

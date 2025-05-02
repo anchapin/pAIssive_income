@@ -6,7 +6,7 @@ to interact with the core functionality of the framework.
 """
 
 from abc import abstractmethod
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from .health_interfaces import IHealthCheckable
 

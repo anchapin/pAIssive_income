@@ -2,11 +2,12 @@
 Integration tests for the AI Models module.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from ai_models import ModelManager, AgentModelProvider, PerformanceMonitor
+import pytest
+
 from agent_team import AgentTeam
+from ai_models import AgentModelProvider, ModelManager, PerformanceMonitor
 
 
 @pytest.fixture
@@ -219,7 +220,7 @@ def test_multiple_agents_model_integration(
     niches = team.run_niche_analysis(["e-commerce"])
     solution = team.develop_solution(niches[0])
     monetization = team.create_monetization_strategy(solution)
-    marketing_plan = team.create_marketing_plan(niches[0], solution, monetization)
+    team.create_marketing_plan(niches[0], solution, monetization)
 
     # Check that each agent's method was called
     mock_all_agents["researcher"].analyze_market_segments.assert_called_once()
@@ -231,7 +232,7 @@ def test_multiple_agents_model_integration(
 def test_model_fallback_integration(mock_model_manager):
     """Test integration with model fallbacks."""
     # Setup primary and fallback models
-    primary_model = MagicMock(name="Primary Model")
+    MagicMock(name="Primary Model")
     fallback_model = MagicMock(name="Fallback Model")
 
     # Create a mock ModelInfo object for the fallback model
@@ -372,14 +373,14 @@ def test_agent_model_error_handling_integration(
     provider = AgentModelProvider(mock_model_manager)
 
     # Create a team
-    team = AgentTeam("Test Team")
+    AgentTeam("Test Team")
 
     # Assign a model to the researcher agent
     provider.assign_model_to_agent("researcher", "model1", "text-generation")
 
     # Check that an exception is raised when trying to get the model
     with pytest.raises(Exception) as excinfo:
-        model = provider.get_model_for_agent("researcher", "text-generation")
+        provider.get_model_for_agent("researcher", "text-generation")
 
     # Check that the exception message is correct
     assert "Model loading failed" in str(excinfo.value)

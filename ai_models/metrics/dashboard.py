@@ -1,3 +1,12 @@
+
+import json
+import logging
+import os
+import time
+from datetime import datetime, timedelta
+from typing import List, Optional
+from ai_models.metrics import EnhancedPerformanceMonitor
+
 """
 Dashboard generation for model performance metrics.
 
@@ -5,12 +14,12 @@ This module provides tools for generating interactive dashboards and reports
 to visualize model performance metrics, token usage, and cost data.
 """
 
-import os
-import logging
 import json
-from typing import List, Optional
-from datetime import datetime, timedelta
+import logging
+import os
 import time
+from datetime import datetime, timedelta
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

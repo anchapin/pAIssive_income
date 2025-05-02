@@ -2,14 +2,16 @@
 Tests for the A/B testing module.
 """
 
-import pytest
 from datetime import datetime
 
-from marketing.ab_testing import ABTesting, ABTest
+import pytest
+
 from marketing.ab_testing import (
-    TestAlreadyEndedError,
-    InvalidVariantError,
+    ABTest,
+    ABTesting,
     InsufficientDataError,
+    InvalidVariantError,
+    TestAlreadyEndedError,
 )
 from marketing.errors import InvalidTestConfigurationError, TestNotFoundError
 
@@ -294,12 +296,8 @@ class TestABTest:
         assert "is_better_than_control" in variant_analysis
 
         # With these numbers, both CTR and conversion rate should be significantly better
-        assert (
-            variant_analysis.get("ctr_is_significant") 
-        )  # Use == instead of is
-        assert (
-            variant_analysis.get("conversion_is_significant") 
-        )  # Use == instead of is
+        assert variant_analysis.get("ctr_is_significant")  # Use == instead of is
+        assert variant_analysis.get("conversion_is_significant")  # Use == instead of is
 
     def test_end_test(self):
         """Test the end_test method."""

@@ -5,18 +5,18 @@ This script demonstrates how to use the custom pricing rules
 to implement complex pricing strategies.
 """
 
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
-from .usage_tracking import UsageMetric, UsageCategory
 from .custom_pricing import (
-    CustomPricingCalculator,
-    TimeBasedPricingRule,
-    SeasonalPricingRule,
-    CustomerSegmentPricingRule,
     ConditionalPricingRule,
+    CustomerSegmentPricingRule,
+    CustomPricingCalculator,
     FormulaBasedPricingRule,
+    SeasonalPricingRule,
+    TimeBasedPricingRule,
 )
+from .usage_tracking import UsageCategory, UsageMetric
 
 
 def print_section(title: str) -> None:

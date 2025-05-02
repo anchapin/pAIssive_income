@@ -5,10 +5,10 @@ This module provides tools for monitoring database performance, including
 query timing, connection pooling statistics, and slow query detection.
 """
 
-import time
 import logging
 import threading
-from typing import Any, Dict, List, Optional, Callable
+import time
+from typing import Any, Callable, Dict, List, Optional
 
 from common_utils.db.interfaces import DatabaseInterface
 

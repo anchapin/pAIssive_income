@@ -6,13 +6,13 @@ and other collaborative features to enable teams to work together effectively
 on AI solutions.
 """
 
-from .workspace import TeamWorkspace, WorkspaceManager
-from .sharing import ProjectSharing, SharingPermission
-from .access_control import RoleManager, Role, Permission
-from .version_control import VersionControl, VersionInfo
-from .activity import ActivityTracker, ActivityLog, NotificationManager
-from .comments import CommentSystem, Comment, Reaction
+from .access_control import Permission, Role, RoleManager
+from .activity import ActivityLog, ActivityTracker, NotificationManager
+from .comments import Comment, CommentSystem, Reaction
 from .integration import CollaborationIntegration, IntegrationType
+from .sharing import ProjectSharing, SharingPermission
+from .version_control import VersionControl, VersionInfo
+from .workspace import TeamWorkspace, WorkspaceManager
 
 __all__ = [
     # Workspace management

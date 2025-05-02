@@ -4,18 +4,17 @@ Tests for the agent team API.
 This module contains tests for the agent team API endpoints.
 """
 
-
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import generate_id, generate_agent_team_data
+from tests.api.utils.test_data import generate_agent_team_data, generate_id
 from tests.api.utils.test_validators import (
-    validate_error_response,
-    validate_success_response,
-    validate_paginated_response,
     validate_bulk_response,
-    validate_field_exists,
+    validate_error_response,
     validate_field_equals,
-    validate_field_type,
+    validate_field_exists,
     validate_field_not_empty,
+    validate_field_type,
+    validate_paginated_response,
+    validate_success_response,
 )
 
 

@@ -6,7 +6,8 @@ This module provides a client for making requests to the pAIssive Income API.
 
 import json
 import logging
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 import requests
 
 from .auth import Auth, NoAuth
@@ -43,14 +44,14 @@ class Client:
 
         # Initialize services
         from .services import (
-            NicheAnalysisService,
-            MonetizationService,
-            MarketingService,
-            AIModelsService,
             AgentTeamService,
-            UserService,
-            DashboardService,
+            AIModelsService,
             APIKeyService,
+            DashboardService,
+            MarketingService,
+            MonetizationService,
+            NicheAnalysisService,
+            UserService,
         )
 
         self.niche_analysis = NicheAnalysisService(self)

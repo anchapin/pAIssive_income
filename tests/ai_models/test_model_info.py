@@ -2,9 +2,9 @@
 Tests for the ModelInfo class.
 """
 
-from unittest.mock import patch
-from datetime import datetime
 import json
+from datetime import datetime
+from unittest.mock import patch
 
 from ai_models.model_base_types import ModelInfo
 

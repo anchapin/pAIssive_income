@@ -4,14 +4,13 @@ Tests for the AI Models GraphQL API.
 This module contains tests for AI Models GraphQL queries and mutations.
 """
 
-
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_ai_model_data
-)
+from tests.api.utils.test_data import generate_ai_model_data, generate_id
 from tests.api.utils.test_validators import (
-    validate_json_response, validate_field_exists,
-    validate_field_equals, validate_field_type
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_type,
+    validate_json_response,
 )
 
 
@@ -146,10 +145,7 @@ class TestAIModelsGraphQLAPI:
             "input": {
                 "modelId": model_id,
                 "inputData": {"prompt": "Hello, world!"},
-                "parameters": {
-                    "temperature": 0.7,
-                    "maxTokens": 100
-                }
+                "parameters": {"temperature": 0.7, "maxTokens": 100},
             }
         }
 
@@ -281,7 +277,7 @@ class TestAIModelsGraphQLAPI:
                 "description": test_data["description"],
                 "modelType": test_data["model_type"],
                 "provider": test_data["provider"],
-                "capabilities": test_data["capabilities"]
+                "capabilities": test_data["capabilities"],
             }
         }
 
@@ -343,8 +339,8 @@ class TestAIModelsGraphQLAPI:
                 "description": test_data["description"],
                 "modelType": test_data["model_type"],
                 "provider": test_data["provider"],
-                "capabilities": test_data["capabilities"]
-            }
+                "capabilities": test_data["capabilities"],
+            },
         }
 
         # Make request
@@ -434,7 +430,7 @@ class TestAIModelsGraphQLAPI:
                     # Missing required fields
                     "description": "Invalid model"
                 }
-            }
+            },
         )
         result = validate_json_response(response)
         validate_field_exists(result, "errors")

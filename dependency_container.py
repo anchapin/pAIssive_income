@@ -6,7 +6,7 @@ and enabling dependency injection throughout the application.
 """
 
 import logging
-from typing import Dict, Any, Type, Optional, TypeVar, cast, Callable
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, cast
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -29,8 +29,7 @@ class DependencyContainer:
         self._singletons: Dict[str, Any] = {}
 
     def register(
-        self, interface_type: Type[T], factory: Callable[[], T],
-        singleton: bool = True
+        self, interface_type: Type[T], factory: Callable[[], T], singleton: bool = True
     ) -> None:
         """
         Register a dependency.
@@ -44,9 +43,7 @@ class DependencyContainer:
         self._factories[interface_name] = factory
         if singleton:
             self._singletons[interface_name] = None
-        logger.debug(
-            f"Registered service: {interface_name}, singleton={singleton}"
-        )
+        logger.debug(f"Registered service: {interface_name}, singleton={singleton}")
 
     def register_instance(self, name: str, instance: Any) -> None:
         """
@@ -59,9 +56,7 @@ class DependencyContainer:
         self._singletons[name] = instance
         logger.debug(f"Registered named instance: {name}")
 
-    def register_factory(
-        self, interface_type: Type[T], factory: callable
-    ) -> None:
+    def register_factory(self, interface_type: Type[T], factory: callable) -> None:
         """
         Register a factory function for creating dependencies.
 
@@ -152,7 +147,7 @@ def get_container() -> DependencyContainer:
         Global dependency container instance
     """
     global _container
-    if (_container is None):
+    if _container is None:
         _container = DependencyContainer()
     return _container
 

@@ -4,9 +4,12 @@ Run the pAIssive Income Framework UI.
 This script is the main entry point for running the web interface.
 """
 
+import logging
 import os
 import sys
-import logging
+
+from ui.app import app
+from ui.socketio_app import socketio
 
 # Set up logging
 logging.basicConfig(
@@ -16,10 +19,6 @@ logger = logging.getLogger(__name__)
 
 # Add the current directory to the path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-# Import the UI module and SocketIO
-from ui.app import app
-from ui.socketio_app import socketio
 
 if __name__ == "__main__":
     # Log startup information

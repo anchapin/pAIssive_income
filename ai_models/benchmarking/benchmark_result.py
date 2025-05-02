@@ -4,12 +4,12 @@ Benchmark results for AI models.
 This module provides classes for storing and analyzing benchmark results.
 """
 
-import os
 import json
+import os
+import statistics
 import time
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List
-import statistics
+from typing import Any, Dict, List, Optional
 
 from .benchmark_config import BenchmarkConfig, BenchmarkType
 

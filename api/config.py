@@ -5,8 +5,8 @@ This module provides configuration classes for the API server.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Set
 from enum import Enum
+from typing import Dict, List, Optional, Set
 
 
 class RateLimitStrategy(str, Enum):
@@ -139,7 +139,9 @@ class APIConfig:
 
     # Middleware configuration
     enable_cors: bool = True
-    cors_origins: List[str] = field(default_factory=lambda: ["*"])  # Allow all origins by default
+    cors_origins: List[str] = field(
+        default_factory=lambda: ["*"]
+    )  # Allow all origins by default
     enable_gzip: bool = True
     enable_https: bool = False
     enable_auth: bool = True  # Changed to match main branch default

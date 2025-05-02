@@ -5,20 +5,20 @@ This module provides the UI Service implementation, which serves the web-based
 user interface for the pAIssive income platform.
 """
 
-import os
-import logging
 import argparse
+import logging
+import os
 
 from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from services.service_discovery.registration import (
-    register_service,
-    get_service_metadata,
     get_default_tags,
+    get_service_metadata,
+    register_service,
 )
 
 # Set up logging

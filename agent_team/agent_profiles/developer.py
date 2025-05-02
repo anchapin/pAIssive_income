@@ -3,9 +3,9 @@ Developer Agent for the pAIssive Income project.
 Specializes in designing and developing AI-powered software solutions.
 """
 
-from typing import Dict, List, Any
 import uuid
 from datetime import datetime
+from typing import Any, Dict, List
 
 
 class DeveloperAgent:

@@ -5,11 +5,12 @@ This module provides specialized classes for working with vision models,
 including image classification, object detection, and image generation.
 """
 
-import os
 import json
 import logging
+import os
+from typing import Any, Dict, List, Optional
+
 import numpy as np
-from typing import Dict, List, Any, Optional
 
 # Set up logging
 logging.basicConfig(

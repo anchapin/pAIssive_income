@@ -5,13 +5,13 @@ This module provides utilities for generating and validating JWT tokens
 for secure service-to-service communication in the microservices architecture.
 """
 
+import logging
 import os
 import time
-import logging
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 import jwt
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 # Set up logging
 logging.basicConfig(

@@ -5,8 +5,8 @@ This package provides different cache storage backends for the model cache syste
 """
 
 from .base import CacheBackend
-from .memory_cache import MemoryCache
 from .disk_cache import DiskCache
+from .memory_cache import MemoryCache
 from .sqlite_cache import SQLiteCache
 
 # Import Redis cache if available

@@ -5,13 +5,13 @@ This module contains tests for model fallback functionality without
 relying on the actual implementation to avoid circular import issues.
 """
 
+import logging
 import os
 import sys
+import time
 import unittest
 from enum import Enum
-from typing import Dict, List, Any, Optional
-import time
-import logging
+from typing import Any, Dict, List, Optional
 
 # Add the project root to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))

@@ -4,10 +4,10 @@ Example usage of the serving utilities.
 This script demonstrates how to use the serving utilities to deploy AI models.
 """
 
+import argparse
+import logging
 import os
 import sys
-import logging
-import argparse
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -15,17 +15,17 @@ sys.path.append(
 )
 
 from ai_models.serving import (
-    RESTServer,
-    RESTConfig,
-    GRPCServer,
-    GRPCConfig,
-    DockerConfig,
-    KubernetesConfig,
     CloudConfig,
     CloudProvider,
+    DockerConfig,
+    GRPCConfig,
+    GRPCServer,
+    KubernetesConfig,
+    RESTConfig,
+    RESTServer,
+    generate_cloud_config,
     generate_docker_config,
     generate_kubernetes_config,
-    generate_cloud_config,
 )
 
 # Set up logging

@@ -4,15 +4,15 @@ API Analytics Service.
 This module provides a service for collecting, analyzing, and reporting on API usage.
 """
 
-import uuid
-import logging
-import threading
-from typing import Dict, List, Any, Callable
-from datetime import datetime, timedelta
 import csv
 import io
+import logging
 import statistics
+import threading
+import uuid
 from collections import deque
+from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List
 
 from .database import AnalyticsDatabase
 

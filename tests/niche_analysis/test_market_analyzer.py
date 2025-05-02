@@ -2,8 +2,9 @@
 Tests for the MarketAnalyzer class.
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
 
 from niche_analysis.market_analyzer import MarketAnalyzer
 

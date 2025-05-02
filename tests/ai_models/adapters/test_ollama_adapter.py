@@ -2,7 +2,7 @@
 Tests for the OllamaAdapter class.
 """
 
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 from ai_models.adapters import OllamaAdapter
 from interfaces.model_interfaces import IModelAdapter
@@ -10,12 +10,12 @@ from interfaces.model_interfaces import IModelAdapter
 
 def test_ollama_adapter_implements_interface():
     """Test that OllamaAdapter implements the IModelAdapter interface."""
-    with patch('requests.Session') as mock_session:
+    with patch("requests.Session") as mock_session:
         # Mock the get response
         mock_response = Mock()
         mock_response.status_code = 200
         mock_session.return_value.get.return_value = mock_response
-        
+
         adapter = OllamaAdapter(base_url="http://localhost:11434")
     assert isinstance(adapter, IModelAdapter)
 

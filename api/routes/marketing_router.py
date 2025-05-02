@@ -1,3 +1,4 @@
+
 """
 Marketing router for the API server.
 
@@ -5,34 +6,39 @@ This module provides route handlers for marketing operations.
 """
 
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, HTTPException, Query, Path, Body, status
+    from fastapi import APIRouter, Body, HTTPException, Path, Query, status
     from fastapi.responses import JSONResponse
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
 
+from ..schemas.common import ErrorResponse, PaginatedResponse
+
 # Import schemas
 from ..schemas.marketing import (
-    MarketingStrategyRequest, MarketingStrategyResponse,
-    MarketingCampaignRequest, MarketingCampaignResponse,
-    ContentGenerationRequest, ContentGenerationResponse,
-    PersonaResponse, ChannelResponse
+    ChannelResponse,
+    ContentGenerationRequest,
+    ContentGenerationResponse,
+    MarketingCampaignRequest,
+    MarketingCampaignResponse,
+    MarketingStrategyRequest,
+    MarketingStrategyResponse,
+    PersonaResponse,
 )
-from ..schemas.common import ErrorResponse, PaginatedResponse
 
 # Create router
 if FASTAPI_AVAILABLE:
@@ -42,6 +48,7 @@ else:
 
 # Define route handlers
 if FASTAPI_AVAILABLE:
+
     @router.post(
         "/strategies",
         response_model=MarketingStrategyResponse,
@@ -49,10 +56,10 @@ if FASTAPI_AVAILABLE:
         responses={
             201: {"description": "Marketing strategy created"},
             400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Create a marketing strategy",
-        description="Create a new marketing strategy"
+        description="Create a new marketing strategy",
     )
     async def create_marketing_strategy(data: MarketingStrategyRequest):
         """Create a marketing strategy."""
@@ -66,13 +73,12 @@ if FASTAPI_AVAILABLE:
                 "content_types": data.content_types,
                 "kpis": data.kpis,
                 "created_at": datetime.now(),
-                "updated_at": None
+                "updated_at": None,
             }
         except Exception as e:
             logger.error(f"Error creating marketing strategy: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error creating marketing strategy: {str(e)}"
+                status_code=500, detail=f"Error creating marketing strategy: {str(e)}"
             )
 
     @router.get(
@@ -80,31 +86,26 @@ if FASTAPI_AVAILABLE:
         response_model=PaginatedResponse[MarketingStrategyResponse],
         responses={
             200: {"description": "List of marketing strategies"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Get all marketing strategies",
-        description="Get a list of all marketing strategies"
+        description="Get a list of all marketing strategies",
     )
     async def get_marketing_strategies(
         page: int = Query(1, ge=1, description="Page number"),
-        page_size: int = Query(10, ge=1, le=100, description="Page size")
+        page_size: int = Query(10, ge=1, le=100, description="Page size"),
     ):
         """Get all marketing strategies."""
         try:
             # Return mock data for now
             strategies = []
             return PaginatedResponse(
-                items=strategies,
-                total=0,
-                page=page,
-                page_size=page_size,
-                pages=0
+                items=strategies, total=0, page=page, page_size=page_size, pages=0
             )
         except Exception as e:
             logger.error(f"Error getting marketing strategies: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting marketing strategies: {str(e)}"
+                status_code=500, detail=f"Error getting marketing strategies: {str(e)}"
             )
 
     @router.get("/personas", response_model=List[PersonaResponse])
@@ -119,15 +120,14 @@ if FASTAPI_AVAILABLE:
                     "demographics": {
                         "age_range": ["25-34", "35-44"],
                         "locations": ["US", "UK", "CA"],
-                        "job_titles": ["Content Writer", "Marketing Manager"]
-                    }
+                        "job_titles": ["Content Writer", "Marketing Manager"],
+                    },
                 }
             ]
         except Exception as e:
             logger.error(f"Error getting personas: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting personas: {str(e)}"
+                status_code=500, detail=f"Error getting personas: {str(e)}"
             )
 
     @router.get("/channels", response_model=List[ChannelResponse])
@@ -139,14 +139,13 @@ if FASTAPI_AVAILABLE:
                     "id": "channel1",
                     "name": "Social Media",
                     "platforms": ["Twitter", "LinkedIn", "Facebook"],
-                    "content_types": ["posts", "articles", "videos"]
+                    "content_types": ["posts", "articles", "videos"],
                 }
             ]
         except Exception as e:
             logger.error(f"Error getting channels: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting channels: {str(e)}"
+                status_code=500, detail=f"Error getting channels: {str(e)}"
             )
 
     @router.post(
@@ -156,25 +155,21 @@ if FASTAPI_AVAILABLE:
         responses={
             202: {"description": "Content generation started"},
             404: {"model": ErrorResponse, "description": "Strategy not found"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
-        }
+            500: {"model": ErrorResponse, "description": "Internal server error"},
+        },
     )
     async def generate_content(
         strategy_id: str = Path(..., description="Marketing strategy ID"),
-        data: ContentGenerationRequest = Body(...)
+        data: ContentGenerationRequest = Body(...),
     ):
         """Generate marketing content."""
         try:
             task_id = str(uuid.uuid4())
-            return {
-                "task_id": task_id,
-                "status_url": f"/api/tasks/{task_id}"
-            }
+            return {"task_id": task_id, "status_url": f"/api/tasks/{task_id}"}
         except Exception as e:
             logger.error(f"Error generating content: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error generating content: {str(e)}"
+                status_code=500, detail=f"Error generating content: {str(e)}"
             )
 
     @router.post(
@@ -183,31 +178,21 @@ if FASTAPI_AVAILABLE:
         responses={
             201: {"description": "Marketing strategies created"},
             400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
-        }
+            500: {"model": ErrorResponse, "description": "Internal server error"},
+        },
     )
     async def bulk_create_marketing_strategies(data: List[MarketingStrategyRequest]):
         """Bulk create marketing strategies."""
         try:
             return {
-                "stats": {
-                    "total": len(data),
-                    "created": len(data),
-                    "failed": 0
-                },
-                "items": [
-                    {
-                        "id": str(uuid.uuid4()),
-                        "status": "created"
-                    }
-                    for _ in data
-                ]
+                "stats": {"total": len(data), "created": len(data), "failed": 0},
+                "items": [{"id": str(uuid.uuid4()), "status": "created"} for _ in data],
             }
         except Exception as e:
             logger.error(f"Error bulk creating marketing strategies: {str(e)}")
             raise HTTPException(
                 status_code=500,
-                detail=f"Error bulk creating marketing strategies: {str(e)}"
+                detail=f"Error bulk creating marketing strategies: {str(e)}",
             )
 
     @router.post(
@@ -217,8 +202,8 @@ if FASTAPI_AVAILABLE:
         responses={
             201: {"description": "Marketing campaign created"},
             400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
-        }
+            500: {"model": ErrorResponse, "description": "Internal server error"},
+        },
     )
     async def create_campaign(data: MarketingCampaignRequest):
         """Create a marketing campaign."""
@@ -235,13 +220,12 @@ if FASTAPI_AVAILABLE:
                 "target_audience": data.target_audience,
                 "goals": data.goals,
                 "created_at": datetime.now(),
-                "updated_at": None
+                "updated_at": None,
             }
         except Exception as e:
             logger.error(f"Error creating campaign: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error creating campaign: {str(e)}"
+                status_code=500, detail=f"Error creating campaign: {str(e)}"
             )
 
     @router.get(
@@ -250,8 +234,8 @@ if FASTAPI_AVAILABLE:
         responses={
             200: {"description": "Campaign details"},
             404: {"model": ErrorResponse, "description": "Campaign not found"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
-        }
+            500: {"model": ErrorResponse, "description": "Internal server error"},
+        },
     )
     async def get_campaign(campaign_id: str = Path(..., description="Campaign ID")):
         """Get a specific campaign."""
@@ -260,19 +244,14 @@ if FASTAPI_AVAILABLE:
                 "id": campaign_id,
                 "name": "Test Campaign",
                 "status": "draft",
-                "metrics": {
-                    "impressions": 0,
-                    "clicks": 0,
-                    "conversions": 0
-                },
+                "metrics": {"impressions": 0, "clicks": 0, "conversions": 0},
                 "created_at": datetime.now().isoformat(),
-                "updated_at": None
+                "updated_at": None,
             }
         except Exception as e:
             logger.error(f"Error getting campaign: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting campaign: {str(e)}"
+                status_code=500, detail=f"Error getting campaign: {str(e)}"
             )
 
     @router.patch(
@@ -281,12 +260,12 @@ if FASTAPI_AVAILABLE:
         responses={
             200: {"description": "Campaign status updated"},
             404: {"model": ErrorResponse, "description": "Campaign not found"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
-        }
+            500: {"model": ErrorResponse, "description": "Internal server error"},
+        },
     )
     async def update_campaign_status(
         campaign_id: str = Path(..., description="Campaign ID"),
-        data: Dict[str, Any] = Body(...)
+        data: Dict[str, Any] = Body(...),
     ):
         """Update a campaign's status."""
         try:
@@ -294,13 +273,12 @@ if FASTAPI_AVAILABLE:
                 "id": campaign_id,
                 "status": data["status"],
                 "activation_date": data.get("activation_date"),
-                "updated_at": datetime.now().isoformat()
+                "updated_at": datetime.now().isoformat(),
             }
         except Exception as e:
             logger.error(f"Error updating campaign status: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error updating campaign status: {str(e)}"
+                status_code=500, detail=f"Error updating campaign status: {str(e)}"
             )
 
     @router.get(
@@ -308,42 +286,30 @@ if FASTAPI_AVAILABLE:
         responses={
             200: {"description": "Campaign metrics"},
             404: {"model": ErrorResponse, "description": "Campaign not found"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
-        }
+            500: {"model": ErrorResponse, "description": "Internal server error"},
+        },
     )
     async def get_campaign_metrics(
         campaign_id: str = Path(..., description="Campaign ID"),
         start_date: Optional[str] = Query(None, description="Start date"),
         end_date: Optional[str] = Query(None, description="End date"),
-        metrics: Optional[List[str]] = Query(None, description="Metrics to include")
+        metrics: Optional[List[str]] = Query(None, description="Metrics to include"),
     ):
         """Get campaign metrics."""
         try:
             return {
                 "campaign_id": campaign_id,
-                "period": {
-                    "start": start_date,
-                    "end": end_date
-                },
-                "metrics": {
-                    "conversions": 10,
-                    "engagement": 0.15,
-                    "reach": 1000
-                },
+                "period": {"start": start_date, "end": end_date},
+                "metrics": {"conversions": 10, "engagement": 0.15, "reach": 1000},
                 "time_series": [
                     {
                         "date": "2025-05-01",
-                        "metrics": {
-                            "conversions": 2,
-                            "engagement": 0.12,
-                            "reach": 200
-                        }
+                        "metrics": {"conversions": 2, "engagement": 0.12, "reach": 200},
                     }
-                ]
+                ],
             }
         except Exception as e:
             logger.error(f"Error getting campaign metrics: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting campaign metrics: {str(e)}"
+                status_code=500, detail=f"Error getting campaign metrics: {str(e)}"
             )

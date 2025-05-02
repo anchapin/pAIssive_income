@@ -5,7 +5,7 @@ This module provides functions for customizing the OpenAPI documentation.
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Set up logging
 logging.basicConfig(

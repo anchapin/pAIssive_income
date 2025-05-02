@@ -4,18 +4,18 @@ Style adjuster module for the pAIssive Income project.
 This module provides classes for adjusting the style and tone of content.
 """
 
-from typing import Dict, List, Any, Optional, Tuple
-import uuid
-import json
 import datetime
-import re
+import json
 import random
+import re
+import uuid
+from typing import Any, Dict, List, Optional, Tuple
 
 # Third-party imports
 try:
     import nltk
-    from nltk.tokenize import word_tokenize, sent_tokenize
     from nltk.corpus import stopwords
+    from nltk.tokenize import sent_tokenize, word_tokenize
 
     NLTK_AVAILABLE = True
 except ImportError:
@@ -1705,7 +1705,7 @@ class StyleAdjuster:
             exclamation_count = sentence.count("!")
             question_count = sentence.count("?")
             ellipsis_count = sentence.count("...")
-            semicolon_count = sentence.count(";")
+            sentence.count(";")
             dash_count = sentence.count("-") + sentence.count("—")
 
             # Check if adjustment needed

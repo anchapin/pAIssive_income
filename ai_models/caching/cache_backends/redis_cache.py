@@ -5,10 +5,10 @@ This module provides a Redis-based cache backend.
 """
 
 import json
-import time
 import pickle
-from typing import Dict, Any, Optional, List
 import re
+import time
+from typing import Any, Dict, List, Optional
 
 from .base import CacheBackend
 

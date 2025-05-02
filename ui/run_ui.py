@@ -5,8 +5,8 @@ This script starts both the React development server and the Flask API server.
 """
 
 import os
-import sys
 import subprocess
+import sys
 import threading
 import time
 import webbrowser

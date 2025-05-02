@@ -5,10 +5,10 @@ This module provides a pruner that uses magnitude-based pruning to reduce
 model size and improve inference speed.
 """
 
-import os
-import logging
 import json
-from typing import Dict, Any, Optional, List, Tuple
+import logging
+import os
+from typing import Any, Dict, List, Optional, Tuple
 
 from .base import Pruner, PruningConfig, PruningMethod
 

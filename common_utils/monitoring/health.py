@@ -5,10 +5,11 @@ This module provides functionality for monitoring the health of various system c
 integrating with monitoring systems, and providing a status endpoint for health checks.
 """
 
+import threading
 import time
 from enum import Enum
 from typing import Any, Callable, Dict, Optional, Tuple
-import threading
+
 from common_utils.logging import get_logger
 
 logger = get_logger(__name__)

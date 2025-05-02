@@ -6,14 +6,14 @@ where pricing is determined by complex conditions, formulas, or other
 custom logic beyond standard pricing models.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
 import math
-import uuid
 import re
+import uuid
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-from .billing_calculator import PricingRule, PricingModel, BillingCalculator
-from .usage_tracking import UsageMetric, UsageCategory
+from .billing_calculator import BillingCalculator, PricingModel, PricingRule
+from .usage_tracking import UsageCategory, UsageMetric
 
 
 class CustomPricingRule(PricingRule):
@@ -210,7 +210,7 @@ class CustomPricingCalculator:
         """
         for i, rule in enumerate(self.custom_rules):
             if rule.id == rule_id:
-                removed_rule = self.custom_rules.pop(i)
+                self.custom_rules.pop(i)
 
                 # Also remove from billing calculator
                 for j, bc_rule in enumerate(self.billing_calculator.pricing_rules):

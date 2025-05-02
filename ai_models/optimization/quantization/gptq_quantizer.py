@@ -5,11 +5,11 @@ This module provides a quantizer that uses the GPTQ method for
 quantizing transformer models.
 """
 
-import os
 import logging
-from typing import Dict, Any, Optional, List
+import os
+from typing import Any, Dict, List, Optional
 
-from .base import Quantizer, QuantizationConfig, QuantizationMethod
+from .base import QuantizationConfig, QuantizationMethod, Quantizer
 
 # Set up logging
 logging.basicConfig(

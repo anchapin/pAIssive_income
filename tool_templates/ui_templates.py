@@ -11,13 +11,13 @@ Dependencies:
 - PyQt5 (for desktop applications, alternative to Electron)
 """
 
-import os
 import json
 import logging
-from typing import Dict, List, Any, Optional, Callable
+import os
+import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
-import uuid
+from typing import Any, Callable, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # Check for optional dependencies
 try:
     import flask
-    from flask import Flask, render_template, request, jsonify, redirect, url_for
+    from flask import Flask, jsonify, redirect, render_template, request, url_for
 
     FLASK_AVAILABLE = True
 except ImportError:
@@ -36,7 +36,7 @@ except ImportError:
     logger.warning("Flask not available. Web application templates will not work.")
 
 try:
-    from PyQt5 import QtWidgets, QtCore, QtGui
+    from PyQt5 import QtCore, QtGui, QtWidgets
 
     PYQT_AVAILABLE = True
 except ImportError:

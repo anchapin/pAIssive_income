@@ -2,16 +2,16 @@
 Tests for API rate limiting functionality.
 """
 
-import unittest
 import time
+import unittest
 
-from api.config import APIConfig, RateLimitStrategy, RateLimitScope
+from api.config import APIConfig, RateLimitScope, RateLimitStrategy
 from api.rate_limit import (
-    RateLimitManager,
     FixedWindowRateLimiter,
-    TokenBucketRateLimiter,
     LeakyBucketRateLimiter,
-    SlidingWindowRateLimiter
+    RateLimitManager,
+    SlidingWindowRateLimiter,
+    TokenBucketRateLimiter,
 )
 
 
@@ -31,13 +31,11 @@ class TestRateLimiting(unittest.TestCase):
                 "default": 100,
                 "basic": 300,
                 "premium": 1000,
-                "unlimited": 0
+                "unlimited": 0,
             },
-            endpoint_rate_limits={
-                "/api/v1/ai-models/inference": 20
-            },
+            endpoint_rate_limits={"/api/v1/ai-models/inference": 20},
             rate_limit_exempt_ips={"127.0.0.1"},
-            rate_limit_exempt_api_keys={"test-api-key"}
+            rate_limit_exempt_api_keys={"test-api-key"},
         )
         self.manager = RateLimitManager(self.config)
 
@@ -134,7 +132,9 @@ class TestRateLimiting(unittest.TestCase):
 
         # Test basic tier
         limit = self.manager.get_rate_limit_tier("basic-api-key")
-        self.assertEqual(limit, 100)  # Default tier since we don't have tier lookup implemented
+        self.assertEqual(
+            limit, 100
+        )  # Default tier since we don't have tier lookup implemented
 
     def test_endpoint_specific_limits(self):
         """Test endpoint-specific rate limits."""
@@ -158,20 +158,22 @@ class TestRateLimiting(unittest.TestCase):
         self.assertEqual(info["limit"], 0)  # 0 means no limit
 
         # Test exempt API key
-        allowed, info = self.manager.check_rate_limit("non-exempt-ip", api_key="test-api-key")
+        allowed, info = self.manager.check_rate_limit(
+            "non-exempt-ip", api_key="test-api-key"
+        )
         self.assertTrue(allowed)
         self.assertEqual(info["limit"], 0)
 
     def test_rate_limit_headers(self):
         """Test rate limit headers."""
         client_id = "test_client"
-        
+
         # Make some requests to get non-zero rate limit info
         _, limit_info = self.manager.check_rate_limit(client_id)
-        
+
         # Get headers
         headers = self.manager.get_rate_limit_headers(limit_info)
-        
+
         # Verify required headers are present
         self.assertIn("X-RateLimit-Limit", headers)
         self.assertIn("X-RateLimit-Remaining", headers)

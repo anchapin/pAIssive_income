@@ -5,13 +5,13 @@ This module provides classes for analyzing subscription data, including
 metrics calculation, churn analysis, and revenue forecasting.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
 from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
 from .subscription import SubscriptionPlan
-from .user_subscription import Subscription, SubscriptionStatus
 from .subscription_manager import SubscriptionManager
+from .user_subscription import Subscription, SubscriptionStatus
 
 
 class SubscriptionMetrics:
@@ -1325,7 +1325,7 @@ class SubscriptionForecasting:
             List of dictionaries with period and forecasted revenue
         """
         # Get current MRR
-        current_mrr = self.metrics.get_monthly_recurring_revenue(plan_id=plan_id)
+        self.metrics.get_monthly_recurring_revenue(plan_id=plan_id)
 
         # Get current ARPU
         current_arpu = self.metrics.get_average_revenue_per_user(plan_id=plan_id)
@@ -1755,8 +1755,8 @@ class SubscriptionForecasting:
 # Example usage
 if __name__ == "__main__":
     from .subscription import SubscriptionPlan
-    from .user_subscription import Subscription
     from .subscription_manager import SubscriptionManager
+    from .user_subscription import Subscription
 
     # Create a subscription manager
     manager = SubscriptionManager()

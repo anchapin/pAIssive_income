@@ -5,8 +5,8 @@ This module provides utilities for filtering data in API endpoints.
 """
 
 import re
-from typing import List, Dict, Any, Optional, Callable
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
 
 class FilterOperator(str, Enum):
@@ -56,12 +56,12 @@ def filter_items(
     result = items
     for field, value in filters.items():
         operator = operators.get(field, FilterOperator.EQ)
-        
+
         # Check if there's a custom filter for this field
         if custom_filters and field in custom_filters:
             result = [item for item in result if custom_filters[field](item, value)]
             continue
-            
+
         result = [item for item in result if apply_filter(item, field, operator, value)]
 
     return result
@@ -93,7 +93,7 @@ def apply_filter(
         return False
 
     item_value = item[field]
-    
+
     # Handle None values
     if item_value is None:
         # None values only match equality operators

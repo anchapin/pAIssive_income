@@ -6,11 +6,12 @@ across a wide range of input parameters.
 """
 
 from datetime import datetime, timedelta
-from hypothesis import given, strategies as st, assume, settings, HealthCheck
+
+from hypothesis import HealthCheck, assume, given, settings
+from hypothesis import strategies as st
+from monetization.subscription import SubscriptionPlan
 from monetization.subscription_manager import SubscriptionManager
 from monetization.user_subscription import Subscription, SubscriptionStatus
-from monetization.subscription import SubscriptionPlan
-
 
 # Strategies for generating subscription data
 user_ids = st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")
@@ -167,7 +168,7 @@ def test_subscription_manager_properties(subscription_list):
         assert updated_sub is not None
         assert (
             updated_sub.status == SubscriptionStatus.CANCELED
-            or updated_sub.get_metadata("cancel_at_period_end") 
+            or updated_sub.get_metadata("cancel_at_period_end")
         )
 
     # Property 4: Total active subscriptions should be less than or equal to total subscriptions
@@ -243,7 +244,7 @@ def test_pause_resume_properties(subscription, pause_days):
     assert paused_sub.status == SubscriptionStatus.PAUSED
 
     # Property 2: The pause_collection flag should be True
-    assert paused_sub.get_metadata("pause_collection") 
+    assert paused_sub.get_metadata("pause_collection")
 
     # Resume the subscription after pause_days
     resume_date = datetime.now() + timedelta(days=pause_days)
@@ -254,7 +255,7 @@ def test_pause_resume_properties(subscription, pause_days):
     assert resumed_sub.status == SubscriptionStatus.ACTIVE
 
     # Property 4: The pause_collection flag should be False after resuming
-    assert resumed_sub.get_metadata("pause_collection")  is False
+    assert resumed_sub.get_metadata("pause_collection") is False
 
     # Property 5: The current_period_end should be adjusted to account for the pause
     # This is a complex calculation and varies by implementation, but we can check that
@@ -341,14 +342,12 @@ def test_feature_access_properties(subscription):
     # Property 1: The subscription should have access to all features in its tier
     for feature in tier_features:
         if (
-            isinstance(feature, dict)
-            and feature.get("value") 
-            and "name" in feature
+            isinstance(feature, dict) and feature.get("value") and "name" in feature
         ):  # Only check features that are enabled
-            assert manager.has_feature_access(subscription.id, feature["name"]) 
+            assert manager.has_feature_access(subscription.id, feature["name"])
 
     # Property 2: Subscription should not have access to non-existent features
-    assert manager.has_feature_access(subscription.id, "Non-existent Feature")  is False
+    assert manager.has_feature_access(subscription.id, "Non-existent Feature") is False
 
     # Property 3: Features with limits should respect those limits
     for feature in tier_features:
@@ -374,11 +373,11 @@ def test_feature_access_properties(subscription):
 
             # Increment usage to just under the limit
             subscription.increment_feature_usage(feature["id"], feature["limit"] - 1)
-            assert subscription.is_feature_limit_reached(feature["id"])  is False
+            assert subscription.is_feature_limit_reached(feature["id"]) is False
 
             # Increment once more to reach the limit
             subscription.increment_feature_usage(feature["id"], 1)
-            assert subscription.is_feature_limit_reached(feature["id"]) 
+            assert subscription.is_feature_limit_reached(feature["id"])
 
 
 @given(subscription=subscriptions())
@@ -394,7 +393,7 @@ def test_subscription_state_transitions(subscription):
     if subscription.status == SubscriptionStatus.ACTIVE:
         manager.cancel_subscription(subscription.id, cancel_at_period_end=True)
         updated_sub = manager.get_subscription(subscription.id)
-        assert updated_sub.get_metadata("cancel_at_period_end") 
+        assert updated_sub.get_metadata("cancel_at_period_end")
 
         # If immediate cancellation instead of at period end
         manager.cancel_subscription(subscription.id, cancel_at_period_end=False)
@@ -493,7 +492,6 @@ def test_tier_upgrade_downgrade_properties(subscription):
     # If we found an upgrade tier, test upgrade
     if upgrade_tier:
         # Store original values
-        original_price = subscription.price
 
         # Get the tier ID before the change
         print(f"Current tier ID: {subscription.tier_id}")
@@ -560,7 +558,6 @@ def test_tier_upgrade_downgrade_properties(subscription):
             manager.add_subscription(subscription)
 
         # Store original values
-        original_price = subscription.price
 
         # Downgrade to the lower tier
         manager.change_subscription_tier(

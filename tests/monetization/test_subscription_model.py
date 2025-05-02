@@ -2,8 +2,9 @@
 Tests for the SubscriptionModel class.
 """
 
-import os
 import json
+import os
+
 import pytest
 
 from monetization.subscription_models import SubscriptionModel
@@ -162,12 +163,12 @@ def test_to_dict():
     )
 
     # Add a feature
-    feature = model.add_feature(
+    model.add_feature(
         name="Test Feature", description="A test feature", feature_type="functional"
     )
 
     # Add a tier
-    tier = model.add_tier(
+    model.add_tier(
         name="Test Tier", description="A test tier", price_monthly=9.99
     )
 
@@ -216,12 +217,12 @@ def test_save_load_file(temp_dir):
     )
 
     # Add a feature
-    feature = model.add_feature(
+    model.add_feature(
         name="Test Feature", description="A test feature", feature_type="functional"
     )
 
     # Add a tier
-    tier = model.add_tier(
+    model.add_tier(
         name="Test Tier", description="A test tier", price_monthly=9.99
     )
 

@@ -4,9 +4,9 @@ Download command for the command-line interface.
 This module provides a command for downloading models.
 """
 
-import os
 import argparse
 import logging
+import os
 
 from ..base import BaseCommand
 

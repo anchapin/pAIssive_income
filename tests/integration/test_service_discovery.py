@@ -2,20 +2,21 @@
 Integration tests for service discovery functionality.
 """
 
-import pytest
 import time
 from unittest.mock import patch
 
+import pytest
+
 from services.discovery import (
+    DiscoveryConfig,
+    LoadBalancer,
     ServiceDiscoveryClient,
     ServiceRegistry,
-    DiscoveryConfig,
-    LoadBalancer
 )
 from services.errors import (
-    ServiceRegistrationError,
+    LoadBalancingError,
     ServiceNotFoundError,
-    LoadBalancingError
+    ServiceRegistrationError,
 )
 
 
@@ -28,7 +29,7 @@ class TestServiceDiscovery:
             registry_host="localhost",
             registry_port=8500,
             service_ttl=30,
-            check_interval=5
+            check_interval=5,
         )
         self.registry = ServiceRegistry(self.config)
         self.client = ServiceDiscoveryClient(self.config)
@@ -42,10 +43,7 @@ class TestServiceDiscovery:
             "host": "localhost",
             "port": 5000,
             "tags": ["v1", "production"],
-            "metadata": {
-                "model_type": "gpt-4",
-                "max_tokens": 4096
-            }
+            "metadata": {"model_type": "gpt-4", "max_tokens": 4096},
         }
 
         # Register service
@@ -73,7 +71,7 @@ class TestServiceDiscovery:
             name="health-check-service",
             host="localhost",
             port=5001,
-            health_check_endpoint="/health"
+            health_check_endpoint="/health",
         )["service_id"]
 
         try:
@@ -89,7 +87,9 @@ class TestServiceDiscovery:
             assert "check_output" in health
 
             # Simulate failing health check
-            with patch("services.discovery.ServiceRegistry._check_health") as mock_check:
+            with patch(
+                "services.discovery.ServiceRegistry._check_health"
+            ) as mock_check:
                 mock_check.return_value = False
                 time.sleep(self.config.check_interval + 1)
                 health = self.registry.get_service_health(service_id)
@@ -103,12 +103,7 @@ class TestServiceDiscovery:
         """Test load balancing functionality."""
         # Register multiple instances
         service_instances = [
-            {
-                "name": "api-service",
-                "host": "localhost",
-                "port": port,
-                "weight": 1
-            }
+            {"name": "api-service", "host": "localhost", "port": port, "weight": 1}
             for port in range(5010, 5013)
         ]
 
@@ -131,22 +126,24 @@ class TestServiceDiscovery:
 
             # Test weighted load balancing
             self.registry.update_service_metadata(
-                service_ids[0],
-                {"weight": 2}  # Double weight for first instance
+                service_ids[0], {"weight": 2}  # Double weight for first instance
             )
 
             # Collect weighted distribution
             port_counts = {5010: 0, 5011: 0, 5012: 0}
             for _ in range(100):
                 instance = self.load_balancer.get_instance(
-                    "api-service",
-                    algorithm="weighted"
+                    "api-service", algorithm="weighted"
                 )
                 port_counts[instance["port"]] += 1
 
             # Verify weighted distribution
-            assert port_counts[5010] > port_counts[5011]  # Higher weight instance used more
-            assert port_counts[5011] == port_counts[5012]  # Equal weight instances used equally
+            assert (
+                port_counts[5010] > port_counts[5011]
+            )  # Higher weight instance used more
+            assert (
+                port_counts[5011] == port_counts[5012]
+            )  # Equal weight instances used equally
 
         finally:
             # Clean up
@@ -158,9 +155,7 @@ class TestServiceDiscovery:
         # Test registration with invalid data
         with pytest.raises(ServiceRegistrationError):
             self.registry.register_service(
-                name="invalid-service",
-                host="invalid-host",
-                port=-1  # Invalid port
+                name="invalid-service", host="invalid-host", port=-1  # Invalid port
             )
 
         # Test discovering non-existent service
@@ -178,14 +173,13 @@ class TestServiceDiscovery:
             name="update-test-service",
             host="localhost",
             port=5020,
-            metadata={"version": "1.0"}
+            metadata={"version": "1.0"},
         )["service_id"]
 
         try:
             # Update service metadata
             self.registry.update_service_metadata(
-                service_id,
-                {"version": "1.1", "feature_flags": ["beta"]}
+                service_id, {"version": "1.1", "feature_flags": ["beta"]}
             )
 
             # Verify update
@@ -215,7 +209,7 @@ class TestServiceDiscovery:
                 "name": "bulk-service",
                 "host": "localhost",
                 "port": port,
-                "tags": [f"instance-{i}"]
+                "tags": [f"instance-{i}"],
             }
             for i, port in enumerate(range(5030, 5033))
         ]
@@ -231,8 +225,7 @@ class TestServiceDiscovery:
 
             # Test bulk service discovery
             discovered = self.client.get_services(
-                service_names=["bulk-service"],
-                tag="instance-1"
+                service_names=["bulk-service"], tag="instance-1"
             )
             assert len(discovered) == 1
             assert discovered[0]["port"] == 5031
@@ -250,21 +243,17 @@ class TestServiceDiscovery:
     def test_service_dependency_resolution(self):
         """Test service dependency resolution."""
         dependencies = {
-            "auth-service": {
-                "host": "localhost",
-                "port": 5040,
-                "dependencies": []
-            },
+            "auth-service": {"host": "localhost", "port": 5040, "dependencies": []},
             "user-service": {
                 "host": "localhost",
                 "port": 5041,
-                "dependencies": ["auth-service"]
+                "dependencies": ["auth-service"],
             },
             "api-gateway": {
                 "host": "localhost",
                 "port": 5042,
-                "dependencies": ["auth-service", "user-service"]
-            }
+                "dependencies": ["auth-service", "user-service"],
+            },
         }
 
         service_ids = {}
@@ -275,7 +264,7 @@ class TestServiceDiscovery:
                     name=service_name,
                     host=service_info["host"],
                     port=service_info["port"],
-                    metadata={"dependencies": service_info["dependencies"]}
+                    metadata={"dependencies": service_info["dependencies"]},
                 )
                 service_ids[service_name] = reg["service_id"]
 
@@ -284,7 +273,9 @@ class TestServiceDiscovery:
 
             # Verify dependency resolution
             assert len(resolved) == 3
-            assert resolved[0]["name"] == "auth-service"  # Should be first (no dependencies)
+            assert (
+                resolved[0]["name"] == "auth-service"
+            )  # Should be first (no dependencies)
             assert resolved[1]["name"] == "user-service"
             assert resolved[2]["name"] == "api-gateway"
 
