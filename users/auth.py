@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 # Constants
 DEFAULT_TOKEN_EXPIRY = 24 * 60 * 60  # 24 hours in seconds
-TOKEN_ALGORITHM = "HS256"
+# Load algorithm from environment or use secure default
+TOKEN_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
 
 # Secret key for JWT (should be loaded from environment or secrets management service)
 # In production, use os.environ.get("JWT_SECRET_KEY") or another secrets management approach

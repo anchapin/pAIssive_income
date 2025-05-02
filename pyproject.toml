@@ -1,0 +1,25 @@
+[tool.bandit]
+exclude_dirs = ["tests", "__pycache__", "custom_stubs"]
+skips = ["B101", "B311"]  # B101 for assert statements in tests
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | \.env
+  | __pycache__
+  | custom_stubs
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip = ["__pycache__", "custom_stubs"]
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"

@@ -126,7 +126,7 @@ class ModelCache:
         model inference request based on all its inputs. The algorithm:
         1. Converts parameters to a consistent string representation
         2. Concatenates model name, input text, and parameters
-        3. Creates an MD5 hash of this string for a compact, fixed-length key
+        3. Creates an SHA-256 hash of this string for a compact, fixed-length key
 
         Using a cryptographic hash function ensures:
         - Uniformity: Even small changes in input produce different keys
@@ -146,9 +146,10 @@ class ModelCache:
         params_str = json.dumps(params, sort_keys=True)
 
         # Create a hash of the input and parameters
-        # Using MD5 for speed and sufficient collision resistance for caching
-        key = hashlib.md5(
-            f"{model_name}:{input_text}:{params_str}".encode()
+        # Using SHA-256 for more secure hashing with usedforsecurity=False flag
+        # since this is only used for caching, not security purposes
+        key = hashlib.sha256(
+            f"{model_name}:{input_text}:{params_str}".encode(), usedforsecurity=False
         ).hexdigest()
 
         return key

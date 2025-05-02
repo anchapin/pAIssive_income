@@ -2,37 +2,41 @@
 
 import json
 import logging
-from typing import Dict, List, Optional
 from pathlib import Path
+from typing import Dict, List, Optional
 
 from interfaces.agent_interfaces import (
     IAgentTeam,
-    IResearchAgent,
     IDeveloperAgent,
-    IMonetizationAgent,
+    IFeedbackAgent,
     IMarketingAgent,
-    IFeedbackAgent
+    IMonetizationAgent,
+    IResearchAgent,
 )
 from interfaces.model_interfaces import IModelManager
 from interfaces.niche_interfaces import INicheAnalyzer
+
 from .agent_profiles import (
-    ResearchAgent,
     DeveloperAgent,
-    MonetizationAgent,
+    FeedbackAgent,
     MarketingAgent,
-    FeedbackAgent
+    MonetizationAgent,
+    ResearchAgent,
 )
 
 logger = logging.getLogger(__name__)
 
+
 class AgentTeam(IAgentTeam):
     """Manages a team of AI agents working on niche analysis and solution development."""
 
-    def __init__(self, model_manager: IModelManager, team_config: Optional[Dict] = None):
+    def __init__(
+        self, model_manager: IModelManager, team_config: Optional[Dict] = None
+    ):
         """Initialize agent team."""
         self.model_manager = model_manager
         self.project_state: Dict = {}
-        
+
         # Load or create configuration
         self.config = team_config or {
             "model_settings": {
@@ -40,14 +44,11 @@ class AgentTeam(IAgentTeam):
                 "developer": {"model": "gpt-4", "temperature": 0.2},
                 "monetization": {"model": "gpt-4", "temperature": 0.5},
                 "marketing": {"model": "gpt-4", "temperature": 0.8},
-                "feedback": {"model": "gpt-4", "temperature": 0.3}
+                "feedback": {"model": "gpt-4", "temperature": 0.3},
             },
-            "workflow": {
-                "auto_progression": False,
-                "review_required": True
-            }
+            "workflow": {"auto_progression": False, "review_required": True},
         }
-        
+
         # Initialize agents
         self._researcher = ResearchAgent(self)
         self._developer = DeveloperAgent(self)
@@ -85,10 +86,10 @@ class AgentTeam(IAgentTeam):
         try:
             # Analyze market segments using researcher agent
             niches = self.researcher.analyze_market_segments(market_segments)
-            
+
             # Store results in project state
             self.project_state["identified_niches"] = niches
-            
+
             return niches
         except Exception as e:
             logger.error(f"Niche analysis failed: {str(e)}")
@@ -99,13 +100,13 @@ class AgentTeam(IAgentTeam):
         try:
             # Store the selected niche
             self.project_state["selected_niche"] = niche
-            
+
             # Design solution using developer agent
             solution = self.developer.design_solution(niche)
-            
+
             # Store solution in project state
             self.project_state["solution"] = solution
-            
+
             return solution
         except Exception as e:
             logger.error(f"Solution development failed: {str(e)}")
@@ -122,10 +123,10 @@ class AgentTeam(IAgentTeam):
 
             # Create strategy using monetization agent
             strategy = self.monetization.create_strategy(solution)
-            
+
             # Store strategy in project state
             self.project_state["monetization_strategy"] = strategy
-            
+
             return strategy
         except Exception as e:
             logger.error(f"Monetization strategy creation failed: {str(e)}")
@@ -135,7 +136,7 @@ class AgentTeam(IAgentTeam):
         self,
         niche: Optional[Dict] = None,
         solution: Optional[Dict] = None,
-        monetization: Optional[Dict] = None
+        monetization: Optional[Dict] = None,
     ) -> Dict:
         """Create marketing plan workflow."""
         try:
@@ -152,10 +153,10 @@ class AgentTeam(IAgentTeam):
 
             # Create plan using marketing agent
             plan = self.marketing.create_plan(niche, solution, monetization)
-            
+
             # Store plan in project state
             self.project_state["marketing_plan"] = plan
-            
+
             return plan
         except Exception as e:
             logger.error(f"Marketing plan creation failed: {str(e)}")
@@ -166,10 +167,10 @@ class AgentTeam(IAgentTeam):
         try:
             # Analyze feedback using feedback agent
             analysis = self.feedback.analyze_feedback(feedback)
-            
+
             # Store feedback analysis in project state
             self.project_state["feedback_analysis"] = analysis
-            
+
             return analysis
         except Exception as e:
             logger.error(f"Feedback processing failed: {str(e)}")

@@ -1,15 +1,15 @@
 """Model manager module for handling AI model loading and configuration."""
 
 import logging
-from typing import Any, Dict, List, Optional, Type, Union, cast
 import os
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from interfaces.model_interfaces import IModelConfig, IModelInfo, IModelManager
 
 from .adapters import (
+    AdapterFactory,
     BaseModelAdapter,
     LMStudioAdapter,
-    ModelAdapterFactory,
     OllamaAdapter,
     OpenAICompatibleAdapter,
     TensorRTAdapter,

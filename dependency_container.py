@@ -16,11 +16,14 @@ T = TypeVar("T")
 _services: Dict[str, Any] = {}
 _factories: Dict[str, Callable[[], Any]] = {}
 
+
 def register_service(name: str, service: Any) -> None:
     _services[name] = service
 
+
 def register_factory(name: str, factory: Callable[[], T]) -> None:
     _factories[name] = factory
+
 
 def get_service(name: str) -> Any:
     if name in _services:
@@ -31,9 +34,11 @@ def get_service(name: str) -> Any:
         return service
     raise KeyError(f"No service registered with name: {name}")
 
+
 def clear_services() -> None:
     _services.clear()
     _factories.clear()
+
 
 class DependencyContainer:
     """
