@@ -1,7 +1,7 @@
 """
 Example usage of the serving utilities.
 
-This script demonstrates how to use the serving utilities to deploy AI models.
+This module demonstrates how to use the serving utilities to deploy AI models.
 """
 
 import argparse
@@ -279,7 +279,7 @@ def test_cloud_deployment(
         region: Cloud region
     """
     print("\n" + "=" * 80)
-    print(f"Testing {provider.upper()} Deployment")
+    print("Testing {} Deployment".format(provider.upper()))
     print("=" * 80)
 
     try:
@@ -319,13 +319,13 @@ def test_cloud_deployment(
         )
 
         # Generate cloud configuration
-        print(f"Generating {provider.upper()} configuration in {output_dir}")
+        print("Generating {} configuration in {}".format(provider.upper(), output_dir))
         config_path = generate_cloud_config(config, output_dir)
 
-        print(f"{provider.upper()} configuration generated at {config_path}")
+        print("{} configuration generated at {}".format(provider.upper(), config_path))
         print("\nTo deploy to the cloud:")
-        print(f"cd {output_dir}")
-        print(f"./deploy.sh")
+        print("cd {}".format(output_dir))
+        print("./deploy.sh")
 
     except Exception as e:
         print(f"Error generating cloud configuration: {e}")

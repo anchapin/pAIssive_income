@@ -213,16 +213,18 @@ def cleanup_blacklist() -> int:
     for token in TOKEN_BLACKLIST:
         try:
             # Split token and decode payload
-            _, payload_b64, _ = token.split(".")
+            parts = token.split(".")
+            if len(parts) >= 2:
+                payload_b64 = parts[1]
 
-            # Add padding if needed
-            padding = "=" * ((4 - len(payload_b64) % 4) % 4)
-            payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8")
-            payload = json.loads(payload_json)
+                # Add padding if needed
+                padding = "=" * ((4 - len(payload_b64) % 4) % 4)
+                payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8")
+                payload = json.loads(payload_json)
 
-            # Check if token is expired
-            if payload.get("exp", 0) < now:
-                tokens_to_remove.add(token)
+                # Check if token is expired
+                if payload.get("exp", 0) < now:
+                    tokens_to_remove.add(token)
 
         except Exception:
             # If we can't decode the token, keep it in the blacklist to be safe

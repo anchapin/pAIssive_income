@@ -525,7 +525,7 @@ class DeployCommand(BaseCommand):
 
         if config_path:
             if not os.path.exists(config_path):
-                logger.error(f"Configuration file {config_path} not found")
+                logger.error("Configuration file {config_path} not found")
                 return None
 
             try:

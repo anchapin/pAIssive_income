@@ -85,7 +85,7 @@ class OllamaAdapter(BaseModelAdapter):
         except requests.exceptions.RequestException as e:
             logger.error(f"Error connecting to Ollama: {e}")
             raise ConnectionError(
-                f"Could not connect to Ollama at {self.base_url}. Make sure Ollama is running."
+                "Could not connect to Ollama at {self.base_url}. Make sure Ollama is running."
             )
 
     def connect(self, **kwargs) -> bool:

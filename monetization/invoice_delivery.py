@@ -646,8 +646,8 @@ class InvoiceDelivery:
         # Print email details (for demo purposes)
         print(f"Sending invoice {invoice.number} to {to_email}")
         print(f"Subject: {subject}")
-        print("Format: {format}")
-        print("Attach PDF: {attach_pdf}")
+        print("Format: {}".format(format))
+        print("Attach PDF: {}".format(attach_pdf))
 
         # In a real implementation, this would send an email
         # For now, just return True

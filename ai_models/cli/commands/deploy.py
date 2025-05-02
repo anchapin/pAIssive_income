@@ -314,12 +314,12 @@ class DeployCommand(BaseCommand):
         output_dir = os.path.join(self.args.output_dir, self.args.deployment_type)
         os.makedirs(output_dir, exist_ok=True)
 
-        logger.info(f"Generating {self.args.deployment_type.upper()} configuration in {output_dir}")
+        logger.info("Generating {} configuration in {}".format(self.args.deployment_type.upper(), output_dir))
         config_path = generate_cloud_config(config, output_dir)
 
-        logger.info(f"{self.args.deployment_type.upper()} configuration generated at {config_path}")
+        logger.info("{} configuration generated at {}".format(self.args.deployment_type.upper(), config_path))
         logger.info("\nTo deploy to the cloud:")
-        logger.info(f"cd {output_dir}")
-        logger.info(f"./deploy.sh")
+        logger.info("cd {}".format(output_dir))
+        logger.info("./deploy.sh")
 
         return 0

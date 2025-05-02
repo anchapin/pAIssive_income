@@ -27,7 +27,7 @@ async def handle_task_exception(task: asyncio.Task) -> None:
     try:
         await task
     except Exception as e:
-        logger.error(f"Task failed with error: {e}")
+        logger.error("Task failed with error: {}".format(e))
         # Re-raise the exception to ensure it's not silently swallowed
         raise
 
@@ -49,10 +49,10 @@ async def run_with_timeout(coro: Awaitable[T], timeout: float) -> T:
     try:
         return await asyncio.wait_for(coro, timeout)
     except asyncio.TimeoutError:
-        logger.warning(f"Operation timed out after {timeout} seconds")
+        logger.warning("Operation timed out after {} seconds".format(timeout))
         raise
     except Exception as e:
-        logger.error(f"Operation failed with error: {e}")
+        logger.error("Operation failed with error: {}".format(e))
         raise
 
 
@@ -101,7 +101,7 @@ class AsyncBuffer(Generic[T]):
                     logger.error(f"Error processing batch: {e}")
                     raise
 
-    async def process_batch(self, items: list[T]) -> None:
+    async def process_batch(self, items: List[T]) -> None:
         """Process a batch of items. Override this method in subclasses.
 
         Args:
@@ -129,7 +129,7 @@ class AsyncBuffer(Generic[T]):
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.error(f"Error in auto flush: {e}")
+                logger.error("Error in auto flush: {}".format(e))
 
 
 async def stream_processor(
@@ -180,11 +180,11 @@ async def stream_processor(
                 await process_batch(batch, process_func, output_queue)
             break
         except Exception as e:
-            logger.error(f"Error in stream processor: {e}")
+            logger.error("Error in stream processor: {}".format(e))
             raise
 
 
-async def process_batch(batch: list[T], process_func: Any, output_queue: asyncio.Queue) -> None:
+async def process_batch(batch: List[T], process_func: Any, output_queue: asyncio.Queue) -> None:
     """Process a batch of items and put results in output queue.
 
     Args:
@@ -197,7 +197,7 @@ async def process_batch(batch: list[T], process_func: Any, output_queue: asyncio
         for result in results:
             await output_queue.put(result)
     except Exception as e:
-        logger.error(f"Error processing batch: {e}")
+        logger.error("Error processing batch: {}".format(e))
         raise
 
 
@@ -228,7 +228,7 @@ async def run_in_thread(func: Callable, *args: Any, **kwargs: Any) -> Any:
     try:
         return await loop.run_in_executor(None, pfunc)
     except Exception as e:
-        logger.error(f"Error running function {func.__name__} in thread: {e}")
+        logger.error("Error running function {} in thread: {}".format(func.__name__, e))
         raise
 
 

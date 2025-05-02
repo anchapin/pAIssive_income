@@ -213,16 +213,18 @@ def cleanup_expired_tokens() -> int:
     for token in PASSWORD_RESET_TOKENS:
         try:
             # Split token and decode payload
-            _, payload_b64, _ = token.split(".")
+            parts = token.split(".")
+            if len(parts) >= 2:
+                payload_b64 = parts[1]
 
-            # Add padding if needed
-            padding = "=" * ((4 - len(payload_b64) % 4) % 4)
-            payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8")
-            payload = json.loads(payload_json)
+                # Add padding if needed
+                padding = "=" * ((4 - len(payload_b64) % 4) % 4)
+                payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8")
+                payload = json.loads(payload_json)
 
-            # Check if token is expired
-            if payload.get("exp", 0) < now:
-                tokens_to_remove.append(token)
+                # Check if token is expired
+                if payload.get("exp", 0) < now:
+                    tokens_to_remove.append(token)
 
         except Exception:
             # If we can't decode the token, it's probably invalid
