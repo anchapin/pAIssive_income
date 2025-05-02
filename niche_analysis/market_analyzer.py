@@ -4,40 +4,22 @@ Analyzes market segments to identify potential niches.
 """
 
 import asyncio
-import hashlib
-import json
 import logging
 import uuid
 from datetime import datetime
-from functools import partial
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 # Import async utilities
 from ai_models.async_utils import run_in_thread
 
 # Import the centralized caching service
-from common_utils.caching import cached, default_cache
+from common_utils.caching import default_cache
 
 from .errors import (
     CompetitionAnalysisError,
     MarketSegmentError,
-    TargetUserAnalysisError,
-    TrendAnalysisError,
     ValidationError,
     handle_exception,
-)
-from .schemas import (
-    BuyingBehaviorSchema,
-    CompetitionAnalysisSchema,
-    CompetitorSchema,
-    DemographicsSchema,
-    MarketSegmentSchema,
-    PredictionSchema,
-    PsychographicsSchema,
-    TargetUserAnalysisSchema,
-    TrendAnalysisSchema,
-    TrendSchema,
-    UserSegmentSchema,
 )
 
 # Set up logging
@@ -60,9 +42,7 @@ class MarketAnalyzer:
         # Lock for concurrent access to shared resources
         self._lock = asyncio.Lock()
 
-    def analyze_market(
-        self, segment: str, force_refresh: bool = False
-    ) -> Dict[str, Any]:
+    def analyze_market(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze a market segment to identify potential niches.
 
@@ -97,9 +77,7 @@ class MarketAnalyzer:
 
             # Try to get from cache first if not forcing refresh
             if not force_refresh:
-                cached_result = default_cache.get(
-                    cache_key, namespace="market_analysis"
-                )
+                cached_result = default_cache.get(cache_key, namespace="market_analysis")
                 if cached_result is not None:
                     logger.info(f"Using cached market analysis for segment: {segment}")
                     return cached_result
@@ -264,9 +242,7 @@ class MarketAnalyzer:
                     "target_users": [],
                 }
 
-                logger.info(
-                    f"Created default analysis for unknown segment: {segment_name}"
-                )
+                logger.info(f"Created default analysis for unknown segment: {segment_name}")
                 # Cache the result
                 default_cache.set(
                     cache_key,
@@ -501,9 +477,7 @@ class MarketAnalyzer:
                     "target_users": [],
                 }
 
-                logger.info(
-                    f"Created default analysis for unknown segment: {segment_name}"
-                )
+                logger.info(f"Created default analysis for unknown segment: {segment_name}")
                 # Cache the result asynchronously
                 await run_in_thread(
                     default_cache.set,
@@ -524,9 +498,7 @@ class MarketAnalyzer:
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def analyze_competition(
-        self, niche: str, force_refresh: bool = False
-    ) -> Dict[str, Any]:
+    def analyze_competition(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze competition in a specific niche.
 
@@ -561,9 +533,7 @@ class MarketAnalyzer:
 
             # Try to get from cache first if not forcing refresh
             if not force_refresh:
-                cached_result = default_cache.get(
-                    cache_key, namespace="market_analysis"
-                )
+                cached_result = default_cache.get(cache_key, namespace="market_analysis")
                 if cached_result is not None:
                     logger.info(f"Using cached competition analysis for niche: {niche}")
                     return cached_result
@@ -728,9 +698,7 @@ class MarketAnalyzer:
             )
             return {}  # This line won't be reached due to reraise=True
 
-    def analyze_trends(
-        self, segment: str, force_refresh: bool = False
-    ) -> Dict[str, Any]:
+    def analyze_trends(self, segment: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze trends in a specific market segment.
 
@@ -762,9 +730,7 @@ class MarketAnalyzer:
                     "name": f"Trend {i+1}",
                     "description": f"A trend in the {segment} segment",
                     "impact": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "maturity": (
-                        "emerging" if i == 0 else "growing" if i == 1 else "mature"
-                    ),
+                    "maturity": ("emerging" if i == 0 else "growing" if i == 1 else "mature"),
                 }
                 for i in range(3)  # Top 3 trends
             ],
@@ -773,9 +739,7 @@ class MarketAnalyzer:
                     "name": f"Prediction {i+1}",
                     "description": f"A prediction for the {segment} segment",
                     "likelihood": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "timeframe": (
-                        "1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years"
-                    ),
+                    "timeframe": ("1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years"),
                 }
                 for i in range(3)  # Top 3 predictions
             ],
@@ -791,9 +755,7 @@ class MarketAnalyzer:
 
         # Cache the result (shorter TTL for trends as they change frequently)
         trend_ttl = min(self.cache_ttl, 21600)  # 6 hours maximum for trends
-        default_cache.set(
-            cache_key, trend_analysis, ttl=trend_ttl, namespace="market_analysis"
-        )
+        default_cache.set(cache_key, trend_analysis, ttl=trend_ttl, namespace="market_analysis")
 
         return trend_analysis
 
@@ -840,9 +802,7 @@ class MarketAnalyzer:
                     "name": f"Trend {i+1}",
                     "description": f"A trend in the {segment} segment",
                     "impact": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "maturity": (
-                        "emerging" if i == 0 else "growing" if i == 1 else "mature"
-                    ),
+                    "maturity": ("emerging" if i == 0 else "growing" if i == 1 else "mature"),
                 }
                 for i in range(3)  # Top 3 trends
             ],
@@ -851,9 +811,7 @@ class MarketAnalyzer:
                     "name": f"Prediction {i+1}",
                     "description": f"A prediction for the {segment} segment",
                     "likelihood": "high" if i == 0 else "medium" if i == 1 else "low",
-                    "timeframe": (
-                        "1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years"
-                    ),
+                    "timeframe": ("1 year" if i == 0 else "2-3 years" if i == 1 else "5+ years"),
                 }
                 for i in range(3)  # Top 3 predictions
             ],
@@ -879,9 +837,7 @@ class MarketAnalyzer:
 
         return trend_analysis
 
-    def analyze_target_users(
-        self, niche: str, force_refresh: bool = False
-    ) -> Dict[str, Any]:
+    def analyze_target_users(self, niche: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze target users for a specific niche.
 
@@ -1117,9 +1073,7 @@ class MarketAnalyzer:
             List of market analyses
         """
         # Create tasks for analyzing each segment
-        tasks = [
-            self.analyze_market_async(segment, force_refresh) for segment in segments
-        ]
+        tasks = [self.analyze_market_async(segment, force_refresh) for segment in segments]
 
         # Run all tasks concurrently and gather results
         results = await asyncio.gather(*tasks)

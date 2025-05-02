@@ -6,11 +6,9 @@ making it easier to use mocks consistently across tests.
 """
 
 import json
-import os
 import tempfile
 from datetime import datetime
 from typing import Any, Dict, Optional
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -19,10 +17,9 @@ from .mock_external_apis import (
     MockHuggingFaceAPI,
     MockPaymentAPI,
     MockStorageAPI,
-    create_mock_api,
 )
-from .mock_http import MockResponse, mock_requests
-from .mock_huggingface_hub import HfHubHTTPError, MockRepoInfo, mock_huggingface_hub
+from .mock_http import mock_requests
+from .mock_huggingface_hub import HfHubHTTPError, mock_huggingface_hub
 
 # Import our mock implementations
 from .mock_model_providers import (
@@ -32,7 +29,6 @@ from .mock_model_providers import (
     MockOllamaProvider,
     MockONNXProvider,
     MockOpenAIProvider,
-    create_mock_provider,
 )
 
 # Model Provider Fixtures
@@ -147,9 +143,7 @@ def patch_model_providers(monkeypatch):
         return mock_providers.get(provider_type.lower(), mock_providers["openai"])
 
     # Apply the patch to model_manager
-    monkeypatch.setattr(
-        "ai_models.model_manager.get_model_provider", mock_get_model_provider
-    )
+    monkeypatch.setattr("ai_models.model_manager.get_model_provider", mock_get_model_provider)
 
     # Apply the patch to adapters if available
     try:
@@ -407,12 +401,8 @@ def patch_huggingface_hub(monkeypatch):
     mock_huggingface_hub.reset()
 
     # Patch the huggingface_hub functions
-    monkeypatch.setattr(
-        "huggingface_hub.hf_hub_download", mock_huggingface_hub.hf_hub_download
-    )
-    monkeypatch.setattr(
-        "huggingface_hub.snapshot_download", mock_huggingface_hub.snapshot_download
-    )
+    monkeypatch.setattr("huggingface_hub.hf_hub_download", mock_huggingface_hub.hf_hub_download)
+    monkeypatch.setattr("huggingface_hub.snapshot_download", mock_huggingface_hub.snapshot_download)
     monkeypatch.setattr("huggingface_hub.list_models", mock_huggingface_hub.list_models)
     monkeypatch.setattr("huggingface_hub.login", mock_huggingface_hub.login)
 
@@ -778,18 +768,18 @@ def mock_marketing_campaign_data():
         ],
         "content_calendar": [
             {
-                "date": (
-                    datetime.now().replace(day=1) + datetime.timedelta(days=7)
-                ).strftime("%Y-%m-%d"),
+                "date": (datetime.now().replace(day=1) + datetime.timedelta(days=7)).strftime(
+                    "%Y-%m-%d"
+                ),
                 "channel": "Email",
                 "title": "Introducing Our New AI-Powered Feature",
                 "content_type": "Product announcement",
                 "status": "Draft",
             },
             {
-                "date": (
-                    datetime.now().replace(day=1) + datetime.timedelta(days=9)
-                ).strftime("%Y-%m-%d"),
+                "date": (datetime.now().replace(day=1) + datetime.timedelta(days=9)).strftime(
+                    "%Y-%m-%d"
+                ),
                 "channel": "LinkedIn",
                 "title": "How Our Tool Saved Client X 10 Hours Per Week",
                 "content_type": "Case study",
@@ -803,9 +793,7 @@ def mock_marketing_campaign_data():
 
 
 @pytest.fixture
-def mock_ai_model_testing_setup(
-    patch_requests, patch_huggingface_hub, patch_model_providers
-):
+def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_model_providers):
     """
     Create a complete setup for AI model testing.
 
@@ -893,12 +881,8 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
         {
             "id": mock_subscription_data["subscription"]["id"],
             "status": mock_subscription_data["subscription"]["status"],
-            "current_period_start": mock_subscription_data["subscription"][
-                "current_period_start"
-            ],
-            "current_period_end": mock_subscription_data["subscription"][
-                "current_period_end"
-            ],
+            "current_period_start": mock_subscription_data["subscription"]["current_period_start"],
+            "current_period_end": mock_subscription_data["subscription"]["current_period_end"],
         },
         method="POST",
         status_code=200,

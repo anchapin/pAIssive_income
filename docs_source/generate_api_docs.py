@@ -12,7 +12,7 @@ import inspect
 import os
 import pkgutil
 import sys
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Set
 
 
 def create_directory(path: str) -> None:
@@ -86,9 +86,7 @@ def get_submodules(package_name: str) -> List[str]:
     submodules = []
     try:
         package = importlib.import_module(package_name)
-        for _, name, is_pkg in pkgutil.iter_modules(
-            package.__path__, package_name + "."
-        ):
+        for _, name, is_pkg in pkgutil.iter_modules(package.__path__, package_name + "."):
             submodules.append(name)
             if is_pkg:
                 submodules.extend(get_submodules(name))
@@ -141,9 +139,7 @@ def generate_module_rst(module_name: str, output_dir: str) -> None:
     write_file(output_file, "\n".join(lines))
 
 
-def generate_package_index(
-    package_name: str, output_dir: str, submodules: List[str]
-) -> None:
+def generate_package_index(package_name: str, output_dir: str, submodules: List[str]) -> None:
     """Generate index.rst file for a package."""
     # Create output directory if it doesn't exist
     create_directory(output_dir)
@@ -191,9 +187,7 @@ def generate_package_index(
     write_file(index_file, "\n".join(lines))
 
 
-def process_module(
-    module_name: str, base_output_dir: str, processed_modules: Set[str]
-) -> None:
+def process_module(module_name: str, base_output_dir: str, processed_modules: Set[str]) -> None:
     """Process a module or package to generate documentation."""
     if module_name in processed_modules:
         return

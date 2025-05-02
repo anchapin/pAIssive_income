@@ -3,9 +3,8 @@ Tests for the ProblemIdentifier class.
 """
 
 from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
 
 from niche_analysis.problem_identifier import ProblemIdentifier
 
@@ -16,10 +15,7 @@ def test_problem_identifier_init():
 
     # Check that the identifier has the expected attributes
     assert identifier.name == "Problem Identifier"
-    assert (
-        identifier.description
-        == "Identifies user problems and pain points in specific niches"
-    )
+    assert identifier.description == "Identifies user problems and pain points in specific niches"
 
 
 def test_identify_problems():

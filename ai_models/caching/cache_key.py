@@ -7,7 +7,7 @@ This module provides utilities for generating and managing cache keys.
 import hashlib
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 @dataclass
@@ -28,9 +28,7 @@ class CacheKey:
         Returns:
             String representation of the cache key
         """
-        return (
-            f"{self.model_id}:{self.operation}:{self.input_hash}:{self.parameters_hash}"
-        )
+        return f"{self.model_id}:{self.operation}:{self.input_hash}:{self.parameters_hash}"
 
 
 def generate_cache_key(

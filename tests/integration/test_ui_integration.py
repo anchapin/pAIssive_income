@@ -9,7 +9,6 @@ import pytest
 from agent_team import AgentTeam
 from ai_models import ModelManager
 from monetization import SubscriptionManager
-from niche_analysis import MarketAnalyzer
 from ui.cli_ui import CommandLineInterface
 from ui.web_ui import WebUI
 
@@ -189,9 +188,7 @@ def test_web_ui_monetization_strategy_integration(web_ui, mock_agent_team):
     monetization = web_ui.create_monetization_strategy()
 
     # Check that the agent team's method was called with the right parameters
-    mock_agent_team.create_monetization_strategy.assert_called_once_with(
-        selected_solution
-    )
+    mock_agent_team.create_monetization_strategy.assert_called_once_with(selected_solution)
 
     # Check that the UI returned the expected results
     assert monetization["name"] == "Freemium Strategy"
@@ -259,9 +256,7 @@ def test_cli_ui_full_workflow_integration(cli_ui, mock_agent_team):
 
     # Step 1: Run niche analysis
     cli_ui.handle_command("analyze e-commerce digital-marketing")
-    mock_agent_team.run_niche_analysis.assert_called_once_with(
-        ["e-commerce", "digital-marketing"]
-    )
+    mock_agent_team.run_niche_analysis.assert_called_once_with(["e-commerce", "digital-marketing"])
 
     # Step 2: Select a niche and develop a solution
     cli_ui.handle_command("select niche 0")  # Select the first niche

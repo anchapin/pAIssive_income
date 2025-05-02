@@ -5,11 +5,10 @@ This module provides an abstract base class for payment processors and
 common utility methods for payment processing.
 """
 
-import json
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 
 class PaymentProcessor(ABC):
@@ -53,7 +52,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with payment result
         """
-        pass
 
     @abstractmethod
     def refund_payment(
@@ -73,7 +71,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with refund result
         """
-        pass
 
     @abstractmethod
     def get_payment(self, payment_id: str) -> Dict[str, Any]:
@@ -86,7 +83,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with payment information
         """
-        pass
 
     @abstractmethod
     def list_payments(
@@ -108,7 +104,6 @@ class PaymentProcessor(ABC):
         Returns:
             List of payments
         """
-        pass
 
     @abstractmethod
     def create_customer(
@@ -128,7 +123,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with customer information
         """
-        pass
 
     @abstractmethod
     def get_customer(self, customer_id: str) -> Dict[str, Any]:
@@ -141,7 +135,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with customer information
         """
-        pass
 
     @abstractmethod
     def update_customer(
@@ -163,7 +156,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with updated customer information
         """
-        pass
 
     @abstractmethod
     def delete_customer(self, customer_id: str) -> bool:
@@ -176,7 +168,6 @@ class PaymentProcessor(ABC):
         Returns:
             True if the customer was deleted, False otherwise
         """
-        pass
 
     @abstractmethod
     def create_payment_method(
@@ -198,7 +189,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with payment method information
         """
-        pass
 
     @abstractmethod
     def get_payment_method(self, payment_method_id: str) -> Dict[str, Any]:
@@ -211,7 +201,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with payment method information
         """
-        pass
 
     @abstractmethod
     def list_payment_methods(
@@ -227,7 +216,6 @@ class PaymentProcessor(ABC):
         Returns:
             List of payment methods
         """
-        pass
 
     @abstractmethod
     def update_payment_method(
@@ -247,7 +235,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with updated payment method information
         """
-        pass
 
     @abstractmethod
     def delete_payment_method(self, payment_method_id: str) -> bool:
@@ -260,7 +247,6 @@ class PaymentProcessor(ABC):
         Returns:
             True if the payment method was deleted, False otherwise
         """
-        pass
 
     @abstractmethod
     def create_subscription(
@@ -282,7 +268,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with subscription information
         """
-        pass
 
     @abstractmethod
     def get_subscription(self, subscription_id: str) -> Dict[str, Any]:
@@ -295,7 +280,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with subscription information
         """
-        pass
 
     @abstractmethod
     def update_subscription(
@@ -317,7 +301,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with updated subscription information
         """
-        pass
 
     @abstractmethod
     def cancel_subscription(
@@ -333,7 +316,6 @@ class PaymentProcessor(ABC):
         Returns:
             Dictionary with updated subscription information
         """
-        pass
 
     @abstractmethod
     def list_subscriptions(
@@ -355,7 +337,6 @@ class PaymentProcessor(ABC):
         Returns:
             List of subscriptions
         """
-        pass
 
     def format_amount(self, amount: float, currency: str) -> str:
         """
@@ -456,9 +437,7 @@ class PaymentProcessor(ABC):
         # Check for common card types based on prefix
         if card_number.startswith("4"):
             return "Visa"
-        elif card_number.startswith(
-            ("51", "52", "53", "54", "55")
-        ) or card_number.startswith(
+        elif card_number.startswith(("51", "52", "53", "54", "55")) or card_number.startswith(
             (
                 "2221",
                 "2222",
@@ -488,13 +467,9 @@ class PaymentProcessor(ABC):
             return "Mastercard"
         elif card_number.startswith(("34", "37")):
             return "American Express"
-        elif card_number.startswith(
-            ("300", "301", "302", "303", "304", "305", "36", "38")
-        ):
+        elif card_number.startswith(("300", "301", "302", "303", "304", "305", "36", "38")):
             return "Diners Club"
-        elif card_number.startswith(
-            ("6011", "644", "645", "646", "647", "648", "649", "65")
-        ):
+        elif card_number.startswith(("6011", "644", "645", "646", "647", "648", "649", "65")):
             return "Discover"
         elif card_number.startswith(("35")):
             return "JCB"

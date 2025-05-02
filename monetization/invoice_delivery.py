@@ -6,14 +6,11 @@ including email delivery, PDF generation, and export functionality.
 """
 
 import base64
-import copy
 import json
-import os
-import tempfile
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 
-from .invoice import Invoice, InvoiceStatus
+from .invoice import Invoice
 
 
 class InvoiceFormatter:
@@ -43,9 +40,7 @@ class InvoiceFormatter:
         html.append("<head>")
         html.append(f"<title>Invoice {invoice.number}</title>")
         html.append("<style>")
-        html.append(
-            "body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }"
-        )
+        html.append("body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }")
         html.append(
             ".invoice { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; padding: 20px; }"
         )
@@ -59,16 +54,10 @@ class InvoiceFormatter:
             ".invoice-title { font-size: 24px; font-weight: bold; color: #333; margin-bottom: 5px; }"
         )
         html.append(".customer-info { margin-bottom: 20px; }")
-        html.append(
-            ".section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }"
-        )
-        html.append(
-            ".items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }"
-        )
+        html.append(".section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }")
+        html.append(".items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }")
         html.append(".items th, .items td { padding: 8px; text-align: right; }")
-        html.append(
-            ".items th:first-child, .items td:first-child { text-align: left; }"
-        )
+        html.append(".items th:first-child, .items td:first-child { text-align: left; }")
         html.append(".items th { background-color: #f2f2f2; }")
         html.append(".items tr:nth-child(even) { background-color: #f9f9f9; }")
         html.append(".totals { width: 100%; margin-bottom: 20px; }")
@@ -83,9 +72,7 @@ class InvoiceFormatter:
         html.append(".status-pending { background-color: #fff8e1; color: #ff8f00; }")
         html.append(".status-sent { background-color: #e3f2fd; color: #1976d2; }")
         html.append(".status-paid { background-color: #e8f5e9; color: #388e3c; }")
-        html.append(
-            ".status-partially_paid { background-color: #e8f5e9; color: #7cb342; }"
-        )
+        html.append(".status-partially_paid { background-color: #e8f5e9; color: #7cb342; }")
         html.append(".status-overdue { background-color: #ffebee; color: #d32f2f; }")
         html.append(".status-canceled { background-color: #f0f0f0; color: #757575; }")
         html.append(".status-void { background-color: #f0f0f0; color: #757575; }")
@@ -133,9 +120,7 @@ class InvoiceFormatter:
         html.append('<div class="invoice-info">')
         html.append(f'<div class="invoice-title">INVOICE</div>')
         html.append(f"<div><strong>Invoice Number:</strong> {invoice.number}</div>")
-        html.append(
-            f'<div><strong>Date:</strong> {invoice.date.strftime("%Y-%m-%d")}</div>'
-        )
+        html.append(f'<div><strong>Date:</strong> {invoice.date.strftime("%Y-%m-%d")}</div>')
         html.append(
             f'<div><strong>Due Date:</strong> {invoice.due_date.strftime("%Y-%m-%d")}</div>'
         )
@@ -228,9 +213,7 @@ class InvoiceFormatter:
             html.append(f"<tr><td>Payments:</td><td></td></tr>")
 
             for payment in invoice.payments:
-                payment_date = datetime.fromisoformat(payment["date"]).strftime(
-                    "%Y-%m-%d"
-                )
+                payment_date = datetime.fromisoformat(payment["date"]).strftime("%Y-%m-%d")
                 html.append(
                     f'<tr><td>{payment_date} - {payment["payment_method"]}:</td><td>-{invoice.format_amount(payment["amount"])}</td></tr>'
                 )
@@ -244,9 +227,7 @@ class InvoiceFormatter:
         # Payment terms
         if invoice.payment_terms:
             html.append('<div class="payment-info">')
-            html.append(
-                f"<div><strong>Payment Terms:</strong> {invoice.payment_terms}</div>"
-            )
+            html.append(f"<div><strong>Payment Terms:</strong> {invoice.payment_terms}</div>")
             html.append("</div>")
 
         # Notes
@@ -362,9 +343,7 @@ class InvoiceFormatter:
         lines.append("-" * 80)
 
         # Add totals
-        lines.append(
-            f"{'Subtotal:':<65} {invoice.format_amount(invoice.get_subtotal()):>15}"
-        )
+        lines.append(f"{'Subtotal:':<65} {invoice.format_amount(invoice.get_subtotal()):>15}")
 
         if invoice.get_discount_total() > 0:
             lines.append(
@@ -398,9 +377,7 @@ class InvoiceFormatter:
             lines.append("-" * 80)
 
             for payment in invoice.payments:
-                payment_date = datetime.fromisoformat(payment["date"]).strftime(
-                    "%Y-%m-%d"
-                )
+                payment_date = datetime.fromisoformat(payment["date"]).strftime("%Y-%m-%d")
                 lines.append(
                     f"{payment_date} - {payment['payment_method']}:{' ' * 30} -{invoice.format_amount(payment['amount']):>15}"
                 )
@@ -473,9 +450,7 @@ class InvoiceFormatter:
         lines.append("")
 
         # Add items header
-        lines.append(
-            "Description,Quantity,Unit Price,Discount,Tax Rate,Tax Amount,Total"
-        )
+        lines.append("Description,Quantity,Unit Price,Discount,Tax Rate,Tax Amount,Total")
 
         # Add items
         for item in invoice.items:
@@ -530,15 +505,11 @@ class InvoiceFormatter:
         pdf_header = b"%PDF-1.7\n"
 
         # Create a simple PDF body with the HTML content
-        pdf_body = f"1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
-        pdf_body += f"2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
-        pdf_body += f"3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n"
-        pdf_body += (
-            f"4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n"
-        )
-        pdf_body += (
-            f"5 0 obj\n<< /Length {len(html)} >>\nstream\n{html}\nendstream\nendobj\n"
-        )
+        pdf_body = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
+        pdf_body += "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
+        pdf_body += "3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n"
+        pdf_body += "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n"
+        pdf_body += "5 0 obj\n<< /Length {len(html)} >>\nstream\n{html}\nendstream\nendobj\n"
 
         # Create a simple PDF trailer
         pdf_trailer = b"xref\n0 6\n0000000000 65535 f\n0000000010 00000 n\n0000000056 00000 n\n0000000111 00000 n\n0000000212 00000 n\n0000000277 00000 n\ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n408\n%%EOF"
@@ -651,9 +622,7 @@ class InvoiceDelivery:
             message = f"Please find attached invoice {invoice.number} for {invoice.format_amount(invoice.get_total())}."
 
             if invoice.due_date:
-                message += (
-                    f" Payment is due by {invoice.due_date.strftime('%Y-%m-%d')}."
-                )
+                message += f" Payment is due by {invoice.due_date.strftime('%Y-%m-%d')}."
 
             message += " Thank you for your business."
 
@@ -677,8 +646,8 @@ class InvoiceDelivery:
         # Print email details (for demo purposes)
         print(f"Sending invoice {invoice.number} to {to_email}")
         print(f"Subject: {subject}")
-        print(f"Format: {format}")
-        print(f"Attach PDF: {attach_pdf}")
+        print("Format: {format}")
+        print("Attach PDF: {attach_pdf}")
 
         # In a real implementation, this would send an email
         # For now, just return True
@@ -922,7 +891,7 @@ class InvoiceDelivery:
 
 # Example usage
 if __name__ == "__main__":
-    from .invoice import Invoice, InvoiceStatus
+    from .invoice import Invoice
 
     # Create an invoice
     invoice = Invoice(customer_id="cust_123", currency="USD")
@@ -964,12 +933,8 @@ if __name__ == "__main__":
     html_output = delivery.export_invoice(
         invoice, format="html", output_path="invoice_example.html"
     )
-    text_output = delivery.export_invoice(
-        invoice, format="text", output_path="invoice_example.txt"
-    )
-    csv_output = delivery.export_invoice(
-        invoice, format="csv", output_path="invoice_example.csv"
-    )
+    text_output = delivery.export_invoice(invoice, format="text", output_path="invoice_example.txt")
+    csv_output = delivery.export_invoice(invoice, format="csv", output_path="invoice_example.csv")
 
     print(f"Invoice exported to HTML: {html_output}")
     print(f"Invoice exported to text: {text_output}")

@@ -7,10 +7,7 @@ a desktop application for running large language models locally.
 
 import json
 import logging
-import os
-import threading
-import time
-from typing import Any, Dict, Generator, List, Optional, Tuple, Union
+from typing import Any, Dict, Generator, List, Optional, Union
 
 # Set up logging
 logging.basicConfig(
@@ -76,9 +73,7 @@ class LMStudioAdapter:
             ConnectionError: If LM Studio is not running
         """
         try:
-            response = self.session.get(
-                f"{self.base_url}/models", headers=self.headers, timeout=5
-            )
+            response = self.session.get(f"{self.base_url}/models", headers=self.headers, timeout=5)
             if response.status_code != 200:
                 logger.warning(f"LM Studio returned status code {response.status_code}")
         except requests.exceptions.RequestException as e:
@@ -193,9 +188,7 @@ class LMStudioAdapter:
             logger.error(f"Error generating completions with {model}: {e}")
             raise
 
-    def _generate_completions_sync(
-        self, request_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _generate_completions_sync(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generate completions synchronously.
 
@@ -321,9 +314,7 @@ class LMStudioAdapter:
             logger.error(f"Error generating chat completions with {model}: {e}")
             raise
 
-    def _generate_chat_completions_sync(
-        self, request_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _generate_chat_completions_sync(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generate chat completions synchronously.
 
@@ -448,9 +439,7 @@ class LMStudioAdapter:
             logger.error(f"Error getting model parameters for {model}: {e}")
             raise
 
-    def set_model_parameters(
-        self, model: str, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def set_model_parameters(self, model: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
         """
         Set parameters for a model.
 

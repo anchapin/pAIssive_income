@@ -7,7 +7,6 @@ This module provides a command for downloading models.
 import argparse
 import logging
 import os
-from typing import Any, Dict, List, Optional
 
 from ..base import BaseCommand
 
@@ -50,9 +49,7 @@ class DownloadCommand(BaseCommand):
             action="store_true",
             help="Force download even if the model already exists",
         )
-        parser.add_argument(
-            "--cache-dir", type=str, help="Cache directory for downloaded models"
-        )
+        parser.add_argument("--cache-dir", type=str, help="Cache directory for downloaded models")
         parser.add_argument(
             "--auth-token", type=str, help="Authentication token for private models"
         )
@@ -125,9 +122,7 @@ class DownloadCommand(BaseCommand):
                 params["proxies"] = json.loads(self.args.proxies)
 
             # Download model
-            logger.info(
-                f"Downloading model {self.args.model_id} to {self.args.output_dir}"
-            )
+            logger.info(f"Downloading model {self.args.model_id} to {self.args.output_dir}")
 
             # Create download task
             task = downloader.download(

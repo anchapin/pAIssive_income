@@ -6,7 +6,7 @@ This module provides Pydantic models for data validation in the AI models module
 
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field, validator
 
@@ -17,15 +17,11 @@ class ModelConfigSchema(BaseModel):
     """
 
     models_dir: str = Field(
-        default_factory=lambda: os.path.join(
-            os.path.expanduser("~"), ".pAIssive_income", "models"
-        ),
+        default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "models"),
         description="Directory for storing AI models",
     )
     cache_dir: str = Field(
-        default_factory=lambda: os.path.join(
-            os.path.expanduser("~"), ".pAIssive_income", "cache"
-        ),
+        default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "cache"),
         description="Directory for caching model outputs",
     )
     cache_enabled: bool = Field(default=True, description="Whether to enable caching")
@@ -52,9 +48,7 @@ class ModelConfigSchema(BaseModel):
         default_factory=lambda: ["local", "huggingface"],
         description="Sources for model discovery",
     )
-    default_text_model: str = Field(
-        default="gpt2", description="Default text generation model"
-    )
+    default_text_model: str = Field(default="gpt2", description="Default text generation model")
     default_embedding_model: str = Field(
         default="all-MiniLM-L6-v2", description="Default text embedding model"
     )
@@ -88,15 +82,9 @@ class ModelInfoSchema(BaseModel):
     path: str = Field(..., description="Path to the model files")
     description: Optional[str] = Field(None, description="Description of the model")
     version: Optional[str] = Field(None, description="Version of the model")
-    created_at: datetime = Field(
-        default_factory=datetime.now, description="Creation timestamp"
-    )
-    updated_at: datetime = Field(
-        default_factory=datetime.now, description="Last update timestamp"
-    )
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Additional metadata"
-    )
+    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
+    updated_at: datetime = Field(default_factory=datetime.now, description="Last update timestamp")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
     class Config:
         """Pydantic config"""
@@ -120,9 +108,7 @@ class ModelParametersSchema(BaseModel):
     top_p: Optional[float] = Field(
         default=0.9, description="Top-p sampling parameter", ge=0.0, le=1.0
     )
-    top_k: Optional[int] = Field(
-        default=50, description="Top-k sampling parameter", ge=0
-    )
+    top_k: Optional[int] = Field(default=50, description="Top-k sampling parameter", ge=0)
     repetition_penalty: Optional[float] = Field(
         default=1.0, description="Repetition penalty", ge=0.0
     )
@@ -163,16 +149,10 @@ class TextGenerationResponseSchema(BaseModel):
     text: str = Field(..., description="Generated text")
     model_id: str = Field(..., description="ID of the model used")
     prompt: str = Field(..., description="Input prompt")
-    parameters: ModelParametersSchema = Field(
-        ..., description="Generation parameters used"
-    )
+    parameters: ModelParametersSchema = Field(..., description="Generation parameters used")
     tokens_generated: int = Field(..., description="Number of tokens generated")
-    generation_time: float = Field(
-        ..., description="Time taken for generation in seconds"
-    )
-    created_at: datetime = Field(
-        default_factory=datetime.now, description="Creation timestamp"
-    )
+    generation_time: float = Field(..., description="Time taken for generation in seconds")
+    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
 
     class Config:
         """Pydantic config"""
@@ -206,12 +186,8 @@ class EmbeddingResponseSchema(BaseModel):
     model_id: str = Field(..., description="ID of the model used")
     dimensions: int = Field(..., description="Dimensions of the embeddings")
     texts: List[str] = Field(..., description="Input texts")
-    embedding_time: float = Field(
-        ..., description="Time taken for embedding in seconds"
-    )
-    created_at: datetime = Field(
-        default_factory=datetime.now, description="Creation timestamp"
-    )
+    embedding_time: float = Field(..., description="Time taken for embedding in seconds")
+    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
 
     class Config:
         """Pydantic config"""
@@ -232,9 +208,7 @@ class BenchmarkConfigSchema(BaseModel):
     metrics: List[str] = Field(..., description="Metrics to evaluate")
     input_file: Optional[str] = Field(None, description="Path to input file")
     output_dir: str = Field(..., description="Directory for output files")
-    num_samples: int = Field(
-        default=100, description="Number of samples to evaluate", gt=0
-    )
+    num_samples: int = Field(default=100, description="Number of samples to evaluate", gt=0)
     batch_size: int = Field(default=1, description="Batch size for evaluation", gt=0)
     timeout: Optional[float] = Field(None, description="Timeout in seconds")
 
@@ -255,15 +229,9 @@ class BenchmarkResultSchema(BaseModel):
     metrics: Dict[str, float] = Field(..., description="Metric results")
     num_samples: int = Field(..., description="Number of samples evaluated")
     execution_time: float = Field(..., description="Total execution time in seconds")
-    created_at: datetime = Field(
-        default_factory=datetime.now, description="Creation timestamp"
-    )
-    custom_metrics: Dict[str, Any] = Field(
-        default_factory=dict, description="Custom metrics"
-    )
-    raw_data: Dict[str, Any] = Field(
-        default_factory=dict, description="Raw benchmark data"
-    )
+    created_at: datetime = Field(default_factory=datetime.now, description="Creation timestamp")
+    custom_metrics: Dict[str, Any] = Field(default_factory=dict, description="Custom metrics")
+    raw_data: Dict[str, Any] = Field(default_factory=dict, description="Raw benchmark data")
 
     class Config:
         """Pydantic config"""

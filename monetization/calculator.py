@@ -8,7 +8,7 @@ import logging
 import math
 import os
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from interfaces.monetization_interfaces import IMonetizationCalculator
@@ -149,9 +149,7 @@ class MonetizationCalculator(IMonetizationCalculator):
         except Exception as e:
             # STAGE 5: Handle and properly transform any unexpected errors
             logger.error(f"Error calculating subscription revenue: {e}")
-            raise MonetizationError(
-                "Error calculating subscription revenue", original_exception=e
-            )
+            raise MonetizationError("Error calculating subscription revenue", original_exception=e)
 
     def calculate_costs(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -249,9 +247,7 @@ class MonetizationCalculator(IMonetizationCalculator):
             logger.error(f"Error calculating costs: {e}")
             raise MonetizationError("Error calculating costs", original_exception=e)
 
-    def calculate_profit(
-        self, revenue: Dict[str, Any], costs: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def calculate_profit(self, revenue: Dict[str, Any], costs: Dict[str, Any]) -> Dict[str, Any]:
         """
         Calculate profit and profitability metrics by comparing revenue against costs.
 
@@ -329,9 +325,7 @@ class MonetizationCalculator(IMonetizationCalculator):
             logger.error(f"Error calculating profit: {e}")
             raise MonetizationError("Error calculating profit", original_exception=e)
 
-    def project_growth(
-        self, initial_users: int, growth_rate: float, months: int
-    ) -> Dict[str, Any]:
+    def project_growth(self, initial_users: int, growth_rate: float, months: int) -> Dict[str, Any]:
         """
         Project user growth over time using a compound growth model.
 
@@ -415,9 +409,7 @@ class MonetizationCalculator(IMonetizationCalculator):
 
             # STAGE 3: Calculate aggregate metrics across the entire projection period
             # Determine total percentage growth from start to end (handling zero case)
-            total_growth = (
-                (current_users / initial_users - 1) * 100 if initial_users > 0 else 0
-            )
+            total_growth = (current_users / initial_users - 1) * 100 if initial_users > 0 else 0
 
             # STAGE 4: Compile the comprehensive projection results
             # Combine input parameters, calculated series, and derived metrics

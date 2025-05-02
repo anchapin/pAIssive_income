@@ -4,19 +4,17 @@ Subscription analytics demo for the pAIssive Income project.
 This script demonstrates how to use the subscription analytics functionality.
 """
 
-import os
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
 
-from .subscription import SubscriptionPlan, SubscriptionTier
+from .subscription import SubscriptionPlan
 from .subscription_analytics import (
     ChurnAnalysis,
     SubscriptionForecasting,
     SubscriptionMetrics,
 )
 from .subscription_manager import SubscriptionManager
-from .user_subscription import Subscription, SubscriptionStatus
+from .user_subscription import SubscriptionStatus
 
 
 def print_separator():
@@ -73,9 +71,7 @@ def run_demo():
     print(f"  - {plus_tier['name']}: ${plus_tier['price_monthly']:.2f}/month")
     print(f"- {premium_plan.name}")
     print(f"  - {pro_tier['name']}: ${pro_tier['price_monthly']:.2f}/month")
-    print(
-        f"  - {enterprise_tier['name']}: ${enterprise_tier['price_monthly']:.2f}/month"
-    )
+    print(f"  - {enterprise_tier['name']}: ${enterprise_tier['price_monthly']:.2f}/month")
 
     print_separator()
 
@@ -127,9 +123,7 @@ def run_demo():
 
         # Cancel subscription
         subscription.status = SubscriptionStatus.CANCELED
-        subscription.canceled_at = datetime.now() - timedelta(
-            days=random.randint(1, 30)
-        )
+        subscription.canceled_at = datetime.now() - timedelta(days=random.randint(1, 30))
 
         # Add cancellation reason to some subscriptions
         if i < 5:

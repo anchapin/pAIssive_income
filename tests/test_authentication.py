@@ -9,7 +9,7 @@ import os
 import sys
 import time
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # Add the parent directory to the path so we can import the users module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -20,7 +20,7 @@ from users.auth import (
     verify_auth_token,
     verify_password,
 )
-from users.models import User, UserCreate
+from users.models import User
 from users.password_reset import generate_password_reset_token, reset_password
 from users.session_management import (
     create_session,
@@ -28,7 +28,6 @@ from users.session_management import (
     terminate_session,
 )
 from users.token_refresh import (
-    blacklist_token,
     create_refresh_token,
     refresh_auth_token,
 )

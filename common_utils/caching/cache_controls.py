@@ -7,7 +7,7 @@ of the application, allowing for consistent cache management from a single locat
 
 import logging
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, Dict, Set, Union
 
 from .cache_service import default_cache
 
@@ -219,9 +219,7 @@ class CacheControls:
                 logger.warning(f"Unknown cache category: {category}")
                 return
 
-        namespaces = [
-            ns for ns, cat in self.namespace_categories.items() if cat == category
-        ]
+        namespaces = [ns for ns, cat in self.namespace_categories.items() if cat == category]
         for namespace in namespaces:
             default_cache.clear(namespace=namespace)
 

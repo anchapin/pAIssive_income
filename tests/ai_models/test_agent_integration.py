@@ -2,13 +2,13 @@
 Tests for the AgentModelProvider class.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from ai_models.agent_integration import AgentModelProvider
-from ai_models.model_manager import ModelInfo, ModelManager
+from ai_models.model_manager import ModelManager
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
 
@@ -163,9 +163,7 @@ def test_agent_model_provider_init(mock_model_manager):
 
 
 @patch("ai_models.agent_integration.get_container")
-def test_agent_model_provider_init_with_container(
-    mock_get_container, mock_model_manager
-):
+def test_agent_model_provider_init_with_container(mock_get_container, mock_model_manager):
     """Test initializing with a model manager from the container."""
     # Mock the container
     container = MagicMock()

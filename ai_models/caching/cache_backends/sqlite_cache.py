@@ -11,7 +11,7 @@ import re
 import sqlite3
 import threading
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from .base import CacheBackend
 
@@ -69,9 +69,7 @@ class SQLiteCache(CacheBackend):
                 cursor = conn.cursor()
 
                 # Get the item
-                cursor.execute(
-                    "SELECT value, expiration_time FROM cache WHERE key = ?", (key,)
-                )
+                cursor.execute("SELECT value, expiration_time FROM cache WHERE key = ?", (key,))
                 row = cursor.fetchone()
 
                 if row is None:
@@ -232,9 +230,7 @@ class SQLiteCache(CacheBackend):
                 cursor = conn.cursor()
 
                 # Get the item
-                cursor.execute(
-                    "SELECT expiration_time FROM cache WHERE key = ?", (key,)
-                )
+                cursor.execute("SELECT expiration_time FROM cache WHERE key = ?", (key,))
                 row = cursor.fetchone()
 
                 if row is None:
@@ -381,9 +377,7 @@ class SQLiteCache(CacheBackend):
                 cursor = conn.cursor()
 
                 # Get expiration time
-                cursor.execute(
-                    "SELECT expiration_time FROM cache WHERE key = ?", (key,)
-                )
+                cursor.execute("SELECT expiration_time FROM cache WHERE key = ?", (key,))
                 row = cursor.fetchone()
 
                 if row is None:

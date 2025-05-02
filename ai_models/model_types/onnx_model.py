@@ -8,8 +8,7 @@ including loading, inference, and optimization.
 import json
 import logging
 import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 
@@ -41,9 +40,7 @@ try:
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning(
-        "Transformers not available. Text processing for ONNX models will be limited."
-    )
+    logger.warning("Transformers not available. Text processing for ONNX models will be limited.")
     TRANSFORMERS_AVAILABLE = False
 
 
@@ -159,8 +156,7 @@ class ONNXModel:
 
             # Load tokenizer if needed and available
             if (
-                self.model_type
-                in ["text-generation", "text-classification", "embedding"]
+                self.model_type in ["text-generation", "text-classification", "embedding"]
                 and TRANSFORMERS_AVAILABLE
             ):
                 self._load_tokenizer()
@@ -304,13 +300,9 @@ class ONNXModel:
 
                 # Decode output
                 if output_ids.ndim > 1:
-                    output_text = self.tokenizer.decode(
-                        output_ids[0], skip_special_tokens=True
-                    )
+                    output_text = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
                 else:
-                    output_text = self.tokenizer.decode(
-                        output_ids, skip_special_tokens=True
-                    )
+                    output_text = self.tokenizer.decode(output_ids, skip_special_tokens=True)
 
                 return output_text
 
@@ -363,9 +355,7 @@ class ONNXModel:
 
             # Convert logits to probabilities
             if TORCH_AVAILABLE:
-                probs = torch.nn.functional.softmax(
-                    torch.tensor(logits), dim=-1
-                ).numpy()
+                probs = torch.nn.functional.softmax(torch.tensor(logits), dim=-1).numpy()
             else:
                 # Manual softmax
                 exp_logits = np.exp(logits - np.max(logits, axis=-1, keepdims=True))
@@ -375,9 +365,7 @@ class ONNXModel:
             labels = []
             if "id2label" in self.metadata:
                 id2label = json.loads(self.metadata["id2label"])
-                labels = [
-                    id2label.get(str(i), f"Class {i}") for i in range(probs.shape[-1])
-                ]
+                labels = [id2label.get(str(i), f"Class {i}") for i in range(probs.shape[-1])]
             else:
                 labels = [f"Class {i}" for i in range(probs.shape[-1])]
 
@@ -413,9 +401,7 @@ class ONNXModel:
                 texts = [texts]
 
             # Tokenize input
-            inputs = self.tokenizer(
-                texts, padding=True, truncation=True, return_tensors="pt"
-            )
+            inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
 
             input_ids = inputs["input_ids"].numpy()
             attention_mask = inputs["attention_mask"].numpy()
@@ -498,9 +484,7 @@ class ONNXModel:
 
             # Convert logits to probabilities
             if TORCH_AVAILABLE:
-                probs = torch.nn.functional.softmax(
-                    torch.tensor(logits), dim=-1
-                ).numpy()
+                probs = torch.nn.functional.softmax(torch.tensor(logits), dim=-1).numpy()
             else:
                 # Manual softmax
                 exp_logits = np.exp(logits - np.max(logits, axis=-1, keepdims=True))
@@ -510,9 +494,7 @@ class ONNXModel:
             labels = []
             if "id2label" in self.metadata:
                 id2label = json.loads(self.metadata["id2label"])
-                labels = [
-                    id2label.get(str(i), f"Class {i}") for i in range(probs.shape[-1])
-                ]
+                labels = [id2label.get(str(i), f"Class {i}") for i in range(probs.shape[-1])]
             else:
                 # Try to load ImageNet labels if it's a common image classification model
                 try:
@@ -615,9 +597,7 @@ class ONNXModel:
 if __name__ == "__main__":
     # Check if ONNX Runtime is available
     if not ONNX_AVAILABLE:
-        print(
-            "ONNX Runtime not available. Please install it with: pip install onnxruntime"
-        )
+        print("ONNX Runtime not available. Please install it with: pip install onnxruntime")
         exit(1)
 
     # Example model path (replace with an actual ONNX model path)

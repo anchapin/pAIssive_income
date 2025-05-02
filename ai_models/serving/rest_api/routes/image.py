@@ -5,11 +5,11 @@ This module provides route handlers for image operations.
 """
 
 import base64
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Union
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+    from fastapi import APIRouter, File, Form, HTTPException, UploadFile
     from fastapi.responses import Response
     from pydantic import BaseModel, Field
 
@@ -48,9 +48,7 @@ if FASTAPI_AVAILABLE:
         prompt: str = Field(..., description="Input prompt for image generation")
         n: int = Field(1, description="Number of images to generate")
         size: str = Field("512x512", description="Size of the generated images")
-        response_format: str = Field(
-            "url", description="Format of the response (url or b64_json)"
-        )
+        response_format: str = Field("url", description="Format of the response (url or b64_json)")
 
     class ImageGenerationResponse(BaseModel):
         """
@@ -65,9 +63,7 @@ if FASTAPI_AVAILABLE:
         Response model for image classification.
         """
 
-        labels: List[Dict[str, Union[str, float]]] = Field(
-            ..., description="Classification labels"
-        )
+        labels: List[Dict[str, Union[str, float]]] = Field(..., description="Classification labels")
         top_label: str = Field(..., description="Top classification label")
 
 
@@ -162,9 +158,7 @@ async def _generate_images(model, request):
         Generated images
     """
     # Generate images
-    images = model.generate_images(
-        prompt=request.prompt, n=request.n, size=request.size
-    )
+    images = model.generate_images(prompt=request.prompt, n=request.n, size=request.size)
 
     # Create response
     data = []

@@ -6,12 +6,10 @@ including tracking active sessions and session termination.
 """
 
 import logging
-import time
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 
-from .models import User, UserPublic
 from .token_refresh import blacklist_token
 
 # Configure logger

@@ -8,9 +8,9 @@ import logging
 import os
 import threading
 import time
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List
 
-from ..server import ModelServer, ServerConfig, ServerProtocol
+from ..server import ModelServer
 from .config import RESTConfig
 from .middleware import setup_middleware
 from .routes import (
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 # Try to import FastAPI
 try:
     import uvicorn
-    from fastapi import Depends, FastAPI
+    from fastapi import FastAPI
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -77,7 +77,6 @@ class RESTServer(ModelServer):
 
         # Import required modules
         try:
-            import torch
             from transformers import AutoTokenizer
         except ImportError:
             raise ImportError("PyTorch and Transformers are required for model loading")
@@ -101,9 +100,7 @@ class RESTServer(ModelServer):
         elif self.config.model_type == "embedding":
             from transformers import AutoModel
 
-            self.model = AutoModel.from_pretrained(
-                self.config.model_path, device_map="auto"
-            )
+            self.model = AutoModel.from_pretrained(self.config.model_path, device_map="auto")
         else:
             raise ValueError(f"Unsupported model type: {self.config.model_type}")
 
@@ -182,8 +179,7 @@ class RESTServer(ModelServer):
         """
         return {
             "version": "1.0.0",
-            "model_id": self.config.model_id
-            or os.path.basename(self.config.model_path),
+            "model_id": self.config.model_id or os.path.basename(self.config.model_path),
             "model_type": self.config.model_type,
             "uptime": time.time() - self.start_time if self.start_time else 0,
             "host": self.config.host,
@@ -209,8 +205,7 @@ class RESTServer(ModelServer):
                 "name": "request_count",
                 "value": self.request_count,
                 "labels": {
-                    "model_id": self.config.model_id
-                    or os.path.basename(self.config.model_path),
+                    "model_id": self.config.model_id or os.path.basename(self.config.model_path),
                     "model_type": self.config.model_type,
                 },
             }
@@ -222,8 +217,7 @@ class RESTServer(ModelServer):
                 "name": "error_count",
                 "value": self.error_count,
                 "labels": {
-                    "model_id": self.config.model_id
-                    or os.path.basename(self.config.model_path),
+                    "model_id": self.config.model_id or os.path.basename(self.config.model_path),
                     "model_type": self.config.model_type,
                 },
             }
@@ -235,8 +229,7 @@ class RESTServer(ModelServer):
                 "name": "token_count",
                 "value": self.token_count,
                 "labels": {
-                    "model_id": self.config.model_id
-                    or os.path.basename(self.config.model_path),
+                    "model_id": self.config.model_id or os.path.basename(self.config.model_path),
                     "model_type": self.config.model_type,
                 },
             }
@@ -350,9 +343,7 @@ class RESTServer(ModelServer):
 
         # Add model-specific routes
         if self.config.enable_text_generation:
-            self.app.include_router(
-                text_generation_router, prefix="", tags=["Text Generation"]
-            )
+            self.app.include_router(text_generation_router, prefix="", tags=["Text Generation"])
 
         if self.config.enable_text_classification:
             self.app.include_router(

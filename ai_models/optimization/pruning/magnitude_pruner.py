@@ -8,7 +8,7 @@ model size and improve inference speed.
 import json
 import logging
 import os
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 from .base import Pruner, PruningConfig, PruningMethod
 
@@ -32,9 +32,7 @@ try:
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning(
-        "Transformers not available. Magnitude pruner will have limited functionality."
-    )
+    logger.warning("Transformers not available. Magnitude pruner will have limited functionality.")
     TRANSFORMERS_AVAILABLE = False
 
 try:
@@ -61,9 +59,7 @@ class MagnitudePruner(Pruner):
         super().__init__(config)
 
         if not TORCH_AVAILABLE:
-            raise ImportError(
-                "PyTorch not available. Please install it with: pip install torch"
-            )
+            raise ImportError("PyTorch not available. Please install it with: pip install torch")
 
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError(
@@ -91,13 +87,9 @@ class MagnitudePruner(Pruner):
             )
 
         if not 0.0 <= self.config.sparsity <= 1.0:
-            raise ValueError(
-                f"Sparsity must be between 0.0 and 1.0, got {self.config.sparsity}"
-            )
+            raise ValueError(f"Sparsity must be between 0.0 and 1.0, got {self.config.sparsity}")
 
-    def prune(
-        self, model_path: str, output_path: Optional[str] = None, **kwargs
-    ) -> str:
+    def prune(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
         """
         Prune a model using magnitude-based pruning.
 
@@ -172,9 +164,7 @@ class MagnitudePruner(Pruner):
 
             # Check if the layer is included (if specified)
             if self.config.included_layers is not None:
-                if not any(
-                    included in name for included in self.config.included_layers
-                ):
+                if not any(included in name for included in self.config.included_layers):
                     continue
 
             # Add to layers to prune
@@ -219,25 +209,18 @@ class MagnitudePruner(Pruner):
         for step in range(steps):
             # Calculate current sparsity
             current_sparsity = (
-                initial_sparsity
-                + (final_sparsity - initial_sparsity) * (step + 1) / steps
+                initial_sparsity + (final_sparsity - initial_sparsity) * (step + 1) / steps
             )
-            logger.info(
-                f"Pruning step {step + 1}/{steps}, sparsity: {current_sparsity}"
-            )
+            logger.info(f"Pruning step {step + 1}/{steps}, sparsity: {current_sparsity}")
 
             for module, name in layers_to_prune:
                 # For the first step, apply pruning
                 if step == 0:
-                    torch_prune.l1_unstructured(
-                        module, name=name, amount=current_sparsity
-                    )
+                    torch_prune.l1_unstructured(module, name=name, amount=current_sparsity)
                 # For subsequent steps, remove and reapply pruning
                 else:
                     torch_prune.remove(module, name)
-                    torch_prune.l1_unstructured(
-                        module, name=name, amount=current_sparsity
-                    )
+                    torch_prune.l1_unstructured(module, name=name, amount=current_sparsity)
 
     def _save_pruning_config(self, output_path: str) -> None:
         """
@@ -295,17 +278,13 @@ class MagnitudePruner(Pruner):
             "method": self.config.method.value,
             "sparsity": self.config.sparsity,
             "gradual_pruning": self.config.gradual_pruning,
-            "pruning_steps": (
-                self.config.pruning_steps if self.config.gradual_pruning else 1
-            ),
+            "pruning_steps": (self.config.pruning_steps if self.config.gradual_pruning else 1),
             "initial_sparsity": (
                 self.config.initial_sparsity
                 if self.config.gradual_pruning
                 else self.config.sparsity
             ),
             "final_sparsity": (
-                self.config.final_sparsity
-                if self.config.gradual_pruning
-                else self.config.sparsity
+                self.config.final_sparsity if self.config.gradual_pruning else self.config.sparsity
             ),
         }

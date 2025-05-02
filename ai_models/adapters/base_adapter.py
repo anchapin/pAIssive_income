@@ -7,11 +7,11 @@ This module provides a base class for adapters that connect to various AI model 
 import logging
 import os
 import sys
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Union
+from abc import abstractmethod
+from typing import Any, Dict, List
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from errors import ModelError, handle_exception
+from errors import ModelError
 from interfaces.model_interfaces import IModelAdapter
 
 # Set up logging
@@ -73,7 +73,6 @@ class BaseModelAdapter(IModelAdapter):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def disconnect(self) -> bool:
@@ -83,7 +82,6 @@ class BaseModelAdapter(IModelAdapter):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def get_models(self) -> List[Dict[str, Any]]:
@@ -93,7 +91,6 @@ class BaseModelAdapter(IModelAdapter):
         Returns:
             List of model dictionaries
         """
-        pass
 
     def _handle_error(self, error: Exception, error_message: str, **kwargs) -> None:
         """

@@ -5,7 +5,6 @@ This module provides a class for managing receipts, including
 generation, storage, and retrieval.
 """
 
-import copy
 import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
@@ -20,7 +19,7 @@ from common_utils import (
 
 from .payment_method import PaymentMethod
 from .payment_method_manager import PaymentMethodManager
-from .receipt import Receipt, ReceiptItem
+from .receipt import Receipt
 from .transaction import Transaction
 from .transaction_manager import TransactionManager
 
@@ -87,9 +86,7 @@ class ReceiptManager:
         # Get transaction if ID was provided
         if isinstance(transaction, str):
             if not self.transaction_manager:
-                raise ValueError(
-                    "Transaction manager is required to get transaction by ID"
-                )
+                raise ValueError("Transaction manager is required to get transaction by ID")
 
             transaction_obj = self.transaction_manager.get_transaction(transaction)
 
@@ -131,9 +128,7 @@ class ReceiptManager:
         payment_method_info = "Credit Card"  # Default
 
         if self.payment_method_manager and payment_method_id:
-            payment_method = self.payment_method_manager.get_payment_method(
-                payment_method_id
-            )
+            payment_method = self.payment_method_manager.get_payment_method(payment_method_id)
 
             if payment_method:
                 if payment_method.payment_type == PaymentMethod.TYPE_CARD:
@@ -429,7 +424,7 @@ class ReceiptManager:
 
 # Example usage
 if __name__ == "__main__":
-    from .transaction import Transaction, TransactionStatus, TransactionType
+    from .transaction import Transaction, TransactionStatus
 
     # Create a transaction
     transaction = Transaction(

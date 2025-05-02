@@ -6,7 +6,7 @@ This module provides a gRPC servicer for handling model requests.
 
 import logging
 import time
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Dict, List
 
 # Set up logging
 logging.basicConfig(
@@ -75,12 +75,10 @@ class ModelServicer:
             result = self.model.generate_text(request.prompt, **params)
 
             # Count tokens
-            prompt_tokens = self.tokenizer(
-                request.prompt, return_tensors="pt"
-            ).input_ids.shape[1]
-            completion_tokens = self.tokenizer(
-                result["text"], return_tensors="pt"
-            ).input_ids.shape[1]
+            prompt_tokens = self.tokenizer(request.prompt, return_tensors="pt").input_ids.shape[1]
+            completion_tokens = self.tokenizer(result["text"], return_tensors="pt").input_ids.shape[
+                1
+            ]
             total_tokens = prompt_tokens + completion_tokens
 
             # Track tokens
@@ -146,9 +144,7 @@ class ModelServicer:
                 params["stop_sequences"] = list(request.stop_sequences)
 
             # Count prompt tokens
-            prompt_tokens = self.tokenizer(
-                request.prompt, return_tensors="pt"
-            ).input_ids.shape[1]
+            prompt_tokens = self.tokenizer(request.prompt, return_tensors="pt").input_ids.shape[1]
             completion_tokens = 0
 
             # Stream text generation
@@ -312,9 +308,7 @@ class ModelServicer:
                 completion_tokens += 1
 
                 # Create response message
-                response_message = model_pb2.ChatMessage(
-                    role="assistant", content=chunk["content"]
-                )
+                response_message = model_pb2.ChatMessage(role="assistant", content=chunk["content"])
 
                 # Create response chunk
                 response = model_pb2.GenerateChatCompletionResponse(
@@ -369,9 +363,7 @@ class ModelServicer:
             result = self.model.classify_text(request.text)
 
             # Count tokens
-            tokens = self.tokenizer(request.text, return_tensors="pt").input_ids.shape[
-                1
-            ]
+            tokens = self.tokenizer(request.text, return_tensors="pt").input_ids.shape[1]
 
             # Track tokens
             self.server.token_count += tokens
@@ -437,8 +429,7 @@ class ModelServicer:
 
             # Count tokens
             total_tokens = sum(
-                self.tokenizer(text, return_tensors="pt").input_ids.shape[1]
-                for text in inputs
+                self.tokenizer(text, return_tensors="pt").input_ids.shape[1] for text in inputs
             )
 
             # Track tokens
@@ -455,9 +446,7 @@ class ModelServicer:
                 response_data.append(embedding_data)
 
             # Create usage
-            usage = model_pb2.TokenUsage(
-                prompt_tokens=total_tokens, total_tokens=total_tokens
-            )
+            usage = model_pb2.TokenUsage(prompt_tokens=total_tokens, total_tokens=total_tokens)
 
             # Create response
             response = model_pb2.GetEmbeddingsResponse(

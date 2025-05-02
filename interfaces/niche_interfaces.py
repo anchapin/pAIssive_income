@@ -6,7 +6,7 @@ and improve testability and maintainability.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 class IMarketAnalyzer(ABC):
@@ -23,7 +23,6 @@ class IMarketAnalyzer(ABC):
         Returns:
             Market analysis dictionary
         """
-        pass
 
     @abstractmethod
     def get_market_segments(self) -> List[str]:
@@ -33,7 +32,6 @@ class IMarketAnalyzer(ABC):
         Returns:
             List of market segments
         """
-        pass
 
     @abstractmethod
     def get_market_size(self, market_segment: str) -> Dict[str, Any]:
@@ -46,7 +44,6 @@ class IMarketAnalyzer(ABC):
         Returns:
             Market size dictionary
         """
-        pass
 
     @abstractmethod
     def get_market_trends(self, market_segment: str) -> List[Dict[str, Any]]:
@@ -59,7 +56,6 @@ class IMarketAnalyzer(ABC):
         Returns:
             List of market trend dictionaries
         """
-        pass
 
 
 class IProblemIdentifier(ABC):
@@ -76,7 +72,6 @@ class IProblemIdentifier(ABC):
         Returns:
             List of problem dictionaries
         """
-        pass
 
     @abstractmethod
     def analyze_problem(self, problem: Dict[str, Any]) -> Dict[str, Any]:
@@ -89,7 +84,6 @@ class IProblemIdentifier(ABC):
         Returns:
             Problem analysis dictionary
         """
-        pass
 
     @abstractmethod
     def get_problem_categories(self) -> List[str]:
@@ -99,7 +93,6 @@ class IProblemIdentifier(ABC):
         Returns:
             List of problem categories
         """
-        pass
 
 
 class IOpportunityScorer(ABC):
@@ -123,12 +116,9 @@ class IOpportunityScorer(ABC):
         Returns:
             Opportunity score dictionary
         """
-        pass
 
     @abstractmethod
-    def rank_opportunities(
-        self, opportunities: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    def rank_opportunities(self, opportunities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Rank opportunities.
 
@@ -138,7 +128,6 @@ class IOpportunityScorer(ABC):
         Returns:
             Ranked list of opportunity dictionaries
         """
-        pass
 
     @abstractmethod
     def get_scoring_factors(self) -> List[str]:
@@ -148,7 +137,6 @@ class IOpportunityScorer(ABC):
         Returns:
             List of scoring factors
         """
-        pass
 
 
 class INicheAnalyzer(ABC):
@@ -165,7 +153,6 @@ class INicheAnalyzer(ABC):
         Returns:
             Niche analysis dictionary
         """
-        pass
 
     @abstractmethod
     def identify_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
@@ -178,7 +165,6 @@ class INicheAnalyzer(ABC):
         Returns:
             List of niche dictionaries
         """
-        pass
 
     @abstractmethod
     def analyze_competition(self, niche_name: str) -> Dict[str, Any]:
@@ -191,7 +177,6 @@ class INicheAnalyzer(ABC):
         Returns:
             Competition analysis dictionary
         """
-        pass
 
     @abstractmethod
     def get_niche_opportunities(self, niche_name: str) -> List[Dict[str, Any]]:
@@ -204,4 +189,3 @@ class INicheAnalyzer(ABC):
         Returns:
             List of opportunity dictionaries
         """
-        pass

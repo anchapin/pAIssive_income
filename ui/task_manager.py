@@ -9,7 +9,6 @@ from typing import Any, Dict, Optional
 
 from celery.result import AsyncResult
 
-from .socketio_app import emit_task_update
 from .tasks import celery_app
 
 # Set up logging
@@ -140,7 +139,5 @@ def cancel_task(task_id: str) -> bool:
         logger.info(f"Task {task_id} cancelled")
         return True
     else:
-        logger.info(
-            f"Task {task_id} could not be cancelled (state: {task_result.state})"
-        )
+        logger.info(f"Task {task_id} could not be cancelled (state: {task_result.state})")
         return False

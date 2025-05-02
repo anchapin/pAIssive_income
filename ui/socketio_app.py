@@ -6,7 +6,7 @@ for updating task progress and status.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from celery.result import AsyncResult
 from flask_socketio import SocketIO, emit

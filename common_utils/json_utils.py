@@ -6,7 +6,7 @@ This module provides common JSON serialization functions used across the project
 
 import json
 import logging
-from typing import Any, Dict, List, Optional, TextIO, Union
+from typing import Any
 
 # Set up logging
 logger = logging.getLogger(__name__)

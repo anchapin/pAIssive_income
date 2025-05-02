@@ -4,42 +4,13 @@ Pytest fixtures for the pAIssive_income project.
 This module provides fixtures that can be used across tests.
 """
 
-import json
-import os
-from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from datetime import datetime
 from unittest.mock import MagicMock
 
 import pytest
 
 # Import our centralized mock fixtures
-from tests.mocks.fixtures import (
-    mock_email_api,
-    mock_embedding_result,
-    mock_huggingface_api,
-    mock_lmstudio_provider,
-    mock_marketing_campaign_data,
-    mock_model_inference_result,
-    mock_niche_analysis_data,
-    mock_ollama_provider,
-    mock_openai_provider,
-    mock_payment_api,
-    mock_storage_api,
-    mock_subscription_data,
-    patch_external_apis,
-    patch_model_providers,
-)
-from tests.mocks.mock_external_apis import (
-    MockEmailAPI,
-    MockHuggingFaceAPI,
-    MockPaymentAPI,
-    MockStorageAPI,
-    create_mock_api,
-)
 from tests.mocks.mock_model_providers import (
-    MockLMStudioProvider,
-    MockOllamaProvider,
-    MockOpenAIProvider,
     create_mock_provider,
 )
 
@@ -90,9 +61,7 @@ def mock_stripe_gateway():
     )
 
     # Create a plan
-    plan = gateway.create_plan(
-        name="Test Plan", currency="USD", interval="month", amount=9.99
-    )
+    plan = gateway.create_plan(name="Test Plan", currency="USD", interval="month", amount=9.99)
 
     # Create a subscription
     subscription = gateway.create_subscription(

@@ -7,7 +7,7 @@ numbers, dates, and more complex structures like lists and dictionaries.
 
 import re
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 def validate_string(

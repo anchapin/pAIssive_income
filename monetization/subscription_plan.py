@@ -5,13 +5,11 @@ This module provides classes for defining and managing subscription plans,
 including features, pricing, and billing intervals.
 """
 
-import copy
 import json
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
 
 
 class BillingInterval:
@@ -514,13 +512,9 @@ class Subscription:
         Args:
             reason: Reason for cancellation
         """
-        self.update_status(
-            SubscriptionStatus.CANCELED, reason or "Subscription canceled"
-        )
+        self.update_status(SubscriptionStatus.CANCELED, reason or "Subscription canceled")
 
-    def pause(
-        self, reason: Optional[str] = None, resume_at: Optional[datetime] = None
-    ) -> None:
+    def pause(self, reason: Optional[str] = None, resume_at: Optional[datetime] = None) -> None:
         """
         Pause the subscription.
 
@@ -730,11 +724,7 @@ class Subscription:
             customer_id=data["customer_id"],
             plan_id=data["plan_id"],
             start_date=datetime.fromisoformat(data["start_date"]),
-            end_date=(
-                datetime.fromisoformat(data["end_date"])
-                if data.get("end_date")
-                else None
-            ),
+            end_date=(datetime.fromisoformat(data["end_date"]) if data.get("end_date") else None),
             status=data["status"],
             metadata=data.get("metadata", {}),
         )
@@ -746,16 +736,12 @@ class Subscription:
         subscription.created_at = datetime.fromisoformat(data["created_at"])
         subscription.updated_at = datetime.fromisoformat(data["updated_at"])
         subscription.canceled_at = (
-            datetime.fromisoformat(data["canceled_at"])
-            if data.get("canceled_at")
-            else None
+            datetime.fromisoformat(data["canceled_at"]) if data.get("canceled_at") else None
         )
         subscription.trial_end = (
             datetime.fromisoformat(data["trial_end"]) if data.get("trial_end") else None
         )
-        subscription.current_period_start = datetime.fromisoformat(
-            data["current_period_start"]
-        )
+        subscription.current_period_start = datetime.fromisoformat(data["current_period_start"])
         subscription.current_period_end = (
             datetime.fromisoformat(data["current_period_end"])
             if data.get("current_period_end")

@@ -1,6 +1,6 @@
 """Agent interfaces for the pAIssive Income system."""
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Dict, List, Optional, Protocol
 
 
@@ -111,9 +111,7 @@ class IFeedbackAgent(IAgentProfile):
         ...
 
     @abstractmethod
-    def generate_recommendations(
-        self, feedback_analysis: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+    def generate_recommendations(self, feedback_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Generate improvement recommendations."""
         ...
 

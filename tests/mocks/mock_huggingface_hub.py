@@ -11,7 +11,7 @@ import shutil
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 @dataclass
@@ -313,13 +313,11 @@ class MockHuggingFaceHub:
 
                 # Check patterns
                 if allow_patterns and not any(
-                    self._match_pattern(file_path, pattern)
-                    for pattern in allow_patterns
+                    self._match_pattern(file_path, pattern) for pattern in allow_patterns
                 ):
                     continue
                 if ignore_patterns and any(
-                    self._match_pattern(file_path, pattern)
-                    for pattern in ignore_patterns
+                    self._match_pattern(file_path, pattern) for pattern in ignore_patterns
                 ):
                     continue
 
@@ -332,13 +330,11 @@ class MockHuggingFaceHub:
 
                 # Check patterns
                 if allow_patterns and not any(
-                    self._match_pattern(file_path, pattern)
-                    for pattern in allow_patterns
+                    self._match_pattern(file_path, pattern) for pattern in allow_patterns
                 ):
                     continue
                 if ignore_patterns and any(
-                    self._match_pattern(file_path, pattern)
-                    for pattern in ignore_patterns
+                    self._match_pattern(file_path, pattern) for pattern in ignore_patterns
                 ):
                     continue
 

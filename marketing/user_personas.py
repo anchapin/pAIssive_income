@@ -168,9 +168,7 @@ class DemographicAnalyzer:
         ]
 
         if niche:
-            recommendations.append(
-                f"Tailor marketing to address specific needs of {niche} users"
-            )
+            recommendations.append(f"Tailor marketing to address specific needs of {niche} users")
 
         return {
             "id": analysis_id,
@@ -343,9 +341,7 @@ class PainPointIdentifier:
         self.name = "Pain Point Identifier"
         self.description = "Identifies and analyzes pain points for user personas"
 
-    def identify_pain_points(
-        self, niche: Union[str, Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    def identify_pain_points(self, niche: Union[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Identify potential pain points for a specific niche.
 
@@ -508,9 +504,7 @@ class PainPointIdentifier:
                     # Calculate severity based on position in the list (first items are more severe)
                     severity = 1.0 - (i / max(len(niche["problem_areas"]), 1))
                     severity_level = (
-                        "high"
-                        if severity > 0.7
-                        else "medium" if severity > 0.4 else "low"
+                        "high" if severity > 0.7 else "medium" if severity > 0.4 else "low"
                     )
 
                     pain_points.append(
@@ -563,9 +557,7 @@ class PainPointIdentifier:
 
             return pain_points
 
-    def analyze_pain_point(
-        self, pain_point: Dict[str, Any], niche: str = None
-    ) -> Dict[str, Any]:
+    def analyze_pain_point(self, pain_point: Dict[str, Any], niche: str = None) -> Dict[str, Any]:
         """
         Analyze a specific pain point in detail.
 
@@ -682,7 +674,6 @@ class GoalMapper:
 
     def __init__(self):
         """Initialize the GoalMapper."""
-        pass
 
     def map_goals_to_features(
         self, persona: Dict[str, Any], solution: Dict[str, Any]
@@ -709,10 +700,7 @@ class GoalMapper:
                 # Check if goal keywords appear in feature name or description
                 goal_words = goal.lower().split()
                 for word in goal_words:
-                    if (
-                        word in feature["name"].lower()
-                        or word in feature["description"].lower()
-                    ):
+                    if word in feature["name"].lower() or word in feature["description"].lower():
                         relevance += 1
 
                 if relevance > 0:
@@ -768,9 +756,7 @@ class GoalMapper:
             messages["headlines"].append(f"{solution['name']}: The key to {goal}")
 
             # Generate email subjects
-            messages["email_subjects"].append(
-                f"Want to {goal.lower()}? Try {solution['name']}"
-            )
+            messages["email_subjects"].append(f"Want to {goal.lower()}? Try {solution['name']}")
             messages["email_subjects"].append(
                 f"How {persona['name']}s are achieving {goal.lower()}"
             )
@@ -801,7 +787,6 @@ class BehaviorAnalyzer:
 
     def __init__(self):
         """Initialize the BehaviorAnalyzer."""
-        pass
 
     def analyze_tech_adoption(self, persona: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -892,9 +877,7 @@ class BehaviorAnalyzer:
             },
         }
 
-        result = sensitivity_patterns.get(
-            price_sensitivity, sensitivity_patterns["medium"]
-        )
+        result = sensitivity_patterns.get(price_sensitivity, sensitivity_patterns["medium"])
         result["price_sensitivity_level"] = price_sensitivity
 
         return result
@@ -941,9 +924,7 @@ class BehaviorAnalyzer:
             recommendations["marketing_recommendations"].append(
                 "Emphasize ROI and cost savings in marketing materials"
             )
-            recommendations["marketing_recommendations"].append(
-                "Offer free tier with upgrade path"
-            )
+            recommendations["marketing_recommendations"].append("Offer free tier with upgrade path")
         else:
             recommendations["marketing_recommendations"].append(
                 "Focus on quality and unique features in marketing"

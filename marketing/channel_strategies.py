@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .errors import ChannelStrategyError, ValidationError, handle_exception
+from .errors import ChannelStrategyError, handle_exception
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -54,9 +54,7 @@ class MarketingStrategy:
         self.metrics = []
         self.budget_allocation = {}
 
-    def add_tactic(
-        self, tactic: str, description: str, priority: str = "medium"
-    ) -> None:
+    def add_tactic(self, tactic: str, description: str, priority: str = "medium") -> None:
         """
         Add a tactic to the marketing strategy.
 
@@ -106,9 +104,7 @@ class MarketingStrategy:
             {"id": str(uuid.uuid4()), "name": name, "description": description}
         )
 
-    def add_metric(
-        self, name: str, description: str, target: Optional[str] = None
-    ) -> None:
+    def add_metric(self, name: str, description: str, target: Optional[str] = None) -> None:
         """
         Add a metric to track for this marketing strategy.
 
@@ -368,9 +364,7 @@ class ContentMarketingStrategy(MarketingStrategy):
         for platform in self.platforms:
             if platform in platform_tactics:
                 tactic = platform_tactics[platform]
-                self.add_tactic(
-                    tactic["name"], tactic["description"], tactic["priority"]
-                )
+                self.add_tactic(tactic["name"], tactic["description"], tactic["priority"])
 
     def _add_default_content_recommendations(self) -> None:
         """Add default content recommendations based on selected content types."""
@@ -400,9 +394,7 @@ class ContentMarketingStrategy(MarketingStrategy):
         for content_type in self.content_types:
             if content_type in content_recommendations:
                 rec = content_recommendations[content_type]
-                self.add_content_recommendation(
-                    content_type, rec["description"], rec["frequency"]
-                )
+                self.add_content_recommendation(content_type, rec["description"], rec["frequency"])
 
     def _add_default_engagement_strategies(self) -> None:
         """Add default engagement strategies."""
@@ -683,9 +675,7 @@ class SocialMediaStrategy(MarketingStrategy):
         for platform in self.platforms:
             if platform in platform_tactics:
                 tactic = platform_tactics[platform]
-                self.add_tactic(
-                    tactic["name"], tactic["description"], tactic["priority"]
-                )
+                self.add_tactic(tactic["name"], tactic["description"], tactic["priority"])
 
     def _add_default_content_recommendations(self) -> None:
         """Add default content recommendations based on content mix."""
@@ -968,9 +958,7 @@ class SocialMediaStrategy(MarketingStrategy):
                     content_type = content_types[content_type_index]
 
                     # Generate post idea based on content type and platform
-                    post_idea = self._generate_post_idea(
-                        platform, content_type, week, post
-                    )
+                    post_idea = self._generate_post_idea(platform, content_type, week, post)
 
                     schedule[platform].append(
                         {

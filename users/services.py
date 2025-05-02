@@ -8,9 +8,9 @@ authentication, user management, etc.
 import logging
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
-from .auth import create_session_for_user, hash_password, verify_password
+from .auth import hash_password, verify_password
 from .models import User, UserCreate, UserPublic, UserUpdate
 from .permissions import ROLES
 

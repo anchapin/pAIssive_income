@@ -107,15 +107,9 @@ class OpportunityScorer:
             return cached_result
 
         # Calculate factor scores
-        market_size_score = self._score_market_size(
-            market_data.get("market_size", "unknown")
-        )
-        growth_rate_score = self._score_growth_rate(
-            market_data.get("growth_rate", "unknown")
-        )
-        competition_score = self._score_competition(
-            market_data.get("competition", "unknown")
-        )
+        market_size_score = self._score_market_size(market_data.get("market_size", "unknown"))
+        growth_rate_score = self._score_growth_rate(market_data.get("growth_rate", "unknown"))
+        competition_score = self._score_competition(market_data.get("competition", "unknown"))
         problem_severity_score = self._score_problem_severity(problems)
         solution_feasibility_score = self._score_solution_feasibility(niche, problems)
         monetization_potential_score = self._score_monetization_potential(
@@ -145,15 +139,13 @@ class OpportunityScorer:
             "problem_severity": FactorScoreSchema(
                 score=problem_severity_score,
                 weight=self.weights["problem_severity"],
-                weighted_score=problem_severity_score
-                * self.weights["problem_severity"],
+                weighted_score=problem_severity_score * self.weights["problem_severity"],
                 analysis=self._analyze_problem_severity(problem_severity_score),
             ),
             "solution_feasibility": FactorScoreSchema(
                 score=solution_feasibility_score,
                 weight=self.weights["solution_feasibility"],
-                weighted_score=solution_feasibility_score
-                * self.weights["solution_feasibility"],
+                weighted_score=solution_feasibility_score * self.weights["solution_feasibility"],
                 analysis=self._analyze_solution_feasibility(solution_feasibility_score),
             ),
             "monetization_potential": FactorScoreSchema(
@@ -161,9 +153,7 @@ class OpportunityScorer:
                 weight=self.weights["monetization_potential"],
                 weighted_score=monetization_potential_score
                 * self.weights["monetization_potential"],
-                analysis=self._analyze_monetization_potential(
-                    monetization_potential_score
-                ),
+                analysis=self._analyze_monetization_potential(monetization_potential_score),
             ),
         }
 
@@ -202,9 +192,7 @@ class OpportunityScorer:
         result = opportunity_score.dict()
 
         # Cache the result
-        default_cache.set(
-            cache_key, result, ttl=self.cache_ttl, namespace="opportunity_scores"
-        )
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace="opportunity_scores")
 
         return result
 
@@ -265,15 +253,9 @@ class OpportunityScorer:
             Dictionary containing the opportunity score results
         """
         # Calculate factor scores
-        market_size_score = self._score_market_size(
-            market_data.get("market_size", "unknown")
-        )
-        growth_rate_score = self._score_growth_rate(
-            market_data.get("growth_rate", "unknown")
-        )
-        competition_score = self._score_competition(
-            market_data.get("competition", "unknown")
-        )
+        market_size_score = self._score_market_size(market_data.get("market_size", "unknown"))
+        growth_rate_score = self._score_growth_rate(market_data.get("growth_rate", "unknown"))
+        competition_score = self._score_competition(market_data.get("competition", "unknown"))
         problem_severity_score = self._score_problem_severity(problems)
         solution_feasibility_score = self._score_solution_feasibility(niche, problems)
         monetization_potential_score = self._score_monetization_potential(
@@ -303,15 +285,13 @@ class OpportunityScorer:
             "problem_severity": FactorScoreSchema(
                 score=problem_severity_score,
                 weight=self.weights["problem_severity"],
-                weighted_score=problem_severity_score
-                * self.weights["problem_severity"],
+                weighted_score=problem_severity_score * self.weights["problem_severity"],
                 analysis=self._analyze_problem_severity(problem_severity_score),
             ),
             "solution_feasibility": FactorScoreSchema(
                 score=solution_feasibility_score,
                 weight=self.weights["solution_feasibility"],
-                weighted_score=solution_feasibility_score
-                * self.weights["solution_feasibility"],
+                weighted_score=solution_feasibility_score * self.weights["solution_feasibility"],
                 analysis=self._analyze_solution_feasibility(solution_feasibility_score),
             ),
             "monetization_potential": FactorScoreSchema(
@@ -319,9 +299,7 @@ class OpportunityScorer:
                 weight=self.weights["monetization_potential"],
                 weighted_score=monetization_potential_score
                 * self.weights["monetization_potential"],
-                analysis=self._analyze_monetization_potential(
-                    monetization_potential_score
-                ),
+                analysis=self._analyze_monetization_potential(monetization_potential_score),
             ),
         }
 
@@ -360,9 +338,7 @@ class OpportunityScorer:
         result = opportunity_score.dict()
 
         # Cache the result
-        default_cache.set(
-            cache_key, result, ttl=self.cache_ttl, namespace="opportunity_scores"
-        )
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace="opportunity_scores")
 
         return result
 
@@ -394,9 +370,7 @@ class OpportunityScorer:
         tasks = []
         for i in range(len(niches)):
             tasks.append(
-                self.score_opportunity_async(
-                    niches[i], market_data_list[i], problems_list[i]
-                )
+                self.score_opportunity_async(niches[i], market_data_list[i], problems_list[i])
             )
 
         # Run all tasks concurrently and gather results
@@ -434,9 +408,7 @@ class OpportunityScorer:
         # Return both individual scores and comparison
         return {"individual_scores": opportunity_scores, "comparison": comparison}
 
-    def compare_opportunities(
-        self, opportunities: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def compare_opportunities(self, opportunities: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Compare multiple opportunities to identify the most promising ones.
 
@@ -460,9 +432,7 @@ class OpportunityScorer:
         cache_key = self._generate_comparison_cache_key(opportunities)
 
         # Try to get from cache first
-        cached_result = default_cache.get(
-            cache_key, namespace="opportunity_comparisons"
-        )
+        cached_result = default_cache.get(cache_key, namespace="opportunity_comparisons")
         if cached_result is not None:
             return cached_result
 
@@ -620,9 +590,7 @@ class OpportunityScorer:
         # Hash to get a fixed-length key
         return hashlib.md5(key_str.encode()).hexdigest()
 
-    def _normalize_problems_for_cache(
-        self, problems: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    def _normalize_problems_for_cache(self, problems: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Normalize problem dictionaries to ensure stable cache keys.
 
@@ -646,9 +614,7 @@ class OpportunityScorer:
         # Sort by description for stable order
         return sorted(normalized, key=lambda p: p["description"])
 
-    def _generate_comparison_cache_key(
-        self, opportunities: List[Dict[str, Any]]
-    ) -> str:
+    def _generate_comparison_cache_key(self, opportunities: List[Dict[str, Any]]) -> str:
         """
         Generate a cache key for opportunity comparison results.
 
@@ -696,9 +662,7 @@ class OpportunityScorer:
             # a mapping of niches to cache keys. For now, we clear all.
             return default_cache.clear(namespace="opportunity_scores")
 
-    async def invalidate_opportunity_cache_async(
-        self, niche: Optional[str] = None
-    ) -> bool:
+    async def invalidate_opportunity_cache_async(self, niche: Optional[str] = None) -> bool:
         """
         Asynchronously invalidate cached opportunity scores.
 
@@ -827,9 +791,7 @@ class OpportunityScorer:
         )
         return total_severity / len(problems)
 
-    def _score_solution_feasibility(
-        self, niche: str, problems: List[Dict[str, Any]]
-    ) -> float:
+    def _score_solution_feasibility(self, niche: str, problems: List[Dict[str, Any]]) -> float:
         """
         Score the solution feasibility factor.
 
@@ -1023,9 +985,7 @@ class OpportunityScorer:
             Analysis text for the problem severity factor
         """
         if score >= 0.8:
-            return (
-                "High severity problems indicating significant pain points for users."
-            )
+            return "High severity problems indicating significant pain points for users."
         elif score >= 0.5:
             return "Moderate severity problems with notable impact on users."
         else:
@@ -1135,9 +1095,7 @@ class OpportunityScorer:
 
         # Add recommendations based on strengths
         if "market_size" in strengths:
-            recommendations.append(
-                f"Leverage the large market size in the {niche} niche"
-            )
+            recommendations.append(f"Leverage the large market size in the {niche} niche")
 
         if "growth_rate" in strengths:
             recommendations.append(f"Position for rapid growth in the {niche} niche")
@@ -1149,9 +1107,7 @@ class OpportunityScorer:
             recommendations.append("Emphasize the significant pain point being solved")
 
         if "solution_feasibility" in strengths:
-            recommendations.append(
-                "Move quickly to implement the technically feasible solution"
-            )
+            recommendations.append("Move quickly to implement the technically feasible solution")
 
         if "monetization_potential" in strengths:
             recommendations.append(
@@ -1168,19 +1124,13 @@ class OpportunityScorer:
             recommendations.append("Consider a long-term strategy for steady growth")
 
         if "competition" in weaknesses:
-            recommendations.append(
-                "Develop clear differentiation from existing competitors"
-            )
+            recommendations.append("Develop clear differentiation from existing competitors")
 
         if "problem_severity" in weaknesses:
-            recommendations.append(
-                "Focus marketing on establishing the importance of the problem"
-            )
+            recommendations.append("Focus marketing on establishing the importance of the problem")
 
         if "solution_feasibility" in weaknesses:
-            recommendations.append(
-                "Allocate additional resources to technical development"
-            )
+            recommendations.append("Allocate additional resources to technical development")
 
         if "monetization_potential" in weaknesses:
             recommendations.append("Explore freemium or volume-based pricing models")
@@ -1246,9 +1196,7 @@ class OpportunityScorer:
             limited=limited,
         )
 
-    def _generate_comparison_factors(
-        self, opportunities: List[Dict[str, Any]]
-    ) -> Dict[str, str]:
+    def _generate_comparison_factors(self, opportunities: List[Dict[str, Any]]) -> Dict[str, str]:
         """
         Generate comparison factors based on the opportunities being compared.
 
@@ -1310,11 +1258,7 @@ class OpportunityScorer:
                 )
 
         # Add portfolio recommendation if there are multiple good opportunities
-        if (
-            analysis.score_distribution.excellent
-            + analysis.score_distribution.very_good
-            > 1
-        ):
+        if analysis.score_distribution.excellent + analysis.score_distribution.very_good > 1:
             recommendations.append(
                 "Consider a portfolio approach with multiple opportunities in parallel"
             )

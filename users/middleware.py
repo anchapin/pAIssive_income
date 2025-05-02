@@ -6,7 +6,7 @@ This module provides decorators and middleware for authentication and authorizat
 
 import functools
 import logging
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Callable, Optional
 
 from flask import g, jsonify, request
 
@@ -86,9 +86,7 @@ def authenticate(f: Callable) -> Callable:
     return decorated_function
 
 
-def require_permission(
-    permission: str, level: Optional[PERMISSION_LEVELS] = None
-) -> Callable:
+def require_permission(permission: str, level: Optional[PERMISSION_LEVELS] = None) -> Callable:
     """
     Decorator to enforce permissions for API routes.
 
@@ -110,9 +108,7 @@ def require_permission(
             if not hasattr(g, "user_roles"):
                 logger.error("require_permission used without authenticate decorator")
                 return (
-                    jsonify(
-                        {"error": "Server Error", "message": "Internal server error"}
-                    ),
+                    jsonify({"error": "Server Error", "message": "Internal server error"}),
                     500,
                 )
 
@@ -173,9 +169,7 @@ def audit_log(action: str, resource_type: str) -> Callable:
             else:
                 outcome = "failure"
 
-            logger.info(
-                f"AUDIT: User {user_id} {action} on {resource_type} - {outcome}"
-            )
+            logger.info(f"AUDIT: User {user_id} {action} on {resource_type} - {outcome}")
 
             return result
 

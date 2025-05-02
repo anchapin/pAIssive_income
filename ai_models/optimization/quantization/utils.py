@@ -9,12 +9,12 @@ import json
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Optional, Union
 
 import numpy as np
 
 from .awq_quantizer import AWQQuantizer
-from .base import QuantizationConfig, QuantizationMethod, Quantizer
+from .base import QuantizationConfig, QuantizationMethod
 from .bitsandbytes_quantizer import BitsAndBytesQuantizer
 from .gptq_quantizer import GPTQQuantizer
 
@@ -122,18 +122,14 @@ def analyze_quantization(
         Dictionary with analysis results
     """
     if not TORCH_AVAILABLE or not TRANSFORMERS_AVAILABLE:
-        raise ImportError(
-            "PyTorch and Transformers are required for quantization analysis"
-        )
+        raise ImportError("PyTorch and Transformers are required for quantization analysis")
 
     logger.info("Analyzing quantization effects")
 
     # Load original model and tokenizer
     logger.info(f"Loading original model from {original_model_path}")
     original_tokenizer = AutoTokenizer.from_pretrained(original_model_path)
-    original_model = AutoModelForCausalLM.from_pretrained(
-        original_model_path, device_map="auto"
-    )
+    original_model = AutoModelForCausalLM.from_pretrained(original_model_path, device_map="auto")
 
     # Load quantized model and tokenizer
     logger.info(f"Loading quantized model from {quantized_model_path}")
@@ -155,9 +151,7 @@ def analyze_quantization(
                 load_in_4bit=True,
                 bnb_4bit_quant_type=quant_config.bnb_4bit_quant_type,
                 bnb_4bit_use_double_quant=quant_config.bnb_4bit_use_double_quant,
-                bnb_4bit_compute_dtype=getattr(
-                    torch, quant_config.bnb_4bit_compute_dtype
-                ),
+                bnb_4bit_compute_dtype=getattr(torch, quant_config.bnb_4bit_compute_dtype),
             )
 
             quantized_model = AutoModelForCausalLM.from_pretrained(
@@ -295,9 +289,7 @@ def analyze_quantization(
 
     # Try to get quantization info
     try:
-        quant_config_path = os.path.join(
-            quantized_model_path, "quantization_config.json"
-        )
+        quant_config_path = os.path.join(quantized_model_path, "quantization_config.json")
         if os.path.exists(quant_config_path):
             with open(quant_config_path, "r", encoding="utf-8") as f:
                 quant_config = json.load(f)

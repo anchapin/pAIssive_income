@@ -5,12 +5,10 @@ This module provides classes for tracking usage of API calls and resources,
 including usage limits, quota management, and analytics.
 """
 
-import copy
 import json
-import math
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -42,20 +40,12 @@ class UsageCategory:
 class UsageRecordSchema(BaseModel):
     id: str = Field(..., description="Unique identifier for the usage record")
     customer_id: str = Field(..., description="ID of the customer")
-    metric: str = Field(
-        ..., description="Type of usage metric (e.g., API_CALL, COMPUTE_TIME)"
-    )
+    metric: str = Field(..., description="Type of usage metric (e.g., API_CALL, COMPUTE_TIME)")
     quantity: float = Field(..., description="Quantity of usage")
-    category: str = Field(
-        ..., description="Category of usage (e.g., INFERENCE, TRAINING)"
-    )
+    category: str = Field(..., description="Category of usage (e.g., INFERENCE, TRAINING)")
     timestamp: datetime = Field(..., description="Timestamp of the usage")
-    resource_id: Optional[str] = Field(
-        None, description="ID of the resource being used"
-    )
-    resource_type: Optional[str] = Field(
-        None, description="Type of resource being used"
-    )
+    resource_id: Optional[str] = Field(None, description="ID of the resource being used")
+    resource_type: Optional[str] = Field(None, description="Type of resource being used")
     subscription_id: Optional[str] = Field(None, description="ID of the subscription")
     metadata: Dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata for the usage record"
@@ -248,9 +238,7 @@ class UsageLimit:
                 reference_time.hour,
             )
         elif self.period == self.PERIOD_DAILY:
-            return datetime(
-                reference_time.year, reference_time.month, reference_time.day
-            )
+            return datetime(reference_time.year, reference_time.month, reference_time.day)
         elif self.period == self.PERIOD_WEEKLY:
             # Start of the week (Monday)
             days_since_monday = reference_time.weekday()
@@ -476,9 +464,7 @@ class UsageQuota:
             # Start of the next week (Monday)
             days_since_monday = now.weekday()
             days_to_next_monday = 7 - days_since_monday
-            return datetime(now.year, now.month, now.day) + timedelta(
-                days=days_to_next_monday
-            )
+            return datetime(now.year, now.month, now.day) + timedelta(days=days_to_next_monday)
         elif self.period == UsageLimit.PERIOD_MONTHLY:
             # Start of the next month
             if now.month == 12:

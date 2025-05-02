@@ -5,22 +5,17 @@ This module provides classes and functions for configuring AI models,
 including settings for model paths, cache, and performance options.
 """
 
-import enum
 import os
 import sys
-from dataclasses import asdict, dataclass, field
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import json
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Dict, Optional, Type
+from typing import Any, Dict, Optional
 
-from common_utils import from_json, load_from_json_file, save_to_json_file, to_json
 from interfaces.model_interfaces import IModelConfig
 
-from .schemas import ModelConfigSchema
 
 
 class IModelConfig(ABC):
@@ -59,15 +54,11 @@ class ModelConfig(IModelConfig):
 
     @property
     def models_dir(self) -> str:
-        return self._config.get(
-            "models_dir", os.path.join(os.path.dirname(__file__), "models")
-        )
+        return self._config.get("models_dir", os.path.join(os.path.dirname(__file__), "models"))
 
     @property
     def cache_dir(self) -> str:
-        return self._config.get(
-            "cache_dir", os.path.join(os.path.dirname(__file__), "cache")
-        )
+        return self._config.get("cache_dir", os.path.join(os.path.dirname(__file__), "cache"))
 
     @property
     def max_threads(self) -> int:

@@ -7,8 +7,7 @@ This module provides a convenient configuration interface for application settin
 import json
 import logging
 import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional
 
 from .secrets_manager import SecretsBackend, get_secret, set_secret
 

@@ -4,9 +4,7 @@ Tests for the ModelConfig class.
 
 import json
 import os
-from pathlib import Path
 
-import pytest
 
 from ai_models.model_config import ModelConfig
 

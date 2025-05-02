@@ -7,8 +7,7 @@ quantizing transformer models.
 
 import logging
 import os
-import shutil
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional
 
 from .base import QuantizationConfig, QuantizationMethod, Quantizer
 
@@ -20,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+    pass
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -28,18 +27,15 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from transformers import AutoTokenizer
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning(
-        "Transformers not available. AWQ quantizer will have limited functionality."
-    )
+    logger.warning("Transformers not available. AWQ quantizer will have limited functionality.")
     TRANSFORMERS_AVAILABLE = False
 
 # Check if AWQ is available
 try:
-    import awq
     from awq import AutoAWQForCausalLM
 
     AWQ_AVAILABLE = True
@@ -63,9 +59,7 @@ class AWQQuantizer(Quantizer):
         super().__init__(config)
 
         if not TORCH_AVAILABLE:
-            raise ImportError(
-                "PyTorch not available. Please install it with: pip install torch"
-            )
+            raise ImportError("PyTorch not available. Please install it with: pip install torch")
 
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError(
@@ -73,9 +67,7 @@ class AWQQuantizer(Quantizer):
             )
 
         if not AWQ_AVAILABLE:
-            raise ImportError(
-                "AWQ not available. Please install it with: pip install autoawq"
-            )
+            raise ImportError("AWQ not available. Please install it with: pip install autoawq")
 
         # Validate configuration
         self._validate_config()
@@ -95,13 +87,9 @@ class AWQQuantizer(Quantizer):
             )
 
         if self.config.bits not in [4, 8]:
-            raise ValueError(
-                f"Unsupported bits: {self.config.bits}. " f"Supported bits: 4, 8"
-            )
+            raise ValueError(f"Unsupported bits: {self.config.bits}. " f"Supported bits: 4, 8")
 
-    def quantize(
-        self, model_path: str, output_path: Optional[str] = None, **kwargs
-    ) -> str:
+    def quantize(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
         """
         Quantize a model using AWQ.
 
@@ -133,9 +121,7 @@ class AWQQuantizer(Quantizer):
             # Use default dataset (WikiText-2)
             from datasets import load_dataset
 
-            calibration_dataset = load_dataset(
-                "wikitext", "wikitext-2-raw-v1", split="train"
-            )
+            calibration_dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split="train")
 
             # Process dataset
             def preprocess_function(examples):

@@ -5,11 +5,10 @@ This module provides classes for managing user subscriptions, including
 subscription creation, renewal, cancellation, and status tracking.
 """
 
-import copy
 import json
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from .subscription import SubscriptionPlan, SubscriptionTier
 
@@ -88,9 +87,7 @@ class Subscription:
         # Check if tier has trial days
         if tier.get("trial_days", 0) > 0:
             self.status = SubscriptionStatus.TRIAL
-            self.trial_end_date = self.start_date + timedelta(
-                days=tier.get("trial_days", 0)
-            )
+            self.trial_end_date = self.start_date + timedelta(days=tier.get("trial_days", 0))
         else:
             self.trial_end_date = None
 
@@ -457,9 +454,7 @@ class Subscription:
             "start_date": self.start_date.isoformat(),
             "end_date": self.end_date.isoformat(),
             "status": self.status,
-            "trial_end_date": (
-                self.trial_end_date.isoformat() if self.trial_end_date else None
-            ),
+            "trial_end_date": (self.trial_end_date.isoformat() if self.trial_end_date else None),
             "canceled_at": self.canceled_at.isoformat() if self.canceled_at else None,
             "current_period_start": self.current_period_start.isoformat(),
             "current_period_end": self.current_period_end.isoformat(),
@@ -494,9 +489,7 @@ class Subscription:
             f.write(self.to_json())
 
     @classmethod
-    def load_from_dict(
-        cls, data: Dict[str, Any], plan: SubscriptionPlan
-    ) -> "Subscription":
+    def load_from_dict(cls, data: Dict[str, Any], plan: SubscriptionPlan) -> "Subscription":
         """
         Load a subscription from a dictionary.
 
@@ -528,12 +521,8 @@ class Subscription:
         if data.get("canceled_at"):
             subscription.canceled_at = datetime.fromisoformat(data["canceled_at"])
 
-        subscription.current_period_start = datetime.fromisoformat(
-            data["current_period_start"]
-        )
-        subscription.current_period_end = datetime.fromisoformat(
-            data["current_period_end"]
-        )
+        subscription.current_period_start = datetime.fromisoformat(data["current_period_start"])
+        subscription.current_period_end = datetime.fromisoformat(data["current_period_end"])
         subscription.price = data["price"]
         subscription.usage = data.get("usage", {})
         subscription.status_history = data.get("status_history", [])
@@ -625,9 +614,7 @@ if __name__ == "__main__":
 
     # Track usage
     subscription.increment_feature_usage(feature1["id"], 5)
-    print(
-        f"\nContent Generation usage: {subscription.get_feature_usage(feature1['id'])}"
-    )
+    print(f"\nContent Generation usage: {subscription.get_feature_usage(feature1['id'])}")
     print(f"Remaining: {subscription.get_remaining_feature_usage(feature1['id'])}")
 
     # Add metadata

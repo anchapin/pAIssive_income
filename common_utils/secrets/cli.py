@@ -7,12 +7,9 @@ This module provides a command line interface for managing secrets.
 import argparse
 import getpass
 import logging
-import os
 import sys
-from typing import Any, Dict, List, Optional
 
 from .secrets_manager import (
-    SecretsBackend,
     delete_secret,
     get_secret,
     list_secret_names,
@@ -64,9 +61,7 @@ Examples:
     # Set command
     set_parser = subparsers.add_parser("set", help="Set a secret")
     set_parser.add_argument("name", help="Name of the secret")
-    set_parser.add_argument(
-        "--value", help="Secret value (if not provided, will prompt securely)"
-    )
+    set_parser.add_argument("--value", help="Secret value (if not provided, will prompt securely)")
 
     # Get command
     get_parser = subparsers.add_parser("get", help="Get a secret")
@@ -142,9 +137,7 @@ def handle_delete_command(args: argparse.Namespace) -> int:
     name = args.name
 
     if delete_secret(name, backend=args.backend):
-        logger.info(
-            f"Secret '{name}' deleted successfully from '{args.backend}' backend"
-        )
+        logger.info(f"Secret '{name}' deleted successfully from '{args.backend}' backend")
         return 0
     else:
         logger.error(f"Failed to delete secret '{name}' or secret not found")

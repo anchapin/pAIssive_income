@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from agent_team import AgentTeam
-from niche_analysis import MarketAnalyzer, OpportunityScorer, ProblemIdentifier
 
 
 @pytest.fixture
@@ -144,9 +143,7 @@ def test_niche_to_solution_workflow(
     niches = team.run_niche_analysis(["e-commerce"])
 
     # Check that the researcher's analyze_market_segments method was called
-    mock_agents["researcher"].analyze_market_segments.assert_called_once_with(
-        ["e-commerce"]
-    )
+    mock_agents["researcher"].analyze_market_segments.assert_called_once_with(["e-commerce"])
 
     # Check that niches were returned
     assert len(niches) == 2
@@ -174,9 +171,7 @@ def test_niche_to_solution_workflow(
 
     # Check that a monetization strategy was returned
     assert monetization["name"] == "Freemium Strategy"
-    assert (
-        monetization["subscription_model"]["name"] == "Inventory Manager Subscription"
-    )
+    assert monetization["subscription_model"]["name"] == "Inventory Manager Subscription"
     assert len(monetization["subscription_model"]["tiers"]) == 2
 
     # Create a marketing plan

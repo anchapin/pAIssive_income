@@ -4,12 +4,7 @@ Payment processing demo for the pAIssive Income project.
 This script demonstrates how to use the payment processing system.
 """
 
-import json
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 
-from .mock_payment_processor import MockPaymentProcessor
-from .payment_processor import PaymentProcessor
 from .payment_processor_factory import factory
 
 
@@ -83,9 +78,7 @@ def run_demo():
         )
 
         print(f"Payment processed: {payment['id']}")
-        print(
-            f"Amount: {processor.format_amount(payment['amount'], payment['currency'])}"
-        )
+        print(f"Amount: {processor.format_amount(payment['amount'], payment['currency'])}")
         print(f"Status: {payment['status']}")
         print(f"Description: {payment['description']}")
     except ValueError as e:
@@ -150,9 +143,7 @@ def run_demo():
 
     print(f"Found {len(subscriptions)} subscriptions:")
     for subscription in subscriptions:
-        print(
-            f"- {subscription['id']}: {subscription['plan_id']} ({subscription['status']})"
-        )
+        print(f"- {subscription['id']}: {subscription['plan_id']} ({subscription['status']})")
 
     print_separator()
 

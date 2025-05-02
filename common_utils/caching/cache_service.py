@@ -8,20 +8,11 @@ all parts of the project.
 
 import functools
 import hashlib
-import inspect
 import json
-import time
-from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, cast
+from typing import Any, Callable, Dict, Optional, Tuple, TypeVar
 
 # Import the caching system from AI models module
 from ai_models.caching import CacheConfig, CacheManager
-from ai_models.caching.cache_backends import (
-    DiskCache,
-    MemoryCache,
-    RedisCache,
-    SQLiteCache,
-)
 
 # Type variable for the decorator
 T = TypeVar("T")
@@ -137,9 +128,7 @@ class CacheService:
             True if the value was set successfully, False otherwise
         """
         # Check if caching is enabled for this namespace
-        if self.is_namespace_enabled_hook and not self.is_namespace_enabled_hook(
-            namespace
-        ):
+        if self.is_namespace_enabled_hook and not self.is_namespace_enabled_hook(namespace):
             return False
 
         # Initialize stats for this namespace if not exists
@@ -176,9 +165,7 @@ class CacheService:
             The cached value, or None if not found
         """
         # Check if caching is enabled for this namespace
-        if self.is_namespace_enabled_hook and not self.is_namespace_enabled_hook(
-            namespace
-        ):
+        if self.is_namespace_enabled_hook and not self.is_namespace_enabled_hook(namespace):
             return None
 
         # Initialize stats for this namespace if not exists
@@ -207,9 +194,7 @@ class CacheService:
         Returns:
             True if the value was deleted, False otherwise
         """
-        return self.cache_manager.delete(
-            model_id=namespace, operation="delete", inputs=key
-        )
+        return self.cache_manager.delete(model_id=namespace, operation="delete", inputs=key)
 
     def clear(self, namespace: str = "default") -> bool:
         """

@@ -4,11 +4,11 @@ Text classification routes for REST API server.
 This module provides route handlers for text classification.
 """
 
-from typing import Any, Dict, List, Optional, Union
+from typing import List
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, Depends, HTTPException
+    from fastapi import APIRouter, HTTPException
     from pydantic import BaseModel, Field
 
     FASTAPI_AVAILABLE = True
@@ -55,9 +55,7 @@ if FASTAPI_AVAILABLE:
         Response model for text classification.
         """
 
-        labels: List[ClassificationLabel] = Field(
-            ..., description="Classification labels"
-        )
+        labels: List[ClassificationLabel] = Field(..., description="Classification labels")
         top_label: str = Field(..., description="Top classification label")
         tokens: int = Field(..., description="Number of tokens in the input")
 

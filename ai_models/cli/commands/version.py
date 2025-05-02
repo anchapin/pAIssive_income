@@ -6,8 +6,6 @@ This module provides a command to display version information.
 
 import argparse
 import logging
-import sys
-from typing import Any, Dict, List, Optional
 
 from ..base import BaseCommand
 

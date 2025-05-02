@@ -8,14 +8,12 @@ different business types, goals, and target audiences.
 import json
 import uuid
 from datetime import datetime
-from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from interfaces.agent_interfaces import IAgentTeam
 from interfaces.marketing_interfaces import IMarketingStrategy
 from marketing.schemas import (
     BudgetSchema,
-    DemographicsSchema,
     MarketingChannelSchema,
     MarketingMetricSchema,
     MarketingStrategySchema,
@@ -84,7 +82,9 @@ class StrategyGenerator(IMarketingStrategy):
         strategy_id = str(uuid.uuid4())
 
         # Generate a strategy name
-        strategy_name = f"{self.business_type} Marketing Strategy - {datetime.now().strftime('%Y-%m-%d')}"
+        strategy_name = (
+            f"{self.business_type} Marketing Strategy - {datetime.now().strftime('%Y-%m-%d')}"
+        )
 
         # Determine appropriate channels based on business type and target audience
         channels = self._select_channels()
@@ -298,9 +298,7 @@ class StrategyGenerator(IMarketingStrategy):
 
         return tactics
 
-    def _allocate_budget(
-        self, channels: List[MarketingChannelSchema]
-    ) -> Dict[str, float]:
+    def _allocate_budget(self, channels: List[MarketingChannelSchema]) -> Dict[str, float]:
         """
         Allocate budget across marketing channels using proportional relevance distribution.
 
@@ -458,9 +456,7 @@ class StrategyGenerator(IMarketingStrategy):
 
         return metrics
 
-    def evaluate_strategy(
-        self, strategy_id: str, metrics: Dict[str, float]
-    ) -> Dict[str, Any]:
+    def evaluate_strategy(self, strategy_id: str, metrics: Dict[str, float]) -> Dict[str, Any]:
         """
         Evaluate the effectiveness of a marketing strategy using multi-dimensional performance analysis.
 
@@ -549,9 +545,7 @@ class StrategyGenerator(IMarketingStrategy):
                 target_value = metric.target_value
 
                 if current_value < target_value * 0.7:
-                    recommendations.append(
-                        f"Focus more resources on improving {metric.name}"
-                    )
+                    recommendations.append(f"Focus more resources on improving {metric.name}")
 
         # Return evaluation results
         return {
@@ -683,14 +677,10 @@ class StrategyGenerator(IMarketingStrategy):
                     # Min adjustment is 0.5, max is 1.5
                     adjustment_factor = max(0.5, min(1.5, adjustment_factor))
 
-                    current_allocation = revised_strategy.allocated_budget.get(
-                        channel, 0
-                    )
+                    current_allocation = revised_strategy.allocated_budget.get(channel, 0)
                     new_allocations[channel] = current_allocation * adjustment_factor
                 else:
-                    new_allocations[channel] = revised_strategy.allocated_budget.get(
-                        channel, 0
-                    )
+                    new_allocations[channel] = revised_strategy.allocated_budget.get(channel, 0)
 
             # Normalize allocations to match total budget
             allocation_sum = sum(new_allocations.values())
@@ -738,15 +728,9 @@ class StrategyGenerator(IMarketingStrategy):
                 ):
                     for key in ("age_range", "income_range"):
                         if key in strategy_dict["target_audience"]["demographics"]:
-                            value = strategy_dict["target_audience"]["demographics"][
-                                key
-                            ]
-                            if hasattr(value, "__iter__") and not isinstance(
-                                value, (str, dict)
-                            ):
-                                strategy_dict["target_audience"]["demographics"][
-                                    key
-                                ] = list(value)
+                            value = strategy_dict["target_audience"]["demographics"][key]
+                            if hasattr(value, "__iter__") and not isinstance(value, (str, dict)):
+                                strategy_dict["target_audience"]["demographics"][key] = list(value)
 
             # Return JSON string
             return json.dumps(strategy_dict, indent=2)

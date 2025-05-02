@@ -5,7 +5,7 @@ This module provides configuration classes for the model cache system.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -26,9 +26,7 @@ class CacheConfig:
 
     # Cache filters
     model_filters: List[str] = field(default_factory=list)  # List of model IDs to cache
-    operation_filters: List[str] = field(
-        default_factory=list
-    )  # List of operations to cache
+    operation_filters: List[str] = field(default_factory=list)  # List of operations to cache
 
     def should_cache(self, model_id: str, operation: str) -> bool:
         """

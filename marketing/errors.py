@@ -8,7 +8,7 @@ specific to the Marketing module.
 import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Optional
 
 # Add the project root to the Python path to import the errors module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -90,9 +90,7 @@ class ChannelStrategyError(MarketingError):
         if channel:
             details["channel"] = channel
 
-        super().__init__(
-            message=message, code="channel_strategy_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="channel_strategy_error", details=details, **kwargs)
 
 
 class ContentTemplateError(MarketingError):
@@ -111,9 +109,7 @@ class ContentTemplateError(MarketingError):
         if template_type:
             details["template_type"] = template_type
 
-        super().__init__(
-            message=message, code="content_template_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="content_template_error", details=details, **kwargs)
 
 
 class ContentOptimizationError(MarketingError):
@@ -133,10 +129,7 @@ class ContentOptimizationError(MarketingError):
             details["optimization_type"] = optimization_type
 
         super().__init__(
-            message=message,
-            code="content_optimization_error",
-            details=details,
-            **kwargs
+            message=message, code="content_optimization_error", details=details, **kwargs
         )
 
 
@@ -156,9 +149,7 @@ class UserPersonaError(MarketingError):
         if persona_name:
             details["persona_name"] = persona_name
 
-        super().__init__(
-            message=message, code="user_persona_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="user_persona_error", details=details, **kwargs)
 
 
 class MarketingCampaignError(MarketingError):

@@ -7,7 +7,7 @@ specific to the Niche Analysis module.
 
 import os
 import sys
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Optional
 
 # Add the project root to the Python path to import the errors module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -46,9 +46,7 @@ class MarketSegmentError(MarketAnalysisError):
             segment: Market segment that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(
-            message=message, segment=segment, code="market_segment_error", **kwargs
-        )
+        super().__init__(message=message, segment=segment, code="market_segment_error", **kwargs)
 
 
 class ProblemIdentificationError(NicheAnalysisError):
@@ -68,10 +66,7 @@ class ProblemIdentificationError(NicheAnalysisError):
             details["niche"] = niche
 
         super().__init__(
-            message=message,
-            code="problem_identification_error",
-            details=details,
-            **kwargs
+            message=message, code="problem_identification_error", details=details, **kwargs
         )
 
 
@@ -92,10 +87,7 @@ class CompetitionAnalysisError(MarketAnalysisError):
             details["niche"] = niche
 
         super().__init__(
-            message=message,
-            code="competition_analysis_error",
-            details=details,
-            **kwargs
+            message=message, code="competition_analysis_error", details=details, **kwargs
         )
 
 
@@ -111,9 +103,7 @@ class TrendAnalysisError(MarketAnalysisError):
             segment: Market segment that caused the error
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(
-            message=message, segment=segment, code="trend_analysis_error", **kwargs
-        )
+        super().__init__(message=message, segment=segment, code="trend_analysis_error", **kwargs)
 
 
 class TargetUserAnalysisError(MarketAnalysisError):
@@ -133,8 +123,5 @@ class TargetUserAnalysisError(MarketAnalysisError):
             details["niche"] = niche
 
         super().__init__(
-            message=message,
-            code="target_user_analysis_error",
-            details=details,
-            **kwargs
+            message=message, code="target_user_analysis_error", details=details, **kwargs
         )

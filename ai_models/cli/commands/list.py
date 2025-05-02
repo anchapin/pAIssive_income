@@ -7,8 +7,6 @@ This module provides a command for listing available models.
 import argparse
 import json
 import logging
-import os
-from typing import Any, Dict, List, Optional
 
 from ..base import BaseCommand
 
@@ -75,9 +73,7 @@ class ListCommand(BaseCommand):
 
             # Apply filters
             if self.args.filter:
-                models = [
-                    m for m in models if self.args.filter.lower() in m.name.lower()
-                ]
+                models = [m for m in models if self.args.filter.lower() in m.name.lower()]
 
             if self.args.type:
                 models = [m for m in models if m.type == self.args.type]

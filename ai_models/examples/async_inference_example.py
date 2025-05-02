@@ -11,7 +11,6 @@ import logging
 import os
 import sys
 import time
-from typing import Any, Dict, List
 
 # Add the parent directory to the path so we can import from ai_models
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -19,8 +18,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 from ai_models import ModelInfo, ModelManager
 from ai_models.async_utils import (
     AsyncModelProcessor,
-    AsyncResult,
-    batch_process_async,
     run_in_thread,
 )
 
@@ -75,9 +72,7 @@ async def example_batch_text_generation():
         "Renewable energy sources that will dominate are",
     ]
 
-    print(
-        f"Processing {len(prompts)} prompts in parallel using model ID: {text_model_id}"
-    )
+    print(f"Processing {len(prompts)} prompts in parallel using model ID: {text_model_id}")
 
     # Generate text for all prompts in parallel
     start_time = time.time()
@@ -148,9 +143,7 @@ async def example_batch_embeddings():
         "Transformers have advanced natural language processing",
     ]
 
-    print(
-        f"Generating embeddings for {len(texts)} texts using model ID: {embedding_model_id}"
-    )
+    print(f"Generating embeddings for {len(texts)} texts using model ID: {embedding_model_id}")
 
     try:
         # Generate embeddings for all texts in parallel

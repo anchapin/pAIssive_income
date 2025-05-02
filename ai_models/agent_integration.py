@@ -8,16 +8,16 @@ with the agent team, allowing agents to use local AI models for their tasks.
 import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from dependency_container import get_container
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
 # Import the fallback manager classes
-from .fallbacks import FallbackEvent, FallbackManager, FallbackStrategy
+from .fallbacks import FallbackManager, FallbackStrategy
 from .model_config import ModelConfig
-from .model_manager import ModelInfo, ModelManager
+from .model_manager import ModelManager
 
 # Set up logging
 logging.basicConfig(
@@ -103,9 +103,7 @@ class AgentModelProvider:
             logging_level=default_fallback_config["logging_level"],
         )
 
-    def get_model_for_agent(
-        self, agent_type: str, task_type: Optional[str] = None
-    ) -> Any:
+    def get_model_for_agent(self, agent_type: str, task_type: Optional[str] = None) -> Any:
         """
         Get a model for a specific agent and task.
 
@@ -166,9 +164,7 @@ class AgentModelProvider:
                     except Exception as load_error:
                         # Mark the fallback as unsuccessful
                         if event:
-                            self.fallback_manager.track_fallback_event(
-                                event, was_successful=False
-                            )
+                            self.fallback_manager.track_fallback_event(event, was_successful=False)
                         # Re-raise with additional context
                         raise ValueError(
                             f"Failed to load fallback model {fallback_model_info.id}: {str(load_error)}"
@@ -294,18 +290,12 @@ class AgentModelProvider:
 
         # Get preferences for the specified task type
         # Only consider task preferences if a task_type was provided
-        task_prefs = (
-            task_preferences.get(task_type, ["huggingface", "llama"])
-            if task_type
-            else []
-        )
+        task_prefs = task_preferences.get(task_type, ["huggingface", "llama"]) if task_type else []
 
         # Combine preferences
         # If task_prefs is not empty, find the intersection (preferences that satisfy both)
         # Otherwise, just use the agent preferences
-        combined_prefs = (
-            list(set(agent_prefs) & set(task_prefs)) if task_prefs else agent_prefs
-        )
+        combined_prefs = list(set(agent_prefs) & set(task_prefs)) if task_prefs else agent_prefs
 
         # Find a model that matches the preferences
         # Try each preferred model type in order until a match is found
@@ -345,9 +335,7 @@ class AgentModelProvider:
             f"Assigned model {model_id} to agent {agent_type}, task {task_type or 'default'}"
         )
 
-    def unassign_model_from_agent(
-        self, agent_type: str, task_type: Optional[str] = None
-    ) -> bool:
+    def unassign_model_from_agent(self, agent_type: str, task_type: Optional[str] = None) -> bool:
         """
         Unassign a model from an agent.
 
@@ -362,9 +350,7 @@ class AgentModelProvider:
             if task_type:
                 if task_type in self.agent_models[agent_type]:
                     del self.agent_models[agent_type][task_type]
-                    logger.info(
-                        f"Unassigned model from agent {agent_type}, task {task_type}"
-                    )
+                    logger.info(f"Unassigned model from agent {agent_type}, task {task_type}")
                     return True
             else:
                 del self.agent_models[agent_type]
@@ -413,9 +399,7 @@ class AgentModelProvider:
                 config_params["default_model_id"] = fallback_config["default_model_id"]
 
             if "fallback_preferences" in fallback_config:
-                config_params["fallback_preferences"] = fallback_config[
-                    "fallback_preferences"
-                ]
+                config_params["fallback_preferences"] = fallback_config["fallback_preferences"]
 
             if "logging_level" in fallback_config:
                 config_params["logging_level"] = fallback_config["logging_level"]
@@ -443,9 +427,7 @@ class AgentModelProvider:
         self.fallback_manager.configure(default_model_id=model_id)
         logger.info(f"Set default fallback model to {model_id}")
 
-    def add_agent_fallback_preference(
-        self, agent_type: str, model_types: List[str]
-    ) -> None:
+    def add_agent_fallback_preference(self, agent_type: str, model_types: List[str]) -> None:
         """
         Add fallback preferences for a specific agent type.
 
@@ -482,7 +464,7 @@ class AgentModelProvider:
         return self.fallback_manager.get_fallback_history(limit)
 
 
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional
 
 from .fallbacks import FallbackManager
 from .model_manager import ModelConfig, ModelManager
@@ -512,9 +494,7 @@ class AgentModelIntegration:
             max_attempts=max_retries, fallback_preferences=fallback_preferences
         )
 
-    async def get_completion(
-        self, prompt: str, model_id: Optional[str] = None, **kwargs
-    ) -> str:
+    async def get_completion(self, prompt: str, model_id: Optional[str] = None, **kwargs) -> str:
         """Get a text completion from an AI model.
 
         Args:

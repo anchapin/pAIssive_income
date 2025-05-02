@@ -7,11 +7,9 @@ including storage, retrieval, and analysis.
 
 import copy
 import json
-import math
 import os
-import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 from .usage_tracking import (
     UsageCategory,
@@ -588,9 +586,7 @@ class UsageTracker:
                             if record.resource_type not in self.resource_records:
                                 self.resource_records[record.resource_type] = []
 
-                            self.resource_records[record.resource_type].append(
-                                record.id
-                            )
+                            self.resource_records[record.resource_type].append(record.id)
 
                     except Exception as e:
                         print(f"Error loading record from {file_path}: {e}")
@@ -1030,9 +1026,7 @@ class UsageTracker:
                     }
 
                 summary["resource_types"][record.resource_type]["count"] += 1
-                summary["resource_types"][record.resource_type][
-                    "quantity"
-                ] += record.quantity
+                summary["resource_types"][record.resource_type]["quantity"] += record.quantity
 
             # Add to grouped data if requested
             if group_by:
@@ -1117,12 +1111,8 @@ class UsageTracker:
                 result["intervals"][interval_key] = {
                     "count": 0,
                     "quantity": 0.0,
-                    "start_time": self._get_interval_start(
-                        record.timestamp, interval
-                    ).isoformat(),
-                    "end_time": self._get_interval_end(
-                        record.timestamp, interval
-                    ).isoformat(),
+                    "start_time": self._get_interval_start(record.timestamp, interval).isoformat(),
+                    "end_time": self._get_interval_end(record.timestamp, interval).isoformat(),
                 }
 
             result["intervals"][interval_key]["count"] += 1
@@ -1260,9 +1250,7 @@ class UsageTracker:
                 if current_time.month == 12:
                     current_time = datetime(current_time.year + 1, 1, 1)
                 else:
-                    current_time = datetime(
-                        current_time.year, current_time.month + 1, 1
-                    )
+                    current_time = datetime(current_time.year, current_time.month + 1, 1)
 
         # Initialize the trend analysis result structure
         trends = {
@@ -1311,22 +1299,16 @@ class UsageTracker:
 
             # Calculate the average usage quantity for each half of the time series
             first_half_avg = (
-                sum(i["quantity"] for i in first_half) / len(first_half)
-                if first_half
-                else 0
+                sum(i["quantity"] for i in first_half) / len(first_half) if first_half else 0
             )
             second_half_avg = (
-                sum(i["quantity"] for i in second_half) / len(second_half)
-                if second_half
-                else 0
+                sum(i["quantity"] for i in second_half) / len(second_half) if second_half else 0
             )
 
             # Calculate percentage change between the two periods
             # Handle division by zero case for when the first period had no usage
             if first_half_avg > 0:
-                percentage_change = (
-                    (second_half_avg - first_half_avg) / first_half_avg
-                ) * 100
+                percentage_change = ((second_half_avg - first_half_avg) / first_half_avg) * 100
             else:
                 # Special handling for cases where usage started from zero
                 percentage_change = 0 if second_half_avg == 0 else 100
@@ -1593,9 +1575,7 @@ class UsageTracker:
             Start of the interval
         """
         if interval == "hour":
-            return datetime(
-                timestamp.year, timestamp.month, timestamp.day, timestamp.hour
-            )
+            return datetime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour)
         elif interval == "day":
             return datetime(timestamp.year, timestamp.month, timestamp.day)
         elif interval == "week":

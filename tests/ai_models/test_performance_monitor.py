@@ -2,9 +2,7 @@
 Tests for the PerformanceMonitor class.
 """
 
-import json
-from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 

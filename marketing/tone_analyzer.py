@@ -7,13 +7,11 @@ This module provides classes for analyzing and adjusting the tone of content.
 import datetime
 import json
 import math
-import random
 import re
 import string
 import uuid
 from abc import ABC, abstractmethod
-from collections import Counter
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 # Third-party imports
 try:
@@ -63,7 +61,6 @@ class ContentAnalyzer(ABC):
         Returns:
             Dictionary with analysis results
         """
-        pass
 
     @abstractmethod
     def get_score(self) -> float:
@@ -73,7 +70,6 @@ class ContentAnalyzer(ABC):
         Returns:
             Score between 0 and 1
         """
-        pass
 
     @abstractmethod
     def get_recommendations(self) -> List[Dict[str, Any]]:
@@ -83,7 +79,6 @@ class ContentAnalyzer(ABC):
         Returns:
             List of recommendation dictionaries
         """
-        pass
 
     def get_default_config(self) -> Dict[str, Any]:
         """
@@ -488,8 +483,7 @@ class ToneAnalyzer(ContentAnalyzer):
                 "check_tone_consistency": True,  # Whether to check tone consistency
                 "check_sentiment_consistency": True,  # Whether to check sentiment consistency
                 "check_style_consistency": True,  # Whether to check style consistency
-                "target_tone": self.target_tone
-                or "conversational",  # Default target tone
+                "target_tone": self.target_tone or "conversational",  # Default target tone
                 "target_sentiment": "positive",  # Default target sentiment
                 "timestamp": datetime.datetime.now().isoformat(),
             }
@@ -621,9 +615,7 @@ class ToneAnalyzer(ContentAnalyzer):
 
             # Normalize by number of sentences
             pattern_score = pattern_matches / len(sentences) if sentences else 0
-            anti_pattern_score = (
-                anti_pattern_matches / len(sentences) if sentences else 0
-            )
+            anti_pattern_score = anti_pattern_matches / len(sentences) if sentences else 0
 
             # Calculate weighted score
             tone_score = (pattern_score * pattern_weight) - (
@@ -648,9 +640,7 @@ class ToneAnalyzer(ContentAnalyzer):
         target_tone = self.config["target_tone"]
         target_score = tone_scores[target_tone]["score"]
         consistency = (
-            target_score / dominant_tone[1]["score"]
-            if dominant_tone[1]["score"] > 0
-            else 0
+            target_score / dominant_tone[1]["score"] if dominant_tone[1]["score"] > 0 else 0
         )
 
         return {
@@ -849,9 +839,7 @@ class ToneAnalyzer(ContentAnalyzer):
 
             # Remove punctuation and stopwords
             stop_words = set(stopwords.words("english"))
-            tokens = [
-                token for token in tokens if token.isalnum() and token not in stop_words
-            ]
+            tokens = [token for token in tokens if token.isalnum() and token not in stop_words]
         else:
             # Simple word tokenization
             # Remove punctuation
@@ -880,12 +868,9 @@ class ToneAnalyzer(ContentAnalyzer):
         sentence_lengths = [len(self._get_words(sentence)) for sentence in sentences]
 
         # Calculate standard deviation of sentence lengths
-        mean_length = (
-            sum(sentence_lengths) / len(sentence_lengths) if sentence_lengths else 0
-        )
+        mean_length = sum(sentence_lengths) / len(sentence_lengths) if sentence_lengths else 0
         variance = (
-            sum((length - mean_length) ** 2 for length in sentence_lengths)
-            / len(sentence_lengths)
+            sum((length - mean_length) ** 2 for length in sentence_lengths) / len(sentence_lengths)
             if sentence_lengths
             else 0
         )
@@ -937,9 +922,7 @@ class ToneAnalyzer(ContentAnalyzer):
             # Calculate partial score based on how close to consistent
             consistency = self.results["tone_analysis"]["consistency"]
             min_consistency = self.config["min_tone_consistency"]
-            tone_score += (
-                0.4 * (consistency / min_consistency) if min_consistency > 0 else 0
-            )
+            tone_score += 0.4 * (consistency / min_consistency) if min_consistency > 0 else 0
 
         # Score based on sentiment consistency
         if self.results["sentiment_analysis"]["is_consistent"]:
@@ -948,9 +931,7 @@ class ToneAnalyzer(ContentAnalyzer):
             # Calculate partial score based on how close to consistent
             consistency = self.results["sentiment_analysis"]["consistency"]
             min_consistency = self.config["min_sentiment_consistency"]
-            tone_score += (
-                0.3 * (consistency / min_consistency) if min_consistency > 0 else 0
-            )
+            tone_score += 0.3 * (consistency / min_consistency) if min_consistency > 0 else 0
 
         # Score based on style
         style_score = 0.0
@@ -999,9 +980,7 @@ class ToneAnalyzer(ContentAnalyzer):
         # Check sentiment consistency
         if not self.results["sentiment_analysis"]["is_consistent"]:
             target_sentiment = self.config["target_sentiment"]
-            dominant_sentiment = self.results["sentiment_analysis"][
-                "dominant_sentiment"
-            ]
+            dominant_sentiment = self.results["sentiment_analysis"]["dominant_sentiment"]
 
             if dominant_sentiment != target_sentiment:
                 recommendations.append(

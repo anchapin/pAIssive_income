@@ -9,17 +9,12 @@ import argparse
 import logging
 import os
 import sys
-import time
-from typing import Any, Dict, List, Optional
+from typing import List
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models.benchmarking import (
-    BenchmarkConfig,
-    BenchmarkRunner,
     BenchmarkType,
     compare_models,
     plot_benchmark_results,
@@ -45,7 +40,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import transformers
+    pass
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
@@ -53,7 +48,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
-    import matplotlib.pyplot as plt
+    pass
 
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
@@ -111,9 +106,7 @@ def test_latency_benchmark(
         # Plot results
         if MATPLOTLIB_AVAILABLE:
             # Plot benchmark results
-            plot_path = os.path.join(
-                output_dir, f"{os.path.basename(model_path)}_latency.png"
-            )
+            plot_path = os.path.join(output_dir, f"{os.path.basename(model_path)}_latency.png")
             plot_benchmark_results(result, output_path=plot_path, show=False)
             print(f"Saved plot to {plot_path}")
 
@@ -176,9 +169,7 @@ def test_throughput_benchmark(
 
         # Plot results
         if MATPLOTLIB_AVAILABLE:
-            plot_path = os.path.join(
-                output_dir, f"{os.path.basename(model_path)}_throughput.png"
-            )
+            plot_path = os.path.join(output_dir, f"{os.path.basename(model_path)}_throughput.png")
             plot_benchmark_results(result, output_path=plot_path, show=False)
             print(f"Saved plot to {plot_path}")
 
@@ -226,9 +217,7 @@ def test_memory_benchmark(model_path: str, output_dir: str) -> None:
 
         # Plot results
         if MATPLOTLIB_AVAILABLE:
-            plot_path = os.path.join(
-                output_dir, f"{os.path.basename(model_path)}_memory.png"
-            )
+            plot_path = os.path.join(output_dir, f"{os.path.basename(model_path)}_memory.png")
             plot_benchmark_results(result, output_path=plot_path, show=False)
             print(f"Saved plot to {plot_path}")
 
@@ -290,26 +279,18 @@ def test_model_comparison(
 
             if benchmark_type == "latency" and result.latency_ms:
                 latency_stats = result.get_latency_stats()
-                print(
-                    f"{i+1}. {model_name}: {latency_stats.get('mean', 0):.2f} ms (mean)"
-                )
+                print(f"{i+1}. {model_name}: {latency_stats.get('mean', 0):.2f} ms (mean)")
 
             elif benchmark_type == "throughput" and result.throughput:
                 print(f"{i+1}. {model_name}: {result.throughput:.2f} tokens/second")
 
             elif benchmark_type == "memory" and result.memory_usage_mb:
-                print(
-                    f"{i+1}. {model_name}: {result.memory_usage_mb.get('total_mb', 0):.2f} MB"
-                )
+                print(f"{i+1}. {model_name}: {result.memory_usage_mb.get('total_mb', 0):.2f} MB")
 
         # Plot comparison
         if MATPLOTLIB_AVAILABLE and results:
-            plot_path = os.path.join(
-                output_dir, f"model_comparison_{benchmark_type}.png"
-            )
-            plot_comparison(
-                results, metric=benchmark_type, output_path=plot_path, show=False
-            )
+            plot_path = os.path.join(output_dir, f"model_comparison_{benchmark_type}.png")
+            plot_comparison(results, metric=benchmark_type, output_path=plot_path, show=False)
             print(f"Saved comparison plot to {plot_path}")
 
     except Exception as e:
@@ -321,9 +302,7 @@ def main():
     Main function to demonstrate the benchmarking tools.
     """
     parser = argparse.ArgumentParser(description="Test benchmarking tools")
-    parser.add_argument(
-        "--model-path", type=str, required=True, help="Path to the model"
-    )
+    parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
     parser.add_argument(
         "--output-dir",
         type=str,
@@ -382,9 +361,7 @@ def main():
     if args.benchmark == "memory" or args.benchmark == "all":
         test_memory_benchmark(model_path=args.model_path, output_dir=args.output_dir)
 
-    if (args.benchmark == "comparison" or args.benchmark == "all") and len(
-        model_paths
-    ) > 1:
+    if (args.benchmark == "comparison" or args.benchmark == "all") and len(model_paths) > 1:
         test_model_comparison(
             model_paths=model_paths,
             output_dir=args.output_dir,

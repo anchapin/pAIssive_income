@@ -10,11 +10,9 @@ import os
 import sys
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from ai_models import AgentModelProvider, ModelConfig, ModelInfo, ModelManager
+from ai_models import AgentModelProvider, ModelInfo, ModelManager
 
 # Set up logging
 logging.basicConfig(
@@ -83,9 +81,7 @@ def main():
     for agent_type in agent_types:
         try:
             model = provider.get_model_for_agent(agent_type)
-            model_info = manager.get_model_info(
-                provider.agent_models[agent_type]["default"]
-            )
+            model_info = manager.get_model_info(provider.agent_models[agent_type]["default"])
             print(f"Got model for {agent_type} agent: {model_info.name}")
         except ValueError as e:
             print(f"Error getting model for {agent_type} agent: {e}")
@@ -97,12 +93,8 @@ def main():
     for task_type in task_types:
         try:
             model = provider.get_model_for_agent("researcher", task_type)
-            model_info = manager.get_model_info(
-                provider.agent_models["researcher"][task_type]
-            )
-            print(
-                f"Got model for researcher agent, task {task_type}: {model_info.name}"
-            )
+            model_info = manager.get_model_info(provider.agent_models["researcher"][task_type])
+            print(f"Got model for researcher agent, task {task_type}: {model_info.name}")
         except ValueError as e:
             print(f"Error getting model for researcher agent, task {task_type}: {e}")
 
@@ -119,9 +111,7 @@ def main():
     # Manually assign a model to an agent
     if all_models:
         model_to_assign = all_models[0]
-        print(
-            f"\nManually assigning model {model_to_assign.name} to developer agent..."
-        )
+        print(f"\nManually assigning model {model_to_assign.name} to developer agent...")
         provider.assign_model_to_agent("developer", model_to_assign.id, "custom-task")
 
         # Verify the assignment

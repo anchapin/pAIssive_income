@@ -6,7 +6,7 @@ This module provides a base class for services that interact with the pAIssive I
 
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from common_utils import (
     create_directory,
@@ -17,7 +17,7 @@ from common_utils import (
 )
 from interfaces.ui_interfaces import IBaseService
 
-from ..errors import DataError, ServiceError, ValidationError, handle_exception
+from ..errors import DataError
 
 # Set up logging
 logger = logging.getLogger(__name__)

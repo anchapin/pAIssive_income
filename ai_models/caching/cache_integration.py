@@ -9,7 +9,7 @@ to use the same caching infrastructure as the rest of the project.
 import functools
 import inspect
 import logging
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Callable, Optional
 
 from common_utils.caching import CacheService, default_cache
 
@@ -98,9 +98,7 @@ def cache_model_result(
                     parameters[arg_name] = arg_value
 
             # Check if result is already cached
-            cached_result = cache.get_model_output(
-                model_id, operation, inputs, parameters
-            )
+            cached_result = cache.get_model_output(model_id, operation, inputs, parameters)
 
             if cached_result is not None:
                 logger.debug(f"Cache hit for {operation} with model {model_id}")
@@ -111,9 +109,7 @@ def cache_model_result(
             result = f(*args, **kwargs)
 
             # Cache the result
-            cache.cache_model_output(
-                model_id, operation, inputs, result, parameters, ttl
-            )
+            cache.cache_model_output(model_id, operation, inputs, result, parameters, ttl)
 
             return result
 

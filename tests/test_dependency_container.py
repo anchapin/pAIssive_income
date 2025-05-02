@@ -17,7 +17,6 @@ class ITestService(ABC):
     @abstractmethod
     def get_name(self) -> str:
         """Get the service name."""
-        pass
 
 
 class TestService(ITestService):
@@ -38,7 +37,6 @@ class IListService(ABC):
     @abstractmethod
     def get_items(self) -> List[str]:
         """Get the list items."""
-        pass
 
 
 class ListService(IListService):

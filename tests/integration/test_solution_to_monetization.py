@@ -124,9 +124,7 @@ def test_solution_to_monetization_workflow(
 
     # Check that a monetization strategy was returned
     assert monetization["name"] == "Freemium Strategy"
-    assert (
-        monetization["subscription_model"]["name"] == "Inventory Manager Subscription"
-    )
+    assert monetization["subscription_model"]["name"] == "Inventory Manager Subscription"
     assert len(monetization["subscription_model"]["tiers"]) == 2
 
 
@@ -141,9 +139,7 @@ def test_solution_features_to_subscription_model_integration(mock_solution):
     # Add features from the solution to the subscription model
     for feature in mock_solution["features"]:
         feature_type = (
-            "premium"
-            if feature.get("complexity") in ["high", "medium"]
-            else "functional"
+            "premium" if feature.get("complexity") in ["high", "medium"] else "functional"
         )
         model.add_feature(
             name=feature["name"],
@@ -153,21 +149,15 @@ def test_solution_features_to_subscription_model_integration(mock_solution):
         )
 
     # Create tiers based on feature complexity and development cost
-    basic_features = [
-        f["id"] for f in model.features if f["feature_type"] == "functional"
-    ]
-    premium_features = [
-        f["id"] for f in model.features if f["feature_type"] == "premium"
-    ]
+    basic_features = [f["id"] for f in model.features if f["feature_type"] == "functional"]
+    premium_features = [f["id"] for f in model.features if f["feature_type"] == "premium"]
 
     # Add a free tier with basic features
     free_tier = model.add_tier(
         name="Free",
         description="Basic features for free users",
         price_monthly=0.0,
-        features=basic_features[
-            :1
-        ],  # Only include the first basic feature in the free tier
+        features=basic_features[:1],  # Only include the first basic feature in the free tier
     )
 
     # Add a pro tier with all features
@@ -290,8 +280,7 @@ def test_solution_to_revenue_projector_integration(mock_solution):
         name=f"{mock_solution['name']} Revenue Projector",
         description=f"Revenue projector for {mock_solution['name']}",
         initial_users=initial_users,
-        user_acquisition_rate=initial_users
-        * 0.1,  # Acquire 10% of initial users per month
+        user_acquisition_rate=initial_users * 0.1,  # Acquire 10% of initial users per month
         conversion_rate=conversion_rate,
         churn_rate=0.05,
         tier_distribution={"Free": 0.7, "Pro": 0.2, "Business": 0.1},
@@ -304,20 +293,14 @@ def test_solution_to_revenue_projector_integration(mock_solution):
 
     # Verify that the revenue projections are generated correctly
     assert len(revenue_projections) == 24
-    assert all(
-        isinstance(month["total_revenue"], float) for month in revenue_projections
-    )
+    assert all(isinstance(month["total_revenue"], float) for month in revenue_projections)
     assert all(isinstance(month["tier_revenue"], dict) for month in revenue_projections)
 
     # Verify that the tier revenue is calculated correctly
     for month in revenue_projections:
-        assert (
-            month["tier_revenue"]["Free"] == 0.0
-        )  # Free tier should generate no revenue
+        assert month["tier_revenue"]["Free"] == 0.0  # Free tier should generate no revenue
         assert month["tier_revenue"]["Pro"] > 0.0  # Pro tier should generate revenue
-        assert (
-            month["tier_revenue"]["Business"] > 0.0
-        )  # Business tier should generate revenue
+        assert month["tier_revenue"]["Business"] > 0.0  # Business tier should generate revenue
         assert (
             month["tier_revenue"]["Pro"] < month["tier_revenue"]["Business"]
         )  # Business tier should generate more revenue than Pro
@@ -335,9 +318,7 @@ def test_end_to_end_solution_to_monetization_workflow(mock_solution):
     feature_map = {}
     for feature in mock_solution["features"]:
         feature_type = (
-            "premium"
-            if feature.get("complexity") in ["high", "medium"]
-            else "functional"
+            "premium" if feature.get("complexity") in ["high", "medium"] else "functional"
         )
         feature_obj = model.add_feature(
             name=feature["name"],
@@ -348,21 +329,15 @@ def test_end_to_end_solution_to_monetization_workflow(mock_solution):
         feature_map[feature["id"]] = feature_obj["id"]
 
     # 3. Add tiers based on feature complexity
-    basic_features = [
-        f["id"] for f in model.features if f["feature_type"] == "functional"
-    ]
-    premium_features = [
-        f["id"] for f in model.features if f["feature_type"] == "premium"
-    ]
+    basic_features = [f["id"] for f in model.features if f["feature_type"] == "functional"]
+    premium_features = [f["id"] for f in model.features if f["feature_type"] == "premium"]
 
     # 4. Create a free tier with limited features
     free_tier = model.add_tier(
         name="Free",
         description="Basic features for free users",
         price_monthly=0.0,
-        features=basic_features[
-            :1
-        ],  # Only include the first basic feature in the free tier
+        features=basic_features[:1],  # Only include the first basic feature in the free tier
         limits={"api_calls": 100, "exports": 10},
     )
 

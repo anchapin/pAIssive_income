@@ -6,7 +6,6 @@ import json
 from datetime import datetime
 from unittest.mock import patch
 
-import pytest
 
 from ai_models.model_manager import ModelInfo
 

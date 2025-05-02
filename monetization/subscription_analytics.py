@@ -5,13 +5,10 @@ This module provides classes for analyzing subscription data, including
 metrics calculation, churn analysis, and revenue forecasting.
 """
 
-import math
-import statistics
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 
 from .subscription import SubscriptionPlan
 from .subscription_manager import SubscriptionManager
@@ -224,10 +221,7 @@ class SubscriptionMetrics:
                 continue
 
             # Skip trial subscriptions with no payment
-            if (
-                subscription.status == SubscriptionStatus.TRIAL
-                and subscription.price == 0
-            ):
+            if subscription.status == SubscriptionStatus.TRIAL and subscription.price == 0:
                 continue
 
             # Calculate monthly equivalent price
@@ -557,9 +551,7 @@ class SubscriptionMetrics:
 
         return history
 
-    def get_subscription_summary(
-        self, date: Optional[datetime] = None
-    ) -> Dict[str, Any]:
+    def get_subscription_summary(self, date: Optional[datetime] = None) -> Dict[str, Any]:
         """
         Get a summary of subscription metrics.
 
@@ -769,9 +761,7 @@ class ChurnAnalysis:
             # Get active subscriptions at start date for this tier
             active_at_start = []
 
-            for subscription in self.metrics.get_active_subscriptions(
-                start_date, plan_id
-            ):
+            for subscription in self.metrics.get_active_subscriptions(start_date, plan_id):
                 if subscription.tier_id == tier_id:
                     active_at_start.append(subscription)
 
@@ -909,10 +899,7 @@ class ChurnAnalysis:
                     cohort_start = cohort_date
                     cohort_end = cohort_date + timedelta(days=30)
 
-                if (
-                    subscription.start_date >= cohort_start
-                    and subscription.start_date < cohort_end
-                ):
+                if subscription.start_date >= cohort_start and subscription.start_date < cohort_end:
 
                     # Filter by plan ID if provided
                     if plan_id and subscription.plan_id != plan_id:
@@ -945,10 +932,7 @@ class ChurnAnalysis:
                     if subscription.status in [
                         SubscriptionStatus.ACTIVE,
                         SubscriptionStatus.TRIAL,
-                    ] and (
-                        not subscription.end_date
-                        or subscription.end_date >= period_date
-                    ):
+                    ] and (not subscription.end_date or subscription.end_date >= period_date):
                         active_count += 1
 
                 # Calculate retention rate
@@ -1483,9 +1467,7 @@ class SubscriptionForecasting:
                 period_date = current_date + timedelta(days=(i + 1) * 30)
 
             # Calculate forecasted churn rate
-            forecasted_churn_rate = churn_rate * (1 + churn_change_rate_decimal) ** (
-                i + 1
-            )
+            forecasted_churn_rate = churn_rate * (1 + churn_change_rate_decimal) ** (i + 1)
 
             # Add to forecast
             forecast.append(
@@ -1520,9 +1502,7 @@ class SubscriptionForecasting:
         # Set default scenarios if not provided
         if scenarios is None:
             # Get current growth and churn rates
-            current_growth_rate = self.metrics.get_subscription_growth_rate(
-                "month", plan_id
-            )
+            current_growth_rate = self.metrics.get_subscription_growth_rate("month", plan_id)
             current_churn_rate = self.churn_analysis.get_churn_rate("month", plan_id)
 
             scenarios = [
@@ -1581,9 +1561,7 @@ class SubscriptionForecasting:
         # Set default scenarios if not provided
         if scenarios is None:
             # Get current growth and churn rates
-            current_growth_rate = self.metrics.get_subscription_growth_rate(
-                "month", plan_id
-            )
+            current_growth_rate = self.metrics.get_subscription_growth_rate("month", plan_id)
             current_churn_rate = self.churn_analysis.get_churn_rate("month", plan_id)
 
             scenarios = [
@@ -1703,9 +1681,7 @@ class SubscriptionForecasting:
             Dictionary with forecasted metrics
         """
         # Get current metrics
-        current_subscriptions = self.metrics.get_active_subscription_count(
-            plan_id=plan_id
-        )
+        current_subscriptions = self.metrics.get_active_subscription_count(plan_id=plan_id)
         current_mrr = self.metrics.get_monthly_recurring_revenue(plan_id=plan_id)
         current_arpu = self.metrics.get_average_revenue_per_user(plan_id=plan_id)
         current_churn_rate = self.churn_analysis.get_churn_rate("month", plan_id)
@@ -1877,9 +1853,7 @@ if __name__ == "__main__":
 
     print("\nRevenue forecast:")
     for period in revenue_forecast:
-        print(
-            f"Period {period['period']} ({period['date'][:10]}): ${period['revenue']:.2f}"
-        )
+        print(f"Period {period['period']} ({period['date'][:10]}): ${period['revenue']:.2f}")
 
     # Forecast scenarios
     scenarios = forecasting.forecast_revenue_scenarios(periods=12)
@@ -1887,6 +1861,4 @@ if __name__ == "__main__":
     print("\nRevenue scenarios:")
     for scenario_name, forecast in scenarios.items():
         print(f"- {scenario_name}:")
-        print(
-            f"  Period 12 ({forecast[11]['date'][:10]}): ${forecast[11]['revenue']:.2f}"
-        )
+        print(f"  Period 12 ({forecast[11]['date'][:10]}): ${forecast[11]['revenue']:.2f}")

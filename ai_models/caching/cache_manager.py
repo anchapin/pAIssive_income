@@ -5,12 +5,11 @@ This module provides the main cache manager for the model cache system.
 """
 
 import logging
-import os
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Union
 
 from .cache_backends import CacheBackend, DiskCache, MemoryCache, SQLiteCache
 from .cache_config import CacheConfig
-from .cache_key import CacheKey, generate_cache_key
+from .cache_key import generate_cache_key
 
 # Try to import Redis cache if available
 try:
@@ -240,7 +239,5 @@ class CacheManager:
             return RedisCache(**backend_config)
 
         else:
-            logger.warning(
-                f"Unknown cache backend: {backend_name}. Falling back to memory cache."
-            )
+            logger.warning(f"Unknown cache backend: {backend_name}. Falling back to memory cache.")
             return MemoryCache(**self.config.get_backend_config("memory"))

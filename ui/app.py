@@ -6,9 +6,7 @@ This file is the entry point for running the web interface.
 
 import logging
 import os
-from datetime import datetime
 
-from flask import Flask
 
 # Set up logging
 logging.basicConfig(
@@ -30,6 +28,6 @@ if __name__ == "__main__":
     debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
     host = "127.0.0.1" if debug_mode else "0.0.0.0"
     port = int(os.environ.get("FLASK_PORT", "5000"))
-    
+
     # Run the application with appropriate settings based on environment
     app.run(debug=debug_mode, host=host, port=port)

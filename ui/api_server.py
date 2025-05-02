@@ -1,10 +1,10 @@
-import json
 import logging
 import os
 import sys
 
-from flask import Flask, g, jsonify, request, send_from_directory
 from flask_cors import CORS
+
+from flask import Flask, g, jsonify, request, send_from_directory
 
 # Configure logging
 logging.basicConfig(
@@ -21,28 +21,19 @@ from common_utils.validation import (
     validate_email,
     validate_integer,
     validate_list,
-    validate_number,
     validate_request,
     validate_string,
 )
-from marketing.content_generators import ContentGenerators
-from marketing.strategy_generator import StrategyGenerator
-from monetization.subscription_models import SubscriptionModels
-from niche_analysis.market_analyzer import MarketAnalyzer
-from niche_analysis.opportunity_scorer import OpportunityScorer
-from niche_analysis.problem_identifier import ProblemIdentifier
-from users.auth import create_session_for_user, verify_auth_token
+from users.auth import create_session_for_user
 from users.middleware import audit_log, authenticate, require_permission
 
 # Import project modules
 from users.models import UserCreate, UserUpdate
 from users.password_reset import generate_password_reset_token, reset_password
-from users.permissions import PERMISSION_LEVELS
 from users.rate_limiting import rate_limit_login, record_login_attempt
 from users.services import (
     authenticate_user,
     create_user,
-    get_user_by_email,
     get_user_by_id,
     list_users,
     update_user,
@@ -107,9 +98,7 @@ PROFILE_UPDATE_SCHEMA = {
     "name": {"validator": lambda v: validate_string(v, min_length=1, max_length=100)},
 }
 
-PASSWORD_RESET_REQUEST_SCHEMA = {
-    "email": {"required": True, "validator": validate_email}
-}
+PASSWORD_RESET_REQUEST_SCHEMA = {"email": {"required": True, "validator": validate_email}}
 
 PASSWORD_RESET_SCHEMA = {
     "token": {
@@ -393,9 +382,7 @@ def change_password():
 
         if not updated_user:
             return (
-                jsonify(
-                    {"error": "Server Error", "message": "Failed to update password"}
-                ),
+                jsonify({"error": "Server Error", "message": "Failed to update password"}),
                 500,
             )
 
@@ -404,9 +391,7 @@ def change_password():
 
         return (
             jsonify(
-                {
-                    "message": "Password changed successfully. Please log in with your new password."
-                }
+                {"message": "Password changed successfully. Please log in with your new password."}
             ),
             200,
         )
@@ -453,9 +438,7 @@ def get_user_sessions_endpoint():
     except Exception as e:
         logger.error(f"Get user sessions error: {str(e)}")
         return (
-            jsonify(
-                {"error": "Server Error", "message": "Failed to retrieve sessions"}
-            ),
+            jsonify({"error": "Server Error", "message": "Failed to retrieve sessions"}),
             500,
         )
 
@@ -485,17 +468,13 @@ def terminate_session_endpoint(session_id):
             return jsonify({"message": "Session terminated successfully"}), 200
         else:
             return (
-                jsonify(
-                    {"error": "Server Error", "message": "Failed to terminate session"}
-                ),
+                jsonify({"error": "Server Error", "message": "Failed to terminate session"}),
                 500,
             )
     except Exception as e:
         logger.error(f"Terminate session error: {str(e)}")
         return (
-            jsonify(
-                {"error": "Server Error", "message": "Failed to terminate session"}
-            ),
+            jsonify({"error": "Server Error", "message": "Failed to terminate session"}),
             500,
         )
 
@@ -523,17 +502,13 @@ def terminate_all_sessions_endpoint():
         count = terminate_all_user_sessions(g.user_id, current_session_id)
 
         return (
-            jsonify(
-                {"message": f"Successfully terminated {count} sessions", "count": count}
-            ),
+            jsonify({"message": f"Successfully terminated {count} sessions", "count": count}),
             200,
         )
     except Exception as e:
         logger.error(f"Terminate all sessions error: {str(e)}")
         return (
-            jsonify(
-                {"error": "Server Error", "message": "Failed to terminate sessions"}
-            ),
+            jsonify({"error": "Server Error", "message": "Failed to terminate sessions"}),
             500,
         )
 
@@ -645,9 +620,7 @@ def analyze_niches():
         return jsonify({"analysisId": analysis_id, "message": "Analysis started"}), 202
     except Exception as e:
         return (
-            jsonify(
-                {"error": "Processing Error", "message": f"Analysis failed: {str(e)}"}
-            ),
+            jsonify({"error": "Processing Error", "message": f"Analysis failed: {str(e)}"}),
             500,
         )
 
@@ -876,9 +849,7 @@ def get_solution_details(solution_id):
         return jsonify(solution), 200
     except ValueError:
         return (
-            jsonify(
-                {"error": "Validation Error", "message": "Invalid solution ID format"}
-            ),
+            jsonify({"error": "Validation Error", "message": "Invalid solution ID format"}),
             400,
         )
 
@@ -1031,9 +1002,7 @@ def get_strategy_details(strategy_id):
         return jsonify(strategy), 200
     except ValueError:
         return (
-            jsonify(
-                {"error": "Validation Error", "message": "Invalid strategy ID format"}
-            ),
+            jsonify({"error": "Validation Error", "message": "Invalid strategy ID format"}),
             400,
         )
 
@@ -1224,9 +1193,7 @@ def get_campaign_details(campaign_id):
         return jsonify(campaign), 200
     except ValueError:
         return (
-            jsonify(
-                {"error": "Validation Error", "message": "Invalid campaign ID format"}
-            ),
+            jsonify({"error": "Validation Error", "message": "Invalid campaign ID format"}),
             400,
         )
 
@@ -1341,5 +1308,5 @@ if __name__ == "__main__":
     debug_mode = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
     host = "127.0.0.1" if debug_mode else "0.0.0.0"
     port = int(os.environ.get("FLASK_PORT", "5000"))
-    
+
     app.run(host=host, port=port, debug=debug_mode)

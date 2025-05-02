@@ -20,9 +20,7 @@ import os
 import threading
 import time
 from abc import ABC, abstractmethod
-from datetime import datetime
-from functools import lru_cache
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 # Set up logging
 logging.basicConfig(
@@ -33,14 +31,11 @@ logger = logging.getLogger(__name__)
 # Try to import optional dependencies
 try:
     import torch
-    import transformers
-    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+    from transformers import AutoTokenizer, pipeline
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning(
-        "Transformers or PyTorch not available. Some functionality will be limited."
-    )
+    logger.warning("Transformers or PyTorch not available. Some functionality will be limited.")
     TRANSFORMERS_AVAILABLE = False
 
 try:
@@ -48,9 +43,7 @@ try:
 
     SENTENCE_TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning(
-        "Sentence Transformers not available. Embedding functionality will be limited."
-    )
+    logger.warning("Sentence Transformers not available. Embedding functionality will be limited.")
     SENTENCE_TRANSFORMERS_AVAILABLE = False
 
 try:
@@ -58,13 +51,11 @@ try:
 
     LLAMA_CPP_AVAILABLE = True
 except ImportError:
-    logger.warning(
-        "llama-cpp-python not available. Llama model support will be limited."
-    )
+    logger.warning("llama-cpp-python not available. Llama model support will be limited.")
     LLAMA_CPP_AVAILABLE = False
 
 try:
-    import onnxruntime as ort
+    pass
 
     ONNX_AVAILABLE = True
 except ImportError:
@@ -93,9 +84,7 @@ class ModelCache:
     - Automatic cleanup of invalid or expired cache entries
     """
 
-    def __init__(
-        self, cache_dir: str = ".cache", max_size: int = 1000, ttl: int = 86400
-    ):
+    def __init__(self, cache_dir: str = ".cache", max_size: int = 1000, ttl: int = 86400):
         """
         Initialize the model cache.
 
@@ -116,9 +105,7 @@ class ModelCache:
         os.makedirs(cache_dir, exist_ok=True)
         logger.info(f"Initialized model cache in {cache_dir}")
 
-    def _get_cache_key(
-        self, model_name: str, input_text: str, params: Dict[str, Any]
-    ) -> str:
+    def _get_cache_key(self, model_name: str, input_text: str, params: Dict[str, Any]) -> str:
         """
         Generate a cache key from the model name, input text, and parameters.
 
@@ -166,9 +153,7 @@ class ModelCache:
         """
         return os.path.join(self.cache_dir, f"{key}.json")
 
-    def get(
-        self, model_name: str, input_text: str, params: Dict[str, Any]
-    ) -> Optional[Any]:
+    def get(self, model_name: str, input_text: str, params: Dict[str, Any]) -> Optional[Any]:
         """
         Get a cached response if available.
 
@@ -242,9 +227,7 @@ class ModelCache:
         logger.debug(f"Cache miss: {key}")
         return None
 
-    def set(
-        self, model_name: str, input_text: str, params: Dict[str, Any], response: Any
-    ) -> None:
+    def set(self, model_name: str, input_text: str, params: Dict[str, Any], response: Any) -> None:
         """
         Cache a model response.
 
@@ -388,7 +371,6 @@ class BaseLocalAIModel(ABC):
         """
         Load the AI model.
         """
-        pass
 
     @abstractmethod
     def generate_text(self, prompt: str, **kwargs) -> str:
@@ -402,11 +384,8 @@ class BaseLocalAIModel(ABC):
         Returns:
             Generated text
         """
-        pass
 
-    def _get_cached_response(
-        self, prompt: str, params: Dict[str, Any]
-    ) -> Optional[str]:
+    def _get_cached_response(self, prompt: str, params: Dict[str, Any]) -> Optional[str]:
         """
         Get a cached response if available.
 
@@ -421,9 +400,7 @@ class BaseLocalAIModel(ABC):
             return self.cache.get(self.model_name, prompt, params)
         return None
 
-    def _cache_response(
-        self, prompt: str, params: Dict[str, Any], response: str
-    ) -> None:
+    def _cache_response(self, prompt: str, params: Dict[str, Any], response: str) -> None:
         """
         Cache a model response.
 
@@ -805,9 +782,7 @@ class EmbeddingModel(BaseLocalAIModel):
             # Convert to list for JSON serialization
             if isinstance(embeddings, torch.Tensor):
                 embeddings = embeddings.tolist()
-            elif isinstance(embeddings, list) and isinstance(
-                embeddings[0], torch.Tensor
-            ):
+            elif isinstance(embeddings, list) and isinstance(embeddings[0], torch.Tensor):
                 embeddings = [emb.tolist() for emb in embeddings]
             elif (
                 isinstance(embeddings, list)

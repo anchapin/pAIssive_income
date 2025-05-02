@@ -3,11 +3,8 @@ Main script for the pAIssive Income project.
 Demonstrates how to use the framework to identify niches and develop AI tools.
 """
 
-import json
-import os
 
 from agent_team import AgentTeam
-from niche_analysis import MarketAnalyzer, OpportunityScorer, ProblemIdentifier
 
 
 def main():
@@ -28,9 +25,7 @@ def main():
         "education",
         "real estate",
     ]
-    print(
-        f"\nAnalyzing {len(market_segments)} market segments: {', '.join(market_segments)}"
-    )
+    print(f"\nAnalyzing {len(market_segments)} market segments: {', '.join(market_segments)}")
 
     # Run niche analysis
     niches = team.run_niche_analysis(market_segments)
@@ -60,14 +55,12 @@ def main():
 
     # Create a monetization strategy
     monetization = team.create_monetization_strategy()
-    print(f"\nMonetization Strategy:")
-    print(f"Subscription Tiers:")
+    print("\nMonetization Strategy:")
+    print("Subscription Tiers:")
     for tier in monetization["subscription_tiers"]:
-        print(
-            f"- {tier['name']}: ${tier['price_monthly']}/month or ${tier['price_yearly']}/year"
-        )
+        print(f"- {tier['name']}: ${tier['price_monthly']}/month or ${tier['price_yearly']}/year")
 
-    print(f"\nRevenue Projections:")
+    print("\nRevenue Projections:")
     for year, projection in monetization["revenue_projections"].items():
         print(
             f"- {year.replace('_', ' ').title()}: {projection['users']} users, ${projection['revenue']} revenue"
@@ -75,12 +68,12 @@ def main():
 
     # Create a marketing plan
     marketing = team.create_marketing_plan()
-    print(f"\nMarketing Plan:")
-    print(f"Target Personas:")
+    print("\nMarketing Plan:")
+    print("Target Personas:")
     for persona in marketing["user_personas"]:
         print(f"- {persona['name']}: {persona['description']}")
 
-    print(f"\nMarketing Channels:")
+    print("\nMarketing Channels:")
     for channel in marketing["marketing_channels"]:
         print(f"- {channel['name']}: {channel['description']}")
 

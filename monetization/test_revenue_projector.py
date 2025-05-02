@@ -42,15 +42,11 @@ def test_revenue_projector():
     )
 
     # Add tiers
-    basic_tier = model.add_tier(
-        name="Basic", description="Basic tier", price_monthly=9.99
-    )
+    basic_tier = model.add_tier(name="Basic", description="Basic tier", price_monthly=9.99)
 
     pro_tier = model.add_tier(name="Pro", description="Pro tier", price_monthly=19.99)
 
-    premium_tier = model.add_tier(
-        name="Premium", description="Premium tier", price_monthly=49.99
-    )
+    premium_tier = model.add_tier(name="Premium", description="Premium tier", price_monthly=49.99)
 
     # Define prices
     prices = {basic_tier["id"]: 9.99, pro_tier["id"]: 19.99, premium_tier["id"]: 49.99}
@@ -77,9 +73,7 @@ def test_revenue_projector():
     assert (
         ltv["average_revenue_per_user"] == average_revenue
     ), f"Expected average revenue {average_revenue}, got {ltv['average_revenue_per_user']}"
-    assert (
-        ltv["churn_rate"] == 0.05
-    ), f"Expected churn rate 0.05, got {ltv['churn_rate']}"
+    assert ltv["churn_rate"] == 0.05, f"Expected churn rate 0.05, got {ltv['churn_rate']}"
     assert (
         ltv["average_lifetime_months"] == 20.0
     ), f"Expected average lifetime 20.0 months, got {ltv['average_lifetime_months']}"
@@ -106,9 +100,7 @@ def test_revenue_projector():
     ), f"Expected 'Test Revenue Projector', got '{projector_dict['name']}'"
 
     projector_json = projector.to_json()
-    assert isinstance(
-        projector_json, str
-    ), f"Expected string, got {type(projector_json)}"
+    assert isinstance(projector_json, str), f"Expected string, got {type(projector_json)}"
 
     # Test save_to_file and load_from_file
     test_file = "test_projector.json"

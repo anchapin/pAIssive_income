@@ -10,7 +10,6 @@ from pydantic import BaseModel, Field, validator
 class BaseSchema(BaseModel):
     """Base schema for all agent team schemas."""
 
-    pass
 
 
 class AgentProfileSchema(BaseModel):
@@ -79,9 +78,7 @@ class FeatureSchema(BaseModel):
 
     name: str = Field(..., description="Name of the feature")
     description: str = Field(..., description="Description of the feature")
-    priority: str = Field(
-        ..., description="Priority of the feature (high, medium, low)"
-    )
+    priority: str = Field(..., description="Priority of the feature (high, medium, low)")
     complexity: Optional[str] = Field(None, description="Complexity of the feature")
 
     @validator("priority")
@@ -129,9 +126,7 @@ class PricingTierSchema(BaseModel):
     def validate_billing_period(cls, v):
         """Validate that billing period is one of the allowed values."""
         if v.lower() not in ["monthly", "quarterly", "yearly", "one-time"]:
-            raise ValueError(
-                "Billing period must be one of: monthly, quarterly, yearly, one-time"
-            )
+            raise ValueError("Billing period must be one of: monthly, quarterly, yearly, one-time")
         return v.lower()
 
 
@@ -150,12 +145,8 @@ class MarketingChannelSchema(BaseModel):
 
     name: str = Field(..., description="Name of the marketing channel")
     description: str = Field(..., description="Description of the channel")
-    target_audience: List[str] = Field(
-        ..., description="Target audience for this channel"
-    )
-    content_types: List[str] = Field(
-        ..., description="Types of content for this channel"
-    )
+    target_audience: List[str] = Field(..., description="Target audience for this channel")
+    content_types: List[str] = Field(..., description="Types of content for this channel")
     expected_roi: Optional[float] = Field(None, description="Expected ROI")
     type: str
     content_strategy: Dict[str, Any]

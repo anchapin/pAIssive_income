@@ -5,7 +5,7 @@ This module provides a factory class for creating and managing payment processor
 """
 
 import importlib
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type
 
 from .mock_payment_processor import MockPaymentProcessor
 from .payment_processor import PaymentProcessor

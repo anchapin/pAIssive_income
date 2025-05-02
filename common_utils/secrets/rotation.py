@@ -9,15 +9,11 @@ import datetime
 import json
 import logging
 import os
-import time
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from .secrets_manager import (
     SecretsBackend,
-    delete_secret,
     get_secret,
-    list_secret_names,
     set_secret,
 )
 
@@ -25,9 +21,7 @@ from .secrets_manager import (
 logger = logging.getLogger(__name__)
 
 # Default path for rotation metadata
-DEFAULT_ROTATION_METADATA_FILE = os.path.expanduser(
-    "~/.paissive/rotation_metadata.json"
-)
+DEFAULT_ROTATION_METADATA_FILE = os.path.expanduser("~/.paissive/rotation_metadata.json")
 
 
 class RotationPolicy:
@@ -63,9 +57,7 @@ class SecretRotationManager:
     rotation history, and facilitates the rotation process.
     """
 
-    def __init__(
-        self, metadata_file: Optional[str] = None, backend: str = SecretsBackend.ENV_VAR
-    ):
+    def __init__(self, metadata_file: Optional[str] = None, backend: str = SecretsBackend.ENV_VAR):
         """
         Initialize the rotation manager.
 
@@ -200,16 +192,13 @@ class SecretRotationManager:
                     }
                 )
             # Check if warning should be issued
-            elif days_since_rotation >= (
-                policy["interval_days"] - policy["warning_days"]
-            ):
+            elif days_since_rotation >= (policy["interval_days"] - policy["warning_days"]):
                 result.append(
                     {
                         "name": secret_name,
                         "policy": policy_name,
                         "last_rotated": metadata["last_rotated"],
-                        "days_until_rotation": policy["interval_days"]
-                        - days_since_rotation,
+                        "days_until_rotation": policy["interval_days"] - days_since_rotation,
                         "warning": True,
                     }
                 )
@@ -235,9 +224,7 @@ class SecretRotationManager:
         """
         # Check if secret exists in our metadata
         if secret_name not in self.metadata["secrets"]:
-            logger.error(
-                f"Secret '{secret_name}' not registered for rotation management"
-            )
+            logger.error(f"Secret '{secret_name}' not registered for rotation management")
             return False
 
         metadata = self.metadata["secrets"][secret_name]
@@ -253,9 +240,7 @@ class SecretRotationManager:
         if new_value is None and policy_name in self.metadata["policies"]:
             policy = self.metadata["policies"][policy_name]
             # This would require custom rotation functions registered with the manager
-            logger.info(
-                f"No new value provided, manual rotation required for '{secret_name}'"
-            )
+            logger.info(f"No new value provided, manual rotation required for '{secret_name}'")
             return False
 
         if new_value is None:
@@ -274,9 +259,7 @@ class SecretRotationManager:
         if "rotation_history" not in metadata:
             metadata["rotation_history"] = []
 
-        metadata["rotation_history"].append(
-            {"timestamp": now, "reason": rotation_reason}
-        )
+        metadata["rotation_history"].append({"timestamp": now, "reason": rotation_reason})
 
         # Update last_rotated
         metadata["last_rotated"] = now
@@ -316,9 +299,7 @@ class SecretRotationManager:
                 "last_rotated": metadata["last_rotated"],
                 "days_since_rotation": days_since_rotation,
                 "interval_days": policy["interval_days"],
-                "days_until_rotation": max(
-                    0, policy["interval_days"] - days_since_rotation
-                ),
+                "days_until_rotation": max(0, policy["interval_days"] - days_since_rotation),
                 "needs_rotation": days_since_rotation >= policy["interval_days"],
                 "warning": days_since_rotation
                 >= (policy["interval_days"] - policy["warning_days"]),

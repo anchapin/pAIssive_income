@@ -7,7 +7,7 @@ and revenue projector together to create a complete monetization strategy.
 
 from pricing_calculator import PricingCalculator
 from revenue_projector import RevenueProjector
-from subscription_models import FreemiumModel, SubscriptionModel
+from subscription_models import FreemiumModel
 
 
 def run_demo():
@@ -92,9 +92,7 @@ def run_demo():
         price_monthly=19.99,
         target_users="Professional content creators and small channels",
     )
-    print(
-        f"- {pro_tier['name']}: ${pro_tier['price_monthly']}/month - {pro_tier['description']}"
-    )
+    print(f"- {pro_tier['name']}: ${pro_tier['price_monthly']}/month - {pro_tier['description']}")
 
     premium_tier = model.add_paid_tier(
         name="Premium",

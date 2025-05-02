@@ -8,7 +8,6 @@ blog posts, product descriptions, and case studies.
 from marketing.content_generators import (
     BlogPostGenerator,
     CaseStudyGenerator,
-    GeneratorConfig,
     ProductDescriptionGenerator,
 )
 from marketing.content_templates import (

@@ -9,11 +9,11 @@ import json
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Optional, Union
 
 import numpy as np
 
-from .base import Pruner, PruningConfig, PruningMethod
+from .base import PruningConfig, PruningMethod
 from .magnitude_pruner import MagnitudePruner
 from .structured_pruner import StructuredPruner
 
@@ -85,9 +85,7 @@ def prune_model(
 
     # Check if the pruner supports the model type
     if not pruner.supports_model_type(model_type):
-        raise ValueError(
-            f"Model type {model_type} is not supported by the {method.value} pruner"
-        )
+        raise ValueError(f"Model type {model_type} is not supported by the {method.value} pruner")
 
     # Prune the model
     return pruner.prune(model_path, output_path)
@@ -202,9 +200,7 @@ def analyze_pruning(
 
         # Generate text with pruned model and measure time
         start_time = time.time()
-        pruned_output = _generate_text(
-            pruned_model, pruned_tokenizer, prompt, max_tokens, **kwargs
-        )
+        pruned_output = _generate_text(pruned_model, pruned_tokenizer, prompt, max_tokens, **kwargs)
         pruned_time = time.time() - start_time
 
         pruned_times.append(pruned_time)
@@ -256,11 +252,9 @@ def analyze_pruning(
             "size_reduction": size_reduction,
             "size_reduction_percent": size_reduction * 100,  # More intuitive percentage
             "speed_improvement": speed_improvement,
-            "speed_improvement_percent": (speed_improvement - 1)
-            * 100,  # Percentage speedup
+            "speed_improvement_percent": (speed_improvement - 1) * 100,  # Percentage speedup
             "sparsity_increase": sparsity_increase,
-            "sparsity_increase_percent": sparsity_increase
-            * 100,  # Percentage point increase
+            "sparsity_increase_percent": sparsity_increase * 100,  # Percentage point increase
             "output_similarity": avg_similarity,
             "individual_similarities": similarities,  # For detailed analysis
         },

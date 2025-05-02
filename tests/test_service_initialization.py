@@ -108,9 +108,7 @@ def test_register_configuration_without_config(mock_model_config, mock_container
 
 @patch("service_initialization.ModelManager")
 @patch("service_initialization.get_adapter_factory")
-def test_register_ai_models(
-    mock_get_adapter_factory, mock_model_manager, mock_container
-):
+def test_register_ai_models(mock_get_adapter_factory, mock_model_manager, mock_container):
     """Test _register_ai_models function."""
     # Mock the ModelManager class
     mock_manager_instance = MagicMock()

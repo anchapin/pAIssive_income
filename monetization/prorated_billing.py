@@ -6,10 +6,8 @@ including upgrades, downgrades, and cancellations.
 """
 
 import calendar
-import copy
-import math
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict
 
 
 class ProratedBilling:
@@ -76,9 +74,7 @@ class ProratedBilling:
                 if current_date.month == 12:
                     current_date = datetime(current_date.year + 1, 1, 1)
                 else:
-                    current_date = datetime(
-                        current_date.year, current_date.month + 1, 1
-                    )
+                    current_date = datetime(current_date.year, current_date.month + 1, 1)
 
             return days
         elif period == "yearly":
@@ -109,9 +105,7 @@ class ProratedBilling:
         elif period == "monthly":
             # Move to the same day in the next month
             if period_start_date.month == 12:
-                next_month = datetime(
-                    period_start_date.year + 1, 1, period_start_date.day
-                )
+                next_month = datetime(period_start_date.year + 1, 1, period_start_date.day)
             else:
                 # Handle cases where the next month doesn't have the same day
                 try:
@@ -151,9 +145,7 @@ class ProratedBilling:
                 # Use the last day of the target month
                 period_end_date = datetime(year, month, 1)
                 period_end_date = period_end_date.replace(
-                    day=calendar.monthrange(
-                        period_end_date.year, period_end_date.month
-                    )[1]
+                    day=calendar.monthrange(period_end_date.year, period_end_date.month)[1]
                 )
         elif period == "yearly":
             # Move to the same day in the next year
@@ -165,9 +157,7 @@ class ProratedBilling:
                 )
             except ValueError:
                 # Handle February 29 in leap years
-                period_end_date = datetime(
-                    period_start_date.year + 1, period_start_date.month, 28
-                )
+                period_end_date = datetime(period_start_date.year + 1, period_start_date.month, 28)
         else:
             raise ValueError(f"Invalid period: {period}")
 
@@ -179,9 +169,7 @@ class ProratedBilling:
         return days_remaining
 
     @staticmethod
-    def calculate_prorated_amount(
-        full_amount: float, days_used: int, days_in_period: int
-    ) -> float:
+    def calculate_prorated_amount(full_amount: float, days_used: int, days_in_period: int) -> float:
         """
         Calculate a prorated amount.
 
@@ -390,9 +378,7 @@ class ProratedBilling:
         """
         # STAGE 1: Calculate days in period and days remaining
         # Determine the total length of the billing period and current position within it
-        days_in_period = ProratedBilling.get_days_in_billing_period(
-            period_start_date, period
-        )
+        days_in_period = ProratedBilling.get_days_in_billing_period(period_start_date, period)
         days_remaining = ProratedBilling.get_days_remaining_in_billing_period(
             current_date, period_start_date, period
         )
@@ -510,6 +496,4 @@ if __name__ == "__main__":
     print(f"Days remaining: {cancellation_result['days_remaining']}")
     print(f"Plan used: ${cancellation_result['old_plan_used']:.2f}")
     print(f"Plan remaining: ${cancellation_result['old_plan_remaining']:.2f}")
-    print(
-        f"Action: {cancellation_result['action']} ${cancellation_result['amount']:.2f}"
-    )
+    print(f"Action: {cancellation_result['action']} ${cancellation_result['amount']:.2f}")

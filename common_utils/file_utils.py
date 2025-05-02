@@ -8,7 +8,7 @@ import asyncio
 import logging
 import os
 import shutil
-from typing import Any, BinaryIO, List, Optional, TextIO, Union
+from typing import Any, List, Optional, Union
 
 # Import the run_in_thread utility for async operations
 from ai_models.async_utils import run_in_thread
@@ -20,9 +20,7 @@ logger = logging.getLogger(__name__)
 _file_lock = asyncio.Lock()
 
 
-def read_file(
-    file_path: str, binary: bool = False, encoding: str = "utf-8"
-) -> Union[str, bytes]:
+def read_file(file_path: str, binary: bool = False, encoding: str = "utf-8") -> Union[str, bytes]:
     """
     Read content from a file.
 
@@ -154,9 +152,7 @@ def get_directory_path(base_dir: str, *subdirs: str) -> str:
     return os.path.join(base_dir, *subdirs)
 
 
-def list_files(
-    directory: str, pattern: Optional[str] = None, recursive: bool = False
-) -> List[str]:
+def list_files(directory: str, pattern: Optional[str] = None, recursive: bool = False) -> List[str]:
     """
     List files in a directory.
 
@@ -185,9 +181,7 @@ def list_files(
         else:
             for filename in os.listdir(directory):
                 file_path = os.path.join(directory, filename)
-                if os.path.isfile(file_path) and (
-                    pattern is None or pattern in filename
-                ):
+                if os.path.isfile(file_path) and (pattern is None or pattern in filename):
                     files.append(file_path)
 
         return files
@@ -340,9 +334,7 @@ async def write_file_async(
     """
     try:
         async with _file_lock:
-            await run_in_thread(
-                write_file, file_path, content, binary, encoding, create_dirs
-            )
+            await run_in_thread(write_file, file_path, content, binary, encoding, create_dirs)
         logger.debug(f"Successfully wrote to file asynchronously: {file_path}")
     except Exception as e:
         logger.error(f"Error in write_file_async for {file_path}: {e}")
@@ -454,9 +446,7 @@ async def get_file_size_async(file_path: str) -> int:
     return await run_in_thread(get_file_size, file_path)
 
 
-async def copy_file_async(
-    src_path: str, dest_path: str, overwrite: bool = False
-) -> None:
+async def copy_file_async(src_path: str, dest_path: str, overwrite: bool = False) -> None:
     """
     Copy a file asynchronously.
 
@@ -476,17 +466,13 @@ async def copy_file_async(
         async with _file_lock:
             await run_in_thread(shutil.copy2, src_path, dest_path)
 
-        logger.debug(
-            f"Successfully copied file asynchronously: {src_path} -> {dest_path}"
-        )
+        logger.debug(f"Successfully copied file asynchronously: {src_path} -> {dest_path}")
     except Exception as e:
         logger.error(f"Error in copy_file_async: {e}")
         raise
 
 
-async def move_file_async(
-    src_path: str, dest_path: str, overwrite: bool = False
-) -> None:
+async def move_file_async(src_path: str, dest_path: str, overwrite: bool = False) -> None:
     """
     Move a file asynchronously.
 
@@ -506,9 +492,7 @@ async def move_file_async(
         async with _file_lock:
             await run_in_thread(shutil.move, src_path, dest_path)
 
-        logger.debug(
-            f"Successfully moved file asynchronously: {src_path} -> {dest_path}"
-        )
+        logger.debug(f"Successfully moved file asynchronously: {src_path} -> {dest_path}")
     except Exception as e:
         logger.error(f"Error in move_file_async: {e}")
         raise
@@ -641,18 +625,14 @@ async def write_files_batch_async(
     async def write_file_wrapper(file_path, content):
         async with semaphore:
             try:
-                await write_file_async(
-                    file_path, content, binary, encoding, create_dirs
-                )
+                await write_file_async(file_path, content, binary, encoding, create_dirs)
                 return {"file_path": file_path, "success": True, "error": None}
             except Exception as e:
                 logger.error(f"Error writing to file {file_path}: {e}")
                 return {"file_path": file_path, "success": False, "error": str(e)}
 
     # Create tasks for all files
-    tasks = [
-        write_file_wrapper(file_path, content) for file_path, content in file_contents
-    ]
+    tasks = [write_file_wrapper(file_path, content) for file_path, content in file_contents]
 
     # Wait for all tasks to complete
     results = await asyncio.gather(*tasks)
@@ -699,9 +679,7 @@ async def find_files_with_content_async(
     size_check_tasks = [check_file_size_and_filter(file) for file in all_files]
     size_check_results = await asyncio.gather(*size_check_tasks)
 
-    files_to_search = [
-        file for file, include in zip(all_files, size_check_results) if include
-    ]
+    files_to_search = [file for file, include in zip(all_files, size_check_results) if include]
 
     # Define a function to search a file for content
     async def search_file_for_content(file_path):
@@ -718,9 +696,7 @@ async def find_files_with_content_async(
 
     # Return only files that contain the content
     matching_files = [
-        result["file_path"]
-        for result in search_results
-        if result["success"] and result["result"]
+        result["file_path"] for result in search_results if result["success"] and result["result"]
     ]
 
     return matching_files

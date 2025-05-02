@@ -2,14 +2,12 @@
 
 import logging
 import os
-from pathlib import Path
-from typing import Any, Dict, Optional, Type
 
-from agent_team import AgentTeam, IAgentTeam
+from agent_team import AgentTeam
 from agent_team.team_config import TeamConfig
-from ai_models.model_config import IModelConfig, ModelConfig
+from ai_models.model_config import ModelConfig
 from ai_models.model_manager import ModelManager
-from dependency_container import DependencyContainer, register_service
+from dependency_container import register_service
 from marketing.service import MarketingService
 from monetization.service import MonetizationService
 from niche_analysis.service import NicheAnalysisService

@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from agent_team import AgentTeam
-from ai_models import AgentModelProvider, ModelConfig, ModelManager, PerformanceMonitor
+from ai_models import AgentModelProvider, ModelManager, PerformanceMonitor
 
 
 @pytest.fixture
@@ -158,9 +158,7 @@ def test_multiple_agents_model_integration(
         },
     }
 
-    mock_model_manager.get_model_info.side_effect = lambda model_id: models.get(
-        model_id, None
-    )
+    mock_model_manager.get_model_info.side_effect = lambda model_id: models.get(model_id, None)
     mock_model_manager.load_model.side_effect = lambda model_id: MagicMock(
         name=models.get(model_id, {}).get("name", "Unknown Model")
     )
@@ -174,17 +172,13 @@ def test_multiple_agents_model_integration(
     # Assign models to each agent type for different capabilities
     provider.assign_model_to_agent("researcher", "research_model", "text-generation")
     provider.assign_model_to_agent("developer", "dev_model", "code-generation")
-    provider.assign_model_to_agent(
-        "monetization", "monetization_model", "financial-analysis"
-    )
+    provider.assign_model_to_agent("monetization", "monetization_model", "financial-analysis")
     provider.assign_model_to_agent("marketing", "marketing_model", "content-generation")
 
     # Get models for each agent
     research_model = provider.get_model_for_agent("researcher", "text-generation")
     dev_model = provider.get_model_for_agent("developer", "code-generation")
-    monetization_model = provider.get_model_for_agent(
-        "monetization", "financial-analysis"
-    )
+    monetization_model = provider.get_model_for_agent("monetization", "financial-analysis")
     marketing_model = provider.get_model_for_agent("marketing", "content-generation")
 
     # Check that appropriate models were returned
@@ -227,9 +221,7 @@ def test_model_fallback_integration(mock_load_model, mock_model_manager):
     provider.configure_fallback("primary_model", "fallback_model")
 
     # Attempt to get the model, which should trigger the fallback
-    model = provider.get_model_with_fallback(
-        "researcher", "primary_model", "text-generation"
-    )
+    model = provider.get_model_with_fallback("researcher", "primary_model", "text-generation")
 
     # Check that both primary and fallback models were attempted
     assert mock_load_model.call_count == 2
@@ -241,9 +233,7 @@ def test_model_fallback_integration(mock_load_model, mock_model_manager):
 
 
 @patch("ai_models.performance_monitor.PerformanceMonitor")
-def test_model_performance_tracking_integration(
-    mock_performance_monitor_class, mock_model_manager
-):
+def test_model_performance_tracking_integration(mock_performance_monitor_class, mock_model_manager):
     """Test integration with performance tracking."""
     # Create a mock performance monitor
     mock_performance_monitor = MagicMock(spec=PerformanceMonitor)
@@ -255,9 +245,7 @@ def test_model_performance_tracking_integration(
     mock_model_manager.load_model.return_value = model
 
     # Create a model provider with performance monitoring
-    provider = AgentModelProvider(
-        mock_model_manager, performance_monitor=mock_performance_monitor
-    )
+    provider = AgentModelProvider(mock_model_manager, performance_monitor=mock_performance_monitor)
 
     # Assign a model to an agent
     provider.assign_model_to_agent("researcher", "model1", "text-generation")
@@ -279,9 +267,7 @@ def test_model_performance_tracking_integration(
 
 
 @patch("agent_team.team_config.ResearchAgent")
-def test_agent_model_error_handling_integration(
-    mock_researcher_class, mock_model_manager
-):
+def test_agent_model_error_handling_integration(mock_researcher_class, mock_model_manager):
     """Test integration with model error handling in agents."""
     # Mock the ResearchAgent
     mock_researcher = MagicMock()

@@ -120,9 +120,7 @@ def test_developer_agent_init(mock_team):
 def test_developer_agent_design_solution(mock_team):
     """Test DeveloperAgent design_solution method."""
     # Patch the _create_solution_design method to avoid KeyError
-    with patch.object(
-        DeveloperAgent, "_create_solution_design"
-    ) as mock_create_solution:
+    with patch.object(DeveloperAgent, "_create_solution_design") as mock_create_solution:
         # Set up the mock to return a solution
         mock_solution = {
             "id": "solution1",
@@ -204,10 +202,7 @@ def test_monetization_agent_init(mock_team):
     # Check that the agent has the expected attributes
     assert agent.team == mock_team
     assert agent.name == "Monetization Agent"
-    assert (
-        "subscription" in agent.description.lower()
-        or "pricing" in agent.description.lower()
-    )
+    assert "subscription" in agent.description.lower() or "pricing" in agent.description.lower()
     assert agent.model_settings == mock_team.config["model_settings"]["monetization"]
 
 

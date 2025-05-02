@@ -5,15 +5,13 @@ This module provides functions for checking the health of the application.
 """
 
 import logging
-import os
 import platform
 import socket
-import subprocess
 import sys
 import threading
 import time
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 # Configure logger
 logger = logging.getLogger(__name__)

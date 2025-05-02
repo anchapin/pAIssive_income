@@ -4,7 +4,6 @@ Tests for the OllamaAdapter class.
 
 from unittest.mock import MagicMock, patch
 
-import pytest
 
 from ai_models.adapters import OllamaAdapter
 from interfaces.model_interfaces import IModelAdapter
@@ -41,9 +40,7 @@ def test_ollama_adapter_connect(mock_session):
         # Verify the result
         assert result is True
         assert adapter._connected is True
-        mock_session_instance.get.assert_called_once_with(
-            "http://localhost:11434", timeout=5
-        )
+        mock_session_instance.get.assert_called_once_with("http://localhost:11434", timeout=5)
 
 
 @patch("ai_models.adapters.ollama_adapter.requests.Session")
@@ -112,6 +109,4 @@ def test_ollama_adapter_get_models(mock_session):
         assert models[1]["name"] == "mistral"
         assert models[1]["type"] == "llm"
         assert models[1]["adapter"] == "ollama"
-        mock_session_instance.get.assert_called_with(
-            "http://localhost:11434/api/tags", timeout=60
-        )
+        mock_session_instance.get.assert_called_with("http://localhost:11434/api/tags", timeout=60)

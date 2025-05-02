@@ -4,11 +4,10 @@ Pydantic schemas for the Marketing module.
 This module provides Pydantic models for data validation in the Marketing module.
 """
 
-from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 
 class BusinessType(str, Enum):
@@ -122,15 +121,9 @@ class DemographicsSchema(BaseModel):
     """Pydantic model for target audience demographics."""
 
     age_range: Optional[str] = Field(None, description="Age range (e.g., 18-24, 25-34)")
-    gender: Optional[str] = Field(
-        None, description="Gender (e.g., male, female, mixed)"
-    )
-    location: Optional[str] = Field(
-        None, description="Location (e.g., urban, rural, global)"
-    )
-    income: Optional[str] = Field(
-        None, description="Income level (e.g., low, middle, high)"
-    )
+    gender: Optional[str] = Field(None, description="Gender (e.g., male, female, mixed)")
+    location: Optional[str] = Field(None, description="Location (e.g., urban, rural, global)")
+    income: Optional[str] = Field(None, description="Income level (e.g., low, middle, high)")
     education: Optional[str] = Field(
         None, description="Education level (e.g., high school, college, graduate)"
     )
@@ -158,9 +151,7 @@ class TargetAudienceSchema(BaseModel):
 class ConfigSchema(BaseModel):
     """Pydantic model for marketing strategy configuration."""
 
-    max_channels: int = Field(
-        5, description="Maximum number of channels to recommend", ge=1, le=10
-    )
+    max_channels: int = Field(5, description="Maximum number of channels to recommend", ge=1, le=10)
     min_channel_score: float = Field(
         0.6, description="Minimum score for recommended channels", ge=0.0, le=1.0
     )
@@ -189,9 +180,7 @@ class MarketingTacticSchema(BaseModel):
     name: str = Field(..., description="Name of the tactic")
     channel: str = Field(..., description="Marketing channel")
     description: str = Field(..., description="Description of the tactic")
-    priority: PriorityLevel = Field(
-        ..., description="Priority level (high, medium, low)"
-    )
+    priority: PriorityLevel = Field(..., description="Priority level (high, medium, low)")
     difficulty: DifficultyLevel = Field(
         DifficultyLevel.MEDIUM, description="Difficulty level (high, medium, low)"
     )
@@ -215,18 +204,12 @@ class MetricSchema(BaseModel):
     name: str = Field(..., description="Name of the metric")
     description: str = Field(..., description="Description of the metric")
     category: str = Field(..., description="Metric category")
-    formula: Optional[str] = Field(
-        None, description="Formula for calculating the metric"
-    )
+    formula: Optional[str] = Field(None, description="Formula for calculating the metric")
     unit: Optional[str] = Field(None, description="Unit of measurement")
     target: Optional[Dict[str, Any]] = Field(None, description="Target value(s)")
-    benchmarks: Optional[Dict[str, Any]] = Field(
-        None, description="Industry benchmarks"
-    )
+    benchmarks: Optional[Dict[str, Any]] = Field(None, description="Industry benchmarks")
     tracking_frequency: str = Field(..., description="How often to track the metric")
-    data_source: Optional[str] = Field(
-        None, description="Source of data for the metric"
-    )
+    data_source: Optional[str] = Field(None, description="Source of data for the metric")
 
     class Config:
         """Configuration for the model."""
@@ -264,9 +247,7 @@ class ContentCalendarSchema(BaseModel):
     start_date: str = Field(..., description="Start date")
     end_date: str = Field(..., description="End date")
     channels: List[str] = Field(..., description="Marketing channels included")
-    content_items: List[Dict[str, Any]] = Field(
-        ..., description="Content items in the calendar"
-    )
+    content_items: List[Dict[str, Any]] = Field(..., description="Content items in the calendar")
 
     class Config:
         """Configuration for the model."""
@@ -290,9 +271,7 @@ class PersonaSchema(BaseModel):
     goals: List[str] = Field(..., description="Goals of the persona")
     challenges: List[str] = Field(..., description="Challenges faced by the persona")
     motivations: List[str] = Field(..., description="Motivations of the persona")
-    preferred_channels: List[str] = Field(
-        ..., description="Preferred communication channels"
-    )
+    preferred_channels: List[str] = Field(..., description="Preferred communication channels")
     decision_factors: List[str] = Field(..., description="Decision-making factors")
     bio: Optional[str] = Field(None, description="Brief biography of the persona")
 
@@ -310,26 +289,14 @@ class ChannelAnalysisSchema(BaseModel):
     effectiveness_score: float = Field(
         ..., description="Overall effectiveness score", ge=0.0, le=1.0
     )
-    audience_fit_score: float = Field(
-        ..., description="Audience fit score", ge=0.0, le=1.0
-    )
-    goal_alignment_score: float = Field(
-        ..., description="Goal alignment score", ge=0.0, le=1.0
-    )
+    audience_fit_score: float = Field(..., description="Audience fit score", ge=0.0, le=1.0)
+    goal_alignment_score: float = Field(..., description="Goal alignment score", ge=0.0, le=1.0)
     budget_fit_score: float = Field(..., description="Budget fit score", ge=0.0, le=1.0)
     roi_score: float = Field(..., description="ROI score", ge=0.0, le=1.0)
-    recommended_budget: Dict[str, Any] = Field(
-        ..., description="Recommended budget allocation"
-    )
-    recommendation_details: Dict[str, Any] = Field(
-        ..., description="Detailed recommendations"
-    )
-    implementation_timeline: Dict[str, Any] = Field(
-        ..., description="Implementation timeline"
-    )
-    metrics_to_track: List[str] = Field(
-        ..., description="Metrics to track for this channel"
-    )
+    recommended_budget: Dict[str, Any] = Field(..., description="Recommended budget allocation")
+    recommendation_details: Dict[str, Any] = Field(..., description="Detailed recommendations")
+    implementation_timeline: Dict[str, Any] = Field(..., description="Implementation timeline")
+    metrics_to_track: List[str] = Field(..., description="Metrics to track for this channel")
 
     class Config:
         """Configuration for the model."""
@@ -343,9 +310,7 @@ class MarketingPlanSchema(BaseModel):
     id: str = Field(..., description="Unique identifier for the marketing plan")
     name: str = Field(..., description="Name of the marketing plan")
     business_type: BusinessType = Field(..., description="Type of business")
-    business_size: BusinessSize = Field(
-        BusinessSize.SMALL, description="Size of business"
-    )
+    business_size: BusinessSize = Field(BusinessSize.SMALL, description="Size of business")
     goals: List[str] = Field(..., description="Marketing goals")
     target_audience: TargetAudienceSchema = Field(..., description="Target audience")
     budget: BudgetSchema = Field(..., description="Marketing budget")
@@ -353,13 +318,9 @@ class MarketingPlanSchema(BaseModel):
     channels: List[str] = Field(..., description="Selected marketing channels")
     tactics: List[Dict[str, Any]] = Field(..., description="Marketing tactics")
     metrics: List[Dict[str, Any]] = Field(..., description="Marketing metrics")
-    content_calendar: Optional[Dict[str, Any]] = Field(
-        None, description="Content calendar"
-    )
+    content_calendar: Optional[Dict[str, Any]] = Field(None, description="Content calendar")
     implementation_plan: Dict[str, Any] = Field(..., description="Implementation plan")
-    resource_requirements: Dict[str, Any] = Field(
-        ..., description="Resource requirements"
-    )
+    resource_requirements: Dict[str, Any] = Field(..., description="Resource requirements")
     expected_results: Dict[str, Any] = Field(..., description="Expected results")
     created_at: str = Field(..., description="Creation timestamp")
     updated_at: str = Field(..., description="Last update timestamp")
@@ -374,9 +335,7 @@ class MarketingStrategyInputSchema(BaseModel):
     """Pydantic model for marketing strategy input."""
 
     business_type: BusinessType = Field(..., description="Type of business")
-    business_size: BusinessSize = Field(
-        BusinessSize.SMALL, description="Size of business"
-    )
+    business_size: BusinessSize = Field(BusinessSize.SMALL, description="Size of business")
     goals: List[str] = Field(..., description="Marketing goals")
     target_audience: TargetAudienceSchema = Field(..., description="Target audience")
     budget: BudgetSchema = Field(..., description="Marketing budget")
@@ -397,18 +356,12 @@ class MarketingStrategyResultsSchema(BaseModel):
     goals: List[str] = Field(..., description="Marketing goals")
     tactics: List[Dict[str, Any]] = Field(..., description="Marketing tactics")
     metrics: List[Dict[str, Any]] = Field(..., description="Marketing metrics")
-    channels: List[Dict[str, Any]] = Field(
-        ..., description="Channel analysis and recommendations"
-    )
+    channels: List[Dict[str, Any]] = Field(..., description="Channel analysis and recommendations")
     audience_analysis: Optional[Dict[str, Any]] = Field(
         None, description="Target audience analysis"
     )
-    business_analysis: Optional[Dict[str, Any]] = Field(
-        None, description="Business analysis"
-    )
-    content_plan: Optional[Dict[str, Any]] = Field(
-        None, description="Content marketing plan"
-    )
+    business_analysis: Optional[Dict[str, Any]] = Field(None, description="Business analysis")
+    content_plan: Optional[Dict[str, Any]] = Field(None, description="Content marketing plan")
     created_at: str = Field(..., description="Creation timestamp")
 
     class Config:
@@ -421,15 +374,11 @@ class AudienceAnalysisSchema(BaseModel):
     """Pydantic model for audience analysis."""
 
     id: str = Field(..., description="Unique identifier for the analysis")
-    demographic_analysis: Dict[str, Any] = Field(
-        ..., description="Demographic analysis"
-    )
+    demographic_analysis: Dict[str, Any] = Field(..., description="Demographic analysis")
     interest_analysis: Dict[str, Any] = Field(..., description="Interest analysis")
     pain_point_analysis: Dict[str, Any] = Field(..., description="Pain point analysis")
     goal_analysis: Dict[str, Any] = Field(..., description="Goal analysis")
-    audience_segments: List[Dict[str, Any]] = Field(
-        ..., description="Audience segments"
-    )
+    audience_segments: List[Dict[str, Any]] = Field(..., description="Audience segments")
     audience_size_estimate: Optional[Dict[str, Any]] = Field(
         None, description="Audience size estimate"
     )
@@ -453,9 +402,7 @@ class BusinessAnalysisSchema(BaseModel):
     id: str = Field(..., description="Unique identifier for the analysis")
     business_type: Dict[str, Any] = Field(..., description="Business type information")
     goal_analysis: Dict[str, Any] = Field(..., description="Goal analysis")
-    competitive_analysis: Dict[str, Any] = Field(
-        ..., description="Competitive analysis"
-    )
+    competitive_analysis: Dict[str, Any] = Field(..., description="Competitive analysis")
     strengths: List[str] = Field(..., description="Business strengths")
     weaknesses: List[str] = Field(..., description="Business weaknesses")
     opportunities: List[str] = Field(..., description="Business opportunities")
@@ -477,18 +424,10 @@ class ContentGeneratorConfigSchema(BaseModel):
     tone_consistency: float = Field(
         0.8, description="Consistency of tone in generated content", ge=0.0, le=1.0
     )
-    max_length: int = Field(
-        2000, description="Maximum length of generated content", ge=1
-    )
-    min_length: int = Field(
-        500, description="Minimum length of generated content", ge=1
-    )
-    include_images: bool = Field(
-        True, description="Whether to include images in generated content"
-    )
-    include_links: bool = Field(
-        True, description="Whether to include links in generated content"
-    )
+    max_length: int = Field(2000, description="Maximum length of generated content", ge=1)
+    min_length: int = Field(500, description="Minimum length of generated content", ge=1)
+    include_images: bool = Field(True, description="Whether to include images in generated content")
+    include_links: bool = Field(True, description="Whether to include links in generated content")
     seo_optimization: bool = Field(
         True, description="Whether to optimize generated content for SEO"
     )
@@ -548,9 +487,7 @@ class ContentGeneratorConfigSchema(BaseModel):
     content_expertise: float = Field(
         0.8, description="Expertise level of generated content", ge=0.0, le=1.0
     )
-    timestamp: str = Field(
-        ..., description="Timestamp when the configuration was created/updated"
-    )
+    timestamp: str = Field(..., description="Timestamp when the configuration was created/updated")
 
     class Config:
         """Configuration for the model."""
@@ -564,9 +501,7 @@ class ContentTemplateSchema(BaseModel):
     id: str = Field(..., description="Unique identifier for the template")
     title: str = Field(..., description="Title of the template")
     description: str = Field(..., description="Description of the template")
-    target_persona: Dict[str, Any] = Field(
-        ..., description="Target persona information"
-    )
+    target_persona: Dict[str, Any] = Field(..., description="Target persona information")
     created_at: str = Field(..., description="Creation timestamp")
     updated_at: Optional[str] = Field(None, description="Last update timestamp")
 
@@ -585,9 +520,7 @@ class BlogPostTemplateSchema(ContentTemplateSchema):
     estimated_reading_time: Optional[int] = Field(
         None, description="Estimated reading time in minutes", ge=1
     )
-    target_word_count: Optional[int] = Field(
-        None, description="Target word count", ge=200
-    )
+    target_word_count: Optional[int] = Field(None, description="Target word count", ge=200)
     topics: List[str] = Field(..., description="Topics covered")
     target_reading_level: ReadingLevel = Field(
         ReadingLevel.INTERMEDIATE, description="Target reading level"
@@ -614,13 +547,9 @@ class EmailContentSchema(BaseModel):
     sender_name: str = Field(..., description="Name of the sender")
     sender_email: str = Field(..., description="Email address of the sender")
     reply_to: Optional[str] = Field(None, description="Reply-to email address")
-    include_unsubscribe: bool = Field(
-        True, description="Whether to include unsubscribe link"
-    )
+    include_unsubscribe: bool = Field(True, description="Whether to include unsubscribe link")
     footer_text: Optional[str] = Field(None, description="Text for the email footer")
-    template_id: Optional[str] = Field(
-        None, description="ID of the email template to use"
-    )
+    template_id: Optional[str] = Field(None, description="ID of the email template to use")
 
     class Config:
         """Configuration for the model."""
@@ -631,16 +560,12 @@ class EmailContentSchema(BaseModel):
 class SocialMediaPostSchema(BaseModel):
     """Pydantic model for social media post content."""
 
-    platform: str = Field(
-        ..., description="Social media platform (e.g., Twitter, LinkedIn)"
-    )
+    platform: str = Field(..., description="Social media platform (e.g., Twitter, LinkedIn)")
     post_text: str = Field(..., description="Text content of the post")
     hashtags: List[str] = Field(default_factory=list, description="Hashtags to include")
     include_media: bool = Field(False, description="Whether to include media")
     media_urls: Optional[List[str]] = Field(None, description="URLs to media files")
-    call_to_action: Optional[str] = Field(
-        None, description="Call to action for the post"
-    )
+    call_to_action: Optional[str] = Field(None, description="Call to action for the post")
     post_time: Optional[str] = Field(None, description="Suggested posting time")
 
     class Config:
@@ -659,9 +584,7 @@ class AdCopySchema(BaseModel):
     display_url: Optional[str] = Field(None, description="Display URL")
     destination_url: str = Field(..., description="Destination URL")
     ad_format: str = Field(..., description="Format of the ad")
-    character_count: Optional[Dict[str, int]] = Field(
-        None, description="Character count limits"
-    )
+    character_count: Optional[Dict[str, int]] = Field(None, description="Character count limits")
 
     class Config:
         """Configuration for the model."""
@@ -678,9 +601,7 @@ class PressReleaseSchema(BaseModel):
     intro_paragraph: str = Field(..., description="Introductory paragraph")
     body_content: str = Field(..., description="Main content")
     quote: Optional[str] = Field(None, description="Quote from company representative")
-    quote_attribution: Optional[str] = Field(
-        None, description="Attribution for the quote"
-    )
+    quote_attribution: Optional[str] = Field(None, description="Attribution for the quote")
     boilerplate: str = Field(..., description="Company boilerplate")
     contact_info: Dict[str, str] = Field(..., description="Contact information")
 
@@ -698,12 +619,8 @@ class WhitePaperSchema(BaseModel):
     sections: List[Dict[str, Any]] = Field(..., description="Content sections")
     author: str = Field(..., description="Author name")
     publication_date: str = Field(..., description="Publication date")
-    references: Optional[List[Dict[str, str]]] = Field(
-        None, description="References/citations"
-    )
-    figures: Optional[List[Dict[str, Any]]] = Field(
-        None, description="Figures and tables"
-    )
+    references: Optional[List[Dict[str, str]]] = Field(None, description="References/citations")
+    figures: Optional[List[Dict[str, Any]]] = Field(None, description="Figures and tables")
 
     class Config:
         """Configuration for the model."""
@@ -715,23 +632,15 @@ class ContentGeneratorInputSchema(BaseModel):
     """Pydantic model for content generator input."""
 
     content_type: str = Field(..., description="Type of content to generate")
-    target_audience: Dict[str, Any] = Field(
-        ..., description="Target audience information"
-    )
+    target_audience: Dict[str, Any] = Field(..., description="Target audience information")
     key_messages: List[str] = Field(..., description="Key messages to include")
     tone: str = Field(..., description="Desired tone of the content")
     style: str = Field(..., description="Desired style of the content")
     purpose: str = Field(..., description="Purpose of the content")
-    length: Optional[Dict[str, Any]] = Field(
-        None, description="Desired length parameters"
-    )
+    length: Optional[Dict[str, Any]] = Field(None, description="Desired length parameters")
     keywords: Optional[List[str]] = Field(None, description="Keywords to include")
-    competitor_analysis: Optional[Dict[str, Any]] = Field(
-        None, description="Competitor analysis"
-    )
-    brand_guidelines: Optional[Dict[str, Any]] = Field(
-        None, description="Brand guidelines"
-    )
+    competitor_analysis: Optional[Dict[str, Any]] = Field(None, description="Competitor analysis")
+    brand_guidelines: Optional[Dict[str, Any]] = Field(None, description="Brand guidelines")
     config: Optional[ContentGeneratorConfigSchema] = Field(
         None, description="Generator configuration"
     )
@@ -748,9 +657,7 @@ class ContentGeneratorOutputSchema(BaseModel):
     content_type: str = Field(..., description="Type of content generated")
     content: Dict[str, Any] = Field(..., description="Generated content")
     metrics: Optional[Dict[str, Any]] = Field(None, description="Content metrics")
-    recommendations: Optional[List[str]] = Field(
-        None, description="Content recommendations"
-    )
+    recommendations: Optional[List[str]] = Field(None, description="Content recommendations")
     timestamp: str = Field(..., description="Generation timestamp")
 
     class Config:

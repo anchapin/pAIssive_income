@@ -5,8 +5,7 @@ This module provides the base interface for cache backends.
 """
 
 import abc
-import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 
 class CacheBackend(abc.ABC):
@@ -25,7 +24,6 @@ class CacheBackend(abc.ABC):
         Returns:
             Cached value or None if not found
         """
-        pass
 
     @abc.abstractmethod
     def set(self, key: str, value: Dict[str, Any], ttl: Optional[int] = None) -> bool:
@@ -40,7 +38,6 @@ class CacheBackend(abc.ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abc.abstractmethod
     def delete(self, key: str) -> bool:
@@ -53,7 +50,6 @@ class CacheBackend(abc.ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abc.abstractmethod
     def exists(self, key: str) -> bool:
@@ -66,7 +62,6 @@ class CacheBackend(abc.ABC):
         Returns:
             True if the key exists, False otherwise
         """
-        pass
 
     @abc.abstractmethod
     def clear(self) -> bool:
@@ -76,7 +71,6 @@ class CacheBackend(abc.ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abc.abstractmethod
     def get_size(self) -> int:
@@ -86,7 +80,6 @@ class CacheBackend(abc.ABC):
         Returns:
             Number of items in the cache
         """
-        pass
 
     @abc.abstractmethod
     def get_keys(self, pattern: Optional[str] = None) -> List[str]:
@@ -99,7 +92,6 @@ class CacheBackend(abc.ABC):
         Returns:
             List of keys
         """
-        pass
 
     @abc.abstractmethod
     def get_stats(self) -> Dict[str, Any]:
@@ -109,7 +101,6 @@ class CacheBackend(abc.ABC):
         Returns:
             Dictionary with cache statistics
         """
-        pass
 
     @abc.abstractmethod
     def get_ttl(self, key: str) -> Optional[int]:
@@ -122,7 +113,6 @@ class CacheBackend(abc.ABC):
         Returns:
             Time to live in seconds or None if no expiration
         """
-        pass
 
     @abc.abstractmethod
     def set_ttl(self, key: str, ttl: int) -> bool:
@@ -136,4 +126,3 @@ class CacheBackend(abc.ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass

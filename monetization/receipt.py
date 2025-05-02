@@ -4,10 +4,9 @@ Receipt generation for the pAIssive Income project.
 This module provides classes for generating and managing receipts for transactions.
 """
 
-import copy
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from common_utils import to_json, write_file
 
@@ -361,9 +360,7 @@ class Receipt:
         self.custom_fields[name] = value
         self.metadata["custom_fields"] = self.custom_fields
 
-    def add_additional_fee(
-        self, name: str, amount: float, is_percentage: bool = False
-    ) -> None:
+    def add_additional_fee(self, name: str, amount: float, is_percentage: bool = False) -> None:
         """
         Add an additional fee to the receipt.
 
@@ -563,11 +560,7 @@ class Receipt:
         Returns:
             Total amount
         """
-        return (
-            self.get_taxable_amount()
-            + self.get_tax_total()
-            + self.get_additional_fees_total()
-        )
+        return self.get_taxable_amount() + self.get_tax_total() + self.get_additional_fees_total()
 
     def format_amount(self, amount: float) -> str:
         """
@@ -749,9 +742,7 @@ class Receipt:
         html.append("<head>")
         html.append(f"<title>Receipt {self.id}</title>")
         html.append("<style>")
-        html.append(
-            "body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }"
-        )
+        html.append("body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }")
         html.append(
             ".receipt { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; padding: 20px; }"
         )
@@ -760,13 +751,9 @@ class Receipt:
         html.append(".receipt-info { margin-bottom: 20px; }")
         html.append(".customer-info { margin-bottom: 20px; }")
         html.append(".payment-info { margin-bottom: 20px; }")
-        html.append(
-            ".items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }"
-        )
+        html.append(".items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }")
         html.append(".items th, .items td { padding: 8px; text-align: right; }")
-        html.append(
-            ".items th:first-child, .items td:first-child { text-align: left; }"
-        )
+        html.append(".items th:first-child, .items td:first-child { text-align: left; }")
         html.append(".items th { background-color: #f2f2f2; }")
         html.append(".items tr:nth-child(even) { background-color: #f9f9f9; }")
         html.append(".totals { width: 100%; margin-bottom: 20px; }")
@@ -814,14 +801,10 @@ class Receipt:
         # Receipt information
         html.append('<div class="receipt-info">')
         html.append(f"<div><strong>Receipt:</strong> {self.id}</div>")
-        html.append(
-            f'<div><strong>Date:</strong> {self.date.strftime("%Y-%m-%d %H:%M:%S")}</div>'
-        )
+        html.append(f'<div><strong>Date:</strong> {self.date.strftime("%Y-%m-%d %H:%M:%S")}</div>')
 
         if self.transaction_id:
-            html.append(
-                f"<div><strong>Transaction:</strong> {self.transaction_id}</div>"
-            )
+            html.append(f"<div><strong>Transaction:</strong> {self.transaction_id}</div>")
 
         html.append("</div>")  # End receipt info
 
@@ -837,9 +820,7 @@ class Receipt:
                 html.append(f"<div><strong>Email:</strong> {self.customer_email}</div>")
 
             if self.customer_address:
-                html.append(
-                    f"<div><strong>Address:</strong> {self.customer_address}</div>"
-                )
+                html.append(f"<div><strong>Address:</strong> {self.customer_address}</div>")
 
             html.append("</div>")  # End customer info
 
@@ -849,14 +830,10 @@ class Receipt:
             html.append("<h3>Payment Information</h3>")
 
             if self.payment_method:
-                html.append(
-                    f"<div><strong>Method:</strong> {self.payment_method}</div>"
-                )
+                html.append(f"<div><strong>Method:</strong> {self.payment_method}</div>")
 
             if self.payment_id:
-                html.append(
-                    f"<div><strong>Payment ID:</strong> {self.payment_id}</div>"
-                )
+                html.append(f"<div><strong>Payment ID:</strong> {self.payment_id}</div>")
 
             html.append("</div>")  # End payment info
 
@@ -907,9 +884,7 @@ class Receipt:
             else:
                 fee_amount = fee["amount"]
 
-            html.append(
-                f"<tr><td>{fee_name}:</td><td>{self.format_amount(fee_amount)}</td></tr>"
-            )
+            html.append(f"<tr><td>{fee_name}:</td><td>{self.format_amount(fee_amount)}</td></tr>")
 
         html.append(
             f'<tr class="total-row"><td>Total:</td><td>{self.format_amount(self.get_total())}</td></tr>'

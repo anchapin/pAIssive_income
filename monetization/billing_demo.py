@@ -6,23 +6,14 @@ This script demonstrates how to use the billing calculation system.
 
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
 
-from .billing_calculator import (
-    BillingCalculator,
-    PricingModel,
-    PricingRule,
-    PricingTier,
-)
 from .prorated_billing import ProratedBilling
-from .tiered_pricing import TieredPricingCalculator, VolumeDiscount
+from .tiered_pricing import TieredPricingCalculator
 from .usage_tracker import UsageTracker
 from .usage_tracking import (
     UsageCategory,
     UsageLimit,
     UsageMetric,
-    UsageQuota,
-    UsageRecord,
 )
 
 
@@ -222,8 +213,7 @@ def run_demo():
     token_usage = sum(
         item["quantity"]
         for item in usage_cost["items"]
-        if item["metric"] == UsageMetric.TOKEN
-        and item["category"] == UsageCategory.INFERENCE
+        if item["metric"] == UsageMetric.TOKEN and item["category"] == UsageCategory.INFERENCE
     )
 
     print(f"Detailed cost breakdown for {token_usage} tokens (inference):")

@@ -8,9 +8,9 @@ specific to the UI module.
 import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, Optional, Union
 
-from flask import jsonify, render_template
+from flask import jsonify
 
 # Add the project root to the Python path to import the errors module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -43,7 +43,7 @@ class ServiceError(UIError):
         message: str,
         service_name: Optional[str] = None,
         operation: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the service error.
@@ -60,9 +60,7 @@ class ServiceError(UIError):
         if operation:
             details["operation"] = operation
 
-        super().__init__(
-            message=message, code="service_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="service_error", details=details, **kwargs)
 
 
 class TemplateError(UIError):
@@ -81,20 +79,14 @@ class TemplateError(UIError):
         if template_name:
             details["template_name"] = template_name
 
-        super().__init__(
-            message=message, code="template_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="template_error", details=details, **kwargs)
 
 
 class RouteError(UIError):
     """Error raised when there's an issue with a route."""
 
     def __init__(
-        self,
-        message: str,
-        route: Optional[str] = None,
-        method: Optional[str] = None,
-        **kwargs
+        self, message: str, route: Optional[str] = None, method: Optional[str] = None, **kwargs
     ):
         """
         Initialize the route error.
@@ -130,9 +122,7 @@ class ConfigurationError(UIError):
         if config_key:
             details["config_key"] = config_key
 
-        super().__init__(
-            message=message, code="configuration_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="configuration_error", details=details, **kwargs)
 
 
 class DataError(UIError):
@@ -143,7 +133,7 @@ class DataError(UIError):
         message: str,
         data_type: Optional[str] = None,
         operation: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the data error.
@@ -201,8 +191,6 @@ def error_to_json_response(error: Union[UIError, Exception]) -> Dict[str, Any]:
         return error.to_dict()
 
     # Convert standard exception to UIError
-    ui_error = UIError(
-        message=str(error), code=error.__class__.__name__, original_exception=error
-    )
+    ui_error = UIError(message=str(error), code=error.__class__.__name__, original_exception=error)
 
     return ui_error.to_dict()

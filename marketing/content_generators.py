@@ -10,21 +10,18 @@ import json
 import random
 import uuid
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 # Import the centralized caching service
 from common_utils.caching import default_cache
 
 from .schemas import (
     BlogPostTemplateSchema,
-    ContentFormat,
     ContentGeneratorConfigSchema,
-    ContentTemplateSchema,
     EmailNewsletterTemplateSchema,
     GeneratedBlogPostSchema,
     GeneratedEmailNewsletterSchema,
     GeneratedSocialMediaPostSchema,
-    ReadingLevel,
     SocialMediaTemplateSchema,
 )
 
@@ -39,9 +36,7 @@ class ContentTemplate(ABC):
         self.title = template_data["title"]
         self.description = template_data["description"]
         self.target_persona = template_data["target_persona"]
-        self.created_at = (
-            template_data.get("created_at") or datetime.datetime.now().isoformat()
-        )
+        self.created_at = template_data.get("created_at") or datetime.datetime.now().isoformat()
         self.updated_at = template_data.get("updated_at")
 
     def to_dict(self) -> Dict[str, Any]:
@@ -58,7 +53,6 @@ class ContentTemplate(ABC):
     @abstractmethod
     def validate(self) -> bool:
         """Validate the template."""
-        pass
 
 
 class BlogPostTemplate(ContentTemplate):
@@ -73,9 +67,7 @@ class BlogPostTemplate(ContentTemplate):
         self.estimated_reading_time = template_data.get("estimated_reading_time")
         self.target_word_count = template_data.get("target_word_count")
         self.topics = template_data["topics"]
-        self.target_reading_level = template_data.get(
-            "target_reading_level", "intermediate"
-        )
+        self.target_reading_level = template_data.get("target_reading_level", "intermediate")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert template to dictionary."""
@@ -192,9 +184,7 @@ class GeneratedContent(ABC):
         """Initialize content with data."""
         self.id = content_data.get("id") or str(uuid.uuid4())
         self.template_id = content_data["template_id"]
-        self.timestamp = (
-            content_data.get("timestamp") or datetime.datetime.now().isoformat()
-        )
+        self.timestamp = content_data.get("timestamp") or datetime.datetime.now().isoformat()
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert content to dictionary."""
@@ -207,7 +197,6 @@ class GeneratedContent(ABC):
     @abstractmethod
     def validate(self) -> bool:
         """Validate the content."""
-        pass
 
 
 class GeneratedBlogPost(GeneratedContent):
@@ -449,7 +438,6 @@ class ContentGenerator(ABC):
     @abstractmethod
     def generate(self, template: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         """Generate content from template."""
-        pass
 
     def _get_reading_level_modifier(self) -> float:
         """Get modifier based on reading level."""
@@ -604,9 +592,7 @@ class BlogPostGenerator(ContentGenerator):
             },
             "seo_data": {
                 "keywords": template["seo_keywords"],
-                "metadata": {
-                    "description": f"A blog post about {', '.join(template['topics'])}"
-                },
+                "metadata": {"description": f"A blog post about {', '.join(template['topics'])}"},
             },
         }
 
@@ -618,9 +604,7 @@ class BlogPostGenerator(ContentGenerator):
         result = blog_post.to_dict()
 
         # Store in cache
-        default_cache.set(
-            cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace
-        )
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace)
 
         return result
 
@@ -729,9 +713,7 @@ class SocialMediaPostGenerator(ContentGenerator):
                 if template.get("include_image", True)
                 else None
             ),
-            "link": (
-                "https://example.com" if template.get("include_link", True) else None
-            ),
+            "link": ("https://example.com" if template.get("include_link", True) else None),
             "call_to_action": "Click here to learn more",
             "optimal_posting_times": ["10:00 AM", "2:00 PM", "8:00 PM"],
         }
@@ -744,9 +726,7 @@ class SocialMediaPostGenerator(ContentGenerator):
         result = social_post.to_dict()
 
         # Store in cache
-        default_cache.set(
-            cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace
-        )
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace)
 
         return result
 
@@ -843,9 +823,7 @@ class EmailNewsletterGenerator(ContentGenerator):
             "subject_line": subject,
             "preview_text": preheader,
             "content_sections": self._generate_sections(template),
-            "header": (
-                "Header content" if template.get("include_header", True) else None
-            ),
+            "header": ("Header content" if template.get("include_header", True) else None),
             "footer": self._generate_footer(template),
             "call_to_action": self._generate_call_to_action(template),
             "images": (
@@ -865,9 +843,7 @@ class EmailNewsletterGenerator(ContentGenerator):
         result = newsletter.to_dict()
 
         # Store in cache
-        default_cache.set(
-            cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace
-        )
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace=cache_namespace)
 
         return result
 
@@ -885,11 +861,7 @@ class EmailNewsletterGenerator(ContentGenerator):
             # If no preheader options, use a truncated version of the first paragraph
             body = template.get("body_options", [""])[0]
             first_paragraph = body.split("\n\n")[0]
-            return (
-                first_paragraph[:100] + "..."
-                if len(first_paragraph) > 100
-                else first_paragraph
-            )
+            return first_paragraph[:100] + "..." if len(first_paragraph) > 100 else first_paragraph
         return random.choice(options)
 
     def _generate_greeting(self, template: Dict[str, Any]) -> str:
@@ -961,9 +933,7 @@ class EmailNewsletterGenerator(ContentGenerator):
             footer_parts.append("1234 Example Street, City, State 12345")
 
         if template.get("include_social_links", True):
-            footer_parts.append(
-                "Follow us: [Facebook] [Twitter] [LinkedIn] [Instagram]"
-            )
+            footer_parts.append("Follow us: [Facebook] [Twitter] [LinkedIn] [Instagram]")
 
         return "\n".join(footer_parts)
 

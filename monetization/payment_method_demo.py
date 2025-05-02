@@ -4,8 +4,6 @@ Payment method management demo for the pAIssive Income project.
 This script demonstrates how to use the payment method management system.
 """
 
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 
 from .payment_method import PaymentMethod
 from .payment_method_manager import PaymentMethodManager
@@ -121,9 +119,7 @@ def run_demo():
     )
 
     print(f"Updated payment method: {updated_pm}")
-    print(
-        f"New expiration: {updated_pm.details['exp_month']}/{updated_pm.details['exp_year']}"
-    )
+    print(f"New expiration: {updated_pm.details['exp_month']}/{updated_pm.details['exp_year']}")
     print(f"Metadata: {updated_pm.metadata}")
 
     print_separator()
@@ -138,9 +134,7 @@ def run_demo():
             print(f"Customer {cust_id}:")
             for pm in pms:
                 if pm.payment_type == PaymentMethod.TYPE_CARD:
-                    print(
-                        f"- {pm} (expires {pm.details['exp_month']}/{pm.details['exp_year']})"
-                    )
+                    print(f"- {pm} (expires {pm.details['exp_month']}/{pm.details['exp_year']})")
     else:
         print("No payment methods expiring in the next 5 years.")
 

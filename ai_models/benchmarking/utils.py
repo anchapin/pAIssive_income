@@ -4,11 +4,9 @@ Utility functions for benchmarking AI models.
 This module provides utility functions for running benchmarks and analyzing results.
 """
 
-import json
 import logging
 import os
-import time
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Union
 
 from .benchmark_config import BenchmarkConfig, BenchmarkType
 from .benchmark_result import BenchmarkResult

@@ -6,14 +6,10 @@ This module provides classes for adjusting the style and tone of content.
 
 import datetime
 import json
-import math
 import random
 import re
-import string
 import uuid
-from abc import ABC, abstractmethod
-from collections import Counter
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 # Third-party imports
 try:
@@ -498,8 +494,7 @@ class StyleAdjuster:
 
         # Validate field types and values
         if "max_suggestions" in self.config and not (
-            isinstance(self.config["max_suggestions"], int)
-            and self.config["max_suggestions"] > 0
+            isinstance(self.config["max_suggestions"], int) and self.config["max_suggestions"] > 0
         ):
             errors.append("max_suggestions must be a positive integer")
 
@@ -520,9 +515,7 @@ class StyleAdjuster:
             "target_style" in self.config
             and self.config["target_style"] not in self.STYLE_CATEGORIES
         ):
-            errors.append(
-                f"target_style must be one of: {', '.join(self.STYLE_CATEGORIES.keys())}"
-            )
+            errors.append(f"target_style must be one of: {', '.join(self.STYLE_CATEGORIES.keys())}")
 
         # Check boolean fields
         boolean_fields = [
@@ -1518,12 +1511,7 @@ class StyleAdjuster:
                 conjunctions = [", and ", ", but ", ", or ", ", yet ", ", so "]
                 conjunction = random.choice(conjunctions)
 
-                return (
-                    sentence
-                    + conjunction
-                    + next_sentence[0].lower()
-                    + next_sentence[1:]
-                )
+                return sentence + conjunction + next_sentence[0].lower() + next_sentence[1:]
 
         # Add a dependent clause
         dependent_clauses = [
@@ -1621,11 +1609,7 @@ class StyleAdjuster:
                                             paragraph, adjusted_paragraph
                                         )
 
-            elif (
-                "long" in target_paragraph_length
-                and word_count < 50
-                and len(paragraphs) > 1
-            ):
+            elif "long" in target_paragraph_length and word_count < 50 and len(paragraphs) > 1:
                 # Try to combine with adjacent paragraph
                 index = paragraphs.index(paragraph)
 
@@ -1716,9 +1700,7 @@ class StyleAdjuster:
             if "emphatic" in target_punctuation:
                 # Add more emphatic punctuation
                 if (
-                    not any(
-                        [exclamation_count, question_count, ellipsis_count, dash_count]
-                    )
+                    not any([exclamation_count, question_count, ellipsis_count, dash_count])
                     and len(sentence) > 20
                 ):
                     # Replace period with exclamation point or add emphasis
@@ -2005,9 +1987,7 @@ class StyleAdjuster:
 
         return suggestions
 
-    def _prioritize_adjustments(
-        self, adjustments: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    def _prioritize_adjustments(self, adjustments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Prioritize adjustments.
 
@@ -2092,9 +2072,7 @@ class StyleAdjuster:
 
         elif adjustment["type"] == "sentence_structure":
             if "simple" in adjustment.get("target_structure", ""):
-                suggestion["message"] = (
-                    "Simplify this sentence for a more direct style."
-                )
+                suggestion["message"] = "Simplify this sentence for a more direct style."
                 suggestion["explanation"] = (
                     "This sentence is too complex for the target style. Breaking it into shorter, simpler sentences will improve readability and match the desired style better."
                 )
@@ -2255,9 +2233,7 @@ class StyleAdjuster:
             "sentiment": analysis["sentiment_analysis"]["dominant_sentiment"],
             "sentiment_consistency": analysis["sentiment_analysis"]["consistency"],
             "readability": {
-                "grade_level": analysis.get("readability_scores", {}).get(
-                    "grade_level", 0
-                ),
+                "grade_level": analysis.get("readability_scores", {}).get("grade_level", 0),
                 "reading_ease": analysis.get("readability_scores", {})
                 .get("flesch_reading_ease", {})
                 .get("score", 0),

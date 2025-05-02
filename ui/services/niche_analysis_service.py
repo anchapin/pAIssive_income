@@ -4,9 +4,7 @@ Niche Analysis Service for the pAIssive Income UI.
 This service provides methods for interacting with the Niche Analysis module.
 """
 
-import json
 import logging
-import os
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional

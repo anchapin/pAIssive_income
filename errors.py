@@ -7,8 +7,6 @@ for consistent error management across the project.
 
 import json
 import logging
-import sys
-import traceback
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -83,9 +81,7 @@ class BaseError(Exception):
         Args:
             level: Logging level
         """
-        logger.log(
-            level, f"{self.code}: {self.message}", exc_info=self.original_exception
-        )
+        logger.log(level, f"{self.code}: {self.message}", exc_info=self.original_exception)
 
 
 # Configuration Errors
@@ -211,9 +207,7 @@ class ModelLoadError(ModelError):
             model_id: ID of the model that failed to load
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(
-            message=message, model_id=model_id, code="model_load_error", **kwargs
-        )
+        super().__init__(message=message, model_id=model_id, code="model_load_error", **kwargs)
 
 
 class ModelInferenceError(ModelError):
@@ -228,9 +222,7 @@ class ModelInferenceError(ModelError):
             model_id: ID of the model that failed during inference
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(
-            message=message, model_id=model_id, code="model_inference_error", **kwargs
-        )
+        super().__init__(message=message, model_id=model_id, code="model_inference_error", **kwargs)
 
 
 class ModelDownloadError(ModelError):
@@ -279,9 +271,7 @@ class MonetizationError(BaseError):
             message: Human-readable error message
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(
-            message=message, code="monetization_error", http_status=500, **kwargs
-        )
+        super().__init__(message=message, code="monetization_error", http_status=500, **kwargs)
 
 
 class SubscriptionError(MonetizationError):
@@ -309,9 +299,7 @@ class SubscriptionError(MonetizationError):
         if user_id:
             details["user_id"] = user_id
 
-        super().__init__(
-            message=message, code="subscription_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="subscription_error", details=details, **kwargs)
 
 
 class PaymentError(MonetizationError):
@@ -339,9 +327,7 @@ class PaymentError(MonetizationError):
         if payment_method:
             details["payment_method"] = payment_method
 
-        super().__init__(
-            message=message, code="payment_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="payment_error", details=details, **kwargs)
 
 
 # Niche Analysis Errors
@@ -358,9 +344,7 @@ class NicheAnalysisError(BaseError):
             message: Human-readable error message
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(
-            message=message, code="niche_analysis_error", http_status=500, **kwargs
-        )
+        super().__init__(message=message, code="niche_analysis_error", http_status=500, **kwargs)
 
 
 class MarketAnalysisError(NicheAnalysisError):
@@ -379,9 +363,7 @@ class MarketAnalysisError(NicheAnalysisError):
         if segment:
             details["segment"] = segment
 
-        super().__init__(
-            message=message, code="market_analysis_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="market_analysis_error", details=details, **kwargs)
 
 
 class OpportunityScoringError(NicheAnalysisError):
@@ -419,9 +401,7 @@ class AgentTeamError(BaseError):
             message: Human-readable error message
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(
-            message=message, code="agent_team_error", http_status=500, **kwargs
-        )
+        super().__init__(message=message, code="agent_team_error", http_status=500, **kwargs)
 
 
 class AgentError(AgentTeamError):
@@ -457,9 +437,7 @@ class MarketingError(BaseError):
             message: Human-readable error message
             **kwargs: Additional arguments to pass to the base class
         """
-        super().__init__(
-            message=message, code="marketing_error", http_status=500, **kwargs
-        )
+        super().__init__(message=message, code="marketing_error", http_status=500, **kwargs)
 
 
 class StrategyGenerationError(MarketingError):

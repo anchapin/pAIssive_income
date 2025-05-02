@@ -53,9 +53,7 @@ class User(BaseModel):
         if len(v) > 50:
             raise ValueError("Username must be less than 50 characters")
         if not v.isalnum() and "_" not in v and "-" not in v:
-            raise ValueError(
-                "Username can only contain letters, numbers, underscores, and hyphens"
-            )
+            raise ValueError("Username can only contain letters, numbers, underscores, and hyphens")
         return v
 
     class Config:

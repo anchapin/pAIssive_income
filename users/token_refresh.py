@@ -16,7 +16,6 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Set
 
 from .auth import create_auth_token, verify_auth_token
-from .models import User
 from .services import get_user_by_id
 
 # Configure logger
@@ -24,9 +23,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 REFRESH_TOKEN_EXPIRY = 30 * 24 * 60 * 60  # 30 days in seconds
-REFRESH_TOKEN_SECRET_KEY = os.environ.get(
-    "REFRESH_TOKEN_SECRET_KEY", "dev-refresh-token-secret"
-)
+REFRESH_TOKEN_SECRET_KEY = os.environ.get("REFRESH_TOKEN_SECRET_KEY", "dev-refresh-token-secret")
 
 # In-memory storage for token blacklist
 # In a production environment, this would be stored in a database
@@ -220,9 +217,7 @@ def cleanup_blacklist() -> int:
 
             # Add padding if needed
             padding = "=" * ((4 - len(payload_b64) % 4) % 4)
-            payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode(
-                "utf-8"
-            )
+            payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8")
             payload = json.loads(payload_json)
 
             # Check if token is expired

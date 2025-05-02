@@ -4,7 +4,6 @@ Logging configuration for the pAIssive_income project.
 This module provides a centralized configuration for logging across the application.
 """
 
-import json
 import logging
 import logging.config
 import os
@@ -117,16 +116,14 @@ def configure_logging():
     if use_json:
         try:
             # Import the JSON logger
-            from pythonjsonlogger import jsonlogger
+            pass
 
             # Update the handlers to use JSON formatter
             for handler_name, handler_config in LOGGING_CONFIG["handlers"].items():
                 if handler_name != "console":  # Keep console output readable
                     handler_config["formatter"] = "json"
         except ImportError:
-            logging.warning(
-                "python-json-logger not installed. Falling back to standard logging."
-            )
+            logging.warning("python-json-logger not installed. Falling back to standard logging.")
 
     # Apply the configuration
     logging.config.dictConfig(LOGGING_CONFIG)

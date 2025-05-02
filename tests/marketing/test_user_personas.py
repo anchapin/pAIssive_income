@@ -2,10 +2,7 @@
 Tests for the user personas components in the Marketing module.
 """
 
-from datetime import datetime
-from unittest.mock import MagicMock, patch
 
-import pytest
 
 from marketing.user_personas import (
     DemographicAnalyzer,
@@ -69,10 +66,7 @@ def test_create_persona():
     assert persona["demographics"]["age_range"] == "30-45"
     assert "Limited time for marketing" in persona["pain_points"]
     assert "Increase sales" in persona["goals"]
-    assert (
-        "Price-conscious but willing to invest in time-saving tools"
-        in persona["behaviors"]
-    )
+    assert "Price-conscious but willing to invest in time-saving tools" in persona["behaviors"]
 
 
 def test_demographic_analyzer_init():

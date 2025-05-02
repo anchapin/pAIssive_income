@@ -9,7 +9,7 @@ import json
 import logging
 import os
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import List, Tuple
 
 from .benchmark_config import BenchmarkConfig, BenchmarkType
 from .benchmark_result import BenchmarkResult
@@ -46,7 +46,7 @@ except ImportError:
     PSUTIL_AVAILABLE = False
 
 try:
-    import numpy as np
+    pass
 
     NUMPY_AVAILABLE = True
 except ImportError:
@@ -165,9 +165,7 @@ class BenchmarkRunner:
 
         # Duplicate if needed
         while len(self.input_data) < self.config.num_samples:
-            self.input_data.append(
-                self.input_data[len(self.input_data) % len(self.input_data)]
-            )
+            self.input_data.append(self.input_data[len(self.input_data) % len(self.input_data)])
 
         # Limit to num_samples
         self.input_data = self.input_data[: self.config.num_samples]
@@ -279,9 +277,7 @@ class BenchmarkRunner:
             self._generate_batch(model, tokenizer, prompts)
 
         # Run benchmark
-        logger.info(
-            f"Running throughput benchmark with batch size {self.config.batch_size}"
-        )
+        logger.info(f"Running throughput benchmark with batch size {self.config.batch_size}")
         total_tokens = 0
         total_time = 0
 
@@ -439,9 +435,7 @@ class BenchmarkRunner:
 
         # Calculate average perplexity
         perplexity = (
-            torch.exp(total_loss / total_tokens).item()
-            if total_tokens > 0
-            else float("inf")
+            torch.exp(total_loss / total_tokens).item() if total_tokens > 0 else float("inf")
         )
 
         # Save results
@@ -475,9 +469,7 @@ class BenchmarkRunner:
         model = self._load_model()
 
         # Create ROUGE scorer
-        scorer = rouge_scorer.RougeScorer(
-            ["rouge1", "rouge2", "rougeL"], use_stemmer=True
-        )
+        scorer = rouge_scorer.RougeScorer(["rouge1", "rouge2", "rougeL"], use_stemmer=True)
 
         # Run benchmark
         logger.info(f"Running ROUGE benchmark with {len(self.input_data)} samples")
@@ -486,11 +478,7 @@ class BenchmarkRunner:
         rougeL_scores = []
 
         for item in self.input_data:
-            if (
-                not isinstance(item, dict)
-                or "text" not in item
-                or "reference" not in item
-            ):
+            if not isinstance(item, dict) or "text" not in item or "reference" not in item:
                 continue
 
             # Get text and reference
@@ -594,9 +582,7 @@ class BenchmarkRunner:
             List of generated texts
         """
         # Tokenize batch
-        batch_inputs = tokenizer(prompts, padding=True, return_tensors="pt").to(
-            model.device
-        )
+        batch_inputs = tokenizer(prompts, padding=True, return_tensors="pt").to(model.device)
 
         # Set generation parameters
         generation_kwargs = {
@@ -615,9 +601,7 @@ class BenchmarkRunner:
             outputs = model.generate(**batch_inputs, **generation_kwargs)
 
         # Decode outputs
-        return [
-            tokenizer.decode(output, skip_special_tokens=True) for output in outputs
-        ]
+        return [tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
 
     def _classify_text(self, model, tokenizer, text: str) -> str:
         """

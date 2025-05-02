@@ -9,8 +9,7 @@ import json
 import logging
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict, Generator, List, Optional, Union
-from unittest.mock import MagicMock
+from typing import Any, Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +48,7 @@ class MockExternalAPIBase:
             }
         )
 
-    def get_call_history(
-        self, method_name: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+    def get_call_history(self, method_name: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get the call history, optionally filtered by method name."""
         if method_name:
             return [call for call in self.call_history if call["method"] == method_name]
@@ -106,9 +103,7 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
             ],
         )
 
-    def list_models(
-        self, filter_criteria: Optional[Dict[str, Any]] = None
-    ) -> List[Dict[str, Any]]:
+    def list_models(self, filter_criteria: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
         List available models with optional filtering.
 
@@ -130,9 +125,7 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
                 if key == "pipeline_tag" and value != model.get(key):
                     match = False
                     break
-                if key == "tags" and not all(
-                    tag in model.get("tags", []) for tag in value
-                ):
+                if key == "tags" and not all(tag in model.get("tags", []) for tag in value):
                     match = False
                     break
             if match:
@@ -248,9 +241,7 @@ class MockPaymentAPI(MockExternalAPIBase):
         """
         self.record_call("create_customer", email=email, name=name, metadata=metadata)
 
-        customer_id = (
-            f"cus_{random.randint(10000, 99999)}_{int(datetime.now().timestamp())}"
-        )
+        customer_id = f"cus_{random.randint(10000, 99999)}_{int(datetime.now().timestamp())}"
         customer = {
             "id": customer_id,
             "email": email,
@@ -311,9 +302,7 @@ class MockPaymentAPI(MockExternalAPIBase):
 
         # Create subscription
         now = datetime.now()
-        trial_end = (
-            now + timedelta(days=trial_period_days) if trial_period_days else None
-        )
+        trial_end = now + timedelta(days=trial_period_days) if trial_period_days else None
 
         if plan["interval"] == "month":
             period_end = now + timedelta(days=30)
@@ -457,9 +446,7 @@ class MockPaymentAPI(MockExternalAPIBase):
             raise ValueError(f"Customer {customer_id} not found")
 
         # Create charge
-        charge_id = (
-            f"ch_{random.randint(10000, 99999)}_{int(datetime.now().timestamp())}"
-        )
+        charge_id = f"ch_{random.randint(10000, 99999)}_{int(datetime.now().timestamp())}"
         charge = {
             "id": charge_id,
             "customer": customer_id,
@@ -559,9 +546,7 @@ class MockEmailAPI(MockExternalAPIBase):
             "id": email["id"],
             "status": email["status"],
             "message": (
-                "Email sent successfully"
-                if email["status"] == "sent"
-                else "Failed to send email"
+                "Email sent successfully" if email["status"] == "sent" else "Failed to send email"
             ),
         }
 
@@ -639,10 +624,7 @@ class MockEmailAPI(MockExternalAPIBase):
                 for email in self.sent_emails
                 if (
                     email["to_email"] == to_email
-                    or (
-                        isinstance(email["to_email"], list)
-                        and to_email in email["to_email"]
-                    )
+                    or (isinstance(email["to_email"], list) and to_email in email["to_email"])
                 )
             ]
 
@@ -688,8 +670,7 @@ class MockStorageAPI(MockExternalAPIBase):
         self.record_call("list_buckets")
 
         return [
-            {"name": name, "objects_count": len(objects)}
-            for name, objects in self.buckets.items()
+            {"name": name, "objects_count": len(objects)} for name, objects in self.buckets.items()
         ]
 
     def upload_object(
@@ -729,9 +710,7 @@ class MockStorageAPI(MockExternalAPIBase):
             "size": len(data),
         }
 
-    def download_object(
-        self, key: str, bucket_name: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def download_object(self, key: str, bucket_name: Optional[str] = None) -> Dict[str, Any]:
         """
         Download an object from storage.
 
@@ -756,9 +735,7 @@ class MockStorageAPI(MockExternalAPIBase):
 
         # Return mock data
         size = self.buckets[bucket][key]["size"]
-        mock_data = bytes(
-            random.randint(0, 255) for _ in range(min(size, 1024))
-        )  # limit to 1KB
+        mock_data = bytes(random.randint(0, 255) for _ in range(min(size, 1024)))  # limit to 1KB
 
         return {
             "bucket": bucket,

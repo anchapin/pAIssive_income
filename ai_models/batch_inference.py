@@ -6,15 +6,14 @@ including text generation, embeddings, classification, and image processing.
 """
 
 import asyncio
-import concurrent.futures
 import logging
 import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar
 
-from common_utils.batch_utils import BatchProcessingStats, BatchResult
+from common_utils.batch_utils import BatchProcessingStats
 
 from .async_utils import AsyncModelProcessor, AsyncResult
 from .model_manager import ModelManager
@@ -66,9 +65,7 @@ class BatchInferenceResult(Generic[T, R]):
 
     def get_failed_inputs(self) -> List[Tuple[int, T, Exception]]:
         """Get inputs that resulted in errors along with their exceptions."""
-        return [
-            (idx, self.request.inputs[idx], error) for idx, error in self.errors.items()
-        ]
+        return [(idx, self.request.inputs[idx], error) for idx, error in self.errors.items()]
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
@@ -121,7 +118,7 @@ class BatchInferenceProcessor:
         model_version: Optional[str] = None,
         batch_size: Optional[int] = None,
         concurrency: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ) -> BatchInferenceResult[str, str]:
         """
         Generate text for a batch of prompts.
@@ -175,7 +172,7 @@ class BatchInferenceProcessor:
                 prompts=prompts,
                 model_version=model_version,
                 concurrency=effective_concurrency,
-                **kwargs
+                **kwargs,
             )
         )
 
@@ -212,7 +209,7 @@ class BatchInferenceProcessor:
         model_version: Optional[str] = None,
         batch_size: Optional[int] = None,
         concurrency: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ) -> BatchInferenceResult[str, List[float]]:
         """
         Generate embeddings for a batch of texts.
@@ -266,7 +263,7 @@ class BatchInferenceProcessor:
                 texts=texts,
                 model_version=model_version,
                 concurrency=effective_concurrency,
-                **kwargs
+                **kwargs,
             )
         )
 
@@ -337,7 +334,7 @@ def generate_text_batch(
     model_version: Optional[str] = None,
     batch_size: int = 16,
     concurrency: int = 4,
-    **kwargs
+    **kwargs,
 ) -> BatchInferenceResult[str, str]:
     """
     Generate text for multiple prompts in batch mode.
@@ -360,7 +357,7 @@ def generate_text_batch(
         prompts=prompts,
         model_version=model_version,
         concurrency=concurrency,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -371,7 +368,7 @@ def generate_embeddings_batch(
     model_version: Optional[str] = None,
     batch_size: int = 32,
     concurrency: int = 8,
-    **kwargs
+    **kwargs,
 ) -> BatchInferenceResult[str, List[float]]:
     """
     Generate embeddings for multiple texts in batch mode.
@@ -394,5 +391,5 @@ def generate_embeddings_batch(
         texts=texts,
         model_version=model_version,
         concurrency=concurrency,
-        **kwargs
+        **kwargs,
     )

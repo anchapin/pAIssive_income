@@ -5,13 +5,11 @@ This module provides classes for managing payment transactions, including
 creation, processing, and status tracking.
 """
 
-import copy
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field
 
 
 class TransactionStatus:
@@ -164,9 +162,7 @@ class Transaction:
         total_refunded = sum(refund["amount"] for refund in self.refunds)
 
         if total_refunded + amount > self.amount:
-            raise ValueError(
-                f"Cannot refund more than the transaction amount ({self.amount})"
-            )
+            raise ValueError(f"Cannot refund more than the transaction amount ({self.amount})")
 
         # Create refund
         refund = {
@@ -186,9 +182,7 @@ class Transaction:
         if total_refunded + amount == self.amount:
             self.update_status(TransactionStatus.REFUNDED, "Fully refunded")
         else:
-            self.update_status(
-                TransactionStatus.PARTIALLY_REFUNDED, "Partially refunded"
-            )
+            self.update_status(TransactionStatus.PARTIALLY_REFUNDED, "Partially refunded")
 
         return refund
 
@@ -318,9 +312,7 @@ class Transaction:
             "status": self.status,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
-            "processed_at": (
-                self.processed_at.isoformat() if self.processed_at else None
-            ),
+            "processed_at": (self.processed_at.isoformat() if self.processed_at else None),
             "error": self.error,
             "refunds": self.refunds,
             "parent_id": self.parent_id,

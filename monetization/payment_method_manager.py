@@ -8,8 +8,7 @@ storage, retrieval, and default payment method management.
 import copy
 import json
 import os
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from .payment_method import PaymentMethod
 
@@ -156,9 +155,7 @@ class PaymentMethodManager:
 
         # If no default is set but there are payment methods, return the first one
         if self.customer_payment_methods[customer_id]:
-            return self.payment_methods.get(
-                self.customer_payment_methods[customer_id][0]
-            )
+            return self.payment_methods.get(self.customer_payment_methods[customer_id][0])
 
         return None
 
@@ -315,9 +312,7 @@ class PaymentMethodManager:
 
         return deleted_count
 
-    def check_for_expiring_payment_methods(
-        self, days: int = 30
-    ) -> Dict[str, List[PaymentMethod]]:
+    def check_for_expiring_payment_methods(self, days: int = 30) -> Dict[str, List[PaymentMethod]]:
         """
         Check for payment methods that will expire soon.
 
@@ -461,9 +456,7 @@ if __name__ == "__main__":
     )
 
     print(f"\nUpdated payment method: {updated_pm}")
-    print(
-        f"New expiration: {updated_pm.details['exp_month']}/{updated_pm.details['exp_year']}"
-    )
+    print(f"New expiration: {updated_pm.details['exp_month']}/{updated_pm.details['exp_year']}")
     print(f"Metadata: {updated_pm.metadata}")
 
     # Check for expiring payment methods
@@ -473,9 +466,7 @@ if __name__ == "__main__":
     for customer_id, pms in expiring_pms.items():
         print(f"Customer {customer_id}:")
         for pm in pms:
-            print(
-                f"- {pm} (expires {pm.details['exp_month']}/{pm.details['exp_year']})"
-            )
+            print(f"- {pm} (expires {pm.details['exp_month']}/{pm.details['exp_year']})")
 
     # Delete a payment method
     deleted = manager.delete_payment_method(card_payment.id)

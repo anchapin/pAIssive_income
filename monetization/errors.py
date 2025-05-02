@@ -7,7 +7,7 @@ specific to the Monetization module.
 
 import os
 import sys
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Optional
 
 # Add the project root to the Python path to import the errors module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -40,11 +40,7 @@ class TierNotFoundError(SubscriptionError):
     """Error raised when a subscription tier is not found."""
 
     def __init__(
-        self,
-        message: str,
-        tier_id: Optional[str] = None,
-        model_id: Optional[str] = None,
-        **kwargs
+        self, message: str, tier_id: Optional[str] = None, model_id: Optional[str] = None, **kwargs
     ):
         """
         Initialize the tier not found error.
@@ -62,11 +58,7 @@ class TierNotFoundError(SubscriptionError):
             details["model_id"] = model_id
 
         super().__init__(
-            message=message,
-            code="tier_not_found",
-            details=details,
-            http_status=404,
-            **kwargs
+            message=message, code="tier_not_found", details=details, http_status=404, **kwargs
         )
 
 
@@ -78,7 +70,7 @@ class FeatureNotFoundError(SubscriptionError):
         message: str,
         feature_id: Optional[str] = None,
         model_id: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the feature not found error.
@@ -96,11 +88,7 @@ class FeatureNotFoundError(SubscriptionError):
             details["model_id"] = model_id
 
         super().__init__(
-            message=message,
-            code="feature_not_found",
-            details=details,
-            http_status=404,
-            **kwargs
+            message=message, code="feature_not_found", details=details, http_status=404, **kwargs
         )
 
 
@@ -120,9 +108,7 @@ class PricingError(MonetizationError):
         if calculator_id:
             details["calculator_id"] = calculator_id
 
-        super().__init__(
-            message=message, code="pricing_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="pricing_error", details=details, **kwargs)
 
 
 class RevenueProjectionError(MonetizationError):
@@ -162,9 +148,7 @@ class BillingError(MonetizationError):
         if calculator_id:
             details["calculator_id"] = calculator_id
 
-        super().__init__(
-            message=message, code="billing_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="billing_error", details=details, **kwargs)
 
 
 class InvoiceError(MonetizationError):
@@ -175,7 +159,7 @@ class InvoiceError(MonetizationError):
         message: str,
         invoice_id: Optional[str] = None,
         customer_id: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the invoice error.
@@ -192,20 +176,14 @@ class InvoiceError(MonetizationError):
         if customer_id:
             details["customer_id"] = customer_id
 
-        super().__init__(
-            message=message, code="invoice_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="invoice_error", details=details, **kwargs)
 
 
 class UsageTrackingError(MonetizationError):
     """Error raised when there's an issue with usage tracking."""
 
     def __init__(
-        self,
-        message: str,
-        user_id: Optional[str] = None,
-        metric: Optional[str] = None,
-        **kwargs
+        self, message: str, user_id: Optional[str] = None, metric: Optional[str] = None, **kwargs
     ):
         """
         Initialize the usage tracking error.
@@ -222,6 +200,4 @@ class UsageTrackingError(MonetizationError):
         if metric:
             details["metric"] = metric
 
-        super().__init__(
-            message=message, code="usage_tracking_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="usage_tracking_error", details=details, **kwargs)

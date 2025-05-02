@@ -6,7 +6,7 @@ fallback configurations.
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -48,9 +48,7 @@ class FallbackPreferences(BaseModel):
 class FallbackConfig(BaseModel):
     """Configuration model for fallback behavior."""
 
-    enabled: bool = Field(
-        default=True, description="Whether fallback mechanisms are enabled"
-    )
+    enabled: bool = Field(default=True, description="Whether fallback mechanisms are enabled")
 
     default_strategy: FallbackStrategyEnum = Field(
         default=FallbackStrategyEnum.DEFAULT,
@@ -70,9 +68,7 @@ class FallbackConfig(BaseModel):
         description="Fallback preferences configuration",
     )
 
-    logging_level: str = Field(
-        default="INFO", description="Logging level for fallback events"
-    )
+    logging_level: str = Field(default="INFO", description="Logging level for fallback events")
 
     use_general_purpose_fallback: bool = Field(
         default=True,
@@ -108,19 +104,13 @@ class FallbackEventSchema(BaseModel):
         default=None, description="ID of the original model that failed"
     )
 
-    fallback_model_id: str = Field(
-        description="ID of the fallback model that was selected"
-    )
+    fallback_model_id: str = Field(description="ID of the fallback model that was selected")
 
     reason: str = Field(description="Reason for the fallback")
 
-    agent_type: Optional[str] = Field(
-        default=None, description="Type of agent using the model"
-    )
+    agent_type: Optional[str] = Field(default=None, description="Type of agent using the model")
 
-    task_type: Optional[str] = Field(
-        default=None, description="Type of task being performed"
-    )
+    task_type: Optional[str] = Field(default=None, description="Type of task being performed")
 
     strategy_used: FallbackStrategyEnum = Field(
         default=FallbackStrategyEnum.DEFAULT,
@@ -141,9 +131,7 @@ class FallbackMetrics(BaseModel):
         default=0, description="Number of successful fallbacks with this strategy"
     )
 
-    total_count: int = Field(
-        default=0, description="Total number of times this strategy was used"
-    )
+    total_count: int = Field(default=0, description="Total number of times this strategy was used")
 
     success_rate: float = Field(
         default=0.0,

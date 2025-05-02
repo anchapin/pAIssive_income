@@ -8,7 +8,7 @@ import argparse
 import json
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from ..base import BaseCommand
 
@@ -34,9 +34,7 @@ class OptimizeCommand(BaseCommand):
         Args:
             parser: Argument parser
         """
-        parser.add_argument(
-            "--model-path", type=str, required=True, help="Path to the model"
-        )
+        parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
         parser.add_argument(
             "--output-path",
             type=str,
@@ -83,9 +81,7 @@ class OptimizeCommand(BaseCommand):
             default=0.5,
             help="Sparsity level for pruning (0.0 to 1.0)",
         )
-        parser.add_argument(
-            "--bits", type=int, default=4, help="Number of bits for quantization"
-        )
+        parser.add_argument("--bits", type=int, default=4, help="Number of bits for quantization")
         parser.add_argument(
             "--device",
             type=str,
@@ -105,9 +101,7 @@ class OptimizeCommand(BaseCommand):
             default=100,
             help="Maximum number of tokens for analysis",
         )
-        parser.add_argument(
-            "--config-file", type=str, help="Path to configuration file"
-        )
+        parser.add_argument("--config-file", type=str, help="Path to configuration file")
 
     def run(self) -> int:
         """
@@ -173,9 +167,7 @@ class OptimizeCommand(BaseCommand):
         config.update(config_dict)
 
         # Quantize model
-        logger.info(
-            f"Quantizing model {self.args.model_path} to {self.args.output_path}"
-        )
+        logger.info(f"Quantizing model {self.args.model_path} to {self.args.output_path}")
         logger.info(f"Method: {self.args.quantization_method}, Bits: {self.args.bits}")
 
         quantized_path = quantize_model(**config)
@@ -202,21 +194,13 @@ class OptimizeCommand(BaseCommand):
             if analysis:
                 # Print analysis results
                 print("\nQuantization Analysis:")
-                print(
-                    f"Original model size: {analysis['original_model']['size_mb']:.2f} MB"
-                )
-                print(
-                    f"Quantized model size: {analysis['quantized_model']['size_mb']:.2f} MB"
-                )
-                print(
-                    f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%"
-                )
+                print(f"Original model size: {analysis['original_model']['size_mb']:.2f} MB")
+                print(f"Quantized model size: {analysis['quantized_model']['size_mb']:.2f} MB")
+                print(f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%")
                 print(
                     f"Speed improvement: {analysis['comparison']['speed_improvement_percent']:.2f}%"
                 )
-                print(
-                    f"Quality difference: {analysis['comparison']['quality_difference']:.4f}"
-                )
+                print(f"Quality difference: {analysis['comparison']['quality_difference']:.4f}")
             else:
                 logger.warning("Failed to analyze quantization effects")
 
@@ -250,9 +234,7 @@ class OptimizeCommand(BaseCommand):
 
         # Prune model
         logger.info(f"Pruning model {self.args.model_path} to {self.args.output_path}")
-        logger.info(
-            f"Method: {self.args.pruning_method}, Sparsity: {self.args.sparsity}"
-        )
+        logger.info(f"Method: {self.args.pruning_method}, Sparsity: {self.args.sparsity}")
 
         pruned_path = prune_model(**config)
 
@@ -278,22 +260,14 @@ class OptimizeCommand(BaseCommand):
             if analysis:
                 # Print analysis results
                 print("\nPruning Analysis:")
-                print(
-                    f"Original model size: {analysis['original_model']['size_mb']:.2f} MB"
-                )
-                print(
-                    f"Pruned model size: {analysis['pruned_model']['size_mb']:.2f} MB"
-                )
+                print(f"Original model size: {analysis['original_model']['size_mb']:.2f} MB")
+                print(f"Pruned model size: {analysis['pruned_model']['size_mb']:.2f} MB")
                 print(f"Sparsity: {analysis['pruned_model']['sparsity']:.4f}")
-                print(
-                    f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%"
-                )
+                print(f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%")
                 print(
                     f"Speed improvement: {analysis['comparison']['speed_improvement_percent']:.2f}%"
                 )
-                print(
-                    f"Quality difference: {analysis['comparison']['quality_difference']:.4f}"
-                )
+                print(f"Quality difference: {analysis['comparison']['quality_difference']:.4f}")
             else:
                 logger.warning("Failed to analyze pruning effects")
 

@@ -7,14 +7,12 @@ This script demonstrates how to use the invoice generation and management system
 import os
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
 
 from .billing_calculator import BillingCalculator
-from .invoice import Invoice, InvoiceItem, InvoiceStatus
-from .invoice_delivery import InvoiceDelivery, InvoiceFormatter
+from .invoice import InvoiceStatus
+from .invoice_delivery import InvoiceDelivery
 from .invoice_manager import InvoiceManager
 from .usage_tracker import UsageTracker
-from .usage_tracking import UsageCategory, UsageMetric
 
 
 def print_separator():
@@ -61,9 +59,7 @@ def run_demo():
     print(f"Creating invoice for customer: {customer_info['name']}")
 
     # Create an invoice
-    invoice = manager.create_invoice(
-        customer_id=customer_id, customer_info=customer_info
-    )
+    invoice = manager.create_invoice(customer_id=customer_id, customer_info=customer_info)
 
     # Add items
     invoice.add_item(
@@ -99,18 +95,14 @@ def run_demo():
 
     print(f"\nSubtotal: {invoice.format_amount(invoice.get_subtotal())}")
     print(f"Tax: {invoice.format_amount(invoice.get_tax_total())}")
-    print(
-        f"Additional Fees: {invoice.format_amount(invoice.get_additional_fees_total())}"
-    )
+    print(f"Additional Fees: {invoice.format_amount(invoice.get_additional_fees_total())}")
     print(f"Total: {invoice.format_amount(invoice.get_total())}")
 
     print_separator()
 
     # Update status to sent
     print("Updating invoice status to SENT...")
-    manager.update_invoice_status(
-        invoice.id, InvoiceStatus.SENT, "Invoice sent to customer"
-    )
+    manager.update_invoice_status(invoice.id, InvoiceStatus.SENT, "Invoice sent to customer")
     print(f"Updated status: {invoice.status}")
 
     print_separator()
@@ -159,9 +151,7 @@ def run_demo():
 
     # Generate PDF
     print("Generating PDF invoice...")
-    pdf_output = delivery.generate_pdf(
-        invoice, output_path="invoice_exports/invoice_example.pdf"
-    )
+    pdf_output = delivery.generate_pdf(invoice, output_path="invoice_exports/invoice_example.pdf")
     print(f"Invoice exported to PDF: {pdf_output}")
 
     print_separator()

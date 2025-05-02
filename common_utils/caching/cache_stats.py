@@ -10,7 +10,7 @@ import logging
 import threading
 import time
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 # Set up logging
@@ -180,9 +180,7 @@ class CacheStatsDashboard:
             total_hits = sum(stats.hits for stats in self._namespace_stats.values())
             total_misses = sum(stats.misses for stats in self._namespace_stats.values())
             total_sets = sum(stats.sets for stats in self._namespace_stats.values())
-            total_deletes = sum(
-                stats.deletes for stats in self._namespace_stats.values()
-            )
+            total_deletes = sum(stats.deletes for stats in self._namespace_stats.values())
             total_clears = sum(stats.clears for stats in self._namespace_stats.values())
             total_size_bytes = sum(
                 stats.cache_size_bytes for stats in self._namespace_stats.values()
@@ -199,10 +197,7 @@ class CacheStatsDashboard:
                 "total_deletes": total_deletes,
                 "total_clears": total_clears,
                 "total_gets": total_gets,
-                "total_operations": total_gets
-                + total_sets
-                + total_deletes
-                + total_clears,
+                "total_operations": total_gets + total_sets + total_deletes + total_clears,
                 "overall_hit_rate": hit_rate,
                 "total_size_bytes": total_size_bytes,
                 "total_size_mb": total_size_bytes / (1024 * 1024),
@@ -222,9 +217,7 @@ class CacheStatsDashboard:
 
             # Check namespaces with low hit rates
             for namespace, stats in self._namespace_stats.items():
-                if (
-                    stats.hits + stats.misses > 10
-                ):  # Only consider namespaces with enough data
+                if stats.hits + stats.misses > 10:  # Only consider namespaces with enough data
                     if stats.hit_rate < 0.3:
                         recommendations.append(
                             {

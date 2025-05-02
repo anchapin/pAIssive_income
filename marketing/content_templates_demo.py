@@ -7,12 +7,9 @@ to create marketing content for different channels.
 
 from content_templates import (
     BlogPostTemplate,
-    CaseStudyTemplate,
     EmailNewsletterTemplate,
     LandingPageTemplate,
-    ProductDescriptionTemplate,
     SocialMediaTemplate,
-    TestimonialTemplate,
     VideoScriptTemplate,
 )
 from user_personas import PersonaCreator

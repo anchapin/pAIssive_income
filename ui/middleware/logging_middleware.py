@@ -7,8 +7,8 @@ This module provides middleware for logging HTTP requests and responses.
 import logging
 import time
 
-from flask import g, request
-from werkzeug.wrappers import Response
+
+from flask import g
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -88,9 +88,7 @@ class RequestLoggingMiddleware:
             log_data["user_id"] = g.user_id
 
         # Log the request
-        logger.info(
-            f"HTTP {method} {path} {status_code} {duration:.3f}s", extra=log_data
-        )
+        logger.info(f"HTTP {method} {path} {status_code} {duration:.3f}s", extra=log_data)
 
     def _get_status_code(self, response):
         """

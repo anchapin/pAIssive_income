@@ -5,15 +5,10 @@ This module defines the routes for the web interface, handling requests
 for different parts of the application.
 """
 
-import json
 import logging
-import os
 import traceback
-import uuid
-from datetime import datetime
 
 from flask import flash, jsonify, redirect, render_template, request, session, url_for
-
 from interfaces.ui_interfaces import (
     IAgentTeamService,
     IDeveloperService,
@@ -34,7 +29,6 @@ from .errors import (
 )
 from .task_manager import (
     cancel_task,
-    check_task_completion,
     get_task_id,
     get_task_status,
     store_task_id,
@@ -152,9 +146,7 @@ def niche_results():
     # Get niches from session
     niches = session.get("niches", [])
 
-    return render_template(
-        "niche_results.html", title="Niche Analysis Results", niches=niches
-    )
+    return render_template("niche_results.html", title="Niche Analysis Results", niches=niches)
 
 
 # Developer routes
@@ -164,9 +156,7 @@ def developer():
     # Get niches
     niches = niche_analysis_service.get_niches()
 
-    return render_template(
-        "developer.html", title="Solution Development", niches=niches
-    )
+    return render_template("developer.html", title="Solution Development", niches=niches)
 
 
 @app.route("/developer/solution", methods=["POST"])
@@ -231,9 +221,7 @@ def solution_results():
     # Get solution from session
     solution = session.get("solution", {})
 
-    return render_template(
-        "solution_results.html", title="Solution Results", solution=solution
-    )
+    return render_template("solution_results.html", title="Solution Results", solution=solution)
 
 
 # Monetization routes
@@ -243,9 +231,7 @@ def monetization():
     # Get solutions
     solutions = developer_service.get_solutions()
 
-    return render_template(
-        "monetization.html", title="Monetization Strategy", solutions=solutions
-    )
+    return render_template("monetization.html", title="Monetization Strategy", solutions=solutions)
 
 
 @app.route("/monetization/strategy", methods=["POST"])
@@ -324,9 +310,7 @@ def marketing():
     # Get solutions
     solutions = developer_service.get_solutions()
 
-    return render_template(
-        "marketing.html", title="Marketing Campaign", solutions=solutions
-    )
+    return render_template("marketing.html", title="Marketing Campaign", solutions=solutions)
 
 
 @app.route("/marketing/campaign", methods=["POST"])
@@ -422,9 +406,7 @@ def cancel_task_route(task_id):
         return jsonify(
             {
                 "success": result,
-                "message": (
-                    "Task cancelled" if result else "Task could not be cancelled"
-                ),
+                "message": ("Task cancelled" if result else "Task could not be cancelled"),
             }
         )
     except Exception as e:

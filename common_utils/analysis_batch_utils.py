@@ -5,30 +5,22 @@ This module provides utilities for performing batch processing on data analysis 
 such as feature extraction, data transformation, and model evaluation.
 """
 
-import concurrent.futures
 import logging
 import time
-import uuid
-from dataclasses import dataclass, field
-from datetime import datetime
-from functools import partial
+from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
     Dict,
     Generic,
-    Iterable,
     List,
-    Optional,
     Tuple,
     TypeVar,
-    Union,
 )
 
 import numpy as np
 
 from .batch_utils import (
-    BatchProcessingStats,
     BatchProcessor,
     BatchResult,
     process_batch,
@@ -58,9 +50,7 @@ class AnalysisBatchProcessor(Generic[T, R]):
     Specialized batch processor for data analysis tasks.
     """
 
-    def __init__(
-        self, processor_func: Callable[[T], R], config: AnalysisBatchConfig = None
-    ):
+    def __init__(self, processor_func: Callable[[T], R], config: AnalysisBatchConfig = None):
         """
         Initialize the analysis batch processor.
 
@@ -77,9 +67,7 @@ class AnalysisBatchProcessor(Generic[T, R]):
             timeout=self.config.timeout,
         )
 
-    def process_dataset(
-        self, items: List[T], batch_size: int = None
-    ) -> BatchResult[T, R]:
+    def process_dataset(self, items: List[T], batch_size: int = None) -> BatchResult[T, R]:
         """
         Process a dataset in batches.
 
@@ -222,9 +210,7 @@ class AnalysisBatchProcessor(Generic[T, R]):
             test_indices = indices[start_idx:end_idx]
 
             # Create train indices (all indices not in test)
-            train_indices = np.array(
-                [idx for idx in indices if idx not in test_indices]
-            )
+            train_indices = np.array([idx for idx in indices if idx not in test_indices])
 
             # Split data
             train_items = [items[i] for i in train_indices]

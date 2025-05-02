@@ -14,10 +14,8 @@ import os
 import time
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
-from .auth import hash_password
-from .models import User
 from .services import UserUpdate, get_user_by_email, update_user
 
 # Configure logger
@@ -25,9 +23,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 PASSWORD_RESET_TOKEN_EXPIRY = 24 * 60 * 60  # 24 hours in seconds
-PASSWORD_RESET_SECRET_KEY = os.environ.get(
-    "PASSWORD_RESET_SECRET_KEY", "dev-password-reset-secret"
-)
+PASSWORD_RESET_SECRET_KEY = os.environ.get("PASSWORD_RESET_SECRET_KEY", "dev-password-reset-secret")
 
 # In-memory storage for password reset tokens
 # In a production environment, this would be stored in a database
@@ -96,9 +92,7 @@ def generate_password_reset_token(user_email: str) -> Optional[Tuple[str, dateti
     # Calculate expiry datetime for user-friendly display
     expiry_datetime = datetime.utcnow() + timedelta(seconds=PASSWORD_RESET_TOKEN_EXPIRY)
 
-    logger.info(
-        f"Generated password reset token for user: {user.username} (ID: {user.id})"
-    )
+    logger.info(f"Generated password reset token for user: {user.username} (ID: {user.id})")
     return token, expiry_datetime
 
 
@@ -198,9 +192,7 @@ def reset_password(token: str, new_password: str) -> bool:
         if token in PASSWORD_RESET_TOKENS:
             del PASSWORD_RESET_TOKENS[token]
 
-        logger.info(
-            f"Password reset successful for user: {user.username} (ID: {user_id})"
-        )
+        logger.info(f"Password reset successful for user: {user.username} (ID: {user_id})")
         return True
 
     except Exception as e:
@@ -225,9 +217,7 @@ def cleanup_expired_tokens() -> int:
 
             # Add padding if needed
             padding = "=" * ((4 - len(payload_b64) % 4) % 4)
-            payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode(
-                "utf-8"
-            )
+            payload_json = base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8")
             payload = json.loads(payload_json)
 
             # Check if token is expired

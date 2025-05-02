@@ -3,21 +3,15 @@ Problem Identifier for the pAIssive Income project.
 Identifies user problems and pain points in specific niches.
 """
 
-import hashlib
 import logging
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 # Import the centralized caching service
-from common_utils.caching import cached, default_cache
+from common_utils.caching import default_cache
 
 from .errors import ProblemIdentificationError, ValidationError, handle_exception
-from .schemas import (
-    ProblemSchema,
-    ProblemSeverityAnalysisSchema,
-    SeverityAnalysisSchema,
-)
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -36,9 +30,7 @@ class ProblemIdentifier:
         # Cache TTL in seconds (24 hours by default)
         self.cache_ttl = 86400
 
-    def identify_problems(
-        self, niche: str, force_refresh: bool = False
-    ) -> List[Dict[str, Any]]:
+    def identify_problems(self, niche: str, force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
         Identify problems and pain points in a specific niche.
 
@@ -441,9 +433,7 @@ class ProblemIdentifier:
             problems = niche_problems.get(niche, [])
 
             # Cache the result
-            default_cache.set(
-                cache_key, problems, ttl=self.cache_ttl, namespace="niche_problems"
-            )
+            default_cache.set(cache_key, problems, ttl=self.cache_ttl, namespace="niche_problems")
 
             logger.info(f"Identified {len(problems)} problems for niche: {niche}")
             return problems
@@ -495,9 +485,7 @@ class ProblemIdentifier:
 
             # Check for required fields
             required_fields = ["id", "name", "description", "severity"]
-            missing_fields = [
-                field for field in required_fields if field not in problem
-            ]
+            missing_fields = [field for field in required_fields if field not in problem]
 
             if missing_fields:
                 raise ValidationError(
@@ -516,9 +504,7 @@ class ProblemIdentifier:
             if not force_refresh:
                 cached_result = default_cache.get(cache_key, namespace="niche_problems")
                 if cached_result is not None:
-                    logger.info(
-                        f"Using cached severity analysis for problem: {problem['name']}"
-                    )
+                    logger.info(f"Using cached severity analysis for problem: {problem['name']}")
                     return cached_result
 
             # In a real implementation, this would use AI to analyze the severity
@@ -552,9 +538,7 @@ class ProblemIdentifier:
 
             # Validate severity value
             if severity not in severity_levels:
-                logger.warning(
-                    f"Invalid severity value: {severity}, using 'medium' instead"
-                )
+                logger.warning(f"Invalid severity value: {severity}, using 'medium' instead")
                 severity = "medium"
 
             analysis = {
@@ -563,22 +547,16 @@ class ProblemIdentifier:
                 "severity": severity,
                 "analysis": severity_levels.get(severity, severity_levels["medium"]),
                 "potential_impact_of_solution": (
-                    "high"
-                    if severity == "high"
-                    else "medium" if severity == "medium" else "low"
+                    "high" if severity == "high" else "medium" if severity == "medium" else "low"
                 ),
                 "user_willingness_to_pay": (
-                    "high"
-                    if severity == "high"
-                    else "medium" if severity == "medium" else "low"
+                    "high" if severity == "high" else "medium" if severity == "medium" else "low"
                 ),
                 "timestamp": datetime.now().isoformat(),
             }
 
             # Cache the result
-            default_cache.set(
-                cache_key, analysis, ttl=self.cache_ttl, namespace="niche_problems"
-            )
+            default_cache.set(cache_key, analysis, ttl=self.cache_ttl, namespace="niche_problems")
 
             logger.info(f"Analyzed severity for problem: {problem['name']}")
             return analysis

@@ -9,9 +9,9 @@ import os
 import threading
 import time
 from concurrent import futures
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List
 
-from ..server import ModelServer, ServerConfig, ServerProtocol
+from ..server import ModelServer
 from .config import GRPCConfig
 from .servicer import ModelServicer
 
@@ -69,7 +69,6 @@ class GRPCServer(ModelServer):
 
         # Import required modules
         try:
-            import torch
             from transformers import AutoTokenizer
         except ImportError:
             raise ImportError("PyTorch and Transformers are required for model loading")
@@ -93,9 +92,7 @@ class GRPCServer(ModelServer):
         elif self.config.model_type == "embedding":
             from transformers import AutoModel
 
-            self.model = AutoModel.from_pretrained(
-                self.config.model_path, device_map="auto"
-            )
+            self.model = AutoModel.from_pretrained(self.config.model_path, device_map="auto")
         else:
             raise ValueError(f"Unsupported model type: {self.config.model_type}")
 
@@ -133,9 +130,7 @@ class GRPCServer(ModelServer):
             with open(self.config.tls_cert_file, "rb") as f:
                 certificate_chain = f.read()
 
-            server_credentials = grpc.ssl_server_credentials(
-                [(private_key, certificate_chain)]
-            )
+            server_credentials = grpc.ssl_server_credentials([(private_key, certificate_chain)])
 
             # Add secure port
             server_address = f"{self.config.host}:{self.config.port}"
@@ -193,8 +188,7 @@ class GRPCServer(ModelServer):
         """
         return {
             "version": "1.0.0",
-            "model_id": self.config.model_id
-            or os.path.basename(self.config.model_path),
+            "model_id": self.config.model_id or os.path.basename(self.config.model_path),
             "model_type": self.config.model_type,
             "uptime": time.time() - self.start_time if self.start_time else 0,
             "host": self.config.host,
@@ -220,8 +214,7 @@ class GRPCServer(ModelServer):
                 "name": "request_count",
                 "value": self.request_count,
                 "labels": {
-                    "model_id": self.config.model_id
-                    or os.path.basename(self.config.model_path),
+                    "model_id": self.config.model_id or os.path.basename(self.config.model_path),
                     "model_type": self.config.model_type,
                 },
             }
@@ -233,8 +226,7 @@ class GRPCServer(ModelServer):
                 "name": "error_count",
                 "value": self.error_count,
                 "labels": {
-                    "model_id": self.config.model_id
-                    or os.path.basename(self.config.model_path),
+                    "model_id": self.config.model_id or os.path.basename(self.config.model_path),
                     "model_type": self.config.model_type,
                 },
             }
@@ -246,8 +238,7 @@ class GRPCServer(ModelServer):
                 "name": "token_count",
                 "value": self.token_count,
                 "labels": {
-                    "model_id": self.config.model_id
-                    or os.path.basename(self.config.model_path),
+                    "model_id": self.config.model_id or os.path.basename(self.config.model_path),
                     "model_type": self.config.model_type,
                 },
             }
@@ -345,9 +336,7 @@ class GRPCServer(ModelServer):
         try:
             from .proto import model_pb2, model_pb2_grpc
         except ImportError:
-            logger.warning(
-                "Proto modules not found. Make sure to generate them from .proto files."
-            )
+            logger.warning("Proto modules not found. Make sure to generate them from .proto files.")
             return
 
         # Create servicer

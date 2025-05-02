@@ -5,7 +5,6 @@ This module mocks the requests library to allow testing of code that makes HTTP 
 without actually making network calls.
 """
 
-import io
 import json
 import re
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
@@ -62,13 +61,8 @@ class MockResponse:
             self.headers["content-length"] = str(len(self._content))
 
         # Set encoding based on headers if not specified
-        if (
-            "content-type" in self.headers
-            and "charset=" in self.headers["content-type"]
-        ):
-            charset_match = re.search(
-                r"charset=([^\s;]+)", self.headers["content-type"]
-            )
+        if "content-type" in self.headers and "charset=" in self.headers["content-type"]:
+            charset_match = re.search(r"charset=([^\s;]+)", self.headers["content-type"])
             if charset_match:
                 self.encoding = charset_match.group(1)
 

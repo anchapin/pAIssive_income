@@ -10,9 +10,9 @@ import copy
 import logging
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
-from common_utils import from_json, load_from_json_file, save_to_json_file, to_json
+from common_utils import load_from_json_file, save_to_json_file, to_json
 
 from .errors import (
     FeatureNotFoundError,
@@ -186,14 +186,10 @@ class SubscriptionModel:
             if feature_id not in tier["features"]:
                 tier["features"].append(feature_id)
                 self.updated_at = datetime.now().isoformat()
-                logger.info(
-                    f"Assigned feature '{feature['name']}' to tier '{tier['name']}'"
-                )
+                logger.info(f"Assigned feature '{feature['name']}' to tier '{tier['name']}'")
                 return True
 
-            logger.debug(
-                f"Feature '{feature['name']}' already assigned to tier '{tier['name']}'"
-            )
+            logger.debug(f"Feature '{feature['name']}' already assigned to tier '{tier['name']}'")
             return False
 
         except (TierNotFoundError, FeatureNotFoundError) as e:
@@ -372,9 +368,7 @@ class SubscriptionModel:
         """
         try:
             save_to_json_file(self.to_dict(), file_path)
-            logger.info(
-                f"Successfully saved subscription model '{self.name}' to {file_path}"
-            )
+            logger.info(f"Successfully saved subscription model '{self.name}' to {file_path}")
         except (IOError, OSError) as e:
             from .errors import MonetizationError
 
@@ -486,8 +480,7 @@ class SubscriptionModel:
                     message=f"Missing required fields in subscription model data: {', '.join(missing_fields)}",
                     field="file_content",
                     validation_errors=[
-                        {"field": field, "error": "Field is required"}
-                        for field in missing_fields
+                        {"field": field, "error": "Field is required"} for field in missing_fields
                     ],
                 )
 
@@ -516,9 +509,7 @@ class SubscriptionModel:
                 # The FreemiumModel constructor auto-creates a free tier,
                 # but we need to replace it with the one from the saved data
                 free_tier_id = data["free_tier_id"]
-                free_tier = next(
-                    (t for t in data["tiers"] if t["id"] == free_tier_id), None
-                )
+                free_tier = next((t for t in data["tiers"] if t["id"] == free_tier_id), None)
 
                 if free_tier:
                     # Find and remove the auto-created free tier
@@ -532,9 +523,7 @@ class SubscriptionModel:
                     model.free_tier = free_tier
                 else:
                     # Warn if the referenced free tier is missing in the data
-                    logger.warning(
-                        f"Free tier with ID {free_tier_id} not found in loaded data"
-                    )
+                    logger.warning(f"Free tier with ID {free_tier_id} not found in loaded data")
 
                 # Add all other tiers from the loaded data
                 for tier in data["tiers"]:
@@ -557,9 +546,7 @@ class SubscriptionModel:
             model.created_at = data["created_at"]
             model.updated_at = data["updated_at"]
 
-            logger.info(
-                f"Successfully loaded subscription model '{model.name}' from {file_path}"
-            )
+            logger.info(f"Successfully loaded subscription model '{model.name}' from {file_path}")
             return model
 
         # STAGE 5: Comprehensive error handling for different failure scenarios
@@ -634,8 +621,7 @@ class FreemiumModel(SubscriptionModel):
             description=free_tier_description,
             price_monthly=0.0,
             price_yearly=0.0,
-            limits=free_tier_limits
-            or {"usage": "limited", "api_calls": 100, "exports": 5},
+            limits=free_tier_limits or {"usage": "limited", "api_calls": 100, "exports": 5},
             target_users="Free users and trial users",
         )
 

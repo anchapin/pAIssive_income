@@ -44,9 +44,7 @@ class ISubscriptionModel(ABC):
     """Interface for subscription model."""
 
     @abstractmethod
-    def create_subscription_tiers(
-        self, solution: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+    def create_subscription_tiers(self, solution: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Create subscription tiers for a solution.
 
@@ -56,7 +54,6 @@ class ISubscriptionModel(ABC):
         Returns:
             List of subscription tier dictionaries
         """
-        pass
 
     @abstractmethod
     def calculate_pricing(
@@ -72,7 +69,6 @@ class ISubscriptionModel(ABC):
         Returns:
             Pricing dictionary
         """
-        pass
 
     @abstractmethod
     def project_revenue(
@@ -89,7 +85,6 @@ class ISubscriptionModel(ABC):
         Returns:
             Revenue projection dictionary
         """
-        pass
 
 
 class IPricingCalculator(ABC):
@@ -107,7 +102,6 @@ class IPricingCalculator(ABC):
         Returns:
             Calculated price
         """
-        pass
 
     @abstractmethod
     def calculate_tier_prices(
@@ -123,7 +117,6 @@ class IPricingCalculator(ABC):
         Returns:
             List of subscription tier dictionaries with prices
         """
-        pass
 
     @abstractmethod
     def calculate_discount(self, price: float, discount_percentage: float) -> float:
@@ -137,7 +130,6 @@ class IPricingCalculator(ABC):
         Returns:
             Discounted price
         """
-        pass
 
 
 class IRevenueProjector(ABC):
@@ -157,7 +149,6 @@ class IRevenueProjector(ABC):
         Returns:
             Monthly revenue projection dictionary
         """
-        pass
 
     @abstractmethod
     def project_annual_revenue(
@@ -177,7 +168,6 @@ class IRevenueProjector(ABC):
         Returns:
             Annual revenue projection dictionary
         """
-        pass
 
     @abstractmethod
     def calculate_lifetime_value(self, arpu: float, churn_rate: float) -> float:
@@ -191,7 +181,6 @@ class IRevenueProjector(ABC):
         Returns:
             Customer lifetime value
         """
-        pass
 
 
 class ISubscriptionManager(ABC):
@@ -212,12 +201,9 @@ class ISubscriptionManager(ABC):
         Returns:
             Subscription dictionary
         """
-        pass
 
     @abstractmethod
-    def update_subscription(
-        self, subscription_id: str, updates: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def update_subscription(self, subscription_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
         """
         Update a subscription.
 
@@ -228,7 +214,6 @@ class ISubscriptionManager(ABC):
         Returns:
             Updated subscription dictionary
         """
-        pass
 
     @abstractmethod
     def cancel_subscription(
@@ -244,7 +229,6 @@ class ISubscriptionManager(ABC):
         Returns:
             Canceled subscription dictionary
         """
-        pass
 
     @abstractmethod
     def get_subscription(self, subscription_id: str) -> Dict[str, Any]:
@@ -257,7 +241,6 @@ class ISubscriptionManager(ABC):
         Returns:
             Subscription dictionary
         """
-        pass
 
     @abstractmethod
     def get_user_subscriptions(self, user_id: str) -> List[Dict[str, Any]]:
@@ -270,7 +253,6 @@ class ISubscriptionManager(ABC):
         Returns:
             List of subscription dictionaries
         """
-        pass
 
 
 class IMonetizationCalculator(ABC):
@@ -290,7 +272,6 @@ class IMonetizationCalculator(ABC):
         Returns:
             Revenue dictionary
         """
-        pass
 
     @abstractmethod
     def calculate_costs(self, solution: Dict[str, Any]) -> Dict[str, Any]:
@@ -303,12 +284,9 @@ class IMonetizationCalculator(ABC):
         Returns:
             Costs dictionary
         """
-        pass
 
     @abstractmethod
-    def calculate_profit(
-        self, revenue: Dict[str, Any], costs: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def calculate_profit(self, revenue: Dict[str, Any], costs: Dict[str, Any]) -> Dict[str, Any]:
         """
         Calculate profit.
 
@@ -319,12 +297,9 @@ class IMonetizationCalculator(ABC):
         Returns:
             Profit dictionary
         """
-        pass
 
     @abstractmethod
-    def project_growth(
-        self, initial_users: int, growth_rate: float, months: int
-    ) -> Dict[str, Any]:
+    def project_growth(self, initial_users: int, growth_rate: float, months: int) -> Dict[str, Any]:
         """
         Project user growth.
 
@@ -336,4 +311,3 @@ class IMonetizationCalculator(ABC):
         Returns:
             Growth projection dictionary
         """
-        pass

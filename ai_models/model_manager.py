@@ -2,22 +2,16 @@
 
 import logging
 import os
-from typing import Any, Dict, List, Optional, Type, Union, cast
+from typing import Any, Dict, Optional
 
-from interfaces.model_interfaces import IModelConfig, IModelInfo, IModelManager
+from interfaces.model_interfaces import IModelConfig, IModelManager
 
 from .adapters import (
     AdapterFactory,
     BaseModelAdapter,
     LMStudioAdapter,
-    OllamaAdapter,
-    OpenAICompatibleAdapter,
-    TensorRTAdapter,
 )
-from .model_config import ModelConfig
 from .model_downloader import ModelDownloader
-from .model_info import ModelInfo
-from .performance_monitor import PerformanceMonitor
 
 logger = logging.getLogger(__name__)
 

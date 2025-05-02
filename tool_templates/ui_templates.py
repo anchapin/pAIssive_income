@@ -17,7 +17,7 @@ import os
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -27,8 +27,7 @@ logger = logging.getLogger(__name__)
 
 # Check for optional dependencies
 try:
-    import flask
-    from flask import Flask, jsonify, redirect, render_template, request, url_for
+    from flask import Flask, render_template
 
     FLASK_AVAILABLE = True
 except ImportError:
@@ -36,14 +35,12 @@ except ImportError:
     logger.warning("Flask not available. Web application templates will not work.")
 
 try:
-    from PyQt5 import QtCore, QtGui, QtWidgets
+    from PyQt5 import QtCore, QtWidgets
 
     PYQT_AVAILABLE = True
 except ImportError:
     PYQT_AVAILABLE = False
-    logger.warning(
-        "PyQt5 not available. Desktop application templates (PyQt) will not work."
-    )
+    logger.warning("PyQt5 not available. Desktop application templates (PyQt) will not work.")
 
 
 class BaseUITemplate(ABC):
@@ -123,7 +120,6 @@ class BaseUITemplate(ABC):
         Returns:
             Application instance
         """
-        pass
 
     @abstractmethod
     def run(self, **kwargs) -> None:
@@ -133,7 +129,6 @@ class BaseUITemplate(ABC):
         Args:
             **kwargs: Additional parameters for running the application
         """
-        pass
 
     def export_template(self, output_path: str) -> None:
         """
@@ -278,13 +273,9 @@ class WebAppTemplate(BaseUITemplate):
 
         # If app is already created, add the route directly
         if self.app:
-            self.app.add_url_rule(
-                url, endpoint=endpoint, view_func=view_func, methods=methods
-            )
+            self.app.add_url_rule(url, endpoint=endpoint, view_func=view_func, methods=methods)
 
-    def run(
-        self, host: str = "127.0.0.1", port: int = 5000, debug: bool = False
-    ) -> None:
+    def run(self, host: str = "127.0.0.1", port: int = 5000, debug: bool = False) -> None:
         """
         Run the web application.
 
@@ -578,29 +569,19 @@ function initializeApp() {
 """
 
         # Write files
-        with open(
-            os.path.join(output_dir, self.template_folder, "base.html"), "w"
-        ) as f:
+        with open(os.path.join(output_dir, self.template_folder, "base.html"), "w") as f:
             f.write(base_template)
 
-        with open(
-            os.path.join(output_dir, self.template_folder, "index.html"), "w"
-        ) as f:
+        with open(os.path.join(output_dir, self.template_folder, "index.html"), "w") as f:
             f.write(index_template)
 
-        with open(
-            os.path.join(output_dir, self.template_folder, "about.html"), "w"
-        ) as f:
+        with open(os.path.join(output_dir, self.template_folder, "about.html"), "w") as f:
             f.write(about_template)
 
-        with open(
-            os.path.join(output_dir, self.static_folder, "css", "style.css"), "w"
-        ) as f:
+        with open(os.path.join(output_dir, self.static_folder, "css", "style.css"), "w") as f:
             f.write(css_content)
 
-        with open(
-            os.path.join(output_dir, self.static_folder, "js", "main.js"), "w"
-        ) as f:
+        with open(os.path.join(output_dir, self.static_folder, "js", "main.js"), "w") as f:
             f.write(js_content)
 
         logger.info(f"Web application templates generated in {output_dir}")
@@ -849,9 +830,7 @@ class UITemplateFactory:
     """
 
     @staticmethod
-    def create(
-        template_type: str, app_name: str, description: str, **kwargs
-    ) -> BaseUITemplate:
+    def create(template_type: str, app_name: str, description: str, **kwargs) -> BaseUITemplate:
         """
         Create a UI template.
 

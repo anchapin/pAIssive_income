@@ -4,9 +4,7 @@ Agent Team Service for the pAIssive Income UI.
 This service provides methods for interacting with the Agent Team module.
 """
 
-import json
 import logging
-import os
 import uuid
 from typing import Any, Dict, List, Optional
 
@@ -31,7 +29,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
 
         # Import the AgentTeam class
         try:
-            from agent_team import AgentTeam
+            pass
 
             self.agent_team_available = True
         except ImportError:
@@ -111,9 +109,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
                 return project
         return None
 
-    def update_project(
-        self, project_id: str, updates: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    def update_project(self, project_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
         Update a project.
 
@@ -130,9 +126,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
                 project.update(updates)
                 from datetime import datetime
 
-                project["updated_at"] = format_datetime(
-                    datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ"
-                )
+                project["updated_at"] = format_datetime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ")
                 projects[i] = project
                 self.save_data(self.projects_file, projects)
                 return project

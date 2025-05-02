@@ -8,8 +8,7 @@ including image classification, object detection, and image generation.
 import json
 import logging
 import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
@@ -22,7 +21,6 @@ logger = logging.getLogger(__name__)
 # Try to import optional dependencies
 try:
     import torch
-    from torch import nn
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -30,7 +28,6 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import transformers
     from transformers import AutoImageProcessor, AutoModelForImageClassification
 
     TRANSFORMERS_AVAILABLE = True
@@ -47,7 +44,7 @@ except ImportError:
     PIL_AVAILABLE = False
 
 try:
-    import cv2
+    pass
 
     CV2_AVAILABLE = True
 except ImportError:
@@ -59,9 +56,7 @@ try:
 
     ONNX_AVAILABLE = True
 except ImportError:
-    logger.warning(
-        "ONNX Runtime not available. ONNX vision model support will be limited."
-    )
+    logger.warning("ONNX Runtime not available. ONNX vision model support will be limited.")
     ONNX_AVAILABLE = False
 
 
@@ -160,9 +155,7 @@ class VisionModel:
             )
 
         if not TORCH_AVAILABLE:
-            raise ImportError(
-                "PyTorch not available. Please install it with: pip install torch"
-            )
+            raise ImportError("PyTorch not available. Please install it with: pip install torch")
 
         logger.info(f"Loading Hugging Face vision model: {self.model_path}")
 
@@ -191,18 +184,14 @@ class VisionModel:
                 from transformers import AutoModelForVision2Seq, ViTImageProcessor
 
                 self.processor = ViTImageProcessor.from_pretrained(self.processor_path)
-                self.model = AutoModelForVision2Seq.from_pretrained(
-                    self.model_path, **self.kwargs
-                )
+                self.model = AutoModelForVision2Seq.from_pretrained(self.model_path, **self.kwargs)
             else:
                 raise ValueError(f"Unsupported model type: {self.model_type}")
 
             # Move model to device
             self.model.to(self.device)
 
-            logger.info(
-                f"Successfully loaded Hugging Face vision model: {self.model_path}"
-            )
+            logger.info(f"Successfully loaded Hugging Face vision model: {self.model_path}")
 
         except Exception as e:
             logger.error(f"Error loading Hugging Face vision model: {e}")
@@ -222,15 +211,10 @@ class VisionModel:
         try:
             # Configure session options
             session_options = ort.SessionOptions()
-            session_options.graph_optimization_level = (
-                ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-            )
+            session_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
 
             # Determine providers
-            if (
-                self.device == "cuda"
-                and "CUDAExecutionProvider" in ort.get_available_providers()
-            ):
+            if self.device == "cuda" and "CUDAExecutionProvider" in ort.get_available_providers():
                 providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
             else:
                 providers = ["CPUExecutionProvider"]
@@ -260,9 +244,7 @@ class VisionModel:
         Load a PyTorch vision model.
         """
         if not TORCH_AVAILABLE:
-            raise ImportError(
-                "PyTorch not available. Please install it with: pip install torch"
-            )
+            raise ImportError("PyTorch not available. Please install it with: pip install torch")
 
         logger.info(f"Loading PyTorch vision model: {self.model_path}")
 
@@ -369,9 +351,7 @@ class VisionModel:
             self.load()
 
         if not PIL_AVAILABLE:
-            raise ImportError(
-                "PIL not available. Please install it with: pip install Pillow"
-            )
+            raise ImportError("PIL not available. Please install it with: pip install Pillow")
 
         try:
             # Load image
@@ -390,9 +370,7 @@ class VisionModel:
             logger.error(f"Error classifying image: {e}")
             raise
 
-    def _classify_image_huggingface(
-        self, image: "Image.Image", **kwargs
-    ) -> Dict[str, float]:
+    def _classify_image_huggingface(self, image: "Image.Image", **kwargs) -> Dict[str, float]:
         """
         Classify an image using a Hugging Face vision model.
 
@@ -496,9 +474,7 @@ class VisionModel:
 
         return result
 
-    def _classify_image_pytorch(
-        self, image: "Image.Image", **kwargs
-    ) -> Dict[str, float]:
+    def _classify_image_pytorch(self, image: "Image.Image", **kwargs) -> Dict[str, float]:
         """
         Classify an image using a PyTorch vision model.
 
@@ -518,9 +494,7 @@ class VisionModel:
                 transforms.Resize(256),
                 transforms.CenterCrop(224),
                 transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             ]
         )
 
@@ -573,14 +547,10 @@ class VisionModel:
             self.load()
 
         if not PIL_AVAILABLE:
-            raise ImportError(
-                "PIL not available. Please install it with: pip install Pillow"
-            )
+            raise ImportError("PIL not available. Please install it with: pip install Pillow")
 
         if self.model_type != "object-detection":
-            raise ValueError(
-                f"Model type {self.model_type} does not support object detection"
-            )
+            raise ValueError(f"Model type {self.model_type} does not support object detection")
 
         try:
             # Load image
@@ -627,9 +597,7 @@ class VisionModel:
 
         # Format results
         detections = []
-        for score, label, box in zip(
-            results["scores"], results["labels"], results["boxes"]
-        ):
+        for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
             label_name = self.model.config.id2label[label.item()]
             detection = {
                 "label": label_name,
@@ -855,9 +823,7 @@ if __name__ == "__main__":
 
             # Print top 5 results
             print("Top 5 results:")
-            for label, score in sorted(
-                results.items(), key=lambda x: x[1], reverse=True
-            )[:5]:
+            for label, score in sorted(results.items(), key=lambda x: x[1], reverse=True)[:5]:
                 print(f"  {label}: {score:.4f}")
     else:
         print(f"Model file not found: {model_path}")

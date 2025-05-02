@@ -5,14 +5,13 @@ This module provides a class for managing invoices, including
 generation, storage, retrieval, and status updates.
 """
 
-import copy
 import json
 import os
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from .billing_calculator import BillingCalculator
-from .invoice import Invoice, InvoiceItem, InvoiceStatus
+from .invoice import Invoice, InvoiceStatus
 from .usage_tracker import UsageTracker
 
 
@@ -222,9 +221,7 @@ class InvoiceManager:
             customer_id=customer_id,
             date=end_time,  # Invoice date is the end of the billing period
             due_date=due_date
-            or (
-                end_time + timedelta(days=30)
-            ),  # Default due date is 30 days after billing period
+            or (end_time + timedelta(days=30)),  # Default due date is 30 days after billing period
             currency=currency,
             customer_info=customer_info,
             metadata=metadata or {},
@@ -688,15 +685,9 @@ class InvoiceManager:
                 }
 
             # Accumulate amounts in the proper currency bucket
-            summary["currencies"][invoice.currency][
-                "total_amount"
-            ] += invoice.get_total()
-            summary["currencies"][invoice.currency][
-                "total_paid"
-            ] += invoice.get_total_paid()
-            summary["currencies"][invoice.currency][
-                "total_due"
-            ] += invoice.get_balance_due()
+            summary["currencies"][invoice.currency]["total_amount"] += invoice.get_total()
+            summary["currencies"][invoice.currency]["total_paid"] += invoice.get_total_paid()
+            summary["currencies"][invoice.currency]["total_due"] += invoice.get_balance_due()
 
             # GLOBAL TOTALS: Accumulate the top-level totals
             summary["total_amount"] += invoice.get_total()
@@ -940,9 +931,7 @@ if __name__ == "__main__":
     print(f"Total: {invoice.format_amount(invoice.get_total())}")
 
     # Update status to sent
-    manager.update_invoice_status(
-        invoice.id, InvoiceStatus.SENT, "Invoice sent to customer"
-    )
+    manager.update_invoice_status(invoice.id, InvoiceStatus.SENT, "Invoice sent to customer")
 
     print(f"\nUpdated status: {invoice.status}")
 

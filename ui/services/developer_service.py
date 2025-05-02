@@ -4,9 +4,7 @@ Developer Service for the pAIssive Income UI.
 This service provides methods for interacting with the Developer Agent module.
 """
 
-import json
 import logging
-import os
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -31,7 +29,7 @@ class DeveloperService(BaseService, IDeveloperService):
 
         # Import the Developer Agent class
         try:
-            from agent_team.agent_profiles.developer import DeveloperAgent
+            pass
 
             self.developer_agent_available = True
         except ImportError:
@@ -227,9 +225,7 @@ class DeveloperService(BaseService, IDeveloperService):
                         "name": "Beta",
                         "duration": "6 weeks",
                         "features": [
-                            feature["id"]
-                            for feature in features[2:5]
-                            if len(features) > 2
+                            feature["id"] for feature in features[2:5] if len(features) > 2
                         ],
                         "milestones": [
                             "Additional features implementation",
@@ -242,9 +238,7 @@ class DeveloperService(BaseService, IDeveloperService):
                         "name": "Release",
                         "duration": "4 weeks",
                         "features": [
-                            feature["id"]
-                            for feature in features[5:]
-                            if len(features) > 5
+                            feature["id"] for feature in features[5:] if len(features) > 5
                         ],
                         "milestones": [
                             "Final features implementation",

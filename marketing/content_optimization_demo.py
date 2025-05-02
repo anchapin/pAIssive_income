@@ -196,14 +196,10 @@ def demo_readability_analyzer():
     print(
         f"- Flesch Reading Ease: {scores['flesch_reading_ease']['score']:.1f} ({scores['flesch_reading_ease']['interpretation']})"
     )
-    print(
-        f"- Flesch-Kincaid Grade Level: {scores['flesch_kincaid_grade']['score']:.1f}"
-    )
+    print(f"- Flesch-Kincaid Grade Level: {scores['flesch_kincaid_grade']['score']:.1f}")
     print(f"- SMOG Index: {scores['smog_index']['score']:.1f}")
     print(f"- Coleman-Liau Index: {scores['coleman_liau_index']['score']:.1f}")
-    print(
-        f"- Automated Readability Index: {scores['automated_readability_index']['score']:.1f}"
-    )
+    print(f"- Automated Readability Index: {scores['automated_readability_index']['score']:.1f}")
     print(f"- Gunning Fog Index: {scores['gunning_fog_index']['score']:.1f}")
     print(f"- Average Grade Level: {scores['grade_level']:.1f}")
     print(f"- Reading Level: {scores['reading_level']}")
@@ -213,12 +209,8 @@ def demo_readability_analyzer():
     print(
         f"- Sentence Length: Min={sentence['min']}, Max={sentence['max']}, Avg={sentence['avg']:.1f}"
     )
-    print(
-        f"- Short Sentences: {sentence['short_count']} ({sentence['short_percentage']:.1%})"
-    )
-    print(
-        f"- Long Sentences: {sentence['long_count']} ({sentence['long_percentage']:.1%})"
-    )
+    print(f"- Short Sentences: {sentence['short_count']} ({sentence['short_percentage']:.1%})")
+    print(f"- Long Sentences: {sentence['long_count']} ({sentence['long_percentage']:.1%})")
     print(
         f"- Optimal Sentences: {sentence['optimal_count']} ({sentence['optimal_percentage']:.1%})"
     )
@@ -228,12 +220,8 @@ def demo_readability_analyzer():
     print(
         f"- Paragraph Length: Min={paragraph['min']}, Max={paragraph['max']}, Avg={paragraph['avg']:.1f}"
     )
-    print(
-        f"- Short Paragraphs: {paragraph['short_count']} ({paragraph['short_percentage']:.1%})"
-    )
-    print(
-        f"- Long Paragraphs: {paragraph['long_count']} ({paragraph['long_percentage']:.1%})"
-    )
+    print(f"- Short Paragraphs: {paragraph['short_count']} ({paragraph['short_percentage']:.1%})")
+    print(f"- Long Paragraphs: {paragraph['long_count']} ({paragraph['long_percentage']:.1%})")
     print(
         f"- Optimal Paragraphs: {paragraph['optimal_count']} ({paragraph['optimal_percentage']:.1%})"
     )
@@ -245,9 +233,7 @@ def demo_readability_analyzer():
     )
 
     adverbs = results["style_analysis"]["adverb_usage"]
-    print(
-        f"- Adverbs: {adverbs['adverb_count']} instances ({adverbs['adverb_percentage']:.1%})"
-    )
+    print(f"- Adverbs: {adverbs['adverb_count']} instances ({adverbs['adverb_percentage']:.1%})")
 
     complex_words = results["style_analysis"]["complex_words"]
     print(
@@ -335,10 +321,7 @@ def demo_tone_analyzer():
 
     print("\nTone Scores:")
     for tone, data in results["tone_analysis"]["tone_scores"].items():
-        print(
-            f"- {tone}: {data['score']:.2f}"
-            + (" (target)" if data["is_target"] else "")
-        )
+        print(f"- {tone}: {data['score']:.2f}" + (" (target)" if data["is_target"] else ""))
 
     print(
         f"\nDominant Tone: {results['tone_analysis']['dominant_tone']} ({results['tone_analysis']['dominant_tone_score']:.2f})"
@@ -351,10 +334,7 @@ def demo_tone_analyzer():
 
     print("\nSentiment Analysis:")
     for sentiment, data in results["sentiment_analysis"]["sentiment_scores"].items():
-        print(
-            f"- {sentiment}: {data['score']:.2f}"
-            + (" (target)" if data["is_target"] else "")
-        )
+        print(f"- {sentiment}: {data['score']:.2f}" + (" (target)" if data["is_target"] else ""))
 
     print(
         f"\nDominant Sentiment: {results['sentiment_analysis']['dominant_sentiment']} ({results['sentiment_analysis']['dominant_sentiment_score']:.2f})"
@@ -369,12 +349,8 @@ def demo_tone_analyzer():
     print(
         f"- Sentence Length Variety: {results['style_analysis']['sentence_length_variety']['score']:.2f}"
     )
-    print(
-        f"- Vocabulary Variety: {results['style_analysis']['vocabulary_variety']['score']:.2f}"
-    )
-    print(
-        f"- Punctuation Density: {results['style_analysis']['punctuation']['density']:.2f}"
-    )
+    print(f"- Vocabulary Variety: {results['style_analysis']['vocabulary_variety']['score']:.2f}")
+    print(f"- Punctuation Density: {results['style_analysis']['punctuation']['density']:.2f}")
 
     print("\nRecommendations:")
     for recommendation in results["recommendations"]:

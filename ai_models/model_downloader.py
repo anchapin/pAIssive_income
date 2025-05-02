@@ -6,7 +6,6 @@ including Hugging Face Hub and other repositories.
 """
 
 import hashlib
-import json
 import logging
 import os
 import shutil
@@ -14,8 +13,7 @@ import sys
 import threading
 import time
 from dataclasses import dataclass
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 from urllib.parse import urlparse
 
 from .model_config import ModelConfig
@@ -53,9 +51,7 @@ try:
 
     HUGGINGFACE_HUB_AVAILABLE = True
 except ImportError:
-    logger.warning(
-        "huggingface_hub not available. Hugging Face model downloads will be limited."
-    )
+    logger.warning("huggingface_hub not available. Hugging Face model downloads will be limited.")
     HUGGINGFACE_HUB_AVAILABLE = False
 
 
@@ -185,9 +181,7 @@ class DownloadTask:
             # Determine the download method based on the source
             if self.source.startswith(("http://", "https://")):
                 self._download_from_url()
-            elif HUGGINGFACE_HUB_AVAILABLE and not self.source.startswith(
-                ("http://", "https://")
-            ):
+            elif HUGGINGFACE_HUB_AVAILABLE and not self.source.startswith(("http://", "https://")):
                 self._download_from_huggingface()
             else:
                 raise ValueError(f"Unsupported source: {self.source}")
@@ -294,9 +288,7 @@ class DownloadTask:
                 )
 
                 # Rename the file if necessary
-                downloaded_file = os.path.join(
-                    os.path.dirname(self.destination), file_name
-                )
+                downloaded_file = os.path.join(os.path.dirname(self.destination), file_name)
                 if downloaded_file != self.destination:
                     shutil.move(downloaded_file, self.destination)
 
@@ -533,9 +525,7 @@ class ModelDownloader:
                     self.config.models_dir, "huggingface", model_id.replace("/", "_")
                 )
             elif model_type == "llama":
-                destination = os.path.join(
-                    self.config.models_dir, "llama", f"{model_id}.gguf"
-                )
+                destination = os.path.join(self.config.models_dir, "llama", f"{model_id}.gguf")
             else:
                 destination = os.path.join(
                     self.config.models_dir, model_type, model_id.replace("/", "_")
@@ -571,9 +561,7 @@ class ModelDownloader:
                     break
 
             if test_name == "test_model_downloader_download_model":
-                self.download_from_url(
-                    url=url, destination=destination, progress_callback=callback
-                )
+                self.download_from_url(url=url, destination=destination, progress_callback=callback)
 
         return task
 
@@ -657,8 +645,7 @@ class ModelDownloader:
             completed_tasks = [
                 task_id
                 for task_id, task in self.download_tasks.items()
-                if not task.is_running()
-                and task.progress.status in ["completed", "failed"]
+                if not task.is_running() and task.progress.status in ["completed", "failed"]
             ]
 
             for task_id in completed_tasks:
@@ -712,9 +699,7 @@ class ModelDownloader:
             ModelInfo object if registration was successful, None otherwise
         """
         if not self.model_manager:
-            logger.warning(
-                "No model manager available for registering downloaded models"
-            )
+            logger.warning("No model manager available for registering downloaded models")
             return None
 
         if task.progress.status != "completed":
@@ -832,9 +817,7 @@ class ModelDownloader:
             model_type="huggingface",
             destination=destination,
             params=params,
-            callback=(
-                wrapped_callback if auto_register and self.model_manager else callback
-            ),
+            callback=(wrapped_callback if auto_register and self.model_manager else callback),
         )
 
     def download_from_url(
@@ -903,9 +886,7 @@ class ModelDownloader:
                         if elapsed_time > 0:
                             progress.downloaded_size = downloaded_size
                             progress.percentage = (
-                                (downloaded_size / total_size * 100)
-                                if total_size > 0
-                                else 0
+                                (downloaded_size / total_size * 100) if total_size > 0 else 0
                             )
                             progress.speed = downloaded_size / elapsed_time
                             progress.eta = (
@@ -990,8 +971,7 @@ class ModelDownloader:
                             model_info = self.model_manager.register_downloaded_model(
                                 download_task=task,
                                 model_type=model_type,
-                                description=description
-                                or f"Model downloaded from URL: {url}",
+                                description=description or f"Model downloaded from URL: {url}",
                             )
 
                             if model_info:
@@ -1011,9 +991,7 @@ class ModelDownloader:
             model_type=model_type,
             destination=destination,
             params=params,
-            callback=(
-                wrapped_callback if auto_register and self.model_manager else callback
-            ),
+            callback=(wrapped_callback if auto_register and self.model_manager else callback),
         )
 
     def search_huggingface_models(
@@ -1160,9 +1138,7 @@ if __name__ == "__main__":
 
         print("\nSearch Results:")
         for model in models:
-            print(
-                f"- {model['id']} (Downloads: {model['downloads']}, Likes: {model['likes']})"
-            )
+            print(f"- {model['id']} (Downloads: {model['downloads']}, Likes: {model['likes']})")
 
     except Exception as e:
         print(f"Error: {e}")

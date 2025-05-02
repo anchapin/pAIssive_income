@@ -8,8 +8,6 @@ to avoid circular import issues.
 import logging
 import os
 import sys
-from enum import Enum
-from typing import Any, Dict, List, Optional
 
 # Add the project root to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -141,9 +139,7 @@ def test_fallback_strategies(manager):
         )
 
         if fallback_model:
-            print(
-                f"✅ Strategy {strategy.value} found fallback model: {fallback_model.name}"
-            )
+            print(f"✅ Strategy {strategy.value} found fallback model: {fallback_model.name}")
         else:
             print(f"❌ Strategy {strategy.value} failed to find a fallback model")
 

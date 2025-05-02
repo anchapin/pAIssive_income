@@ -10,15 +10,14 @@ import logging
 import os
 import time
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import List, Optional
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import metrics classes
-from ai_models.metrics import EnhancedPerformanceMonitor, EnhancedPerformanceReport
+from ai_models.metrics import EnhancedPerformanceMonitor
 
 
 class MetricsDashboard:
@@ -53,22 +52,22 @@ class MetricsDashboard:
         missing_deps = []
 
         try:
-            import matplotlib
+            pass
         except ImportError:
             missing_deps.append("matplotlib")
 
         try:
-            import pandas
+            pass
         except ImportError:
             missing_deps.append("pandas")
 
         try:
-            import plotly
+            pass
         except ImportError:
             missing_deps.append("plotly")
 
         try:
-            import jinja2
+            pass
         except ImportError:
             missing_deps.append("jinja2")
 
@@ -106,7 +105,6 @@ class MetricsDashboard:
             import pandas as pd
             import plotly.express as px
             import plotly.graph_objects as go
-            from plotly.subplots import make_subplots
         except ImportError:
             logger.error(
                 "Dashboard generation requires additional packages. Install with: "
@@ -125,9 +123,7 @@ class MetricsDashboard:
         )
 
         if not metrics_data:
-            logger.warning(
-                f"No metrics found for model {model_id} in the last {days} days"
-            )
+            logger.warning(f"No metrics found for model {model_id} in the last {days} days")
             return ""
 
         # Generate report
@@ -225,9 +221,7 @@ class MetricsDashboard:
                 yaxis_title="Tokens",
                 barmode="stack",
             )
-            plots["token_usage_plot"] = fig.to_html(
-                full_html=False, include_plotlyjs=False
-            )
+            plots["token_usage_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
 
         # 3. Cost over time
         if include_cost and len(token_df) > 0 and token_df["total_cost"].sum() > 0:
@@ -279,9 +273,7 @@ class MetricsDashboard:
                 labels={"cumulative_cost": "Cumulative Cost (USD)", "date": "Date"},
                 color_discrete_sequence=["green"],
             )
-            plots["cumulative_cost_plot"] = fig.to_html(
-                full_html=False, include_plotlyjs=False
-            )
+            plots["cumulative_cost_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
 
         # 4. Inference time distributions
         if "total_time" in df.columns and not df["total_time"].isnull().all():
@@ -292,23 +284,17 @@ class MetricsDashboard:
                 labels={"total_time": "Inference Time (s)"},
                 color_discrete_sequence=["purple"],
             )
-            plots["inference_time_hist"] = fig.to_html(
-                full_html=False, include_plotlyjs=False
-            )
+            plots["inference_time_hist"] = fig.to_html(full_html=False, include_plotlyjs=False)
 
         # 5. Error rate over time
         if include_errors and "error_occurred" in df.columns:
             # Group by date and calculate error rate
             df["date"] = df["timestamp"].dt.date
             daily_errors = (
-                df.groupby("date")
-                .agg({"error_occurred": "sum", "model_id": "count"})
-                .reset_index()
+                df.groupby("date").agg({"error_occurred": "sum", "model_id": "count"}).reset_index()
             )
             daily_errors["date"] = pd.to_datetime(daily_errors["date"])
-            daily_errors["error_rate"] = (
-                daily_errors["error_occurred"] / daily_errors["model_id"]
-            )
+            daily_errors["error_rate"] = daily_errors["error_occurred"] / daily_errors["model_id"]
 
             if (
                 not daily_errors["error_occurred"].isnull().all()
@@ -322,9 +308,7 @@ class MetricsDashboard:
                     labels={"error_rate": "Error Rate", "date": "Date"},
                     color_discrete_sequence=["red"],
                 )
-                plots["error_rate_plot"] = fig.to_html(
-                    full_html=False, include_plotlyjs=False
-                )
+                plots["error_rate_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
 
         # Generate HTML dashboard using Jinja2
         env = jinja2.Environment(loader=jinja2.FileSystemLoader("."))
@@ -543,7 +527,6 @@ class MetricsDashboard:
             import jinja2
             import pandas as pd
             import plotly.express as px
-            import plotly.graph_objects as go
         except ImportError:
             logger.error(
                 "Dashboard generation requires additional packages. Install with: "
@@ -595,9 +578,7 @@ class MetricsDashboard:
                             {
                                 "model": model_name,
                                 "value": model_data[metric],
-                                "percent_diff": model_data.get(
-                                    f"{metric}_percent_diff", 0
-                                ),
+                                "percent_diff": model_data.get(f"{metric}_percent_diff", 0),
                             }
                         )
 
@@ -611,9 +592,7 @@ class MetricsDashboard:
                     labels={"value": title, "model": "Model"},
                     color="model",
                 )
-                plots[f"{metric}_comparison"] = fig.to_html(
-                    full_html=False, include_plotlyjs=False
-                )
+                plots[f"{metric}_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
 
         # 2. Cost comparison if available
         cost_data = []
@@ -631,8 +610,7 @@ class MetricsDashboard:
                             "model": model_name,
                             "prompt_cost": report.total_prompt_cost,
                             "completion_cost": report.total_completion_cost,
-                            "total_cost": report.total_prompt_cost
-                            + report.total_completion_cost,
+                            "total_cost": report.total_prompt_cost + report.total_completion_cost,
                         }
                     )
 
@@ -646,9 +624,7 @@ class MetricsDashboard:
                 labels={"value": "Cost ($)", "model": "Model", "variable": "Cost Type"},
                 barmode="stack",
             )
-            plots["cost_comparison"] = fig.to_html(
-                full_html=False, include_plotlyjs=False
-            )
+            plots["cost_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
 
         # 3. Token usage comparison
         token_data = []
@@ -681,9 +657,7 @@ class MetricsDashboard:
                 labels={"value": "Tokens", "model": "Model", "variable": "Token Type"},
                 barmode="stack",
             )
-            plots["token_comparison"] = fig.to_html(
-                full_html=False, include_plotlyjs=False
-            )
+            plots["token_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
 
         # Generate HTML dashboard using Jinja2
         env = jinja2.Environment(loader=jinja2.FileSystemLoader("."))
@@ -832,9 +806,7 @@ class MetricsDashboard:
         # Prepare model names
         models_list = []
         for idx, model_id in enumerate(model_ids):
-            model_name = (
-                model_names[idx] if model_names and idx < len(model_names) else model_id
-            )
+            model_name = model_names[idx] if model_names and idx < len(model_names) else model_id
             models_list.append((model_id, model_name))
 
         # Prepare metrics list

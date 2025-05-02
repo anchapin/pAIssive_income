@@ -5,7 +5,7 @@ This module provides a metric for measuring the throughput of AI models.
 """
 
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable
 
 from .base_metric import BaseMetric
 
@@ -24,9 +24,7 @@ class ThroughputMetric(BaseMetric):
         """
         super().__init__(name="throughput", unit="tokens/s", **kwargs)
 
-    def measure(
-        self, func: Callable, token_counter: Callable, *args, **kwargs
-    ) -> float:
+    def measure(self, func: Callable, token_counter: Callable, *args, **kwargs) -> float:
         """
         Measure the throughput of a function call.
 

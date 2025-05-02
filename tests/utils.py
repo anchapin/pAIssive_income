@@ -5,8 +5,8 @@ Utility functions for tests.
 import json
 import os
 import uuid
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from datetime import datetime
+from typing import Any, Dict
 
 
 def create_test_file(directory: str, filename: str, content: str) -> str:

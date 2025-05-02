@@ -10,7 +10,7 @@ import json
 import math
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 
 class PricingCalculator:
@@ -121,9 +121,7 @@ class PricingCalculator:
             # Calculate tier multiplier based on position
             # First paid tier: 1.0, second: 2.0, third: 4.0, etc.
             tier_position = sum(
-                1
-                for t in tiers
-                if t.get("price_monthly", 0) > 0 and tiers.index(t) <= i
+                1 for t in tiers if t.get("price_monthly", 0) > 0 and tiers.index(t) <= i
             )
             tier_multiplier = 2 ** (tier_position - 1)
 
@@ -243,9 +241,7 @@ class PricingCalculator:
             "price_points": price_points,  # All analyzed scenarios
             "optimal_price": optimal_price_point["price"],  # Revenue-maximizing price
             "optimal_demand": optimal_price_point["demand"],  # Demand at optimal price
-            "optimal_revenue": optimal_price_point[
-                "revenue"
-            ],  # Maximum projected revenue
+            "optimal_revenue": optimal_price_point["revenue"],  # Maximum projected revenue
             "timestamp": datetime.now().isoformat(),  # Analysis timestamp
         }
 
@@ -326,9 +322,7 @@ class PricingCalculator:
         # The adjustment factor varies between 0.8 and 1.2 depending on price sensitivity
         # For price-sensitive customers (high sensitivity), we price lower (closer to 0.8)
         # For price-insensitive customers (low sensitivity), we can price higher (closer to 1.2)
-        competitor_based_price = competitor_price * (
-            0.8 + (0.4 * (1 - price_sensitivity))
-        )
+        competitor_based_price = competitor_price * (0.8 + (0.4 * (1 - price_sensitivity)))
 
         # STAGE 2: Apply strategic weighting based on the selected pricing strategy
         # Different weight distributions emphasize different pricing philosophies
@@ -440,7 +434,9 @@ class PricingCalculator:
 
     def __repr__(self) -> str:
         """Detailed string representation of the pricing calculator."""
-        return f"PricingCalculator(id={self.id}, name={self.name}, strategy={self.pricing_strategy})"
+        return (
+            f"PricingCalculator(id={self.id}, name={self.name}, strategy={self.pricing_strategy})"
+        )
 
 
 # Example usage
@@ -453,9 +449,7 @@ if __name__ == "__main__":
     )
 
     # Calculate a price
-    price = calculator.calculate_price(
-        base_value=10.0, tier_multiplier=2.0, market_adjustment=1.2
-    )
+    price = calculator.calculate_price(base_value=10.0, tier_multiplier=2.0, market_adjustment=1.2)
 
     print(f"Calculated price: ${price:.2f}")
 

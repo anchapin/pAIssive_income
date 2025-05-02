@@ -5,12 +5,10 @@ This module provides classes for projecting revenue for AI-powered software tool
 It includes tools for user acquisition, conversion, churn, and lifetime value calculations.
 """
 
-import copy
 import json
-import math
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 
 class RevenueProjector:
@@ -58,9 +56,7 @@ class RevenueProjector:
         self.created_at = datetime.now().isoformat()
         self.updated_at = self.created_at
 
-    def project_users(
-        self, months: int = 36, growth_rate: float = 0.05
-    ) -> List[Dict[str, Any]]:
+    def project_users(self, months: int = 36, growth_rate: float = 0.05) -> List[Dict[str, Any]]:
         """
         Project user growth over time using a sophisticated cohort-based growth model.
 
@@ -154,9 +150,7 @@ class RevenueProjector:
             # - Paid users: previous + conversions - paid churn
             # - Free users: derived as total - paid to ensure consistency
             new_total = total_users[-1] + new_users - churned_users
-            new_paid = (
-                paid_users[-1] + new_conversions - int(paid_users[-1] * self.churn_rate)
-            )
+            new_paid = paid_users[-1] + new_conversions - int(paid_users[-1] * self.churn_rate)
             new_free = new_total - new_paid
 
             # Store updated values to arrays for next iteration
@@ -180,9 +174,7 @@ class RevenueProjector:
                     "free_users": free_users[month],  # Free tier users
                     "paid_users": paid_users[month],  # Paid tier users
                     "new_users": current_acquisition_rate,  # New user acquisition
-                    "churned_users": int(
-                        total_users[month - 1] * self.churn_rate
-                    ),  # Churn
+                    "churned_users": int(total_users[month - 1] * self.churn_rate),  # Churn
                     "conversion_rate": self.conversion_rate,  # Free-to-paid rate
                     "churn_rate": self.churn_rate,  # Attrition rate
                 }
@@ -315,10 +307,7 @@ class RevenueProjector:
                     tier_price = 9.99  # Basic tier default
                     if tier_name.lower() == "pro":
                         tier_price = 19.99  # Pro tier default
-                    elif (
-                        tier_name.lower() == "premium"
-                        or tier_name.lower() == "business"
-                    ):
+                    elif tier_name.lower() == "premium" or tier_name.lower() == "business":
                         tier_price = 49.99  # Premium tier default
 
                     # Calculate revenue for this tier with proper rounding
@@ -427,9 +416,7 @@ class RevenueProjector:
                     "total_users": user_projections["total_users"][end_month],
                     "free_users": user_projections["free_users"][end_month],
                     "paid_users": user_projections["paid_users"][end_month],
-                    "yearly_revenue": sum(
-                        monthly_revenue[start_month + 1 : end_month + 1]
-                    ),
+                    "yearly_revenue": sum(monthly_revenue[start_month + 1 : end_month + 1]),
                     "cumulative_revenue": cumulative_revenue[end_month],
                 }
             )
@@ -447,9 +434,7 @@ class RevenueProjector:
                     "tier_users": tier_users.get(month, {}),  # Users per tier
                     "tier_revenue": tier_revenue.get(month, {}),  # Revenue per tier
                     "total_revenue": monthly_revenue[month],  # Total monthly revenue
-                    "cumulative_revenue": cumulative_revenue[
-                        month
-                    ],  # Running total revenue
+                    "cumulative_revenue": cumulative_revenue[month],  # Running total revenue
                 }
             )
 
@@ -457,9 +442,7 @@ class RevenueProjector:
         # This preserves all data for reference by other methods
         self._full_projection = {
             "id": str(uuid.uuid4()),  # Unique identifier
-            "subscription_model_id": getattr(
-                subscription_model, "id", None
-            ),  # Model reference
+            "subscription_model_id": getattr(subscription_model, "id", None),  # Model reference
             "projection_months": months,  # Projection timespan
             "growth_rate": growth_rate,  # Growth rate used
             "user_projections": user_projections,  # User growth data

@@ -4,14 +4,12 @@ Background tasks for the pAIssive Income UI.
 This module defines Celery tasks for asynchronous processing.
 """
 
-import asyncio
-import json
 import logging
 import time
 import traceback
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
-from celery import current_task, states
+from celery import current_task
 
 from interfaces.ui_interfaces import (
     IAgentTeamService,
@@ -140,9 +138,7 @@ def analyze_niches(self, market_segments: List[str]) -> Dict[str, Any]:
         }
 
         # Update final progress
-        update_task_progress(
-            task_id, 100, 100, "SUCCESS", "Niche analysis complete", result
-        )
+        update_task_progress(task_id, 100, 100, "SUCCESS", "Niche analysis complete", result)
         return result
 
     except Exception as e:
@@ -172,9 +168,7 @@ def create_solution(self, niche_id: str) -> Dict[str, Any]:
         developer_service = services["developer_service"]
 
         # Update initial progress
-        update_task_progress(
-            task_id, 0, 100, "STARTED", "Starting solution development"
-        )
+        update_task_progress(task_id, 0, 100, "STARTED", "Starting solution development")
 
         # Development stages
         stages = [
@@ -302,9 +296,7 @@ def create_marketing_campaign(self, solution_id: str) -> Dict[str, Any]:
         marketing_service = services["marketing_service"]
 
         # Update initial progress
-        update_task_progress(
-            task_id, 0, 100, "STARTED", "Starting marketing campaign development"
-        )
+        update_task_progress(task_id, 0, 100, "STARTED", "Starting marketing campaign development")
 
         # Campaign development stages
         stages = [
@@ -335,9 +327,7 @@ def create_marketing_campaign(self, solution_id: str) -> Dict[str, Any]:
         campaign = marketing_service.create_campaign(solution_id)
 
         # Update final progress
-        update_task_progress(
-            task_id, 100, 100, "SUCCESS", "Marketing campaign complete", campaign
-        )
+        update_task_progress(task_id, 100, 100, "SUCCESS", "Marketing campaign complete", campaign)
         return campaign
 
     except Exception as e:

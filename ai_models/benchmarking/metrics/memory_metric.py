@@ -6,7 +6,7 @@ This module provides a metric for measuring the memory usage of AI models.
 
 import gc
 import os
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Optional
 
 from .base_metric import BaseMetric
 

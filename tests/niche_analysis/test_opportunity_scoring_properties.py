@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime
 
 import pytest
-from hypothesis import assume, example, given, settings
+from hypothesis import example, given
 from hypothesis import strategies as st
 from hypothesis.strategies import composite
 
@@ -201,9 +201,7 @@ class TestOpportunityScoringAlgorithmProperties:
         for factor_name, factor_score in result.factor_scores.__dict__.items():
             if isinstance(factor_score, FactorScoreSchema):
                 expected_weighted_score = factor_score.score * factor_score.weight
-                assert factor_score.weighted_score == pytest.approx(
-                    expected_weighted_score
-                )
+                assert factor_score.weighted_score == pytest.approx(expected_weighted_score)
 
     @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_overall_score_calculation(self, factors, weights):
@@ -247,9 +245,7 @@ class TestOpportunityScoringAlgorithmProperties:
         the factors in option B, then the score of A should be higher than or equal to B.
         """
         # Create a new set of factors where each factor is the maximum of the two inputs
-        max_factors = {
-            factor: max(factors1[factor], factors2[factor]) for factor in factors1
-        }
+        max_factors = {factor: max(factors1[factor], factors2[factor]) for factor in factors1}
 
         # Calculate scores
         score1 = calculate_opportunity_score(factors1, weights).overall_score
@@ -276,9 +272,7 @@ class TestOpportunityScoringAlgorithmProperties:
             improved_factors[factor_name] = min(1.0, factors[factor_name] + 0.1)
 
             # Calculate score with the improved factor
-            improved_score = calculate_opportunity_score(
-                improved_factors, weights
-            ).overall_score
+            improved_score = calculate_opportunity_score(improved_factors, weights).overall_score
 
             # Property: Improving a factor should increase the overall score
             assert improved_score > base_score
@@ -332,9 +326,7 @@ class TestOpportunityScoringAlgorithmProperties:
         if result.overall_score >= 0.8:
             assert any("high priority" in r.lower() for r in result.recommendations)
         elif result.overall_score >= 0.6:
-            assert any(
-                "medium-high priority" in r.lower() for r in result.recommendations
-            )
+            assert any("medium-high priority" in r.lower() for r in result.recommendations)
         elif result.overall_score >= 0.4:
             assert any("medium priority" in r.lower() for r in result.recommendations)
         elif result.overall_score >= 0.2:

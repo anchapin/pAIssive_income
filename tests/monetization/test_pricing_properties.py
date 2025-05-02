@@ -6,12 +6,11 @@ functions in the monetization module, using the Hypothesis framework for propert
 """
 
 import pytest
-from hypothesis import assume, example, given, settings
+from hypothesis import assume, example, given
 from hypothesis import strategies as st
 from hypothesis.strategies import composite
 
 from monetization.calculator import MonetizationCalculator
-from monetization.errors import MonetizationError
 from monetization.pricing_calculator import PricingCalculator
 
 
@@ -46,9 +45,7 @@ def subscription_tiers_strategy(draw):
             price = 0.0
         else:
             price = draw(
-                st.floats(
-                    min_value=0, max_value=1000, allow_infinity=False, allow_nan=False
-                )
+                st.floats(min_value=0, max_value=1000, allow_infinity=False, allow_nan=False)
             )
             price = round(price, 2)
 
@@ -100,17 +97,11 @@ def solution_cost_strategy(draw):
 def pricing_calculator_params_strategy(draw):
     """Strategy for generating pricing calculator parameters."""
     name = draw(
-        st.text(
-            alphabet=st.characters(whitelist_categories=("L",)), min_size=1, max_size=20
-        )
+        st.text(alphabet=st.characters(whitelist_categories=("L",)), min_size=1, max_size=20)
     )
     description = draw(st.text(min_size=0, max_size=50))
-    pricing_strategy = draw(
-        st.sampled_from(["value-based", "competitor-based", "cost-plus"])
-    )
-    base_cost = draw(
-        st.floats(min_value=0.1, max_value=100, allow_infinity=False, allow_nan=False)
-    )
+    pricing_strategy = draw(st.sampled_from(["value-based", "competitor-based", "cost-plus"]))
+    base_cost = draw(st.floats(min_value=0.1, max_value=100, allow_infinity=False, allow_nan=False))
     profit_margin = draw(
         st.floats(min_value=0.01, max_value=0.9, allow_infinity=False, allow_nan=False)
     )
@@ -157,9 +148,7 @@ def optimal_price_params_strategy(draw):
         st.floats(min_value=0.1, max_value=1.0, allow_infinity=False, allow_nan=False)
     )
     competitor_price = draw(
-        st.floats(
-            min_value=0.99, max_value=199.99, allow_infinity=False, allow_nan=False
-        )
+        st.floats(min_value=0.99, max_value=199.99, allow_infinity=False, allow_nan=False)
     )
     price_sensitivity = draw(
         st.floats(min_value=0.1, max_value=1.0, allow_infinity=False, allow_nan=False)
@@ -244,9 +233,7 @@ class TestMonetizationCalculatorProperties:
         assert result["total_costs"] == pytest.approx(fixed_costs + variable_costs)
 
         # Property: Component costs should sum to the respective totals
-        assert result["fixed_costs"]["total"] == pytest.approx(
-            result["fixed_costs"]["development"]
-        )
+        assert result["fixed_costs"]["total"] == pytest.approx(result["fixed_costs"]["development"])
 
         variable_sum = (
             result["variable_costs"]["infrastructure"]
@@ -256,12 +243,8 @@ class TestMonetizationCalculatorProperties:
         assert result["variable_costs"]["total"] == pytest.approx(variable_sum)
 
     @given(
-        revenue=st.floats(
-            min_value=0, max_value=1000000, allow_infinity=False, allow_nan=False
-        ),
-        costs=st.floats(
-            min_value=0, max_value=1000000, allow_infinity=False, allow_nan=False
-        ),
+        revenue=st.floats(min_value=0, max_value=1000000, allow_infinity=False, allow_nan=False),
+        costs=st.floats(min_value=0, max_value=1000000, allow_infinity=False, allow_nan=False),
     )
     def test_profit_calculation_property(self, revenue, costs):
         """Test that profit calculation follows the expected formula."""
@@ -284,9 +267,7 @@ class TestMonetizationCalculatorProperties:
 
     @given(
         initial_users=st.integers(min_value=0, max_value=10000),
-        growth_rate=st.floats(
-            min_value=0, max_value=0.5, allow_infinity=False, allow_nan=False
-        ),
+        growth_rate=st.floats(min_value=0, max_value=0.5, allow_infinity=False, allow_nan=False),
         months=st.integers(min_value=1, max_value=36),
     )
     def test_growth_projection_properties(self, initial_users, growth_rate, months):
@@ -308,8 +289,7 @@ class TestMonetizationCalculatorProperties:
                 expected_final_users = initial_users * ((1 + growth_rate) ** months)
                 # Allow for some deviation due to integer rounding in the actual implementation
                 assert (
-                    abs(result["final_users"] - expected_final_users)
-                    / max(1, expected_final_users)
+                    abs(result["final_users"] - expected_final_users) / max(1, expected_final_users)
                     < 0.1
                 )
 
@@ -331,9 +311,7 @@ class TestPricingCalculatorProperties:
         assert calculator.competitor_prices == params["competitor_prices"]
 
     @given(
-        base_value=st.floats(
-            min_value=1, max_value=100, allow_infinity=False, allow_nan=False
-        ),
+        base_value=st.floats(min_value=1, max_value=100, allow_infinity=False, allow_nan=False),
         tier_multiplier=st.floats(
             min_value=0.5, max_value=5, allow_infinity=False, allow_nan=False
         ),
@@ -341,17 +319,11 @@ class TestPricingCalculatorProperties:
             min_value=0.5, max_value=2, allow_infinity=False, allow_nan=False
         ),
     )
-    def test_calculate_price_properties(
-        self, base_value, tier_multiplier, market_adjustment
-    ):
+    def test_calculate_price_properties(self, base_value, tier_multiplier, market_adjustment):
         """Test properties of the calculate_price method."""
-        calculator = PricingCalculator(
-            name="Test Calculator", pricing_strategy="value-based"
-        )
+        calculator = PricingCalculator(name="Test Calculator", pricing_strategy="value-based")
 
-        price = calculator.calculate_price(
-            base_value, tier_multiplier, market_adjustment
-        )
+        price = calculator.calculate_price(base_value, tier_multiplier, market_adjustment)
 
         # Property: Price should be positive
         assert price > 0
@@ -399,9 +371,7 @@ class TestPricingCalculatorProperties:
         break_even = cost_per_user / (1 - params["profit_margin"])
 
         # Special case handling for the "Pro" tier at 19.99 quirk in the implementation
-        if not (
-            price_params["tier_name"] == "Pro" and abs(optimal_price - 19.99) < 0.01
-        ):
+        if not (price_params["tier_name"] == "Pro" and abs(optimal_price - 19.99) < 0.01):
             assert optimal_price >= break_even * 0.9  # Allow slight deviation
 
     @given(
@@ -437,21 +407,15 @@ class TestPricingCalculatorProperties:
 
     @example(base_price=19.99, market_size=10000, price_elasticity=1.0)
     @given(
-        base_price=st.floats(
-            min_value=1, max_value=100, allow_infinity=False, allow_nan=False
-        ),
+        base_price=st.floats(min_value=1, max_value=100, allow_infinity=False, allow_nan=False),
         market_size=st.integers(min_value=100, max_value=1000000),
         price_elasticity=st.floats(
             min_value=0.1, max_value=3, allow_infinity=False, allow_nan=False
         ),
     )
-    def test_price_sensitivity_analysis_properties(
-        self, base_price, market_size, price_elasticity
-    ):
+    def test_price_sensitivity_analysis_properties(self, base_price, market_size, price_elasticity):
         """Test properties of the price sensitivity analysis."""
-        calculator = PricingCalculator(
-            name="Test Calculator", pricing_strategy="value-based"
-        )
+        calculator = PricingCalculator(name="Test Calculator", pricing_strategy="value-based")
 
         analysis = calculator.analyze_price_sensitivity(
             base_price=base_price,

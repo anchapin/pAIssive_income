@@ -7,7 +7,7 @@ This module provides the base classes and interfaces for model pruning.
 import abc
 import enum
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class PruningMethod(enum.Enum):
@@ -124,9 +124,7 @@ class Pruner(abc.ABC):
         self.config = config
 
     @abc.abstractmethod
-    def prune(
-        self, model_path: str, output_path: Optional[str] = None, **kwargs
-    ) -> str:
+    def prune(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
         """
         Prune a model.
 
@@ -138,7 +136,6 @@ class Pruner(abc.ABC):
         Returns:
             Path to the pruned model
         """
-        pass
 
     @abc.abstractmethod
     def supports_model_type(self, model_type: str) -> bool:
@@ -151,7 +148,6 @@ class Pruner(abc.ABC):
         Returns:
             True if the model type is supported, False otherwise
         """
-        pass
 
     @abc.abstractmethod
     def get_supported_methods(self) -> List[PruningMethod]:
@@ -161,7 +157,6 @@ class Pruner(abc.ABC):
         Returns:
             List of supported pruning methods
         """
-        pass
 
     @abc.abstractmethod
     def get_pruning_info(self) -> Dict[str, Any]:
@@ -171,4 +166,3 @@ class Pruner(abc.ABC):
         Returns:
             Dictionary with pruning information
         """
-        pass

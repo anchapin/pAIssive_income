@@ -6,21 +6,16 @@ performance metrics across various dimensions including latency, throughput,
 memory usage, and quality metrics.
 """
 
-import csv
 import json
 import logging
 import os
 import sqlite3
-import statistics
-import threading
 import time
 import traceback
 import uuid
-import warnings
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -204,9 +199,7 @@ class ModelComparisonReport:
         """
         for metric in key_metrics:
             # Determine if lower is better (time metrics) or higher is better (throughput)
-            lower_is_better = (
-                "time" in metric or "latency" in metric or "memory" in metric
-            )
+            lower_is_better = "time" in metric or "latency" in metric or "memory" in metric
 
             # Find the best value
             values = []
@@ -240,9 +233,7 @@ class ModelComparisonReport:
                         # Negative: current is better (higher)
                         percent_diff = (best_value - current_value) / best_value * 100
 
-                    self.comparison_metrics[model_key][
-                        f"{metric}_percent_diff"
-                    ] = percent_diff
+                    self.comparison_metrics[model_key][f"{metric}_percent_diff"] = percent_diff
 
 
 class AlertConfig:
@@ -276,9 +267,7 @@ class AlertConfig:
             "is_upper_bound": self.is_upper_bound,
             "cooldown_minutes": self.cooldown_minutes,
             "notification_channels": self.notification_channels,
-            "last_triggered": (
-                self.last_triggered.isoformat() if self.last_triggered else None
-            ),
+            "last_triggered": (self.last_triggered.isoformat() if self.last_triggered else None),
         }
 
     @classmethod
@@ -422,9 +411,7 @@ class InferenceTracker:
 
             process = psutil.Process(os.getpid())
             memory_info = process.memory_info()
-            self.metrics.memory_usage_mb = memory_info.rss / (
-                1024 * 1024
-            )  # Convert bytes to MB
+            self.metrics.memory_usage_mb = memory_info.rss / (1024 * 1024)  # Convert bytes to MB
             self.metrics.cpu_percent = process.cpu_percent()
         except ImportError:
             # psutil not available, use generic memory info
@@ -507,9 +494,7 @@ class MetricsDatabase:
                 )
             """
             )
-            cursor.execute(
-                "INSERT INTO schema_version (version) VALUES (?)", (DB_SCHEMA_VERSION,)
-            )
+            cursor.execute("INSERT INTO schema_version (version) VALUES (?)", (DB_SCHEMA_VERSION,))
 
             # Create tables
             cursor.execute(
@@ -542,15 +527,9 @@ class MetricsDatabase:
             )
 
             # Create indexes
-            cursor.execute(
-                "CREATE INDEX idx_inference_model_id ON inference_metrics(model_id)"
-            )
-            cursor.execute(
-                "CREATE INDEX idx_inference_timestamp ON inference_metrics(timestamp)"
-            )
-            cursor.execute(
-                "CREATE INDEX idx_inference_batch_id ON inference_metrics(batch_id)"
-            )
+            cursor.execute("CREATE INDEX idx_inference_model_id ON inference_metrics(model_id)")
+            cursor.execute("CREATE INDEX idx_inference_timestamp ON inference_metrics(timestamp)")
+            cursor.execute("CREATE INDEX idx_inference_batch_id ON inference_metrics(batch_id)")
 
             # Create alerts table
             cursor.execute(
@@ -731,11 +710,7 @@ class MetricsDatabase:
                 1 if alert_config.is_upper_bound else 0,
                 alert_config.cooldown_minutes,
                 notification_channels,
-                (
-                    alert_config.last_triggered.isoformat()
-                    if alert_config.last_triggered
-                    else None
-                ),
+                (alert_config.last_triggered.isoformat() if alert_config.last_triggered else None),
             ),
         )
 
@@ -785,9 +760,7 @@ class MetricsDatabase:
 
             # Set last_triggered
             if data["last_triggered"]:
-                alert_config.last_triggered = datetime.fromisoformat(
-                    data["last_triggered"]
-                )
+                alert_config.last_triggered = datetime.fromisoformat(data["last_triggered"])
 
             results.append(alert_config)
 
@@ -886,9 +859,7 @@ class MetricsDatabase:
         cursor = self.conn.cursor()
         threshold_date = (datetime.now() - timedelta(days=days)).isoformat()
 
-        cursor.execute(
-            "DELETE FROM inference_metrics WHERE timestamp < ?", (threshold_date,)
-        )
+        cursor.execute("DELETE FROM inference_metrics WHERE timestamp < ?", (threshold_date,))
         count = cursor.rowcount
         self.conn.commit()
 
@@ -928,9 +899,7 @@ class PerformanceMonitor:
         client_info: Optional[Dict[str, Any]] = None,
     ) -> InferenceTracker:
         """Create a tracker for monitoring a model inference."""
-        tracker = InferenceTracker(
-            performance_monitor=self, model_id=model_id, batch_id=batch_id
-        )
+        tracker = InferenceTracker(performance_monitor=self, model_id=model_id, batch_id=batch_id)
         if request_id:
             tracker.metrics.request_id = request_id
         if tags:

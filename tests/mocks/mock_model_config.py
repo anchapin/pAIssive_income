@@ -18,7 +18,7 @@ class MockModelConfig:
         model_sources: Optional[List[str]] = None,
         auto_discover: bool = True,
         max_threads: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """Initialize mock model configuration.
 

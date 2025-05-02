@@ -6,7 +6,6 @@ and improve testability and maintainability.
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 
@@ -27,7 +26,6 @@ class IBaseService(ABC):
         Raises:
             DataError: If there's an issue loading the data
         """
-        pass
 
     @abstractmethod
     def save_data(self, filename: str, data: Dict[str, Any]) -> bool:
@@ -44,7 +42,6 @@ class IBaseService(ABC):
         Raises:
             DataError: If there's an issue saving the data
         """
-        pass
 
 
 class IAgentTeamService(IBaseService):
@@ -64,7 +61,6 @@ class IAgentTeamService(IBaseService):
         Returns:
             Project dictionary
         """
-        pass
 
     @abstractmethod
     def get_projects(self) -> List[Dict[str, Any]]:
@@ -74,7 +70,6 @@ class IAgentTeamService(IBaseService):
         Returns:
             List of project dictionaries
         """
-        pass
 
     @abstractmethod
     def get_project(self, project_id: str) -> Optional[Dict[str, Any]]:
@@ -87,12 +82,9 @@ class IAgentTeamService(IBaseService):
         Returns:
             Project dictionary, or None if not found
         """
-        pass
 
     @abstractmethod
-    def update_project(
-        self, project_id: str, updates: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    def update_project(self, project_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
         Update a project.
 
@@ -103,7 +95,6 @@ class IAgentTeamService(IBaseService):
         Returns:
             Updated project dictionary, or None if not found
         """
-        pass
 
     @abstractmethod
     def delete_project(self, project_id: str) -> bool:
@@ -116,7 +107,6 @@ class IAgentTeamService(IBaseService):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
 
 class INicheAnalysisService(IBaseService):
@@ -130,7 +120,6 @@ class INicheAnalysisService(IBaseService):
         Returns:
             List of market segment dictionaries
         """
-        pass
 
     @abstractmethod
     def get_niches(self) -> List[Dict[str, Any]]:
@@ -140,7 +129,6 @@ class INicheAnalysisService(IBaseService):
         Returns:
             List of niche dictionaries
         """
-        pass
 
     @abstractmethod
     def get_niche(self, niche_id: str) -> Optional[Dict[str, Any]]:
@@ -153,7 +141,6 @@ class INicheAnalysisService(IBaseService):
         Returns:
             Niche dictionary, or None if not found
         """
-        pass
 
     @abstractmethod
     def analyze_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
@@ -166,7 +153,6 @@ class INicheAnalysisService(IBaseService):
         Returns:
             List of niche dictionaries
         """
-        pass
 
     @abstractmethod
     def save_niche(self, niche: Dict[str, Any]) -> Dict[str, Any]:
@@ -179,7 +165,6 @@ class INicheAnalysisService(IBaseService):
         Returns:
             Saved niche dictionary
         """
-        pass
 
 
 class IDeveloperService(IBaseService):
@@ -193,7 +178,6 @@ class IDeveloperService(IBaseService):
         Returns:
             List of solution dictionaries
         """
-        pass
 
     @abstractmethod
     def get_solution(self, solution_id: str) -> Optional[Dict[str, Any]]:
@@ -206,7 +190,6 @@ class IDeveloperService(IBaseService):
         Returns:
             Solution dictionary, or None if not found
         """
-        pass
 
     @abstractmethod
     def create_solution(self, niche_id: str) -> Dict[str, Any]:
@@ -219,7 +202,6 @@ class IDeveloperService(IBaseService):
         Returns:
             Solution dictionary
         """
-        pass
 
     @abstractmethod
     def save_solution(self, solution: Dict[str, Any]) -> Dict[str, Any]:
@@ -232,7 +214,6 @@ class IDeveloperService(IBaseService):
         Returns:
             Saved solution dictionary
         """
-        pass
 
 
 class IMonetizationService(IBaseService):
@@ -246,7 +227,6 @@ class IMonetizationService(IBaseService):
         Returns:
             List of strategy dictionaries
         """
-        pass
 
     @abstractmethod
     def get_strategy(self, strategy_id: str) -> Optional[Dict[str, Any]]:
@@ -259,7 +239,6 @@ class IMonetizationService(IBaseService):
         Returns:
             Strategy dictionary, or None if not found
         """
-        pass
 
     @abstractmethod
     def create_strategy(self, solution_id: str) -> Dict[str, Any]:
@@ -272,7 +251,6 @@ class IMonetizationService(IBaseService):
         Returns:
             Strategy dictionary
         """
-        pass
 
     @abstractmethod
     def save_strategy(self, strategy: Dict[str, Any]) -> Dict[str, Any]:
@@ -285,7 +263,6 @@ class IMonetizationService(IBaseService):
         Returns:
             Saved strategy dictionary
         """
-        pass
 
 
 class IMarketingService(IBaseService):
@@ -299,7 +276,6 @@ class IMarketingService(IBaseService):
         Returns:
             List of campaign dictionaries
         """
-        pass
 
     @abstractmethod
     def get_campaign(self, campaign_id: str) -> Optional[Dict[str, Any]]:
@@ -312,7 +288,6 @@ class IMarketingService(IBaseService):
         Returns:
             Campaign dictionary, or None if not found
         """
-        pass
 
     @abstractmethod
     def create_campaign(self, solution_id: str, strategy_id: str) -> Dict[str, Any]:
@@ -326,7 +301,6 @@ class IMarketingService(IBaseService):
         Returns:
             Campaign dictionary
         """
-        pass
 
     @abstractmethod
     def save_campaign(self, campaign: Dict[str, Any]) -> Dict[str, Any]:
@@ -339,4 +313,3 @@ class IMarketingService(IBaseService):
         Returns:
             Saved campaign dictionary
         """
-        pass

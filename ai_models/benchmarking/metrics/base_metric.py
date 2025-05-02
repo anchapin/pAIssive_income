@@ -5,7 +5,7 @@ This module provides the base class for metrics used in benchmarking.
 """
 
 import abc
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict
 
 
 class BaseMetric(abc.ABC):
@@ -39,7 +39,6 @@ class BaseMetric(abc.ABC):
         Returns:
             Measured value
         """
-        pass
 
     def add_value(self, value: float) -> None:
         """

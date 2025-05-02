@@ -6,7 +6,7 @@ and improve testability and maintainability.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 class IPersonaCreator(ABC):
@@ -34,7 +34,6 @@ class IPersonaCreator(ABC):
         Returns:
             User persona dictionary
         """
-        pass
 
     @abstractmethod
     def analyze_persona(self, persona: Dict[str, Any]) -> Dict[str, Any]:
@@ -47,7 +46,6 @@ class IPersonaCreator(ABC):
         Returns:
             Persona analysis dictionary
         """
-        pass
 
     @abstractmethod
     def get_persona_categories(self) -> List[str]:
@@ -57,7 +55,6 @@ class IPersonaCreator(ABC):
         Returns:
             List of persona categories
         """
-        pass
 
 
 class IMarketingStrategy(ABC):
@@ -67,24 +64,19 @@ class IMarketingStrategy(ABC):
     @abstractmethod
     def name(self) -> str:
         """Get the strategy name."""
-        pass
 
     @property
     @abstractmethod
     def description(self) -> str:
         """Get the strategy description."""
-        pass
 
     @property
     @abstractmethod
     def channel_type(self) -> str:
         """Get the channel type."""
-        pass
 
     @abstractmethod
-    def create_strategy(
-        self, target_persona: Dict[str, Any], goals: List[str]
-    ) -> Dict[str, Any]:
+    def create_strategy(self, target_persona: Dict[str, Any], goals: List[str]) -> Dict[str, Any]:
         """
         Create a marketing strategy.
 
@@ -95,7 +87,6 @@ class IMarketingStrategy(ABC):
         Returns:
             Marketing strategy dictionary
         """
-        pass
 
     @abstractmethod
     def get_tactics(self) -> List[Dict[str, Any]]:
@@ -105,7 +96,6 @@ class IMarketingStrategy(ABC):
         Returns:
             List of marketing tactic dictionaries
         """
-        pass
 
     @abstractmethod
     def get_metrics(self) -> List[Dict[str, Any]]:
@@ -115,7 +105,6 @@ class IMarketingStrategy(ABC):
         Returns:
             List of marketing metric dictionaries
         """
-        pass
 
     @abstractmethod
     def get_full_strategy(self) -> Dict[str, Any]:
@@ -125,7 +114,6 @@ class IMarketingStrategy(ABC):
         Returns:
             Dictionary with complete strategy details
         """
-        pass
 
 
 class IContentTemplate(ABC):
@@ -135,25 +123,21 @@ class IContentTemplate(ABC):
     @abstractmethod
     def id(self) -> str:
         """Get the template ID."""
-        pass
 
     @property
     @abstractmethod
     def name(self) -> str:
         """Get the template name."""
-        pass
 
     @property
     @abstractmethod
     def description(self) -> str:
         """Get the template description."""
-        pass
 
     @property
     @abstractmethod
     def content_type(self) -> str:
         """Get the content type."""
-        pass
 
     @abstractmethod
     def generate_outline(self) -> Dict[str, Any]:
@@ -163,7 +147,6 @@ class IContentTemplate(ABC):
         Returns:
             Dictionary with outline details
         """
-        pass
 
     @abstractmethod
     def generate_content(
@@ -172,7 +155,7 @@ class IContentTemplate(ABC):
         target_audience: str = "",
         tone: str = "",
         keywords: List[str] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Generate content based on the template.
@@ -187,7 +170,6 @@ class IContentTemplate(ABC):
         Returns:
             Dictionary with generated content
         """
-        pass
 
     @abstractmethod
     def add_section(
@@ -217,7 +199,6 @@ class IContentTemplate(ABC):
         Returns:
             Dictionary with section details
         """
-        pass
 
     @abstractmethod
     def get_seo_recommendations(self) -> Dict[str, Any]:
@@ -227,4 +208,3 @@ class IContentTemplate(ABC):
         Returns:
             Dictionary with SEO recommendations
         """
-        pass

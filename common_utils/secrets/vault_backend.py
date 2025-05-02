@@ -6,7 +6,7 @@ This module provides integration with HashiCorp Vault for secrets storage and re
 
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 import hvac
 
@@ -43,9 +43,7 @@ class VaultBackend:
 
         # Validate configuration
         if not self.token:
-            logger.warning(
-                "Vault token not provided. Set VAULT_TOKEN environment variable."
-            )
+            logger.warning("Vault token not provided. Set VAULT_TOKEN environment variable.")
 
     def _connect(self) -> bool:
         """
@@ -101,11 +99,7 @@ class VaultBackend:
             )
 
             # Extract the value
-            if (
-                read_response
-                and "data" in read_response
-                and "data" in read_response["data"]
-            ):
+            if read_response and "data" in read_response and "data" in read_response["data"]:
                 if "value" in read_response["data"]["data"]:
                     return read_response["data"]["data"]["value"]
 
@@ -189,11 +183,7 @@ class VaultBackend:
                 path=path, mount_point=self.mount_point
             )
 
-            if (
-                list_response
-                and "data" in list_response
-                and "keys" in list_response["data"]
-            ):
+            if list_response and "data" in list_response and "keys" in list_response["data"]:
                 return list_response["data"]["keys"]
 
             return []

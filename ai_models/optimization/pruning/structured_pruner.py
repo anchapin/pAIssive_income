@@ -8,7 +8,7 @@ model size and improve inference speed.
 import json
 import logging
 import os
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 from .base import Pruner, PruningConfig, PruningMethod
 
@@ -32,9 +32,7 @@ try:
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning(
-        "Transformers not available. Structured pruner will have limited functionality."
-    )
+    logger.warning("Transformers not available. Structured pruner will have limited functionality.")
     TRANSFORMERS_AVAILABLE = False
 
 try:
@@ -61,9 +59,7 @@ class StructuredPruner(Pruner):
         super().__init__(config)
 
         if not TORCH_AVAILABLE:
-            raise ImportError(
-                "PyTorch not available. Please install it with: pip install torch"
-            )
+            raise ImportError("PyTorch not available. Please install it with: pip install torch")
 
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError(
@@ -91,9 +87,7 @@ class StructuredPruner(Pruner):
             )
 
         if not 0.0 <= self.config.sparsity <= 1.0:
-            raise ValueError(
-                f"Sparsity must be between 0.0 and 1.0, got {self.config.sparsity}"
-            )
+            raise ValueError(f"Sparsity must be between 0.0 and 1.0, got {self.config.sparsity}")
 
         if self.config.structured_block_size <= 0:
             raise ValueError(
@@ -108,9 +102,7 @@ class StructuredPruner(Pruner):
                 f"N:M ratio must be (N, M) where N <= M, got {self.config.structured_n_m_ratio}"
             )
 
-    def prune(
-        self, model_path: str, output_path: Optional[str] = None, **kwargs
-    ) -> str:
+    def prune(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
         """
         Prune a model using structured pruning.
 
@@ -183,9 +175,7 @@ class StructuredPruner(Pruner):
 
             # Check if the layer is included (if specified)
             if self.config.included_layers is not None:
-                if not any(
-                    included in name for included in self.config.included_layers
-                ):
+                if not any(included in name for included in self.config.included_layers):
                     continue
 
             # Add to layers to prune
@@ -245,9 +235,7 @@ class StructuredPruner(Pruner):
         num_blocks_1 = weight.shape[1] // block_size
 
         # Reshape the weight for block-wise operations
-        weight_reshaped = weight.reshape(
-            num_blocks_0, block_size, num_blocks_1, block_size
-        )
+        weight_reshaped = weight.reshape(num_blocks_0, block_size, num_blocks_1, block_size)
 
         # Calculate the L2 norm of each block
         block_norms = torch.norm(weight_reshaped, p=2, dim=(1, 3))
@@ -257,9 +245,7 @@ class StructuredPruner(Pruner):
         num_blocks_to_prune = int(num_blocks * self.config.sparsity)
 
         # Get the indices of the blocks to prune
-        _, indices = torch.topk(
-            block_norms.flatten(), k=num_blocks_to_prune, largest=False
-        )
+        _, indices = torch.topk(block_norms.flatten(), k=num_blocks_to_prune, largest=False)
 
         # Convert flat indices to 2D indices
         indices_0 = indices // num_blocks_1

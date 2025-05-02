@@ -4,12 +4,9 @@ Receipt generation demo for the pAIssive Income project.
 This script demonstrates how to use the receipt generation system.
 """
 
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 
-from .receipt import Receipt, ReceiptItem
 from .receipt_manager import ReceiptManager
-from .transaction import Transaction, TransactionStatus, TransactionType
+from .transaction import Transaction, TransactionStatus
 
 
 def print_separator():
@@ -84,9 +81,7 @@ def run_demo():
     receipt.add_custom_field("Subscription Period", "Jan 1, 2023 - Dec 31, 2023")
 
     # Add terms to the receipt
-    receipt.set_terms(
-        "This subscription is subject to our Terms of Service and Privacy Policy."
-    )
+    receipt.set_terms("This subscription is subject to our Terms of Service and Privacy Policy.")
 
     # Add notes to the receipt
     receipt.set_notes(

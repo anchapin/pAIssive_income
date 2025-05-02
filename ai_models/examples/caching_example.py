@@ -10,26 +10,19 @@ import logging
 import os
 import sys
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models.caching import (
     CacheConfig,
-    CacheKey,
     CacheManager,
-    DiskCache,
-    MemoryCache,
-    SQLiteCache,
-    generate_cache_key,
 )
 
 # Try to import Redis cache if available
 try:
-    from ai_models.caching import RedisCache
+    pass
 
     REDIS_AVAILABLE = True
 except ImportError:

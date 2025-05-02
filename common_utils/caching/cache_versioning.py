@@ -11,7 +11,6 @@ import logging
 import os
 import sys
 import time
-from functools import lru_cache
 from typing import Any, Callable, Dict, Optional, Set, Tuple, Type
 
 # Set up logging
@@ -71,9 +70,7 @@ class CacheVersionManager:
         if auto_version:
             self._auto_versioned_namespaces.add(namespace)
 
-        logger.debug(
-            f"Registered cache namespace '{namespace}' with version: {version[:8]}..."
-        )
+        logger.debug(f"Registered cache namespace '{namespace}' with version: {version[:8]}...")
 
         return version
 
@@ -93,9 +90,7 @@ class CacheVersionManager:
 
         return self._namespace_versions[namespace]
 
-    def update_namespace_version(
-        self, namespace: str, version: Optional[str] = None
-    ) -> str:
+    def update_namespace_version(self, namespace: str, version: Optional[str] = None) -> str:
         """
         Update the version for a cache namespace.
 
@@ -112,9 +107,7 @@ class CacheVersionManager:
         # Store the new version
         self._namespace_versions[namespace] = version
 
-        logger.info(
-            f"Updated cache namespace '{namespace}' to version: {version[:8]}..."
-        )
+        logger.info(f"Updated cache namespace '{namespace}' to version: {version[:8]}...")
 
         return version
 
@@ -309,9 +302,7 @@ def clear_namespace_on_code_change(namespace: str, func_or_class: Any = None) ->
         try:
             func_or_class = frame.f_locals.get("self", None).__class__
         except (AttributeError, KeyError):
-            logger.warning(
-                f"Could not automatically determine caller for namespace {namespace}"
-            )
+            logger.warning(f"Could not automatically determine caller for namespace {namespace}")
             return
 
     # Generate new version based on function/class source
@@ -320,9 +311,7 @@ def clear_namespace_on_code_change(namespace: str, func_or_class: Any = None) ->
     elif inspect.isclass(func_or_class):
         new_version = version_manager.get_class_version_hash(func_or_class)
     else:
-        logger.warning(
-            f"Unsupported object type for code change monitoring: {type(func_or_class)}"
-        )
+        logger.warning(f"Unsupported object type for code change monitoring: {type(func_or_class)}")
         return
 
     # Update the namespace version

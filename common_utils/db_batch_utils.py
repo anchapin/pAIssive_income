@@ -6,13 +6,12 @@ including inserting, updating, and querying large sets of data efficiently.
 """
 
 import logging
-import math
 import sqlite3
 import time
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, Dict, Generic, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 from .batch_utils import BatchProcessingStats
 
@@ -60,9 +59,7 @@ class DBBatchProcessor:
     Class for performing database operations in batches.
     """
 
-    def __init__(
-        self, connection: Union[sqlite3.Connection, Any], default_batch_size: int = 100
-    ):
+    def __init__(self, connection: Union[sqlite3.Connection, Any], default_batch_size: int = 100):
         """
         Initialize the batch processor.
 
@@ -124,9 +121,7 @@ class DBBatchProcessor:
                             affected_rows += cursor.rowcount
                         except Exception as e:
                             errors.append((i, e))
-                            logger.error(
-                                f"Error executing {operation_type} operation: {e}"
-                            )
+                            logger.error(f"Error executing {operation_type} operation: {e}")
             except Exception as e:
                 for i in range(len(params_list)):
                     errors.append((i, e))
@@ -276,9 +271,7 @@ class DBBatchProcessor:
         query = f"UPDATE {table_name} SET {set_clause} WHERE {where_column} = ?"
 
         # Prepare parameters for the query
-        params_list = [
-            tuple(set_values + [where_value]) for set_values, where_value in data_list
-        ]
+        params_list = [tuple(set_values + [where_value]) for set_values, where_value in data_list]
 
         # Execute the batch operation
         return self.execute_batch_operation(
@@ -368,9 +361,7 @@ class DBBatchProcessor:
                         # Processing error
                         results[i] = e
                         stats.failed_items += 1
-                        logger.error(
-                            f"Error processing query result for index {i}: {e}"
-                        )
+                        logger.error(f"Error processing query result for index {i}: {e}")
                 else:
                     results[i] = rows
 
@@ -486,9 +477,7 @@ def batch_update(
         DBBatchResult with update results and statistics
     """
     processor = DBBatchProcessor(connection, default_batch_size=batch_size)
-    return processor.batch_update(
-        table_name, set_columns, where_column, data_list, batch_size
-    )
+    return processor.batch_update(table_name, set_columns, where_column, data_list, batch_size)
 
 
 def batch_delete(

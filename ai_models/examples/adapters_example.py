@@ -9,12 +9,9 @@ import argparse
 import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models.adapters import LMStudioAdapter, OllamaAdapter, OpenAICompatibleAdapter
 
@@ -60,9 +57,7 @@ def test_ollama_adapter(base_url: str, model_name: str, prompt: str) -> None:
         model_available = any(model["name"] == model_name for model in models)
 
         if not model_available:
-            print(
-                f"\nModel {model_name} not found. Please pull it with: ollama pull {model_name}"
-            )
+            print(f"\nModel {model_name} not found. Please pull it with: ollama pull {model_name}")
             return
 
         # Get model info
@@ -229,9 +224,7 @@ def test_tensorrt_adapter(engine_path: str, tokenizer_path: str, prompt: str) ->
         print("\n" + "=" * 80)
         print("TensorRT Adapter Not Available")
         print("=" * 80)
-        print(
-            "TensorRT or PyCUDA not available. Please install them to use the TensorRT adapter."
-        )
+        print("TensorRT or PyCUDA not available. Please install them to use the TensorRT adapter.")
         return
 
     print("\n" + "=" * 80)
@@ -283,9 +276,7 @@ def main():
     parser.add_argument("--base-url", type=str, help="Base URL for the API")
     parser.add_argument("--model", type=str, help="Model name or ID")
     parser.add_argument("--api-key", type=str, help="API key for authentication")
-    parser.add_argument(
-        "--engine-path", type=str, help="Path to the TensorRT engine file"
-    )
+    parser.add_argument("--engine-path", type=str, help="Path to the TensorRT engine file")
     parser.add_argument("--tokenizer-path", type=str, help="Path to the tokenizer")
     parser.add_argument(
         "--prompt",

@@ -2,7 +2,6 @@
 Tests for the AdapterFactory class.
 """
 
-from unittest.mock import MagicMock
 
 import pytest
 

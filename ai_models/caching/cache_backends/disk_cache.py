@@ -12,7 +12,7 @@ import re
 import shutil
 import threading
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from .base import CacheBackend
 
@@ -104,7 +104,7 @@ class DiskCache(CacheBackend):
                 self._save_stats()
                 return value
 
-            except Exception as e:
+            except Exception:
                 self.stats["misses"] += 1
                 self._save_stats()
                 return None
@@ -153,7 +153,7 @@ class DiskCache(CacheBackend):
                 self._save_stats()
                 return True
 
-            except Exception as e:
+            except Exception:
                 return False
 
     def delete(self, key: str) -> bool:
@@ -245,7 +245,7 @@ class DiskCache(CacheBackend):
                 self._save_stats()
                 return True
 
-            except Exception as e:
+            except Exception:
                 return False
 
     def get_size(self) -> int:

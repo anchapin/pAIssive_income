@@ -1,7 +1,6 @@
 """Utilities for async operations and batch processing."""
 
 import asyncio
-import concurrent.futures
 import functools
 import logging
 from collections import deque
@@ -185,9 +184,7 @@ async def stream_processor(
             raise
 
 
-async def process_batch(
-    batch: list[T], process_func: Any, output_queue: asyncio.Queue
-) -> None:
+async def process_batch(batch: list[T], process_func: Any, output_queue: asyncio.Queue) -> None:
     """Process a batch of items and put results in output queue.
 
     Args:
@@ -343,9 +340,7 @@ class AsyncModelProcessor:
                 model = self.model_manager.load_model(model_id)
 
                 # Generate text
-                result = await run_in_thread(
-                    model.generate_text, prompt=prompt, **kwargs
-                )
+                result = await run_in_thread(model.generate_text, prompt=prompt, **kwargs)
 
                 return AsyncResult.success_result(result)
             except Exception as e:
@@ -415,9 +410,7 @@ class AsyncModelProcessor:
                 model = self.model_manager.load_model(model_id)
 
                 # Generate embedding
-                result = await run_in_thread(
-                    model.generate_embedding, text=text, **kwargs
-                )
+                result = await run_in_thread(model.generate_embedding, text=text, **kwargs)
 
                 return AsyncResult.success_result(result)
             except Exception as e:

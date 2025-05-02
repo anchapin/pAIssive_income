@@ -6,11 +6,9 @@ going through the package structure, avoiding circular imports.
 """
 
 import logging
-import os
-import sys
 import time
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 
 # Define the fallback strategy enum directly instead of importing it
@@ -99,8 +97,7 @@ class FallbackManager:
 
         # Fallback success metrics to track effectiveness
         self.fallback_metrics: Dict[FallbackStrategy, Dict[str, int]] = {
-            strategy: {"success_count": 0, "total_count": 0}
-            for strategy in FallbackStrategy
+            strategy: {"success_count": 0, "total_count": 0} for strategy in FallbackStrategy
         }
 
         # Set up dedicated logger for fallback events
@@ -191,14 +188,10 @@ class FallbackManager:
             self.track_fallback_event(event)
             return fallback_model, event
 
-        self.logger.warning(
-            f"No fallback model found after trying strategy: {strategy.value}"
-        )
+        self.logger.warning(f"No fallback model found after trying strategy: {strategy.value}")
         return None, None
 
-    def track_fallback_event(
-        self, event: FallbackEvent, was_successful: bool = True
-    ) -> None:
+    def track_fallback_event(self, event: FallbackEvent, was_successful: bool = True) -> None:
         """Track a fallback event and update metrics."""
         # Add to history
         self.fallback_history.append(event)
@@ -228,9 +221,7 @@ class FallbackManager:
             strategy_metrics = self.fallback_metrics[strategy]
             success_rate = 0
             if strategy_metrics["total_count"] > 0:
-                success_rate = (
-                    strategy_metrics["success_count"] / strategy_metrics["total_count"]
-                )
+                success_rate = strategy_metrics["success_count"] / strategy_metrics["total_count"]
 
             metrics[strategy.value] = {
                 "success_count": strategy_metrics["success_count"],
@@ -312,9 +303,7 @@ class FallbackManager:
                 # Count shared capabilities
                 shared = len(set(original_model.capabilities) & set(model.capabilities))
                 score = (
-                    shared / len(original_model.capabilities)
-                    if original_model.capabilities
-                    else 0
+                    shared / len(original_model.capabilities) if original_model.capabilities else 0
                 )
                 scored_candidates.append((model, score))
 
@@ -337,9 +326,7 @@ class FallbackManager:
         """Try other models of the same type as the original model."""
         # If we have an original model, try to find another of the same type
         if original_model:
-            same_type_models = self.model_manager.get_models_by_type(
-                original_model.type
-            )
+            same_type_models = self.model_manager.get_models_by_type(original_model.type)
             filtered_models = [m for m in same_type_models if m.id != original_model.id]
             if filtered_models:
                 return filtered_models[0]
@@ -404,9 +391,7 @@ class FallbackManager:
         # If size is available, prefer smaller models
         if original_size > 0:
             # Get models with size info
-            sized_models = [
-                (m, getattr(m, "size_mb", float("inf"))) for m in candidates
-            ]
+            sized_models = [(m, getattr(m, "size_mb", float("inf"))) for m in candidates]
 
             # Sort by size (smallest first)
             sized_models.sort(key=lambda x: x[1])
@@ -567,9 +552,7 @@ def test_fallback_strategies(manager):
         )
 
         if fallback_model:
-            print(
-                f"✅ Strategy {strategy.value} found fallback model: {fallback_model.name}"
-            )
+            print(f"✅ Strategy {strategy.value} found fallback model: {fallback_model.name}")
         else:
             print(f"❌ Strategy {strategy.value} failed to find a fallback model")
 

@@ -32,9 +32,7 @@ def initialize_metrics():
         _metrics["timers"] = {}
 
 
-def increment_counter(
-    name: str, value: int = 1, labels: Optional[Dict[str, str]] = None
-):
+def increment_counter(name: str, value: int = 1, labels: Optional[Dict[str, str]] = None):
     """
     Increment a counter metric.
 
@@ -71,9 +69,7 @@ def observe_value(name: str, value: float, labels: Optional[Dict[str, str]] = No
             _metrics["histograms"][key] = _metrics["histograms"][key][-1000:]
 
 
-def start_timer(
-    name: str, labels: Optional[Dict[str, str]] = None
-) -> Callable[[], float]:
+def start_timer(name: str, labels: Optional[Dict[str, str]] = None) -> Callable[[], float]:
     """
     Start a timer for measuring execution time.
 

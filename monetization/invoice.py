@@ -5,11 +5,10 @@ This module provides classes for generating and managing invoices,
 including invoice items, status tracking, and formatting.
 """
 
-import copy
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from common_utils import add_days, format_datetime
 
@@ -413,9 +412,7 @@ class Invoice:
         self.metadata["custom_fields"] = self.custom_fields
         self.updated_at = datetime.now()
 
-    def add_additional_fee(
-        self, name: str, amount: float, is_percentage: bool = False
-    ) -> None:
+    def add_additional_fee(self, name: str, amount: float, is_percentage: bool = False) -> None:
         """
         Add an additional fee to the invoice.
 
@@ -1010,9 +1007,7 @@ if __name__ == "__main__":
 
     print(f"\nSubtotal: {invoice.format_amount(invoice.get_subtotal())}")
     print(f"Tax: {invoice.format_amount(invoice.get_tax_total())}")
-    print(
-        f"Additional Fees: {invoice.format_amount(invoice.get_additional_fees_total())}"
-    )
+    print(f"Additional Fees: {invoice.format_amount(invoice.get_additional_fees_total())}")
     print(f"Total: {invoice.format_amount(invoice.get_total())}")
 
     # Update status to sent

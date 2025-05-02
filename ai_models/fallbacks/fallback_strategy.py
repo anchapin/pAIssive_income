@@ -11,14 +11,13 @@ import os
 import sys
 import time
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 # Add the project root to the Python path to import the errors module
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-from errors import ModelLoadError, ModelNotFoundError
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
 # Set up logging
@@ -147,8 +146,7 @@ class FallbackManager:
         # Fallback success metrics to track effectiveness
         # Structure: {strategy: {success_count: int, total_count: int}}
         self.fallback_metrics: Dict[FallbackStrategy, Dict[str, int]] = {
-            strategy: {"success_count": 0, "total_count": 0}
-            for strategy in FallbackStrategy
+            strategy: {"success_count": 0, "total_count": 0} for strategy in FallbackStrategy
         }
 
         # Set up dedicated logger for fallback events
@@ -259,14 +257,10 @@ class FallbackManager:
             self.track_fallback_event(event)
             return fallback_model, event
 
-        self.logger.warning(
-            f"No fallback model found after trying strategy: {strategy.value}"
-        )
+        self.logger.warning(f"No fallback model found after trying strategy: {strategy.value}")
         return None, None
 
-    def track_fallback_event(
-        self, event: FallbackEvent, was_successful: bool = True
-    ) -> None:
+    def track_fallback_event(self, event: FallbackEvent, was_successful: bool = True) -> None:
         """
         Track a fallback event and update metrics.
 
@@ -307,9 +301,7 @@ class FallbackManager:
             strategy_metrics = self.fallback_metrics[strategy]
             success_rate = 0
             if strategy_metrics["total_count"] > 0:
-                success_rate = (
-                    strategy_metrics["success_count"] / strategy_metrics["total_count"]
-                )
+                success_rate = strategy_metrics["success_count"] / strategy_metrics["total_count"]
 
             metrics[strategy.value] = {
                 "success_count": strategy_metrics["success_count"],
@@ -412,9 +404,7 @@ class FallbackManager:
                 # Count shared capabilities
                 shared = len(set(original_model.capabilities) & set(model.capabilities))
                 score = (
-                    shared / len(original_model.capabilities)
-                    if original_model.capabilities
-                    else 0
+                    shared / len(original_model.capabilities) if original_model.capabilities else 0
                 )
                 scored_candidates.append((model, score))
 
@@ -442,9 +432,7 @@ class FallbackManager:
         """Try other models of the same type as the original model."""
         # If we have an original model, try to find another of the same type
         if original_model:
-            same_type_models = self.model_manager.get_models_by_type(
-                original_model.type
-            )
+            same_type_models = self.model_manager.get_models_by_type(original_model.type)
             filtered_models = [m for m in same_type_models if m.id != original_model.id]
             if filtered_models:
                 return filtered_models[0]
@@ -474,9 +462,7 @@ class FallbackManager:
         all_models = self.model_manager.get_all_models()
         return all_models[0] if all_models else None
 
-    def _apply_specified_list_strategy(
-        self, agent_type: Optional[str]
-    ) -> Optional[IModelInfo]:
+    def _apply_specified_list_strategy(self, agent_type: Optional[str]) -> Optional[IModelInfo]:
         """Try models in a specified order based on agent type."""
         # Get the list of preferred model types for this agent
         preferred_types = self.fallback_preferences.get(
@@ -513,9 +499,7 @@ class FallbackManager:
         # If size is available, prefer smaller models
         if original_size > 0:
             # Get models with size info
-            sized_models = [
-                (m, getattr(m, "size_mb", float("inf"))) for m in candidates
-            ]
+            sized_models = [(m, getattr(m, "size_mb", float("inf"))) for m in candidates]
 
             # Sort by size (smallest first)
             sized_models.sort(key=lambda x: x[1])

@@ -6,7 +6,6 @@ import json
 import os
 import shutil
 import tempfile
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -125,9 +124,7 @@ def test_project_users(revenue_projector):
     # Check that the last month's projection is correct
     last_month = user_projections[-1]
     assert last_month["month"] == 12
-    assert (
-        last_month["total_users"] > first_month["total_users"]
-    )  # Should grow over time
+    assert last_month["total_users"] > first_month["total_users"]  # Should grow over time
 
     # Test with different parameters
     user_projections = revenue_projector.project_users(months=24, growth_rate=0.1)
@@ -361,10 +358,7 @@ def test_load_from_file(revenue_projector, temp_dir):
     assert loaded_projector.name == revenue_projector.name
     assert loaded_projector.description == revenue_projector.description
     assert loaded_projector.initial_users == revenue_projector.initial_users
-    assert (
-        loaded_projector.user_acquisition_rate
-        == revenue_projector.user_acquisition_rate
-    )
+    assert loaded_projector.user_acquisition_rate == revenue_projector.user_acquisition_rate
     assert loaded_projector.conversion_rate == revenue_projector.conversion_rate
     assert loaded_projector.churn_rate == revenue_projector.churn_rate
     assert loaded_projector.tier_distribution == revenue_projector.tier_distribution

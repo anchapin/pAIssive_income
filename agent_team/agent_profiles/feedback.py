@@ -56,31 +56,19 @@ class FeedbackAgent:
             "recommendations": recommendations,
             "sentiment_analysis": {
                 "positive": (
-                    sum(
-                        1
-                        for item in feedback_data
-                        if item.get("sentiment") == "positive"
-                    )
+                    sum(1 for item in feedback_data if item.get("sentiment") == "positive")
                     / len(feedback_data)
                     if feedback_data
                     else 0
                 ),
                 "neutral": (
-                    sum(
-                        1
-                        for item in feedback_data
-                        if item.get("sentiment") == "neutral"
-                    )
+                    sum(1 for item in feedback_data if item.get("sentiment") == "neutral")
                     / len(feedback_data)
                     if feedback_data
                     else 0
                 ),
                 "negative": (
-                    sum(
-                        1
-                        for item in feedback_data
-                        if item.get("sentiment") == "negative"
-                    )
+                    sum(1 for item in feedback_data if item.get("sentiment") == "negative")
                     / len(feedback_data)
                     if feedback_data
                     else 0
@@ -88,8 +76,7 @@ class FeedbackAgent:
             },
             "user_satisfaction": {
                 "score": (
-                    sum(item.get("satisfaction", 0) for item in feedback_data)
-                    / len(feedback_data)
+                    sum(item.get("satisfaction", 0) for item in feedback_data) / len(feedback_data)
                     if feedback_data
                     else 0
                 ),
@@ -167,9 +154,7 @@ class FeedbackAgent:
                         {
                             "id": str(uuid.uuid4()),
                             "category": category,
-                            "description": (
-                                content[:50] + "..." if len(content) > 50 else content
-                            ),
+                            "description": (content[:50] + "..." if len(content) > 50 else content),
                             "count": len(group),
                             "items": [item["id"] for item in group if "id" in item],
                             "sentiment": group[0].get("sentiment", "neutral"),
@@ -181,9 +166,7 @@ class FeedbackAgent:
 
         return themes
 
-    def _generate_recommendations(
-        self, themes: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    def _generate_recommendations(self, themes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Generate recommendations based on the identified themes.
 
@@ -208,15 +191,11 @@ class FeedbackAgent:
                     "type": "feature_development",
                     "description": f"Develop new feature based on user requests: {theme['description']}",
                     "priority": (
-                        "high"
-                        if theme["count"] > 5
-                        else "medium" if theme["count"] > 2 else "low"
+                        "high" if theme["count"] > 5 else "medium" if theme["count"] > 2 else "low"
                     ),
                     "effort": "medium",  # Placeholder, would be determined by AI
                     "impact": (
-                        "high"
-                        if theme["count"] > 5
-                        else "medium" if theme["count"] > 2 else "low"
+                        "high" if theme["count"] > 5 else "medium" if theme["count"] > 2 else "low"
                     ),
                 }
             elif category == "bug_reports":
@@ -278,9 +257,7 @@ class FeedbackAgent:
 
         return recommendations
 
-    def generate_feedback_collection_plan(
-        self, solution: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def generate_feedback_collection_plan(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generate a plan for collecting user feedback.
 

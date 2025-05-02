@@ -1,8 +1,6 @@
 """Team configuration and management module."""
 
-import json
 import logging
-from pathlib import Path
 from typing import Dict, List, Optional
 
 from interfaces.agent_interfaces import (
@@ -14,7 +12,6 @@ from interfaces.agent_interfaces import (
     IResearchAgent,
 )
 from interfaces.model_interfaces import IModelManager
-from interfaces.niche_interfaces import INicheAnalyzer
 
 from .agent_profiles import (
     DeveloperAgent,
@@ -30,9 +27,7 @@ logger = logging.getLogger(__name__)
 class AgentTeam(IAgentTeam):
     """Manages a team of AI agents working on niche analysis and solution development."""
 
-    def __init__(
-        self, model_manager: IModelManager, team_config: Optional[Dict] = None
-    ):
+    def __init__(self, model_manager: IModelManager, team_config: Optional[Dict] = None):
         """Initialize agent team."""
         self.model_manager = model_manager
         self.project_state: Dict = {}

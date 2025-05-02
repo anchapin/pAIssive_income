@@ -30,7 +30,7 @@ from .performance_monitor import (
 
 # Import TensorRT adapter if available
 try:
-    from .adapters import TensorRTAdapter
+    pass
 
     TENSORRT_AVAILABLE = True
 except ImportError:
@@ -52,7 +52,7 @@ from .caching.cache_integration import cache_model_result, invalidate_model_cach
 
 # Import Redis cache if available
 try:
-    from .caching import RedisCache
+    pass
 
     REDIS_CACHE_AVAILABLE = True
 except ImportError:

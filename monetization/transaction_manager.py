@@ -5,10 +5,9 @@ This module provides a class for managing payment transactions, including
 storage, retrieval, and processing.
 """
 
-import copy
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from common_utils import (
     create_directory,
@@ -18,7 +17,6 @@ from common_utils import (
     load_from_json_file,
 )
 
-from .payment_method import PaymentMethod
 from .payment_method_manager import PaymentMethodManager
 from .payment_processor import PaymentProcessor
 from .transaction import Transaction, TransactionStatus, TransactionType
@@ -209,9 +207,7 @@ class TransactionManager:
 
         # Check if payment processor is available
         if not self.payment_processor:
-            transaction.set_error(
-                "processor_unavailable", "Payment processor is not available"
-            )
+            transaction.set_error("processor_unavailable", "Payment processor is not available")
 
             # Save transaction if storage directory is set
             if self.storage_dir:
@@ -234,9 +230,7 @@ class TransactionManager:
                 )
 
                 # Update transaction status
-                transaction.update_status(
-                    TransactionStatus.SUCCEEDED, "Payment successful"
-                )
+                transaction.update_status(TransactionStatus.SUCCEEDED, "Payment successful")
 
                 # Add payment ID to metadata
                 transaction.metadata["payment_id"] = payment_result["id"]
@@ -246,9 +240,7 @@ class TransactionManager:
                 parent_id = transaction.parent_id
 
                 if not parent_id or parent_id not in self.transactions:
-                    transaction.set_error(
-                        "parent_not_found", "Parent transaction not found"
-                    )
+                    transaction.set_error("parent_not_found", "Parent transaction not found")
                     return transaction
 
                 parent_transaction = self.transactions[parent_id]
@@ -271,9 +263,7 @@ class TransactionManager:
                 )
 
                 # Update transaction status
-                transaction.update_status(
-                    TransactionStatus.SUCCEEDED, "Refund successful"
-                )
+                transaction.update_status(TransactionStatus.SUCCEEDED, "Refund successful")
 
                 # Add refund ID to metadata
                 transaction.metadata["refund_id"] = refund_result["id"]
@@ -519,9 +509,7 @@ class TransactionManager:
 
             # Add amounts
             if transaction.is_successful():
-                summary["currencies"][transaction.currency][
-                    "total_amount"
-                ] += transaction.amount
+                summary["currencies"][transaction.currency]["total_amount"] += transaction.amount
                 summary["currencies"][transaction.currency][
                     "refunded_amount"
                 ] += transaction.get_refunded_amount()
@@ -629,9 +617,7 @@ if __name__ == "__main__":
     processor = MockPaymentProcessor({"name": "Test Processor", "success_rate": 0.95})
 
     # Create a transaction manager
-    manager = TransactionManager(
-        payment_processor=processor, storage_dir="transactions"
-    )
+    manager = TransactionManager(payment_processor=processor, storage_dir="transactions")
 
     # Create a transaction
     transaction = manager.create_transaction(

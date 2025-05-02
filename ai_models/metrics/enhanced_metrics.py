@@ -5,17 +5,14 @@ This module extends the base performance monitoring with advanced metrics tracki
 cost calculation, and model comparison features.
 """
 
-import json
 import logging
 import os
 import statistics
-import threading
 import time
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -180,9 +177,7 @@ class EnhancedInferenceMetrics(InferenceMetrics):
 
         # Calculate prompt processing and completion times
         prompt_time = (
-            self.time_to_first_token
-            if self.time_to_first_token > 0
-            else self.total_time * 0.1
+            self.time_to_first_token if self.time_to_first_token > 0 else self.total_time * 0.1
         )
         completion_time = (
             self.total_time - prompt_time
@@ -277,9 +272,7 @@ class EnhancedPerformanceReport(ModelPerformanceReport):
 
             # Token counts
             prompt_tokens = token_usage.get("prompt_tokens", 0) if token_usage else 0
-            completion_tokens = (
-                token_usage.get("completion_tokens", 0) if token_usage else 0
-            )
+            completion_tokens = token_usage.get("completion_tokens", 0) if token_usage else 0
 
             if prompt_tokens == 0 and "input_tokens" in metric:
                 prompt_tokens = metric["input_tokens"]
@@ -303,10 +296,7 @@ class EnhancedPerformanceReport(ModelPerformanceReport):
             if "queue_time_ms" in metric and metric["queue_time_ms"] > 0:
                 queue_times.append(metric["queue_time_ms"])
 
-            if (
-                "prompt_processing_time_ms" in metric
-                and metric["prompt_processing_time_ms"] > 0
-            ):
+            if "prompt_processing_time_ms" in metric and metric["prompt_processing_time_ms"] > 0:
                 prompt_times.append(metric["prompt_processing_time_ms"])
 
             if "completion_time_ms" in metric and metric["completion_time_ms"] > 0:
@@ -337,9 +327,7 @@ class EnhancedPerformanceReport(ModelPerformanceReport):
             self.avg_completion_tokens = total_completion_tokens / self.num_inferences
 
         if completion_to_prompt_ratios:
-            self.avg_completion_to_prompt_ratio = statistics.mean(
-                completion_to_prompt_ratios
-            )
+            self.avg_completion_to_prompt_ratio = statistics.mean(completion_to_prompt_ratios)
 
         # Set cost metrics
         self.total_prompt_cost = prompt_costs
@@ -351,9 +339,7 @@ class EnhancedPerformanceReport(ModelPerformanceReport):
 
         total_tokens = total_prompt_tokens + total_completion_tokens
         if total_tokens > 0:
-            self.cost_per_1k_tokens = (
-                (prompt_costs + completion_costs) * 1000
-            ) / total_tokens
+            self.cost_per_1k_tokens = ((prompt_costs + completion_costs) * 1000) / total_tokens
 
         # Set timing metrics
         if queue_times:
@@ -547,9 +533,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
             # Add selected metrics
             for metric in metrics_to_compare:
                 if hasattr(report, metric) and getattr(report, metric) > 0:
-                    comparison.comparison_metrics[model_id][metric] = getattr(
-                        report, metric
-                    )
+                    comparison.comparison_metrics[model_id][metric] = getattr(report, metric)
 
         # Calculate percent differences
         comparison.calculate_percent_differences(
@@ -595,7 +579,6 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
         """
         try:
             import matplotlib.pyplot as plt
-            import numpy as np
             import pandas as pd
             from matplotlib.dates import DateFormatter
         except ImportError:
@@ -614,9 +597,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
         )
 
         if not metrics_data:
-            logger.warning(
-                f"No metrics found for model {model_id} in the last {days} days"
-            )
+            logger.warning(f"No metrics found for model {model_id} in the last {days} days")
             return []
 
         # Extract token usage from metadata
@@ -647,8 +628,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
                     "timestamp": metric["timestamp"],
                     "prompt_tokens": metric.get("input_tokens", 0),
                     "completion_tokens": metric.get("output_tokens", 0),
-                    "total_tokens": metric.get("input_tokens", 0)
-                    + metric.get("output_tokens", 0),
+                    "total_tokens": metric.get("input_tokens", 0) + metric.get("output_tokens", 0),
                 }
                 token_data.append(entry)
 
@@ -812,9 +792,7 @@ class EnhancedInferenceTracker:
         self.performance_monitor = performance_monitor
         self.model_id = model_id
         self.batch_id = batch_id or str(uuid.uuid4())
-        self.metrics = EnhancedInferenceMetrics(
-            model_id=model_id, batch_id=self.batch_id
-        )
+        self.metrics = EnhancedInferenceMetrics(model_id=model_id, batch_id=self.batch_id)
         self._has_started = False
         self._has_stopped = False
         self._queue_start_time = None
@@ -946,9 +924,7 @@ class EnhancedInferenceTracker:
         self.metrics.api_version = api_version
         self.metrics.client_info = client_info or {}
 
-    def stop(
-        self, output_text: str = "", output_tokens: int = 0
-    ) -> EnhancedInferenceMetrics:
+    def stop(self, output_text: str = "", output_tokens: int = 0) -> EnhancedInferenceMetrics:
         """
         Stop tracking and save the metrics.
 
@@ -1013,9 +989,7 @@ class EnhancedInferenceTracker:
 
             process = psutil.Process(os.getpid())
             memory_info = process.memory_info()
-            self.metrics.memory_usage_mb = memory_info.rss / (
-                1024 * 1024
-            )  # Convert bytes to MB
+            self.metrics.memory_usage_mb = memory_info.rss / (1024 * 1024)  # Convert bytes to MB
             self.metrics.cpu_percent = process.cpu_percent()
         except ImportError:
             # psutil not available, use generic memory info

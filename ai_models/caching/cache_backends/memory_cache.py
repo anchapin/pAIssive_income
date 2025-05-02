@@ -17,9 +17,7 @@ class MemoryCache(CacheBackend):
     In-memory cache backend.
     """
 
-    def __init__(
-        self, max_size: Optional[int] = None, eviction_policy: str = "lru", **kwargs
-    ):
+    def __init__(self, max_size: Optional[int] = None, eviction_policy: str = "lru", **kwargs):
         """
         Initialize the memory cache.
 

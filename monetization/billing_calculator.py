@@ -5,18 +5,16 @@ This module provides classes for calculating billing based on usage,
 including different pricing models and cost estimation.
 """
 
-import copy
 import hashlib
 import json
-import math
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 # Import the centralized caching service
 from common_utils.caching import default_cache
 
 from .usage_tracker import UsageTracker
-from .usage_tracking import UsageCategory, UsageMetric, UsageRecord
+from .usage_tracking import UsageCategory, UsageMetric
 
 
 class PricingModel:
@@ -167,9 +165,7 @@ class PricingPackage:
     including the quantity, price, and overage pricing.
     """
 
-    def __init__(
-        self, quantity: float, price: float, overage_price: Optional[float] = None
-    ):
+    def __init__(self, quantity: float, price: float, overage_price: Optional[float] = None):
         """
         Initialize a pricing package.
 
@@ -234,9 +230,7 @@ class PricingPackage:
     def __str__(self) -> str:
         """String representation of the pricing package."""
         overage_str = (
-            f", ${self.overage_price}/unit overage"
-            if self.overage_price is not None
-            else ""
+            f", ${self.overage_price}/unit overage" if self.overage_price is not None else ""
         )
         return f"PricingPackage({self.quantity} units, ${self.price}{overage_str})"
 
@@ -311,11 +305,7 @@ class PricingRule:
         if self.metric != metric:
             return False
 
-        if (
-            self.category is not None
-            and category is not None
-            and self.category != category
-        ):
+        if self.category is not None and category is not None and self.category != category:
             return False
 
         if (
@@ -605,10 +595,7 @@ class BillingCalculator:
                 if rule.category is not None and rule.category == category:
                     score += 1
 
-                if (
-                    rule.resource_type is not None
-                    and rule.resource_type == resource_type
-                ):
+                if rule.resource_type is not None and rule.resource_type == resource_type:
                     score += 1
 
                 if score > best_match_score:
@@ -617,9 +604,7 @@ class BillingCalculator:
 
         # Cache the result
         rule_dict = best_match.to_dict() if best_match else None
-        default_cache.set(
-            cache_key, rule_dict, ttl=self.cache_ttl, namespace="pricing_rules"
-        )
+        default_cache.set(cache_key, rule_dict, ttl=self.cache_ttl, namespace="pricing_rules")
 
         return best_match
 
@@ -669,9 +654,7 @@ class BillingCalculator:
             Cost for the quantity
         """
         # Generate a cache key
-        cache_key = self._generate_cost_cache_key(
-            metric, quantity, category, resource_type
-        )
+        cache_key = self._generate_cost_cache_key(metric, quantity, category, resource_type)
 
         # Try to get from cache first
         cached_cost = default_cache.get(cache_key, namespace="cost_calculations")
@@ -687,9 +670,7 @@ class BillingCalculator:
             cost = rule.calculate_cost(quantity)
 
         # Cache the result
-        default_cache.set(
-            cache_key, cost, ttl=self.cache_ttl, namespace="cost_calculations"
-        )
+        default_cache.set(cache_key, cost, ttl=self.cache_ttl, namespace="cost_calculations")
 
         return cost
 
@@ -788,14 +769,10 @@ class BillingCalculator:
             ValueError: If usage_tracker is not set or other required dependencies are missing
         """
         # Generate a cache key
-        cache_key = self._generate_usage_cost_cache_key(
-            customer_id, start_time, end_time
-        )
+        cache_key = self._generate_usage_cost_cache_key(customer_id, start_time, end_time)
 
         # Try to get from cache first
-        cached_result = default_cache.get(
-            cache_key, namespace="usage_cost_calculations"
-        )
+        cached_result = default_cache.get(cache_key, namespace="usage_cost_calculations")
         if cached_result is not None:
             return cached_result
 
@@ -904,9 +881,7 @@ class BillingCalculator:
 
         return hashlib.md5("|".join(key_parts).encode()).hexdigest()
 
-    def estimate_cost(
-        self, usage_estimates: Dict[str, Dict[str, float]]
-    ) -> Dict[str, Any]:
+    def estimate_cost(self, usage_estimates: Dict[str, Dict[str, float]]) -> Dict[str, Any]:
         """
         Estimate the cost for estimated usage.
 
@@ -1006,9 +981,7 @@ class BillingCalculator:
         # Calculate cost for each metric and category
         for metric, categories in usage_estimates.items():
             for category, quantity in categories.items():
-                cost = self.calculate_cost(
-                    metric=metric, quantity=quantity, category=category
-                )
+                cost = self.calculate_cost(metric=metric, quantity=quantity, category=category)
 
                 # Add to result
                 item = {
@@ -1022,15 +995,11 @@ class BillingCalculator:
                 result["total_cost"] += cost
 
         # Cache the result
-        default_cache.set(
-            cache_key, result, ttl=self.cache_ttl, namespace="cost_estimates"
-        )
+        default_cache.set(cache_key, result, ttl=self.cache_ttl, namespace="cost_estimates")
 
         return result
 
-    def _generate_estimate_cache_key(
-        self, usage_estimates: Dict[str, Dict[str, float]]
-    ) -> str:
+    def _generate_estimate_cache_key(self, usage_estimates: Dict[str, Dict[str, float]]) -> str:
         """
         Generate a cache key for cost estimations.
 

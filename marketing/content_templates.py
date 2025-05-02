@@ -6,7 +6,7 @@ Provides templates for creating marketing content.
 import logging
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from .errors import ContentTemplateError, ValidationError, handle_exception
 
@@ -76,9 +76,7 @@ class ContentTemplate:
                 raise ValidationError(
                     message="Title is required to generate an outline",
                     field="title",
-                    validation_errors=[
-                        {"field": "title", "error": "Title is required"}
-                    ],
+                    validation_errors=[{"field": "title", "error": "Title is required"}],
                 )
 
             if not self.key_points or len(self.key_points) == 0:
@@ -133,11 +131,7 @@ class ContentTemplate:
                     "key_elements": [
                         "Recap of key points",
                         "Final thoughts",
-                        (
-                            "Call to action"
-                            if self.call_to_action
-                            else "Closing statement"
-                        ),
+                        ("Call to action" if self.call_to_action else "Closing statement"),
                     ],
                 }
             )
@@ -218,18 +212,14 @@ class ContentTemplate:
         }
 
         # Get guidelines for the specified tone, or default to professional
-        guidelines = tone_guidelines.get(
-            self.tone.lower(), tone_guidelines["professional"]
-        )
+        guidelines = tone_guidelines.get(self.tone.lower(), tone_guidelines["professional"])
 
         # Add persona-specific guidelines
         persona_guidelines = {
             "target_audience": self.target_persona["name"],
             "pain_points_to_address": self.target_persona["pain_points"],
             "goals_to_emphasize": self.target_persona["goals"],
-            "knowledge_level": self.target_persona["behavior"].get(
-                "tech_savvy", "medium"
-            ),
+            "knowledge_level": self.target_persona["behavior"].get("tech_savvy", "medium"),
         }
 
         return {
@@ -284,9 +274,7 @@ class ContentTemplate:
                 keyword_counts[word] = 1
 
         # Sort by count and get top keywords
-        sorted_keywords = sorted(
-            keyword_counts.items(), key=lambda x: x[1], reverse=True
-        )
+        sorted_keywords = sorted(keyword_counts.items(), key=lambda x: x[1], reverse=True)
         top_keywords = [k for k, v in sorted_keywords[:5]]
 
         # Generate keyword phrases
@@ -534,9 +522,7 @@ class BlogPostTemplate(ContentTemplate):
             include_images: Whether to include image recommendations
             seo_keywords: Optional list of SEO keywords to target
         """
-        super().__init__(
-            name, description, title, target_persona, key_points, tone, call_to_action
-        )
+        super().__init__(name, description, title, target_persona, key_points, tone, call_to_action)
         self.content_type = "blog_post"
         self.target_word_count = target_word_count
         self.include_images = include_images
@@ -651,22 +637,16 @@ class BlogPostTemplate(ContentTemplate):
         suggested_questions = [f"What is the best way to {self.title.lower()}?"]
 
         if self.key_points:
-            suggested_questions.append(
-                f"How long does it take to {self.key_points[0].lower()}?"
-            )
+            suggested_questions.append(f"How long does it take to {self.key_points[0].lower()}?")
         else:
-            suggested_questions.append(
-                f"How long does it take to implement {self.title.lower()}?"
-            )
+            suggested_questions.append(f"How long does it take to implement {self.title.lower()}?")
 
         if self.target_persona and self.target_persona.get("pain_points"):
             suggested_questions.append(
                 f"What tools do I need for {self.target_persona['pain_points'][0]}?"
             )
         else:
-            suggested_questions.append(
-                f"What tools do I need for {self.title.lower()}?"
-            )
+            suggested_questions.append(f"What tools do I need for {self.title.lower()}?")
 
         blog_sections.append(
             {
@@ -775,9 +755,7 @@ class BlogPostTemplate(ContentTemplate):
         }
 
         # Add keywords to the main content
-        content["keywords"] = self.seo_keywords or seo_info.get(
-            "secondary_keywords", []
-        )
+        content["keywords"] = self.seo_keywords or seo_info.get("secondary_keywords", [])
 
         # Add image recommendations if enabled
         if self.include_images:
@@ -886,9 +864,7 @@ class SocialMediaTemplate(ContentTemplate):
             hashtags: Optional list of hashtags to include
             include_image: Whether to include image recommendations
         """
-        super().__init__(
-            name, description, title, target_persona, key_points, tone, call_to_action
-        )
+        super().__init__(name, description, title, target_persona, key_points, tone, call_to_action)
         self.content_type = "social_media"
         self.platform = platform
         self.platforms = platforms or [platform]
@@ -1178,9 +1154,7 @@ class SocialMediaTemplate(ContentTemplate):
         main_point = self.key_points[0] if self.key_points else self.title
 
         # Format hashtags
-        hashtag_text = " ".join(
-            [f"#{tag.replace(' ', '')}" for tag in self.hashtags[:3]]
-        )
+        hashtag_text = " ".join([f"#{tag.replace(' ', '')}" for tag in self.hashtags[:3]])
 
         # Create call to action
         cta = f" {self.call_to_action}" if self.call_to_action else ""
@@ -1218,9 +1192,7 @@ class SocialMediaTemplate(ContentTemplate):
         cta = f"\n{self.call_to_action}" if self.call_to_action else ""
 
         # Add hashtags at the end
-        hashtag_text = "\n\n" + " ".join(
-            [f"#{tag.replace(' ', '')}" for tag in self.hashtags[:5]]
-        )
+        hashtag_text = "\n\n" + " ".join([f"#{tag.replace(' ', '')}" for tag in self.hashtags[:5]])
 
         # Combine all elements
         post_text = intro + body + cta + hashtag_text
@@ -1256,9 +1228,7 @@ class SocialMediaTemplate(ContentTemplate):
         cta = f"\n{self.call_to_action}" if self.call_to_action else ""
 
         # Add hashtags (fewer than Twitter/Instagram)
-        hashtag_text = "\n\n" + " ".join(
-            [f"#{tag.replace(' ', '')}" for tag in self.hashtags[:3]]
-        )
+        hashtag_text = "\n\n" + " ".join([f"#{tag.replace(' ', '')}" for tag in self.hashtags[:3]])
 
         # Combine all elements
         post_text = intro + body + cta + hashtag_text
@@ -1289,9 +1259,7 @@ class SocialMediaTemplate(ContentTemplate):
         cta = f"{self.call_to_action}\n\n" if self.call_to_action else ""
 
         # Add hashtags (Instagram can have more hashtags)
-        hashtag_text = ".\n.\n.\n" + " ".join(
-            [f"#{tag.replace(' ', '')}" for tag in self.hashtags]
-        )
+        hashtag_text = ".\n.\n.\n" + " ".join([f"#{tag.replace(' ', '')}" for tag in self.hashtags])
 
         # Combine all elements
         post_text = intro + body + cta + hashtag_text
@@ -1343,9 +1311,7 @@ class SocialMediaTemplate(ContentTemplate):
         for point in self.key_points:
             point_words = point.lower().split()
             potential_tag = "".join([word.capitalize() for word in point_words[:3]])
-            if (
-                potential_tag and len(potential_tag) < 30
-            ):  # Avoid excessively long hashtags
+            if potential_tag and len(potential_tag) < 30:  # Avoid excessively long hashtags
                 recommendations.append(potential_tag)
 
         # Add hashtags based on target persona
@@ -1407,9 +1373,7 @@ class EmailNewsletterTemplate(ContentTemplate):
             sender_name: Optional name of the sender
             sender_email: Optional email of the sender
         """
-        super().__init__(
-            name, description, title, target_persona, key_points, tone, call_to_action
-        )
+        super().__init__(name, description, title, target_persona, key_points, tone, call_to_action)
         self.content_type = "email_newsletter"
         self.subject_line = subject_line or title
         self.newsletter_type = newsletter_type
@@ -1766,9 +1730,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 include_images if include_images is not None else self.include_images
             ),
             "include_personalization": (
-                include_personalization
-                if include_personalization is not None
-                else False
+                include_personalization if include_personalization is not None else False
             ),
             "include_call_to_action": (
                 include_call_to_action
@@ -1786,9 +1748,7 @@ class EmailNewsletterTemplate(ContentTemplate):
             # Add sample content if the section doesn't have any
             if not section_copy.get("content"):
                 if section_copy.get("name") == "Subject Line":
-                    section_copy["content"] = (
-                        self.subject_line or f"Newsletter: {self.title}"
-                    )
+                    section_copy["content"] = self.subject_line or f"Newsletter: {self.title}"
                 elif section_copy.get("name") == "Preheader":
                     section_copy["content"] = (
                         f"The latest insights on {self.title} for {self.target_persona['name']}"
@@ -1804,9 +1764,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                         f"Here are the key points about {self.title} that you should know about."
                     )
                 elif section_copy.get("name") == "Call to Action":
-                    section_copy["content"] = (
-                        self.call_to_action or "Click here to learn more"
-                    )
+                    section_copy["content"] = self.call_to_action or "Click here to learn more"
                 elif section_copy.get("name") == "Footer":
                     section_copy["content"] = (
                         "Thank you for reading! If you have any questions, please reply to this email."
@@ -2012,12 +1970,12 @@ class VideoScriptTemplate(ContentTemplate):
             )
 
         # Add outro section with call to action
-        outro_script = (
-            f"[HOST ON CAMERA]\n\nThanks for watching this video about {self.title}. "
-        )
+        outro_script = f"[HOST ON CAMERA]\n\nThanks for watching this video about {self.title}. "
         if self.call_to_action:
             outro_script += f"Don't forget to {self.call_to_action}. "
-        outro_script += "If you found this helpful, please like and subscribe for more content like this."
+        outro_script += (
+            "If you found this helpful, please like and subscribe for more content like this."
+        )
 
         script_sections.append(
             {
@@ -2208,8 +2166,7 @@ class LandingPageTemplate(ContentTemplate):
         super().__init__(title, target_persona, key_points, tone, call_to_action)
         self.content_type = "landing_page"
         self.unique_selling_proposition = (
-            unique_selling_proposition
-            or f"The best solution for {target_persona['name']}s"
+            unique_selling_proposition or f"The best solution for {target_persona['name']}s"
         )
         self.features = features or []
         self.testimonials = testimonials or []
@@ -2555,10 +2512,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 "description": "Highlight the key benefits of the product",
                 "content": "## Key Benefits\n\n"
                 + "\n".join(
-                    [
-                        f"- **{item['title']}**: {item['description']}"
-                        for item in benefit_items
-                    ]
+                    [f"- **{item['title']}**: {item['description']}" for item in benefit_items]
                 ),
             }
         )
@@ -2756,9 +2710,7 @@ class CaseStudyTemplate(ContentTemplate):
             challenge
             or f"The {client_name} team was struggling with {target_persona['pain_points'][0] if target_persona['pain_points'] else 'significant challenges'}."
         )
-        self.solution = (
-            solution or f"We implemented {title} to address their specific needs."
-        )
+        self.solution = solution or f"We implemented {title} to address their specific needs."
         self.results = results or [
             f"Achieved {target_persona['goals'][0] if target_persona['goals'] else 'significant improvements'}"
         ]
@@ -3093,7 +3045,9 @@ class TestimonialTemplate(ContentTemplate):
         # Add statements based on key points
         middle = ""
         for point in self.key_points:
-            middle += f"Thanks to this {self.testimonial_type}, we've been able to {point.lower()}. "
+            middle += (
+                f"Thanks to this {self.testimonial_type}, we've been able to {point.lower()}. "
+            )
 
         # Add a statement about pain points being solved
         if self.target_persona.get("pain_points"):
@@ -3103,9 +3057,7 @@ class TestimonialTemplate(ContentTemplate):
         # Add a statement about goals being achieved
         if self.target_persona.get("goals"):
             goal = self.target_persona["goals"][0]
-            middle += (
-                f"We're now able to {goal.lower()} more effectively than ever before. "
-            )
+            middle += f"We're now able to {goal.lower()} more effectively than ever before. "
 
         # Add a closing statement
         if self.testimonial_type == "product":

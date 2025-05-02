@@ -6,7 +6,7 @@ and improve testability and maintainability.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 
 class IModelConfig(ABC):
@@ -16,31 +16,26 @@ class IModelConfig(ABC):
     @abstractmethod
     def models_dir(self) -> str:
         """Get the models directory."""
-        pass
 
     @property
     @abstractmethod
     def cache_dir(self) -> str:
         """Get the cache directory."""
-        pass
 
     @property
     @abstractmethod
     def auto_discover(self) -> bool:
         """Get whether to auto-discover models."""
-        pass
 
     @property
     @abstractmethod
     def max_threads(self) -> int:
         """Get the maximum number of threads to use."""
-        pass
 
     @classmethod
     @abstractmethod
     def get_default(cls) -> "IModelConfig":
         """Get the default configuration."""
-        pass
 
 
 class IModelInfo(ABC):
@@ -50,37 +45,31 @@ class IModelInfo(ABC):
     @abstractmethod
     def id(self) -> str:
         """Get the model ID."""
-        pass
 
     @property
     @abstractmethod
     def name(self) -> str:
         """Get the model name."""
-        pass
 
     @property
     @abstractmethod
     def description(self) -> str:
         """Get the model description."""
-        pass
 
     @property
     @abstractmethod
     def type(self) -> str:
         """Get the model type."""
-        pass
 
     @property
     @abstractmethod
     def path(self) -> str:
         """Get the model path."""
-        pass
 
     @property
     @abstractmethod
     def metadata(self) -> Dict[str, Any]:
         """Get the model metadata."""
-        pass
 
 
 class IModelManager(ABC):
@@ -90,7 +79,6 @@ class IModelManager(ABC):
     @abstractmethod
     def config(self) -> IModelConfig:
         """Get the model configuration."""
-        pass
 
     @abstractmethod
     def get_model_info(self, model_id: str) -> IModelInfo:
@@ -103,7 +91,6 @@ class IModelManager(ABC):
         Returns:
             Model information
         """
-        pass
 
     @abstractmethod
     def list_models(self) -> List[IModelInfo]:
@@ -113,7 +100,6 @@ class IModelManager(ABC):
         Returns:
             List of model information
         """
-        pass
 
     @abstractmethod
     def load_model(self, model_id: str, **kwargs) -> Any:
@@ -127,7 +113,6 @@ class IModelManager(ABC):
         Returns:
             Loaded model
         """
-        pass
 
     @abstractmethod
     def unload_model(self, model_id: str) -> bool:
@@ -140,7 +125,6 @@ class IModelManager(ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def discover_models(self) -> List[IModelInfo]:
@@ -150,7 +134,6 @@ class IModelManager(ABC):
         Returns:
             List of discovered model information
         """
-        pass
 
 
 class IModelAdapter(ABC):
@@ -160,13 +143,11 @@ class IModelAdapter(ABC):
     @abstractmethod
     def name(self) -> str:
         """Get the adapter name."""
-        pass
 
     @property
     @abstractmethod
     def description(self) -> str:
         """Get the adapter description."""
-        pass
 
     @abstractmethod
     def is_available(self) -> bool:
@@ -176,7 +157,6 @@ class IModelAdapter(ABC):
         Returns:
             True if available, False otherwise
         """
-        pass
 
     @abstractmethod
     def connect(self, **kwargs) -> bool:
@@ -189,7 +169,6 @@ class IModelAdapter(ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def disconnect(self) -> bool:
@@ -199,7 +178,6 @@ class IModelAdapter(ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def get_models(self) -> List[Dict[str, Any]]:
@@ -209,7 +187,6 @@ class IModelAdapter(ABC):
         Returns:
             List of model dictionaries
         """
-        pass
 
 
 class ICacheManager(ABC):
@@ -226,7 +203,6 @@ class ICacheManager(ABC):
         Returns:
             Cached value, or None if not found
         """
-        pass
 
     @abstractmethod
     def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
@@ -241,7 +217,6 @@ class ICacheManager(ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def delete(self, key: str) -> bool:
@@ -254,7 +229,6 @@ class ICacheManager(ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def clear(self) -> bool:
@@ -264,7 +238,6 @@ class ICacheManager(ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
 
 class IPerformanceMonitor(ABC):
@@ -282,12 +255,9 @@ class IPerformanceMonitor(ABC):
         Returns:
             Tracking ID
         """
-        pass
 
     @abstractmethod
-    def end_tracking(
-        self, tracking_id: str, result_size: Optional[int] = None
-    ) -> Dict[str, Any]:
+    def end_tracking(self, tracking_id: str, result_size: Optional[int] = None) -> Dict[str, Any]:
         """
         End tracking performance for a model operation.
 
@@ -298,7 +268,6 @@ class IPerformanceMonitor(ABC):
         Returns:
             Performance metrics
         """
-        pass
 
     @abstractmethod
     def get_metrics(self, model_id: Optional[str] = None) -> Dict[str, Any]:
@@ -311,4 +280,3 @@ class IPerformanceMonitor(ABC):
         Returns:
             Performance metrics
         """
-        pass

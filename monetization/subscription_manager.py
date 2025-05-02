@@ -5,12 +5,11 @@ This module provides classes for managing the subscription lifecycle,
 including creation, renewal, cancellation, and upgrades/downgrades.
 """
 
-import copy
 import json
 import os
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from .subscription import FeatureWrapper, SubscriptionPlan, TierWrapper
 from .user_subscription import Subscription, SubscriptionStatus
@@ -76,17 +75,11 @@ class SubscriptionManager:
                 # If feature is not a dictionary, convert it to one
                 feature_dict = {
                     "name": feature.name if hasattr(feature, "name") else "Unknown",
-                    "description": (
-                        feature.description if hasattr(feature, "description") else ""
-                    ),
+                    "description": (feature.description if hasattr(feature, "description") else ""),
                     "feature_type": (
-                        feature.feature_type
-                        if hasattr(feature, "feature_type")
-                        else "boolean"
+                        feature.feature_type if hasattr(feature, "feature_type") else "boolean"
                     ),
-                    "category": (
-                        feature.category if hasattr(feature, "category") else "general"
-                    ),
+                    "category": (feature.category if hasattr(feature, "category") else "general"),
                     "id": feature.id if hasattr(feature, "id") else str(uuid.uuid4()),
                 }
 
@@ -112,18 +105,12 @@ class SubscriptionManager:
                 # If tier is not a dictionary, convert it to one
                 tier_dict = {
                     "name": tier.name if hasattr(tier, "name") else "Unknown",
-                    "description": (
-                        tier.description if hasattr(tier, "description") else ""
-                    ),
+                    "description": (tier.description if hasattr(tier, "description") else ""),
                     "price_monthly": (
                         tier.price_monthly if hasattr(tier, "price_monthly") else 0.0
                     ),
-                    "price_yearly": (
-                        tier.price_yearly if hasattr(tier, "price_yearly") else None
-                    ),
-                    "target_users": (
-                        tier.target_users if hasattr(tier, "target_users") else ""
-                    ),
+                    "price_yearly": (tier.price_yearly if hasattr(tier, "price_yearly") else None),
+                    "target_users": (tier.target_users if hasattr(tier, "target_users") else ""),
                     "features": tier.features if hasattr(tier, "features") else [],
                     "limits": tier.limits if hasattr(tier, "limits") else {},
                 }
@@ -132,9 +119,7 @@ class SubscriptionManager:
             tier_features = []
             if "features" in tier_dict:
                 tier_features = [
-                    feature_map[f_id]
-                    for f_id in tier_dict["features"]
-                    if f_id in feature_map
+                    feature_map[f_id] for f_id in tier_dict["features"] if f_id in feature_map
                 ]
 
             # Create the tier
@@ -385,9 +370,7 @@ class SubscriptionManager:
             return None
 
         # Check if subscription is canceled
-        if not subscription.is_canceled() and not subscription.get_metadata(
-            "cancel_at_period_end"
-        ):
+        if not subscription.is_canceled() and not subscription.get_metadata("cancel_at_period_end"):
             return None
 
         # Clear cancellation data
@@ -661,9 +644,7 @@ class SubscriptionManager:
             return None
 
         # Check if subscription is set to cancel at period end
-        if subscription.canceled_at and subscription.get_metadata(
-            "cancel_at_period_end"
-        ):
+        if subscription.canceled_at and subscription.get_metadata("cancel_at_period_end"):
             return None
 
         # Set new period dates
@@ -831,9 +812,7 @@ class SubscriptionManager:
         for subscription in self.subscriptions.values():
             if subscription.is_active() and now >= subscription.current_period_end:
                 # Check if subscription is set to cancel at period end
-                if subscription.canceled_at and subscription.get_metadata(
-                    "cancel_at_period_end"
-                ):
+                if subscription.canceled_at and subscription.get_metadata("cancel_at_period_end"):
                     # Cancel subscription
                     subscription.status = SubscriptionStatus.CANCELED
 
@@ -960,9 +939,7 @@ class SubscriptionManager:
 
         # Check if the feature is in the tier
         for feature in tier_features:
-            feature_name_to_check = (
-                feature["name"] if isinstance(feature, dict) else feature.name
-            )
+            feature_name_to_check = feature["name"] if isinstance(feature, dict) else feature.name
             feature_value = (
                 feature.get("value", False)
                 if isinstance(feature, dict)
@@ -975,9 +952,7 @@ class SubscriptionManager:
         # If we didn't find the feature by name in the tier features,
         # check if the feature exists in the plan by name and is included in the tier
         for feature in plan.features:
-            feature_name_to_check = (
-                feature["name"] if isinstance(feature, dict) else feature.name
-            )
+            feature_name_to_check = feature["name"] if isinstance(feature, dict) else feature.name
             feature_id = feature["id"] if isinstance(feature, dict) else feature.id
 
             if feature_name_to_check == feature_name:
@@ -1121,10 +1096,7 @@ class SubscriptionManager:
                 continue
 
             # Filter by subscription ID
-            if (
-                subscription_id
-                and event["data"].get("subscription_id") != subscription_id
-            ):
+            if subscription_id and event["data"].get("subscription_id") != subscription_id:
                 continue
 
             # Filter by user ID
@@ -1216,9 +1188,7 @@ if __name__ == "__main__":
 
     print(f"Subscription upgraded: {upgraded_subscription}")
     print(f"New tier: {upgraded_subscription.get_tier()['name']}")
-    print(
-        f"New price: ${upgraded_subscription.price:.2f}/{upgraded_subscription.billing_cycle}"
-    )
+    print(f"New price: ${upgraded_subscription.price:.2f}/{upgraded_subscription.billing_cycle}")
 
     # Change billing cycle
     annual_subscription = manager.change_billing_cycle(
@@ -1226,9 +1196,7 @@ if __name__ == "__main__":
     )
 
     print(f"Billing cycle changed: {annual_subscription}")
-    print(
-        f"New price: ${annual_subscription.price:.2f}/{annual_subscription.billing_cycle}"
-    )
+    print(f"New price: ${annual_subscription.price:.2f}/{annual_subscription.billing_cycle}")
 
     # Cancel subscription
     canceled_subscription = manager.cancel_subscription(
@@ -1238,17 +1206,11 @@ if __name__ == "__main__":
     )
 
     print(f"Subscription canceled: {canceled_subscription}")
-    print(
-        f"Cancel at period end: {canceled_subscription.get_metadata('cancel_at_period_end')}"
-    )
-    print(
-        f"Cancellation reason: {canceled_subscription.get_metadata('cancellation_reason')}"
-    )
+    print(f"Cancel at period end: {canceled_subscription.get_metadata('cancel_at_period_end')}")
+    print(f"Cancellation reason: {canceled_subscription.get_metadata('cancellation_reason')}")
 
     # Reactivate subscription
-    reactivated_subscription = manager.reactivate_subscription(
-        subscription_id=subscription.id
-    )
+    reactivated_subscription = manager.reactivate_subscription(subscription_id=subscription.id)
 
     print(f"Subscription reactivated: {reactivated_subscription}")
 

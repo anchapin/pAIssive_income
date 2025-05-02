@@ -16,9 +16,7 @@ with open(os.path.join("ai_models", "version.py"), encoding="utf-8") as f:
 
 # Get the requirements from the requirements file
 with open(os.path.join("ai_models", "requirements.txt"), encoding="utf-8") as f:
-    requirements = [
-        line.strip() for line in f if line.strip() and not line.startswith("#")
-    ]
+    requirements = [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
 setup(
     name="ai-models",

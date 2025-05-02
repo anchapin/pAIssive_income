@@ -9,7 +9,7 @@ import os
 import statistics
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from .benchmark_config import BenchmarkConfig, BenchmarkType
 
@@ -195,9 +195,7 @@ class BenchmarkResult:
             "p90": self._percentile(self.latency_ms, 90),
             "p95": self._percentile(self.latency_ms, 95),
             "p99": self._percentile(self.latency_ms, 99),
-            "std_dev": (
-                statistics.stdev(self.latency_ms) if len(self.latency_ms) > 1 else 0
-            ),
+            "std_dev": (statistics.stdev(self.latency_ms) if len(self.latency_ms) > 1 else 0),
         }
 
     def _percentile(self, data: List[float], percentile: float) -> float:

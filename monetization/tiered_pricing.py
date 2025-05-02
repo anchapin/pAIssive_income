@@ -5,10 +5,7 @@ This module provides classes for implementing tiered pricing models,
 including volume discounts and graduated pricing.
 """
 
-import copy
-import math
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from .billing_calculator import (
     BillingCalculator,
@@ -153,9 +150,7 @@ class TieredPricingRule(PricingRule):
         cost = super().calculate_cost(quantity)
 
         # Apply volume discounts
-        for discount in sorted(
-            self.volume_discounts, key=lambda d: d.min_quantity, reverse=True
-        ):
+        for discount in sorted(self.volume_discounts, key=lambda d: d.min_quantity, reverse=True):
             if discount.applies_to(quantity):
                 cost = discount.apply_discount(cost)
                 break
@@ -172,9 +167,7 @@ class TieredPricingRule(PricingRule):
         result = super().to_dict()
 
         if self.volume_discounts:
-            result["volume_discounts"] = [
-                discount.to_dict() for discount in self.volume_discounts
-            ]
+            result["volume_discounts"] = [discount.to_dict() for discount in self.volume_discounts]
 
         return result
 

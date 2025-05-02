@@ -111,27 +111,19 @@ def demo_style_adjuster():
         print(f"{i}. {suggestion['message']}")
         print(f"   Original: \"{suggestion['original'][:50]}...\"")
         print(f"   Replacement: \"{suggestion['replacement'][:50]}...\"")
-        print(
-            f"   Impact: {suggestion['impact']}, Confidence: {suggestion['confidence']:.2f}"
-        )
+        print(f"   Impact: {suggestion['impact']}, Confidence: {suggestion['confidence']:.2f}")
 
     # Adjust content
     adjusted_content = adjuster.adjust()
 
     print("\nAdjusted Blog Post (Formal Style):")
     print(f"Title: {adjusted_content['adjusted_content']['title']}")
-    print(
-        f"Introduction: {adjusted_content['adjusted_content']['introduction'][:200]}..."
-    )
+    print(f"Introduction: {adjusted_content['adjusted_content']['introduction'][:200]}...")
 
     # Get adjustment statistics
     word_choice_count = len(adjusted_content["adjustments"]["word_choice"])
-    sentence_structure_count = len(
-        adjusted_content["adjustments"]["sentence_structure"]
-    )
-    paragraph_structure_count = len(
-        adjusted_content["adjustments"]["paragraph_structure"]
-    )
+    sentence_structure_count = len(adjusted_content["adjustments"]["sentence_structure"])
+    paragraph_structure_count = len(adjusted_content["adjustments"]["paragraph_structure"])
     punctuation_count = len(adjusted_content["adjustments"]["punctuation"])
     voice_count = len(adjusted_content["adjustments"]["voice"])
 

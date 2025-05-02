@@ -5,7 +5,7 @@ This module provides example tests that showcase how to effectively use
 the mock implementations of external dependencies for testing.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import patch
 
 import pytest
@@ -61,9 +61,7 @@ def test_ollama_provider_usage(mock_ollama_provider):
 def test_stripe_payment_processing(mock_stripe_gateway):
     """Test using the mock Stripe payment gateway."""
     # Create a new customer
-    customer = mock_stripe_gateway.create_customer(
-        email="john.doe@example.com", name="John Doe"
-    )
+    customer = mock_stripe_gateway.create_customer(email="john.doe@example.com", name="John Doe")
     assert customer["email"] == "john.doe@example.com"
     assert "id" in customer
 

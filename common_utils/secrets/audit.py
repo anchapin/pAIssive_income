@@ -10,8 +10,7 @@ import logging
 import os
 import re
 import sys
-from pathlib import Path
-from typing import Any, Dict, List, Pattern, Set, Tuple
+from typing import Any, Dict, List, Pattern
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -124,9 +123,7 @@ def is_likely_secret(value: str) -> bool:
     return entropy_score >= 2
 
 
-def find_secrets_in_file(
-    filepath: str, compiled_patterns: List[Pattern]
-) -> List[Dict[str, Any]]:
+def find_secrets_in_file(filepath: str, compiled_patterns: List[Pattern]) -> List[Dict[str, Any]]:
     """
     Scan a file for potential secrets.
 
@@ -173,9 +170,7 @@ def find_secrets_in_file(
         return []
 
 
-def scan_directory(
-    directory: str, exclude_dirs: List[str] = None
-) -> List[Dict[str, Any]]:
+def scan_directory(directory: str, exclude_dirs: List[str] = None) -> List[Dict[str, Any]]:
     """
     Recursively scan a directory for files containing potential secrets.
 
@@ -228,9 +223,7 @@ def format_findings(findings: List[Dict[str, Any]]) -> str:
         report += f"   Line {finding['line']}: {finding['content']}\n"
         report += f"   Potential secret: {finding['match']}\n\n"
 
-    report += (
-        "\nRecommendation: Replace hardcoded secrets with proper secret management.\n"
-    )
+    report += "\nRecommendation: Replace hardcoded secrets with proper secret management.\n"
     report += "Use the secrets management module: common_utils.secrets\n"
     report += "Example: secret_value = get_secret('API_KEY')\n"
 
@@ -244,18 +237,14 @@ def main() -> int:
     Returns:
         Exit code (0 for success, non-zero for error)
     """
-    parser = argparse.ArgumentParser(
-        description="Scan codebase for potential hardcoded secrets."
-    )
+    parser = argparse.ArgumentParser(description="Scan codebase for potential hardcoded secrets.")
     parser.add_argument(
         "directory",
         nargs="?",
         default=".",
         help="Directory to scan (default: current directory)",
     )
-    parser.add_argument(
-        "--output", help="Output file for the report (default: print to console)"
-    )
+    parser.add_argument("--output", help="Output file for the report (default: print to console)")
     parser.add_argument("--json", action="store_true", help="Output in JSON format")
     parser.add_argument(
         "--exclude", nargs="+", default=[], help="Additional directories to exclude"

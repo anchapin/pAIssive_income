@@ -5,11 +5,10 @@ This module provides classes for managing subscription plans, tiers, and user su
 It includes tools for subscription lifecycle management and payment processing.
 """
 
-import copy
 import json
 import uuid
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 
 
 class FeatureWrapper:
@@ -257,9 +256,7 @@ class SubscriptionPlan:
 
         return feature
 
-    def get_feature(
-        self, feature_id: str
-    ) -> Optional[Union[Dict[str, Any], FeatureWrapper]]:
+    def get_feature(self, feature_id: str) -> Optional[Union[Dict[str, Any], FeatureWrapper]]:
         """
         Get a feature by ID.
 
@@ -591,9 +588,7 @@ class SubscriptionPlan:
 
         return False
 
-    def get_tier_features(
-        self, tier_id: str
-    ) -> List[Union[Dict[str, Any], FeatureWrapper]]:
+    def get_tier_features(self, tier_id: str) -> List[Union[Dict[str, Any], FeatureWrapper]]:
         """
         Get all features for a tier with their details.
 
@@ -686,9 +681,7 @@ class SubscriptionPlan:
         Returns:
             Dictionary with comparison data
         """
-        tiers = [
-            self.get_tier(tier_id) for tier_id in tier_ids if self.get_tier(tier_id)
-        ]
+        tiers = [self.get_tier(tier_id) for tier_id in tier_ids if self.get_tier(tier_id)]
 
         if not tiers:
             return {"tiers": [], "features": []}
@@ -914,9 +907,7 @@ class SubscriptionTier:
         """Get the tier features with their details."""
         return self.plan.get_tier_features(self.tier_id)
 
-    def add_feature(
-        self, feature_id: str, value: Any = True, limit: Optional[int] = None
-    ) -> bool:
+    def add_feature(self, feature_id: str, value: Any = True, limit: Optional[int] = None) -> bool:
         """
         Add a feature to this tier.
 

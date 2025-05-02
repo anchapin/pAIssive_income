@@ -10,19 +10,11 @@ import json
 import logging
 import os
 import uuid
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from flask import (
     Flask,
-    flash,
-    jsonify,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
 )
-
 from service_initialization import initialize_services
 
 # Set up logging
@@ -48,12 +40,11 @@ from .celery_app import create_celery_app
 celery = create_celery_app(app)
 
 # Initialize SocketIO
-from .socketio_app import init_socketio, socketio
+from .socketio_app import init_socketio
 
 init_socketio(app)
 
 # Import routes after app is created to avoid circular imports
-from . import routes
 
 
 # Initialize the application

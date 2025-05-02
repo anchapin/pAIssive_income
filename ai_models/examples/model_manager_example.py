@@ -10,11 +10,9 @@ import os
 import sys
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from ai_models import ModelConfig, ModelInfo, ModelManager
+from ai_models import ModelManager
 
 # Set up logging
 logging.basicConfig(

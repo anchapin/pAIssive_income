@@ -9,8 +9,7 @@ import base64
 import json
 import logging
 import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes

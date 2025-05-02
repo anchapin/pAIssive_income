@@ -70,9 +70,7 @@ def verify_password(stored_password: str, provided_password: str) -> bool:
         stored_key = base64.b64decode(stored_key)
 
         # Hash the provided password
-        key = hashlib.pbkdf2_hmac(
-            "sha256", provided_password.encode("utf-8"), salt, iterations
-        )
+        key = hashlib.pbkdf2_hmac("sha256", provided_password.encode("utf-8"), salt, iterations)
 
         # Compare using constant-time comparison (to prevent timing attacks)
         return hmac.compare_digest(key, stored_key)
@@ -82,9 +80,7 @@ def verify_password(stored_password: str, provided_password: str) -> bool:
         return False
 
 
-def create_auth_token(
-    user_id: str, roles: list[str], expiry: int = DEFAULT_TOKEN_EXPIRY
-) -> str:
+def create_auth_token(user_id: str, roles: list[str], expiry: int = DEFAULT_TOKEN_EXPIRY) -> str:
     """
     Create a JWT-like authentication token for a user.
 

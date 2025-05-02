@@ -2,10 +2,7 @@
 Tests for the content templates components in the Marketing module.
 """
 
-from datetime import datetime
-from unittest.mock import MagicMock, patch
 
-import pytest
 
 from marketing.content_templates import (
     BlogPostTemplate,
@@ -17,9 +14,7 @@ from marketing.content_templates import (
 
 def test_content_template_init():
     """Test ContentTemplate initialization."""
-    template = ContentTemplate(
-        name="Test Template", description="A test content template"
-    )
+    template = ContentTemplate(name="Test Template", description="A test content template")
 
     # Check that the template has the expected attributes
     assert template.name == "Test Template"
@@ -33,9 +28,7 @@ def test_content_template_init():
 
 def test_content_template_add_section():
     """Test add_section method of ContentTemplate."""
-    template = ContentTemplate(
-        name="Test Template", description="A test content template"
-    )
+    template = ContentTemplate(name="Test Template", description="A test content template")
 
     # Add a section
     section = template.add_section(
@@ -61,9 +54,7 @@ def test_content_template_add_section():
 
 def test_content_template_generate_content():
     """Test generate_content method of ContentTemplate."""
-    template = ContentTemplate(
-        name="Test Template", description="A test content template"
-    )
+    template = ContentTemplate(name="Test Template", description="A test content template")
 
     # Add sections
     template.add_section(

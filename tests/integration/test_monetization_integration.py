@@ -2,10 +2,7 @@
 Integration tests for the Monetization module.
 """
 
-import json
 import os
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -81,9 +78,7 @@ def test_subscription_model_to_manager_integration(temp_subscription_dir):
     assert "Pro" in plan_tier_names
 
     # Create a subscription for a user
-    subscription = manager.create_subscription(
-        user_id="user1", plan_id=plan.id, tier_name="Pro"
-    )
+    subscription = manager.create_subscription(user_id="user1", plan_id=plan.id, tier_name="Pro")
 
     # Check that the subscription was created with the correct attributes
     assert subscription.user_id == "user1"
@@ -111,9 +106,7 @@ def test_subscription_model_to_manager_integration(temp_subscription_dir):
 def test_freemium_model_to_pricing_calculator_integration():
     """Test integration between FreemiumModel and PricingCalculator."""
     # Create a freemium model
-    model = FreemiumModel(
-        name="Test Freemium Model", description="A test freemium model"
-    )
+    model = FreemiumModel(name="Test Freemium Model", description="A test freemium model")
 
     # Add features
     feature1 = model.add_feature(
@@ -169,15 +162,11 @@ def test_subscription_model_to_revenue_projector_integration():
     )
 
     # Add tiers
-    basic_tier = model.add_tier(
-        name="Basic", description="Basic tier", price_monthly=9.99
-    )
+    basic_tier = model.add_tier(name="Basic", description="Basic tier", price_monthly=9.99)
 
     pro_tier = model.add_tier(name="Pro", description="Pro tier", price_monthly=19.99)
 
-    premium_tier = model.add_tier(
-        name="Premium", description="Premium tier", price_monthly=29.99
-    )
+    premium_tier = model.add_tier(name="Premium", description="Premium tier", price_monthly=29.99)
 
     # Create a revenue projector
     projector = RevenueProjector(
@@ -206,9 +195,7 @@ def test_subscription_model_to_revenue_projector_integration():
 
     # Check that revenue projections were generated
     assert len(revenue_projections) == 12
-    assert all(
-        isinstance(month["total_revenue"], float) for month in revenue_projections
-    )
+    assert all(isinstance(month["total_revenue"], float) for month in revenue_projections)
     assert all(isinstance(month["tier_revenue"], dict) for month in revenue_projections)
     assert all("Basic" in month["tier_revenue"] for month in revenue_projections)
     assert all("Pro" in month["tier_revenue"] for month in revenue_projections)
@@ -217,18 +204,10 @@ def test_subscription_model_to_revenue_projector_integration():
     # Check that the revenue is calculated correctly
     for month in revenue_projections:
         # Use round to handle floating point precision issues
-        assert month["tier_revenue"]["Basic"] == round(
-            month["tier_users"]["Basic"] * 9.99, 2
-        )
-        assert month["tier_revenue"]["Pro"] == round(
-            month["tier_users"]["Pro"] * 19.99, 2
-        )
-        assert month["tier_revenue"]["Premium"] == round(
-            month["tier_users"]["Premium"] * 29.99, 2
-        )
-        assert round(month["total_revenue"], 2) == round(
-            sum(month["tier_revenue"].values()), 2
-        )
+        assert month["tier_revenue"]["Basic"] == round(month["tier_users"]["Basic"] * 9.99, 2)
+        assert month["tier_revenue"]["Pro"] == round(month["tier_users"]["Pro"] * 19.99, 2)
+        assert month["tier_revenue"]["Premium"] == round(month["tier_users"]["Premium"] * 29.99, 2)
+        assert round(month["total_revenue"], 2) == round(sum(month["tier_revenue"].values()), 2)
 
 
 def test_end_to_end_monetization_workflow(temp_subscription_dir):
@@ -312,9 +291,7 @@ def test_end_to_end_monetization_workflow(temp_subscription_dir):
     )
 
     # 6. Update tier prices
-    model.update_tier_price(
-        pro_tier["id"], price_monthly=pro_price, price_yearly=pro_price * 10
-    )
+    model.update_tier_price(pro_tier["id"], price_monthly=pro_price, price_yearly=pro_price * 10)
     model.update_tier_price(
         business_tier["id"],
         price_monthly=business_price,
@@ -363,9 +340,7 @@ def test_end_to_end_monetization_workflow(temp_subscription_dir):
 
     # 13. Check feature access
     assert manager.has_feature_access(free_subscription.id, "Basic Text Generation")
-    assert not manager.has_feature_access(
-        free_subscription.id, "Advanced Text Generation"
-    )
+    assert not manager.has_feature_access(free_subscription.id, "Advanced Text Generation")
     assert not manager.has_feature_access(free_subscription.id, "API Access")
 
     assert manager.has_feature_access(pro_subscription.id, "Basic Text Generation")
@@ -373,9 +348,7 @@ def test_end_to_end_monetization_workflow(temp_subscription_dir):
     assert not manager.has_feature_access(pro_subscription.id, "API Access")
 
     assert manager.has_feature_access(business_subscription.id, "Basic Text Generation")
-    assert manager.has_feature_access(
-        business_subscription.id, "Advanced Text Generation"
-    )
+    assert manager.has_feature_access(business_subscription.id, "Advanced Text Generation")
     assert manager.has_feature_access(business_subscription.id, "API Access")
 
     # 14. Check usage limits
@@ -390,7 +363,5 @@ def test_end_to_end_monetization_workflow(temp_subscription_dir):
 
     # 16. Check the upgraded subscription
     assert upgraded_subscription.tier_name == "Pro"
-    assert manager.has_feature_access(
-        upgraded_subscription.id, "Advanced Text Generation"
-    )
+    assert manager.has_feature_access(upgraded_subscription.id, "Advanced Text Generation")
     assert manager.get_usage_limit(upgraded_subscription.id, "api_calls") == 1000

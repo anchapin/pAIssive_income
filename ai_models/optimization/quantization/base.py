@@ -7,7 +7,7 @@ This module provides the base classes and interfaces for model quantization.
 import abc
 import enum
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional
 
 
 class QuantizationMethod(enum.Enum):
@@ -141,9 +141,7 @@ class Quantizer(abc.ABC):
         self.config = config
 
     @abc.abstractmethod
-    def quantize(
-        self, model_path: str, output_path: Optional[str] = None, **kwargs
-    ) -> str:
+    def quantize(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
         """
         Quantize a model.
 
@@ -155,7 +153,6 @@ class Quantizer(abc.ABC):
         Returns:
             Path to the quantized model
         """
-        pass
 
     @abc.abstractmethod
     def supports_model_type(self, model_type: str) -> bool:
@@ -168,7 +165,6 @@ class Quantizer(abc.ABC):
         Returns:
             True if the model type is supported, False otherwise
         """
-        pass
 
     @abc.abstractmethod
     def get_supported_methods(self) -> List[QuantizationMethod]:
@@ -178,7 +174,6 @@ class Quantizer(abc.ABC):
         Returns:
             List of supported quantization methods
         """
-        pass
 
     @abc.abstractmethod
     def get_quantization_info(self) -> Dict[str, Any]:
@@ -188,4 +183,3 @@ class Quantizer(abc.ABC):
         Returns:
             Dictionary with quantization information
         """
-        pass

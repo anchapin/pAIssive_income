@@ -6,11 +6,10 @@ and other security-sensitive operations.
 """
 
 import logging
-import time
 from collections import defaultdict
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Dict, List, Optional, Tuple
+from typing import Optional, Tuple
 
 from flask import g, jsonify, request
 
@@ -92,9 +91,7 @@ def record_login_attempt(identifier: str, success: bool) -> Tuple[bool, Optional
 
     # Remove attempts older than the window
     LOGIN_ATTEMPTS[identifier] = [
-        timestamp
-        for timestamp in LOGIN_ATTEMPTS[identifier]
-        if timestamp > window_start
+        timestamp for timestamp in LOGIN_ATTEMPTS[identifier] if timestamp > window_start
     ]
 
     # Add current attempt
@@ -159,9 +156,7 @@ def rate_limit_login(f):
         ip_identifier = f"ip:{ip}"
 
         # Check rate limits
-        username_limited, username_remaining = record_login_attempt(
-            username_identifier, False
-        )
+        username_limited, username_remaining = record_login_attempt(username_identifier, False)
         ip_limited, ip_remaining = record_login_attempt(ip_identifier, False)
 
         if username_limited or ip_limited:
@@ -207,9 +202,7 @@ def cleanup_rate_limiting_data() -> Tuple[int, int]:
         # Remove attempts older than the window
         original_count = len(LOGIN_ATTEMPTS[identifier])
         LOGIN_ATTEMPTS[identifier] = [
-            timestamp
-            for timestamp in LOGIN_ATTEMPTS[identifier]
-            if timestamp > window_start
+            timestamp for timestamp in LOGIN_ATTEMPTS[identifier] if timestamp > window_start
         ]
 
         # If no attempts remain, remove the identifier

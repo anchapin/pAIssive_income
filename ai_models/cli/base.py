@@ -7,7 +7,7 @@ This module provides the base class for all commands.
 import abc
 import argparse
 import logging
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, List
 
 # Set up logging
 logging.basicConfig(
@@ -41,7 +41,6 @@ class BaseCommand(abc.ABC):
         Args:
             parser: Argument parser
         """
-        pass
 
     @abc.abstractmethod
     def run(self) -> int:
@@ -51,7 +50,6 @@ class BaseCommand(abc.ABC):
         Returns:
             Exit code
         """
-        pass
 
     def _get_arg(self, name: str, default: Any = None) -> Any:
         """

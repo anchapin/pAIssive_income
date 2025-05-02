@@ -4,11 +4,11 @@ Metrics routes for REST API server.
 This module provides route handlers for metrics.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, Depends
+    from fastapi import APIRouter
     from fastapi.responses import PlainTextResponse
     from pydantic import BaseModel, Field
 
@@ -43,9 +43,7 @@ if FASTAPI_AVAILABLE:
 
         name: str = Field(..., description="Name of the metric")
         value: float = Field(..., description="Value of the metric")
-        labels: Dict[str, str] = Field(
-            default_factory=dict, description="Labels for the metric"
-        )
+        labels: Dict[str, str] = Field(default_factory=dict, description="Labels for the metric")
 
     class MetricsResponse(BaseModel):
         """
@@ -61,9 +59,7 @@ if FASTAPI_AVAILABLE:
         latency_ms: float = Field(..., description="Inference latency in milliseconds")
         throughput: float = Field(..., description="Requests per second")
         memory_mb: float = Field(..., description="Memory usage in MB")
-        gpu_memory_mb: Optional[float] = Field(
-            None, description="GPU memory usage in MB"
-        )
+        gpu_memory_mb: Optional[float] = Field(None, description="GPU memory usage in MB")
         error_rate: float = Field(..., description="Error rate percentage")
         timestamp: str = Field(..., description="ISO format timestamp")
 
@@ -71,9 +67,7 @@ if FASTAPI_AVAILABLE:
         """Aggregate model statistics."""
 
         total_requests: int = Field(..., description="Total number of requests")
-        avg_latency_ms: float = Field(
-            ..., description="Average latency in milliseconds"
-        )
+        avg_latency_ms: float = Field(..., description="Average latency in milliseconds")
         p95_latency_ms: float = Field(..., description="95th percentile latency")
         p99_latency_ms: float = Field(..., description="99th percentile latency")
         success_rate: float = Field(..., description="Success rate percentage")

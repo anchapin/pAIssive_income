@@ -364,18 +364,16 @@ class MarketingAgent:
             elif content_type == "social_media":
                 problem_area = niche["problem_areas"][i % len(niche["problem_areas"])]
                 title = f"Tip: {problem_area} Solution"
-                description = (
-                    f"A quick tip on solving {problem_area} using {solution['name']}"
-                )
+                description = f"A quick tip on solving {problem_area} using {solution['name']}"
             elif content_type == "email":
                 feature = solution["features"][i % len(solution["features"])]["name"]
                 title = f"Introducing {feature}"
-                description = (
-                    f"An email introducing the {feature} feature to subscribers"
-                )
+                description = f"An email introducing the {feature} feature to subscribers"
             elif content_type == "webinar":
                 title = f"Mastering {niche['name']}: Advanced Techniques with {solution['name']}"
-                description = f"A webinar on advanced techniques for {niche['name']} using {solution['name']}"
+                description = (
+                    f"A webinar on advanced techniques for {niche['name']} using {solution['name']}"
+                )
 
             content_ideas.append(
                 {
@@ -385,9 +383,7 @@ class MarketingAgent:
                     "description": description,
                     "target_audience": "professionals" if i % 2 == 0 else "enthusiasts",
                     "goal": (
-                        "education"
-                        if i % 3 == 0
-                        else "conversion" if i % 3 == 1 else "awareness"
+                        "education" if i % 3 == 0 else "conversion" if i % 3 == 1 else "awareness"
                     ),
                     "estimated_impact": (
                         "high" if i % 3 == 0 else "medium" if i % 3 == 1 else "low"

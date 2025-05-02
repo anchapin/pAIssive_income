@@ -4,11 +4,11 @@ Text generation routes for REST API server.
 This module provides route handlers for text generation.
 """
 
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+    from fastapi import APIRouter, HTTPException
     from fastapi.responses import StreamingResponse
     from pydantic import BaseModel, Field
 
@@ -59,9 +59,7 @@ if FASTAPI_AVAILABLE:
 
         text: str = Field(..., description="Generated text")
         prompt_tokens: int = Field(..., description="Number of tokens in the prompt")
-        completion_tokens: int = Field(
-            ..., description="Number of tokens in the completion"
-        )
+        completion_tokens: int = Field(..., description="Number of tokens in the completion")
         total_tokens: int = Field(..., description="Total number of tokens")
         finish_reason: str = Field(..., description="Reason for finishing generation")
 
@@ -96,9 +94,7 @@ if FASTAPI_AVAILABLE:
 
         message: ChatMessage = Field(..., description="Generated message")
         prompt_tokens: int = Field(..., description="Number of tokens in the prompt")
-        completion_tokens: int = Field(
-            ..., description="Number of tokens in the completion"
-        )
+        completion_tokens: int = Field(..., description="Number of tokens in the completion")
         total_tokens: int = Field(..., description="Total number of tokens")
         finish_reason: str = Field(..., description="Reason for finishing generation")
 

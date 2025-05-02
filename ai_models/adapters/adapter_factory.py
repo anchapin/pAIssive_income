@@ -1,6 +1,6 @@
 """Factory for creating model adapters."""
 
-from typing import Dict, Type
+from typing import Type
 
 # Import BaseModelAdapter directly to avoid circular imports
 from .base_adapter import BaseModelAdapter
@@ -13,9 +13,7 @@ class AdapterFactory:
         """Initialize the adapter factory."""
         self._adapter_registry = {}
 
-    def register_adapter(
-        self, adapter_type: str, adapter_class: Type[BaseModelAdapter]
-    ) -> None:
+    def register_adapter(self, adapter_type: str, adapter_class: Type[BaseModelAdapter]) -> None:
         """Register an adapter class with the factory.
 
         Args:

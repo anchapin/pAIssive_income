@@ -7,7 +7,6 @@ This module demonstrates how to use the mock model providers in tests.
 import os
 import sys
 import unittest
-from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pytest
@@ -60,9 +59,7 @@ class TestMockProviders(unittest.TestCase):
         custom_provider = create_mock_provider("openai", config=custom_config)
         self.assertEqual(custom_provider.success_rate, 1.0)
         self.assertEqual(
-            custom_provider.mock_responses["chat_completion"]["choices"][0]["message"][
-                "content"
-            ],
+            custom_provider.mock_responses["chat_completion"]["choices"][0]["message"]["content"],
             "This is a custom response",
         )
 
@@ -141,24 +138,18 @@ class TestMockProviders(unittest.TestCase):
         provider = MockLocalModelProvider()
 
         # Test completion
-        completion = provider.generate_completion(
-            "llama-2-7b-chat.gguf", "Hello, world!"
-        )
+        completion = provider.generate_completion("llama-2-7b-chat.gguf", "Hello, world!")
         self.assertIsInstance(completion, dict)
         self.assertIn("text", completion)
 
         # Test chat completion
         messages = [{"role": "user", "content": "Hello, world!"}]
-        chat_completion = provider.generate_chat_completion(
-            "llama-2-7b-chat.gguf", messages
-        )
+        chat_completion = provider.generate_chat_completion("llama-2-7b-chat.gguf", messages)
         self.assertIsInstance(chat_completion, dict)
         self.assertIn("text", chat_completion)
 
         # Test with streaming
-        stream = provider.generate_completion(
-            "llama-2-7b-chat.gguf", "Hello", stream=True
-        )
+        stream = provider.generate_completion("llama-2-7b-chat.gguf", "Hello", stream=True)
         chunks = list(stream)
         self.assertTrue(len(chunks) > 0)
         self.assertIn("text", chunks[0])

@@ -5,17 +5,13 @@ This script demonstrates how to use the usage tracking system.
 """
 
 import random
-import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
 
 from .usage_tracker import UsageTracker
 from .usage_tracking import (
     UsageCategory,
     UsageLimit,
     UsageMetric,
-    UsageQuota,
-    UsageRecord,
 )
 
 
@@ -216,9 +212,7 @@ def run_demo():
     print_separator()
 
     # Get usage trends
-    trends = tracker.get_usage_trends(
-        customer_id=customer_id, interval="day", num_intervals=7
-    )
+    trends = tracker.get_usage_trends(customer_id=customer_id, interval="day", num_intervals=7)
 
     print(f"Usage trends (last 7 days):")
     print(f"Trend direction: {trends['trend']['direction']}")

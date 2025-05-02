@@ -6,12 +6,10 @@ import json
 import os
 import shutil
 import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock
 
 import pytest
 
-from ai_models.model_manager import ModelInfo
 from interfaces.model_interfaces import IModelConfig, IModelInfo, IModelManager
 
 

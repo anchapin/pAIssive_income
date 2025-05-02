@@ -5,12 +5,11 @@ This module provides classes for managing payment methods, including
 creation, validation, and storage.
 """
 
-import copy
 import json
 import re
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 
 class PaymentMethod:
@@ -304,9 +303,7 @@ class PaymentMethod:
         # Check for common card types based on prefix
         if card_number.startswith("4"):
             return self.CARD_VISA
-        elif card_number.startswith(
-            ("51", "52", "53", "54", "55")
-        ) or card_number.startswith(
+        elif card_number.startswith(("51", "52", "53", "54", "55")) or card_number.startswith(
             (
                 "2221",
                 "2222",
@@ -336,13 +333,9 @@ class PaymentMethod:
             return self.CARD_MASTERCARD
         elif card_number.startswith(("34", "37")):
             return self.CARD_AMEX
-        elif card_number.startswith(
-            ("300", "301", "302", "303", "304", "305", "36", "38")
-        ):
+        elif card_number.startswith(("300", "301", "302", "303", "304", "305", "36", "38")):
             return self.CARD_DINERS
-        elif card_number.startswith(
-            ("6011", "644", "645", "646", "647", "648", "649", "65")
-        ):
+        elif card_number.startswith(("6011", "644", "645", "646", "647", "648", "649", "65")):
             return self.CARD_DISCOVER
         elif card_number.startswith(("35")):
             return self.CARD_JCB
@@ -544,7 +537,9 @@ class PaymentMethod:
 
     def __repr__(self) -> str:
         """Detailed string representation of the payment method."""
-        return f"PaymentMethod(id={self.id}, type={self.payment_type}, customer_id={self.customer_id})"
+        return (
+            f"PaymentMethod(id={self.id}, type={self.payment_type}, customer_id={self.customer_id})"
+        )
 
 
 # Example usage

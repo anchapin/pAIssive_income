@@ -7,12 +7,11 @@ This module provides endpoints for monitoring the API server.
 import logging
 import os
 import platform
-import time
 from datetime import datetime
 
 import psutil
-from flask import Blueprint, current_app, jsonify
 
+from flask import Blueprint, current_app, jsonify
 from monitoring.health import health_check
 from monitoring.metrics import get_metrics
 

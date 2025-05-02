@@ -8,7 +8,6 @@ import argparse
 import json
 import logging
 import os
-from typing import Any, Dict, List, Optional
 
 from ..base import BaseCommand
 
@@ -34,9 +33,7 @@ class InfoCommand(BaseCommand):
         Args:
             parser: Argument parser
         """
-        parser.add_argument(
-            "--model-path", type=str, required=True, help="Path to the model"
-        )
+        parser.add_argument("--model-path", type=str, required=True, help="Path to the model")
         parser.add_argument(
             "--format", choices=["text", "json"], default="text", help="Output format"
         )
@@ -70,7 +67,7 @@ class InfoCommand(BaseCommand):
 
         try:
             # Import required modules
-            from ...core import ModelInfo, ModelManager
+            from ...core import ModelManager
 
             # Check if model exists
             if not os.path.exists(self.args.model_path):
@@ -82,9 +79,7 @@ class InfoCommand(BaseCommand):
             model_info = manager.get_model_info(self.args.model_path)
 
             if not model_info:
-                logger.error(
-                    f"Failed to get information for model: {self.args.model_path}"
-                )
+                logger.error(f"Failed to get information for model: {self.args.model_path}")
                 return 1
 
             # Format output

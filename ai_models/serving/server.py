@@ -8,7 +8,7 @@ import abc
 import enum
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -155,9 +155,7 @@ class ModelServer(abc.ABC):
         if self.config.log_file:
             file_handler = logging.FileHandler(self.config.log_file)
             file_handler.setLevel(log_level)
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
 
@@ -166,21 +164,18 @@ class ModelServer(abc.ABC):
         """
         Load the model for serving.
         """
-        pass
 
     @abc.abstractmethod
     def start(self) -> None:
         """
         Start the server.
         """
-        pass
 
     @abc.abstractmethod
     def stop(self) -> None:
         """
         Stop the server.
         """
-        pass
 
     @abc.abstractmethod
     def is_running(self) -> bool:
@@ -190,7 +185,6 @@ class ModelServer(abc.ABC):
         Returns:
             True if the server is running, False otherwise
         """
-        pass
 
     @abc.abstractmethod
     def get_info(self) -> Dict[str, Any]:
@@ -200,4 +194,3 @@ class ModelServer(abc.ABC):
         Returns:
             Dictionary with server information
         """
-        pass

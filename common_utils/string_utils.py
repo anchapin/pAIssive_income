@@ -115,9 +115,7 @@ def snake_to_camel(s: str, capitalize_first: bool = False) -> str:
     return parts[0] + "".join(part.capitalize() for part in parts[1:])
 
 
-def format_currency(
-    amount: Union[int, float], currency: str = "$", decimal_places: int = 2
-) -> str:
+def format_currency(amount: Union[int, float], currency: str = "$", decimal_places: int = 2) -> str:
     """
     Format a number as currency.
 

@@ -1,6 +1,5 @@
 """OpenAI-compatible model adapter implementation."""
 
-import json
 import logging
 from typing import Any, Dict, List, Optional, Union
 

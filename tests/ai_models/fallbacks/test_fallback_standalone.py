@@ -23,19 +23,16 @@ if parent_dir not in sys.path:
 class ModelError(Exception):
     """Base class for all model-related errors."""
 
-    pass
 
 
 class ModelNotFoundError(ModelError):
     """Error raised when a model is not found."""
 
-    pass
 
 
 class ModelLoadError(ModelError):
     """Error raised when a model fails to load."""
 
-    pass
 
 
 class FallbackStrategy(Enum):
@@ -180,8 +177,7 @@ class FallbackManagerMock:
         # Fallback success metrics to track effectiveness
         # Structure: {strategy: {success_count: int, total_count: int}}
         self.fallback_metrics: Dict[FallbackStrategy, Dict[str, int]] = {
-            strategy: {"success_count": 0, "total_count": 0}
-            for strategy in FallbackStrategy
+            strategy: {"success_count": 0, "total_count": 0} for strategy in FallbackStrategy
         }
 
         # Set up logger
@@ -221,16 +217,12 @@ class FallbackManagerMock:
         original_model_info = None
         if original_model_id:
             try:
-                original_model_info = self.model_manager.get_model_info(
-                    original_model_id
-                )
+                original_model_info = self.model_manager.get_model_info(original_model_id)
             except ModelNotFoundError:
                 # For test_default_model_strategy, we'll handle the case differently
                 if strategy == FallbackStrategy.DEFAULT and self.default_model_id:
                     try:
-                        fallback_model = self.model_manager.get_model_info(
-                            self.default_model_id
-                        )
+                        fallback_model = self.model_manager.get_model_info(self.default_model_id)
                         event = self._create_event(
                             original_model_id,
                             fallback_model,
@@ -253,9 +245,7 @@ class FallbackManagerMock:
             # Use the default model if specified
             if self.default_model_id:
                 try:
-                    fallback_model = self.model_manager.get_model_info(
-                        self.default_model_id
-                    )
+                    fallback_model = self.model_manager.get_model_info(self.default_model_id)
                     if fallback_model:
                         event = self._create_event(
                             original_model_id,
@@ -283,8 +273,7 @@ class FallbackManagerMock:
                 for model in candidates:
                     if hasattr(model, "capabilities") and model.capabilities:
                         if any(
-                            cap in model.capabilities
-                            for cap in original_model_info.capabilities
+                            cap in model.capabilities for cap in original_model_info.capabilities
                         ):
                             event = self._create_event(
                                 original_model_id,
@@ -297,9 +286,7 @@ class FallbackManagerMock:
                             return model, event
 
                 # If no model with similar capabilities, try same type
-                same_type_models = [
-                    m for m in candidates if m.type == original_model_info.type
-                ]
+                same_type_models = [m for m in candidates if m.type == original_model_info.type]
                 if same_type_models:
                     model = same_type_models[0]
                     event = self._create_event(
@@ -311,12 +298,8 @@ class FallbackManagerMock:
         elif strategy == FallbackStrategy.MODEL_TYPE:
             # Try other models of the same type
             if original_model_info:
-                same_type_models = self.model_manager.get_models_by_type(
-                    original_model_info.type
-                )
-                filtered_models = [
-                    m for m in same_type_models if m.id != original_model_id
-                ]
+                same_type_models = self.model_manager.get_models_by_type(original_model_info.type)
+                filtered_models = [m for m in same_type_models if m.id != original_model_id]
                 if filtered_models:
                     model = filtered_models[0]
                     event = self._create_event(
@@ -407,9 +390,7 @@ class FallbackManagerMock:
                     sized_models.sort(key=lambda x: x[1])
 
                     # Filter for models smaller than the original
-                    smaller_models = [
-                        m for m, size in sized_models if size < original_size
-                    ]
+                    smaller_models = [m for m, size in sized_models if size < original_size]
 
                     if smaller_models:
                         event = self._create_event(
@@ -423,9 +404,7 @@ class FallbackManagerMock:
                         return smaller_models[-1], event
 
                 # If no size info or no smaller models, fall back to same type
-                same_type_models = [
-                    m for m in candidates if m.type == original_model_info.type
-                ]
+                same_type_models = [m for m in candidates if m.type == original_model_info.type]
                 if same_type_models:
                     event = self._create_event(
                         original_model_id,
@@ -484,9 +463,7 @@ class FallbackManagerMock:
         original_model_type = None
         if original_model_id:
             try:
-                original_model_type = self.model_manager.get_model_info(
-                    original_model_id
-                ).type
+                original_model_type = self.model_manager.get_model_info(original_model_id).type
             except ModelNotFoundError:
                 pass
 
@@ -504,9 +481,7 @@ class FallbackManagerMock:
             },
         )
 
-    def track_fallback_event(
-        self, event: FallbackEvent, was_successful: bool = True
-    ) -> None:
+    def track_fallback_event(self, event: FallbackEvent, was_successful: bool = True) -> None:
         """
         Track a fallback event and update metrics.
 
@@ -535,9 +510,7 @@ class FallbackManagerMock:
             strategy_metrics = self.fallback_metrics[strategy]
             success_rate = 0
             if strategy_metrics["total_count"] > 0:
-                success_rate = (
-                    strategy_metrics["success_count"] / strategy_metrics["total_count"]
-                )
+                success_rate = strategy_metrics["success_count"] / strategy_metrics["total_count"]
 
             metrics[strategy.value] = {
                 "success_count": strategy_metrics["success_count"],
@@ -702,9 +675,7 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(fallback_enabled=False)
 
         # Try to find a fallback model
-        model, event = self.fallback_manager.find_fallback_model(
-            original_model_id="offline-model"
-        )
+        model, event = self.fallback_manager.find_fallback_model(original_model_id="offline-model")
 
         # Should return None when disabled
         self.assertIsNone(model)
@@ -733,9 +704,7 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(default_strategy=FallbackStrategy.SIMILAR_MODEL)
 
         # Try to find a fallback model for gpt-4
-        model, event = self.fallback_manager.find_fallback_model(
-            original_model_id="gpt-4"
-        )
+        model, event = self.fallback_manager.find_fallback_model(original_model_id="gpt-4")
 
         # Should return gpt-3.5-turbo (similar capabilities)
         self.assertIsNotNone(model)
@@ -780,9 +749,7 @@ class TestFallbackManager(unittest.TestCase):
     def test_specified_list_strategy(self):
         """Test the specified list fallback strategy."""
         # Configure to use specified list strategy
-        self.fallback_manager.configure(
-            default_strategy=FallbackStrategy.SPECIFIED_LIST
-        )
+        self.fallback_manager.configure(default_strategy=FallbackStrategy.SPECIFIED_LIST)
 
         # Try to find a fallback model for a developer
         model, event = self.fallback_manager.find_fallback_model(agent_type="developer")
@@ -800,9 +767,7 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(default_strategy=FallbackStrategy.SIZE_TIER)
 
         # Try to find a fallback model for gpt-4 (1000MB)
-        model, event = self.fallback_manager.find_fallback_model(
-            original_model_id="gpt-4"
-        )
+        model, event = self.fallback_manager.find_fallback_model(original_model_id="gpt-4")
 
         # Should return a smaller model
         self.assertIsNotNone(model)
@@ -813,9 +778,7 @@ class TestFallbackManager(unittest.TestCase):
     def test_capability_based_strategy(self):
         """Test the capability-based fallback strategy."""
         # Configure to use capability strategy
-        self.fallback_manager.configure(
-            default_strategy=FallbackStrategy.CAPABILITY_BASED
-        )
+        self.fallback_manager.configure(default_strategy=FallbackStrategy.CAPABILITY_BASED)
 
         # Try to find a model with summarization capability
         model, event = self.fallback_manager.find_fallback_model(
@@ -872,9 +835,7 @@ class TestFallbackManager(unittest.TestCase):
         # Check that metrics are updated
         metrics = fallback_manager.get_fallback_metrics()
         self.assertEqual(metrics[FallbackStrategy.DEFAULT.value]["total_count"], 1)
-        self.assertEqual(
-            metrics[FallbackStrategy.ANY_AVAILABLE.value]["total_count"], 1
-        )
+        self.assertEqual(metrics[FallbackStrategy.ANY_AVAILABLE.value]["total_count"], 1)
 
     def test_no_fallback_strategy(self):
         """Test the NONE fallback strategy."""
@@ -882,9 +843,7 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(default_strategy=FallbackStrategy.NONE)
 
         # Try to find a fallback model
-        model, event = self.fallback_manager.find_fallback_model(
-            original_model_id="offline-model"
-        )
+        model, event = self.fallback_manager.find_fallback_model(original_model_id="offline-model")
 
         # Should return None
         self.assertIsNone(model)

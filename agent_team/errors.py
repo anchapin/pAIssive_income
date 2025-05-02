@@ -54,10 +54,7 @@ class AgentInitializationError(AgentError):
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message,
-            agent_name=agent_name,
-            code="agent_initialization_error",
-            **kwargs
+            message=message, agent_name=agent_name, code="agent_initialization_error", **kwargs
         )
 
 
@@ -69,7 +66,7 @@ class AgentCommunicationError(AgentError):
         message: str,
         source_agent: Optional[str] = None,
         target_agent: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the agent communication error.
@@ -91,7 +88,7 @@ class AgentCommunicationError(AgentError):
             agent_name=source_agent,
             code="agent_communication_error",
             details=details,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -111,9 +108,7 @@ class WorkflowError(AgentTeamError):
         if workflow_step:
             details["workflow_step"] = workflow_step
 
-        super().__init__(
-            message=message, code="workflow_error", details=details, **kwargs
-        )
+        super().__init__(message=message, code="workflow_error", details=details, **kwargs)
 
 
 class ResearchAgentError(AgentError):
@@ -128,10 +123,7 @@ class ResearchAgentError(AgentError):
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message,
-            agent_name="Research Agent",
-            code="research_agent_error",
-            **kwargs
+            message=message, agent_name="Research Agent", code="research_agent_error", **kwargs
         )
 
 
@@ -147,10 +139,7 @@ class DeveloperAgentError(AgentError):
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message,
-            agent_name="Developer Agent",
-            code="developer_agent_error",
-            **kwargs
+            message=message, agent_name="Developer Agent", code="developer_agent_error", **kwargs
         )
 
 
@@ -169,7 +158,7 @@ class MonetizationAgentError(AgentError):
             message=message,
             agent_name="Monetization Agent",
             code="monetization_agent_error",
-            **kwargs
+            **kwargs,
         )
 
 
@@ -185,10 +174,7 @@ class MarketingAgentError(AgentError):
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message,
-            agent_name="Marketing Agent",
-            code="marketing_agent_error",
-            **kwargs
+            message=message, agent_name="Marketing Agent", code="marketing_agent_error", **kwargs
         )
 
 
@@ -204,10 +190,7 @@ class FeedbackAgentError(AgentError):
             **kwargs: Additional arguments to pass to the base class
         """
         super().__init__(
-            message=message,
-            agent_name="Feedback Agent",
-            code="feedback_agent_error",
-            **kwargs
+            message=message, agent_name="Feedback Agent", code="feedback_agent_error", **kwargs
         )
 
 
