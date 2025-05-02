@@ -9,14 +9,17 @@ all parts of the project.
 import functools
 import hashlib
 import json
+import re
 from typing import Any, Callable, Dict, Optional, Tuple, TypeVar
 
 # Import the caching system from AI models module
 from ai_models.caching import CacheConfig, CacheManager
+from ai_models.caching.cache_backends import (
+    MemoryCache, DiskCache, SQLiteCache, RedisCache
+)
 
 # Type variable for the decorator
 T = TypeVar("T")
-
 
 class CacheService:
     """
@@ -47,57 +50,39 @@ class CacheService:
             db_path: Path to SQLite database
             redis_url: URL for Redis connection
         """
-        # Create a cache config
-        backend_config = {}
-
-        # Add backend-specific configuration
-        if backend_type == "disk" and cache_dir:
-            backend_config["disk"] = {"cache_dir": cache_dir}
-        elif backend_type == "sqlite" and db_path:
-            backend_config["sqlite"] = {"db_path": db_path}
-        elif backend_type == "redis" and redis_url:
-            # Parse redis_url to get host, port, etc.
-            if "://" in redis_url:
-                # Format: redis://[:password@]host[:port][/db-number]
-                parts = redis_url.split("://", 1)[1].split("@")
-                if len(parts) > 1:
-                    password = parts[0]
-                    host_part = parts[1]
-                else:
-                    password = None
-                    host_part = parts[0]
-
-                # Parse host, port, db
-                if "/" in host_part:
-                    host_port, db = host_part.split("/", 1)
-                else:
-                    host_port = host_part
-                    db = "0"
-
-                if ":" in host_port:
-                    host, port = host_port.split(":", 1)
-                else:
-                    host = host_port
-                    port = "6379"
-
-                backend_config["redis"] = {
-                    "host": host,
-                    "port": int(port),
-                    "db": int(db),
-                    "password": password,
-                }
-
-        # Create the cache config
-        cache_config = CacheConfig(
+        # Create cache config with secure defaults
+        config = CacheConfig(
             enabled=True,
             backend=backend_type,
             ttl=ttl,
             max_size=max_size,
-            backend_config=backend_config,
+            backend_config={}
         )
 
-        # Create the cache manager with the config
-        self.cache_manager = CacheManager(config=cache_config)
+        # Add backend-specific configuration
+        if backend_type == "disk" and cache_dir:
+            config.backend_config["disk"] = {"cache_dir": cache_dir}
+        elif backend_type == "sqlite" and db_path:
+            config.backend_config["sqlite"] = {"db_path": db_path}
+        elif backend_type == "redis" and redis_url:
+            # Parse Redis URL securely
+            try:
+                # Only match valid redis:// URLs
+                match = re.match(r"redis://(?:([^:@]+)(?::([^@]+))?@)?([^:]+)(?::(\d+))?(?:/(\d+))?", redis_url)
+                if match:
+                    username, password, host, port, db = match.groups()
+                    config.backend_config["redis"] = {
+                        "host": host or "localhost",
+                        "port": int(port) if port else 6379,
+                        "db": int(db) if db else 0,
+                        "password": password,  # Password is optional
+                        "ssl": True  # Enable SSL by default for security
+                    }
+            except Exception as e:
+                raise ValueError(f"Invalid Redis URL format: {e}")
+
+        # Create the cache manager with the specified config
+        self.cache_manager = CacheManager(config=config)
 
         # Default TTL in seconds
         self.default_ttl = ttl
@@ -133,25 +118,39 @@ class CacheService:
 
         # Initialize stats for this namespace if not exists
         if namespace not in self.stats:
-            self.stats[namespace] = {"hits": 0, "misses": 0, "sets": 0, "clears": 0}
+            self.stats[namespace] = {
+                "hits": 0,
+                "misses": 0,
+                "sets": 0,
+                "clears": 0
+            }
 
         # Use the default TTL if not specified
         actual_ttl = ttl if ttl is not None else self.default_ttl
 
-        # Cache the value using model_id as namespace
-        success = self.cache_manager.set(
-            model_id=namespace,
-            operation="set",
-            inputs=key,
-            value=value,
-            ttl=actual_ttl,
-        )
+        try:
+            # Wrap value in a dictionary to maintain consistent structure
+            wrapped_value = {"value": value}
 
-        # Update stats
-        if success:
-            self.stats[namespace]["sets"] += 1
+            # Cache the value using model_id as namespace
+            success = self.cache_manager.set(
+                model_id=namespace,
+                operation="set",
+                inputs=key,
+                value=wrapped_value,
+                ttl=actual_ttl
+            )
 
-        return success
+            # Update stats
+            if success:
+                self.stats[namespace]["sets"] += 1
+
+            return success
+        except Exception as e:
+            # Log error but don't raise to maintain cache transparency
+            import logging
+            logging.error(f"Error setting cache value: {e}")
+            return False
 
     def get(self, key: str, namespace: str = "default") -> Any:
         """
@@ -170,18 +169,37 @@ class CacheService:
 
         # Initialize stats for this namespace if not exists
         if namespace not in self.stats:
-            self.stats[namespace] = {"hits": 0, "misses": 0, "sets": 0, "clears": 0}
+            self.stats[namespace] = {
+                "hits": 0,
+                "misses": 0,
+                "sets": 0,
+                "clears": 0
+            }
 
-        # Get the value from the cache
-        value = self.cache_manager.get(model_id=namespace, operation="get", inputs=key)
+        try:
+            # Get the value from the cache
+            result = self.cache_manager.get(
+                model_id=namespace,
+                operation="set",
+                inputs=key
+            )
 
-        # Update stats
-        if value is not None:
-            self.stats[namespace]["hits"] += 1
-        else:
+            # Extract the value from the result
+            value = result.get("value") if result else None
+
+            # Update stats
+            if value is not None:
+                self.stats[namespace]["hits"] += 1
+            else:
+                self.stats[namespace]["misses"] += 1
+
+            return value
+        except Exception as e:
+            # Log error but don't raise to maintain cache transparency
+            import logging
+            logging.error(f"Error getting cache value: {e}")
             self.stats[namespace]["misses"] += 1
-
-        return value
+            return None
 
     def delete(self, key: str, namespace: str = "default") -> bool:
         """
@@ -194,7 +212,17 @@ class CacheService:
         Returns:
             True if the value was deleted, False otherwise
         """
-        return self.cache_manager.delete(model_id=namespace, operation="delete", inputs=key)
+        try:
+            return self.cache_manager.delete(
+                model_id=namespace,
+                operation="set",
+                inputs=key
+            )
+        except Exception as e:
+            # Log error but don't raise
+            import logging
+            logging.error(f"Error deleting cache value: {e}")
+            return False
 
     def clear(self, namespace: str = "default") -> bool:
         """
@@ -208,15 +236,27 @@ class CacheService:
         """
         # Initialize stats for this namespace if not exists
         if namespace not in self.stats:
-            self.stats[namespace] = {"hits": 0, "misses": 0, "sets": 0, "clears": 0}
+            self.stats[namespace] = {
+                "hits": 0,
+                "misses": 0,
+                "sets": 0,
+                "clears": 0
+            }
 
-        success = self.cache_manager.clear()
+        try:
+            # Use the CacheManager's clear_namespace method to clear only keys for this namespace
+            success = self.cache_manager.clear_namespace(namespace)
 
-        # Update stats
-        if success:
-            self.stats[namespace]["clears"] += 1
+            # Update stats
+            if success:
+                self.stats[namespace]["clears"] += 1
 
-        return success
+            return success
+        except Exception as e:
+            # Log error but don't raise
+            import logging
+            logging.error(f"Error clearing cache namespace: {e}")
+            return False
 
     def clear_all(self) -> bool:
         """
@@ -225,13 +265,19 @@ class CacheService:
         Returns:
             True if the cache was cleared, False otherwise
         """
-        success = self.cache_manager.clear()
+        try:
+            success = self.cache_manager.clear()
 
-        # Reset stats
-        if success:
-            self.stats = {}
+            # Reset stats
+            if success:
+                self.stats = {}
 
-        return success
+            return success
+        except Exception as e:
+            # Log error but don't raise
+            import logging
+            logging.error(f"Error clearing entire cache: {e}")
+            return False
 
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -272,7 +318,6 @@ class CacheService:
         """
         self.default_ttl = ttl
 
-
 def _generate_cache_key(func: Callable, args: Tuple, kwargs: Dict[str, Any]) -> str:
     """
     Generate a cache key for a function call.
@@ -290,14 +335,16 @@ def _generate_cache_key(func: Callable, args: Tuple, kwargs: Dict[str, Any]) -> 
     name = func.__qualname__
 
     # Create a representation of the arguments
-    arg_dict = {"args": args, "kwargs": kwargs}
+    arg_dict = {
+        "args": args,
+        "kwargs": kwargs
+    }
 
-    # Convert to a string and hash
+    # Convert to a string and hash using SHA-256 for better security
     arg_str = json.dumps(arg_dict, sort_keys=True, default=str)
     key = f"{module}.{name}:{hashlib.sha256(arg_str.encode()).hexdigest()}"
 
     return key
-
 
 def cached(
     ttl: Optional[int] = None,
@@ -333,24 +380,30 @@ def cached(
             else:
                 cache_key = _generate_cache_key(func, args, kwargs)
 
-            # Try to get from cache first
-            if not force_refresh:
-                cached_result = default_cache.get(cache_key, namespace=cache_ns)
-                if cached_result is not None:
-                    return cached_result
+            try:
+                # Try to get from cache first
+                if not force_refresh:
+                    cached_result = default_cache.get(cache_key, namespace=cache_ns)
+                    if cached_result is not None:
+                        return cached_result
 
-            # Call the original function
-            result = func(*args, **kwargs)
+                # Call the original function
+                result = func(*args, **kwargs)
 
-            # Cache the result
-            default_cache.set(cache_key, result, ttl=ttl, namespace=cache_ns)
+                # Cache the result
+                default_cache.set(cache_key, result, ttl=ttl, namespace=cache_ns)
 
-            return result
+                return result
+            except Exception as e:
+                # Log error but don't raise to maintain function transparency
+                import logging
+                logging.error(f"Error in cached decorator: {e}")
+                # Fall back to calling the original function without caching
+                return func(*args, **kwargs)
 
         return wrapper
 
     return decorator
-
 
 # Create a default instance for use throughout the application
 default_cache = CacheService()

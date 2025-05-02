@@ -1,5 +1,5 @@
 """
-Pytest fixtures for the pAIssive_income project.
+Pytest fixtures for the pAIssive_income framework.
 
 This module provides fixtures that can be used across tests.
 """
@@ -10,64 +10,88 @@ from unittest.mock import MagicMock
 import pytest
 
 # Import our centralized mock fixtures
+from tests.mocks.fixtures import (
+    # Model provider fixtures
+    mock_openai_provider,
+    mock_ollama_provider,
+    mock_lmstudio_provider,
+    patch_model_providers,
+
+    # HTTP and external API fixtures
+    mock_http_with_common_responses,
+    mock_hf_hub_with_models,
+    patch_requests,
+    patch_huggingface_hub,
+    mock_huggingface_api,
+    mock_payment_api,
+    mock_email_api,
+    mock_storage_api,
+    patch_external_apis,
+
+    # Complete test scenario fixtures
+    mock_ai_model_testing_setup,  
+    mock_monetization_testing_setup,
+    mock_marketing_testing_setup,
+    mock_niche_analysis_testing_setup,
+
+    # Common test data fixtures
+    mock_model_inference_result,
+    mock_embedding_result,
+    mock_subscription_data,
+    mock_niche_analysis_data,
+    mock_marketing_campaign_data
+)
+
 from tests.mocks.mock_model_providers import (
     create_mock_provider,
 )
 
 # Keep existing mock payment APIs for backward compatibility
 try:
-    from tests.mocks.mock_payment_apis import (
-        MockPayPalGateway,
-        MockStripeGateway,
-        create_payment_gateway,
-    )
+    from monetization.mock_payment_gateway import create_payment_gateway
 except ImportError:
-    # Create mock versions if the module doesn't exist yet
-    class MockStripeGateway:
-        pass
-
-    class MockPayPalGateway:
-        pass
-
-    def create_payment_gateway(gateway_type, config=None):
-        return MagicMock()
-
-
-# Re-export all fixtures from tests.mocks.fixtures
-# This makes them available to all tests without explicit imports
-
-# Continue with existing fixtures
-# These will be kept for backward compatibility
-
+    from tests.mocks.mock_payment_apis import create_payment_gateway
 
 @pytest.fixture
 def mock_stripe_gateway():
     """Create a mock Stripe payment gateway."""
-    gateway = create_payment_gateway("stripe")
+    # Create gateway with network errors disabled
+    gateway = create_payment_gateway("stripe", {
+        "simulate_network_errors": False,
+        "success_rate": 1.0  # Always succeed
+    })
 
     # Add some test data
-    customer = gateway.create_customer(email="test@example.com", name="Test Customer")
+    customer = gateway.create_customer(
+        email="test@example.com",
+        name="Test Customer"
+    )
 
     # Create a payment method
     payment_method = gateway.create_payment_method(
         customer_id=customer["id"],
         payment_type="card",
         payment_details={
-            "number": "4242424242424242",  # Visa test card
+            "number": "4242424242424242",
             "exp_month": 12,
             "exp_year": datetime.now().year + 1,
             "cvc": "123",
-        },
+        }
     )
 
     # Create a plan
-    plan = gateway.create_plan(name="Test Plan", currency="USD", interval="month", amount=9.99)
+    plan = gateway.create_plan(
+        name="Test Plan",
+        currency="USD",
+        interval="month",
+        amount=9.99
+    )
 
     # Create a subscription
     subscription = gateway.create_subscription(
         customer_id=customer["id"],
-        plan_id=plan["id"],
         payment_method_id=payment_method["id"],
+        plan_id=plan["id"]
     )
 
     return gateway
@@ -333,3 +357,21 @@ def patch_model_provider(monkeypatch):
             pass  # Module might not exist yet
 
     return mock_provider
+
+
+@pytest.fixture
+def temp_dir(tmpdir):
+    """
+    Create a temporary directory for tests.
+
+    Args:
+        tmpdir: pytest's tmpdir fixture
+
+    Returns:
+        Path to the temporary directory
+    """
+    # Create a temporary directory
+    temp_path = tmpdir.mkdir("test_temp_dir")
+
+    # Return the path as a string
+    return str(temp_path)

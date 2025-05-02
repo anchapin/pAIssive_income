@@ -8,6 +8,7 @@ that can be used for consistent testing without external dependencies.
 import json
 import logging
 import random
+import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Union
 
@@ -179,633 +180,332 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
         return True
 
 
-class MockPaymentAPI(MockExternalAPIBase):
-    """Mock implementation of a payment processing API (like Stripe)."""
+class MockPaymentAPI:
+    """Mock implementation of payment processing API."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize the mock Payment API."""
-        super().__init__(config)
-        self.customers = {}
-        self.charges = {}
-        self.subscriptions = {}
-        self.plans = self.config.get(
-            "plans",
-            [
-                {
-                    "id": "basic-monthly",
-                    "name": "Basic Monthly",
-                    "amount": 999,  # cents
-                    "currency": "usd",
-                    "interval": "month",
-                },
-                {
-                    "id": "basic-annual",
-                    "name": "Basic Annual",
-                    "amount": 9990,  # cents
-                    "currency": "usd",
-                    "interval": "year",
-                },
-                {
-                    "id": "premium-monthly",
-                    "name": "Premium Monthly",
-                    "amount": 1999,  # cents
-                    "currency": "usd",
-                    "interval": "month",
-                },
-                {
-                    "id": "premium-annual",
-                    "name": "Premium Annual",
-                    "amount": 19990,  # cents
-                    "currency": "usd",
-                    "interval": "year",
-                },
-            ],
-        )
+    def __init__(self):
+        """Initialize mock payment API."""
+        self._customers = {}
+        self._subscriptions = {}
+        self._payments = {}
 
     def create_customer(
         self,
         email: str,
-        name: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        name: str,
+        **kwargs
     ) -> Dict[str, Any]:
         """
-        Create a new customer.
+        Create a mock customer.
 
         Args:
-            email: Customer email
+            email: Customer email address
             name: Customer name
-            metadata: Additional metadata
+            kwargs: Additional customer attributes
 
         Returns:
-            Customer object
+            Dict containing customer data
         """
-        self.record_call("create_customer", email=email, name=name, metadata=metadata)
-
-        customer_id = f"cus_{random.randint(10000, 99999)}_{int(datetime.now().timestamp())}"
+        customer_id = f"cust_{str(uuid.uuid4())}"
         customer = {
             "id": customer_id,
             "email": email,
             "name": name,
-            "created": int(datetime.now().timestamp()),
-            "metadata": metadata or {},
-            "subscriptions": [],
+            "created_at": datetime.utcnow().isoformat(),
+            **kwargs
         }
-
-        self.customers[customer_id] = customer
+        self._customers[customer_id] = customer
         return customer
 
-    def get_customer(self, customer_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Get a customer by ID.
-
-        Args:
-            customer_id: The customer ID
-
-        Returns:
-            Customer object or None if not found
-        """
-        self.record_call("get_customer", customer_id=customer_id)
-        return self.customers.get(customer_id)
-
     def create_subscription(
-        self, customer_id: str, plan_id: str, trial_period_days: Optional[int] = None
-    ) -> Dict[str, Any]:
-        """
-        Create a subscription for a customer.
-
-        Args:
-            customer_id: Customer ID
-            plan_id: Plan ID
-            trial_period_days: Optional trial period in days
-
-        Returns:
-            Subscription object
-
-        Raises:
-            ValueError: If customer or plan doesn't exist
-        """
-        self.record_call(
-            "create_subscription",
-            customer_id=customer_id,
-            plan_id=plan_id,
-            trial_period_days=trial_period_days,
-        )
-
-        # Check if customer exists
-        if customer_id not in self.customers:
-            raise ValueError(f"Customer {customer_id} not found")
-
-        # Check if plan exists
-        plan = next((p for p in self.plans if p["id"] == plan_id), None)
-        if not plan:
-            raise ValueError(f"Plan {plan_id} not found")
-
-        # Create subscription
-        now = datetime.now()
-        trial_end = now + timedelta(days=trial_period_days) if trial_period_days else None
-
-        if plan["interval"] == "month":
-            period_end = now + timedelta(days=30)
-        else:  # year
-            period_end = now + timedelta(days=365)
-
-        subscription_id = f"sub_{random.randint(10000, 99999)}_{int(now.timestamp())}"
-        subscription = {
-            "id": subscription_id,
-            "customer": customer_id,
-            "plan": plan,
-            "status": "trialing" if trial_period_days else "active",
-            "current_period_start": int(now.timestamp()),
-            "current_period_end": int(period_end.timestamp()),
-            "created": int(now.timestamp()),
-            "trial_start": int(now.timestamp()) if trial_period_days else None,
-            "trial_end": int(trial_end.timestamp()) if trial_end else None,
-        }
-
-        self.subscriptions[subscription_id] = subscription
-        self.customers[customer_id]["subscriptions"].append(subscription_id)
-
-        return subscription
-
-    def update_subscription(
-        self,
-        subscription_id: str,
-        plan_id: Optional[str] = None,
-        cancel_at_period_end: Optional[bool] = None,
-    ) -> Dict[str, Any]:
-        """
-        Update a subscription.
-
-        Args:
-            subscription_id: Subscription ID
-            plan_id: New plan ID
-            cancel_at_period_end: Whether to cancel at period end
-
-        Returns:
-            Updated subscription object
-
-        Raises:
-            ValueError: If subscription doesn't exist
-        """
-        self.record_call(
-            "update_subscription",
-            subscription_id=subscription_id,
-            plan_id=plan_id,
-            cancel_at_period_end=cancel_at_period_end,
-        )
-
-        # Check if subscription exists
-        if subscription_id not in self.subscriptions:
-            raise ValueError(f"Subscription {subscription_id} not found")
-
-        subscription = self.subscriptions[subscription_id]
-
-        # Update plan if provided
-        if plan_id:
-            # Check if plan exists
-            plan = next((p for p in self.plans if p["id"] == plan_id), None)
-            if not plan:
-                raise ValueError(f"Plan {plan_id} not found")
-
-            subscription["plan"] = plan
-
-        # Update cancellation settings
-        if cancel_at_period_end is not None:
-            subscription["cancel_at_period_end"] = cancel_at_period_end
-
-        return subscription
-
-    def cancel_subscription(
-        self, subscription_id: str, at_period_end: bool = False
-    ) -> Dict[str, Any]:
-        """
-        Cancel a subscription.
-
-        Args:
-            subscription_id: Subscription ID
-            at_period_end: Whether to cancel at period end
-
-        Returns:
-            Updated subscription object
-
-        Raises:
-            ValueError: If subscription doesn't exist
-        """
-        self.record_call(
-            "cancel_subscription",
-            subscription_id=subscription_id,
-            at_period_end=at_period_end,
-        )
-
-        # Check if subscription exists
-        if subscription_id not in self.subscriptions:
-            raise ValueError(f"Subscription {subscription_id} not found")
-
-        subscription = self.subscriptions[subscription_id]
-
-        if at_period_end:
-            subscription["cancel_at_period_end"] = True
-        else:
-            subscription["status"] = "canceled"
-            subscription["canceled_at"] = int(datetime.now().timestamp())
-
-        return subscription
-
-    def create_charge(
         self,
         customer_id: str,
-        amount: int,
-        currency: str = "usd",
-        description: Optional[str] = None,
+        plan_id: str,
+        **kwargs
     ) -> Dict[str, Any]:
         """
-        Create a one-time charge.
+        Create a mock subscription.
 
         Args:
-            customer_id: Customer ID
-            amount: Amount in cents
-            currency: Currency code
-            description: Charge description
+            customer_id: ID of the customer
+            plan_id: ID of the subscription plan
+            kwargs: Additional subscription attributes
 
         Returns:
-            Charge object
-
-        Raises:
-            ValueError: If customer doesn't exist
+            Dict containing subscription data
         """
-        self.record_call(
-            "create_charge",
-            customer_id=customer_id,
-            amount=amount,
-            currency=currency,
-            description=description,
-        )
+        if customer_id not in self._customers:
+            raise ValueError("Customer not found")
 
-        # Check if customer exists
-        if customer_id not in self.customers:
-            raise ValueError(f"Customer {customer_id} not found")
+        subscription_id = f"sub_{str(uuid.uuid4())}"
+        subscription = {
+            "id": subscription_id,
+            "customer_id": customer_id,
+            "plan_id": plan_id,
+            "status": "active",
+            "created_at": datetime.utcnow().isoformat(),
+            "current_period_end": None,  # Set based on plan
+            **kwargs
+        }
+        self._subscriptions[subscription_id] = subscription
+        return subscription
 
-        # Create charge
-        charge_id = f"ch_{random.randint(10000, 99999)}_{int(datetime.now().timestamp())}"
-        charge = {
-            "id": charge_id,
-            "customer": customer_id,
+    def process_payment(
+        self,
+        amount: int,
+        currency: str,
+        payment_method: str,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Process a mock payment.
+
+        Args:
+            amount: Payment amount in smallest currency unit (e.g., cents)
+            currency: Currency code (e.g., 'usd')
+            payment_method: Payment method type
+            kwargs: Additional payment attributes
+
+        Returns:
+            Dict containing payment data
+        """
+        payment_id = f"pay_{str(uuid.uuid4())}"
+        payment = {
+            "id": payment_id,
             "amount": amount,
             "currency": currency,
-            "description": description,
+            "payment_method": payment_method,
             "status": "succeeded",
-            "created": int(datetime.now().timestamp()),
+            "created_at": datetime.utcnow().isoformat(),
+            **kwargs
         }
+        self._payments[payment_id] = payment
+        return payment
 
-        self.charges[charge_id] = charge
-        return charge
+    def get_customer(self, customer_id: str) -> Optional[Dict[str, Any]]:
+        """Get customer by ID."""
+        return self._customers.get(customer_id)
+
+    def get_subscription(self, subscription_id: str) -> Optional[Dict[str, Any]]:
+        """Get subscription by ID."""
+        return self._subscriptions.get(subscription_id)
+
+    def get_payment(self, payment_id: str) -> Optional[Dict[str, Any]]:
+        """Get payment by ID."""
+        return self._payments.get(payment_id)
 
 
-class MockEmailAPI(MockExternalAPIBase):
-    """Mock implementation of an email sending API (like SendGrid)."""
+class MockEmailAPI:
+    """Mock implementation of email service API."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize the mock Email API."""
-        super().__init__(config)
-        self.sent_emails = []
-        self.templates = self.config.get(
-            "templates",
-            [
-                {
-                    "id": "welcome",
-                    "name": "Welcome Email",
-                    "subject": "Welcome to Our Service",
-                },
-                {
-                    "id": "invoice",
-                    "name": "Invoice",
-                    "subject": "Your Invoice #{invoice_number}",
-                },
-                {
-                    "id": "password_reset",
-                    "name": "Password Reset",
-                    "subject": "Reset Your Password",
-                },
-                {
-                    "id": "verification",
-                    "name": "Account Verification",
-                    "subject": "Verify Your Account",
-                },
-            ],
-        )
+    def __init__(self):
+        """Initialize mock email API."""
+        self._sent_emails = []
+        self._templates = {
+            "welcome_email": {
+                "subject": "Welcome to {service_name}!",
+                "content": "Hello {name}, welcome to our service!"
+            }
+        }
 
     def send_email(
         self,
-        to_email: Union[str, List[str]],
+        to: str,
         subject: str,
         content: str,
-        from_email: Optional[str] = None,
-        reply_to: Optional[str] = None,
-        attachments: Optional[List[Dict[str, Any]]] = None,
+        **kwargs
     ) -> Dict[str, Any]:
         """
-        Send an email.
+        Send a mock email.
 
         Args:
-            to_email: Recipient email(s)
+            to: Recipient email address
             subject: Email subject
             content: Email content
-            from_email: Sender email
-            reply_to: Reply-to email
-            attachments: List of attachment objects
+            kwargs: Additional email attributes
 
         Returns:
-            Response object
+            Dict containing send status
         """
-        self.record_call(
-            "send_email",
-            to_email=to_email,
-            subject=subject,
-            content=content,
-            from_email=from_email,
-            reply_to=reply_to,
-            attachments=attachments,
-        )
-
-        # Create email record
         email = {
-            "id": f"email_{random.randint(10000, 99999)}_{int(datetime.now().timestamp())}",
-            "to_email": to_email,
+            "id": f"email_{str(uuid.uuid4())}",
+            "to": to,
             "subject": subject,
             "content": content,
-            "from_email": from_email,
-            "reply_to": reply_to,
-            "attachments": attachments,
-            "sent_at": datetime.now().isoformat(),
-            "status": "sent" if random.random() > self.error_rate else "failed",
+            "sent_at": datetime.utcnow().isoformat(),
+            **kwargs
         }
+        self._sent_emails.append(email)
+        return {"status": "sent", "email_id": email["id"]}
 
-        self.sent_emails.append(email)
-
-        return {
-            "id": email["id"],
-            "status": email["status"],
-            "message": (
-                "Email sent successfully" if email["status"] == "sent" else "Failed to send email"
-            ),
-        }
-
-    def send_template_email(
+    def send_template(
         self,
-        to_email: Union[str, List[str]],
         template_id: str,
-        template_data: Dict[str, Any],
-        from_email: Optional[str] = None,
-        reply_to: Optional[str] = None,
+        to: str,
+        variables: Dict[str, Any],
+        **kwargs
     ) -> Dict[str, Any]:
         """
-        Send an email using a template.
+        Send a mock templated email.
 
         Args:
-            to_email: Recipient email(s)
-            template_id: Template ID
-            template_data: Data to substitute in the template
-            from_email: Sender email
-            reply_to: Reply-to email
+            template_id: ID of the email template
+            to: Recipient email address
+            variables: Template variables
+            kwargs: Additional email attributes
 
         Returns:
-            Response object
+            Dict containing send status
+        """
+        if template_id not in self._templates:
+            raise ValueError("Template not found")
+
+        template = self._templates[template_id]
+        subject = template["subject"].format(**variables)
+        content = template["content"].format(**variables)
+
+        return self.send_email(to=to, subject=subject, content=content, **kwargs)
+
+    def send_batch(
+        self,
+        emails: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Send multiple mock emails.
+
+        Args:
+            emails: List of email data dictionaries
+
+        Returns:
+            Dict containing batch send status
+        """
+        sent_count = 0
+        failed_count = 0
+        results = []
+
+        for email in emails:
+            try:
+                result = self.send_email(**email)
+                results.append(result)
+                sent_count += 1
+            except Exception:
+                failed_count += 1
+
+        return {
+            "status": "completed",
+            "sent_count": sent_count,
+            "failed_count": failed_count,
+            "results": results
+        }
+
+    def get_sent_emails(self) -> List[Dict[str, Any]]:
+        """Get all sent emails."""
+        return self._sent_emails
+
+
+class MockStorageAPI:
+    """Mock implementation of cloud storage API."""
+
+    def __init__(self):
+        """Initialize mock storage API."""
+        self._files = {}
+        self._base_url = "https://mock-storage.example.com"
+
+    def upload_file(
+        self,
+        file_path: str,
+        content: str,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Upload a mock file.
+
+        Args:
+            file_path: Path/name of the file
+            content: File content
+            kwargs: Additional file attributes
+
+        Returns:
+            Dict containing file data
+        """
+        file_id = f"file_{str(uuid.uuid4())}"
+        file_data = {
+            "id": file_id,
+            "path": file_path,
+            "content": content,
+            "size": len(content),
+            "url": f"{self._base_url}/{file_id}",
+            "uploaded_at": datetime.utcnow().isoformat(),
+            **kwargs
+        }
+        self._files[file_id] = file_data
+        return {
+            "id": file_id,
+            "url": file_data["url"]
+        }
+
+    def download_file(self, file_id: str) -> Dict[str, Any]:
+        """
+        Download a mock file.
+
+        Args:
+            file_id: ID of the file to download
+
+        Returns:
+            Dict containing file data
 
         Raises:
-            ValueError: If template doesn't exist
+            ValueError: If file not found
         """
-        self.record_call(
-            "send_template_email",
-            to_email=to_email,
-            template_id=template_id,
-            template_data=template_data,
-            from_email=from_email,
-            reply_to=reply_to,
-        )
+        if file_id not in self._files:
+            raise ValueError("File not found")
 
-        # Check if template exists
-        template = next((t for t in self.templates if t["id"] == template_id), None)
-        if not template:
-            raise ValueError(f"Template {template_id} not found")
+        file_data = self._files[file_id]
+        return {
+            "content": file_data["content"],
+            "metadata": {
+                "path": file_data["path"],
+                "size": file_data["size"],
+                "uploaded_at": file_data["uploaded_at"]
+            }
+        }
 
-        # Format subject if needed
-        subject = template["subject"]
-        for key, value in template_data.items():
-            if isinstance(value, (str, int, float)):
-                subject = subject.replace(f"{{{key}}}", str(value))
-
-        # Create mock content
-        content = f"This is a mock email using the {template['name']} template with data: {json.dumps(template_data)}"
-
-        # Send the email
-        return self.send_email(
-            to_email=to_email,
-            subject=subject,
-            content=content,
-            from_email=from_email,
-            reply_to=reply_to,
-        )
-
-    def get_sent_emails(self, to_email: Optional[str] = None) -> List[Dict[str, Any]]:
+    def delete_file(self, file_id: str) -> Dict[str, str]:
         """
-        Get all sent emails, optionally filtered by recipient.
+        Delete a mock file.
 
         Args:
-            to_email: Optional filter by recipient
+            file_id: ID of the file to delete
 
         Returns:
-            List of matching emails
+            Dict containing deletion status
+
+        Raises:
+            ValueError: If file not found
         """
-        self.record_call("get_sent_emails", to_email=to_email)
+        if file_id not in self._files:
+            raise ValueError("File not found")
 
-        if to_email:
-            return [
-                email
-                for email in self.sent_emails
-                if (
-                    email["to_email"] == to_email
-                    or (isinstance(email["to_email"], list) and to_email in email["to_email"])
-                )
-            ]
+        del self._files[file_id]
+        return {"status": "deleted"}
 
-        return self.sent_emails
-
-
-class MockStorageAPI(MockExternalAPIBase):
-    """Mock implementation of a cloud storage API (like AWS S3)."""
-
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize the mock Storage API."""
-        super().__init__(config)
-        self.buckets = {}
-        self.default_bucket = "default-bucket"
-        self.buckets[self.default_bucket] = {}
-
-    def create_bucket(self, bucket_name: str) -> Dict[str, Any]:
+    def list_files(self) -> List[Dict[str, Any]]:
         """
-        Create a new storage bucket.
-
-        Args:
-            bucket_name: Name of the bucket
+        List all mock files.
 
         Returns:
-            Bucket information
+            List of file metadata
         """
-        self.record_call("create_bucket", bucket_name=bucket_name)
-
-        if bucket_name in self.buckets:
-            raise ValueError(f"Bucket {bucket_name} already exists")
-
-        self.buckets[bucket_name] = {}
-
-        return {"name": bucket_name, "created_at": datetime.now().isoformat()}
-
-    def list_buckets(self) -> List[Dict[str, Any]]:
-        """
-        List all buckets.
-
-        Returns:
-            List of buckets
-        """
-        self.record_call("list_buckets")
-
         return [
-            {"name": name, "objects_count": len(objects)} for name, objects in self.buckets.items()
+            {
+                "id": file_id,
+                "path": data["path"],
+                "size": data["size"],
+                "url": data["url"],
+                "uploaded_at": data["uploaded_at"]
+            }
+            for file_id, data in self._files.items()
         ]
-
-    def upload_object(
-        self, data: bytes, key: str, bucket_name: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """
-        Upload an object to storage.
-
-        Args:
-            data: Object data as bytes
-            key: Object key/path
-            bucket_name: Optional bucket name (default: default-bucket)
-
-        Returns:
-            Object information
-
-        Raises:
-            ValueError: If bucket doesn't exist
-        """
-        bucket = bucket_name or self.default_bucket
-        self.record_call("upload_object", key=key, bucket_name=bucket, size=len(data))
-
-        if bucket not in self.buckets:
-            raise ValueError(f"Bucket {bucket} not found")
-
-        # Store object metadata (don't actually store the data to save memory)
-        self.buckets[bucket][key] = {
-            "size": len(data),
-            "last_modified": datetime.now().isoformat(),
-            "etag": f"{random.randint(1000000000, 9999999999):x}",
-        }
-
-        return {
-            "bucket": bucket,
-            "key": key,
-            "etag": self.buckets[bucket][key]["etag"],
-            "size": len(data),
-        }
-
-    def download_object(self, key: str, bucket_name: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Download an object from storage.
-
-        Args:
-            key: Object key/path
-            bucket_name: Optional bucket name (default: default-bucket)
-
-        Returns:
-            Object information with mock data
-
-        Raises:
-            ValueError: If bucket or object doesn't exist
-        """
-        bucket = bucket_name or self.default_bucket
-        self.record_call("download_object", key=key, bucket_name=bucket)
-
-        if bucket not in self.buckets:
-            raise ValueError(f"Bucket {bucket} not found")
-
-        if key not in self.buckets[bucket]:
-            raise ValueError(f"Object {key} not found in bucket {bucket}")
-
-        # Return mock data
-        size = self.buckets[bucket][key]["size"]
-        mock_data = bytes(random.randint(0, 255) for _ in range(min(size, 1024)))  # limit to 1KB
-
-        return {
-            "bucket": bucket,
-            "key": key,
-            "data": mock_data,
-            "size": size,
-            "last_modified": self.buckets[bucket][key]["last_modified"],
-            "etag": self.buckets[bucket][key]["etag"],
-        }
-
-    def list_objects(
-        self, bucket_name: Optional[str] = None, prefix: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
-        """
-        List objects in a bucket.
-
-        Args:
-            bucket_name: Optional bucket name (default: default-bucket)
-            prefix: Optional prefix to filter objects
-
-        Returns:
-            List of objects
-
-        Raises:
-            ValueError: If bucket doesn't exist
-        """
-        bucket = bucket_name or self.default_bucket
-        self.record_call("list_objects", bucket_name=bucket, prefix=prefix)
-
-        if bucket not in self.buckets:
-            raise ValueError(f"Bucket {bucket} not found")
-
-        objects = []
-        for key, metadata in self.buckets[bucket].items():
-            if prefix is None or key.startswith(prefix):
-                obj = {
-                    "key": key,
-                    "size": metadata["size"],
-                    "last_modified": metadata["last_modified"],
-                    "etag": metadata["etag"],
-                }
-                objects.append(obj)
-
-        return objects
-
-    def delete_object(self, key: str, bucket_name: Optional[str] = None) -> bool:
-        """
-        Delete an object from storage.
-
-        Args:
-            key: Object key/path
-            bucket_name: Optional bucket name (default: default-bucket)
-
-        Returns:
-            True if deleted, False otherwise
-
-        Raises:
-            ValueError: If bucket doesn't exist
-        """
-        bucket = bucket_name or self.default_bucket
-        self.record_call("delete_object", key=key, bucket_name=bucket)
-
-        if bucket not in self.buckets:
-            raise ValueError(f"Bucket {bucket} not found")
-
-        if key in self.buckets[bucket]:
-            del self.buckets[bucket][key]
-            return True
-
-        return False
 
 
 # Helper function to create a mock API instance
@@ -832,3 +532,31 @@ def create_mock_api(api_type: str, config: Optional[Dict[str, Any]] = None):
         raise ValueError(f"Unknown API type: {api_type}")
 
     return api_class(config)
+
+
+def create_mock_api(api_type: str, config: dict = None) -> Any:
+    """
+    Create a mock API instance with optional configuration.
+
+    Args:
+        api_type: Type of API to create ('huggingface', 'payment', 'email', 'storage')
+        config: Optional configuration dictionary for the API
+
+    Returns:
+        An instance of the requested mock API
+
+    Raises:
+        ValueError: If api_type is not recognized
+    """
+    config = config or {}
+    
+    if api_type == "huggingface":
+        return MockHuggingFaceAPI(**config)
+    elif api_type == "payment":
+        return MockPaymentAPI(**config)
+    elif api_type == "email":
+        return MockEmailAPI(**config)
+    elif api_type == "storage":
+        return MockStorageAPI(**config)
+    else:
+        raise ValueError(f"Unknown API type: {api_type}")

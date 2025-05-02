@@ -5,24 +5,30 @@ This module provides the NicheAnalyzer class that analyzes niches and identifies
 """
 
 import os
-import sys
-
-# Add parent directory to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-import asyncio
-import hashlib
 import logging
-from typing import Any, Dict, List, Optional
+import hashlib
+import json
+import asyncio
+from typing import Dict, List, Any, Optional
 
-from ai_models.async_utils import run_in_thread
-from common_utils.caching import default_cache
-from interfaces.agent_interfaces import IAgentTeam
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from interfaces.niche_interfaces import INicheAnalyzer
+from interfaces.agent_interfaces import IAgentTeam
 from niche_analysis.errors import NicheAnalysisError
+from .schemas import (
+    ProblemSchema, CompetitionAnalysisSchema, OpportunityScoreSchema
+)
+
+# Import the centralized caching service
+from common_utils.caching import default_cache, cached
+
+# Import async utilities
+from ai_models.async_utils import run_in_thread
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
 
 class NicheAnalyzer(INicheAnalyzer):
     """
@@ -58,6 +64,9 @@ class NicheAnalyzer(INicheAnalyzer):
 
         Returns:
             Niche analysis dictionary
+
+        Raises:
+            NicheAnalysisError: If agent team or researcher is not available
         """
         logger.info(f"Analyzing niche: {niche_name}")
 
@@ -68,18 +77,20 @@ class NicheAnalyzer(INicheAnalyzer):
         if not force_refresh:
             cached_result = default_cache.get(cache_key, namespace="niche_scores")
             if cached_result is not None:
-                logger.info(f"Using cached analysis for niche: {niche_name}")
+                logger.info(f"Using cached niche analysis for niche: {niche_name}")
                 return cached_result
 
+        # Check for agent team and researcher
+        if not self.agent_team:
+            logger.error("Agent team not available")
+            raise NicheAnalysisError("Agent team not available")
+
+        research_agent = self.agent_team.get_agent("researcher")
+        if not research_agent:
+            logger.error("Research agent not available")
+            raise NicheAnalysisError("Research agent not available")
+
         try:
-            # Get the research agent from the agent team
-            if not self.agent_team:
-                raise NicheAnalysisError("Agent team not available")
-
-            research_agent = self.agent_team.get_agent("researcher")
-            if not research_agent:
-                raise NicheAnalysisError("Research agent not available")
-
             # Analyze problems in the niche
             problems = research_agent.analyze_problems(niche_name)
 
@@ -95,7 +106,7 @@ class NicheAnalyzer(INicheAnalyzer):
                 "problems": problems,
                 "competition": competition,
                 "opportunities": opportunities,
-                "summary": f"Analysis of {niche_name} niche",
+                "summary": f"Analysis of {niche_name} niche"
             }
 
             logger.info(f"Completed analysis of niche: {niche_name}")
@@ -106,12 +117,62 @@ class NicheAnalyzer(INicheAnalyzer):
             return analysis
 
         except Exception as e:
-            logger.error(f"Error analyzing niche {niche_name}: {e}")
-            raise NicheAnalysisError(f"Error analyzing niche {niche_name}", original_exception=e)
+            logger.error(f"Error analyzing niche: {e}")
+            raise NicheAnalysisError("Error analyzing niche", original_exception=e)
 
-    async def analyze_niche_async(
-        self, niche_name: str, force_refresh: bool = False
-    ) -> Dict[str, Any]:
+    def identify_niches(self, market_segments: List[str], force_refresh: bool = False) -> List[Dict[str, Any]]:
+        """
+        Identify niches within market segments.
+
+        Args:
+            market_segments: List of market segments to analyze
+            force_refresh: If True, bypasses cache and forces a fresh identification
+
+        Returns:
+            List of niche dictionaries
+
+        Raises:
+            NicheAnalysisError: If agent team or researcher is not available
+        """
+        logger.info(f"Identifying niches in {len(market_segments)} market segments")
+
+        # Generate a cache key based on the market segments
+        segments_str = ",".join(sorted(market_segments))
+        cache_key = f"identify_niches:{hashlib.md5(segments_str.encode()).hexdigest()}"
+
+        # Try to get from cache first if not forcing refresh
+        if not force_refresh:
+            cached_result = default_cache.get(cache_key, namespace="niche_scores")
+            if cached_result is not None:
+                logger.info(f"Using cached niche identification for segments: {segments_str[:50]}...")
+                return cached_result
+
+        # Check for agent team and researcher
+        if not self.agent_team:
+            logger.error("Agent team not available")
+            raise NicheAnalysisError("Agent team not available")
+
+        research_agent = self.agent_team.get_agent("researcher")
+        if not research_agent:
+            logger.error("Research agent not available")
+            raise NicheAnalysisError("Research agent not available")
+
+        try:
+            # Identify niches
+            niches = research_agent.identify_niches(market_segments)
+
+            logger.info(f"Identified {len(niches)} niches")
+
+            # Cache the result
+            default_cache.set(cache_key, niches, ttl=self.cache_ttl, namespace="niche_scores")
+
+            return niches
+
+        except Exception as e:
+            logger.error(f"Error identifying niches: {e}")
+            raise NicheAnalysisError("Error identifying niches", original_exception=e)
+
+    async def analyze_niche_async(self, niche_name: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze a niche asynchronously.
 
@@ -133,7 +194,9 @@ class NicheAnalyzer(INicheAnalyzer):
         # Try to get from cache first if not forcing refresh
         if not force_refresh:
             cached_result = await run_in_thread(
-                default_cache.get, cache_key, namespace="niche_scores"
+                default_cache.get,
+                cache_key,
+                namespace="niche_scores"
             )
             if cached_result is not None:
                 logger.info(f"Using cached analysis for niche: {niche_name}")
@@ -161,7 +224,9 @@ class NicheAnalyzer(INicheAnalyzer):
 
             # Run all tasks concurrently and gather results
             problems, competition, opportunities = await asyncio.gather(
-                problems_task, competition_task, opportunities_task
+                problems_task,
+                competition_task,
+                opportunities_task
             )
 
             # Create the niche analysis
@@ -170,7 +235,7 @@ class NicheAnalyzer(INicheAnalyzer):
                 "problems": problems,
                 "competition": competition,
                 "opportunities": opportunities,
-                "summary": f"Analysis of {niche_name} niche",
+                "summary": f"Analysis of {niche_name} niche"
             }
 
             logger.info(f"Completed async analysis of niche: {niche_name}")
@@ -181,7 +246,7 @@ class NicheAnalyzer(INicheAnalyzer):
                 cache_key,
                 analysis,
                 ttl=self.cache_ttl,
-                namespace="niche_scores",
+                namespace="niche_scores"
             )
 
             return analysis
@@ -190,9 +255,7 @@ class NicheAnalyzer(INicheAnalyzer):
             logger.error(f"Error analyzing niche asynchronously {niche_name}: {e}")
             raise NicheAnalysisError(f"Error analyzing niche {niche_name}", original_exception=e)
 
-    def identify_niches(
-        self, market_segments: List[str], force_refresh: bool = False
-    ) -> List[Dict[str, Any]]:
+    def identify_niches(self, market_segments: List[str], force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
         Identify niches within market segments.
 
@@ -202,31 +265,34 @@ class NicheAnalyzer(INicheAnalyzer):
 
         Returns:
             List of niche dictionaries
+
+        Raises:
+            NicheAnalysisError: If agent team or researcher is not available
         """
         logger.info(f"Identifying niches in {len(market_segments)} market segments")
 
         # Generate a cache key based on the market segments
         segments_str = ",".join(sorted(market_segments))
-        cache_key = f"identify_niches:{hashlib.sha256(segments_str.encode(), usedforsecurity=False).hexdigest()}"
+        cache_key = f"identify_niches:{hashlib.md5(segments_str.encode()).hexdigest()}"
 
         # Try to get from cache first if not forcing refresh
         if not force_refresh:
             cached_result = default_cache.get(cache_key, namespace="niche_scores")
             if cached_result is not None:
-                logger.info(
-                    f"Using cached niche identification for segments: {segments_str[:50]}..."
-                )
+                logger.info(f"Using cached niche identification for segments: {segments_str[:50]}...")
                 return cached_result
 
+        # Check for agent team and researcher
+        if not self.agent_team:
+            logger.error("Agent team not available")
+            raise NicheAnalysisError("Agent team not available")
+
+        research_agent = self.agent_team.get_agent("researcher")
+        if not research_agent:
+            logger.error("Research agent not available")
+            raise NicheAnalysisError("Research agent not available")
+
         try:
-            # Get the research agent from the agent team
-            if not self.agent_team:
-                raise NicheAnalysisError("Agent team not available")
-
-            research_agent = self.agent_team.get_agent("researcher")
-            if not research_agent:
-                raise NicheAnalysisError("Research agent not available")
-
             # Identify niches
             niches = research_agent.identify_niches(market_segments)
 
@@ -237,13 +303,13 @@ class NicheAnalyzer(INicheAnalyzer):
 
             return niches
 
+        except NicheAnalysisError:
+            raise  # Re-raise NicheAnalysisError exceptions
         except Exception as e:
             logger.error(f"Error identifying niches: {e}")
             raise NicheAnalysisError("Error identifying niches", original_exception=e)
 
-    async def identify_niches_async(
-        self, market_segments: List[str], force_refresh: bool = False
-    ) -> List[Dict[str, Any]]:
+    async def identify_niches_async(self, market_segments: List[str], force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
         Identify niches within market segments asynchronously.
 
@@ -261,17 +327,17 @@ class NicheAnalyzer(INicheAnalyzer):
 
         # Generate a cache key based on the market segments
         segments_str = ",".join(sorted(market_segments))
-        cache_key = f"identify_niches:{hashlib.sha256(segments_str.encode(), usedforsecurity=False).hexdigest()}"
+        cache_key = f"identify_niches:{hashlib.md5(segments_str.encode()).hexdigest()}"
 
         # Try to get from cache first if not forcing refresh
         if not force_refresh:
             cached_result = await run_in_thread(
-                default_cache.get, cache_key, namespace="niche_scores"
+                default_cache.get,
+                cache_key,
+                namespace="niche_scores"
             )
             if cached_result is not None:
-                logger.info(
-                    f"Using cached niche identification for segments: {segments_str[:50]}..."
-                )
+                logger.info(f"Using cached niche identification for segments: {segments_str[:50]}...")
                 return cached_result
 
         try:
@@ -294,7 +360,7 @@ class NicheAnalyzer(INicheAnalyzer):
                 cache_key,
                 niches,
                 ttl=self.cache_ttl,
-                namespace="niche_scores",
+                namespace="niche_scores"
             )
 
             return niches
@@ -333,7 +399,7 @@ class NicheAnalyzer(INicheAnalyzer):
             "competitors": [],
             "market_leaders": [],
             "market_gaps": [],
-            "summary": f"Competition analysis for {niche_name} niche",
+            "summary": f"Competition analysis for {niche_name} niche"
         }
 
         logger.info(f"Completed competition analysis for niche: {niche_name}")
@@ -343,9 +409,7 @@ class NicheAnalyzer(INicheAnalyzer):
 
         return competition
 
-    async def analyze_competition_async(
-        self, niche_name: str, force_refresh: bool = False
-    ) -> Dict[str, Any]:
+    async def analyze_competition_async(self, niche_name: str, force_refresh: bool = False) -> Dict[str, Any]:
         """
         Analyze competition in a niche asynchronously.
 
@@ -367,7 +431,9 @@ class NicheAnalyzer(INicheAnalyzer):
         # Try to get from cache first if not forcing refresh
         if not force_refresh:
             cached_result = await run_in_thread(
-                default_cache.get, cache_key, namespace="niche_scores"
+                default_cache.get,
+                cache_key,
+                namespace="niche_scores"
             )
             if cached_result is not None:
                 logger.info(f"Using cached competition analysis for niche: {niche_name}")
@@ -383,7 +449,7 @@ class NicheAnalyzer(INicheAnalyzer):
             "competitors": [],
             "market_leaders": [],
             "market_gaps": [],
-            "summary": f"Competition analysis for {niche_name} niche",
+            "summary": f"Competition analysis for {niche_name} niche"
         }
 
         logger.info(f"Completed competition analysis for niche asynchronously: {niche_name}")
@@ -394,14 +460,12 @@ class NicheAnalyzer(INicheAnalyzer):
             cache_key,
             competition,
             ttl=self.cache_ttl,
-            namespace="niche_scores",
+            namespace="niche_scores"
         )
 
         return competition
 
-    def get_niche_opportunities(
-        self, niche_name: str, force_refresh: bool = False
-    ) -> List[Dict[str, Any]]:
+    def get_niche_opportunities(self, niche_name: str, force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
         Get opportunities in a niche.
 
@@ -431,14 +495,14 @@ class NicheAnalyzer(INicheAnalyzer):
                 "name": f"Opportunity 1 in {niche_name}",
                 "description": "Description of opportunity 1",
                 "score": 0.8,
-                "difficulty": "medium",
+                "difficulty": "medium"
             },
             {
                 "name": f"Opportunity 2 in {niche_name}",
                 "description": "Description of opportunity 2",
                 "score": 0.7,
-                "difficulty": "low",
-            },
+                "difficulty": "low"
+            }
         ]
 
         logger.info(f"Found {len(opportunities)} opportunities in niche: {niche_name}")
@@ -448,9 +512,7 @@ class NicheAnalyzer(INicheAnalyzer):
 
         return opportunities
 
-    async def get_niche_opportunities_async(
-        self, niche_name: str, force_refresh: bool = False
-    ) -> List[Dict[str, Any]]:
+    async def get_niche_opportunities_async(self, niche_name: str, force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
         Get opportunities in a niche asynchronously.
 
@@ -472,7 +534,9 @@ class NicheAnalyzer(INicheAnalyzer):
         # Try to get from cache first if not forcing refresh
         if not force_refresh:
             cached_result = await run_in_thread(
-                default_cache.get, cache_key, namespace="niche_scores"
+                default_cache.get,
+                cache_key,
+                namespace="niche_scores"
             )
             if cached_result is not None:
                 logger.info(f"Using cached opportunities for niche: {niche_name}")
@@ -488,19 +552,17 @@ class NicheAnalyzer(INicheAnalyzer):
                 "name": f"Opportunity 1 in {niche_name}",
                 "description": "Description of opportunity 1",
                 "score": 0.8,
-                "difficulty": "medium",
+                "difficulty": "medium"
             },
             {
                 "name": f"Opportunity 2 in {niche_name}",
                 "description": "Description of opportunity 2",
                 "score": 0.7,
-                "difficulty": "low",
-            },
+                "difficulty": "low"
+            }
         ]
 
-        logger.info(
-            f"Found {len(opportunities)} opportunities in niche asynchronously: {niche_name}"
-        )
+        logger.info(f"Found {len(opportunities)} opportunities in niche asynchronously: {niche_name}")
 
         # Cache the result
         await run_in_thread(
@@ -508,7 +570,7 @@ class NicheAnalyzer(INicheAnalyzer):
             cache_key,
             opportunities,
             ttl=self.cache_ttl,
-            namespace="niche_scores",
+            namespace="niche_scores"
         )
 
         return opportunities
@@ -555,9 +617,7 @@ class NicheAnalyzer(INicheAnalyzer):
         logger.info(f"Cleared niche analyzer cache asynchronously: {result}")
         return result
 
-    async def analyze_multiple_niches_async(
-        self, niche_names: List[str], force_refresh: bool = False
-    ) -> List[Dict[str, Any]]:
+    async def analyze_multiple_niches_async(self, niche_names: List[str], force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
         Analyze multiple niches concurrently.
 
@@ -580,9 +640,7 @@ class NicheAnalyzer(INicheAnalyzer):
 
         return results
 
-    async def batch_process_market_segments_async(
-        self, market_segments: List[str], force_refresh: bool = False
-    ) -> Dict[str, Any]:
+    async def batch_process_market_segments_async(self, market_segments: List[str], force_refresh: bool = False) -> Dict[str, Any]:
         """
         Process multiple market segments to identify and analyze niches in a batch.
 
@@ -609,7 +667,7 @@ class NicheAnalyzer(INicheAnalyzer):
             "market_segments": market_segments,
             "niches": niches,
             "analyses": analyses,
-            "summary": f"Batch processed {len(market_segments)} market segments and identified {len(niches)} niches",
+            "summary": f"Batch processed {len(market_segments)} market segments and identified {len(niches)} niches"
         }
 
         logger.info(f"Completed batch processing of {len(market_segments)} market segments")

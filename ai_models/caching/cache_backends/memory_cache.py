@@ -11,7 +11,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from .base import CacheBackend
 
-
 class MemoryCache(CacheBackend):
     """
     In-memory cache backend.
@@ -58,21 +57,17 @@ class MemoryCache(CacheBackend):
         with self.lock:
             if key in self.cache:
                 value, expiration_time, access_count, _ = self.cache[key]
-
+                
                 # Check if expired
-                if expiration_time is not None and time.time() > expiration_time:
+                current_time = time.time()
+                if expiration_time is not None and current_time > expiration_time:
                     self.delete(key)
                     self.stats["misses"] += 1
                     return None
-
-                # Update access statistics
-                self.cache[key] = (
-                    value,
-                    expiration_time,
-                    access_count + 1,
-                    time.time(),
-                )
-
+                
+                # Update access count and last access time BEFORE returning
+                self.cache[key] = (value, expiration_time, access_count + 1, current_time)
+                
                 self.stats["hits"] += 1
                 return value
 
@@ -92,22 +87,30 @@ class MemoryCache(CacheBackend):
             True if successful, False otherwise
         """
         with self.lock:
-            # Check if we need to evict an item
-            if (
-                self.max_size is not None
-                and len(self.cache) >= self.max_size
-                and key not in self.cache
-            ):
-                self._evict_item()
-
+            current_time = time.time()
+            
             # Calculate expiration time
             expiration_time = None
             if ttl is not None:
-                expiration_time = time.time() + ttl
-
-            # Store the value
-            self.cache[key] = (value, expiration_time, 0, time.time())
-
+                expiration_time = current_time + ttl
+            
+            # For new items, start with access_count of 0
+            # For existing items, preserve their access count if using LFU
+            existing_data = self.cache.get(key)
+            if existing_data:
+                _, _, access_count, _ = existing_data
+                if self.eviction_policy != "lfu":
+                    access_count = 0  # Reset for non-LFU policies
+            else:
+                access_count = 0
+                # Check if we need to evict an item before adding a new one
+                # Only evict if this is a new key and we're at capacity
+                if self.max_size is not None and len(self.cache) >= self.max_size:
+                    self._evict_item()
+            
+            # Store with current timestamp for proper LRU ordering
+            self.cache[key] = (value, expiration_time, access_count, current_time)
+            
             self.stats["sets"] += 1
             return True
 
@@ -194,9 +197,12 @@ class MemoryCache(CacheBackend):
             if pattern is None:
                 return list(self.cache.keys())
 
-            # Filter keys by pattern
-            regex = re.compile(pattern)
-            return [key for key in self.cache.keys() if regex.match(key)]
+            # Filter keys by pattern with safe regex handling
+            try:
+                regex = re.compile(pattern)
+                return [key for key in self.cache.keys() if regex.match(key)]
+            except re.error:  # If pattern is invalid, treat as literal prefix
+                return [key for key in self.cache.keys() if key.startswith(pattern.rstrip('^$'))]
 
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -268,33 +274,61 @@ class MemoryCache(CacheBackend):
         """
         if not self.cache:
             return
-
-        if self.eviction_policy == "lru":
-            # Least Recently Used
-            key_to_evict = min(self.cache.items(), key=lambda x: x[1][3])[0]
-        elif self.eviction_policy == "lfu":
-            # Least Frequently Used
-            key_to_evict = min(self.cache.items(), key=lambda x: x[1][2])[0]
-        elif self.eviction_policy == "fifo":
-            # First In First Out
-            key_to_evict = next(iter(self.cache))
-        else:
-            # Default to LRU
-            key_to_evict = min(self.cache.items(), key=lambda x: x[1][3])[0]
-
-        self.delete(key_to_evict)
-        self.stats["evictions"] += 1
-
+        
+        current_time = time.time()
+        
+        # Filter out expired items first
+        valid_items = [
+            (k, v) for k, v in self.cache.items()
+            if v[1] is None or v[1] > current_time
+        ]
+        
+        if not valid_items:
+            return
+        
+        try:
+            if self.eviction_policy == "lru":
+                # Find the least recently used item among non-expired items
+                key_to_evict = min(
+                    valid_items,
+                    key=lambda x: x[1][3]  # x[1][3] is last_access_time
+                )[0]
+            elif self.eviction_policy == "lfu":
+                # Find least frequently used item, using access time as tiebreaker
+                key_to_evict = min(
+                    valid_items,
+                    key=lambda x: (x[1][2], -x[1][3])  # (access_count, -last_access_time)
+                )[0]
+            elif self.eviction_policy == "fifo":
+                # First in first out - take the first non-expired item
+                key_to_evict = valid_items[0][0]
+            else:
+                # Default to LRU
+                key_to_evict = min(
+                    valid_items,
+                    key=lambda x: x[1][3]  # x[1][3] is last_access_time
+                )[0]
+            
+            # Delete the chosen item
+            if key_to_evict in self.cache:
+                self.delete(key_to_evict)
+                self.stats["evictions"] += 1
+                
+        except Exception:
+            # If there's any error in the eviction logic, fall back to removing the first valid item
+            if valid_items:
+                self.delete(valid_items[0][0])
+                self.stats["evictions"] += 1
+    
     def _remove_expired_items(self) -> None:
         """
         Remove expired items from the cache.
         """
         current_time = time.time()
-        keys_to_delete = []
-
-        for key, (_, expiration_time, _, _) in self.cache.items():
-            if expiration_time is not None and current_time > expiration_time:
-                keys_to_delete.append(key)
-
+        keys_to_delete = [
+            key for key, (_, expiration_time, _, _) in self.cache.items()
+            if expiration_time is not None and current_time > expiration_time
+        ]
+        
         for key in keys_to_delete:
             self.delete(key)

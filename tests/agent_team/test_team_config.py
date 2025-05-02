@@ -1,28 +1,12 @@
 """
 Tests for the AgentTeam class.
 """
-
-import json
 import os
-from unittest.mock import MagicMock, patch
-
+import json
 import pytest
+from unittest.mock import patch, MagicMock
 
 from agent_team.team_config import AgentTeam
-from tests.mocks.mock_agents import (
-    MockDeveloperAgent,
-    MockFeedbackAgent,
-    MockMarketingAgent,
-    MockMonetizationAgent,
-    MockResearchAgent,
-)
-from tests.mocks.mock_model_config import MockModelConfig
-
-
-@pytest.fixture
-def temp_dir(tmpdir):
-    """Create a temporary directory."""
-    return str(tmpdir)
 
 
 @pytest.fixture
@@ -39,23 +23,17 @@ def mock_config_file(temp_dir):
         "workflow": {
             "auto_progression": True,
             "review_required": False,
-        },
+        }
     }
 
     config_path = os.path.join(temp_dir, "test_config.json")
 
-    with open(config_path, "w") as f:
+    with open(config_path, 'w') as f:
         json.dump(config, f)
 
     return config_path
 
 
-@patch("agent_team.team_config.ModelConfig", MockModelConfig)
-@patch("agent_team.team_config.ResearchAgent", MockResearchAgent)
-@patch("agent_team.team_config.DeveloperAgent", MockDeveloperAgent)
-@patch("agent_team.team_config.MonetizationAgent", MockMonetizationAgent)
-@patch("agent_team.team_config.MarketingAgent", MockMarketingAgent)
-@patch("agent_team.team_config.FeedbackAgent", MockFeedbackAgent)
 def test_agent_team_init():
     """Test AgentTeam initialization with default config."""
     team = AgentTeam("Test Team")
@@ -74,12 +52,6 @@ def test_agent_team_init():
     assert team.feedback is not None
 
 
-@patch("agent_team.team_config.ModelConfig", MockModelConfig)
-@patch("agent_team.team_config.ResearchAgent", MockResearchAgent)
-@patch("agent_team.team_config.DeveloperAgent", MockDeveloperAgent)
-@patch("agent_team.team_config.MonetizationAgent", MockMonetizationAgent)
-@patch("agent_team.team_config.MarketingAgent", MockMarketingAgent)
-@patch("agent_team.team_config.FeedbackAgent", MockFeedbackAgent)
 def test_agent_team_init_with_config(mock_config_file):
     """Test AgentTeam initialization with custom config."""
     team = AgentTeam("Test Team", config_path=mock_config_file)
@@ -97,12 +69,7 @@ def test_agent_team_init_with_config(mock_config_file):
     assert team.config["model_settings"]["researcher"]["temperature"] == 0.5
 
 
-@patch("agent_team.team_config.ModelConfig", MockModelConfig)
-@patch("agent_team.team_config.ResearchAgent")
-@patch("agent_team.team_config.DeveloperAgent", MockDeveloperAgent)
-@patch("agent_team.team_config.MonetizationAgent", MockMonetizationAgent)
-@patch("agent_team.team_config.MarketingAgent", MockMarketingAgent)
-@patch("agent_team.team_config.FeedbackAgent", MockFeedbackAgent)
+@patch('agent_team.team_config.ResearchAgent')
 def test_run_niche_analysis(mock_researcher_class):
     """Test run_niche_analysis method."""
     # Mock the ResearchAgent.analyze_market_segments method
@@ -119,7 +86,6 @@ def test_run_niche_analysis(mock_researcher_class):
             "opportunity_score": 0.6,
         },
     ]
-    mock_researcher.is_configured.return_value = True
     mock_researcher_class.return_value = mock_researcher
 
     # Create a team
@@ -129,9 +95,7 @@ def test_run_niche_analysis(mock_researcher_class):
     result = team.run_niche_analysis(["e-commerce", "content creation"])
 
     # Check that the researcher's analyze_market_segments method was called
-    mock_researcher.analyze_market_segments.assert_called_once_with(
-        ["e-commerce", "content creation"]
-    )
+    mock_researcher.analyze_market_segments.assert_called_once_with(["e-commerce", "content creation"])
 
     # Check that the result is the return value from analyze_market_segments
     assert result == mock_researcher.analyze_market_segments.return_value
@@ -140,12 +104,7 @@ def test_run_niche_analysis(mock_researcher_class):
     assert result[1]["name"] == "Niche 2"
 
 
-@patch("agent_team.team_config.ModelConfig", MockModelConfig)
-@patch("agent_team.team_config.ResearchAgent", MockResearchAgent)
-@patch("agent_team.team_config.DeveloperAgent")
-@patch("agent_team.team_config.MonetizationAgent", MockMonetizationAgent)
-@patch("agent_team.team_config.MarketingAgent", MockMarketingAgent)
-@patch("agent_team.team_config.FeedbackAgent", MockFeedbackAgent)
+@patch('agent_team.team_config.DeveloperAgent')
 def test_develop_solution(mock_developer_class):
     """Test develop_solution method."""
     # Mock the DeveloperAgent.design_solution method
@@ -153,67 +112,79 @@ def test_develop_solution(mock_developer_class):
     mock_developer.design_solution.return_value = {
         "id": "solution1",
         "name": "Solution 1",
-        "features": ["feature1", "feature2"],
+        "description": "A solution for the niche",
+        "features": [
+            {
+                "id": "feature1",
+                "name": "Feature 1",
+                "description": "Description of feature 1",
+                "complexity": "medium",
+                "development_cost": "medium",
+                "value_proposition": "Value of feature 1"
+            },
+            {
+                "id": "feature2",
+                "name": "Feature 2",
+                "description": "Description of feature 2",
+                "complexity": "low",
+                "development_cost": "low",
+                "value_proposition": "Value of feature 2"
+            }
+        ],
+        "market_data": {
+            "target_audience": "Target audience",
+            "market_size": "medium",
+            "competition": "low"
+        }
     }
-    mock_developer.is_configured.return_value = True
     mock_developer_class.return_value = mock_developer
 
     # Create a team
     team = AgentTeam("Test Team")
 
-    # Create a mock niche that satisfies NicheSchema validation
+    # Create a mock niche that conforms to the NicheSchema
     niche = {
         "id": "niche1",
         "name": "Niche 1",
-        "description": "A niche for e-commerce businesses looking to automate customer support",
-        "market_size": 5000000.0,
-        "competition_level": "medium",
-        "growth_potential": 0.25,
-        "barriers_to_entry": ["technical complexity", "integration requirements"],
-        "target_audience": {
-            "primary": "e-commerce businesses",
-            "secondary": "online retailers",
-            "size": "medium",
+        "market_segment": "e-commerce",
+        "description": "A niche in e-commerce",
+        "opportunity_score": 0.8,
+        "market_data": {
+            "market_size": "medium",
+            "growth_rate": "high",
+            "competition": "low"
         },
         "problems": [
             {
                 "id": "problem1",
-                "name": "Customer support automation",
-                "description": "Difficulty automating customer support processes",
+                "name": "Problem 1",
+                "description": "Description of problem 1",
+                "severity": "high"
             }
-        ],
-        "opportunities": [
-            {
-                "id": "opportunity1",
-                "name": "AI-powered customer support",
-                "description": "Using AI to automate customer support",
-            }
-        ],
-        "market_segment": "e-commerce",
-        "opportunity_score": 0.8,
+        ]
     }
 
     # Develop a solution
     result = team.develop_solution(niche)
 
     # Check that the developer's design_solution method was called
-    # The develop_solution method in AgentTeam modifies the niche object before passing it to the developer agent
-    # So we can't directly check with the original niche object
+    # We can't use assert_called_once_with because the niche object is modified
+    # by the develop_solution method before it's passed to design_solution
     assert mock_developer.design_solution.call_count == 1
+    call_args = mock_developer.design_solution.call_args[0][0]
+    assert call_args['id'] == niche['id']
+    assert call_args['name'] == niche['name']
+    assert call_args['market_segment'] == niche['market_segment']
 
     # Check that the result is the return value from design_solution
     assert result == mock_developer.design_solution.return_value
     assert result["name"] == "Solution 1"
-    assert "feature1" in result["features"]
-    assert "feature2" in result["features"]
+    assert len(result["features"]) == 2
+    assert result["features"][0]["id"] == "feature1"
+    assert result["features"][1]["id"] == "feature2"
 
 
-@patch("agent_team.team_config.ModelConfig", MockModelConfig)
-@patch("agent_team.team_config.ResearchAgent", MockResearchAgent)
-@patch("agent_team.team_config.DeveloperAgent", MockDeveloperAgent)
-@patch("agent_team.team_config.MonetizationAgent")
-@patch("agent_team.team_config.MarketingAgent", MockMarketingAgent)
-@patch("agent_team.team_config.FeedbackAgent", MockFeedbackAgent)
+@patch('agent_team.team_config.MonetizationAgent')
 def test_create_monetization_strategy(mock_monetization_class):
     """Test create_monetization_strategy method."""
     # Mock the MonetizationAgent.create_strategy method
@@ -226,7 +197,6 @@ def test_create_monetization_strategy(mock_monetization_class):
             "tiers": ["free", "pro", "enterprise"],
         },
     }
-    mock_monetization.is_configured.return_value = True
     mock_monetization_class.return_value = mock_monetization
 
     # Create a team
@@ -254,12 +224,7 @@ def test_create_monetization_strategy(mock_monetization_class):
     assert "enterprise" in result["subscription_model"]["tiers"]
 
 
-@patch("agent_team.team_config.ModelConfig", MockModelConfig)
-@patch("agent_team.team_config.ResearchAgent", MockResearchAgent)
-@patch("agent_team.team_config.DeveloperAgent", MockDeveloperAgent)
-@patch("agent_team.team_config.MonetizationAgent", MockMonetizationAgent)
-@patch("agent_team.team_config.MarketingAgent")
-@patch("agent_team.team_config.FeedbackAgent", MockFeedbackAgent)
+@patch('agent_team.team_config.MarketingAgent')
 def test_create_marketing_plan(mock_marketing_class):
     """Test create_marketing_plan method."""
     # Mock the MarketingAgent.create_plan method
@@ -269,7 +234,6 @@ def test_create_marketing_plan(mock_marketing_class):
         "name": "Marketing Plan 1",
         "channels": ["content", "social", "email"],
     }
-    mock_marketing.is_configured.return_value = True
     mock_marketing_class.return_value = mock_marketing
 
     # Create a team

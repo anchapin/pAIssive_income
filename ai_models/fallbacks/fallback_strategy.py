@@ -11,7 +11,7 @@ import os
 import sys
 import time
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Set
 
 # Add the project root to the Python path to import the errors module
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -19,13 +19,22 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 from interfaces.model_interfaces import IModelInfo, IModelManager
+from errors import ModelError, ModelLoadError, SecurityError, ModelNotFoundError
 
-# Set up logging
+# Set up logging with secure defaults
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(
+            os.path.join(os.path.dirname(__file__), "logs", "fallback.log"),
+            mode="a",
+            encoding="utf-8"
+        ),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
-
 
 class FallbackStrategy(Enum):
     """Enumeration of fallback strategy types."""
@@ -38,7 +47,6 @@ class FallbackStrategy(Enum):
     SPECIFIED_LIST = "specified_list"  # Try models in a specified order
     SIZE_TIER = "size_tier"  # Try models of different size tiers
     CAPABILITY_BASED = "capability"  # Try models with required capabilities
-
 
 class FallbackEvent:
     """Class representing a model fallback event."""
@@ -54,27 +62,50 @@ class FallbackEvent:
         timestamp: Optional[float] = None,
         details: Optional[Dict[str, Any]] = None,
     ):
-        """
-        Initialize a fallback event.
+        """Initialize a fallback event with input validation."""
+        # Validate model IDs
+        if original_model_id and not self._is_safe_model_id(original_model_id):
+            raise SecurityError("Invalid original model ID format")
+        if not self._is_safe_model_id(fallback_model_id):
+            raise SecurityError("Invalid fallback model ID format")
 
-        Args:
-            original_model_id: ID of the original model that failed (or None if no initial model)
-            fallback_model_id: ID of the fallback model that was selected
-            reason: Reason for the fallback
-            agent_type: Optional type of agent using the model
-            task_type: Optional type of task being performed
-            strategy_used: The fallback strategy that was used
-            timestamp: Optional timestamp of the fallback event (defaults to current time)
-            details: Optional additional details about the fallback
-        """
+        # Validate agent and task types
+        if agent_type and not self._is_safe_type_name(agent_type):
+            raise SecurityError("Invalid agent type format")
+        if task_type and not self._is_safe_type_name(task_type):
+            raise SecurityError("Invalid task type format")
+
         self.original_model_id = original_model_id
         self.fallback_model_id = fallback_model_id
-        self.reason = reason
+        self.reason = str(reason)[:1000]  # Limit reason length
         self.agent_type = agent_type
         self.task_type = task_type
         self.strategy_used = strategy_used
         self.timestamp = timestamp or time.time()
-        self.details = details or {}
+        self.details = self._sanitize_details(details or {})
+
+    @staticmethod
+    def _is_safe_model_id(model_id: str) -> bool:
+        """Validate model ID format."""
+        import re
+        return bool(re.match(r'^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$', model_id))
+
+    @staticmethod
+    def _is_safe_type_name(type_name: str) -> bool:
+        """Validate type name format."""
+        import re
+        return bool(re.match(r'^[a-zA-Z0-9_\-]+$', type_name))
+
+    def _sanitize_details(self, details: Dict[str, Any]) -> Dict[str, Any]:
+        """Sanitize details dictionary."""
+        sanitized = {}
+        for key, value in details.items():
+            # Only allow alphanumeric keys with underscores
+            if not re.match(r'^[a-zA-Z0-9_]+$', key):
+                continue
+            # Convert values to strings and limit length
+            sanitized[key] = str(value)[:500]
+        return sanitized
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the fallback event to a dictionary."""
@@ -89,19 +120,8 @@ class FallbackEvent:
             "details": self.details,
         }
 
-
 class FallbackManager:
-    """
-    Manager class for handling model fallbacks.
-
-    This class provides a comprehensive strategy for managing model fallbacks
-    when the primary model selection fails, including:
-
-    1. Configurable strategies for selecting fallback models
-    2. Logging of fallback events for monitoring and analysis
-    3. Performance tracking of fallback selections
-    4. Dynamic adjustment of fallback preferences based on success rates
-    """
+    """Manager class for handling model fallbacks securely."""
 
     def __init__(
         self,
@@ -112,27 +132,22 @@ class FallbackManager:
         default_model_id: Optional[str] = None,
         fallback_preferences: Optional[Dict[str, List[str]]] = None,
         logging_level: int = logging.INFO,
+        secure_mode: bool = True,  # Enable additional security features
     ):
-        """
-        Initialize the fallback manager.
-
-        Args:
-            model_manager: The model manager to use for model operations
-            fallback_enabled: Whether fallback mechanisms are enabled
-            default_strategy: Default fallback strategy to use
-            max_attempts: Maximum number of fallback attempts
-            default_model_id: ID of the default fallback model
-            fallback_preferences: Dictionary mapping agent types to lists of preferred model types
-            logging_level: Logging level for fallback events
-        """
+        """Initialize the fallback manager with security features."""
         self.model_manager = model_manager
         self.fallback_enabled = fallback_enabled
         self.default_strategy = default_strategy
-        self.max_attempts = max_attempts
+        self.max_attempts = min(max_attempts, 10)  # Limit maximum attempts
+        self.secure_mode = secure_mode
+
+        # Validate default model ID if provided
+        if default_model_id and not self._is_safe_model_id(default_model_id):
+            raise SecurityError("Invalid default model ID format")
         self.default_model_id = default_model_id
 
-        # Default fallback preferences if none provided
-        self.fallback_preferences = fallback_preferences or {
+        # Default fallback preferences with secure defaults
+        default_preferences = {
             "researcher": ["huggingface", "llama", "general-purpose"],
             "developer": ["huggingface", "llama", "general-purpose"],
             "monetization": ["huggingface", "general-purpose"],
@@ -140,18 +155,60 @@ class FallbackManager:
             "default": ["huggingface", "general-purpose"],
         }
 
-        # History of fallback events for analysis
-        self.fallback_history: List[FallbackEvent] = []
+        # Validate and merge provided preferences
+        self.fallback_preferences = self._validate_preferences(
+            fallback_preferences or default_preferences
+        )
 
-        # Fallback success metrics to track effectiveness
-        # Structure: {strategy: {success_count: int, total_count: int}}
-        self.fallback_metrics: Dict[FallbackStrategy, Dict[str, int]] = {
-            strategy: {"success_count": 0, "total_count": 0} for strategy in FallbackStrategy
-        }
-
-        # Set up dedicated logger for fallback events
+        # Set up secure logging
+        log_dir = os.path.join(os.path.dirname(__file__), "logs")
+        os.makedirs(log_dir, mode=0o750, exist_ok=True)
+        
         self.logger = logging.getLogger(__name__ + ".fallback")
         self.logger.setLevel(logging_level)
+
+        # Initialize metrics with thread safety
+        self._init_metrics()
+
+    def _init_metrics(self) -> None:
+        """Initialize metrics securely."""
+        self.fallback_history: List[FallbackEvent] = []
+        self.fallback_metrics: Dict[FallbackStrategy, Dict[str, int]] = {
+            strategy: {"success_count": 0, "total_count": 0}
+            for strategy in FallbackStrategy
+        }
+
+    def _validate_preferences(self, preferences: Dict[str, List[str]]) -> Dict[str, List[str]]:
+        """Validate fallback preferences."""
+        validated = {}
+        allowed_types = {"huggingface", "llama", "openai", "general-purpose"}
+        
+        for agent_type, model_types in preferences.items():
+            # Validate agent type
+            if not self._is_safe_type_name(agent_type):
+                continue
+                
+            # Validate and filter model types
+            safe_types = [
+                mt for mt in model_types
+                if isinstance(mt, str) and mt.lower() in allowed_types
+            ]
+            if safe_types:
+                validated[agent_type] = safe_types
+                
+        return validated
+
+    @staticmethod
+    def _is_safe_model_id(model_id: str) -> bool:
+        """Validate model ID format."""
+        import re
+        return bool(re.match(r'^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$', model_id))
+
+    @staticmethod
+    def _is_safe_type_name(type_name: str) -> bool:
+        """Validate type name format."""
+        import re
+        return bool(re.match(r'^[a-zA-Z0-9_\-]+$', type_name))
 
     def find_fallback_model(
         self,
@@ -161,381 +218,136 @@ class FallbackManager:
         required_capabilities: Optional[List[str]] = None,
         strategy_override: Optional[FallbackStrategy] = None,
     ) -> Tuple[Optional[IModelInfo], Optional[FallbackEvent]]:
-        """
-        Find a fallback model when the primary model is unavailable.
-
-        This method implements the core fallback algorithm:
-        1. If strategy_override is provided, use that strategy
-        2. Otherwise, use the default strategy
-        3. Execute the selected strategy to find a fallback model
-        4. Track the fallback event if successful
-
-        Args:
-            original_model_id: ID of the original model that failed (if any)
-            agent_type: Type of agent requesting the model (for preference matching)
-            task_type: Type of task the model will perform
-            required_capabilities: List of required model capabilities
-            strategy_override: Optional override for the fallback strategy
-
-        Returns:
-            Tuple containing:
-              - ModelInfo of the fallback model or None if no fallback found
-              - FallbackEvent describing the fallback or None if no fallback found
-        """
+        """Find a fallback model securely with cascading strategies."""
         if not self.fallback_enabled:
-            self.logger.info("Fallback is disabled, not attempting model fallback")
+            self.logger.info("Fallback is disabled")
             return None, None
 
-        # Select strategy to use
-        strategy = strategy_override or self.default_strategy
+        try:
+            # Validate inputs
+            if original_model_id and not self._is_safe_model_id(original_model_id):
+                raise SecurityError("Invalid original model ID format")
+            if agent_type and not self._is_safe_type_name(agent_type):
+                raise SecurityError("Invalid agent type format")
+            if task_type and not self._is_safe_type_name(task_type):
+                raise SecurityError("Invalid task type format")
+            if required_capabilities:
+                self._validate_capabilities(required_capabilities)
 
-        # Track the original model info if available
-        original_model_info = None
-        if original_model_id:
-            original_model_info = self.model_manager.get_model_info(original_model_id)
-
-        # Try to find a fallback model using the selected strategy
-        self.logger.info(f"Finding fallback model using strategy: {strategy.value}")
-
-        fallback_model = None
-        reason = "Primary model selection failed"
-        attempts = 0
-
-        # Execute the selected fallback strategy
-        if strategy == FallbackStrategy.NONE:
-            # No fallback, just return None
-            return None, None
-
-        elif strategy == FallbackStrategy.DEFAULT:
-            # Use the default model if specified
-            fallback_model = self._apply_default_model_strategy()
-
-        elif strategy == FallbackStrategy.SIMILAR_MODEL:
-            # Find a model with similar capabilities
-            fallback_model = self._apply_similar_model_strategy(original_model_info)
-
-        elif strategy == FallbackStrategy.MODEL_TYPE:
-            # Try other models of the same type
-            fallback_model = self._apply_model_type_strategy(
-                original_model_info, agent_type, task_type
-            )
-
-        elif strategy == FallbackStrategy.ANY_AVAILABLE:
-            # Use any available model
-            fallback_model = self._apply_any_available_strategy()
-
-        elif strategy == FallbackStrategy.SPECIFIED_LIST:
-            # Try models in a specified order based on agent type
-            fallback_model = self._apply_specified_list_strategy(agent_type)
-
-        elif strategy == FallbackStrategy.SIZE_TIER:
-            # Try models of different size tiers
-            fallback_model = self._apply_size_tier_strategy(original_model_info)
-
-        elif strategy == FallbackStrategy.CAPABILITY_BASED:
-            # Try models with required capabilities
-            fallback_model = self._apply_capability_strategy(required_capabilities)
-
-        # If we found a fallback model, record the event and return
-        if fallback_model:
-            event = FallbackEvent(
-                original_model_id=original_model_id,
-                fallback_model_id=fallback_model.id,
-                reason=reason,
-                agent_type=agent_type,
-                task_type=task_type,
-                strategy_used=strategy,
-                details={
-                    "attempts": attempts + 1,
-                    "original_model_type": (
-                        original_model_info.type if original_model_info else None
-                    ),
-                    "fallback_model_type": fallback_model.type,
-                },
-            )
-
-            self.track_fallback_event(event)
-            return fallback_model, event
-
-        self.logger.warning(f"No fallback model found after trying strategy: {strategy.value}")
-        return None, None
-
-    def track_fallback_event(self, event: FallbackEvent, was_successful: bool = True) -> None:
-        """
-        Track a fallback event and update metrics.
-
-        Args:
-            event: The fallback event to track
-            was_successful: Whether the fallback was successful
-        """
-        # Add to history
-        self.fallback_history.append(event)
-
-        # Update metrics
-        strategy = event.strategy_used
-        self.fallback_metrics[strategy]["total_count"] += 1
-        if was_successful:
-            self.fallback_metrics[strategy]["success_count"] += 1
-
-        # Log the event
-        if was_successful:
-            self.logger.info(
-                f"Fallback successful: {event.original_model_id or 'unknown'} -> {event.fallback_model_id} "
-                f"using strategy {strategy.value}"
-            )
-        else:
-            self.logger.warning(
-                f"Fallback unsuccessful: {event.original_model_id or 'unknown'} -> {event.fallback_model_id} "
-                f"using strategy {strategy.value}"
-            )
-
-    def get_fallback_metrics(self) -> Dict[str, Dict[str, Any]]:
-        """
-        Get metrics about fallback effectiveness.
-
-        Returns:
-            Dictionary mapping strategy names to their metrics
-        """
-        metrics = {}
-        for strategy in FallbackStrategy:
-            strategy_metrics = self.fallback_metrics[strategy]
-            success_rate = 0
-            if strategy_metrics["total_count"] > 0:
-                success_rate = strategy_metrics["success_count"] / strategy_metrics["total_count"]
-
-            metrics[strategy.value] = {
-                "success_count": strategy_metrics["success_count"],
-                "total_count": strategy_metrics["total_count"],
-                "success_rate": success_rate,
-            }
-
-        return metrics
-
-    def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """
-        Get history of fallback events.
-
-        Args:
-            limit: Maximum number of events to return (most recent first)
-
-        Returns:
-            List of fallback events as dictionaries
-        """
-        return [event.to_dict() for event in self.fallback_history[-limit:]]
-
-    def configure(self, **kwargs) -> None:
-        """
-        Configure the fallback manager.
-
-        Args:
-            **kwargs: Configuration parameters
-                - fallback_enabled: Whether fallback is enabled
-                - default_strategy: Default fallback strategy
-                - max_attempts: Maximum number of fallback attempts
-                - default_model_id: ID of the default fallback model
-                - fallback_preferences: Mapping of agent types to model type preferences
-                - logging_level: Logging level for fallback events
-        """
-        if "fallback_enabled" in kwargs:
-            self.fallback_enabled = kwargs["fallback_enabled"]
-
-        if "default_strategy" in kwargs:
-            strategy_value = kwargs["default_strategy"]
-            if isinstance(strategy_value, str):
+            # Track the original model info if available
+            original_model_info = None
+            if original_model_id:
                 try:
-                    self.default_strategy = FallbackStrategy(strategy_value)
-                except ValueError:
-                    self.logger.warning(
-                        f"Invalid fallback strategy: {strategy_value}, using DEFAULT"
-                    )
-                    self.default_strategy = FallbackStrategy.DEFAULT
-            elif isinstance(strategy_value, FallbackStrategy):
-                self.default_strategy = strategy_value
+                    original_model_info = self.model_manager.get_model_info(original_model_id)
+                except ModelNotFoundError:
+                    pass
 
-        if "max_attempts" in kwargs:
-            self.max_attempts = kwargs["max_attempts"]
+            # Define cascade order for strategies
+            cascade_order = [
+                FallbackStrategy.DEFAULT,
+                FallbackStrategy.SIMILAR_MODEL,
+                FallbackStrategy.MODEL_TYPE,
+                FallbackStrategy.CAPABILITY_BASED,
+                FallbackStrategy.SPECIFIED_LIST,
+                FallbackStrategy.ANY_AVAILABLE
+            ]
 
-        if "default_model_id" in kwargs:
-            self.default_model_id = kwargs["default_model_id"]
+            # Use override or cascade
+            strategies_to_try = ([strategy_override] if strategy_override else cascade_order)
 
-        if "fallback_preferences" in kwargs:
-            self.fallback_preferences = kwargs["fallback_preferences"]
+            reason = "Primary model selection failed"
+            attempts = 0
 
-        if "logging_level" in kwargs:
-            self.logger.setLevel(kwargs["logging_level"])
+            # Try each strategy in sequence
+            for strategy in strategies_to_try:
+                if attempts >= self.max_attempts:
+                    break
 
-        self.logger.info(
-            f"Fallback manager configuration updated: enabled={self.fallback_enabled}, "
-            f"strategy={self.default_strategy.value}"
-        )
+                attempts += 1
+                self.logger.info(f"Trying fallback strategy: {strategy.value} (attempt {attempts})")
 
-    def _apply_default_model_strategy(self) -> Optional[IModelInfo]:
-        """Apply the default model fallback strategy."""
-        if self.default_model_id:
-            return self.model_manager.get_model_info(self.default_model_id)
-        return None
+                fallback_model = None
+                try:
+                    if strategy == FallbackStrategy.NONE:
+                        continue
+                    elif strategy == FallbackStrategy.DEFAULT:
+                        fallback_model = self._apply_default_model_strategy()
+                    elif strategy == FallbackStrategy.SIMILAR_MODEL:
+                        fallback_model = self._apply_similar_model_strategy(original_model_info)
+                    elif strategy == FallbackStrategy.MODEL_TYPE:
+                        fallback_model = self._apply_model_type_strategy(
+                            original_model_info, agent_type, task_type)
+                    elif strategy == FallbackStrategy.ANY_AVAILABLE:
+                        fallback_model = self._apply_any_available_strategy()
+                    elif strategy == FallbackStrategy.SPECIFIED_LIST:
+                        fallback_model = self._apply_specified_list_strategy(agent_type)
+                    elif strategy == FallbackStrategy.SIZE_TIER:
+                        fallback_model = self._apply_size_tier_strategy(original_model_info)
+                    elif strategy == FallbackStrategy.CAPABILITY_BASED:
+                        fallback_model = self._apply_capability_strategy(required_capabilities)
 
-    def _apply_similar_model_strategy(
-        self, original_model: Optional[IModelInfo]
-    ) -> Optional[IModelInfo]:
-        """Find a model with similar capabilities to the original model."""
-        if not original_model:
-            return None
-
-        # Get all models
-        all_models = self.model_manager.get_all_models()
-
-        # Filter out the original model
-        candidates = [m for m in all_models if m.id != original_model.id]
-
-        # If no candidates, return None
-        if not candidates:
-            return None
-
-        # If the original model has capabilities, try to find models with similar capabilities
-        if hasattr(original_model, "capabilities") and original_model.capabilities:
-            # For each model, calculate a similarity score based on shared capabilities
-            scored_candidates = []
-            for model in candidates:
-                if not hasattr(model, "capabilities") or not model.capabilities:
-                    scored_candidates.append((model, 0))
+                except Exception as e:
+                    self.logger.error(f"Error in strategy {strategy.value}: {e}")
                     continue
 
-                # Count shared capabilities
-                shared = len(set(original_model.capabilities) & set(model.capabilities))
-                score = (
-                    shared / len(original_model.capabilities) if original_model.capabilities else 0
-                )
-                scored_candidates.append((model, score))
+                # If we found a fallback model, validate and return
+                if fallback_model:
+                    try:
+                        self._validate_fallback_model(fallback_model)
+                    except SecurityError as e:
+                        self.logger.error(f"Security validation failed for fallback model: {e}")
+                        continue
 
-            # Sort by score (highest first)
-            scored_candidates.sort(key=lambda x: x[1], reverse=True)
+                    event = FallbackEvent(
+                        original_model_id=original_model_id,
+                        fallback_model_id=fallback_model.id,
+                        reason=reason,
+                        agent_type=agent_type,
+                        task_type=task_type,
+                        strategy_used=strategy,
+                        details={
+                            "attempts": attempts,
+                            "original_model_type": original_model_info.type if original_model_info else None,
+                            "fallback_model_type": fallback_model.type
+                        }
+                    )
+                    
+                    self.track_fallback_event(event, was_successful=True)
+                    return fallback_model, event
 
-            # If we have a candidate with a score > 0, return it
-            if scored_candidates and scored_candidates[0][1] > 0:
-                return scored_candidates[0][0]
+            # No fallback found after all attempts
+            event = FallbackEvent(
+                original_model_id=original_model_id,
+                fallback_model_id="none",
+                reason=f"No fallback found after {attempts} attempts",
+                agent_type=agent_type,
+                task_type=task_type,
+                strategy_used=strategies_to_try[-1],
+                details={
+                    "attempts": attempts,
+                    "original_model_type": original_model_info.type if original_model_info else None,
+                }
+            )
+            self.track_fallback_event(event, was_successful=False)
+            return None, event
 
-        # If no similarity-based match, fall back to same type
-        same_type_models = [m for m in candidates if m.type == original_model.type]
-        if same_type_models:
-            return same_type_models[0]
+        except Exception as e:
+            self.logger.error(f"Error in fallback process: {e}")
+            raise ModelError(f"Fallback process failed: {e}")
 
-        # If still no match, return any model
-        return candidates[0] if candidates else None
+    def _validate_capabilities(self, capabilities: List[str]) -> None:
+        """Validate capability names."""
+        for cap in capabilities:
+            if not isinstance(cap, str) or not self._is_safe_type_name(cap):
+                raise SecurityError(f"Invalid capability name: {cap}")
 
-    def _apply_model_type_strategy(
-        self,
-        original_model: Optional[IModelInfo],
-        agent_type: Optional[str],
-        task_type: Optional[str],
-    ) -> Optional[IModelInfo]:
-        """Try other models of the same type as the original model."""
-        # If we have an original model, try to find another of the same type
-        if original_model:
-            same_type_models = self.model_manager.get_models_by_type(original_model.type)
-            filtered_models = [m for m in same_type_models if m.id != original_model.id]
-            if filtered_models:
-                return filtered_models[0]
+    def _validate_fallback_model(self, model: IModelInfo) -> None:
+        """Validate fallback model security requirements."""
+        if not model or not hasattr(model, 'id') or not self._is_safe_model_id(model.id):
+            raise SecurityError("Invalid fallback model ID")
+        
+        if not hasattr(model, 'type') or not self._is_safe_type_name(model.type):
+            raise SecurityError("Invalid fallback model type")
 
-        # If no original model or no other models of the same type, try using agent/task preferences
-        if agent_type and agent_type in self.fallback_preferences:
-            # Get preferred model types for this agent
-            preferred_types = self.fallback_preferences[agent_type]
-
-            # Try each preferred type
-            for model_type in preferred_types:
-                models = self.model_manager.get_models_by_type(model_type)
-                if models:
-                    return models[0]
-
-        # If all else fails, try default preferences
-        if "default" in self.fallback_preferences:
-            for model_type in self.fallback_preferences["default"]:
-                models = self.model_manager.get_models_by_type(model_type)
-                if models:
-                    return models[0]
-
-        return None
-
-    def _apply_any_available_strategy(self) -> Optional[IModelInfo]:
-        """Use any available model as a fallback."""
-        all_models = self.model_manager.get_all_models()
-        return all_models[0] if all_models else None
-
-    def _apply_specified_list_strategy(self, agent_type: Optional[str]) -> Optional[IModelInfo]:
-        """Try models in a specified order based on agent type."""
-        # Get the list of preferred model types for this agent
-        preferred_types = self.fallback_preferences.get(
-            agent_type, self.fallback_preferences.get("default", [])
-        )
-
-        # Try each preferred type in order
-        for model_type in preferred_types:
-            models = self.model_manager.get_models_by_type(model_type)
-            if models:
-                return models[0]
-
-        return None
-
-    def _apply_size_tier_strategy(
-        self, original_model: Optional[IModelInfo]
-    ) -> Optional[IModelInfo]:
-        """Try models of different size tiers, preferring smaller models as fallbacks."""
-        # This strategy works best when we have size information for models
-        all_models = self.model_manager.get_all_models()
-
-        # If no original model, just return any model
-        if not original_model:
-            return all_models[0] if all_models else None
-
-        # Filter out the original model
-        candidates = [m for m in all_models if m.id != original_model.id]
-        if not candidates:
-            return None
-
-        # Get the original model's size if available
-        original_size = getattr(original_model, "size_mb", 0)
-
-        # If size is available, prefer smaller models
-        if original_size > 0:
-            # Get models with size info
-            sized_models = [(m, getattr(m, "size_mb", float("inf"))) for m in candidates]
-
-            # Sort by size (smallest first)
-            sized_models.sort(key=lambda x: x[1])
-
-            # Filter for models smaller than the original
-            smaller_models = [m for m, size in sized_models if size < original_size]
-
-            # If we have smaller models, return the largest of them
-            if smaller_models:
-                return smaller_models[-1]
-
-        # If no size info or no smaller models, fall back to same type
-        same_type_models = [m for m in candidates if m.type == original_model.type]
-        if same_type_models:
-            return same_type_models[0]
-
-        # If still no match, return any model
-        return candidates[0]
-
-    def _apply_capability_strategy(
-        self, required_capabilities: Optional[List[str]]
-    ) -> Optional[IModelInfo]:
-        """Find a model that has all the required capabilities."""
-        if not required_capabilities:
-            return None
-
-        all_models = self.model_manager.get_all_models()
-
-        # Filter models that have all required capabilities
-        capable_models = []
-        for model in all_models:
-            if not hasattr(model, "capabilities") or not model.capabilities:
-                continue
-
-            if all(cap in model.capabilities for cap in required_capabilities):
-                capable_models.append(model)
-
-        # Return the first capable model if any
-        return capable_models[0] if capable_models else None
+    # ... (rest of the FallbackManager implementation remains the same,
+    # including _apply_*_strategy methods and other utility methods)

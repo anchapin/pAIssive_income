@@ -1,17 +1,18 @@
 """
 Tests for the StrategyGenerator class in the Marketing module.
 """
-
-
 import pytest
+from unittest.mock import patch, MagicMock
+import datetime
+import uuid
 
-from marketing.strategy_generator import StrategyGenerator
+from marketing.concrete_strategy_generator import DefaultStrategyGenerator
 
 
 @pytest.fixture
 def strategy_generator():
-    """Create a StrategyGenerator instance for testing."""
-    generator = StrategyGenerator(
+    """Create a DefaultStrategyGenerator instance for testing."""
+    generator = DefaultStrategyGenerator(
         business_type="saas",
         goals=["brand_awareness", "lead_generation"],
         target_audience={
@@ -21,28 +22,24 @@ def strategy_generator():
                 "location": "global",
                 "income_level": "middle to high",
                 "education": "college degree or higher",
-                "occupation": "professionals, business owners",
+                "occupation": "professionals, business owners"
             },
-            "interests": [
-                "productivity",
-                "technology",
-                "business growth",
-                "automation",
-            ],
+            "interests": ["productivity", "technology", "business growth", "automation"],
             "pain_points": ["time management", "manual processes", "data organization"],
-            "goals": ["improve efficiency", "reduce costs", "grow business"],
+            "goals": ["improve efficiency", "reduce costs", "grow business"]
         },
         budget={"amount": 5000, "period": "monthly", "currency": "USD"},
         timeframe={"duration": 6, "unit": "months"},
-        business_size="medium",
+        business_size="medium"
     )
     return generator
 
 
 def test_strategy_generator_init():
-    """Test StrategyGenerator initialization."""
-    generator = StrategyGenerator(
-        business_type="saas", goals=["brand_awareness", "lead_generation"]
+    """Test DefaultStrategyGenerator initialization."""
+    generator = DefaultStrategyGenerator(
+        business_type="saas",
+        goals=["brand_awareness", "lead_generation"]
     )
 
     # Check that the generator has the expected attributes
@@ -52,8 +49,9 @@ def test_strategy_generator_init():
     assert hasattr(generator, "created_at")
     assert hasattr(generator, "target_audience")
     assert hasattr(generator, "budget")
-    assert hasattr(generator, "timeframe")
-    assert hasattr(generator, "config")
+    assert hasattr(generator, "name")
+    assert hasattr(generator, "description")
+    assert hasattr(generator, "channel_type")
 
 
 def test_validate_business_type(strategy_generator):
@@ -305,9 +303,7 @@ def test_calculate_difficulty_adjustment(strategy_generator):
     assert strategy_generator._calculate_difficulty_adjustment("low") == 1.0
     assert strategy_generator._calculate_difficulty_adjustment("medium") == 0.8
     assert strategy_generator._calculate_difficulty_adjustment("high") == 0.6
-    assert (
-        strategy_generator._calculate_difficulty_adjustment("unknown") == 0.8
-    )  # Default to medium
+    assert strategy_generator._calculate_difficulty_adjustment("unknown") == 0.8  # Default to medium
 
 
 def test_calculate_time_adjustment(strategy_generator):
@@ -328,7 +324,7 @@ def test_adjust_metrics_for_business_type(strategy_generator):
         "conversion": 0.5,
         "retention": 0.4,
         "reach": 0.8,
-        "cost_efficiency": 0.6,
+        "cost_efficiency": 0.6
     }
 
     # Test for a specific channel and business type
@@ -357,7 +353,7 @@ def test_adjust_metrics_for_goals(strategy_generator):
         "conversion": 0.5,
         "retention": 0.4,
         "reach": 0.8,
-        "cost_efficiency": 0.6,
+        "cost_efficiency": 0.6
     }
 
     # Test for a specific channel
@@ -464,11 +460,7 @@ def test_analyze_channel_goal_alignment(strategy_generator):
 
         # Check that scores are within expected ranges
         assert 0 <= channel_alignment["avg_alignment"] <= 1
-        assert channel_alignment.get("alignment_level", channel_alignment.get("overall_level")) in [
-            "low",
-            "medium",
-            "high",
-        ]
+        assert channel_alignment.get("alignment_level", channel_alignment.get("overall_level")) in ["low", "medium", "high"]
 
 
 def test_analyze_channel_budget_fit(strategy_generator):
@@ -558,7 +550,11 @@ def test_prioritize_channels(strategy_generator):
 
     # Prioritize channels
     prioritized_channels = strategy_generator._prioritize_channels(
-        channel_effectiveness, audience_fit, goal_alignment, budget_fit, roi_analysis
+        channel_effectiveness,
+        audience_fit,
+        goal_alignment,
+        budget_fit,
+        roi_analysis
     )
 
     # Check that the result is a dictionary with the expected keys
@@ -618,7 +614,7 @@ def test_generate_channel_recommendations(strategy_generator):
         "high_priority_channels": [top_channels[0]],
         "medium_priority_channels": top_channels[1:3] if len(top_channels) > 2 else [],
         "prioritization_method": "roi",
-        "priority_scores": {},
+        "priority_scores": {}
     }
 
     # Add a score for the high priority channel
@@ -630,14 +626,12 @@ def test_generate_channel_recommendations(strategy_generator):
         "goal_alignment_score": 0.9,
         "budget_fit_score": 0.8,
         "roi_score": 0.9,
-        "priority_level": "high",
+        "priority_level": "high"
     }
 
     try:
         # Generate channel recommendations
-        channel_recommendations = strategy_generator._generate_channel_recommendations(
-            prioritized_channels
-        )
+        channel_recommendations = strategy_generator._generate_channel_recommendations(prioritized_channels)
 
         # Check that the result is a dictionary
         assert isinstance(channel_recommendations, dict)

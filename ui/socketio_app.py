@@ -1,126 +1,183 @@
 """
-Flask-SocketIO integration for the pAIssive Income UI.
+Socket.IO integration for the pAIssive Income UI.
 
-This module provides real-time communication between the server and clients
-for updating task progress and status.
+This module provides real-time updates for long-running tasks and
+user interactions using Socket.IO.
 """
-
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-from celery.result import AsyncResult
-from flask_socketio import SocketIO, emit
+from flask import Flask
+from flask_socketio import Namespace, SocketIO, emit, join_room, leave_room
+
+from interfaces.ui_interfaces import ITaskService
+from service_initialization import get_service
 
 # Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
-# Initialize SocketIO without attaching it to app yet
-socketio = SocketIO()
+class SocketIONamespace(Namespace):
+    """Custom Socket.IO namespace for pAIssive Income events."""
 
-
-def init_socketio(app):
-    """
-    Initialize SocketIO with the Flask app.
-
-    Args:
-        app: Flask application
-    """
-    socketio.init_app(app, async_mode="threading", cors_allowed_origins="*")
-    logger.info("SocketIO initialized")
-
-    # Define socket events
-    @socketio.on("connect")
-    def handle_connect():
+    def on_connect(self):
         """Handle client connection."""
-        logger.info(f"Client connected: {socketio.request.sid}")
-        emit("connect_response", {"status": "connected"})
+        logger.info("Client connected")
 
-    @socketio.on("disconnect")
-    def handle_disconnect():
+    def on_disconnect(self):
         """Handle client disconnection."""
-        logger.info(f"Client disconnected: {socketio.request.sid}")
+        logger.info("Client disconnected")
 
-    @socketio.on("subscribe")
-    def handle_subscribe(data):
+    def on_join(self, data: Dict[str, Any]):
         """
-        Handle client subscription to task updates.
+        Join a task room to receive updates.
 
         Args:
-            data: Dictionary with task_id
+            data: Dictionary containing task_id
         """
         task_id = data.get("task_id")
-        if not task_id:
-            emit("error", {"message": "No task ID provided"})
-            return
+        if task_id:
+            join_room(task_id)
+            logger.info(f"Client joined room: {task_id}")
 
-        logger.info(f"Client {socketio.request.sid} subscribed to task {task_id}")
-
-        # Join a room named after the task ID
-        socketio.join_room(task_id)
-
-        # Send initial task status
-        from .tasks import celery_app
-
-        task_result = AsyncResult(task_id, app=celery_app)
-
-        if task_result.state == "PENDING":
-            response = {
-                "state": task_result.state,
-                "current": 0,
-                "total": 100,
-                "status": "Pending...",
-                "result": {},
-            }
-        elif task_result.state == "FAILURE":
-            response = {
-                "state": task_result.state,
-                "current": 0,
-                "total": 100,
-                "status": str(task_result.info),
-                "result": {},
-            }
-        else:
-            response = task_result.info if task_result.info else {}
-            if "result" not in response:
-                response["result"] = {}
-
-        emit("task_update", response)
-
-    @socketio.on("unsubscribe")
-    def handle_unsubscribe(data):
+    def on_leave(self, data: Dict[str, Any]):
         """
-        Handle client unsubscription from task updates.
+        Leave a task room.
 
         Args:
-            data: Dictionary with task_id
+            data: Dictionary containing task_id
         """
         task_id = data.get("task_id")
-        if not task_id:
-            emit("error", {"message": "No task ID provided"})
-            return
+        if task_id:
+            leave_room(task_id)
+            logger.info(f"Client left room: {task_id}")
 
-        logger.info(f"Client {socketio.request.sid} unsubscribed from task {task_id}")
+    def on_task_progress(self, data: Dict[str, Any]):
+        """
+        Handle task progress updates.
 
-        # Leave the room named after the task ID
-        socketio.leave_room(task_id)
-        emit("unsubscribe_response", {"status": "unsubscribed"})
+        Args:
+            data: Progress update data including task_id, status, progress, and message
+        """
+        task_id = data.get("task_id")
+        if task_id:
+            emit("task_progress", data, room=task_id)
+            logger.debug(f"Task progress update sent: {data}")
 
-    @socketio.on_error()
-    def handle_error(e):
-        """Handle socket error."""
-        logger.error(f"SocketIO error: {str(e)}")
+    def on_error(self, data: Dict[str, Any]):
+        """
+        Handle error events.
+
+        Args:
+            data: Error details including task_id and error message
+        """
+        task_id = data.get("task_id")
+        if task_id:
+            emit("error", data, room=task_id)
+            logger.error(f"Error event sent: {data}")
+
+    def on_get_status(self, data: Dict[str, Any]):
+        """
+        Handle status requests.
+
+        Args:
+            data: Dictionary containing task_id
+        """
+        task_id = data.get("task_id")
+        if task_id:
+            try:
+                # Get task service and retrieve status
+                task_service = get_service(ITaskService)
+                status = task_service.get_task_status(task_id)
+                emit("status", status)
+                logger.debug(f"Status sent for task {task_id}: {status}")
+            except Exception as e:
+                error_data = {
+                    "task_id": task_id,
+                    "error": str(e),
+                    "type": "status_error"
+                }
+                emit("error", error_data)
+                logger.error(f"Error getting status for task {task_id}: {e}")
+
+    def on_model_update(self, data: Dict[str, Any]):
+        """
+        Handle model updates.
+
+        Args:
+            data: Model update information
+        """
+        emit("model_update", data, broadcast=True)
+        logger.info(f"Model update broadcast: {data}")
+
+    def on_resource_usage(self, data: Dict[str, Any]):
+        """
+        Handle resource usage updates.
+
+        Args:
+            data: Resource usage information
+        """
+        emit("resource_usage", data, broadcast=True)
+        logger.debug(f"Resource usage broadcast: {data}")
+
+    def on_authenticate(self, auth_data: Dict[str, Any]) -> bool:
+        """
+        Handle client authentication.
+
+        Args:
+            auth_data: Authentication data including token
+
+        Returns:
+            bool: True if authentication successful, False otherwise
+        """
+        token = auth_data.get("token")
+        if not token:
+            logger.warning("Authentication attempt without token")
+            return False
+
+        try:
+            # Validate token (implement actual validation logic)
+            is_valid = token == "valid_token"  # Replace with real validation
+            if is_valid:
+                logger.info("Client authenticated successfully")
+            else:
+                logger.warning("Invalid authentication token")
+            return is_valid
+        except Exception as e:
+            logger.error(f"Authentication error: {e}")
+            return False
 
 
-def emit_task_update(task_id: str, data: Dict[str, Any]):
+def init_socketio(app: Flask, async_mode: Optional[str] = None) -> SocketIO:
     """
-    Emit task update to subscribed clients.
+    Initialize Socket.IO with the Flask application.
 
     Args:
-        task_id: ID of the task
-        data: Dictionary with task status and progress
+        app: Flask application instance
+        async_mode: Optional async mode (e.g., 'eventlet', 'gevent')
+
+    Returns:
+        Configured Socket.IO instance
     """
-    socketio.emit("task_update", data, room=task_id)
-    logger.debug(f"Task update emitted for {task_id}: {data}")
+    # Create Socket.IO instance
+    socketio = SocketIO(
+        app,
+        async_mode=async_mode,
+        cors_allowed_origins="*",  # Configure as needed
+        logger=True,
+        engineio_logger=True
+    )
+
+    # Register namespace
+    socketio.on_namespace(SocketIONamespace("/"))
+
+    # Register error handler
+    @socketio.on_error_default
+    def default_error_handler(e):
+        logger.error(f"Socket.IO error: {e}")
+        error_data = {
+            "error": str(e),
+            "type": "socket_error"
+        }
+        emit("error", error_data)
+
+    return socketio

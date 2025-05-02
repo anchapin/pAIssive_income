@@ -18,17 +18,32 @@ from .schemas import (
     WorkflowSettingsSchema,
 )
 from .team_config import AgentTeam
+from .agent_profiles import (
+    AgentProfile, ResearchAgent, DeveloperAgent,
+    MonetizationAgent, MarketingAgent, FeedbackAgent
+)
 
 __all__ = [
-    "AgentTeam",
-    "TeamConfigSchema",
-    "ModelSettingsSchema",
-    "WorkflowSettingsSchema",
-    "AgentProfileSchema",
-    "NicheSchema",
-    "SolutionSchema",
-    "MonetizationStrategySchema",
-    "MarketingPlanSchema",
-    "FeedbackItemSchema",
-    "ProjectStateSchema",
+    # Team configuration
+    'AgentTeam',
+    'TeamConfigSchema',
+    'ModelSettingsSchema',
+    'WorkflowSettingsSchema',
+
+    # Agent profiles
+    'AgentProfile',
+    'ResearchAgent',
+    'DeveloperAgent',
+    'MonetizationAgent',
+    'MarketingAgent',
+    'FeedbackAgent',
+
+    # Project schemas
+    'AgentProfileSchema',
+    'NicheSchema',
+    'SolutionSchema',
+    'MonetizationStrategySchema',
+    'MarketingPlanSchema',
+    'FeedbackItemSchema',
+    'ProjectStateSchema'
 ]

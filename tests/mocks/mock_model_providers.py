@@ -5,10 +5,11 @@ This module provides mock implementations of various AI model providers
 that can be used for consistent testing without external dependencies.
 """
 
+import json
 import logging
+from typing import Dict, List, Any, Optional, Union, Generator, Tuple
+from unittest.mock import MagicMock
 from datetime import datetime
-from typing import Any, Dict, Generator, List, Optional, Union
-
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -25,65 +26,57 @@ class MockBaseModelProvider:
             config: Optional configuration for the mock provider
         """
         self.config = config or {}
-        self.available_models = self.config.get(
-            "available_models",
-            [
-                {
-                    "id": "gpt-3.5-turbo",
-                    "name": "GPT-3.5 Turbo",
-                    "capabilities": ["text-generation", "chat"],
-                    "created": int(datetime.now().timestamp()),
-                    "owned_by": "mock-provider",
-                },
-                {
-                    "id": "gpt-4-turbo",
-                    "name": "GPT-4 Turbo",
-                    "capabilities": ["text-generation", "chat"],
-                    "created": int(datetime.now().timestamp()),
-                    "owned_by": "mock-provider",
-                },
-                {
-                    "id": "dall-e-3",
-                    "name": "DALL-E 3",
-                    "capabilities": ["image-generation"],
-                    "created": int(datetime.now().timestamp()),
-                    "owned_by": "mock-provider",
-                },
-                {
-                    "id": "text-embedding-ada-002",
-                    "name": "Text Embedding Ada 002",
-                    "capabilities": ["embeddings"],
-                    "created": int(datetime.now().timestamp()),
-                    "owned_by": "mock-provider",
-                },
-            ],
-        )
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "gpt-3.5-turbo",
+                "name": "GPT-3.5 Turbo",
+                "capabilities": ["text-generation", "chat"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "mock-provider"
+            },
+            {
+                "id": "gpt-4-turbo",
+                "name": "GPT-4 Turbo",
+                "capabilities": ["text-generation", "chat"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "mock-provider"
+            },
+            {
+                "id": "dall-e-3",
+                "name": "DALL-E 3",
+                "capabilities": ["image-generation"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "mock-provider"
+            },
+            {
+                "id": "text-embedding-ada-002",
+                "name": "Text Embedding Ada 002",
+                "capabilities": ["embeddings"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "mock-provider"
+            }
+        ])
 
         # Set up success rates
         self.success_rate = self.config.get("success_rate", 0.95)
         self.latency_range = self.config.get("latency_range", (100, 500))  # ms
-        self.error_messages = self.config.get(
-            "error_messages",
-            {
-                "rate_limit": "Rate limit exceeded. Please try again later.",
-                "invalid_model": "The model does not exist or you don't have access to it.",
-                "invalid_request": "The request is not valid for this model.",
-                "context_length": "The context length exceeds the model's limit.",
-            },
-        )
+        self.error_messages = self.config.get("error_messages", {
+            "rate_limit": "Rate limit exceeded. Please try again later.",
+            "invalid_model": "The model does not exist or you don't have access to it.",
+            "invalid_request": "The request is not valid for this model.",
+            "context_length": "The context length exceeds the model's limit."
+        })
 
         # Track call history for assertions
         self.call_history = []
 
     def record_call(self, method_name: str, **kwargs):
         """Record a method call for testing assertions."""
-        self.call_history.append(
-            {
-                "method": method_name,
-                "timestamp": datetime.now().isoformat(),
-                "args": kwargs,
-            }
-        )
+        self.call_history.append({
+            "method": method_name,
+            "timestamp": datetime.now().isoformat(),
+            "args": kwargs
+        })
 
     def get_call_history(self, method_name: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get the call history, optionally filtered by method name."""
@@ -103,6 +96,51 @@ class MockOpenAIProvider(MockBaseModelProvider):
         """Initialize the mock OpenAI provider."""
         super().__init__(config)
 
+        # Default available models
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "gpt-3.5-turbo",
+                "name": "GPT-3.5 Turbo",
+                "capabilities": ["text-generation", "chat", "function-calling"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            },
+            {
+                "id": "gpt-4",
+                "name": "GPT-4",
+                "capabilities": ["text-generation", "chat", "function-calling"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            },
+            {
+                "id": "gpt-4-turbo",
+                "name": "GPT-4 Turbo",
+                "capabilities": ["text-generation", "chat", "function-calling"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            },
+            {
+                "id": "text-embedding-ada-002",
+                "name": "Text Embedding Ada 002",
+                "capabilities": ["embeddings"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            },
+            {
+                "id": "dall-e-3",
+                "name": "DALL-E 3",
+                "capabilities": ["image-generation"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "openai"
+            }
+        ])
+
+        # Set up custom responses for specific prompts
+        self.config["custom_responses"] = self.config.get("custom_responses", {
+            "analyze market trends": "Market analysis shows positive growth trends.",
+            "market trends": "Market analysis shows positive growth trends."
+        })
+
         # Mock responses for each endpoint
         self.mock_responses = {
             "chat_completion": {
@@ -115,19 +153,16 @@ class MockOpenAIProvider(MockBaseModelProvider):
                         "index": 0,
                         "message": {
                             "role": "assistant",
-                            "content": self.config.get(
-                                "default_completion",
-                                "This is a mock response from the AI model.",
-                            ),
+                            "content": self.config.get("default_completion", "This is a mock response from the AI model.")
                         },
-                        "finish_reason": "stop",
+                        "finish_reason": "stop"
                     }
                 ],
                 "usage": {
                     "prompt_tokens": 10,
                     "completion_tokens": 20,
-                    "total_tokens": 30,
-                },
+                    "total_tokens": 30
+                }
             },
             "text_completion": {
                 "id": "cmpl-mock-id",
@@ -136,19 +171,16 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 "model": "gpt-3.5-turbo",
                 "choices": [
                     {
-                        "text": self.config.get(
-                            "default_completion",
-                            "This is a mock response from the AI model.",
-                        ),
+                        "text": self.config.get("default_completion", "This is a mock response from the AI model."),
                         "index": 0,
-                        "finish_reason": "stop",
+                        "finish_reason": "stop"
                     }
                 ],
                 "usage": {
                     "prompt_tokens": 10,
                     "completion_tokens": 15,
-                    "total_tokens": 25,
-                },
+                    "total_tokens": 25
+                }
             },
             "embeddings": {
                 "object": "list",
@@ -156,16 +188,24 @@ class MockOpenAIProvider(MockBaseModelProvider):
                     {
                         "object": "embedding",
                         "embedding": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-                        "index": 0,
+                        "index": 0
                     }
                 ],
                 "model": "text-embedding-ada-002",
-                "usage": {"prompt_tokens": 8, "total_tokens": 8},
+                "usage": {
+                    "prompt_tokens": 8,
+                    "total_tokens": 8
+                }
             },
             "images": {
                 "created": int(datetime.now().timestamp()),
-                "data": [{"url": "https://mock-url.com/image.png", "b64_json": None}],
-            },
+                "data": [
+                    {
+                        "url": "https://mock-url.com/image.png",
+                        "b64_json": None
+                    }
+                ]
+            }
         }
 
     def list_models(self) -> List[Dict[str, Any]]:
@@ -191,7 +231,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
         temperature: float = 0.7,
         max_tokens: int = 100,
         stream: bool = False,
-        **kwargs,
+        **kwargs
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """Create a text completion."""
         self.record_call(
@@ -201,7 +241,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists
@@ -220,7 +260,6 @@ class MockOpenAIProvider(MockBaseModelProvider):
 
         # Simulate streaming if requested
         if stream:
-
             def generate_stream():
                 text = response["choices"][0]["text"]
                 # Split into words and yield one at a time
@@ -235,9 +274,9 @@ class MockOpenAIProvider(MockBaseModelProvider):
                             {
                                 "text": word + " ",
                                 "index": 0,
-                                "finish_reason": ("stop" if i == len(words) - 1 else None),
+                                "finish_reason": "stop" if i == len(words) - 1 else None
                             }
-                        ],
+                        ]
                     }
 
             return generate_stream()
@@ -251,7 +290,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
         temperature: float = 0.7,
         max_tokens: int = 100,
         stream: bool = False,
-        **kwargs,
+        **kwargs
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """Create a chat completion."""
         self.record_call(
@@ -261,7 +300,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists
@@ -287,7 +326,6 @@ class MockOpenAIProvider(MockBaseModelProvider):
 
         # Simulate streaming if requested
         if stream:
-
             def generate_stream():
                 text = response["choices"][0]["message"]["content"]
                 # Split into words and yield one at a time
@@ -301,10 +339,12 @@ class MockOpenAIProvider(MockBaseModelProvider):
                         "choices": [
                             {
                                 "index": 0,
-                                "delta": {"content": word + " "},
-                                "finish_reason": ("stop" if i == len(words) - 1 else None),
+                                "delta": {
+                                    "content": word + " "
+                                },
+                                "finish_reason": "stop" if i == len(words) - 1 else None
                             }
-                        ],
+                        ]
                     }
 
             return generate_stream()
@@ -312,10 +352,18 @@ class MockOpenAIProvider(MockBaseModelProvider):
         return response
 
     def create_embedding(
-        self, model: str, input: Union[str, List[str]], **kwargs
+        self,
+        model: str,
+        input: Union[str, List[str]],
+        **kwargs
     ) -> Dict[str, Any]:
         """Create embeddings for the given input."""
-        self.record_call("create_embedding", model=model, input=input, **kwargs)
+        self.record_call(
+            "create_embedding",
+            model=model,
+            input=input,
+            **kwargs
+        )
 
         # Check if model exists and has embedding capability
         model_info = self.get_model_info(model)
@@ -329,14 +377,12 @@ class MockOpenAIProvider(MockBaseModelProvider):
         if isinstance(input, list):
             response["data"] = []
             for i, text in enumerate(input):
-                response["data"].append(
-                    {
-                        "object": "embedding",
-                        # Generate deterministic but different vectors for different inputs
-                        "embedding": [0.1 * (i + 1) + 0.01 * j for j in range(10)],
-                        "index": i,
-                    }
-                )
+                response["data"].append({
+                    "object": "embedding",
+                    # Generate deterministic but different vectors for different inputs
+                    "embedding": [0.1 * (i + 1) + 0.01 * j for j in range(10)],
+                    "index": i
+                })
             response["usage"]["prompt_tokens"] = sum(len(text.split()) for text in input)
             response["usage"]["total_tokens"] = response["usage"]["prompt_tokens"]
 
@@ -348,10 +394,17 @@ class MockOpenAIProvider(MockBaseModelProvider):
         model: Optional[str] = None,
         size: str = "1024x1024",
         n: int = 1,
-        **kwargs,
+        **kwargs
     ) -> Dict[str, Any]:
         """Create images from a prompt."""
-        self.record_call("create_image", prompt=prompt, model=model, size=size, n=n, **kwargs)
+        self.record_call(
+            "create_image",
+            prompt=prompt,
+            model=model,
+            size=size,
+            n=n,
+            **kwargs
+        )
 
         # Use DALL-E 3 as default model if none specified
         model = model or "dall-e-3"
@@ -367,9 +420,10 @@ class MockOpenAIProvider(MockBaseModelProvider):
         if n > 1:
             response["data"] = []
             for i in range(n):
-                response["data"].append(
-                    {"url": f"https://mock-url.com/image_{i}.png", "b64_json": None}
-                )
+                response["data"].append({
+                    "url": f"https://mock-url.com/image_{i}.png",
+                    "b64_json": None
+                })
 
         return response
 
@@ -382,49 +436,43 @@ class MockOllamaProvider(MockBaseModelProvider):
         super().__init__(config)
 
         # Override available models for Ollama
-        self.available_models = self.config.get(
-            "available_models",
-            [
-                {
-                    "id": "llama2",
-                    "name": "Llama 2",
-                    "capabilities": ["text-generation", "chat"],
-                    "modified_at": datetime.now().isoformat(),
-                    "size": 3791730293,
-                },
-                {
-                    "id": "llama2:13b",
-                    "name": "Llama 2 13B",
-                    "capabilities": ["text-generation", "chat"],
-                    "modified_at": datetime.now().isoformat(),
-                    "size": 7323315540,
-                },
-                {
-                    "id": "mistral",
-                    "name": "Mistral 7B",
-                    "capabilities": ["text-generation", "chat"],
-                    "modified_at": datetime.now().isoformat(),
-                    "size": 4032639651,
-                },
-            ],
-        )
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "llama2",
+                "name": "Llama 2",
+                "capabilities": ["text-generation", "chat"],
+                "modified_at": datetime.now().isoformat(),
+                "size": 3791730293
+            },
+            {
+                "id": "llama2:13b",
+                "name": "Llama 2 13B",
+                "capabilities": ["text-generation", "chat"],
+                "modified_at": datetime.now().isoformat(),
+                "size": 7323315540
+            },
+            {
+                "id": "mistral",
+                "name": "Mistral 7B",
+                "capabilities": ["text-generation", "chat"],
+                "modified_at": datetime.now().isoformat(),
+                "size": 4032639651
+            }
+        ])
 
         # Mock responses
         self.mock_responses = {
             "completion": {
                 "model": "llama2",
                 "created_at": datetime.now().isoformat(),
-                "response": self.config.get(
-                    "default_completion",
-                    "This is a mock response from the Ollama model.",
-                ),
+                "response": self.config.get("default_completion", "This is a mock response from the Ollama model."),
                 "done": True,
                 "context": [1, 2, 3, 4, 5],
                 "total_duration": 635163166,
                 "load_duration": 1795833,
                 "prompt_eval_duration": 129356000,
                 "eval_count": 114,
-                "eval_duration": 504010000,
+                "eval_duration": 504010000
             }
         }
 
@@ -451,7 +499,7 @@ class MockOllamaProvider(MockBaseModelProvider):
         temperature: float = 0.7,
         max_tokens: int = 100,
         stream: bool = False,
-        **kwargs,
+        **kwargs
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """Generate a completion from the model."""
         self.record_call(
@@ -461,7 +509,7 @@ class MockOllamaProvider(MockBaseModelProvider):
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists
@@ -480,7 +528,6 @@ class MockOllamaProvider(MockBaseModelProvider):
 
         # Simulate streaming if requested
         if stream:
-
             def generate_stream():
                 text = response["response"]
                 # Split into words and yield one at a time
@@ -503,7 +550,7 @@ class MockOllamaProvider(MockBaseModelProvider):
         temperature: float = 0.7,
         max_tokens: int = 100,
         stream: bool = False,
-        **kwargs,
+        **kwargs
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """Generate a chat completion from the model."""
         self.record_call(
@@ -513,7 +560,7 @@ class MockOllamaProvider(MockBaseModelProvider):
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists
@@ -539,7 +586,6 @@ class MockOllamaProvider(MockBaseModelProvider):
 
         # Simulate streaming if requested
         if stream:
-
             def generate_stream():
                 text = response["response"]
                 # Split into words and yield one at a time
@@ -564,18 +610,15 @@ class MockLMStudioProvider(MockBaseModelProvider):
         super().__init__(config)
 
         # Override available models for LM Studio
-        self.available_models = self.config.get(
-            "available_models",
-            [
-                {
-                    "id": "local-model",
-                    "name": "Local Model",
-                    "capabilities": ["text-generation", "chat"],
-                    "created": int(datetime.now().timestamp()),
-                    "owned_by": "user",
-                }
-            ],
-        )
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "local-model",
+                "name": "Local Model",
+                "capabilities": ["text-generation", "chat"],
+                "created": int(datetime.now().timestamp()),
+                "owned_by": "user"
+            }
+        ])
 
         # Mock responses - LM Studio uses OpenAI compatible API
         self.mock_responses = {
@@ -586,14 +629,11 @@ class MockLMStudioProvider(MockBaseModelProvider):
                 "model": "local-model",
                 "choices": [
                     {
-                        "text": self.config.get(
-                            "default_completion",
-                            "This is a mock response from LM Studio.",
-                        ),
+                        "text": self.config.get("default_completion", "This is a mock response from LM Studio."),
                         "index": 0,
-                        "finish_reason": "stop",
+                        "finish_reason": "stop"
                     }
-                ],
+                ]
             },
             "chat_completion": {
                 "id": "chatcmpl-lmstudio-mock",
@@ -605,21 +645,21 @@ class MockLMStudioProvider(MockBaseModelProvider):
                         "index": 0,
                         "message": {
                             "role": "assistant",
-                            "content": self.config.get(
-                                "default_completion",
-                                "This is a mock response from LM Studio.",
-                            ),
+                            "content": self.config.get("default_completion", "This is a mock response from LM Studio.")
                         },
-                        "finish_reason": "stop",
+                        "finish_reason": "stop"
                     }
-                ],
-            },
+                ]
+            }
         }
 
     def list_models(self) -> Dict[str, Any]:
         """List available models."""
         self.record_call("list_models")
-        return {"data": self.available_models, "object": "list"}
+        return {
+            "data": self.available_models,
+            "object": "list"
+        }
 
     def create_completion(
         self,
@@ -628,7 +668,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
         temperature: float = 0.7,
         max_tokens: int = 100,
         stream: bool = False,
-        **kwargs,
+        **kwargs
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """Create a text completion."""
         self.record_call(
@@ -638,7 +678,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
-            **kwargs,
+            **kwargs
         )
 
         response = self.mock_responses["completion"].copy()
@@ -653,7 +693,6 @@ class MockLMStudioProvider(MockBaseModelProvider):
 
         # Simulate streaming if requested
         if stream:
-
             def generate_stream():
                 text = response["choices"][0]["text"]
                 # Split into words and yield one at a time
@@ -668,9 +707,9 @@ class MockLMStudioProvider(MockBaseModelProvider):
                             {
                                 "text": word + " ",
                                 "index": 0,
-                                "finish_reason": ("stop" if i == len(words) - 1 else None),
+                                "finish_reason": "stop" if i == len(words) - 1 else None
                             }
-                        ],
+                        ]
                     }
 
             return generate_stream()
@@ -684,7 +723,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
         temperature: float = 0.7,
         max_tokens: int = 100,
         stream: bool = False,
-        **kwargs,
+        **kwargs
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """Create a chat completion."""
         self.record_call(
@@ -694,7 +733,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
-            **kwargs,
+            **kwargs
         )
 
         response = self.mock_responses["chat_completion"].copy()
@@ -716,7 +755,6 @@ class MockLMStudioProvider(MockBaseModelProvider):
 
         # Simulate streaming if requested
         if stream:
-
             def generate_stream():
                 text = response["choices"][0]["message"]["content"]
                 # Split into words and yield one at a time
@@ -730,10 +768,12 @@ class MockLMStudioProvider(MockBaseModelProvider):
                         "choices": [
                             {
                                 "index": 0,
-                                "delta": {"content": word + " "},
-                                "finish_reason": ("stop" if i == len(words) - 1 else None),
+                                "delta": {
+                                    "content": word + " "
+                                },
+                                "finish_reason": "stop" if i == len(words) - 1 else None
                             }
-                        ],
+                        ]
                     }
 
             return generate_stream()
@@ -749,68 +789,60 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         super().__init__(config)
 
         # Override available models for Hugging Face
-        self.available_models = self.config.get(
-            "available_models",
-            [
-                {
-                    "id": "gpt2",
-                    "name": "GPT-2",
-                    "capabilities": ["text-generation"],
-                    "created": int(datetime.now().timestamp()),
-                    "pipeline_tag": "text-generation",
-                },
-                {
-                    "id": "t5-small",
-                    "name": "T5 Small",
-                    "capabilities": [
-                        "text2text-generation",
-                        "summarization",
-                        "translation",
-                    ],
-                    "created": int(datetime.now().timestamp()),
-                    "pipeline_tag": "text2text-generation",
-                },
-                {
-                    "id": "distilbert-base-uncased",
-                    "name": "DistilBERT Base Uncased",
-                    "capabilities": ["text-classification", "token-classification"],
-                    "created": int(datetime.now().timestamp()),
-                    "pipeline_tag": "text-classification",
-                },
-                {
-                    "id": "all-MiniLM-L6-v2",
-                    "name": "MiniLM L6 v2",
-                    "capabilities": ["embedding", "sentence-similarity"],
-                    "created": int(datetime.now().timestamp()),
-                    "pipeline_tag": "feature-extraction",
-                },
-            ],
-        )
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "gpt2",
+                "name": "GPT-2",
+                "capabilities": ["text-generation"],
+                "created": int(datetime.now().timestamp()),
+                "pipeline_tag": "text-generation"
+            },
+            {
+                "id": "t5-small",
+                "name": "T5 Small",
+                "capabilities": ["text2text-generation", "summarization", "translation"],
+                "created": int(datetime.now().timestamp()),
+                "pipeline_tag": "text2text-generation"
+            },
+            {
+                "id": "distilbert-base-uncased",
+                "name": "DistilBERT Base Uncased",
+                "capabilities": ["text-classification", "token-classification"],
+                "created": int(datetime.now().timestamp()),
+                "pipeline_tag": "text-classification"
+            },
+            {
+                "id": "all-MiniLM-L6-v2",
+                "name": "MiniLM L6 v2",
+                "capabilities": ["embedding", "sentence-similarity"],
+                "created": int(datetime.now().timestamp()),
+                "pipeline_tag": "feature-extraction"
+            }
+        ])
 
         # Mock responses
         self.mock_responses = {
             "text_generation": {
-                "generated_text": self.config.get(
-                    "default_completion",
-                    "This is a mock response from the Hugging Face model.",
-                )
+                "generated_text": self.config.get("default_completion", "This is a mock response from the Hugging Face model.")
             },
             "text2text_generation": {
-                "generated_text": self.config.get(
-                    "default_completion", "This is a mock text2text response."
-                )
+                "generated_text": self.config.get("default_completion", "This is a mock text2text response.")
             },
             "summarization": {
                 "summary_text": self.config.get("default_summary", "This is a mock summary.")
             },
             "translation": {
-                "translation_text": self.config.get(
-                    "default_translation", "This is a mock translation."
-                )
+                "translation_text": self.config.get("default_translation", "This is a mock translation.")
             },
             "text_classification": [
-                {"label": "POSITIVE", "score": 0.95},
-                {"label": "NEGATIVE", "score": 0.05},
+                {
+                    "label": "POSITIVE",
+                    "score": 0.95
+                },
+                {
+                    "label": "NEGATIVE",
+                    "score": 0.05
+                }
             ],
             "token_classification": [
                 {
@@ -818,11 +850,17 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                     "score": 0.98,
                     "word": "John",
                     "start": 0,
-                    "end": 4,
+                    "end": 4
                 },
-                {"entity": "I-PER", "score": 0.92, "word": "Doe", "start": 5, "end": 8},
+                {
+                    "entity": "I-PER",
+                    "score": 0.92,
+                    "word": "Doe",
+                    "start": 5,
+                    "end": 8
+                }
             ],
-            "embeddings": np.random.rand(1, 384).tolist(),  # Common embedding size for MiniLM
+            "embeddings": np.random.rand(1, 384).tolist()  # Common embedding size for MiniLM
         }
 
     def list_models(self) -> List[Dict[str, Any]]:
@@ -847,7 +885,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         text: str,
         max_length: int = 100,
         temperature: float = 0.7,
-        **kwargs,
+        **kwargs
     ) -> Dict[str, Any]:
         """Generate text with a text generation model."""
         self.record_call(
@@ -856,7 +894,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             text=text,
             max_length=max_length,
             temperature=temperature,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists and has text generation capability
@@ -876,7 +914,11 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         return [response]
 
     def text2text_generation(
-        self, model_id: str, text: str, max_length: int = 100, **kwargs
+        self,
+        model_id: str,
+        text: str,
+        max_length: int = 100,
+        **kwargs
     ) -> Dict[str, Any]:
         """Generate text from text with a text2text generation model."""
         self.record_call(
@@ -884,7 +926,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             model_id=model_id,
             text=text,
             max_length=max_length,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists and has text2text generation capability
@@ -909,7 +951,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         text: str,
         max_length: int = 100,
         min_length: int = 10,
-        **kwargs,
+        **kwargs
     ) -> Dict[str, Any]:
         """Generate a summary with a summarization model."""
         self.record_call(
@@ -918,7 +960,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             text=text,
             max_length=max_length,
             min_length=min_length,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists and has summarization capability
@@ -943,7 +985,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         text: str,
         src_lang: str = "en",
         tgt_lang: str = "fr",
-        **kwargs,
+        **kwargs
     ) -> Dict[str, Any]:
         """Translate text with a translation model."""
         self.record_call(
@@ -952,7 +994,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             text=text,
             src_lang=src_lang,
             tgt_lang=tgt_lang,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists and has translation capability
@@ -971,9 +1013,19 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         return [response]
 
-    def text_classification(self, model_id: str, text: str, **kwargs) -> List[Dict[str, Any]]:
+    def text_classification(
+        self,
+        model_id: str,
+        text: str,
+        **kwargs
+    ) -> List[Dict[str, Any]]:
         """Classify text with a text classification model."""
-        self.record_call("text_classification", model_id=model_id, text=text, **kwargs)
+        self.record_call(
+            "text_classification",
+            model_id=model_id,
+            text=text,
+            **kwargs
+        )
 
         # Check if model exists and has text classification capability
         model_info = self.get_model_info(model_id)
@@ -984,9 +1036,19 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         return response
 
-    def token_classification(self, model_id: str, text: str, **kwargs) -> List[Dict[str, Any]]:
+    def token_classification(
+        self,
+        model_id: str,
+        text: str,
+        **kwargs
+    ) -> List[Dict[str, Any]]:
         """Classify tokens with a token classification model."""
-        self.record_call("token_classification", model_id=model_id, text=text, **kwargs)
+        self.record_call(
+            "token_classification",
+            model_id=model_id,
+            text=text,
+            **kwargs
+        )
 
         # Check if model exists and has token classification capability
         model_info = self.get_model_info(model_id)
@@ -997,9 +1059,19 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         return response
 
-    def embedding(self, model_id: str, text: Union[str, List[str]], **kwargs) -> np.ndarray:
+    def embedding(
+        self,
+        model_id: str,
+        text: Union[str, List[str]],
+        **kwargs
+    ) -> np.ndarray:
         """Generate embeddings with an embedding model."""
-        self.record_call("embedding", model_id=model_id, text=text, **kwargs)
+        self.record_call(
+            "embedding",
+            model_id=model_id,
+            text=text,
+            **kwargs
+        )
 
         # Check if model exists and has embedding capability
         model_info = self.get_model_info(model_id)
@@ -1032,70 +1104,70 @@ class MockLocalModelProvider(MockBaseModelProvider):
         super().__init__(config)
 
         # Override available models
-        self.available_models = self.config.get(
-            "available_models",
-            [
-                {
-                    "id": "llama-2-7b-chat.gguf",
-                    "name": "Llama 2 7B Chat",
-                    "capabilities": ["text-generation", "chat"],
-                    "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/llama-2-7b-chat.gguf",
-                    "size_mb": 3900,
-                    "format": "gguf",
-                    "quantization": "q4_k_m",
-                },
-                {
-                    "id": "llama-3-8b-instruct.gguf",
-                    "name": "Llama 3 8B Instruct",
-                    "capabilities": ["text-generation", "chat"],
-                    "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/llama-3-8b-instruct.gguf",
-                    "size_mb": 4200,
-                    "format": "gguf",
-                    "quantization": "q5_k_m",
-                },
-                {
-                    "id": "mistral-7b-instruct-v0.2.Q4_K_M.gguf",
-                    "name": "Mistral 7B Instruct",
-                    "capabilities": ["text-generation", "chat"],
-                    "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
-                    "size_mb": 3800,
-                    "format": "gguf",
-                    "quantization": "q4_k_m",
-                },
-                {
-                    "id": "phi-2.Q4_K_M.gguf",
-                    "name": "Phi-2",
-                    "capabilities": ["text-generation"],
-                    "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/phi-2.Q4_K_M.gguf",
-                    "size_mb": 1700,
-                    "format": "gguf",
-                    "quantization": "q4_k_m",
-                },
-            ],
-        )
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "llama-2-7b-chat.gguf",
+                "name": "Llama 2 7B Chat",
+                "capabilities": ["text-generation", "chat"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/llama-2-7b-chat.gguf",
+                "size_mb": 3900,
+                "format": "gguf",
+                "quantization": "q4_k_m"
+            },
+            {
+                "id": "llama-3-8b-instruct.gguf",
+                "name": "Llama 3 8B Instruct",
+                "capabilities": ["text-generation", "chat"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/llama-3-8b-instruct.gguf",
+                "size_mb": 4200,
+                "format": "gguf",
+                "quantization": "q5_k_m"
+            },
+            {
+                "id": "mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+                "name": "Mistral 7B Instruct",
+                "capabilities": ["text-generation", "chat"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+                "size_mb": 3800,
+                "format": "gguf",
+                "quantization": "q4_k_m"
+            },
+            {
+                "id": "phi-2.Q4_K_M.gguf",
+                "name": "Phi-2",
+                "capabilities": ["text-generation"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/phi-2.Q4_K_M.gguf",
+                "size_mb": 1700,
+                "format": "gguf",
+                "quantization": "q4_k_m"
+            }
+        ])
 
         # Mock responses
         self.mock_responses = {
             "completion": {
-                "text": self.config.get(
-                    "default_completion",
-                    "This is a mock response from the local GGUF model.",
-                ),
+                "text": self.config.get("default_completion", "This is a mock response from the local GGUF model."),
                 "usage": {
                     "prompt_tokens": 10,
                     "completion_tokens": 20,
-                    "total_tokens": 30,
+                    "total_tokens": 30
                 },
-                "timings": {"prompt_ms": 100, "completion_ms": 500},
+                "timings": {
+                    "prompt_ms": 100,
+                    "completion_ms": 500
+                }
             },
             "embeddings": {
                 "embedding": list(np.random.rand(4096)),  # Common size for GGUF embeddings
-                "usage": {"prompt_tokens": 8, "total_tokens": 8},
-            },
+                "usage": {
+                    "prompt_tokens": 8,
+                    "total_tokens": 8
+                }
+            }
         }
 
     def list_models(self) -> List[Dict[str, Any]]:
@@ -1121,7 +1193,7 @@ class MockLocalModelProvider(MockBaseModelProvider):
         temperature: float = 0.7,
         max_tokens: int = 100,
         stream: bool = False,
-        **kwargs,
+        **kwargs
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """Generate a completion from a GGUF model."""
         self.record_call(
@@ -1131,7 +1203,7 @@ class MockLocalModelProvider(MockBaseModelProvider):
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists
@@ -1149,7 +1221,6 @@ class MockLocalModelProvider(MockBaseModelProvider):
 
         # Simulate streaming if requested
         if stream:
-
             def generate_stream():
                 text = response["text"]
                 # Split into words and yield one at a time
@@ -1171,7 +1242,7 @@ class MockLocalModelProvider(MockBaseModelProvider):
         temperature: float = 0.7,
         max_tokens: int = 100,
         stream: bool = False,
-        **kwargs,
+        **kwargs
     ) -> Union[Dict[str, Any], Generator[Dict[str, Any], None, None]]:
         """Generate a chat completion from a GGUF model."""
         self.record_call(
@@ -1181,7 +1252,7 @@ class MockLocalModelProvider(MockBaseModelProvider):
             temperature=temperature,
             max_tokens=max_tokens,
             stream=stream,
-            **kwargs,
+            **kwargs
         )
 
         # Check if model exists and has chat capability
@@ -1207,7 +1278,6 @@ class MockLocalModelProvider(MockBaseModelProvider):
 
         # Simulate streaming if requested
         if stream:
-
             def generate_stream():
                 text = response["text"]
                 # Split into words and yield one at a time
@@ -1231,43 +1301,51 @@ class MockONNXProvider(MockBaseModelProvider):
         super().__init__(config)
 
         # Override available models
-        self.available_models = self.config.get(
-            "available_models",
-            [
-                {
-                    "id": "bert-base-onnx",
-                    "name": "BERT Base ONNX",
-                    "capabilities": ["text-classification", "feature-extraction"],
-                    "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/bert-base.onnx",
-                },
-                {
-                    "id": "resnet50-onnx",
-                    "name": "ResNet 50 ONNX",
-                    "capabilities": ["image-classification"],
-                    "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/resnet50.onnx",
-                },
-                {
-                    "id": "gpt2-onnx",
-                    "name": "GPT-2 ONNX",
-                    "capabilities": ["text-generation"],
-                    "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/gpt2.onnx",
-                },
-            ],
-        )
+        self.available_models = self.config.get("available_models", [
+            {
+                "id": "bert-base-onnx",
+                "name": "BERT Base ONNX",
+                "capabilities": ["text-classification", "feature-extraction"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/bert-base.onnx"
+            },
+            {
+                "id": "resnet50-onnx",
+                "name": "ResNet 50 ONNX",
+                "capabilities": ["image-classification"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/resnet50.onnx"
+            },
+            {
+                "id": "gpt2-onnx",
+                "name": "GPT-2 ONNX",
+                "capabilities": ["text-generation"],
+                "created": int(datetime.now().timestamp()),
+                "path": "/path/to/gpt2.onnx"
+            }
+        ])
 
         # Mock responses
         self.mock_responses = {
-            "text_classification": {"label_scores": [["positive", 0.95], ["negative", 0.05]]},
-            "feature_extraction": {"features": list(np.random.rand(768))},  # BERT hidden size
-            "image_classification": {"label_scores": [["cat", 0.8], ["dog", 0.15], ["bird", 0.05]]},
-            "text_generation": {
-                "generated_text": self.config.get(
-                    "default_completion", "This is a mock response from the ONNX model."
-                )
+            "text_classification": {
+                "label_scores": [
+                    ["positive", 0.95],
+                    ["negative", 0.05]
+                ]
             },
+            "feature_extraction": {
+                "features": list(np.random.rand(768))  # BERT hidden size
+            },
+            "image_classification": {
+                "label_scores": [
+                    ["cat", 0.8],
+                    ["dog", 0.15],
+                    ["bird", 0.05]
+                ]
+            },
+            "text_generation": {
+                "generated_text": self.config.get("default_completion", "This is a mock response from the ONNX model.")
+            }
         }
 
     def list_models(self) -> List[Dict[str, Any]]:
@@ -1286,9 +1364,19 @@ class MockONNXProvider(MockBaseModelProvider):
 
         return None
 
-    def run_inference(self, model_id: str, inputs: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+    def run_inference(
+        self,
+        model_id: str,
+        inputs: Dict[str, Any],
+        **kwargs
+    ) -> Dict[str, Any]:
         """Run inference with an ONNX model."""
-        self.record_call("run_inference", model_id=model_id, inputs=inputs, **kwargs)
+        self.record_call(
+            "run_inference",
+            model_id=model_id,
+            inputs=inputs,
+            **kwargs
+        )
 
         # Check if model exists
         model_info = self.get_model_info(model_id)
@@ -1317,7 +1405,7 @@ def create_mock_provider(provider_type: str, config: Optional[Dict[str, Any]] = 
     MockLMStudioProvider,
     MockHuggingFaceProvider,
     MockLocalModelProvider,
-    MockONNXProvider,
+    MockONNXProvider
 ]:
     """
     Create a mock provider of the specified type.
@@ -1335,7 +1423,7 @@ def create_mock_provider(provider_type: str, config: Optional[Dict[str, Any]] = 
         "lmstudio": MockLMStudioProvider,
         "huggingface": MockHuggingFaceProvider,
         "local": MockLocalModelProvider,
-        "onnx": MockONNXProvider,
+        "onnx": MockONNXProvider
     }
 
     provider_class = providers.get(provider_type.lower())
