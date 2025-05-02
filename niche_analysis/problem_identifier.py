@@ -3,21 +3,15 @@ Problem Identifier for the pAIssive Income project.
 Identifies user problems and pain points in specific niches.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import uuid
-import hashlib
 from datetime import datetime
 import logging
 
 from .errors import ProblemIdentificationError, ValidationError, handle_exception
-from .schemas import (
-    ProblemSchema,
-    ProblemSeverityAnalysisSchema,
-    SeverityAnalysisSchema,
-)
 
 # Import the centralized caching service
-from common_utils.caching import default_cache, cached
+from common_utils.caching import default_cache
 
 # Set up logging
 logger = logging.getLogger(__name__)

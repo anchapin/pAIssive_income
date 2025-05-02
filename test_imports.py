@@ -6,8 +6,6 @@ Test script to verify that imports work correctly.
 from ai_models.model_manager import ModelManager
 
 # Import API schemas to verify imports work
-import pytest
-from api.schemas.webhook import WebhookRequest, WebhookEventType, WebhookUpdate
 
 # Create an instance to verify the import works
 model_manager = ModelManager()

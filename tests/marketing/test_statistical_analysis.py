@@ -8,8 +8,7 @@ and A/B testing.
 import pytest
 import numpy as np
 from marketing.statistical_analysis import (
-    StatisticalAnalysis, StatisticalAnalysisError,
-    InsufficientDataError, InvalidParameterError
+    StatisticalAnalysis, InsufficientDataError, InvalidParameterError
 )
 
 

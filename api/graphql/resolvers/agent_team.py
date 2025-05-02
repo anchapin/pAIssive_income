@@ -5,7 +5,7 @@ This module provides resolvers for agent team queries and mutations.
 """
 
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 
 # Set up logging
 logging.basicConfig(
@@ -27,11 +27,9 @@ if STRAWBERRY_AVAILABLE:
         AgentType,
         TeamType,
         TaskType,
-        WorkspaceType,
         AgentInput,
         TeamInput,
         TaskInput,
-        WorkspaceInput,
         AgentRoleEnum,
         TaskStatusEnum,
         TaskPriorityEnum,

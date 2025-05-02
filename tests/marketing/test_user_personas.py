@@ -2,9 +2,6 @@
 Tests for the user personas components in the Marketing module.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-from datetime import datetime
 
 from marketing.user_personas import (
     PersonaCreator,

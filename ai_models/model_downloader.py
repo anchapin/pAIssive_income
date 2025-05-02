@@ -7,14 +7,12 @@ including Hugging Face Hub and other repositories.
 
 import os
 import sys
-import json
 import logging
 import hashlib
 import threading
 import time
 import shutil
-from typing import Dict, List, Any, Optional, Union, Callable, Tuple
-from pathlib import Path
+from typing import Dict, List, Any, Optional, Callable
 from urllib.parse import urlparse
 from dataclasses import dataclass
 

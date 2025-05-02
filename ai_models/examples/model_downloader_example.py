@@ -15,7 +15,7 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from ai_models import ModelDownloader, DownloadProgress, ModelManager, ModelInfo
+from ai_models import ModelDownloader, DownloadProgress, ModelManager
 
 # Set up logging
 logging.basicConfig(

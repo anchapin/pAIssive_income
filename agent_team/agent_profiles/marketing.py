@@ -230,8 +230,8 @@ class MarketingAgent:
             "social_media": [
                 f"Tips for {niche['name']} professionals",
                 f"{solution['name']} feature highlights",
-                f"User success stories",
-                f"Industry news and trends",
+                "User success stories",
+                "Industry news and trends",
             ],
             "email_sequences": [
                 "Welcome sequence for new subscribers",

@@ -1,5 +1,5 @@
 """Metrics collection for webhook service."""
-from prometheus_client import Counter, Histogram, Summary, Gauge
+from prometheus_client import Counter, Histogram, Gauge
 
 # Delivery metrics
 WEBHOOK_DELIVERIES_TOTAL = Counter(

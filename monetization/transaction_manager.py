@@ -5,10 +5,9 @@ This module provides a class for managing payment transactions, including
 storage, retrieval, and processing.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 import os
-import copy
 
 from common_utils import (
     file_exists,
@@ -18,7 +17,6 @@ from common_utils import (
     is_date_in_range,
 )
 from .transaction import Transaction, TransactionStatus, TransactionType
-from .payment_method import PaymentMethod
 from .payment_method_manager import PaymentMethodManager
 from .payment_processor import PaymentProcessor
 
@@ -676,14 +674,14 @@ if __name__ == "__main__":
         # Get transaction history
         history = manager.get_transaction_history(transaction.id)
 
-        print(f"\nTransaction history:")
+        print("\nTransaction history:")
         for entry in history:
             print(f"- {entry['timestamp']}: {entry['status']} ({entry['reason']})")
 
     # Get transaction summary
     summary = manager.get_transaction_summary()
 
-    print(f"\nTransaction Summary:")
+    print("\nTransaction Summary:")
     print(f"Total count: {summary['total_count']}")
     print(f"Successful: {summary['successful_count']}")
     print(f"Failed: {summary['failed_count']}")

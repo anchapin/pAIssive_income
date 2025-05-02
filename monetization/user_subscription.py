@@ -5,11 +5,10 @@ This module provides classes for managing user subscriptions, including
 subscription creation, renewal, cancellation, and status tracking.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import uuid
 import json
-import copy
 
 from .subscription import SubscriptionPlan, SubscriptionTier
 

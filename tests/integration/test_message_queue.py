@@ -3,10 +3,9 @@ Integration tests for message queue functionality.
 """
 
 import pytest
-import json
 import time
-from unittest.mock import MagicMock, patch
-from datetime import datetime, timedelta
+from unittest.mock import patch
+from datetime import datetime
 
 from services.messaging import (
     MessageQueueClient,
@@ -17,7 +16,6 @@ from services.messaging import (
 )
 from services.errors import (
     MessagePublishError,
-    MessageConsumeError,
     QueueConfigError
 )
 

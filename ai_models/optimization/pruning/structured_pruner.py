@@ -8,7 +8,7 @@ model size and improve inference speed.
 import os
 import logging
 import json
-from typing import Dict, Any, Optional, List, Union, Type, Tuple
+from typing import Dict, Any, Optional, List, Tuple
 
 from .base import Pruner, PruningConfig, PruningMethod
 

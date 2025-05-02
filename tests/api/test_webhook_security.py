@@ -7,10 +7,7 @@ This module tests the security enhancements for the webhook system:
 3. Rate limiting
 """
 
-import pytest
 import time
-import json
-from unittest.mock import patch, MagicMock
 
 from api.services.webhook_security import (
     WebhookIPAllowlist,

@@ -2,9 +2,6 @@
 Tests for the OpportunityScorer class.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-from datetime import datetime
 
 from niche_analysis.opportunity_scorer import OpportunityScorer
 

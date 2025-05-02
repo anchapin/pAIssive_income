@@ -9,13 +9,11 @@ This script demonstrates how to:
 - Compare multiple campaigns
 """
 
-import os
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
-import json
+from typing import List
 import random
 
-from marketing.campaign_tracking import CampaignTracker, MetricGroup
+from marketing.campaign_tracking import CampaignTracker
 
 # Create a campaign tracker with storage in the current directory
 tracker = CampaignTracker(storage_path="./campaign_data")

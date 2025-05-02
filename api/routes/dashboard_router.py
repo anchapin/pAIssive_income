@@ -5,7 +5,7 @@ This module provides API endpoints for dashboard operations.
 """
 
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 from datetime import datetime, timedelta
 
 # Set up logging

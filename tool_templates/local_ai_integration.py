@@ -19,10 +19,8 @@ import time
 import logging
 import hashlib
 import threading
-from typing import Dict, List, Any, Optional, Union, Callable
+from typing import Dict, List, Any, Optional, Union
 from abc import ABC, abstractmethod
-from functools import lru_cache
-from datetime import datetime
 
 # Set up logging
 logging.basicConfig(

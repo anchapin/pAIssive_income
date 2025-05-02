@@ -10,7 +10,7 @@ import sys
 import time
 import logging
 import argparse
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -20,11 +20,6 @@ sys.path.append(
 from ai_models.caching import (
     CacheManager,
     CacheConfig,
-    CacheKey,
-    generate_cache_key,
-    MemoryCache,
-    DiskCache,
-    SQLiteCache,
 )
 
 # Try to import Redis cache if available

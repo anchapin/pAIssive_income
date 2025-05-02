@@ -5,13 +5,12 @@ This module provides decorators for easy cache integration into functions and me
 """
 
 import functools
-import inspect
 import logging
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Optional
 
 from .cache_service import CacheService, get_default_cache_service
-from .cache_versioning import generate_versioned_key, version_manager
+from .cache_versioning import generate_versioned_key
 
 # Set up logging
 logger = logging.getLogger(__name__)

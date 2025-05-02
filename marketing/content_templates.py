@@ -3,7 +3,7 @@ Content Templates module for the pAIssive Income project.
 Provides templates for creating marketing content.
 """
 
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 import uuid
 from datetime import datetime
 import logging
@@ -1084,7 +1084,7 @@ class SocialMediaTemplate(ContentTemplate):
 
         # Add call to action if requested
         if include_call_to_action and not self.call_to_action:
-            post["content"] += f"\n\nClick the link in bio to learn more!"
+            post["content"] += "\n\nClick the link in bio to learn more!"
 
         # Update hashtags if requested
         post["include_hashtags"] = (
@@ -1505,7 +1505,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 "section_type": "greeting",
                 "title": "Greeting",
                 "description": "Personalized greeting for the recipient",
-                "content": f"Hi {{first_name}},",
+                "content": "Hi {first_name},",
             }
         )
 
@@ -2253,7 +2253,7 @@ class LandingPageTemplate(ContentTemplate):
                     "headline": f"Are you struggling with {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'this problem'}?",
                     "description": f"Many {self.target_persona['name']}s face challenges with "
                     f"{', '.join(self.target_persona['pain_points'][:-1]) + ' and ' + self.target_persona['pain_points'][-1] if len(self.target_persona['pain_points']) > 1 else self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'various issues'}.",
-                    "image": f"Image illustrating the problem",
+                    "image": "Image illustrating the problem",
                 },
             }
         )
@@ -2269,7 +2269,7 @@ class LandingPageTemplate(ContentTemplate):
                     "description": f"Our solution helps {self.target_persona['name']}s "
                     f"{self.target_persona['goals'][0] if self.target_persona['goals'] else 'achieve their goals'} "
                     f"without the hassle.",
-                    "image": f"Image or screenshot of the product/service",
+                    "image": "Image or screenshot of the product/service",
                 },
             }
         )
@@ -2880,7 +2880,7 @@ class CaseStudyTemplate(ContentTemplate):
             )
 
         # Add conclusion section with call to action
-        conclusion_content = f"## Conclusion\n\n"
+        conclusion_content = "## Conclusion\n\n"
         conclusion_content += f"This case study demonstrates how {self.title} can help {self.target_persona['name']}s "
         conclusion_content += f"overcome {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'challenges'} "
         conclusion_content += f"and achieve {self.target_persona['goals'][0] if self.target_persona['goals'] else 'their goals'}. "

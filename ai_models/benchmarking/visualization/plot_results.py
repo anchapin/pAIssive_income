@@ -5,7 +5,7 @@ This module provides functions for plotting benchmark results.
 """
 
 import os
-from typing import Dict, Any, Optional, List, Union, Tuple
+from typing import Optional, List
 
 from ..benchmark_result import BenchmarkResult
 from ..benchmark_config import BenchmarkType

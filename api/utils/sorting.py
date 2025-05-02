@@ -4,7 +4,7 @@ Sorting utilities for API endpoints.
 This module provides utilities for sorting data in API endpoints.
 """
 
-from typing import List, Dict, Any, Callable, Optional, Union
+from typing import List, Dict, Any, Callable, Optional
 from enum import Enum
 
 

@@ -6,7 +6,7 @@ This module provides common date handling functions used across the project.
 
 import calendar
 from datetime import datetime, date, timedelta
-from typing import Union, Optional, Tuple
+from typing import Union, Optional
 
 # Type alias for date-like objects
 DateLike = Union[datetime, date]

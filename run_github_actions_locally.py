@@ -2,7 +2,6 @@
 Script to run GitHub Actions locally using Act.
 """
 
-import os
 import sys
 import subprocess
 import argparse

@@ -2,9 +2,6 @@
 Tests for the content templates components in the Marketing module.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-from datetime import datetime
 
 from marketing.content_templates import (
     ContentTemplate,

@@ -4,7 +4,7 @@ Common schemas for the API server.
 This module provides common schema models used throughout the API.
 """
 
-from typing import Dict, List, Optional, Any, Generic, TypeVar, Union
+from typing import Dict, List, Optional, Any, Generic, TypeVar
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 

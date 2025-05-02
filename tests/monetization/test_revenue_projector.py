@@ -5,7 +5,6 @@ Tests for the RevenueProjector class.
 import os
 import json
 import pytest
-from unittest.mock import patch, MagicMock
 import tempfile
 import shutil
 

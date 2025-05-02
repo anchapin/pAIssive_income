@@ -9,7 +9,7 @@ import time
 import logging
 import json
 import gc
-from typing import Dict, Any, Optional, List, Union, Tuple, Callable
+from typing import List, Tuple
 
 from .benchmark_config import BenchmarkConfig, BenchmarkType
 from .benchmark_result import BenchmarkResult

@@ -4,7 +4,7 @@ Dashboard service for the pAIssive Income API.
 This module provides a service for interacting with the dashboard endpoints.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 
 from .base import BaseService
 

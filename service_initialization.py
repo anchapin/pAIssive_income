@@ -5,7 +5,6 @@ This module provides functions for initializing and configuring services
 used by the project, including dependency injection setup.
 """
 
-import os
 import logging
 from typing import Dict, Any, Optional
 

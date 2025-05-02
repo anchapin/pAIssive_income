@@ -10,13 +10,6 @@ from ui.web_ui import WebUI
 from ui.cli_ui import CommandLineInterface
 
 # Import test fixtures
-from tests.integration.ui_test_fixtures import (
-    mock_agent_team,
-    mock_model_manager,
-    mock_subscription_manager,
-    mock_agent_team_service,
-    register_mock_services,
-)
 
 
 @pytest.fixture

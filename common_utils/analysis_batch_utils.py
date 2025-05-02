@@ -12,22 +12,14 @@ from typing import (
     Dict,
     Any,
     Tuple,
-    Optional,
-    Union,
     Callable,
     TypeVar,
     Generic,
-    Iterable,
 )
-from dataclasses import dataclass, field
-import concurrent.futures
-from datetime import datetime
-import uuid
+from dataclasses import dataclass
 import numpy as np
-from functools import partial
 
 from .batch_utils import (
-    BatchProcessingStats,
     BatchResult,
     BatchProcessor,
     process_batch,

@@ -6,11 +6,9 @@ This module provides fixtures that can be used across tests.
 
 import os
 import sys
-import json
 import pytest
 from unittest.mock import MagicMock
-from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+from datetime import datetime
 
 # Add project root to Python path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

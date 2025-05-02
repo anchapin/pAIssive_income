@@ -7,7 +7,7 @@ This module provides the base class for all commands.
 import abc
 import argparse
 import logging
-from typing import Dict, Any, Optional, List, Type
+from typing import Any, List
 
 # Set up logging
 logging.basicConfig(

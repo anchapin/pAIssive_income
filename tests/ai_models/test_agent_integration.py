@@ -4,10 +4,10 @@ Tests for the AgentModelProvider class.
 
 import pytest
 from unittest.mock import MagicMock, patch
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 
 from ai_models.agent_integration import AgentModelProvider
-from ai_models.model_manager import ModelManager, ModelInfo
+from ai_models.model_manager import ModelManager
 from interfaces.model_interfaces import IModelManager, IModelInfo
 
 

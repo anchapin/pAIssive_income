@@ -5,7 +5,7 @@ This module provides the User model for user management.
 """
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 from uuid import uuid4
 
 class User:

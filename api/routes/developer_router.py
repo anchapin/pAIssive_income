@@ -4,9 +4,8 @@ Developer API router.
 This module provides routes for the developer API.
 """
 
-from typing import Dict, Any, List, Optional
-from fastapi import APIRouter, HTTPException, status, Body, Query, Path, Depends
-from fastapi.responses import JSONResponse
+from typing import Dict, Any, Optional
+from fastapi import APIRouter, HTTPException, status, Body, Query, Path
 from datetime import datetime
 import logging
 

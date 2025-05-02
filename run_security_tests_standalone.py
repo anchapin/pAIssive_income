@@ -9,7 +9,7 @@ import hmac
 import hashlib
 import base64
 import ipaddress
-from typing import Dict, List, Any, Optional, Union, Set
+from typing import Dict, List, Optional, Set
 
 # Recreate the security classes here to avoid import issues
 
@@ -591,7 +591,7 @@ def run_tests():
     result = test_runner.run(test_suite)
     
     # Print summary
-    print(f"\nTest Summary:")
+    print("\nTest Summary:")
     print(f"  Ran {result.testsRun} tests")
     print(f"  Failures: {len(result.failures)}")
     print(f"  Errors: {len(result.errors)}")

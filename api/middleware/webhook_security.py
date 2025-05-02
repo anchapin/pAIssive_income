@@ -8,7 +8,7 @@ This module provides FastAPI middleware for webhook security:
 
 import logging
 import time
-from typing import Callable, Dict, Any, Optional
+from typing import Callable, Optional
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware

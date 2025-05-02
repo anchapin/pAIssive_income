@@ -3,7 +3,7 @@ Team configuration for the pAIssive Income AI agent team.
 Defines the overall structure and collaboration patterns for the agent team.
 """
 
-from typing import Dict, List, Optional, Any, Type, TypeVar, cast
+from typing import Dict, List, Optional, Any, TypeVar
 import json
 import os
 import logging
@@ -12,11 +12,6 @@ from datetime import datetime
 
 from interfaces.agent_interfaces import (
     IAgentTeam,
-    IResearchAgent,
-    IDeveloperAgent,
-    IMonetizationAgent,
-    IMarketingAgent,
-    IFeedbackAgent,
 )
 from .agent_profiles.researcher import ResearchAgent
 from .agent_profiles.developer import DeveloperAgent
@@ -32,8 +27,6 @@ from .errors import (
 )
 from .schemas import (
     TeamConfigSchema,
-    ModelSettingsSchema,
-    WorkflowSettingsSchema,
     ProjectStateSchema,
     NicheSchema,
     SolutionSchema,
@@ -305,7 +298,7 @@ class AgentTeam(IAgentTeam):
             try:
                 validated_config = TeamConfigSchema(**default_config).dict()
                 logger.info(
-                    f"Successfully validated configuration using Pydantic schema"
+                    "Successfully validated configuration using Pydantic schema"
                 )
                 return validated_config
             except Exception as e:
@@ -490,7 +483,7 @@ class AgentTeam(IAgentTeam):
             # Validate input using Pydantic schema
             try:
                 validated_niche = NicheSchema(**niche).dict()
-                logger.info(f"Successfully validated niche input using Pydantic schema")
+                logger.info("Successfully validated niche input using Pydantic schema")
             except Exception as e:
                 raise ValidationError(
                     message=f"Invalid niche data: {e}",
@@ -515,7 +508,7 @@ class AgentTeam(IAgentTeam):
                 try:
                     validated_solution = SolutionSchema(**solution).dict()
                     logger.info(
-                        f"Successfully validated solution output using Pydantic schema"
+                        "Successfully validated solution output using Pydantic schema"
                     )
                 except Exception as e:
                     logger.warning(
@@ -603,7 +596,7 @@ class AgentTeam(IAgentTeam):
                 try:
                     validated_solution = SolutionSchema(**solution).dict()
                     logger.info(
-                        f"Successfully validated solution input using Pydantic schema"
+                        "Successfully validated solution input using Pydantic schema"
                     )
                 except Exception as e:
                     logger.warning(
@@ -634,7 +627,7 @@ class AgentTeam(IAgentTeam):
                 try:
                     validated_strategy = MonetizationStrategySchema(**strategy).dict()
                     logger.info(
-                        f"Successfully validated monetization strategy using Pydantic schema"
+                        "Successfully validated monetization strategy using Pydantic schema"
                     )
                 except Exception as e:
                     logger.warning(
@@ -658,7 +651,7 @@ class AgentTeam(IAgentTeam):
                     original_exception=e,
                 )
 
-        except ValueError as e:
+        except ValueError:
             # Re-raise value errors
             raise
         except (AgentTeamError, WorkflowError):
@@ -817,7 +810,7 @@ class AgentTeam(IAgentTeam):
                     original_exception=e,
                 )
 
-        except ValueError as e:
+        except ValueError:
             # Re-raise value errors
             raise
         except (AgentTeamError, WorkflowError):

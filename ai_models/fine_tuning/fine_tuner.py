@@ -9,9 +9,8 @@ import os
 import json
 import logging
 import time
-import shutil
 from enum import Enum
-from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+from typing import Dict, List, Any, Optional, Union
 from dataclasses import dataclass, field
 
 import torch
@@ -22,16 +21,13 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     DataCollatorForLanguageModeling,
-    DataCollatorForSeq2Seq,
     EarlyStoppingCallback,
-    IntervalStrategy,
 )
 from peft import (
     LoraConfig,
     get_peft_model,
     prepare_model_for_kbit_training,
     TaskType,
-    PeftModel,
     PeftConfig,
 )
 

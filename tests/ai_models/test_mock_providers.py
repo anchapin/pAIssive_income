@@ -7,7 +7,6 @@ This module demonstrates how to use the mock model providers in tests.
 import unittest
 import os
 import sys
-from typing import Dict, List, Any, Optional
 import pytest
 import numpy as np
 
@@ -23,7 +22,7 @@ from tests.mocks.mock_model_providers import (
     MockLocalModelProvider,
     MockONNXProvider,
 )
-from ai_models.model_manager import ModelManager, ModelInfo
+from ai_models.model_manager import ModelInfo
 from ai_models.model_config import ModelConfig
 
 
@@ -190,7 +189,6 @@ class TestMockProviders(unittest.TestCase):
         """Test integrating mock providers with the ModelManager."""
         # Create a mock model manager instead of a real one
         import tempfile
-        from unittest.mock import MagicMock
 
         # Create a mock ModelManager that implements the required abstract methods
         class MockModelManager:

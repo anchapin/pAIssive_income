@@ -13,14 +13,12 @@ import time
 import logging
 import traceback
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Tuple, Optional, Union, Set
+from typing import Dict, List, Any, Tuple, Optional
 from dataclasses import dataclass, field, asdict
 import statistics
 import threading
 import sqlite3
 import uuid
-import warnings
-from pathlib import Path
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -718,7 +716,7 @@ class MetricsDatabase:
             if "metadata" in metric and metric["metadata"]:
                 try:
                     metric["metadata"] = json.loads(metric["metadata"])
-                except:
+                except Exception:
                     metric["metadata"] = {}
 
             results.append(metric)
@@ -792,7 +790,7 @@ class MetricsDatabase:
             # Parse notification channels
             try:
                 notification_channels = json.loads(data["notification_channels"])
-            except:
+            except Exception:
                 notification_channels = ["log"]
 
             # Create AlertConfig

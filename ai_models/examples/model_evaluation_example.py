@@ -17,9 +17,6 @@ sys.path.append(
 )
 
 from ai_models.fine_tuning import (
-    EvaluationMetric,
-    EvaluationConfig,
-    ModelEvaluator,
     evaluate_model,
     compare_models,
     generate_evaluation_report,

@@ -7,7 +7,6 @@ This module provides Pydantic models for Monetization API request and response v
 from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, Field
 from datetime import datetime
-from uuid import UUID
 from enum import Enum
 
 

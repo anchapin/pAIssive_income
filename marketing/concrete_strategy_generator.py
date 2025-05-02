@@ -9,7 +9,7 @@ from typing import Dict, List, Any, Optional, Tuple
 import uuid
 from datetime import datetime
 from marketing.strategy_generator import StrategyGenerator
-from marketing.schemas import TargetAudienceSchema, BudgetSchema, BusinessType
+from marketing.schemas import TargetAudienceSchema, BudgetSchema
 from interfaces.agent_interfaces import IAgentTeam
 
 
@@ -1474,7 +1474,7 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "key_metrics": channel_data.get("metrics", [])[:3],
                 "implementation_tips": [
                     f"Focus on {channel_data.get('best_for', [''])[0]} to maximize effectiveness",
-                    f"Allocate at least 20% of your budget to this channel",
+                    "Allocate at least 20% of your budget to this channel",
                     f"Measure {', '.join(channel_data.get('metrics', [])[:2])} to track performance",
                 ],
             }
@@ -1536,8 +1536,8 @@ class DefaultStrategyGenerator(StrategyGenerator):
                 "recommended_formats": channel_data.get("formats", [])[:2],
                 "key_metrics": channel_data.get("metrics", [])[:2],
                 "implementation_tips": [
-                    f"Consider this channel as a secondary focus",
-                    f"Allocate around 10% of your budget to this channel",
+                    "Consider this channel as a secondary focus",
+                    "Allocate around 10% of your budget to this channel",
                     f"Measure {', '.join(channel_data.get('metrics', [])[:1])} to track performance",
                 ],
             }

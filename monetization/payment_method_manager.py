@@ -5,8 +5,7 @@ This module provides a class for managing payment methods, including
 storage, retrieval, and default payment method management.
 """
 
-from typing import Dict, List, Any, Optional, Union
-from datetime import datetime
+from typing import Dict, List, Any, Optional
 import os
 import json
 import copy
@@ -469,7 +468,7 @@ if __name__ == "__main__":
     # Check for expiring payment methods
     expiring_pms = manager.check_for_expiring_payment_methods(days=365 * 10)  # 10 years
 
-    print(f"\nExpiring payment methods:")
+    print("\nExpiring payment methods:")
     for customer_id, pms in expiring_pms.items():
         print(f"Customer {customer_id}:")
         for pm in pms:

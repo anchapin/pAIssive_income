@@ -10,16 +10,9 @@ This module provides tools for:
 - Generating comprehensive ROI reports
 """
 
-import uuid
 from typing import Dict, List, Any, Optional, Tuple, Union
 from datetime import datetime, timedelta
-import json
-import os
 import logging
-import math
-import statistics
-import copy
-from collections import defaultdict
 
 import numpy as np
 from scipy import stats
@@ -27,7 +20,6 @@ from scipy.optimize import minimize
 
 from marketing.errors import MarketingError, InvalidParameterError
 from interfaces.marketing_interfaces import IROIAnalyzer, ICampaignTracker
-from marketing.campaign_tracking import CampaignNotFoundError
 
 logger = logging.getLogger(__name__)
 

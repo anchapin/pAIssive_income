@@ -5,7 +5,7 @@ This module provides the base class for metrics used in benchmarking.
 """
 
 import abc
-from typing import Dict, Any, Optional, List, Union, Tuple
+from typing import Dict, Any
 
 
 class BaseMetric(abc.ABC):

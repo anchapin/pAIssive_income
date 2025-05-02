@@ -3,39 +3,21 @@ Market Analyzer for the pAIssive Income project.
 Analyzes market segments to identify potential niches.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import uuid
-import hashlib
-import json
 from datetime import datetime
 import logging
 import asyncio
-from functools import partial
 
 from .errors import (
     MarketSegmentError,
     CompetitionAnalysisError,
-    TrendAnalysisError,
-    TargetUserAnalysisError,
     ValidationError,
     handle_exception,
 )
-from .schemas import (
-    MarketSegmentSchema,
-    CompetitionAnalysisSchema,
-    TrendAnalysisSchema,
-    TargetUserAnalysisSchema,
-    CompetitorSchema,
-    UserSegmentSchema,
-    DemographicsSchema,
-    PsychographicsSchema,
-    BuyingBehaviorSchema,
-    TrendSchema,
-    PredictionSchema,
-)
 
 # Import the centralized caching service
-from common_utils.caching import default_cache, cached
+from common_utils.caching import default_cache
 
 # Import async utilities
 from ai_models.async_utils import run_in_thread

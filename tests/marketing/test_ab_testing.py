@@ -4,7 +4,6 @@ Tests for the A/B testing module.
 
 import pytest
 from datetime import datetime
-import numpy as np
 
 from marketing.ab_testing import ABTesting, ABTest
 from marketing.ab_testing import (
@@ -296,10 +295,10 @@ class TestABTest:
 
         # With these numbers, both CTR and conversion rate should be significantly better
         assert (
-            variant_analysis.get("ctr_is_significant") == True
+            variant_analysis.get("ctr_is_significant") 
         )  # Use == instead of is
         assert (
-            variant_analysis.get("conversion_is_significant") == True
+            variant_analysis.get("conversion_is_significant") 
         )  # Use == instead of is
 
     def test_end_test(self):

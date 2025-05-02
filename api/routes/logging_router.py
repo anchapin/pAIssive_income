@@ -5,14 +5,13 @@ This module provides route handlers for log operations.
 """
 
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query, HTTPException
 
 from ..middleware.auth import get_current_user, require_scopes
 from ..services.logging_service import LoggingService
 from ..models.user import User
-from ..schemas.common import ErrorResponse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

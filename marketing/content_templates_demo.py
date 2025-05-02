@@ -12,9 +12,6 @@ from content_templates import (
     EmailNewsletterTemplate,
     VideoScriptTemplate,
     LandingPageTemplate,
-    ProductDescriptionTemplate,
-    CaseStudyTemplate,
-    TestimonialTemplate,
 )
 
 

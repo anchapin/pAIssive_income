@@ -5,11 +5,10 @@ This module provides route handlers for user operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
 from datetime import datetime
 import uuid
 
-from fastapi import APIRouter, HTTPException, Depends, Query, Path, Body, status
+from fastapi import APIRouter, HTTPException, Depends, Query, Body, status
 from fastapi.security import OAuth2PasswordBearer
 
 from ..middleware.auth import verify_token

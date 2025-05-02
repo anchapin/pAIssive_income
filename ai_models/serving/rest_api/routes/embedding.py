@@ -4,7 +4,7 @@ Embedding routes for REST API server.
 This module provides route handlers for embeddings.
 """
 
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Optional, List, Union
 
 # Try to import FastAPI
 try:

@@ -4,7 +4,7 @@ Dependencies for API endpoints.
 This module provides dependencies for FastAPI routes.
 """
 
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
 

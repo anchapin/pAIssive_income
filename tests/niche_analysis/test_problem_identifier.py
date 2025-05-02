@@ -2,8 +2,7 @@
 Tests for the ProblemIdentifier class.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from datetime import datetime
 
 from niche_analysis.problem_identifier import ProblemIdentifier

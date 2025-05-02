@@ -5,10 +5,9 @@ This module provides a mock implementation of the payment processor interface
 for testing and development purposes.
 """
 
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import uuid
-import json
 import copy
 import random
 

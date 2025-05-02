@@ -5,16 +5,12 @@ Tests for API rate limiting functionality.
 import pytest
 import time
 from unittest.mock import patch
-from fastapi.testclient import TestClient
 
 from api.middleware.rate_limit import RateLimitMiddleware
 from api.config import APIConfig, RateLimitStrategy
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_validators import (
     validate_error_response,
-    validate_success_response,
-    validate_field_exists,
-    validate_field_type,
 )
 
 

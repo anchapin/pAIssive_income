@@ -5,7 +5,7 @@ This module provides a concrete implementation of DatabaseInterface for SQLite d
 """
 
 import sqlite3
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 import logging
 
 from common_utils.db.interfaces import DatabaseInterface, UnitOfWork

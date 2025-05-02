@@ -3,10 +3,8 @@ Tests for the DiskCache backend.
 """
 
 import os
-import json
 import time
 import pytest
-from typing import Dict, Any
 import tempfile
 import shutil
 

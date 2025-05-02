@@ -6,20 +6,15 @@ customer lifetime value predictions, and churn analysis.
 """
 
 import pytest
-import json
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 from decimal import Decimal
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from monetization.revenue_analytics import (
     RevenueAnalytics,
     ChurnAnalyzer,
     CustomerLifetimeValue,
-    RevenueMetrics,
     RevenueProjector,
-    SubscriptionEvent,
     EventType
 )
 

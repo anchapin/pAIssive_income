@@ -10,7 +10,6 @@ import os
 import asyncio
 import time
 import logging
-from typing import List, Dict, Any
 import sys
 
 # Add the parent directory to the path so we can import from ai_models
@@ -19,8 +18,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 from ai_models import ModelManager, ModelInfo
 from ai_models.async_utils import (
     AsyncModelProcessor,
-    AsyncResult,
-    batch_process_async,
     run_in_thread,
 )
 

@@ -5,12 +5,10 @@ This module provides classes for tracking usage of API calls and resources,
 including usage limits, quota management, and analytics.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 import uuid
 import json
-import copy
-import math
 from pydantic import BaseModel, Field
 
 
@@ -708,7 +706,7 @@ if __name__ == "__main__":
 
     # Add usage to the quota
     quota.add_usage(100)
-    print(f"\nAfter adding usage:")
+    print("\nAfter adding usage:")
     print(f"Used quantity: {quota.used_quantity}")
     print(f"Remaining quantity: {quota.get_remaining_quantity()}")
     print(f"Usage percentage: {quota.get_usage_percentage():.2f}%")

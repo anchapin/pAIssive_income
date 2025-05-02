@@ -6,8 +6,7 @@ for service discovery in the pAIssive income microservices architecture.
 """
 
 import logging
-import json
-from typing import Dict, List, Optional, Any
+from typing import Dict, List
 
 import consul
 

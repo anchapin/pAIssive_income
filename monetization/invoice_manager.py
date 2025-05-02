@@ -5,13 +5,12 @@ This module provides a class for managing invoices, including
 generation, storage, retrieval, and status updates.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import os
 import json
-import copy
 
-from .invoice import Invoice, InvoiceStatus, InvoiceItem
+from .invoice import Invoice, InvoiceStatus
 from .billing_calculator import BillingCalculator
 from .usage_tracker import UsageTracker
 
@@ -969,7 +968,7 @@ if __name__ == "__main__":
     # Get invoice summary
     summary = manager.get_invoice_summary()
 
-    print(f"\nInvoice summary:")
+    print("\nInvoice summary:")
     print(f"Total count: {summary['total_count']}")
     print(f"Total amount: ${summary['total_amount']:.2f}")
     print(f"Total paid: ${summary['total_paid']:.2f}")

@@ -7,7 +7,7 @@ This module provides utilities for deploying AI models with Docker.
 import os
 import logging
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, List
 
 # Set up logging
 logging.basicConfig(

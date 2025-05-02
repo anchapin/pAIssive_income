@@ -7,21 +7,19 @@ with the agent team, allowing agents to use local AI models for their tasks.
 
 import os
 import logging
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, Any, Optional
 
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from interfaces.model_interfaces import IModelManager, IModelInfo
-from .model_manager import ModelManager, ModelInfo
-from .model_config import ModelConfig
+from .model_manager import ModelManager
 from dependency_container import get_container
 
 # Import the fallback manager classes
-from .fallbacks import FallbackManager, FallbackStrategy, FallbackEvent
+from .fallbacks import FallbackManager, FallbackStrategy
 
 # Import specific error types
-from errors import ModelError, ModelLoadError
 
 # Set up logging
 logging.basicConfig(

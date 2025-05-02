@@ -6,7 +6,6 @@ all the type definitions and resolvers from different modules.
 """
 
 import logging
-from typing import Dict, Any, List, Optional
 
 # Set up logging
 logging.basicConfig(

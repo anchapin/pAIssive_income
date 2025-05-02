@@ -9,8 +9,7 @@ import os
 import json
 import logging
 import numpy as np
-from typing import Dict, List, Any, Optional, Union, Tuple
-from pathlib import Path
+from typing import Dict, List, Any, Optional, Union
 
 # Set up logging
 logging.basicConfig(
@@ -518,7 +517,7 @@ class ONNXModel:
                     from torchvision.models import list_models
 
                     labels = list_models()
-                except:
+                except Exception:
                     labels = [f"Class {i}" for i in range(probs.shape[-1])]
 
             # Create result dictionary

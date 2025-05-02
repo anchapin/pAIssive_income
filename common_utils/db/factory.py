@@ -6,7 +6,7 @@ based on configuration.
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from common_utils.db.interfaces import DatabaseInterface, UnitOfWork
 from common_utils.db.sql_adapter import SQLiteAdapter, SQLiteUnitOfWork

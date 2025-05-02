@@ -8,7 +8,7 @@ including HTTP status codes, error response formatting, and exception mapping.
 import logging
 import traceback
 from datetime import datetime
-from typing import Dict, Any, Optional, Type, Union, List, Callable
+from typing import Dict, Any, Optional, Type, List, Callable
 
 # Try to import FastAPI
 try:

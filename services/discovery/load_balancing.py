@@ -5,8 +5,7 @@ This module provides various load balancing strategies for service discovery.
 """
 
 import random
-import time
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 
 from .interfaces import LoadBalancingStrategy, ServiceInstance, ServiceStatus
 

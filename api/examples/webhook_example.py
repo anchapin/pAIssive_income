@@ -6,7 +6,6 @@ This example demonstrates how to register webhooks and emit events.
 
 import asyncio
 import json
-from typing import Dict, Any
 
 from ..services.event_emitter import EventEmitter
 from ..services.webhook_service import WebhookService
@@ -58,7 +57,7 @@ async def emit_event_example():
 
     # Register a local event listener
     def on_niche_analysis_created(data):
-        print(f"Local listener received niche analysis created event:")
+        print("Local listener received niche analysis created event:")
         print(json.dumps(data, indent=2))
 
     # Register the listener

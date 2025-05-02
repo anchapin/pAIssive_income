@@ -2,7 +2,6 @@
 Tests for the OllamaAdapter class.
 """
 
-import pytest
 from unittest.mock import Mock, MagicMock, patch
 
 from ai_models.adapters import OllamaAdapter

@@ -6,9 +6,7 @@ the mock fixtures for external APIs in test scenarios.
 """
 
 import os
-import pytest
 import json
-from typing import Dict, Any
 
 
 # Test using mock_http fixture

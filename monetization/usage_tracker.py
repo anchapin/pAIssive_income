@@ -5,13 +5,11 @@ This module provides a class for tracking and managing usage records,
 including storage, retrieval, and analysis.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timedelta
 import os
 import json
 import copy
-import uuid
-import math
 
 from .usage_tracking import (
     UsageRecord,
@@ -1682,7 +1680,7 @@ if __name__ == "__main__":
             metric=UsageMetric.API_CALL,
             quantity=10,
             category=UsageCategory.INFERENCE,
-            resource_id=f"model_gpt4",
+            resource_id="model_gpt4",
             resource_type="model",
             metadata={"endpoint": "/v1/completions"},
         )
@@ -1692,14 +1690,14 @@ if __name__ == "__main__":
     # Get usage summary
     summary = tracker.get_usage_summary(customer_id="cust_123")
 
-    print(f"\nUsage summary:")
+    print("\nUsage summary:")
     print(f"Total records: {summary['total_records']}")
     print(f"Total quantity: {summary['total_quantity']}")
 
     # Get quota status
     status = tracker.get_quota_status(customer_id="cust_123")
 
-    print(f"\nQuota status:")
+    print("\nQuota status:")
     print(f"Total quotas: {status['total_quotas']}")
     print(f"Exceeded: {status['summary']['exceeded']}")
     print(f"Near limit: {status['summary']['near_limit']}")

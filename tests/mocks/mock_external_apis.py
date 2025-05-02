@@ -9,8 +9,7 @@ import json
 import logging
 import random
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Union, Generator
-from unittest.mock import MagicMock
+from typing import Dict, List, Any, Optional, Union
 
 logger = logging.getLogger(__name__)
 

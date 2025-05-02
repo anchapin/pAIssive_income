@@ -8,20 +8,18 @@ user interface for the pAIssive income platform.
 import os
 import logging
 import argparse
-from typing import Dict, Any, Optional, List
 
-from fastapi import FastAPI, Request, Depends, HTTPException, status
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import HTMLResponse
 
 from services.service_discovery.registration import (
     register_service,
     get_service_metadata,
     get_default_tags,
 )
-from services.service_discovery.discovery_client import ServiceDiscoveryClient
 
 # Set up logging
 logging.basicConfig(

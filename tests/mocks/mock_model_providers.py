@@ -5,10 +5,8 @@ This module provides mock implementations of various AI model providers
 that can be used for consistent testing without external dependencies.
 """
 
-import json
 import logging
-from typing import Dict, List, Any, Optional, Union, Generator, Tuple
-from unittest.mock import MagicMock
+from typing import Dict, List, Any, Optional, Union, Generator
 from datetime import datetime
 import numpy as np
 

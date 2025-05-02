@@ -6,14 +6,12 @@ import unittest
 import sys
 import asyncio
 import json
-import uuid
 from datetime import datetime, timezone
 from unittest.mock import patch, MagicMock
 
 # Import the necessary modules
 from api.services.webhook_service import WebhookService
 from api.services.webhook_security import (
-    WebhookIPAllowlist,
     WebhookSignatureVerifier,
     WebhookRateLimiter
 )
@@ -197,7 +195,7 @@ def run_tests():
     result = test_runner.run(test_suite)
     
     # Print summary
-    print(f"\nTest Summary:")
+    print("\nTest Summary:")
     print(f"  Ran {result.testsRun} tests")
     print(f"  Failures: {len(result.failures)}")
     print(f"  Errors: {len(result.errors)}")

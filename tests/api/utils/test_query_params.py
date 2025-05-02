@@ -4,7 +4,6 @@ Tests for the query parameter utilities.
 
 import unittest
 from datetime import datetime, timedelta
-from typing import Dict, Any, List
 from api.utils.query_params import (
     QueryParams, apply_pagination, apply_filtering, apply_sorting,
     SortDirection, FilterOperator

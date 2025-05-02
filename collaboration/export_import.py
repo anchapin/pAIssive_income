@@ -10,7 +10,7 @@ import json
 import zipfile
 import logging
 import uuid
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any
 from datetime import datetime
 import shutil
 
@@ -154,7 +154,7 @@ class ExportImport:
             # Read metadata
             metadata_file = os.path.join(import_dir, "metadata.json")
             if not os.path.exists(metadata_file):
-                raise ValueError(f"Invalid import file: metadata.json not found")
+                raise ValueError("Invalid import file: metadata.json not found")
 
             with open(metadata_file, "r") as f:
                 metadata = json.load(f)
@@ -162,7 +162,7 @@ class ExportImport:
             # Extract project files
             files_zip = os.path.join(import_dir, "files.zip")
             if not os.path.exists(files_zip):
-                raise ValueError(f"Invalid import file: files.zip not found")
+                raise ValueError("Invalid import file: files.zip not found")
 
             # Create target directory
             os.makedirs(target_path, exist_ok=True)
@@ -319,7 +319,7 @@ class ExportImport:
             # Read metadata
             metadata_file = os.path.join(import_dir, "metadata.json")
             if not os.path.exists(metadata_file):
-                raise ValueError(f"Invalid import file: metadata.json not found")
+                raise ValueError("Invalid import file: metadata.json not found")
 
             with open(metadata_file, "r") as f:
                 metadata = json.load(f)

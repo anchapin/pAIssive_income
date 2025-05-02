@@ -4,16 +4,12 @@ Style adjuster module for the pAIssive Income project.
 This module provides classes for adjusting the style and tone of content.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple, Type
-from abc import ABC, abstractmethod
+from typing import Dict, List, Any, Optional, Tuple
 import uuid
 import json
 import datetime
 import re
-import math
-import string
 import random
-from collections import Counter
 
 # Third-party imports
 try:

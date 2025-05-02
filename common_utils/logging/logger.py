@@ -12,15 +12,12 @@ import json
 import logging
 import os
 import sys
-import time
 import traceback
 from enum import Enum
 from logging.handlers import RotatingFileHandler
-from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Optional, Union
 
 import contextvars
-import uuid
 
 # Context variables for storing request-specific information
 request_id_var = contextvars.ContextVar("request_id", default=None)

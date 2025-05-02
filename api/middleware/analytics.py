@@ -6,7 +6,7 @@ This middleware collects analytics data for API requests.
 
 import time
 import logging
-from typing import Callable, Dict, Any, Optional
+from typing import Callable
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

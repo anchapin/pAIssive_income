@@ -4,11 +4,10 @@ Pytest fixtures for API tests.
 This module provides fixtures that can be used across API tests.
 """
 
-import os
 import pytest
 import time
-from unittest.mock import MagicMock, patch
-from typing import Dict, Any, Optional, List, Generator
+from unittest.mock import patch
+from typing import Dict, Optional
 from fastapi import FastAPI, Request, status
 from fastapi.testclient import TestClient
 from fastapi.responses import JSONResponse
@@ -18,25 +17,8 @@ from api.server import APIServer, APIConfig
 from api.config import APIVersion
 
 # Import test client fixtures
-from tests.api.utils.test_client import api_test_client, auth_api_test_client, APITestClient
 
 # Import mock fixtures
-from tests.mocks.fixtures import (
-    mock_openai_provider,
-    mock_ollama_provider,
-    mock_lmstudio_provider,
-    patch_model_providers,
-    mock_huggingface_api,
-    mock_payment_api,
-    mock_email_api,
-    mock_storage_api,
-    patch_external_apis,
-    mock_model_inference_result,
-    mock_embedding_result,
-    mock_subscription_data,
-    mock_niche_analysis_data,
-    mock_marketing_campaign_data
-)
 
 
 @pytest.fixture
@@ -106,8 +88,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     niche_analysis_router = APIRouter()
 
     # Add routes to the mock router
-    from fastapi import Response, status, HTTPException, Body, Request
-    from fastapi.responses import JSONResponse
+    from fastapi import Response, HTTPException, Body
 
     @niche_analysis_router.post("/analyze")
     async def analyze_niche(request: Request, response: Response, data: dict = Body(...)):

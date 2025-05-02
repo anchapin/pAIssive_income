@@ -3,10 +3,6 @@ Tests for the FreemiumModel class.
 """
 
 import os
-import json
-import pytest
-from unittest.mock import patch
-from datetime import datetime
 
 from monetization.subscription_models import FreemiumModel
 

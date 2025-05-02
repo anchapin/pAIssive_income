@@ -4,13 +4,11 @@ FastAPI application for the API server.
 This module provides a FastAPI application instance for the API server.
 """
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .config import APIConfig, APIVersion
 from .routes import niche_analysis_router
-from .dependencies import get_niche_service, validate_token, get_current_user, validate_api_key
 
 # Create FastAPI app
 app = FastAPI(

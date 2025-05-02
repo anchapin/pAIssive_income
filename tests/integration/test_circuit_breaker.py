@@ -5,7 +5,6 @@ Integration tests for circuit breaker functionality.
 import pytest
 import time
 from unittest.mock import MagicMock, patch
-from datetime import datetime, timedelta
 
 from services.resilience import (
     CircuitBreaker,

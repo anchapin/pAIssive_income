@@ -27,15 +27,8 @@ def get_model_provider(provider_type: str = "openai", **kwargs):
     return create_mock_provider(provider_type, kwargs.get("config"))
 
 
-import time
 import asyncio
-from datetime import datetime
-from typing import Dict, List, Any, Optional, Union, Callable, Tuple, Coroutine
-from dataclasses import dataclass
-from pathlib import Path
-import importlib.util
-import platform
-import shutil
+from typing import Dict, List, Any, Optional, Callable, Tuple
 import hashlib
 
 from .model_config import ModelConfig
@@ -60,11 +53,8 @@ from .model_base_types import ModelInfo
 
 # Import only for type checking to avoid circular imports
 if TYPE_CHECKING:
-    from .model_downloader import ModelDownloader, DownloadProgress
     from .performance_monitor import (
         PerformanceMonitor,
-        InferenceMetrics,
-        ModelPerformanceReport,
     )
 
 # Set up logging
@@ -633,7 +623,7 @@ class ModelManager(IModelManager):
                 details={"dependency_error": str(e)},
                 original_exception=e,
             )
-        except (ValidationError, ModelError) as e:
+        except (ValidationError, ModelError):
             # Re-raise custom errors
             raise
         except Exception as e:

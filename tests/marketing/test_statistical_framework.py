@@ -4,8 +4,6 @@ Tests for the statistical analysis framework used in marketing.
 
 import pytest
 import numpy as np
-from scipy import stats
-from unittest.mock import MagicMock, patch
 
 from marketing.statistical_framework import (
     StatisticalTestRunner,

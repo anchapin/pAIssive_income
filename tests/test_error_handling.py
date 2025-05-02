@@ -3,9 +3,6 @@ Tests for error handling functionality.
 """
 
 import unittest
-from datetime import datetime
-import json
-from typing import Dict, Any, Optional
 from unittest.mock import MagicMock, patch
 
 from errors import (

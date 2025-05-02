@@ -5,12 +5,10 @@ This module provides classes for managing payment transactions, including
 creation, processing, and status tracking.
 """
 
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, Any, Optional
 from datetime import datetime
 import uuid
 import json
-import copy
-from pydantic import BaseModel, Field
 
 
 class TransactionStatus:

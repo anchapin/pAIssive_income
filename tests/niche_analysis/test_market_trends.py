@@ -3,8 +3,6 @@ Tests for market trend analysis functionality.
 """
 
 import pytest
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
 
 from niche_analysis.market_trends import (
     MarketTrendAnalyzer,
@@ -12,7 +10,7 @@ from niche_analysis.market_trends import (
     TrendSeverityClassifier,
     HistoricalTrendAnalyzer
 )
-from niche_analysis.errors import InsufficientDataError, InvalidTimeRangeError
+from niche_analysis.errors import InsufficientDataError
 from niche_analysis.market_analyzer import MarketAnalyzer
 
 

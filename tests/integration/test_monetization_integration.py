@@ -4,9 +4,6 @@ Integration tests for the Monetization module.
 
 import pytest
 import os
-import json
-from unittest.mock import patch, MagicMock
-from datetime import datetime, timedelta
 
 from monetization.subscription_models import SubscriptionModel, FreemiumModel
 from monetization.subscription_manager import SubscriptionManager

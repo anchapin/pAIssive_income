@@ -13,7 +13,7 @@ import logging
 import datetime
 import re
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Type
+from typing import List, Dict, Any, Optional
 
 from common_utils.db.interfaces import DatabaseInterface
 from common_utils.db.sql_adapter import SQLiteAdapter

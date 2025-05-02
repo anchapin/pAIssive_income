@@ -9,11 +9,11 @@ import os
 import logging
 import time
 import json
-from typing import Dict, Any, Optional, List, Union, Type, Tuple
+from typing import Dict, Any, Optional, Union
 
 import numpy as np
 
-from .base import Pruner, PruningConfig, PruningMethod
+from .base import PruningConfig, PruningMethod
 from .magnitude_pruner import MagnitudePruner
 from .structured_pruner import StructuredPruner
 

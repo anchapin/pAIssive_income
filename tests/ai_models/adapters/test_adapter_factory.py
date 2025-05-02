@@ -3,7 +3,6 @@ Tests for the AdapterFactory class.
 """
 
 import pytest
-from unittest.mock import MagicMock
 
 from ai_models.adapters import AdapterFactory, BaseModelAdapter
 from interfaces.model_interfaces import IModelAdapter

@@ -4,14 +4,12 @@ Cache manager for the model cache system.
 This module provides the main cache manager for the model cache system.
 """
 
-import os
 import re
 import logging
-import hashlib
-from typing import Dict, Any, Optional, List, Union, Type
+from typing import Dict, Any, Optional, List, Union
 
 from .cache_config import CacheConfig
-from .cache_key import CacheKey, generate_cache_key, parse_cache_key
+from .cache_key import generate_cache_key
 from .cache_backends import CacheBackend, MemoryCache, DiskCache, SQLiteCache
 
 # Try to import Redis cache if available

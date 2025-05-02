@@ -5,7 +5,6 @@ This module provides a placeholder router for AI model operations.
 """
 
 import logging
-from typing import Dict, Any, Optional
 
 # Set up logging
 logging.basicConfig(

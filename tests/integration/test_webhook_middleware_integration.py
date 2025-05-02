@@ -5,7 +5,7 @@ This module tests the integration between webhook middleware and FastAPI.
 """
 
 import pytest
-from fastapi import FastAPI, Request, Response, status
+from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 import time
 

@@ -10,10 +10,9 @@ is performing best and provides insights to improve content strategy.
 import os
 import json
 import uuid
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timedelta
 from collections import defaultdict
-import statistics
 import logging
 
 # Local imports
@@ -21,7 +20,6 @@ from interfaces.marketing_interfaces import IContentPerformanceAnalyzer
 from marketing.errors import (
     ContentNotFoundError,
     InvalidParameterError,
-    InsufficientDataError,
     StorageError,
 )
 

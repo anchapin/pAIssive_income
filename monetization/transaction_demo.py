@@ -4,10 +4,7 @@ Transaction management demo for the pAIssive Income project.
 This script demonstrates how to use the transaction management system.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 
-from .transaction import Transaction, TransactionStatus, TransactionType
 from .transaction_manager import TransactionManager
 from .mock_payment_processor import MockPaymentProcessor
 
@@ -137,7 +134,7 @@ def run_demo():
     # Get transaction summary
     summary = manager.get_transaction_summary()
 
-    print(f"Transaction Summary:")
+    print("Transaction Summary:")
     print(f"Total count: {summary['total_count']}")
     print(f"Successful: {summary['successful_count']}")
     print(f"Failed: {summary['failed_count']}")

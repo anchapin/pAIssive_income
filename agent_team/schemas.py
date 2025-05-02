@@ -4,9 +4,8 @@ Pydantic schemas for the Agent Team module.
 This module provides Pydantic models for data validation in the Agent Team module.
 """
 
-from typing import Dict, List, Any, Optional, Union, Literal
+from typing import Dict, List, Any, Optional
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from datetime import datetime
 
 
 class ModelSettingSchema(BaseModel):

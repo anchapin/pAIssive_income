@@ -10,10 +10,7 @@ import json
 import uuid
 import os
 import psutil
-import multiprocessing
 from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional
-import httpx
 from unittest.mock import patch, MagicMock
 
 from api.services.webhook_service import WebhookService

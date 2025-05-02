@@ -6,17 +6,12 @@ including time-limited promotions, coupon codes, referral discounts,
 bundle discounts, loyalty rewards, free trials, and special offers.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple, Callable
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timedelta
-import math
-import copy
 import uuid
-import json
-import re
 import random
 import string
 
-from .billing_calculator import PricingRule, PricingModel, BillingCalculator
 
 
 class PromotionStatus:
@@ -2756,7 +2751,7 @@ if __name__ == "__main__":
 
     print(f"Customer loyalty: {loyalty_promotion.get_customer_loyalty(customer_id)}")
     print(f"Customer loyalty tier: {loyalty_promotion.get_loyalty_tier(customer_id)}")
-    print(f"Original amount: $100.00")
+    print("Original amount: $100.00")
     print(f"Discounted amount (loyalty): ${discounted_amount:.2f}")
     print(f"Discount info: {discount_info}")
 

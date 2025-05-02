@@ -4,7 +4,7 @@ Text classification routes for REST API server.
 This module provides route handlers for text classification.
 """
 
-from typing import Dict, Any, Optional, List, Union
+from typing import List
 
 # Try to import FastAPI
 try:

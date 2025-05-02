@@ -4,7 +4,7 @@ Tests for the metered billing module.
 
 import unittest
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 # We'll use direct imports to avoid circular import issues
 import sys

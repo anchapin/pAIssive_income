@@ -6,10 +6,8 @@ This script demonstrates how to use the serving utilities to deploy AI models.
 
 import os
 import sys
-import time
 import logging
 import argparse
-from typing import Dict, Any, Optional
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -17,8 +15,6 @@ sys.path.append(
 )
 
 from ai_models.serving import (
-    ServerConfig,
-    ServerProtocol,
     RESTServer,
     RESTConfig,
     GRPCServer,
@@ -261,7 +257,7 @@ def test_kubernetes_deployment(
         print(f"Kubernetes configuration generated at {deployment_path}")
         print("\nTo deploy to Kubernetes:")
         print(f"cd {output_dir}")
-        print(f"kubectl apply -k .")
+        print("kubectl apply -k .")
 
     except Exception as e:
         print(f"Error generating Kubernetes configuration: {e}")
@@ -333,7 +329,7 @@ def test_cloud_deployment(
         print(f"{provider.upper()} configuration generated at {config_path}")
         print("\nTo deploy to the cloud:")
         print(f"cd {output_dir}")
-        print(f"./deploy.sh")
+        print("./deploy.sh")
 
     except Exception as e:
         print(f"Error generating cloud configuration: {e}")

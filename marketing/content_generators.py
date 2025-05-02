@@ -9,7 +9,7 @@ import uuid
 import random
 import json
 import hashlib
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Dict, List, Any, Optional, Union
 from abc import ABC, abstractmethod
 
 from .schemas import (
@@ -20,9 +20,6 @@ from .schemas import (
     GeneratedBlogPostSchema,
     GeneratedSocialMediaPostSchema,
     GeneratedEmailNewsletterSchema,
-    ContentTemplateSchema,
-    ReadingLevel,
-    ContentFormat,
 )
 
 # Import the centralized caching service

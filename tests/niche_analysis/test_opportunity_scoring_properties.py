@@ -8,7 +8,7 @@ in the niche_analysis module, using the Hypothesis framework for property-based 
 import pytest
 import uuid
 from datetime import datetime
-from hypothesis import given, strategies as st, assume, settings, example
+from hypothesis import given, strategies as st, example
 from hypothesis.strategies import composite
 
 from niche_analysis.schemas import (

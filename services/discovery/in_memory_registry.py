@@ -8,7 +8,7 @@ suitable for development, testing, and small-scale deployments.
 import time
 import threading
 import uuid
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 
 from .interfaces import ServiceRegistry, ServiceInstance, ServiceStatus
 

@@ -5,8 +5,6 @@ This module provides examples of using the mock fixtures for testing
 different components of the pAIssive_income project.
 """
 
-import pytest
-from unittest.mock import patch
 
 
 def test_openai_provider(mock_openai_provider):

@@ -8,7 +8,7 @@ import os
 import enum
 import logging
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional, List
 
 # Set up logging
 logging.basicConfig(

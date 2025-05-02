@@ -9,7 +9,6 @@ import os
 import sys
 import logging
 import argparse
-from typing import Dict, List, Any, Optional
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(

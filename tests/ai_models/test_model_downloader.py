@@ -3,7 +3,7 @@ Tests for the ModelDownloader class.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 import os
 import tempfile
 import shutil

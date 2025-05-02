@@ -6,7 +6,7 @@ and enabling dependency injection throughout the application.
 """
 
 import logging
-from typing import Dict, Any, Type, Optional, TypeVar, Generic, cast, Callable
+from typing import Dict, Any, Type, Optional, TypeVar, cast, Callable
 
 # Set up logging
 logger = logging.getLogger(__name__)

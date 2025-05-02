@@ -17,9 +17,7 @@ from typing import (
     TypeVar,
     Generic,
     Callable,
-    Iterable,
     Iterator,
-    Optional,
     Union,
 )
 from concurrent.futures import ThreadPoolExecutor, as_completed

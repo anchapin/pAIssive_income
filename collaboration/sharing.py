@@ -9,12 +9,11 @@ import uuid
 import logging
 import json
 import os
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 from enum import Enum
 
-from .errors import SharingError, PermissionError
-from .access_control import Permission
+from .errors import SharingError
 
 # Set up logging
 logger = logging.getLogger(__name__)

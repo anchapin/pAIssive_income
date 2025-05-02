@@ -8,7 +8,6 @@ import os
 import json
 import argparse
 import logging
-from typing import Dict, Any, Optional, List
 
 from ..base import BaseCommand
 

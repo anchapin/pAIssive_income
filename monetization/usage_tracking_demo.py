@@ -4,17 +4,13 @@ Usage tracking demo for the pAIssive Income project.
 This script demonstrates how to use the usage tracking system.
 """
 
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import random
-import time
 
 from .usage_tracking import (
     UsageMetric,
     UsageCategory,
-    UsageRecord,
     UsageLimit,
-    UsageQuota,
 )
 from .usage_tracker import UsageTracker
 
@@ -188,7 +184,7 @@ def run_demo():
     # Get usage summary
     summary = tracker.get_usage_summary(customer_id=customer_id)
 
-    print(f"Usage summary:")
+    print("Usage summary:")
     print(f"Total records: {summary['total_records']}")
     print(f"Total quantity: {summary['total_quantity']}")
 
@@ -205,7 +201,7 @@ def run_demo():
     # Get usage by time
     usage_by_day = tracker.get_usage_by_time(customer_id=customer_id, interval="day")
 
-    print(f"Usage by day:")
+    print("Usage by day:")
     print(f"Total records: {usage_by_day['total_records']}")
     print(f"Total quantity: {usage_by_day['total_quantity']}")
 
@@ -220,7 +216,7 @@ def run_demo():
         customer_id=customer_id, interval="day", num_intervals=7
     )
 
-    print(f"Usage trends (last 7 days):")
+    print("Usage trends (last 7 days):")
     print(f"Trend direction: {trends['trend']['direction']}")
     print(f"Percentage change: {trends['trend']['percentage_change']:.2f}%")
 
@@ -265,7 +261,7 @@ def run_demo():
                 )
 
             if exceeded:
-                print(f"Warning: Quota exceeded!")
+                print("Warning: Quota exceeded!")
         else:
             print(f"Usage not allowed: {reason}")
             break
@@ -275,7 +271,7 @@ def run_demo():
     # Get quota status
     status = tracker.get_quota_status(customer_id=customer_id)
 
-    print(f"Quota status:")
+    print("Quota status:")
     print(f"Total quotas: {status['total_quotas']}")
     print(f"Exceeded: {status['summary']['exceeded']}")
     print(f"Near limit: {status['summary']['near_limit']}")

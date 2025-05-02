@@ -5,13 +5,11 @@ This module provides simplified interfaces for recording and accessing
 model performance metrics throughout the application.
 """
 
-import os
 import logging
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import contextlib
 from functools import wraps
-import time
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +19,6 @@ logger = logging.getLogger(__name__)
 from ai_models.metrics.enhanced_metrics import (
     EnhancedPerformanceMonitor,
     EnhancedInferenceTracker,
-    TokenUsageMetrics,
 )
 
 from ai_models.metrics.dashboard import MetricsDashboard

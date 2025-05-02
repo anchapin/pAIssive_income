@@ -4,7 +4,7 @@ Metrics routes for REST API server.
 This module provides route handlers for metrics.
 """
 
-from typing import Dict, Any, List
+from typing import Dict, List
 
 # Try to import FastAPI
 try:

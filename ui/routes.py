@@ -7,7 +7,6 @@ for different parts of the application.
 
 from flask import render_template, request, jsonify, redirect, url_for, session, flash
 import os
-import json
 import logging
 from datetime import datetime
 import uuid
@@ -30,7 +29,6 @@ from .tasks import (
 )
 from .task_manager import (
     get_task_status,
-    check_task_completion,
     store_task_id,
     get_task_id,
     cancel_task,

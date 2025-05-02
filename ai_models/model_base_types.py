@@ -10,7 +10,7 @@ import json
 import time
 import logging
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass
 
 from interfaces.model_interfaces import IModelInfo

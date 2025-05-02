@@ -17,7 +17,7 @@ import math
 import logging
 import numpy as np
 from scipy import stats
-from typing import Dict, List, Tuple, Union, Optional, Any, Callable
+from typing import Dict, List, Tuple, Union, Optional, Any
 
 # Configure logger
 logger = logging.getLogger(__name__)

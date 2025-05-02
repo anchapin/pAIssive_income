@@ -14,7 +14,7 @@ Dependencies:
 import os
 import json
 import logging
-from typing import Dict, List, Any, Optional, Union, Callable
+from typing import Dict, List, Any, Optional, Callable
 from abc import ABC, abstractmethod
 from datetime import datetime
 import uuid
@@ -671,7 +671,7 @@ class DesktopAppTemplate(BaseUITemplate):
         # Add a label with the app description
         description_label = QtWidgets.QLabel(self.description)
         description_label.setAlignment(QtCore.Qt.AlignCenter)
-        description_label.setStyleSheet(f"font-size: 16px; margin: 20px;")
+        description_label.setStyleSheet("font-size: 16px; margin: 20px;")
         layout.addWidget(description_label)
 
         # Add a button

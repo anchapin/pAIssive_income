@@ -5,7 +5,7 @@ This module provides middleware for the REST API server.
 """
 
 import time
-from typing import Dict, Any, Optional, List, Callable, Union
+from typing import List, Callable
 
 # Try to import FastAPI
 try:

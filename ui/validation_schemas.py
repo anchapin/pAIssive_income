@@ -6,7 +6,7 @@ These schemas ensure that data received through web forms and API endpoints
 is properly validated before being processed.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from uuid import UUID
 

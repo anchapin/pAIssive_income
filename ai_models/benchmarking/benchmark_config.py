@@ -5,7 +5,7 @@ This module provides configuration classes for benchmarking AI models.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List, Union, Tuple
+from typing import Dict, Any, Optional, List, Union
 import enum
 
 

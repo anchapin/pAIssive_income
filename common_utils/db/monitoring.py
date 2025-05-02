@@ -9,7 +9,6 @@ import time
 import logging
 import threading
 from typing import Any, Dict, List, Optional, Callable
-from functools import wraps
 
 from common_utils.db.interfaces import DatabaseInterface
 

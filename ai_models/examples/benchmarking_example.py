@@ -7,10 +7,9 @@ the performance of AI models.
 
 import os
 import sys
-import time
 import logging
 import argparse
-from typing import Dict, Any, Optional, List
+from typing import List
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -18,8 +17,6 @@ sys.path.append(
 )
 
 from ai_models.benchmarking import (
-    BenchmarkRunner,
-    BenchmarkConfig,
     BenchmarkType,
     run_benchmark,
     compare_models,

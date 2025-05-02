@@ -5,7 +5,7 @@ This module provides a metric for measuring the perplexity of language models.
 """
 
 import math
-from typing import Dict, Any, Optional, List, Union, Tuple, Callable
+from typing import Dict, List, Callable
 
 from .base_metric import BaseMetric
 

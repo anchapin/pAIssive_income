@@ -8,7 +8,6 @@ generation, storage, and retrieval.
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
 import os
-import copy
 
 from common_utils import (
     file_exists,
@@ -17,7 +16,7 @@ from common_utils import (
     load_from_json_file,
     is_date_in_range,
 )
-from .receipt import Receipt, ReceiptItem
+from .receipt import Receipt
 from .transaction import Transaction
 from .transaction_manager import TransactionManager
 from .payment_method import PaymentMethod
@@ -428,7 +427,7 @@ class ReceiptManager:
 
 # Example usage
 if __name__ == "__main__":
-    from .transaction import Transaction, TransactionStatus, TransactionType
+    from .transaction import Transaction, TransactionStatus
 
     # Create a transaction
     transaction = Transaction(
@@ -480,7 +479,7 @@ if __name__ == "__main__":
     receipt.save_to_file("receipt_example.txt", format="text")
     receipt.save_to_file("receipt_example.html", format="html")
 
-    print(f"\nReceipt saved to files: receipt_example.txt and receipt_example.html")
+    print("\nReceipt saved to files: receipt_example.txt and receipt_example.html")
 
     # Get customer receipts
     customer_receipts = manager.get_customer_receipts("cust_123")

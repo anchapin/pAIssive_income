@@ -3,7 +3,6 @@ Tests for target user analysis functionality.
 """
 
 import pytest
-from unittest.mock import MagicMock, patch
 
 from niche_analysis.target_user_analysis import (
     UserSegmentationAnalyzer,

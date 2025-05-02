@@ -37,4 +37,5 @@ jobs:
       env:
         PYTHONPATH: ${{ github.workspace }}
       run: |
-        python -m pytest tests/ai_models/test_model_info.py -v --import-mode=importlib
+        # Run all tests instead of just the model_info tests
+        python -m pytest tests/ -v --import-mode=importlib

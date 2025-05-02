@@ -6,11 +6,9 @@ This module provides the version command for the command-line interface.
 
 import argparse
 import logging
-from typing import Dict, Any, List, Optional
 
 from ..base import BaseCommand
 from ...model_manager import ModelManager
-from ...model_base_types import ModelInfo
 
 # Set up logging
 logging.basicConfig(

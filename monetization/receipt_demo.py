@@ -4,11 +4,8 @@ Receipt generation demo for the pAIssive Income project.
 This script demonstrates how to use the receipt generation system.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 
-from .transaction import Transaction, TransactionStatus, TransactionType
-from .receipt import Receipt, ReceiptItem
+from .transaction import Transaction, TransactionStatus
 from .receipt_manager import ReceiptManager
 
 

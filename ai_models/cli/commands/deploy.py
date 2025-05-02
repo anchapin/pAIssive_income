@@ -8,7 +8,7 @@ import os
 import json
 import argparse
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any
 
 from ..base import BaseCommand
 
@@ -256,7 +256,7 @@ class DeployCommand(BaseCommand):
         logger.info(f"Kubernetes configuration generated at {deployment_path}")
         logger.info("\nTo deploy to Kubernetes:")
         logger.info(f"cd {output_dir}")
-        logger.info(f"kubectl apply -k .")
+        logger.info("kubectl apply -k .")
 
         return 0
 
@@ -338,6 +338,6 @@ class DeployCommand(BaseCommand):
         )
         logger.info("\nTo deploy to the cloud:")
         logger.info(f"cd {output_dir}")
-        logger.info(f"./deploy.sh")
+        logger.info("./deploy.sh")
 
         return 0

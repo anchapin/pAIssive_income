@@ -9,9 +9,9 @@ import time
 import logging
 import threading
 from concurrent import futures
-from typing import Dict, Any, Optional, List, Union, Type, Tuple
+from typing import Dict, Any, List
 
-from ..server import ModelServer, ServerConfig, ServerProtocol
+from ..server import ModelServer
 from .config import GRPCConfig
 from .servicer import ModelServicer
 

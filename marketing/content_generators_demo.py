@@ -12,7 +12,6 @@ from marketing.content_templates import (
     CaseStudyTemplate,
 )
 from marketing.content_generators import (
-    GeneratorConfig,
     BlogPostGenerator,
     ProductDescriptionGenerator,
     CaseStudyGenerator,

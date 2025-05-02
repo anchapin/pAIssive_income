@@ -3,11 +3,9 @@ Tests for agent collaboration, learning, and specialization features.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
-import json
+from unittest.mock import MagicMock
 from datetime import datetime
 
-from agent_team import AgentTeam
 from agent_team.agent_profiles import ResearchAgent, DeveloperAgent, MarketingAgent
 from interfaces.agent_interfaces import IAgentTeam
 

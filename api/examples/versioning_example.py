@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 # Import API server
 from api.server import APIServer
 from api.config import APIConfig, APIVersion
-from api.version_manager import VersionManager, ChangeType
+from api.version_manager import VersionManager
 
 # Set up logging
 logging.basicConfig(

@@ -5,14 +5,12 @@ This module provides the Niche Analysis Service implementation, which handles
 opportunity discovery, analysis, and comparison of niche markets.
 """
 
-import os
 import logging
 import argparse
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, List
 
-from fastapi import FastAPI, Request, HTTPException, status, BackgroundTasks
+from fastapi import FastAPI, HTTPException, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from services.service_discovery.registration import (
@@ -21,7 +19,6 @@ from services.service_discovery.registration import (
     get_default_tags,
 )
 from niche_analysis.niche_analyzer import NicheAnalyzer
-from interfaces.agent_interfaces import IAgentTeam
 from agent_team import AgentTeam
 
 # Set up logging

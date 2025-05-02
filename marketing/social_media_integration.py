@@ -9,10 +9,9 @@ import os
 import json
 import uuid
 import logging
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import importlib
-from pathlib import Path
 
 # Local imports
 from interfaces.marketing_interfaces import ISocialMediaIntegration
@@ -29,13 +28,6 @@ from marketing.errors import (
 )
 from marketing.schemas import (
     SocialMediaPlatform,
-    SocialMediaConnectionSchema,
-    SocialMediaAuthSchema,
-    SocialMediaPostSchema,
-    SocialMediaAnalyticsSchema,
-    SocialMediaCampaignSchema,
-    AudienceInsightSchema,
-    ContentVisibility,
     PostScheduleType,
 )
 
@@ -588,7 +580,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             self._save_posts()
             return self.posts[platform_id][post_id]
 
-        except Exception as e:
+        except Exception:
             raise PostNotFoundError(platform_id, post_id)
 
     def delete_post(self, platform_id: str, post_id: str) -> bool:

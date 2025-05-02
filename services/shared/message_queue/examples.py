@@ -8,7 +8,7 @@ import time
 import logging
 import asyncio
 from typing import Dict, Any, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from services.shared.message_queue import (
     MessageQueueClient,
@@ -16,7 +16,6 @@ from services.shared.message_queue import (
     Message,
     MessageSchema,
     MessageType,
-    MessagePriority,
 )
 
 # Set up logging

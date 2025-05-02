@@ -4,7 +4,6 @@ Health check routes for REST API server.
 This module provides route handlers for health checks.
 """
 
-from typing import Dict, Any
 
 # Try to import FastAPI
 try:

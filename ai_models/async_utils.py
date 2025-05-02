@@ -12,16 +12,13 @@ from typing import (
     Dict,
     Any,
     Optional,
-    Union,
     TypeVar,
     Generic,
     Callable,
     Awaitable,
-    Iterator,
     AsyncIterator,
 )
 import functools
-import concurrent.futures
 from dataclasses import dataclass
 import time
 

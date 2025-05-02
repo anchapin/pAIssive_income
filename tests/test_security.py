@@ -4,9 +4,7 @@ Tests for security features.
 
 import unittest
 from unittest.mock import MagicMock, patch
-from datetime import datetime, timedelta
 import jwt
-from typing import Dict, Any
 
 from api.config import APIConfig
 from api.middleware.auth import AuthMiddleware

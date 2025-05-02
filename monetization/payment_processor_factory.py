@@ -4,7 +4,7 @@ Payment processor factory for the pAIssive Income project.
 This module provides a factory class for creating and managing payment processor instances.
 """
 
-from typing import Dict, List, Any, Optional, Union, Type
+from typing import Dict, List, Any, Optional, Type
 import importlib
 
 from .payment_processor import PaymentProcessor

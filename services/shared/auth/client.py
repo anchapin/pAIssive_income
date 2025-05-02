@@ -7,8 +7,7 @@ using service-to-service authentication.
 
 import os
 import logging
-import json
-from typing import Dict, Any, Optional, Union, List
+from typing import Dict, Any, Optional
 
 import httpx
 

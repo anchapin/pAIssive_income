@@ -7,8 +7,7 @@ This module provides a quantizer that uses the BitsAndBytes library for
 
 import os
 import logging
-import shutil
-from typing import Dict, Any, Optional, List, Union, Type, Tuple
+from typing import Dict, Any, Optional, List
 
 from .base import Quantizer, QuantizationConfig, QuantizationMethod
 

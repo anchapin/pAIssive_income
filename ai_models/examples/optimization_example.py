@@ -10,7 +10,6 @@ import sys
 import time
 import logging
 import argparse
-from typing import Dict, Any, Optional
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -19,18 +18,9 @@ sys.path.append(
 
 from ai_models.optimization import (
     # Quantization
-    QuantizationConfig,
-    QuantizationMethod,
-    BitsAndBytesQuantizer,
-    AWQQuantizer,
-    GPTQQuantizer,
     quantize_model,
     analyze_quantization,
     # Pruning
-    PruningConfig,
-    PruningMethod,
-    MagnitudePruner,
-    StructuredPruner,
     prune_model,
     analyze_pruning,
 )

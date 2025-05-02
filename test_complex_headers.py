@@ -1,5 +1,4 @@
-import pytest
-from api.schemas.webhook import WebhookRequest, WebhookEventType, WebhookUpdate
+from api.schemas.webhook import WebhookRequest, WebhookEventType
 
 data = {
     'url': 'https://example.com/webhook',

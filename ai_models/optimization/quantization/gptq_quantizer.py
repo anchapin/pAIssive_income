@@ -7,8 +7,7 @@ quantizing transformer models.
 
 import os
 import logging
-import shutil
-from typing import Dict, Any, Optional, List, Union, Type, Tuple
+from typing import Dict, Any, Optional, List
 
 from .base import Quantizer, QuantizationConfig, QuantizationMethod
 

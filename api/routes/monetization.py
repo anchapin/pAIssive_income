@@ -5,7 +5,7 @@ This module provides route handlers for Monetization operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Optional
 from datetime import datetime
 import uuid
 
@@ -34,11 +34,9 @@ from ..schemas.monetization import (
     RevenueProjectionRequest,
     RevenueProjectionResponse,
     SubscriptionType,
-    BillingPeriod,
 )
 from ..schemas.common import (
     ErrorResponse,
-    SuccessResponse,
     IdResponse,
     PaginatedResponse,
 )

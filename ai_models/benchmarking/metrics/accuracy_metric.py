@@ -4,7 +4,7 @@ Accuracy metric for benchmarking AI models.
 This module provides a metric for measuring the accuracy of AI models.
 """
 
-from typing import Dict, Any, Optional, List, Union, Tuple, Callable
+from typing import Dict, Any, List, Callable
 
 from .base_metric import BaseMetric
 

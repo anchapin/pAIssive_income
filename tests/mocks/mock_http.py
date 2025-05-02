@@ -5,7 +5,6 @@ This module mocks the requests library to allow testing of code that makes HTTP 
 without actually making network calls.
 """
 
-import io
 import json
 import re
 from typing import Dict, Any, Optional, Union, List, Callable, Iterator

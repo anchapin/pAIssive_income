@@ -6,7 +6,7 @@ This module provides storage backends for rate limiting.
 
 import time
 import logging
-from typing import Dict, Any, Optional, List, Set, Tuple
+from typing import Dict, Any, Optional
 from abc import ABC, abstractmethod
 
 # Set up logging

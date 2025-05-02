@@ -5,8 +5,7 @@ This module provides the base interface for cache backends.
 """
 
 import abc
-from typing import Dict, Any, Optional, List, Union
-import time
+from typing import Dict, Any, Optional, List
 
 
 class CacheBackend(abc.ABC):

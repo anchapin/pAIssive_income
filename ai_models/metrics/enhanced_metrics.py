@@ -8,14 +8,11 @@ cost calculation, and model comparison features.
 import os
 import time
 import logging
-import json
 import statistics
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field, asdict
-import threading
 import uuid
-from pathlib import Path
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

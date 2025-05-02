@@ -6,16 +6,13 @@ themselves and discover other services in the system.
 """
 
 import logging
-import os
 import socket
 import time
 import uuid
 from typing import Dict, List, Optional, Any, Tuple, Callable
 
 from services.service_discovery.service_registry import (
-    ServiceRegistry,
     ServiceInstance,
-    ServiceRegistrationError,
     ServiceLookupError
 )
 from services.service_discovery.consul_registry import ConsulServiceRegistry

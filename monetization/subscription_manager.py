@@ -5,11 +5,10 @@ This module provides classes for managing the subscription lifecycle,
 including creation, renewal, cancellation, and upgrades/downgrades.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import uuid
 import json
-import copy
 import os
 
 from .subscription import SubscriptionPlan, FeatureWrapper, TierWrapper

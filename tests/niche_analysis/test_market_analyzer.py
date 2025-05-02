@@ -3,7 +3,6 @@ Tests for the MarketAnalyzer class.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
 from datetime import datetime
 
 from niche_analysis.market_analyzer import MarketAnalyzer

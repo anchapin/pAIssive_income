@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 
 # Use absolute imports
 from monetization.metered_billing import MeteredBillingPricing, MeteringInterval
-from monetization.usage_tracking import UsageMetric, UsageCategory
 
 
 def test_metering_intervals():

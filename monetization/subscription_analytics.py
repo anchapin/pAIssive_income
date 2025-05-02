@@ -5,11 +5,8 @@ This module provides classes for analyzing subscription data, including
 metrics calculation, churn analysis, and revenue forecasting.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple, Callable
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
-import math
-import statistics
-import numpy as np
 from collections import defaultdict
 
 from .subscription import SubscriptionPlan

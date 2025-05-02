@@ -6,7 +6,7 @@ This module provides a gRPC servicer for handling model requests.
 
 import time
 import logging
-from typing import Dict, Any, Optional, List, Union, Iterator
+from typing import Dict, List
 
 # Set up logging
 logging.basicConfig(

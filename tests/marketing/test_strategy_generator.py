@@ -3,9 +3,6 @@ Tests for the StrategyGenerator class in the Marketing module.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
-import datetime
-import uuid
 
 from marketing.concrete_strategy_generator import DefaultStrategyGenerator
 

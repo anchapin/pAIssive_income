@@ -10,7 +10,7 @@ import time
 import sqlite3
 import threading
 import pickle
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional, List
 import re
 
 from .base import CacheBackend
@@ -102,7 +102,7 @@ class SQLiteCache(CacheBackend):
                 self._save_stats()
                 return value
 
-            except Exception as e:
+            except Exception:
                 conn.rollback()
                 self.stats["misses"] += 1
                 self._save_stats()
@@ -179,7 +179,7 @@ class SQLiteCache(CacheBackend):
                 self._save_stats()
                 return True
 
-            except Exception as e:
+            except Exception:
                 conn.rollback()
                 return False
 
@@ -209,7 +209,7 @@ class SQLiteCache(CacheBackend):
                 self._save_stats()
                 return True
 
-            except Exception as e:
+            except Exception:
                 conn.rollback()
                 return False
 
@@ -249,7 +249,7 @@ class SQLiteCache(CacheBackend):
 
                 return True
 
-            except Exception as e:
+            except Exception:
                 return False
 
             finally:
@@ -275,7 +275,7 @@ class SQLiteCache(CacheBackend):
                 self._save_stats()
                 return True
 
-            except Exception as e:
+            except Exception:
                 conn.rollback()
                 return False
 
@@ -303,7 +303,7 @@ class SQLiteCache(CacheBackend):
 
                 return count
 
-            except Exception as e:
+            except Exception:
                 return 0
 
             finally:
@@ -338,7 +338,7 @@ class SQLiteCache(CacheBackend):
                 regex = re.compile(pattern)
                 return [key for key in keys if regex.match(key)]
 
-            except Exception as e:
+            except Exception:
                 return []
 
             finally:
@@ -397,7 +397,7 @@ class SQLiteCache(CacheBackend):
                 ttl = int(expiration_time - time.time())
                 return ttl if ttl > 0 else 0
 
-            except Exception as e:
+            except Exception:
                 return None
 
             finally:
@@ -431,7 +431,7 @@ class SQLiteCache(CacheBackend):
 
                 return cursor.rowcount > 0
 
-            except Exception as e:
+            except Exception:
                 conn.rollback()
                 return False
 
@@ -473,7 +473,7 @@ class SQLiteCache(CacheBackend):
 
             conn.commit()
 
-        except Exception as e:
+        except Exception:
             conn.rollback()
             raise
 

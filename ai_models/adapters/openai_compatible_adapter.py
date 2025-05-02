@@ -5,12 +5,9 @@ This module provides an adapter for connecting to OpenAI-compatible APIs,
 including local API servers and cloud services.
 """
 
-import os
 import json
 import logging
-import time
-from typing import Dict, List, Any, Optional, Union, Generator, Tuple
-import threading
+from typing import Dict, List, Any, Optional, Union, Generator
 
 # Set up logging
 logging.basicConfig(

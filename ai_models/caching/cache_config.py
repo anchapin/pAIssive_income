@@ -5,7 +5,7 @@ This module provides configuration classes for the model cache system.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional, List
 
 
 @dataclass

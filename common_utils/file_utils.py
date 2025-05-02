@@ -8,7 +8,7 @@ import os
 import shutil
 import logging
 import asyncio
-from typing import List, Optional, Union, BinaryIO, TextIO, Any
+from typing import List, Optional, Union, Any
 
 # Import the run_in_thread utility for async operations
 from ai_models.async_utils import run_in_thread

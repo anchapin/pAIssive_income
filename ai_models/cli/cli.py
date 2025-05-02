@@ -7,7 +7,7 @@ This module provides the main entry point for the command-line interface.
 import sys
 import argparse
 import logging
-from typing import List, Optional, Dict, Any, Type
+from typing import List, Optional, Dict, Type
 
 from .base import BaseCommand
 from .commands import (

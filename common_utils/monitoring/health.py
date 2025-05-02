@@ -7,7 +7,7 @@ integrating with monitoring systems, and providing a status endpoint for health 
 
 import time
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 import threading
 from common_utils.logging import get_logger
 

@@ -4,18 +4,14 @@ Tests for the Niche Analysis GraphQL API.
 This module contains tests for Niche Analysis GraphQL queries and mutations.
 """
 
-import pytest
-from typing import Dict, Any, List
-from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import (
-    generate_id, generate_niche_data, generate_niche_analysis_data
+    generate_id, generate_niche_analysis_data
 )
 from tests.api.utils.test_validators import (
     validate_json_response, validate_field_exists,
-    validate_field_equals, validate_field_type,
-    validate_field_not_empty
+    validate_field_equals, validate_field_type
 )
 
 

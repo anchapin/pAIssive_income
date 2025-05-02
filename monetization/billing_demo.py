@@ -4,25 +4,16 @@ Billing calculation demo for the pAIssive Income project.
 This script demonstrates how to use the billing calculation system.
 """
 
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import random
 
 from .usage_tracking import (
     UsageMetric,
     UsageCategory,
-    UsageRecord,
     UsageLimit,
-    UsageQuota,
 )
 from .usage_tracker import UsageTracker
-from .billing_calculator import (
-    BillingCalculator,
-    PricingModel,
-    PricingTier,
-    PricingRule,
-)
-from .tiered_pricing import TieredPricingCalculator, VolumeDiscount
+from .tiered_pricing import TieredPricingCalculator
 from .prorated_billing import ProratedBilling
 
 

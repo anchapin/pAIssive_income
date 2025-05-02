@@ -5,7 +5,6 @@ This module provides Pydantic models for API analytics.
 """
 
 from typing import Dict, List, Any, Optional
-from datetime import datetime
 from pydantic import BaseModel, Field
 
 

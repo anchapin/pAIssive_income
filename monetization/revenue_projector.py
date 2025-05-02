@@ -5,12 +5,10 @@ This module provides classes for projecting revenue for AI-powered software tool
 It includes tools for user acquisition, conversion, churn, and lifetime value calculations.
 """
 
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 import uuid
 import json
-import math
-import copy
 
 
 class RevenueProjector:
@@ -662,7 +660,7 @@ if __name__ == "__main__":
     average_revenue = 9.99 * 0.6 + 19.99 * 0.3 + 49.99 * 0.1
     ltv = projector.calculate_lifetime_value(average_revenue)
 
-    print(f"\nCustomer Lifetime Value:")
+    print("\nCustomer Lifetime Value:")
     print(f"Average Revenue Per User: ${ltv['average_revenue_per_user']:.2f}")
     print(f"Average Customer Lifetime: {ltv['average_lifetime_months']:.1f} months")
     print(f"Lifetime Value: ${ltv['lifetime_value']:.2f}")
@@ -672,7 +670,7 @@ if __name__ == "__main__":
         customer_acquisition_cost=50, average_revenue_per_user=average_revenue
     )
 
-    print(f"\nCustomer Payback Period:")
+    print("\nCustomer Payback Period:")
     print(f"Customer Acquisition Cost: ${payback['customer_acquisition_cost']:.2f}")
     print(f"Monthly Contribution: ${payback['monthly_contribution']:.2f}")
     print(f"Payback Period: {payback['payback_period_months']:.1f} months")

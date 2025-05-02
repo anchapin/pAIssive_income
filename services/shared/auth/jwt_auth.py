@@ -8,8 +8,7 @@ for secure service-to-service communication in the microservices architecture.
 import os
 import time
 import logging
-from typing import Dict, Any, Optional, Union
-from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
 
 import jwt
 from pydantic import BaseModel, Field

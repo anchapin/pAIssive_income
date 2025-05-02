@@ -5,12 +5,10 @@ This module provides pytest fixtures for common testing scenarios,
 making it easier to use mocks consistently across tests.
 """
 
-import os
 import pytest
 import tempfile
 import json
 from typing import Dict, Any, Optional
-from unittest.mock import MagicMock, patch
 from datetime import datetime, timedelta
 
 # Import our mock implementations
@@ -21,18 +19,16 @@ from .mock_model_providers import (
     MockHuggingFaceProvider,
     MockLocalModelProvider,
     MockONNXProvider,
-    create_mock_provider,
 )
 
-from .mock_http import MockResponse, mock_requests
-from .mock_huggingface_hub import mock_huggingface_hub, MockRepoInfo, HfHubHTTPError
+from .mock_http import mock_requests
+from .mock_huggingface_hub import mock_huggingface_hub, HfHubHTTPError
 
 from .mock_external_apis import (
     MockHuggingFaceAPI,
     MockPaymentAPI,
     MockEmailAPI,
     MockStorageAPI,
-    create_mock_api,
 )
 
 

@@ -10,18 +10,15 @@ This module provides tools for:
 """
 
 import uuid
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import json
 import os
 import logging
-import math
-import statistics
 from collections import defaultdict
 
 from marketing.errors import (
     MarketingError,
-    MarketingCampaignError,
     InvalidParameterError,
 )
 from interfaces.marketing_interfaces import ICampaignTracker

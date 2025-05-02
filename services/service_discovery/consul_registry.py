@@ -5,13 +5,10 @@ This module provides a Consul client implementation of the ServiceRegistry inter
 allowing microservices to register with Consul and discover other services.
 """
 
-import json
 import logging
-import uuid
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional
 
 import consul
-import requests
 
 from services.service_discovery.service_registry import (
     ServiceRegistry,

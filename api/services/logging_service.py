@@ -9,11 +9,10 @@ import logging
 import json
 import os
 import sys
-import time
 import traceback
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List, Union
-from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+from typing import Dict, Any, Optional, List
+from logging.handlers import RotatingFileHandler
 
 # Configure default logger
 logging.basicConfig(level=logging.INFO)

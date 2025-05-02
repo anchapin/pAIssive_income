@@ -8,7 +8,7 @@ import os
 import json
 import time
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List, Union, Tuple
+from typing import Dict, Any, Optional, List
 import statistics
 
 from .benchmark_config import BenchmarkConfig, BenchmarkType

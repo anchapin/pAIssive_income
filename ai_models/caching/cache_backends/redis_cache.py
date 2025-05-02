@@ -7,7 +7,7 @@ This module provides a Redis-based cache backend.
 import json
 import time
 import pickle
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional, List
 import re
 
 from .base import CacheBackend
@@ -115,7 +115,7 @@ class RedisCache(CacheBackend):
             self._save_stats()
             return value
 
-        except Exception as e:
+        except Exception:
             self.stats["misses"] += 1
             self._save_stats()
             return None
@@ -164,7 +164,7 @@ class RedisCache(CacheBackend):
             self._save_stats()
             return True
 
-        except Exception as e:
+        except Exception:
             return False
 
     def delete(self, key: str) -> bool:
@@ -220,7 +220,7 @@ class RedisCache(CacheBackend):
             self._save_stats()
             return True
 
-        except Exception as e:
+        except Exception:
             return False
 
     def get_size(self) -> int:

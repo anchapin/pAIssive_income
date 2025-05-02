@@ -3,12 +3,11 @@ Tests for the NicheAnalyzer class.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 import uuid
 
 from niche_analysis.niche_analyzer import NicheAnalyzer
 from interfaces.agent_interfaces import IAgentTeam
-from interfaces.niche_interfaces import INicheAnalyzer
 
 
 @pytest.fixture

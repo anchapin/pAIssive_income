@@ -5,14 +5,12 @@ This module provides the AI Models Service implementation, which manages AI mode
 inference, and optimization for the pAIssive income platform.
 """
 
-import os
 import logging
 import argparse
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, List
 
-from fastapi import FastAPI, Request, HTTPException, status, BackgroundTasks
+from fastapi import FastAPI, HTTPException, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from services.service_discovery.registration import (

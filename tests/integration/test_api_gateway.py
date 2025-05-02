@@ -4,9 +4,8 @@ Integration tests for API gateway functionality.
 
 import pytest
 import jwt
-import time
 import requests
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from datetime import datetime, timedelta
 
 from services.gateway import (

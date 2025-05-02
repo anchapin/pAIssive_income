@@ -5,7 +5,7 @@ This module provides resolvers for marketing queries and mutations.
 """
 
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 
 # Set up logging
 logging.basicConfig(
@@ -26,11 +26,9 @@ if STRAWBERRY_AVAILABLE:
     from ..schemas.marketing import (
         MarketingStrategyType,
         ContentTemplateType,
-        CampaignType,
         ChannelAnalysisType,
         MarketingStrategyInput,
         ContentTemplateInput,
-        CampaignInput,
     )
 
     @strawberry.type

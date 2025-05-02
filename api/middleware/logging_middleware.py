@@ -7,7 +7,7 @@ This module provides middleware for request logging and performance monitoring.
 import logging
 import time
 import uuid
-from typing import Callable, Dict, Any, Optional
+from typing import Callable, Optional
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 

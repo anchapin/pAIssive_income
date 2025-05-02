@@ -5,11 +5,10 @@ This module provides classes for managing payment methods, including
 creation, validation, and storage.
 """
 
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, Any, Optional
 from datetime import datetime
 import uuid
 import json
-import copy
 import re
 
 

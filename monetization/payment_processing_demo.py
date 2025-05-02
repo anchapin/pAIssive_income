@@ -4,12 +4,7 @@ Payment processing demo for the pAIssive Income project.
 This script demonstrates how to use the payment processing system.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-import json
 
-from .payment_processor import PaymentProcessor
-from .mock_payment_processor import MockPaymentProcessor
 from .payment_processor_factory import factory
 
 

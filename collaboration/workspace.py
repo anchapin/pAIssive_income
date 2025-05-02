@@ -9,11 +9,11 @@ import os
 import json
 import uuid
 import logging
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any
 from datetime import datetime
 import shutil
 
-from .errors import WorkspaceError, PermissionError
+from .errors import WorkspaceError
 from .access_control import RoleManager, Role, Permission
 
 # Set up logging

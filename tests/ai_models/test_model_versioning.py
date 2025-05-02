@@ -6,11 +6,9 @@ and conflict resolution in the model versioning system.
 """
 
 import pytest
-from datetime import datetime
 from ai_models.model_versioning import (
     ModelVersion,
     ModelVersionRegistry,
-    VersionedModelManager,
     ModelMigrationTool,
 )
 from ai_models.model_base_types import ModelInfo

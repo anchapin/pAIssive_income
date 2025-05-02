@@ -6,7 +6,7 @@ and improve testability and maintainability.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any
 
 
 class IAgentProfile(ABC):

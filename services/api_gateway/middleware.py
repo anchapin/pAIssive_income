@@ -7,9 +7,9 @@ including authentication, rate limiting, and other cross-cutting concerns.
 
 import time
 import logging
-from typing import Dict, Any, Optional, List, Callable, Union
+from typing import Dict, Optional, List, Callable
 
-from fastapi import Request, Response, HTTPException, status
+from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 

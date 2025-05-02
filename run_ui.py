@@ -7,7 +7,6 @@ This script is the main entry point for running the web interface.
 import os
 import sys
 import logging
-from datetime import datetime
 
 # Set up logging
 logging.basicConfig(

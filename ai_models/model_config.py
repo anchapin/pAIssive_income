@@ -6,15 +6,14 @@ including settings for model paths, cache, and performance options.
 """
 
 import os
-from typing import Dict, List, Any, Optional, Union
-from dataclasses import dataclass, field, asdict
-from pathlib import Path
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, field
 
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from interfaces.model_interfaces import IModelConfig
-from common_utils import to_json, from_json, save_to_json_file, load_from_json_file
+from common_utils import to_json, save_to_json_file, load_from_json_file
 from .schemas import ModelConfigSchema
 
 

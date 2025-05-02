@@ -8,15 +8,14 @@ including text generation, embeddings, classification, and image processing.
 import time
 import logging
 import asyncio
-from typing import List, Dict, Any, Optional, Union, TypeVar, Generic, Tuple
+from typing import List, Dict, Any, Optional, TypeVar, Generic, Tuple
 from dataclasses import dataclass, field
-import concurrent.futures
 from datetime import datetime
 import uuid
 
 from .model_manager import ModelManager
 from .performance_monitor import PerformanceMonitor
-from common_utils.batch_utils import BatchResult, BatchProcessingStats
+from common_utils.batch_utils import BatchProcessingStats
 from .async_utils import AsyncModelProcessor, AsyncResult
 
 # Set up logging

@@ -8,13 +8,12 @@ in the marketing.content_optimization module, using the Hypothesis framework for
 import pytest
 import uuid
 from datetime import datetime
-from hypothesis import given, strategies as st, assume, settings, example
+from hypothesis import given, strategies as st, assume
 from hypothesis.strategies import composite
 
 from marketing.content_optimization import (
     KeywordAnalyzer,
     ReadabilityAnalyzer,
-    SEOAnalyzer,
 )
 
 # Constants for generating test content

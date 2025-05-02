@@ -6,7 +6,7 @@ This module provides a client for making requests to the pAIssive Income API.
 
 import json
 import logging
-from typing import Dict, Any, Optional, Union, List
+from typing import Dict, Any, Optional
 import requests
 
 from .auth import Auth, NoAuth

@@ -5,9 +5,8 @@ This module provides API routes for accessing analytics data.
 """
 
 import logging
-import json
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from typing import List, Optional
+from datetime import datetime
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -34,11 +33,10 @@ from ..schemas.analytics import (
     ApiKeyStatsResponse,
     AnalyticsSummaryResponse,
     RealTimeMetricsResponse,
-    AlertResponse,
     AlertThresholdRequest,
     AlertThresholdResponse,
 )
-from ..schemas.common import ErrorResponse, SuccessResponse
+from ..schemas.common import SuccessResponse
 
 # Create router
 if FASTAPI_AVAILABLE:

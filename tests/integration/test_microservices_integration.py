@@ -7,19 +7,13 @@ circuit breaker.
 """
 
 import pytest
-import time
-import json
-import threading
-import requests
-from unittest.mock import MagicMock, patch
-from datetime import datetime, timedelta
+from unittest.mock import patch
 
 from services.service_discovery.service_registry import ServiceInstance
 from services.service_discovery.discovery_client import ServiceDiscoveryClient
 from services.service_discovery.load_balancer import (
     LoadBalancer, 
     RoundRobinStrategy,
-    RandomStrategy,
     WeightedRandomStrategy
 )
 

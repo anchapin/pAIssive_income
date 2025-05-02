@@ -4,11 +4,9 @@ List command for the command-line interface.
 This module provides a command for listing available models.
 """
 
-import os
 import json
 import argparse
 import logging
-from typing import Dict, Any, Optional, List
 
 from ..base import BaseCommand
 

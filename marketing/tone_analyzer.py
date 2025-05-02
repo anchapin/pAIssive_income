@@ -4,7 +4,7 @@ Tone analyzer module for the pAIssive Income project.
 This module provides classes for analyzing and adjusting the tone of content.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple, Type
+from typing import Dict, List, Any, Optional, Tuple
 from abc import ABC, abstractmethod
 import uuid
 import json
@@ -12,8 +12,6 @@ import datetime
 import re
 import math
 import string
-import random
-from collections import Counter
 
 # Third-party imports
 try:

@@ -3,8 +3,7 @@ Query parameter utilities for API endpoints.
 
 This module provides utilities for handling query parameters in API endpoints.
 """
-from typing import Dict, Any, List, Optional, TypeVar, Generic, Union, Callable
-from datetime import datetime
+from typing import Dict, Any, List, Optional, TypeVar, Generic, Callable
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 

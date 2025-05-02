@@ -5,14 +5,12 @@ This module provides classes for calculating billing based on usage,
 including different pricing models and cost estimation.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
-from datetime import datetime, timedelta
-import math
-import copy
+from typing import Dict, List, Any, Optional
+from datetime import datetime
 import hashlib
 import json
 
-from .usage_tracking import UsageRecord, UsageMetric, UsageCategory
+from .usage_tracking import UsageMetric, UsageCategory
 from .usage_tracker import UsageTracker
 
 # Import the centralized caching service

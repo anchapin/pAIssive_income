@@ -5,34 +5,19 @@ This module contains integration tests that span multiple API endpoints.
 """
 
 import pytest
-from typing import Dict, Any, List
-from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import (
-    generate_id,
     generate_niche_analysis_data,
     generate_monetization_data,
     generate_marketing_strategy_data,
     generate_agent_team_data,
 )
 from tests.api.utils.test_validators import (
-    validate_status_code,
-    validate_json_response,
-    validate_error_response,
     validate_success_response,
     validate_paginated_response,
-    validate_bulk_response,
     validate_field_exists,
-    validate_field_equals,
     validate_field_type,
-    validate_field_not_empty,
-    validate_list_not_empty,
-    validate_list_length,
-    validate_list_min_length,
-    validate_list_max_length,
-    validate_list_contains,
-    validate_list_contains_dict_with_field,
 )
 
 

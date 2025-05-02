@@ -6,11 +6,9 @@ disk usage, and network activity. It integrates with the metrics system to recor
 and track resource usage over time.
 """
 
-import os
-import time
 import threading
 from enum import Enum
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, Optional, Union, Any
 import platform
 
 # Import our logging and metrics modules
@@ -212,12 +210,12 @@ class SystemMonitor:
                 # Record metrics for main interfaces only, not loopback or virtual
                 if interface not in ("lo", "bridge", "veth", "docker"):
                     record_value(
-                        f"system_network_bytes_sent",
+                        "system_network_bytes_sent",
                         counters.bytes_sent,
                         {"interface": interface},
                     )
                     record_value(
-                        f"system_network_bytes_recv",
+                        "system_network_bytes_recv",
                         counters.bytes_recv,
                         {"interface": interface},
                     )

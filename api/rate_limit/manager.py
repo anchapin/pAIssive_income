@@ -4,14 +4,12 @@ Rate limit manager.
 This module provides a manager for rate limiting.
 """
 
-import time
 import logging
-import hashlib
-from typing import Dict, Any, Optional, List, Set, Tuple, Callable
+from typing import Dict, Any, Optional, Tuple
 
-from ..config import APIConfig, RateLimitStrategy, RateLimitScope
+from ..config import APIConfig, RateLimitScope
 from .algorithms import create_rate_limiter, RateLimiter
-from .storage import create_storage, RateLimitStorage
+from .storage import create_storage
 
 # Set up logging
 logging.basicConfig(

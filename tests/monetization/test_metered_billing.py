@@ -6,7 +6,6 @@ usage tracking, billing calculation, and billing thresholds.
 """
 
 import pytest
-import json
 from datetime import datetime, timedelta
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
@@ -16,7 +15,6 @@ from monetization.metered_billing import (
     UsageTracker,
     BillingCalculator,
     BillingPeriod,
-    UsageMetric,
     BillingThreshold,
     BillingConfig
 )

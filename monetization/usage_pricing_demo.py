@@ -5,14 +5,11 @@ This script demonstrates how to use the usage-based pricing models
 to implement different pricing strategies.
 """
 
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import random
 
-from .usage_tracking import UsageMetric, UsageCategory, UsageRecord
+from .usage_tracking import UsageMetric, UsageCategory
 from .usage_tracker import UsageTracker
-from .billing_calculator import BillingCalculator
-from .usage_based_pricing import UsageBasedPricing
 from .usage_pricing_strategies import (
     PayAsYouGoPricing,
     TieredUsagePricing,

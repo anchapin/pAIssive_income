@@ -5,13 +5,10 @@ This script demonstrates how to use the custom pricing rules
 to implement complex pricing strategies.
 """
 
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import random
-import time
 
 from .usage_tracking import UsageMetric, UsageCategory
-from .billing_calculator import BillingCalculator
 from .custom_pricing import (
     CustomPricingCalculator,
     TimeBasedPricingRule,
@@ -658,7 +655,7 @@ def demonstrate_combined_pricing() -> None:
     print("=" * 40)
     print("INVOICE")
     print("=" * 40)
-    print(f"Customer: Premium Technology Customer")
+    print("Customer: Premium Technology Customer")
     print(f"Date: {datetime.now().strftime('%Y-%m-%d')}")
     print(f"Invoice #: INV-{random.randint(10000, 99999)}")
     print("-" * 40)

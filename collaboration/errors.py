@@ -7,7 +7,7 @@ for the collaboration module.
 
 import logging
 import traceback
-from typing import Optional, Any, Dict, List, Callable
+from typing import Optional, Any, Dict, Callable
 
 # Set up logging
 logger = logging.getLogger(__name__)

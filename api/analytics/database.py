@@ -9,7 +9,7 @@ import json
 import sqlite3
 import logging
 import threading
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Dict, List, Any, Tuple
 from datetime import datetime, timedelta
 
 # Set up logging
@@ -411,13 +411,13 @@ class AnalyticsDatabase:
             if row_dict.get("metadata"):
                 try:
                     row_dict["metadata"] = json.loads(row_dict["metadata"])
-                except:
+                except Exception:
                     row_dict["metadata"] = {}
 
             if row_dict.get("query_params"):
                 try:
                     row_dict["query_params"] = json.loads(row_dict["query_params"])
-                except:
+                except Exception:
                     row_dict["query_params"] = {}
 
             result.append(row_dict)
@@ -521,7 +521,7 @@ class AnalyticsDatabase:
             if row_dict.get("endpoints_used"):
                 try:
                     row_dict["endpoints_used"] = json.loads(row_dict["endpoints_used"])
-                except:
+                except Exception:
                     row_dict["endpoints_used"] = []
 
             result.append(row_dict)
@@ -576,7 +576,7 @@ class AnalyticsDatabase:
             if row_dict.get("endpoints_used"):
                 try:
                     row_dict["endpoints_used"] = json.loads(row_dict["endpoints_used"])
-                except:
+                except Exception:
                     row_dict["endpoints_used"] = []
 
             result.append(row_dict)

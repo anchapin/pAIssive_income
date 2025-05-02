@@ -8,9 +8,8 @@ to visualize model performance metrics, token usage, and cost data.
 import os
 import logging
 import json
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import List, Optional
 from datetime import datetime, timedelta
-from pathlib import Path
 import time
 
 # Set up logging
@@ -18,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import metrics classes
-from ai_models.metrics import EnhancedPerformanceMonitor, EnhancedPerformanceReport
+from ai_models.metrics import EnhancedPerformanceMonitor
 
 
 class MetricsDashboard:

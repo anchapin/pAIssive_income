@@ -5,8 +5,6 @@ This service provides methods for interacting with the Agent Team module.
 """
 
 import logging
-import os
-import json
 from typing import Dict, List, Any, Optional
 import uuid
 

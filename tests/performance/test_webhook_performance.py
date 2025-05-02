@@ -8,15 +8,14 @@ under various load conditions.
 import asyncio
 import time
 import statistics
-import uuid
 import json
 from datetime import datetime, timezone
 from typing import List, Dict, Any
 import httpx
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from api.services.webhook_service import WebhookService
-from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
+from api.schemas.webhook import WebhookEventType
 
 # Test configuration
 NUM_WEBHOOKS = [1, 10, 50, 100]  # Number of webhooks to test with

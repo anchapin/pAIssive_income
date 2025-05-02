@@ -7,7 +7,7 @@ This module provides the MonetizationCalculator class that calculates monetizati
 import os
 import logging
 import math
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 import sys
 

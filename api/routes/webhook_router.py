@@ -5,17 +5,16 @@ This module provides route handlers for webhook operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends, Query, Path, Body, status, Request
 from contextlib import asynccontextmanager
 
-from ..middleware.auth import get_current_user, get_api_key
+from ..middleware.auth import get_current_user
 from ..schemas.webhook import (
     WebhookRequest,
     WebhookUpdate,
     WebhookResponse,
     WebhookList,
-    WebhookDeliveryResponse,
     WebhookDeliveryList,
     WebhookEventType,
     WebhookDeliveryStatus
@@ -23,7 +22,6 @@ from ..schemas.webhook import (
 from ..schemas.common import ErrorResponse, SuccessResponse
 from ..services.webhook_service import WebhookService
 from ..models.user import User
-from ..models.api_key import APIKey
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

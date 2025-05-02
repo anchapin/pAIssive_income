@@ -4,9 +4,8 @@ Pydantic schemas for the niche analysis module.
 This module provides Pydantic models for data validation in the niche analysis module.
 """
 
-from typing import Dict, List, Any, Optional, Union, Literal
-from pydantic import BaseModel, Field, ConfigDict
-from datetime import datetime
+from typing import Dict, List, Optional
+from pydantic import BaseModel, Field
 
 
 class CurrentSolutionSchema(BaseModel):

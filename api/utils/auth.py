@@ -7,7 +7,7 @@ This module provides utilities for authentication in API endpoints.
 import os
 import jwt
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, APIKeyHeader

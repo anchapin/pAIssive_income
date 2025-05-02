@@ -5,14 +5,10 @@ This module provides an adapter for connecting to Ollama,
 a local API server for running large language models.
 """
 
-import os
 import json
 import logging
-import time
-import asyncio
 import aiohttp
-from typing import Dict, List, Any, Optional, Union, Generator, AsyncGenerator, Tuple
-import threading
+from typing import Dict, List, Any, Optional, Union, Generator, AsyncGenerator
 
 from .base_adapter import BaseModelAdapter
 
@@ -182,7 +178,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         except Exception as e:
             self._handle_error(
-                e, f"Failed to get models from Ollama", operation="get_models"
+                e, "Failed to get models from Ollama", operation="get_models"
             )
             return []
 

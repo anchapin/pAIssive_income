@@ -7,11 +7,8 @@ and its integration with other microservices.
 
 import pytest
 import time
-import json
 import threading
-import asyncio
-from unittest.mock import MagicMock, patch
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from services.messaging import (
     MessageQueueClient,

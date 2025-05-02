@@ -5,7 +5,7 @@ This module provides GraphQL types and resolvers for the marketing module.
 """
 
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 
 # Set up logging
 logging.basicConfig(

@@ -5,12 +5,10 @@ Tests for the ModelManager class.
 import os
 import json
 import pytest
-from unittest.mock import patch, MagicMock, mock_open
-from pathlib import Path
+from unittest.mock import MagicMock
 import tempfile
 import shutil
 
-from ai_models.model_manager import ModelInfo
 from interfaces.model_interfaces import IModelManager, IModelConfig, IModelInfo
 
 

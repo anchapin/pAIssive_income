@@ -6,12 +6,11 @@ functions in the monetization module, using the Hypothesis framework for propert
 """
 
 import pytest
-from hypothesis import given, strategies as st, assume, settings, example
+from hypothesis import given, strategies as st, assume, example
 from hypothesis.strategies import composite
 
 from monetization.calculator import MonetizationCalculator
 from monetization.pricing_calculator import PricingCalculator
-from monetization.errors import MonetizationError
 
 
 @composite

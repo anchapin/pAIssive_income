@@ -5,7 +5,6 @@ These tests verify that the RevenueProjector produces sensible
 projections across a wide range of input parameters.
 """
 
-import pytest
 from hypothesis import given, strategies as st, assume
 from monetization.revenue_projector import RevenueProjector
 from monetization.subscription_models import SubscriptionModel

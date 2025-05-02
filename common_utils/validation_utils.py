@@ -10,10 +10,9 @@ import os
 import uuid
 import json
 import logging
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, Callable
+from typing import Any, Type, TypeVar, Callable
 from datetime import datetime
 from pathlib import Path
-import unicodedata
 import html
 
 # Set up logging

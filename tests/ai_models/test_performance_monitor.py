@@ -3,9 +3,7 @@ Tests for the PerformanceMonitor class.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
-from datetime import datetime
-import json
+from unittest.mock import MagicMock
 
 from ai_models.performance_monitor import (
     PerformanceMonitor,

@@ -9,7 +9,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query, Path, HTTPException, status
 from datetime import datetime
 
-from ..middleware.auth import get_api_key, get_current_user, require_scopes
+from ..middleware.auth import get_current_user, require_scopes
 from ..services.audit_service import AuditService
 from ..schemas.audit import (
     AuditEventResponse,
@@ -17,11 +17,9 @@ from ..schemas.audit import (
     AuditEventType,
     AuditResourceType,
     AuditAction,
-    AuditStatus,
-    AuditActorType
+    AuditStatus
 )
 from ..models.user import User
-from ..models.api_key import APIKey
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -6,7 +6,6 @@ module-specific resolvers will extend.
 """
 
 import logging
-from typing import Optional, Dict, Any
 import datetime
 
 # Set up logging

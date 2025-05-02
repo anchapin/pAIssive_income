@@ -5,15 +5,12 @@ This module provides classes for delivering invoices to customers,
 including email delivery, PDF generation, and export functionality.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
-from datetime import datetime, timedelta
-import os
+from typing import Dict, List, Any, Optional, Union
+from datetime import datetime
 import json
-import copy
 import base64
-import tempfile
 
-from .invoice import Invoice, InvoiceStatus
+from .invoice import Invoice
 
 
 class InvoiceFormatter:
@@ -131,7 +128,7 @@ class InvoiceFormatter:
 
         # Invoice information
         html.append('<div class="invoice-info">')
-        html.append(f'<div class="invoice-title">INVOICE</div>')
+        html.append('<div class="invoice-title">INVOICE</div>')
         html.append(f"<div><strong>Invoice Number:</strong> {invoice.number}</div>")
         html.append(
             f'<div><strong>Date:</strong> {invoice.date.strftime("%Y-%m-%d")}</div>'
@@ -224,8 +221,8 @@ class InvoiceFormatter:
 
         # Payment information
         if invoice.payments:
-            html.append(f'<tr><td colspan="2" style="height: 10px;"></td></tr>')
-            html.append(f"<tr><td>Payments:</td><td></td></tr>")
+            html.append('<tr><td colspan="2" style="height: 10px;"></td></tr>')
+            html.append("<tr><td>Payments:</td><td></td></tr>")
 
             for payment in invoice.payments:
                 payment_date = datetime.fromisoformat(payment["date"]).strftime(
@@ -530,11 +527,11 @@ class InvoiceFormatter:
         pdf_header = b"%PDF-1.7\n"
 
         # Create a simple PDF body with the HTML content
-        pdf_body = f"1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
-        pdf_body += f"2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
-        pdf_body += f"3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n"
+        pdf_body = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
+        pdf_body += "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
+        pdf_body += "3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n"
         pdf_body += (
-            f"4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n"
+            "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n"
         )
         pdf_body += (
             f"5 0 obj\n<< /Length {len(html)} >>\nstream\n{html}\nendstream\nendobj\n"
@@ -922,7 +919,7 @@ class InvoiceDelivery:
 
 # Example usage
 if __name__ == "__main__":
-    from .invoice import Invoice, InvoiceStatus
+    from .invoice import Invoice
 
     # Create an invoice
     invoice = Invoice(customer_id="cust_123", currency="USD")

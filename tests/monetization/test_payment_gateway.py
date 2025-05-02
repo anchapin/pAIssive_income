@@ -6,10 +6,9 @@ payment processing, subscription lifecycle, and refund handling.
 """
 
 import pytest
-import json
 from datetime import datetime, timedelta
 from decimal import Decimal
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from monetization.payment_gateway import (
     PaymentGateway,
@@ -18,7 +17,6 @@ from monetization.payment_gateway import (
     PaymentMethod,
     PaymentStatus,
     SubscriptionStatus,
-    PaymentError,
     RefundReason
 )
 

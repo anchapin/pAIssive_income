@@ -6,12 +6,9 @@ This module provides route handlers for Niche Analysis operations.
 
 import logging
 from typing import Dict, List, Optional, Any
-from datetime import datetime
 import uuid
 import time
-from common_utils.batch_utils import process_batch, BatchResult
 from errors import BaseError, ValidationError
-from ..errors import HTTPStatus, create_error_response
 
 # Set up logging
 logging.basicConfig(
@@ -35,25 +32,16 @@ from ..schemas.niche_analysis import (
     NicheAnalysisResponse,
     NicheResponse,
     MarketSegmentResponse,
-    ProblemResponse,
-    OpportunityResponse,
-    # Bulk operation schemas
     NicheCreateRequest,
     BulkNicheCreateRequest,
-    BulkNicheCreateResponse,
     NicheUpdateRequest,
     BulkNicheUpdateRequest,
-    BulkNicheUpdateResponse,
 )
 from ..schemas.common import (
     ErrorResponse,
     SuccessResponse,
-    IdResponse,
     PaginatedResponse,
     SortDirection,
-    FilterOperator,
-    FilterParam,
-    SortParam,
     QueryParams,
 )
 
@@ -61,10 +49,6 @@ from ..schemas.common import (
 from ..dependencies import (
     get_niche_service,
     get_market_segment_service,
-    get_problem_service,
-    get_opportunity_service,
-    get_current_user,
-    validate_token,
 )
 
 # Create router

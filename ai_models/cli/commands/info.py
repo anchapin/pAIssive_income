@@ -8,7 +8,6 @@ import os
 import json
 import argparse
 import logging
-from typing import Dict, Any, Optional, List
 
 from ..base import BaseCommand
 
@@ -70,7 +69,7 @@ class InfoCommand(BaseCommand):
 
         try:
             # Import required modules
-            from ...core import ModelManager, ModelInfo
+            from ...core import ModelManager
 
             # Check if model exists
             if not os.path.exists(self.args.model_path):

@@ -6,13 +6,10 @@ including container orchestration, service scaling, and health checks.
 """
 
 import pytest
-import time
-import json
 import requests
 import subprocess
-import os
 from unittest.mock import MagicMock, patch
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class TestContainerization:
@@ -378,7 +375,7 @@ class TestContainerization:
                 try:
                     response = requests.get(url)
                     return response.status_code == 200
-                except:
+                except Exception:
                     return False
             
             # Patch service registry health check

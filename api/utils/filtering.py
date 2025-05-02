@@ -5,7 +5,7 @@ This module provides utilities for filtering data in API endpoints.
 """
 
 import re
-from typing import List, Dict, Any, Optional, Union, Callable
+from typing import List, Dict, Any, Optional, Callable
 from enum import Enum
 
 

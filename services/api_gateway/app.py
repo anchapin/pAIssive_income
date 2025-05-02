@@ -5,14 +5,12 @@ This module provides the API Gateway implementation, which serves as the entry p
 for all client requests to the microservices architecture.
 """
 
-import os
 import logging
 import argparse
-import json
 import time
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional
 
-from fastapi import FastAPI, Request, Depends, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
@@ -26,7 +24,6 @@ from services.service_discovery.registration import (
 from services.shared.auth import (
     create_service_token,
     validate_service_token,
-    ServiceTokenPayload,
     ServiceTokenError,
 )
 from services.api_gateway.middleware import ServiceAuthMiddleware, RateLimitMiddleware

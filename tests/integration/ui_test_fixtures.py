@@ -3,11 +3,8 @@ Fixtures for UI integration tests.
 """
 
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-from agent_team import AgentTeam
-from ai_models import ModelManager
-from monetization import SubscriptionManager
 from interfaces.ui_interfaces import IAgentTeamService
 from dependency_container import get_container
 
@@ -133,7 +130,6 @@ def register_mock_services(
 ):
     """Register mock services in the dependency container."""
     from interfaces.ui_interfaces import (
-        IAgentTeamService,
         INicheAnalysisService,
         IDeveloperService,
         IMonetizationService,

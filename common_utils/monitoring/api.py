@@ -7,10 +7,9 @@ like Flask or FastAPI.
 """
 
 import json
-import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, Optional, Any
 
 from common_utils.logging import get_logger
 from common_utils.monitoring.metrics import get_metrics, export_metrics

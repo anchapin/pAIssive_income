@@ -10,12 +10,12 @@ import json
 import logging
 import time
 from enum import Enum
-from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+from typing import Dict, List, Any, Optional, Union, Callable
 from dataclasses import dataclass, field
 
 import torch
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
-from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # Import metrics from benchmarking
 from ai_models.benchmarking.metrics import AccuracyMetric, PerplexityMetric, RougeMetric
@@ -199,7 +199,7 @@ class ModelEvaluator:
                     # Try to load from Hugging Face
                     self.dataset = load_dataset(self.config.dataset_path)
 
-                logger.info(f"Dataset loaded successfully")
+                logger.info("Dataset loaded successfully")
             except Exception as e:
                 logger.error(f"Error loading dataset: {e}")
                 raise
@@ -391,7 +391,7 @@ class ModelEvaluator:
             return {"accuracy": accuracy, "overall_accuracy": overall_accuracy}
         else:
             logger.warning(
-                f"Input or label fields are not lists, skipping accuracy evaluation"
+                "Input or label fields are not lists, skipping accuracy evaluation"
             )
             return {"accuracy": 0.0}
 
@@ -470,7 +470,7 @@ class ModelEvaluator:
             return rouge_scores
         else:
             logger.warning(
-                f"Input or reference fields are not lists, skipping ROUGE evaluation"
+                "Input or reference fields are not lists, skipping ROUGE evaluation"
             )
             return {"rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0}
 

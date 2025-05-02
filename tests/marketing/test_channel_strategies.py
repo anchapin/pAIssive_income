@@ -2,9 +2,6 @@
 Tests for the channel strategies components in the Marketing module.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-from datetime import datetime
 
 from marketing.channel_strategies import (
     MarketingStrategy,

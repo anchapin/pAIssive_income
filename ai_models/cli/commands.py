@@ -9,7 +9,7 @@ import sys
 import json
 import argparse
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Optional
 from datetime import datetime, timedelta
 import csv
 
@@ -17,15 +17,13 @@ from .base import BaseCommand
 
 # Add the project root to the Python path to import other modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from ai_models.model_manager import ModelManager, ModelInfo
+from ai_models.model_manager import ModelManager
 from ai_models.model_config import ModelConfig
-from ai_models.model_downloader import ModelDownloader, DownloadTask
+from ai_models.model_downloader import ModelDownloader
 from ai_models.performance_monitor import (
     PerformanceMonitor,
     InferenceTracker,
-    ModelComparisonReport,
 )
-from ai_models.model_versioning import ModelVersion
 
 # Set up logging
 logging.basicConfig(
@@ -267,7 +265,7 @@ class InfoCommand(BaseCommand):
             print(json.dumps(model_info.to_dict(), indent=2))
         else:
             # Text output
-            print(f"Model Information:")
+            print("Model Information:")
             print(f"- ID: {model_info.id}")
             print(f"- Name: {model_info.name}")
             print(f"- Type: {model_info.type}")
@@ -933,9 +931,9 @@ class VersionCommand(BaseCommand):
             )
 
             if compatible:
-                print(f"Models are compatible")
+                print("Models are compatible")
             else:
-                print(f"Models are NOT compatible")
+                print("Models are NOT compatible")
 
             return 0 if compatible else 2  # Use 2 as exit code for incompatible models
 
@@ -960,12 +958,12 @@ class VersionCommand(BaseCommand):
             logger.info(f"Successfully loaded model version {self._get_arg('version')}")
 
             # Basic info about the loaded model (type-specific)
-            print(f"Loaded model information:")
+            print("Loaded model information:")
             print(f"- Type: {type(model).__name__}")
 
             # Basic inference test
             if hasattr(model, "generate"):
-                print(f"Model supports generation. Example output:")
+                print("Model supports generation. Example output:")
                 try:
                     # Use a very short timeout to avoid long waits
                     import signal
@@ -980,7 +978,7 @@ class VersionCommand(BaseCommand):
                     output = model.generate("Hello, world!")[
                         :100
                     ]  # Limit output length
-                    print(f"  Input: 'Hello, world!'")
+                    print("  Input: 'Hello, world!'")
                     print(f"  Output: '{output}'")
 
                     # Cancel the timeout
@@ -1547,7 +1545,7 @@ class PerformanceCommand(BaseCommand):
                 logger.info(f"Saved comparison to {output_path}")
 
             else:  # text format
-                print(f"Model Performance Comparison")
+                print("Model Performance Comparison")
                 print(f"Generated: {comparison.timestamp}")
                 print("")
 

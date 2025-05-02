@@ -4,10 +4,8 @@ Main application file for the pAIssive Income UI.
 This file is the entry point for running the web interface.
 """
 
-from flask import Flask
 import os
 import logging
-from datetime import datetime
 
 # Set up logging
 logging.basicConfig(

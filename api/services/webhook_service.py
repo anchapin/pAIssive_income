@@ -6,15 +6,13 @@ This module provides services for webhook management and delivery.
 
 import logging
 import json
-import os
 import uuid
 import asyncio
 import aiohttp
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from fastapi import HTTPException
 
-from .audit_service import AuditService, AuditEvent
+from .audit_service import AuditService
 from .webhook_security import WebhookSignatureVerifier
 from .metrics import (
     track_webhook_delivery,
@@ -22,8 +20,7 @@ from .metrics import (
     track_webhook_retry,
     update_webhook_health,
     update_queue_size,
-    track_queue_latency,
-    update_rate_limit
+    track_queue_latency
 )
 
 # Configure logger

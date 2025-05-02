@@ -5,12 +5,9 @@ This module provides an adapter for using TensorRT for GPU-accelerated inference
 """
 
 import os
-import json
 import logging
-import time
 import numpy as np
 from typing import Dict, List, Any, Optional, Union, Tuple
-import threading
 
 # Set up logging
 logging.basicConfig(

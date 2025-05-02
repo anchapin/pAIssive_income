@@ -3,8 +3,7 @@ RESTful API server for the pAIssive Income project.
 """
 
 import logging
-from typing import List, Optional
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 

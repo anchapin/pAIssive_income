@@ -10,9 +10,8 @@ import random
 import json
 import uuid
 from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional
 import httpx
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from api.services.webhook_service import WebhookService
 from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus

@@ -7,22 +7,17 @@ with circuit breaker pattern for resilience.
 
 import pytest
 import time
-import json
 import requests
-from unittest.mock import MagicMock, patch
-from datetime import datetime, timedelta
+from unittest.mock import patch
 
 from services.gateway import (
     APIGateway,
     RouteManager,
-    AuthManager,
-    RateLimiter,
     GatewayConfig
 )
 from services.resilience import (
     CircuitBreaker,
     CircuitState,
-    FailureDetector,
     FallbackHandler,
     CircuitBreakerConfig
 )

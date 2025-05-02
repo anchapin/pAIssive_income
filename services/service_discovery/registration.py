@@ -15,7 +15,6 @@ from typing import Dict, List, Optional, Any, Callable
 
 from services.service_discovery.discovery_client import ServiceDiscoveryClient
 from services.service_discovery.helpers import (
-    setup_service_discovery,
     register_health_check_endpoint,
 )
 

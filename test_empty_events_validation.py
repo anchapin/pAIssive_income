@@ -1,6 +1,5 @@
-import pytest
 from pydantic import ValidationError
-from api.schemas.webhook import WebhookRequest, WebhookEventType, WebhookUpdate
+from api.schemas.webhook import WebhookRequest, WebhookUpdate
 
 # Test empty events list in WebhookRequest
 def test_webhook_request_empty_events():

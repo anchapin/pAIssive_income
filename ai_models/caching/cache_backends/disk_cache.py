@@ -10,7 +10,7 @@ import time
 import shutil
 import threading
 import pickle
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional, List
 import re
 import hashlib
 
@@ -253,7 +253,7 @@ class DiskCache(CacheBackend):
                 self._save_stats()
                 return True
 
-            except Exception as e:
+            except Exception:
                 return False
 
     def get_size(self) -> int:

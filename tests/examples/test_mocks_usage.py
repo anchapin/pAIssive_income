@@ -6,7 +6,7 @@ the mock implementations of external dependencies for testing.
 """
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import patch
 
 

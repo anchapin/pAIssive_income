@@ -4,13 +4,11 @@ Subscription analytics demo for the pAIssive Income project.
 This script demonstrates how to use the subscription analytics functionality.
 """
 
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import random
-import os
 
-from .subscription import SubscriptionPlan, SubscriptionTier
-from .user_subscription import Subscription, SubscriptionStatus
+from .subscription import SubscriptionPlan
+from .user_subscription import SubscriptionStatus
 from .subscription_manager import SubscriptionManager
 from .subscription_analytics import (
     SubscriptionMetrics,

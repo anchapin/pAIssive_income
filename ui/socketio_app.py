@@ -8,7 +8,7 @@ for updating task progress and status.
 import logging
 from flask_socketio import SocketIO, emit
 from celery.result import AsyncResult
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 # Set up logging
 logging.basicConfig(

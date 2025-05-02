@@ -16,7 +16,7 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
-from ai_models import ModelManager, ModelInfo, PerformanceMonitor, InferenceTracker
+from ai_models import ModelManager, ModelInfo, PerformanceMonitor
 
 # Set up logging
 logging.basicConfig(

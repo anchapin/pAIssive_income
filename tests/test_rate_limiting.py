@@ -4,8 +4,6 @@ Tests for API rate limiting functionality.
 
 import unittest
 import time
-from datetime import datetime
-from typing import Dict, Any, Tuple
 
 from api.config import APIConfig, RateLimitStrategy, RateLimitScope
 from api.rate_limit import (

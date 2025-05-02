@@ -3,14 +3,9 @@
 import pytest
 import time
 import sqlite3
-from typing import Dict, Any, Optional
 from ai_models.caching import (
     CacheManager,
     CacheConfig,
-    CacheKey,
-    MemoryCache,
-    DiskCache,
-    SQLiteCache,
 )
 
 # Test data

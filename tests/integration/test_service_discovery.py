@@ -4,7 +4,7 @@ Integration tests for service discovery functionality.
 
 import pytest
 import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from services.discovery import (
     ServiceDiscoveryClient,
@@ -204,7 +204,7 @@ class TestServiceDiscovery:
             # Cleanup attempt (ignore errors)
             try:
                 self.registry.deregister_service(service_id)
-            except:
+            except Exception:
                 pass
 
     def test_bulk_operations(self):

@@ -3,9 +3,9 @@ Integration tests for the AI Models module.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 
-from ai_models import ModelManager, ModelConfig, AgentModelProvider, PerformanceMonitor
+from ai_models import ModelManager, AgentModelProvider, PerformanceMonitor
 from agent_team import AgentTeam
 
 

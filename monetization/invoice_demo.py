@@ -4,17 +4,15 @@ Invoice generation and management demo for the pAIssive Income project.
 This script demonstrates how to use the invoice generation and management system.
 """
 
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import random
 import os
 
-from .usage_tracking import UsageMetric, UsageCategory
 from .usage_tracker import UsageTracker
 from .billing_calculator import BillingCalculator
-from .invoice import Invoice, InvoiceStatus, InvoiceItem
+from .invoice import InvoiceStatus
 from .invoice_manager import InvoiceManager
-from .invoice_delivery import InvoiceDelivery, InvoiceFormatter
+from .invoice_delivery import InvoiceDelivery
 
 
 def print_separator():
@@ -232,7 +230,7 @@ def run_demo():
     # Get invoice summary
     summary = manager.get_invoice_summary()
 
-    print(f"Invoice summary:")
+    print("Invoice summary:")
     print(f"Total count: {summary['total_count']}")
     print(f"Total amount: ${summary['total_amount']:.2f}")
     print(f"Total paid: ${summary['total_paid']:.2f}")

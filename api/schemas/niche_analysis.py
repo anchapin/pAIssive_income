@@ -7,17 +7,12 @@ This module provides Pydantic models for Niche Analysis API request and response
 from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
-from uuid import UUID
 
 from .bulk_operations import (
     BulkCreateRequest,
     BulkCreateResponse,
     BulkUpdateRequest,
     BulkUpdateResponse,
-    BulkDeleteRequest,
-    BulkDeleteResponse,
-    BulkOperationStats,
-    BulkOperationError,
 )
 
 

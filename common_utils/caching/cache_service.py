@@ -7,21 +7,12 @@ all parts of the project.
 """
 
 import functools
-import inspect
 import hashlib
 import json
-import time
-from typing import Any, Dict, Optional, Callable, Union, Tuple, List, TypeVar, cast
-from datetime import datetime
+from typing import Any, Dict, Optional, Callable, Tuple, TypeVar
 
 # Import the caching system from AI models module
 from ai_models.caching import CacheManager
-from ai_models.caching.cache_backends import (
-    MemoryCache,
-    DiskCache,
-    SQLiteCache,
-    RedisCache,
-)
 
 # Type variable for the decorator
 T = TypeVar("T")

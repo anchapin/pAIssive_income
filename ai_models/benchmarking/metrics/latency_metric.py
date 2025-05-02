@@ -5,7 +5,7 @@ This module provides a metric for measuring the latency of AI models.
 """
 
 import time
-from typing import Dict, Any, Optional, List, Union, Tuple, Callable
+from typing import Dict, Callable
 
 from .base_metric import BaseMetric
 

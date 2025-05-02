@@ -4,8 +4,6 @@ Payment method management demo for the pAIssive Income project.
 This script demonstrates how to use the payment method management system.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 
 from .payment_method import PaymentMethod
 from .payment_method_manager import PaymentMethodManager

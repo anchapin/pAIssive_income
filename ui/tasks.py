@@ -6,10 +6,8 @@ This module defines Celery tasks for asynchronous processing.
 
 import logging
 import time
-import json
-from typing import Dict, Any, List, Optional
-from celery import current_task, states
-import asyncio
+from typing import Dict, Any, List
+from celery import current_task
 import traceback
 
 from .celery_app import celery_app

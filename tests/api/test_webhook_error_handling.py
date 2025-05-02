@@ -3,7 +3,6 @@ Tests for webhook service error handling scenarios.
 """
 
 import pytest
-import asyncio
 from unittest.mock import patch, MagicMock
 import httpx
 from datetime import datetime, timezone

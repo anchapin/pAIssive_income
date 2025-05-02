@@ -7,13 +7,10 @@ ad copy, call-to-action elements, and more.
 """
 
 import uuid
-import json
-import math
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple
 
-import numpy as np
 from scipy import stats
 
 from interfaces.marketing_interfaces import IABTesting

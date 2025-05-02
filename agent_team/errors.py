@@ -7,7 +7,7 @@ specific to the Agent Team module.
 
 import sys
 import os
-from typing import Dict, Any, Optional, List, Type, Union
+from typing import Optional
 import logging
 
 # Add the project root to the Python path to import the errors module

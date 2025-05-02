@@ -6,7 +6,6 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from agent_team import AgentTeam
-from monetization import SubscriptionModel, FreemiumModel, PricingCalculator
 from marketing import MarketingPlan, ConcreteContentGenerator, ChannelStrategy
 
 

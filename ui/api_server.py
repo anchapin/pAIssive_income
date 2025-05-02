@@ -1,19 +1,12 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
-import json
 import sys
 
 # Add the project root to the path so we can import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import project modules
-from niche_analysis.market_analyzer import MarketAnalyzer
-from niche_analysis.problem_identifier import ProblemIdentifier
-from niche_analysis.opportunity_scorer import OpportunityScorer
-from monetization.subscription_models import SubscriptionModels
-from marketing.strategy_generator import StrategyGenerator
-from marketing.content_generators import ContentGenerators
 
 app = Flask(__name__, static_folder="react_frontend/build")
 CORS(app)  # Enable CORS for all routes

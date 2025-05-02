@@ -6,7 +6,6 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from agent_team import AgentTeam
-from niche_analysis import MarketAnalyzer, ProblemIdentifier, OpportunityScorer
 
 
 @pytest.fixture

@@ -7,7 +7,7 @@ and send webhook notifications.
 
 import logging
 import asyncio
-from typing import Dict, Any, Optional, Callable, List, Set, Union
+from typing import Dict, Any, Callable, List, Union
 from functools import wraps
 
 from ..config import WebhookEventType

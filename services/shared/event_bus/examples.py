@@ -7,8 +7,8 @@ This module provides examples of how to use the event bus for different services
 import time
 import logging
 import asyncio
-from typing import Dict, Any, List
-from pydantic import BaseModel, Field
+from typing import List
+from pydantic import BaseModel
 
 from services.shared.event_bus import (
     EventBus,
@@ -16,7 +16,6 @@ from services.shared.event_bus import (
     Event,
     EventSchema,
     EventType,
-    EventMetadata,
 )
 
 # Set up logging
@@ -404,7 +403,7 @@ def event_driven_workflow_example():
             # Parse the event data
             plan_data = marketing_plan_schema.parse_event(event)
 
-            logger.info(f"UI Service: Received marketing plan generated event")
+            logger.info("UI Service: Received marketing plan generated event")
             logger.info(
                 f"Updating UI with marketing plan for solution {plan_data.solution_id}"
             )

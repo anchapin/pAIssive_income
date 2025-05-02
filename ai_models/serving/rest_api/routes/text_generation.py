@@ -4,7 +4,7 @@ Text generation routes for REST API server.
 This module provides route handlers for text generation.
 """
 
-from typing import Dict, Any, Optional, List, Union
+from typing import Optional, List
 
 # Try to import FastAPI
 try:

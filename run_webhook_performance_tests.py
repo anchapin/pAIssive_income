@@ -3,7 +3,6 @@ Script to run webhook performance tests.
 """
 
 import asyncio
-import sys
 import argparse
 
 async def run_performance_tests():

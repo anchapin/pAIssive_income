@@ -8,10 +8,8 @@ including speech recognition, text-to-speech, and audio classification.
 import os
 import json
 import logging
-import tempfile
 import numpy as np
-from typing import Dict, List, Any, Optional, Union, Tuple, BinaryIO
-from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
 
 # Set up logging
 logging.basicConfig(
@@ -1351,7 +1349,7 @@ class AudioModel:
                                     id2label.get(str(i), f"Class {i}")
                                     for i in range(len(probs))
                                 ]
-                            except:
+                            except Exception:
                                 pass
 
             # Fallback to generic labels

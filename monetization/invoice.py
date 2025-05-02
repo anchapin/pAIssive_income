@@ -5,11 +5,10 @@ This module provides classes for generating and managing invoices,
 including invoice items, status tracking, and formatting.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 import uuid
 import json
-import copy
 
 from common_utils import format_datetime, add_days
 

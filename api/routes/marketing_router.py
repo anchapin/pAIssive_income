@@ -32,7 +32,7 @@ from ..schemas.marketing import (
     ContentGenerationRequest, ContentGenerationResponse,
     PersonaResponse, ChannelResponse
 )
-from ..schemas.common import ErrorResponse, SuccessResponse, IdResponse, PaginatedResponse
+from ..schemas.common import ErrorResponse, PaginatedResponse
 
 # Create router
 if FASTAPI_AVAILABLE:

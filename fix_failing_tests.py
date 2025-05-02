@@ -3,9 +3,7 @@ Script to fix failing tests in the pAIssive_income project.
 """
 
 import os
-import sys
 import re
-from typing import List, Dict, Any, Optional, Tuple
 
 def fix_fallback_strategy():
     """Fix the fallback strategy implementation."""

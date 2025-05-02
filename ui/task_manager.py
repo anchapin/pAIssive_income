@@ -9,7 +9,6 @@ from typing import Dict, Any, Optional
 from celery.result import AsyncResult
 
 from .tasks import celery_app
-from .socketio_app import emit_task_update
 
 # Set up logging
 logging.basicConfig(

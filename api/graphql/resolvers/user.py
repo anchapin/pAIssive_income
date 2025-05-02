@@ -5,7 +5,7 @@ This module provides resolvers for user queries and mutations.
 """
 
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 
 # Set up logging
 logging.basicConfig(
@@ -27,10 +27,8 @@ if STRAWBERRY_AVAILABLE:
         UserType,
         ProjectType,
         CollaborationType,
-        NotificationType,
         UserInput,
         ProjectInput,
-        CollaborationInput,
         UserRoleEnum,
     )
 

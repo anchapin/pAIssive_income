@@ -6,10 +6,8 @@ across different channels using the ContentPerformanceAnalyzer.
 """
 
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
+from typing import Dict, Any
 import random
-import os
-import json
 from pathlib import Path
 
 from marketing.content_performance import ContentPerformanceAnalyzer

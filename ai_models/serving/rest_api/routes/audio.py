@@ -5,7 +5,7 @@ This module provides route handlers for audio operations.
 """
 
 import base64
-from typing import Dict, Any, Optional, List, Union
+from typing import Optional
 
 # Try to import FastAPI
 try:

@@ -4,7 +4,7 @@ Pydantic schemas for the AI Models module.
 This module provides Pydantic models for data validation in the AI models module.
 """
 
-from typing import Dict, List, Any, Optional, Union, Literal
+from typing import Dict, List, Any, Optional, Union
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 import os

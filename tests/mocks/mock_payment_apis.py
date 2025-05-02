@@ -5,7 +5,6 @@ This module provides mock implementations of various payment gateway APIs
 that can be used for consistent testing without external dependencies.
 """
 
-import json
 import logging
 import random
 import uuid
@@ -76,7 +75,7 @@ class MockPaymentGateway:
 
     def _simulate_network_error(self) -> bool:
         """Simulate a network error based on error rate."""
-        if self.config.get("simulate_network_errors", True) == False:
+        if self.config.get("simulate_network_errors", True)  is False:
             return False
         return random.random() < self.network_error_rate
 
@@ -363,7 +362,7 @@ class MockPaymentGateway:
                 subscription["customer_id"] == customer_id
                 and subscription["status"] == "active"
             ):
-                raise ValueError(f"Cannot delete customer with active subscriptions")
+                raise ValueError("Cannot delete customer with active subscriptions")
 
         # Delete customer
         del self.customers[customer_id]
@@ -582,7 +581,7 @@ class MockPaymentGateway:
                 and subscription["status"] == "active"
             ):
                 raise ValueError(
-                    f"Cannot delete payment method being used in active subscription"
+                    "Cannot delete payment method being used in active subscription"
                 )
 
         # Delete payment method

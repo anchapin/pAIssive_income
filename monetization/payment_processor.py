@@ -6,10 +6,9 @@ common utility methods for payment processing.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 import uuid
-import json
 
 
 def get_payment_gateway(

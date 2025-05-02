@@ -5,12 +5,10 @@ This module provides classes for defining and managing subscription plans,
 including features, pricing, and billing intervals.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import uuid
 import json
-import copy
-from pydantic import BaseModel, Field
 
 
 class BillingInterval:
@@ -844,7 +842,7 @@ if __name__ == "__main__":
     # Cancel subscription
     subscription.cancel("Customer requested cancellation")
 
-    print(f"\nAfter cancellation:")
+    print("\nAfter cancellation:")
     print(f"Status: {subscription.status}")
     print(
         f"Canceled at: {subscription.canceled_at.strftime('%Y-%m-%d %H:%M:%S') if subscription.canceled_at else 'N/A'}"

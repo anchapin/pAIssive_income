@@ -6,7 +6,7 @@ fallback configurations.
 """
 
 from enum import Enum
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 from pydantic import BaseModel, Field, ConfigDict
 
 

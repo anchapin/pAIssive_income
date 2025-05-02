@@ -5,7 +5,7 @@ This script demonstrates how to use the subscription models, pricing calculator,
 and revenue projector together to create a complete monetization strategy.
 """
 
-from subscription_models import SubscriptionModel, FreemiumModel
+from subscription_models import FreemiumModel
 from pricing_calculator import PricingCalculator
 from revenue_projector import RevenueProjector
 
@@ -195,7 +195,7 @@ def run_demo():
     average_revenue = 19.99 * 0.7 + 49.99 * 0.3
     ltv = projector.calculate_lifetime_value(average_revenue)
 
-    print(f"\nCustomer Lifetime Value:")
+    print("\nCustomer Lifetime Value:")
     print(f"Average Revenue Per User: ${ltv['average_revenue_per_user']:.2f}")
     print(f"Average Customer Lifetime: {ltv['average_lifetime_months']:.1f} months")
     print(f"Lifetime Value: ${ltv['lifetime_value']:.2f}")
@@ -205,7 +205,7 @@ def run_demo():
         customer_acquisition_cost=30, average_revenue_per_user=average_revenue
     )
 
-    print(f"\nCustomer Payback Period:")
+    print("\nCustomer Payback Period:")
     print(f"Customer Acquisition Cost: ${payback['customer_acquisition_cost']:.2f}")
     print(f"Monthly Contribution: ${payback['monthly_contribution']:.2f}")
     print(f"Payback Period: {payback['payback_period_months']:.1f} months")

@@ -4,12 +4,9 @@ Event bus implementation for pAIssive income microservices.
 This module provides an event bus implementation for event-driven architecture.
 """
 
-import os
 import re
 import logging
-import threading
-import asyncio
-from typing import Dict, Any, Optional, List, Union, Callable, Set, Pattern, Tuple
+from typing import Dict, Optional, Union
 
 from services.shared.message_queue import (
     MessageQueueClient,
@@ -20,8 +17,8 @@ from services.shared.message_queue import (
     MessageQueueError,
 )
 
-from .event import Event, EventType, EventHandler, AsyncEventHandler
-from .exceptions import EventPublishError, EventSubscribeError, EventHandlingError
+from .event import Event, EventHandler, AsyncEventHandler
+from .exceptions import EventPublishError, EventSubscribeError
 
 # Set up logging
 logging.basicConfig(

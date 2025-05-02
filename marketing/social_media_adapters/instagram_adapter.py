@@ -6,9 +6,8 @@ retrieving analytics, and managing social media campaigns.
 """
 
 import logging
-import json
 import requests
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 
 from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter

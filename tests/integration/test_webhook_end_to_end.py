@@ -10,10 +10,9 @@ import asyncio
 import json
 import uuid
 from datetime import datetime, timezone
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from fastapi import FastAPI, Request, Response, status
 from fastapi.testclient import TestClient
-import httpx
 
 from api.services.webhook_service import WebhookService
 from api.services.webhook_security import (

@@ -8,7 +8,7 @@ to ensure the fallback mechanism works correctly in different scenarios.
 import os
 import sys
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from typing import Dict, List, Any, Optional
 from enum import Enum
 import time

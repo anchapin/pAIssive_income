@@ -6,7 +6,6 @@ import os
 import json
 import tempfile
 import unittest
-from pathlib import Path
 from pydantic import BaseModel, Field
 
 from common_utils.validation_utils import (
