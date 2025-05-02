@@ -36,6 +36,15 @@ async def run_performance_tests():
 
         await run_scalability_tests()
 
+    if args.test == "distribution" or args.test == "all":
+        print("\n=== Running Load Distribution Tests ===")
+        from tests.performance.test_load_distribution import main as run_distribution_tests
+        await run_distribution_tests()
+
+    if args.test == "resource" or args.test == "all":
+        print("\n=== Running Resource Utilization Tests ===")
+        from tests.performance.test_resource_utilization import main as run_resource_tests
+        await run_resource_tests()
 
 if __name__ == "__main__":
     asyncio.run(run_performance_tests())
