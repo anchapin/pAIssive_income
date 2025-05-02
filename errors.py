@@ -475,27 +475,6 @@ class MarketingError(BaseError):
         super().__init__(message=message, http_status=500, **kwargs)
 
 
-class StrategyGenerationError(MarketingError):
-    """Error raised when strategy generation fails."""
-
-    def __init__(self, message: str, strategy_type: Optional[str] = None, **kwargs):
-        """
-        Initialize the strategy generation error.
-
-        Args:
-            message: Human-readable error message
-            strategy_type: Type of strategy that failed to generate
-            **kwargs: Additional arguments to pass to the base class
-        """
-        details = kwargs.pop("details", {})
-        if strategy_type:
-            details["strategy_type"] = strategy_type
-
-        # Only set code if it's not already provided in kwargs
-        if "code" not in kwargs:
-            kwargs["code"] = "strategy_generation_error"
-
-        super().__init__(message=message, details=details, **kwargs)
 
 
 # UI Errors
