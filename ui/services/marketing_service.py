@@ -30,7 +30,7 @@ class MarketingService(BaseService, IMarketingService):
 
         # Import the Marketing Agent class
         try:
-            from agent_team.agent_profiles.marketing import MarketingAgent
+            from agent_team.agent_profiles.marketing import MarketingAgent  # noqa: F401
 
             self.marketing_agent_available = True
         except ImportError:

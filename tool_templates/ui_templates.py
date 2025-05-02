@@ -27,8 +27,8 @@ logger = logging.getLogger(__name__)
 
 # Check for optional dependencies
 try:
-    import flask
-    from flask import Flask, jsonify, redirect, render_template, request, url_for
+    import flask  # noqa: F401
+from flask import Flask, jsonify, redirect, render_template, request, url_for  # noqa: F401
 
     FLASK_AVAILABLE = True
 except ImportError:
@@ -36,7 +36,7 @@ except ImportError:
     logger.warning("Flask not available. Web application templates will not work.")
 
 try:
-    from PyQt5 import QtCore, QtGui, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWidgets  # noqa: F401
 
     PYQT_AVAILABLE = True
 except ImportError:

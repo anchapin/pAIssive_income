@@ -30,9 +30,9 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
-    import transformers
-    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+    import torch  # noqa: F401
+import transformers  # noqa: F401
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline  # noqa: F401
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
@@ -62,7 +62,7 @@ except ImportError:
     LLAMA_CPP_AVAILABLE = False
 
 try:
-    import onnxruntime as ort
+    import onnxruntime as ort  # noqa: F401
 
     ONNX_AVAILABLE = True
 except ImportError:

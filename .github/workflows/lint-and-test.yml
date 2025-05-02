@@ -28,21 +28,58 @@ jobs:
       
       - name: Run linting checks
         run: |
+          # Function to check if a file matches any ignore pattern
+          should_ignore() {
+            local file="$1"
+            if [ -n "$IGNORE_PATTERNS" ]; then
+              echo "$file" | grep -qE "$IGNORE_PATTERNS" && return 0
+            fi
+            return 1
+          }
+
           # Run linting on changed files in PRs, or all files for pushes to main branches
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             # Get list of changed Python files
             CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep '\.py$' || true)
             if [ -n "$CHANGED_FILES" ]; then
               echo "Linting changed Python files:"
-              echo "$CHANGED_FILES"
-              echo "$CHANGED_FILES" | xargs python run_linting.py
+              # Filter out ignored files
+              FILTERED_FILES=""
+              while IFS= read -r file; do
+                if ! should_ignore "$file"; then
+                  FILTERED_FILES="$FILTERED_FILES$file"$'\n'
+                fi
+              done <<< "$CHANGED_FILES"
+              
+              if [ -n "$FILTERED_FILES" ]; then
+                echo "$FILTERED_FILES"
+                echo "$FILTERED_FILES" | xargs python run_linting.py
+              else
+                echo "No Python files to lint after applying ignore patterns."
+              fi
             else
               echo "No Python files changed in this PR."
             fi
           else
-            # Run on all Python files for pushes to main branches
-            python run_linting.py
+            # Run on all Python files for pushes to main branches, excluding ignored patterns
+            PYTHON_FILES=$(find . -name "*.py" -type f)
+            FILTERED_FILES=""
+            while IFS= read -r file; do
+              if ! should_ignore "$file"; then
+                FILTERED_FILES="$FILTERED_FILES$file"$'\n'
+              fi
+            done <<< "$PYTHON_FILES"
+            
+            if [ -n "$FILTERED_FILES" ]; then
+              echo "Linting Python files:"
+              echo "$FILTERED_FILES"
+              echo "$FILTERED_FILES" | xargs python run_linting.py
+            else
+              echo "No Python files to lint after applying ignore patterns."
+            fi
           fi
+        env:
+          IGNORE_PATTERNS: ${{ env.IGNORE_PATTERNS }}
   
   test:
     runs-on: ubuntu-latest
@@ -67,7 +104,20 @@ jobs:
       - name: Run tests
         run: |
           mkdir -p junit
-          pytest tests/ -v --import-mode=importlib --cov=. --cov-report=xml --junitxml=junit/test-results.xml
+          # Filter test files using ignore patterns
+          if [ -n "$IGNORE_PATTERNS" ]; then
+            FILTERED_TESTS=$(find tests/ -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS")
+            if [ -n "$FILTERED_TESTS" ]; then
+              echo "$FILTERED_TESTS" | xargs pytest -v --import-mode=importlib --cov=. --cov-report=xml --junitxml=junit/test-results.xml
+            else
+              echo "No test files to run after applying ignore patterns."
+              exit 0
+            fi
+          else
+            pytest tests/ -v --import-mode=importlib --cov=. --cov-report=xml --junitxml=junit/test-results.xml
+          fi
+        env:
+          IGNORE_PATTERNS: ${{ env.IGNORE_PATTERNS }}
       
       - name: Upload test results
         uses: actions/upload-artifact@v4

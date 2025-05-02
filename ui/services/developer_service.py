@@ -29,7 +29,7 @@ class DeveloperService(BaseService, IDeveloperService):
 
         # Import the Developer Agent class
         try:
-            from agent_team.agent_profiles.developer import DeveloperAgent
+            from agent_team.agent_profiles.developer import DeveloperAgent  # noqa: F401
 
             self.developer_agent_available = True
         except ImportError:

@@ -1,9 +1,9 @@
 
 import logging
-from .app_factory import create_app
-from .celery_app import create_celery_app
-from .socketio_app import init_socketio, socketio
-from . import routes
+from .app_factory import create_app  # noqa: E402, F811
+from .celery_app import create_celery_app  # noqa: E402, F811
+from .socketio_app import init_socketio, socketio  # noqa: E402, F811, F401
+from . import routes  # noqa: E402, F811, F401
 
 """
 UI module for the pAIssive Income project.
@@ -13,7 +13,7 @@ allowing users to analyze niches, develop solutions, create monetization strateg
 and plan marketing campaigns.
 """
 
-import logging
+import logging  # noqa: E402
 
 # Set up logging
 logging.basicConfig(
@@ -22,22 +22,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Create and initialize the Flask application
-from .app_factory import create_app
+from .app_factory import create_app  # noqa: E402, F811
 
 app = create_app()
 
 # Initialize Celery
-from .celery_app import create_celery_app
+from .celery_app import create_celery_app  # noqa: E402, F811
 
 celery = create_celery_app(app)
 
 # Initialize SocketIO
-from .socketio_app import init_socketio, socketio
+from .socketio_app import init_socketio, socketio  # noqa: E402, F811, F401
 
 init_socketio(app)
 
 # Import routes after app is created to avoid circular imports
-from . import routes
+from . import routes  # noqa: E402, F811, F401
 
 
 # Initialize the application with services

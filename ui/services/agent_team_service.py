@@ -39,7 +39,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
         else:
             # Try to import the AgentTeam class
             try:
-                from agent_team import AgentTeam
+                from agent_team import AgentTeam  # noqa: F401
 
                 self.agent_team_available = True
             except ImportError:
@@ -61,7 +61,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
         """
         if self.agent_team_available:
             try:
-                from agent_team import AgentTeam
+                from agent_team import AgentTeam  # noqa: F401
 
                 team = AgentTeam(project_name, config_path=None)
 

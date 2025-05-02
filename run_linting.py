@@ -8,6 +8,47 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import List, Set
+
+
+def get_gitignore_patterns() -> Set[str]:
+    """Read .gitignore patterns and return them as a set."""
+    patterns = set()
+    try:
+        with open(".gitignore") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    patterns.add(line)
+    except FileNotFoundError:
+        pass
+    return patterns
+
+
+def should_ignore(file_path: str, ignore_patterns: Set[str]) -> bool:
+    """Check if a file should be ignored based on gitignore patterns."""
+    # Convert Windows paths to forward slashes for consistency
+    file_path = file_path.replace("\\", "/")
+    
+    for pattern in ignore_patterns:
+        # Basic gitignore pattern matching
+        if pattern.endswith("/"):
+            # Directory pattern
+            if pattern[:-1] in file_path.split("/"):
+                return True
+        elif pattern.startswith("**/"):
+            # Match anywhere in path
+            if file_path.endswith(pattern[3:]):
+                return True
+        elif pattern.startswith("/"):
+            # Match from root
+            if file_path.startswith(pattern[1:]):
+                return True
+        else:
+            # Simple pattern
+            if pattern in file_path:
+                return True
+    return False
 
 
 def run_command(command, file_path):
@@ -66,25 +107,30 @@ def lint_file(file_path):
     return all([flake8_result, black_result, isort_result, ruff_result])
 
 
-def process_directory(directory, file_patterns=None):
+def process_directory(directory: str, file_patterns: List[str] = None) -> bool:
     """Process all Python files in a directory and its subdirectories."""
     all_passed = True
+    ignore_patterns = get_gitignore_patterns()
 
     if file_patterns:
         # Process specific files/patterns
         for pattern in file_patterns:
             for file_path in Path(directory).glob(pattern):
                 if file_path.is_file() and file_path.suffix == ".py":
-                    if not lint_file(str(file_path)):
-                        all_passed = False
+                    relative_path = str(file_path.relative_to(directory))
+                    if not should_ignore(relative_path, ignore_patterns):
+                        if not lint_file(str(file_path)):
+                            all_passed = False
     else:
         # Process all Python files
         for root, _, files in os.walk(directory):
             for file in files:
                 if file.endswith(".py"):
                     file_path = os.path.join(root, file)
-                    if not lint_file(file_path):
-                        all_passed = False
+                    relative_path = os.path.relpath(file_path, directory)
+                    if not should_ignore(relative_path, ignore_patterns):
+                        if not lint_file(file_path):
+                            all_passed = False
 
     return all_passed
 

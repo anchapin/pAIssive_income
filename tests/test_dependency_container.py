@@ -23,7 +23,7 @@ class ITestService(ABC):
 class TestService(ITestService):
     """Test service implementation."""
 
-    def __init__(self, name: str = "TestService"):
+    def setup_method(self, name: str = "TestService"):
         """Initialize the test service."""
         self.name = name
 

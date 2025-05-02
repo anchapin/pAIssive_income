@@ -667,7 +667,7 @@ def service_error(e):
 
 
 @app.errorhandler(Exception)
-def handle_exception(e):
+def handle_exception(e):  # noqa: F811
     """Handle all other exceptions."""
     # Create a UIError from the exception
     error = UIError(

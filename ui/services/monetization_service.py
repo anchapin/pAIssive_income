@@ -29,7 +29,7 @@ class MonetizationService(BaseService, IMonetizationService):
 
         # Import the Monetization Agent class
         try:
-            from agent_team.agent_profiles.monetization import MonetizationAgent
+            from agent_team.agent_profiles.monetization import MonetizationAgent  # noqa: F401
 
             self.monetization_agent_available = True
         except ImportError:
