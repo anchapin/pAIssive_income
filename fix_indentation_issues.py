@@ -98,7 +98,7 @@ def get_gitignore_patterns() -> Set[str]:
                     patterns.add(line)
     except FileNotFoundError:
         pass
-        return patterns
+    return patterns
 
 
 def should_ignore(file_path: str, ignore_patterns: Set[str]) -> bool:

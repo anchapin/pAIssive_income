@@ -23,7 +23,7 @@ def get_gitignore_patterns() -> Set[str]:
                     patterns.add(line)
     except FileNotFoundError:
         pass
-        return patterns
+    return patterns
 
 
 def should_ignore(file_path: str, ignore_patterns: Set[str]) -> bool:
@@ -36,20 +36,20 @@ def should_ignore(file_path: str, ignore_patterns: Set[str]) -> bool:
         if pattern.endswith("/"):
             # Directory pattern
             if pattern[:-1] in file_path.split("/"):
-                    return True
+                return True
         elif pattern.startswith("**/"):
             # Match anywhere in path
             if file_path.endswith(pattern[3:]):
-                    return True
+                return True
         elif pattern.startswith("/"):
             # Match from root
             if file_path.startswith(pattern[1:]):
-                    return True
+                return True
         else:
             # Simple pattern
             if pattern in file_path:
-                    return True
-        return False
+                return True
+    return False
 
 
 def check_syntax(file_path: str) -> Tuple[bool, Optional[str]]:
