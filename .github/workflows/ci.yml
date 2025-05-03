@@ -1,0 +1,179 @@
+name: CI - Lint and Test
+
+on:
+  push:
+    branches: [ main, master, develop, devops_tasks ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+    inputs:
+      lint_only:
+        description: 'Run only linting checks'
+        required: false
+        default: false
+        type: boolean
+      test_only:
+        description: 'Run only tests'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.event.inputs.test_only != 'true' }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install flake8 black isort mypy ruff pyright
+        python -m pip install -r requirements-dev.txt
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          .mypy_cache
+          .ruff_cache
+          .pytest_cache
+        key: ${{ runner.os }}-pip-lint-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-lint-
+    
+    - name: Check for syntax errors
+      run: |
+        # Define patterns to ignore
+        IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|build|dist"
+        export IGNORE_PATTERNS
+
+        # Function to check if a file matches any ignore pattern
+        should_ignore() {
+          local file="$1"
+          if [ -n "$IGNORE_PATTERNS" ]; then
+            echo "$file" | grep -qE "$IGNORE_PATTERNS" && return 0
+          fi
+          return 1
+        }
+
+        # Run syntax error checks on all Python files
+        echo "Checking for syntax errors in Python files..."
+        PYTHON_FILES=$(find . -name "*.py" -type f)
+        FILTERED_FILES=""
+        while IFS= read -r file; do
+          if ! should_ignore "$file"; then
+            FILTERED_FILES="$FILTERED_FILES$file"$'\n'
+          fi
+        done <<< "$PYTHON_FILES"
+
+        if [ -n "$FILTERED_FILES" ]; then
+          echo "$FILTERED_FILES" | xargs python fix_test_collection_warnings.py --check
+        else
+          echo "No Python files to check after applying ignore patterns."
+        fi
+      env:
+        IGNORE_PATTERNS: ${{ env.IGNORE_PATTERNS }}
+    
+    - name: Lint with Ruff
+      run: |
+        ruff check .
+        ruff format --check .
+    
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --extend-ignore=E203 --statistics
+    
+    - name: Check formatting with Black
+      run: |
+        black --check --diff .
+    
+    - name: Sort imports with isort
+      run: |
+        isort --check-only --diff --profile black .
+    
+    - name: Type check with mypy
+      run: |
+        mypy . --ignore-missing-imports --install-types --non-interactive
+    
+    - name: Check for unused imports
+      run: |
+        ruff check . --select F401
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ github.event.inputs.lint_only != 'true' }}
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12']  # Focusing on Python 3.12 first
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+    
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          .pytest_cache
+        key: ${{ runner.os }}-pip-test-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-test-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pytest pytest-cov pytest-xdist
+        python -m pip install -r requirements.txt
+        python -m pip install -r requirements-dev.txt
+        python -m pip install -e .
+    
+    - name: Create junit directory
+      run: mkdir -p junit
+    
+    - name: Run tests
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+      run: |
+        pytest tests \
+          -n auto \
+          --import-mode=importlib \
+          --cov=. \
+          --cov-report=xml \
+          --cov-report=term-missing \
+          --junitxml=junit/test-results.xml
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: junit/test-results.xml
+    
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage.xml

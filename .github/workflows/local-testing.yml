@@ -1,0 +1,86 @@
+name: Local Testing
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_path:
+        description: 'Path to test directory or file'
+        required: false
+        default: 'tests/'
+        type: string
+      lint_only:
+        description: 'Run only linting checks'
+        required: false
+        default: false
+        type: boolean
+      test_only:
+        description: 'Run only tests'
+        required: false
+        default: false
+        type: boolean
+      specific_file:
+        description: 'Specific file to lint or test'
+        required: false
+        default: ''
+        type: string
+      platform:
+        description: 'Platform to run on'
+        required: false
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - ubuntu-latest
+          - windows-latest
+
+jobs:
+  lint:
+    runs-on: ${{ github.event.inputs.platform || 'ubuntu-latest' }}
+    if: ${{ github.event.inputs.test_only != 'true' }}
+    container:
+      image: python:3.9-slim
+      # Only use container for ubuntu
+      options: ${{ github.event.inputs.platform == 'windows-latest' && '' || '-v ${{ github.workspace }}:/workspace' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install linting tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort ruff
+          
+      - name: Run linting checks
+        run: |
+          if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+            echo "Linting specific file: ${{ github.event.inputs.specific_file }}"
+            python run_linting.py "${{ github.event.inputs.specific_file }}"
+          else
+            echo "Linting all Python files"
+            python run_linting.py
+          fi
+
+  test:
+    runs-on: ${{ github.event.inputs.platform || 'ubuntu-latest' }}
+    if: ${{ github.event.inputs.lint_only != 'true' }}
+    container:
+      image: python:3.9-slim
+      # Only use container for ubuntu
+      options: ${{ github.event.inputs.platform == 'windows-latest' && '' || '-v ${{ github.workspace }}:/workspace' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          pip install -e .
+          
+      - name: Run tests
+        run: |
+          if [ -n "${{ github.event.inputs.specific_file }}" ]; then
+            echo "Testing specific file: ${{ github.event.inputs.specific_file }}"
+            python -m pytest "${{ github.event.inputs.specific_file }}" -v --import-mode=importlib
+          else
+            echo "Testing path: ${{ github.event.inputs.test_path }}"
+            python -m pytest ${{ github.event.inputs.test_path }} -v --import-mode=importlib
+          fi
