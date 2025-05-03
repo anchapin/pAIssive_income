@@ -4,21 +4,18 @@ Common schemas for the API server.
 This module provides common schema models used throughout the API.
 """
 
-
 from enum import Enum
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
-
-
 
 # Define generic type variable
 T = TypeVar("T")
 
 
 class ErrorResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=()))
     """Error response model."""
+    model_config = ConfigDict(protected_namespaces=())
 
     detail: str = Field(..., description="Error message")
     code: Optional[str] = Field(None, description="Error code")
@@ -36,16 +33,17 @@ class ErrorResponse(BaseModel):
 
 
 class SuccessResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=()))
     """Success response model."""
+    model_config = ConfigDict(protected_namespaces=())
 
-    message: str = Field(..., description="Success message")
+    success: bool = Field(..., description="Success status")
+    message: Optional[str] = Field(None, description="Success message")
     data: Optional[Dict[str, Any]] = Field(None, description="Additional data")
 
 
 class IdResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=()))
     """ID response model."""
+    model_config = ConfigDict(protected_namespaces=())
 
     id: str = Field(..., description="Resource ID")
     message: Optional[str] = Field(None, description="Success message")
@@ -75,35 +73,33 @@ class FilterOperator(str, Enum):
 
 
 class FilterParam(BaseModel):
-    model_config = ConfigDict(protected_namespaces=()))
     """Filter parameter model."""
+    model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True, extra="allow")
 
     field: str = Field(..., description="Field to filter by")
     operator: FilterOperator = Field(FilterOperator.EQ, description="Filter operator")
     value: Any = Field(..., description="Filter value")
 
-    model_config = ConfigDict(arbitrary_types_allowed=True, extra="allow")
-
 
 class SortParam(BaseModel):
-    model_config = ConfigDict(protected_namespaces=()))
     """Sort parameter model."""
+    model_config = ConfigDict(protected_namespaces=())
 
     field: str = Field(..., description="Field to sort by")
     direction: SortDirection = Field(SortDirection.ASC, description="Sort direction")
 
 
 class PaginationParams(BaseModel):
-    model_config = ConfigDict(protected_namespaces=()))
     """Pagination parameters model."""
+    model_config = ConfigDict(protected_namespaces=())
 
     page: int = Field(1, description="Page number", ge=1)
     page_size: int = Field(10, description="Number of items per page", ge=1, le=100)
 
 
 class QueryParams(BaseModel):
-    model_config = ConfigDict(protected_namespaces=()))
     """Query parameters model."""
+    model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True)
 
     page: int = Field(1, description="Page number", ge=1)
     page_size: int = Field(10, description="Number of items per page", ge=1, le=100)
@@ -115,16 +111,13 @@ class QueryParams(BaseModel):
         default_factory=list, description="Filter parameters"
     )
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
 
 class PaginatedResponse(BaseModel, Generic[T]):
     """Paginated response model."""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     items: List[T] = Field(..., description="List of items")
     total: int = Field(..., description="Total number of items")
     page: int = Field(..., description="Current page number")
     page_size: int = Field(..., description="Number of items per page")
-    total_pages: int = Field(..., description="Total number of pages"
-
-    model_config = ConfigDict(arbitrary_types_allowed=True
+    total_pages: int = Field(..., description="Total number of pages")

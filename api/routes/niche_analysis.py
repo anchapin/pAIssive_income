@@ -1,4 +1,3 @@
-
 import logging
 import time
 import uuid
@@ -6,19 +5,11 @@ from typing import Any, Dict, List, Optional
 
 from errors import BaseError, ValidationError
 
-
-    from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
-    from fastapi.responses import JSONResponse
-
-    FASTAPI_AVAILABLE 
-
 """
 Niche Analysis routes for the API server.
 
 This module provides route handlers for Niche Analysis operations.
 """
-
-
 
 # Set up logging
 logging.basicConfig(
@@ -28,7 +19,9 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-= True
+    from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
+    from fastapi.responses import JSONResponse
+    FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
@@ -114,7 +107,7 @@ async def get_niches(
             total_pages=(total + page_size - 1) // page_size,
         )
 
-                return response
+        return response
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -153,7 +146,7 @@ async def get_niche(
         if not niche:
             raise HTTPException(status_code=404, detail=f"Niche {niche_id} not found")
 
-                return niche
+        return niche
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -191,7 +184,7 @@ async def create_niche(
         # Create niche
         created_niche = await niche_service.create_niche(niche)
 
-                return created_niche
+        return created_niche
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -233,7 +226,7 @@ async def update_niche(
         # Update niche
         updated_niche = await niche_service.update_niche(niche_id, niche)
 
-                return updated_niche
+        return updated_niche
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -275,7 +268,7 @@ async def delete_niche(
         # Delete niche
         success = await niche_service.delete_niche(niche_id)
 
-                return SuccessResponse(success=success)
+        return SuccessResponse(success=success)
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -314,7 +307,7 @@ async def analyze_niches(
             request.segments, request.force_refresh, request.max_results
         )
 
-                return analysis
+        return analysis
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -347,7 +340,7 @@ async def get_market_segments(
         # Get market segments
         segments = await market_segment_service.get_market_segments()
 
-                return segments
+        return segments
 
     except BaseError as e:
         logger.error(f"Error getting market segments: {str(e)}")
@@ -358,251 +351,251 @@ async def get_market_segments(
             status_code=500, detail=f"Error getting market segments: {str(e)}"
         )
 
-    # Bulk operation endpoints
-    @router.post(
-        "/niches/bulk",
-        response_model=None,  # Disable response model generation from type annotation
-        responses={
-            201: {"description": "Niches created successfully"},
-            400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"},
-        },
-        summary="Create multiple niches in bulk",
-        description="Create multiple niches in a single request for improved performance",
-        status_code=201,
-    )
-    async def create_niches_bulk(
-        request: BulkNicheCreateRequest = Body(..., description="Bulk create request"),
-        niche_service=Depends(get_niche_service),
-    ):
-        """
-        Create multiple niches in a single request for improved performance.
-        """
-        try:
-            # Start timing
-            start_time = time.time()
+# Bulk operation endpoints
+@router.post(
+    "/niches/bulk",
+    response_model=None,  # Disable response model generation from type annotation
+    responses={
+        201: {"description": "Niches created successfully"},
+        400: {"model": ErrorResponse, "description": "Bad request"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Create multiple niches in bulk",
+    description="Create multiple niches in a single request for improved performance",
+    status_code=201,
+)
+async def create_niches_bulk(
+    request: BulkNicheCreateRequest = Body(..., description="Bulk create request"),
+    niche_service=Depends(get_niche_service),
+):
+    """
+    Create multiple niches in a single request for improved performance.
+    """
+    try:
+        # Start timing
+        start_time = time.time()
 
-            # Process batch
-            operation_id = str(uuid.uuid4())
-            results = []
-            errors = []
+        # Process batch
+        operation_id = str(uuid.uuid4())
+        results = []
+        errors = []
 
-            # Process each item
-            for i, item in enumerate(request.items):
-                try:
-                    # Create niche
-                    niche = await niche_service.create_niche(item)
-                    results.append(niche)
-                except Exception as e:
-                    # Add error
-                    errors.append(
-                        {
-                            "index": i,
-                            "error_code": "NICHE_CREATE_ERROR",
-                            "error_message": str(e),
-                        }
-                    )
+        # Process each item
+        for i, item in enumerate(request.items):
+            try:
+                # Create niche
+                niche = await niche_service.create_niche(item)
+                results.append(niche)
+            except Exception as e:
+                # Add error
+                errors.append(
+                    {
+                        "index": i,
+                        "error_code": "NICHE_CREATE_ERROR",
+                        "error_message": str(e),
+                    }
+                )
 
-            # Calculate stats
-            end_time = time.time()
-            stats = {
-                "total_items": len(request.items),
-                "successful_items": len(results),
-                "failed_items": len(errors),
-                "processing_time_ms": (end_time - start_time) * 1000,
-            }
+        # Calculate stats
+        end_time = time.time()
+        stats = {
+            "total_items": len(request.items),
+            "successful_items": len(results),
+            "failed_items": len(errors),
+            "processing_time_ms": (end_time - start_time) * 1000,
+        }
 
-            # Create response
-            response = {
-                "items": results,
-                "errors": errors,
-                "stats": stats,
-                "operation_id": operation_id,
-            }
+        # Create response
+        response = {
+            "items": results,
+            "errors": errors,
+            "stats": stats,
+            "operation_id": operation_id,
+        }
 
-                    return response
+        return response
 
-        except ValidationError as e:
-            logger.error(f"Validation error: {str(e)}")
-            raise HTTPException(status_code=400, detail=str(e))
-        except BaseError as e:
-            logger.error(f"Error creating niches: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
-        except Exception as e:
-            logger.error(f"Error creating niches: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Error creating niches: {str(e)}"
-            )
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except BaseError as e:
+        logger.error(f"Error creating niches: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error creating niches: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error creating niches: {str(e)}"
+        )
 
-    @router.put(
-        "/niches/bulk",
-        response_model=None,  # Disable response model generation from type annotation
-        responses={
-            200: {"description": "Niches updated successfully"},
-            400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"},
-        },
-        summary="Update multiple niches in bulk",
-        description="Update multiple niches in a single request for improved performance",
-    )
-    async def update_niches_bulk(
-        request: BulkNicheUpdateRequest = Body(..., description="Bulk update request"),
-        niche_service=Depends(get_niche_service),
-    ):
-        """
-        Update multiple niches in a single request for improved performance.
-        """
-        try:
-            # Start timing
-            start_time = time.time()
+@router.put(
+    "/niches/bulk",
+    response_model=None,  # Disable response model generation from type annotation
+    responses={
+        200: {"description": "Niches updated successfully"},
+        400: {"model": ErrorResponse, "description": "Bad request"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Update multiple niches in bulk",
+    description="Update multiple niches in a single request for improved performance",
+)
+async def update_niches_bulk(
+    request: BulkNicheUpdateRequest = Body(..., description="Bulk update request"),
+    niche_service=Depends(get_niche_service),
+):
+    """
+    Update multiple niches in a single request for improved performance.
+    """
+    try:
+        # Start timing
+        start_time = time.time()
 
-            # Process batch
-            operation_id = str(uuid.uuid4())
-            results = []
-            errors = []
+        # Process batch
+        operation_id = str(uuid.uuid4())
+        results = []
+        errors = []
 
-            # Process each item
-            for i, item in enumerate(request.items):
-                try:
-                    # Get niche ID
-                    niche_id = item.get("id")
-                    if not niche_id:
-                        raise ValueError("Niche ID is required")
+        # Process each item
+        for i, item in enumerate(request.items):
+            try:
+                # Get niche ID
+                niche_id = item.get("id")
+                if not niche_id:
+                    raise ValueError("Niche ID is required")
 
-                    # Check if niche exists
-                    existing_niche = await niche_service.get_niche(niche_id)
-                    if not existing_niche:
-                        raise ValueError(f"Niche {niche_id} not found")
+                # Check if niche exists
+                existing_niche = await niche_service.get_niche(niche_id)
+                if not existing_niche:
+                    raise ValueError(f"Niche {niche_id} not found")
 
-                    # Update niche
-                    niche = await niche_service.update_niche(niche_id, item)
-                    results.append(niche)
-                except Exception as e:
-                    # Add error
-                    errors.append(
-                        {
-                            "index": i,
-                            "error_code": "NICHE_UPDATE_ERROR",
-                            "error_message": str(e),
-                            "item_id": item.get("id"),
-                        }
-                    )
+                # Update niche
+                niche = await niche_service.update_niche(niche_id, item)
+                results.append(niche)
+            except Exception as e:
+                # Add error
+                errors.append(
+                    {
+                        "index": i,
+                        "error_code": "NICHE_UPDATE_ERROR",
+                        "error_message": str(e),
+                        "item_id": item.get("id"),
+                    }
+                )
 
-            # Calculate stats
-            end_time = time.time()
-            stats = {
-                "total_items": len(request.items),
-                "successful_items": len(results),
-                "failed_items": len(errors),
-                "processing_time_ms": (end_time - start_time) * 1000,
-            }
+        # Calculate stats
+        end_time = time.time()
+        stats = {
+            "total_items": len(request.items),
+            "successful_items": len(results),
+            "failed_items": len(errors),
+            "processing_time_ms": (end_time - start_time) * 1000,
+        }
 
-            # Create response
-            response = {
-                "items": results,
-                "errors": errors,
-                "stats": stats,
-                "operation_id": operation_id,
-            }
+        # Create response
+        response = {
+            "items": results,
+            "errors": errors,
+            "stats": stats,
+            "operation_id": operation_id,
+        }
 
-                    return response
+        return response
 
-        except ValidationError as e:
-            logger.error(f"Validation error: {str(e)}")
-            raise HTTPException(status_code=400, detail=str(e))
-        except BaseError as e:
-            logger.error(f"Error updating niches: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
-        except Exception as e:
-            logger.error(f"Error updating niches: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Error updating niches: {str(e)}"
-            )
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except BaseError as e:
+        logger.error(f"Error updating niches: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error updating niches: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error updating niches: {str(e)}"
+        )
 
-    @router.delete(
-        "/niches/bulk",
-        response_model=None,  # Disable response model generation from type annotation
-        responses={
-            200: {"description": "Niches deleted successfully"},
-            400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"},
-        },
-        summary="Delete multiple niches in bulk",
-        description="Delete multiple niches in a single request for improved performance",
-    )
-    async def delete_niches_bulk(
-        request: Dict[str, Any] = Body(..., description="Bulk delete request"),
-        niche_service=Depends(get_niche_service),
-    ):
-        """
-        Delete multiple niches in a single request for improved performance.
-        """
-        try:
-            # Start timing
-            start_time = time.time()
+@router.delete(
+    "/niches/bulk",
+    response_model=None,  # Disable response model generation from type annotation
+    responses={
+        200: {"description": "Niches deleted successfully"},
+        400: {"model": ErrorResponse, "description": "Bad request"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+    summary="Delete multiple niches in bulk",
+    description="Delete multiple niches in a single request for improved performance",
+)
+async def delete_niches_bulk(
+    request: Dict[str, Any] = Body(..., description="Bulk delete request"),
+    niche_service=Depends(get_niche_service),
+):
+    """
+    Delete multiple niches in a single request for improved performance.
+    """
+    try:
+        # Start timing
+        start_time = time.time()
 
-            # Get niche IDs
-            niche_ids = request.get("ids", [])
-            if not niche_ids:
-                raise ValueError("Niche IDs are required")
+        # Get niche IDs
+        niche_ids = request.get("ids", [])
+        if not niche_ids:
+            raise ValueError("Niche IDs are required")
 
-            # Process batch
-            operation_id = str(uuid.uuid4())
-            deleted_ids = []
-            errors = []
+        # Process batch
+        operation_id = str(uuid.uuid4())
+        deleted_ids = []
+        errors = []
 
-            # Process each item
-            for i, niche_id in enumerate(niche_ids):
-                try:
-                    # Check if niche exists
-                    existing_niche = await niche_service.get_niche(niche_id)
-                    if not existing_niche:
-                        raise ValueError(f"Niche {niche_id} not found")
+        # Process each item
+        for i, niche_id in enumerate(niche_ids):
+            try:
+                # Check if niche exists
+                existing_niche = await niche_service.get_niche(niche_id)
+                if not existing_niche:
+                    raise ValueError(f"Niche {niche_id} not found")
 
-                    # Delete niche
-                    success = await niche_service.delete_niche(niche_id)
-                    if success:
-                        deleted_ids.append(niche_id)
-                    else:
-                        raise ValueError(f"Failed to delete niche {niche_id}")
-                except Exception as e:
-                    # Add error
-                    errors.append(
-                        {
-                            "index": i,
-                            "error_code": "NICHE_DELETE_ERROR",
-                            "error_message": str(e),
-                            "item_id": niche_id,
-                        }
-                    )
+                # Delete niche
+                success = await niche_service.delete_niche(niche_id)
+                if success:
+                    deleted_ids.append(niche_id)
+                else:
+                    raise ValueError(f"Failed to delete niche {niche_id}")
+            except Exception as e:
+                # Add error
+                errors.append(
+                    {
+                        "index": i,
+                        "error_code": "NICHE_DELETE_ERROR",
+                        "error_message": str(e),
+                        "item_id": niche_id,
+                    }
+                )
 
-            # Calculate stats
-            end_time = time.time()
-            stats = {
-                "total_items": len(niche_ids),
-                "successful_items": len(deleted_ids),
-                "failed_items": len(errors),
-                "processing_time_ms": (end_time - start_time) * 1000,
-            }
+        # Calculate stats
+        end_time = time.time()
+        stats = {
+            "total_items": len(niche_ids),
+            "successful_items": len(deleted_ids),
+            "failed_items": len(errors),
+            "processing_time_ms": (end_time - start_time) * 1000,
+        }
 
-            # Create response
-            response = {
-                "deleted_ids": deleted_ids,
-                "errors": errors,
-                "stats": stats,
-                "operation_id": operation_id,
-            }
+        # Create response
+        response = {
+            "deleted_ids": deleted_ids,
+            "errors": errors,
+            "stats": stats,
+            "operation_id": operation_id,
+        }
 
-                    return response
+        return response
 
-        except ValidationError as e:
-            logger.error(f"Validation error: {str(e)}")
-            raise HTTPException(status_code=400, detail=str(e))
-        except BaseError as e:
-            logger.error(f"Error deleting niches: {str(e)}")
-            raise HTTPException(status_code=500, detail=str(e))
-        except Exception as e:
-            logger.error(f"Error deleting niches: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Error deleting niches: {str(e)}"
-            )
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except BaseError as e:
+        logger.error(f"Error deleting niches: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error deleting niches: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error deleting niches: {str(e)}"
+        )
