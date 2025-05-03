@@ -4,8 +4,6 @@ Defines the overall structure and collaboration patterns for the agent team.
 """
 
 import time
-
-
 import json
 import logging
 import os
@@ -13,19 +11,14 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional, TypeVar
 
-from interfaces.agent_interfaces import 
+from interfaces.agent_interfaces import IAgentTeam
 
 from .agent_profiles.developer import DeveloperAgent
 from .agent_profiles.feedback import FeedbackAgent
 from .agent_profiles.marketing import MarketingAgent
 from .agent_profiles.monetization import MonetizationAgent
 from .agent_profiles.researcher import ResearchAgent
-from .errors import 
-
-(
-    IAgentTeam,
-)
-(
+from .errors import (
     AgentInitializationError,
     AgentTeamError,
     ValidationError,
@@ -55,15 +48,15 @@ class AgentTeam(IAgentTeam):
     monetizing niche AI tools for passive income generation.
     """
 
-def __init__(self, project_name: str, config_path: Optional[str] = None):
+    def __init__(self, project_name: str, config_path: Optional[str] = None):
         """
         Initialize the agent team with a project name and optional configuration.
 
-Args:
+        Args:
             project_name: Name of the niche AI tool project
             config_path: Optional path to a JSON configuration file
 
-Raises:
+        Raises:
             ValidationError: If the project name is invalid
             AgentInitializationError: If an agent fails to initialize
         """
@@ -82,11 +75,11 @@ Raises:
                     ],
                 )
 
-self._project_name = project_name
+            self._project_name = project_name
             self._id = str(uuid.uuid4())
             logger.info(f"Initializing agent team for project: {project_name}")
 
-# Load configuration
+            # Load configuration
             try:
                 self._config = self._load_config(config_path)
             except Exception as e:
@@ -96,7 +89,7 @@ self._project_name = project_name
                     original_exception=e,
                 )
 
-# Initialize the specialized agents
+            # Initialize the specialized agents
             try:
                 self.researcher = ResearchAgent(self)
                 logger.debug(f"Initialized Research Agent for project: {project_name}")
@@ -107,7 +100,7 @@ self._project_name = project_name
                     original_exception=e,
                 )
 
-try:
+            try:
                 self.developer = DeveloperAgent(self)
                 logger.debug(f"Initialized Developer Agent for project: {project_name}")
             except Exception as e:
@@ -117,7 +110,7 @@ try:
                     original_exception=e,
                 )
 
-try:
+            try:
                 self.monetization = MonetizationAgent(self)
                 logger.debug(
                     f"Initialized Monetization Agent for project: {project_name}"
@@ -129,7 +122,7 @@ try:
                     original_exception=e,
                 )
 
-try:
+            try:
                 self.marketing = MarketingAgent(self)
                 logger.debug(f"Initialized Marketing Agent for project: {project_name}")
             except Exception as e:
@@ -139,7 +132,7 @@ try:
                     original_exception=e,
                 )
 
-try:
+            try:
                 self.feedback = FeedbackAgent(self)
                 logger.debug(f"Initialized Feedback Agent for project: {project_name}")
             except Exception as e:
@@ -149,7 +142,7 @@ try:
                     original_exception=e,
                 )
 
-# Project state storage
+            # Project state storage
             self.project_state = {
                 "id": self.id,
                 "name": self.project_name,
@@ -164,7 +157,7 @@ try:
                 "updated_at": str(datetime.now().isoformat()),
             }
 
-# Agent registry for dependency injection
+            # Agent registry for dependency injection
             self._agent_registry = {
                 "researcher": self.researcher,
                 "developer": self.developer,
@@ -173,11 +166,11 @@ try:
                 "feedback": self.feedback,
             }
 
-logger.info(
+            logger.info(
                 f"Successfully initialized agent team for project: {project_name}"
             )
 
-except ValidationError:
+        except ValidationError:
             # Re-raise validation errors
             raise
         except AgentTeamError:
@@ -194,32 +187,32 @@ except ValidationError:
             )
             # This line won't be reached due to reraise=True
 
-@property
+    @property
     def project_name(self) -> str:
         """Get the project name."""
-                    return self._project_name
+        return self._project_name
 
-@property
+    @property
     def id(self) -> str:
         """Get the team ID."""
-                    return self._id
+        return self._id
 
-@property
+    @property
     def config(self) -> Dict[str, Any]:
         """Get the team configuration."""
-                    return self._config
+        return self._config
 
-def get_agent(self, agent_type: str) -> Any:
+    def get_agent(self, agent_type: str) -> Any:
         """
         Get an agent by type.
 
-Args:
+        Args:
             agent_type: Type of agent to get
 
-Returns:
+        Returns:
             Agent instance
 
-Raises:
+        Raises:
             ValueError: If the agent type is invalid
         """
         if agent_type not in self._agent_registry:
@@ -227,19 +220,19 @@ Raises:
                 f"Invalid agent type: {agent_type}. Valid types are: {', '.join(self._agent_registry.keys())}"
             )
 
-            return self._agent_registry[agent_type]
+        return self._agent_registry[agent_type]
 
-def _load_config(self, config_path: Optional[str]) -> Dict[str, Any]:
+    def _load_config(self, config_path: Optional[str]) -> Dict[str, Any]:
         """
         Load configuration from a JSON file or use default configuration.
 
-Args:
+        Args:
             config_path: Path to a JSON configuration file
 
-Returns:
+        Returns:
             Configuration dictionary
 
-Raises:
+        Raises:
             ValidationError: If the configuration is invalid
             AgentTeamError: If there's an issue loading the configuration
         """
@@ -258,7 +251,7 @@ Raises:
                 },
             }
 
-if config_path:
+            if config_path:
                 if not os.path.exists(config_path):
                     raise ValidationError(
                         message=f"Configuration file not found: {config_path}",
@@ -272,7 +265,7 @@ if config_path:
                         ],
                     )
 
-try:
+                try:
                     with open(config_path, "r") as f:
                         try:
                             user_config = json.load(f)
@@ -283,7 +276,7 @@ try:
                                 original_exception=e,
                             )
 
-# Merge user config with default config
+                        # Merge user config with default config
                         for key, value in user_config.items():
                             if (
                                 key in default_config
@@ -294,20 +287,20 @@ try:
                             else:
                                 default_config[key] = value
 
-except (IOError, OSError) as e:
+                except (IOError, OSError) as e:
                     raise AgentTeamError(
                         message=f"Failed to read configuration file: {e}",
                         code="config_file_error",
                         original_exception=e,
                     )
 
-# Validate the config using Pydantic schema
+            # Validate the config using Pydantic schema
             try:
                 validated_config = TeamConfigSchema(**default_config).dict()
                 logger.info(
                     "Successfully validated configuration using Pydantic schema"
                 )
-                            return validated_config
+                return validated_config
             except Exception as e:
                 raise ValidationError(
                     message=f"Invalid configuration: {e}",
@@ -315,7 +308,7 @@ except (IOError, OSError) as e:
                     original_exception=e,
                 )
 
-except ValidationError:
+        except ValidationError:
             # Re-raise validation errors
             raise
         except AgentTeamError:
@@ -330,13 +323,13 @@ except ValidationError:
                 reraise=True,
                 log_level=logging.ERROR,
             )
-                        return {}  # This line won't be reached due to reraise=True
+            return {}  # This line won't be reached due to reraise=True
 
-def run_niche_analysis(self, market_segments: List[str]) -> List[Dict[str, Any]]:
+    def run_niche_analysis(self, market_segments: List[str]) -> List[Dict[str, Any]]:
         """
         Run a complete niche analysis workflow using the researcher agent.
 
-Algorithm description:
+        Algorithm description:
         ---------------------
         The algorithm follows these steps:
         1. Validate the input market segments (non-empty list of strings)
@@ -347,7 +340,7 @@ Algorithm description:
         3. Store the identified niches in the project state
         4. Return the list of identified niches
 
-Performance considerations:
+        Performance considerations:
         -------------------------
         - Time complexity: O(s*n*f), where:
           * s = number of market segments
@@ -355,13 +348,13 @@ Performance considerations:
           * f = number of factors evaluated per niche
         - This algorithm handles API rate limiting by batching requests when possible
 
-Args:
+        Args:
             market_segments: List of market segments to analyze
 
-Returns:
+        Returns:
             List of identified niche opportunities with scores
 
-Raises:
+        Raises:
             ValidationError: If the market segments are invalid
             ResearchAgentError: If there's an issue with the research agent
             WorkflowError: If there's an issue with the workflow
@@ -381,7 +374,7 @@ Raises:
                     ],
                 )
 
-if not isinstance(market_segments, list):
+            if not isinstance(market_segments, list):
                 raise ValidationError(
                     message="Market segments must be a list",
                     field="market_segments",
@@ -394,7 +387,7 @@ if not isinstance(market_segments, list):
                     ],
                 )
 
-for i, segment in enumerate(market_segments):
+            for i, segment in enumerate(market_segments):
                 if not segment or not isinstance(segment, str):
                     raise ValidationError(
                         message=f"Market segment at index {i} must be a non-empty string",
@@ -408,31 +401,31 @@ for i, segment in enumerate(market_segments):
                         ],
                     )
 
-logger.info(
+            logger.info(
                 f"Running niche analysis for market segments: {', '.join(market_segments)}"
             )
 
-try:
+            try:
                 # Run the analysis
                 niches = self.researcher.analyze_market_segments(market_segments)
 
-# Store the results in the project state
+                # Store the results in the project state
                 self.project_state["identified_niches"] = niches
                 self.project_state["updated_at"] = str(datetime.now().isoformat())
 
-logger.info(
+                logger.info(
                     f"Identified {len(niches)} niches across {len(market_segments)} market segments"
                 )
-                            return niches
+                return niches
 
-except Exception as e:
+            except Exception as e:
                 raise WorkflowError(
                     message=f"Niche analysis workflow failed: {e}",
                     workflow_step="niche_analysis",
                     original_exception=e,
                 )
 
-except ValidationError:
+        except ValidationError:
             # Re-raise validation errors
             raise
         except (AgentTeamError, WorkflowError):
@@ -448,13 +441,13 @@ except ValidationError:
                 reraise=True,
                 log_level=logging.ERROR,
             )
-                        return []  # This line won't be reached due to reraise=True
+            return []  # This line won't be reached due to reraise=True
 
-def develop_solution(self, niche: Dict[str, Any]) -> Dict[str, Any]:
+    def develop_solution(self, niche: Dict[str, Any]) -> Dict[str, Any]:
         """
         Develop an AI solution for a selected niche using the developer agent.
 
-Algorithm description:
+        Algorithm description:
         ---------------------
         The solution development algorithm follows these steps:
         1. Validate and normalize the input niche data using Pydantic schema
@@ -468,20 +461,20 @@ Algorithm description:
         5. Store the solution design in the project state
         6. Return the validated solution design
 
-Performance considerations:
+        Performance considerations:
         -------------------------
         - Time complexity: O(p*c), where:
           * p = number of problems identified in the niche
           * c = number of components needed for the solution
         - Memory complexity: O(f), where f is the number of features in the solution
 
-Args:
+        Args:
             niche: The selected niche object from the niche analysis
 
-Returns:
+        Returns:
             Solution design specification
 
-Raises:
+        Raises:
             ValidationError: If the niche is invalid
             DeveloperAgentError: If there's an issue with the developer agent
             WorkflowError: If there's an issue with the workflow
@@ -498,20 +491,20 @@ Raises:
                     original_exception=e,
                 )
 
-logger.info(f"Developing solution for niche: {validated_niche['name']}")
+            logger.info(f"Developing solution for niche: {validated_niche['name']}")
 
-try:
+            try:
                 # Store the selected niche in the project state
                 self.project_state["selected_niche"] = validated_niche
 
-# For backward compatibility, also add to identified_niches if not already there
+                # For backward compatibility, also add to identified_niches if not already there
                 if validated_niche not in self.project_state["identified_niches"]:
                     self.project_state["identified_niches"].append(validated_niche)
 
-# Develop the solution
+                # Develop the solution
                 solution = self.developer.design_solution(validated_niche)
 
-# Validate solution using Pydantic schema
+                # Validate solution using Pydantic schema
                 try:
                     validated_solution = SolutionSchema(**solution).dict()
                     logger.info(
@@ -524,23 +517,23 @@ try:
                     # Continue with original solution data if validation fails
                     validated_solution = solution
 
-# Store the solution in the project state
+                # Store the solution in the project state
                 self.project_state["solution_design"] = validated_solution
                 self.project_state["updated_at"] = str(datetime.now().isoformat())
 
-logger.info(
+                logger.info(
                     f"Successfully developed solution: {validated_solution.get('name', 'Unnamed solution')}"
                 )
-                            return validated_solution
+                return validated_solution
 
-except Exception as e:
+            except Exception as e:
                 raise WorkflowError(
                     message=f"Solution development workflow failed: {e}",
                     workflow_step="develop_solution",
                     original_exception=e,
                 )
 
-except ValidationError:
+        except ValidationError:
             # Re-raise validation errors
             raise
         except (AgentTeamError, WorkflowError):
@@ -556,15 +549,15 @@ except ValidationError:
                 reraise=True,
                 log_level=logging.ERROR,
             )
-                        return {}  # This line won't be reached due to reraise=True
+            return {}  # This line won't be reached due to reraise=True
 
-def create_monetization_strategy(
+    def create_monetization_strategy(
         self, solution: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Create a monetization strategy for the developed solution.
 
-Algorithm description:
+        Algorithm description:
         ---------------------
         The monetization strategy algorithm operates as follows:
         1. Validate the input solution or use the solution from project state
@@ -579,20 +572,20 @@ Algorithm description:
         5. Store the monetization strategy in the project state
         6. Return the validated monetization strategy
 
-Performance considerations:
+        Performance considerations:
         -------------------------
         - Time complexity: O(m*p), where:
           * m = number of monetization models evaluated
           * p = number of price points analyzed per model
         - The algorithm dynamically adjusts calculation precision based on input size
 
-Args:
+        Args:
             solution: Optional solution object. If not provided, uses the solution from project state.
 
-Returns:
+        Returns:
             Monetization strategy specification
 
-Raises:
+        Raises:
             ValidationError: If the solution is invalid
             MonetizationAgentError: If there's an issue with the monetization agent
             WorkflowError: If there's an issue with the workflow
@@ -611,7 +604,7 @@ Raises:
                     )
                     validated_solution = solution
 
-# Store the solution in the project state if it's not already there
+                # Store the solution in the project state if it's not already there
                 if not self.project_state["solution_design"]:
                     self.project_state["solution_design"] = validated_solution
             elif not self.project_state["solution_design"]:
@@ -619,18 +612,18 @@ Raises:
                     "Solution must be designed before creating monetization strategy"
                 )
 
-# Use the solution from the project state or the provided solution
+            # Use the solution from the project state or the provided solution
             solution_to_use = (
                 validated_solution
                 if solution
                 else self.project_state["solution_design"]
             )
 
-try:
+            try:
                 # Create the monetization strategy
                 strategy = self.monetization.create_strategy(solution_to_use)
 
-# Validate strategy using Pydantic schema
+                # Validate strategy using Pydantic schema
                 try:
                     validated_strategy = MonetizationStrategySchema(**strategy).dict()
                     logger.info(
@@ -642,23 +635,23 @@ try:
                     )
                     validated_strategy = strategy
 
-# Store the strategy in the project state
+                # Store the strategy in the project state
                 self.project_state["monetization_strategy"] = validated_strategy
                 self.project_state["updated_at"] = str(datetime.now().isoformat())
 
-logger.info(
+                logger.info(
                     f"Successfully created monetization strategy for solution: {solution_to_use.get('name', 'Unnamed solution')}"
                 )
-                            return validated_strategy
+                return validated_strategy
 
-except Exception as e:
+            except Exception as e:
                 raise WorkflowError(
                     message=f"Monetization strategy creation workflow failed: {e}",
                     workflow_step="create_monetization_strategy",
                     original_exception=e,
                 )
 
-except ValueError:
+        except ValueError:
             # Re-raise value errors
             raise
         except (AgentTeamError, WorkflowError):
@@ -674,9 +667,9 @@ except ValueError:
                 reraise=True,
                 log_level=logging.ERROR,
             )
-                        return {}  # This line won't be reached due to reraise=True
+            return {}  # This line won't be reached due to reraise=True
 
-def create_marketing_plan(
+    def create_marketing_plan(
         self,
         niche: Optional[Dict[str, Any]] = None,
         solution: Optional[Dict[str, Any]] = None,
@@ -685,7 +678,7 @@ def create_marketing_plan(
         """
         Create a marketing plan for the developed solution.
 
-Algorithm description:
+        Algorithm description:
         ---------------------
         The marketing plan creation algorithm follows these steps:
         1. Validate and collect required inputs (niche, solution, monetization strategy)
@@ -702,22 +695,22 @@ Algorithm description:
         4. Store the marketing plan in the project state
         5. Return the validated marketing plan
 
-Performance considerations:
+        Performance considerations:
         -------------------------
         - Time complexity: O(c*a), where:
           * c = number of marketing channels evaluated
           * a = number of audience segments analyzed
         - The algorithm prioritizes high-ROI marketing channels based on audience analysis
 
-Args:
+        Args:
             niche: Optional niche object. If not provided, uses the niche from project state.
             solution: Optional solution object. If not provided, uses the solution from project state.
             monetization: Optional monetization strategy object. If not provided, uses the strategy from project state.
 
-Returns:
+        Returns:
             Marketing plan specification
 
-Raises:
+        Raises:
             ValidationError: If any of the inputs are invalid
             MarketingAgentError: If there's an issue with the marketing agent
             WorkflowError: If there's an issue with the workflow
@@ -734,7 +727,7 @@ Raises:
                 else self.project_state["monetization_strategy"]
             )
 
-# Validate that we have all required objects
+            # Validate that we have all required objects
             if not niche_to_use:
                 raise ValueError(
                     "Niche must be selected before creating marketing plan"
@@ -748,7 +741,7 @@ Raises:
                     "Monetization strategy must be created before marketing plan"
                 )
 
-# Validate inputs using Pydantic schemas
+            # Validate inputs using Pydantic schemas
             try:
                 if niche:
                     validated_niche = NicheSchema(**niche_to_use).dict()
@@ -759,7 +752,7 @@ Raises:
             except Exception as e:
                 logger.warning(f"Niche data does not fully conform to schema: {e}")
 
-try:
+            try:
                 if solution:
                     validated_solution = SolutionSchema(**solution_to_use).dict()
                     logger.info(
@@ -769,7 +762,7 @@ try:
             except Exception as e:
                 logger.warning(f"Solution data does not fully conform to schema: {e}")
 
-try:
+            try:
                 if monetization:
                     validated_monetization = MonetizationStrategySchema(
                         **monetization_to_use
@@ -783,13 +776,13 @@ try:
                     f"Monetization data does not fully conform to schema: {e}"
                 )
 
-try:
+            try:
                 # Create the marketing plan
                 plan = self.marketing.create_plan(
                     niche_to_use, solution_to_use, monetization_to_use
                 )
 
-# Validate marketing plan using Pydantic schema
+                # Validate marketing plan using Pydantic schema
                 try:
                     validated_plan = MarketingPlanSchema(**plan).dict()
                     logger.info(
@@ -801,23 +794,23 @@ try:
                     )
                     validated_plan = plan
 
-# Store the plan in the project state
+                # Store the plan in the project state
                 self.project_state["marketing_plan"] = validated_plan
                 self.project_state["updated_at"] = str(datetime.now().isoformat())
 
-logger.info(
+                logger.info(
                     f"Successfully created marketing plan for solution: {solution_to_use.get('name', 'Unnamed solution')}"
                 )
-                            return validated_plan
+                return validated_plan
 
-except Exception as e:
+            except Exception as e:
                 raise WorkflowError(
                     message=f"Marketing plan creation workflow failed: {e}",
                     workflow_step="create_marketing_plan",
                     original_exception=e,
                 )
 
-except ValueError:
+        except ValueError:
             # Re-raise value errors
             raise
         except (AgentTeamError, WorkflowError):
@@ -833,19 +826,19 @@ except ValueError:
                 reraise=True,
                 log_level=logging.ERROR,
             )
-                        return {}  # This line won't be reached due to reraise=True
+            return {}  # This line won't be reached due to reraise=True
 
-def process_feedback(self, feedback_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def process_feedback(self, feedback_data: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Process user feedback and generate improvement recommendations.
 
-Args:
+        Args:
             feedback_data: List of user feedback items
 
-Returns:
+        Returns:
             Analysis and recommendations based on feedback
 
-Raises:
+        Raises:
             ValidationError: If the feedback data is invalid
             FeedbackAgentError: If there's an issue with the feedback agent
             WorkflowError: If there's an issue with the workflow
@@ -863,19 +856,19 @@ Raises:
                     )
                     validated_feedback_items.append(item)
 
-# Store feedback in the project state
+            # Store feedback in the project state
             self.project_state["feedback_data"].extend(validated_feedback_items)
             self.project_state["updated_at"] = str(datetime.now().isoformat())
 
-# Process the feedback
+            # Process the feedback
             analysis = self.feedback.analyze_feedback(validated_feedback_items)
 
-logger.info(
+            logger.info(
                 f"Successfully processed {len(validated_feedback_items)} feedback items"
             )
-                        return analysis
+            return analysis
 
-except Exception as e:
+        except Exception as e:
             # Handle unexpected errors
             handle_exception(
                 e,
@@ -885,16 +878,16 @@ except Exception as e:
                 reraise=True,
                 log_level=logging.ERROR,
             )
-                        return {}  # This line won't be reached due to reraise=True
+            return {}  # This line won't be reached due to reraise=True
 
-def export_project_plan(self, output_path: str) -> None:
+    def export_project_plan(self, output_path: str) -> None:
         """
         Export the complete project plan to a JSON file.
 
-Args:
+        Args:
             output_path: Path to save the project plan
 
-Raises:
+        Raises:
             IOError: If there's an issue writing to the file
         """
         try:
@@ -908,15 +901,15 @@ Raises:
                 logger.warning(f"Project state does not fully conform to schema: {e}")
                 validated_state = self.project_state
 
-with open(output_path, "w") as f:
+            with open(output_path, "w") as f:
                 json.dump(validated_state, f, indent=2)
 
-logger.info(f"Successfully exported project plan to: {output_path}")
+            logger.info(f"Successfully exported project plan to: {output_path}")
 
-except (IOError, OSError) as e:
+        except (IOError, OSError) as e:
             logger.error(f"Failed to export project plan: {e}")
             raise
 
-def __str__(self) -> str:
+    def __str__(self) -> str:
         """String representation of the agent team."""
-                    return f"AgentTeam(project_name={self.project_name}, agents=5)"
+        return f"AgentTeam(project_name={self.project_name}, agents=5)"

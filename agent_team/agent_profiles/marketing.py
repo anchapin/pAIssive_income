@@ -4,16 +4,12 @@ Specializes in marketing strategies and user acquisition.
 """
 
 import time
-
-
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
 
-class MarketingAgent
-
-:
+class MarketingAgent:
     """
     AI agent specialized in marketing strategies and user acquisition.
     Creates marketing plans for niche AI tools to reach target users.
@@ -54,7 +50,7 @@ class MarketingAgent
         # Store the marketing plan in the team's project state
         self.team.project_state["marketing_plan"] = plan
 
-                return plan
+        return plan
 
     def _create_marketing_plan(
         self,
@@ -280,7 +276,7 @@ class MarketingAgent
             },
         }
 
-                return {
+        return {
             "id": str(uuid.uuid4()),
             "solution_id": solution["id"],
             "user_personas": user_personas,
@@ -392,8 +388,8 @@ class MarketingAgent
                 }
             )
 
-                return content_ideas
+        return content_ideas
 
     def __str__(self) -> str:
         """String representation of the Marketing Agent."""
-                return f"{self.name}: {self.description}"
+        return f"{self.name}: {self.description}"

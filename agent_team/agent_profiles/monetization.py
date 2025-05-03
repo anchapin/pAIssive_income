@@ -4,16 +4,12 @@ Specializes in designing subscription models and pricing strategies.
 """
 
 import time
-
-
 import uuid
 from datetime import datetime
 from typing import Any, Dict
 
 
-class MonetizationAgent
-
-:
+class MonetizationAgent:
     """
     AI agent specialized in designing subscription models and pricing strategies.
     Creates monetization plans for niche AI tools to maximize recurring revenue.
@@ -52,7 +48,7 @@ class MonetizationAgent
         # Store the monetization strategy in the team's project state
         self.team.project_state["monetization_strategy"] = strategy
 
-                return strategy
+        return strategy
 
     def _create_monetization_strategy(
         self, niche: Dict[str, Any], solution: Dict[str, Any]
@@ -183,7 +179,7 @@ class MonetizationAgent
                 int(users * 0.2 * 0.3) * subscription_tiers[2]["price_yearly"]
             )
 
-                    return (
+            return (
                 basic_monthly
                 + basic_yearly
                 + pro_monthly
@@ -210,7 +206,7 @@ class MonetizationAgent
             },
         }
 
-                return {
+        return {
             "id": str(uuid.uuid4()),
             "solution_id": solution["id"],
             "subscription_tiers": subscription_tiers,
@@ -250,7 +246,7 @@ class MonetizationAgent
         # In a real implementation, this would use AI to analyze pricing sensitivity
         # For now, we'll return a placeholder implementation
 
-                return {
+        return {
             "id": str(uuid.uuid4()),
             "strategy_id": strategy["id"],
             "price_elasticity": "medium",  # Placeholder, would be determined by AI
@@ -295,4 +291,4 @@ class MonetizationAgent
 
     def __str__(self) -> str:
         """String representation of the Monetization Agent."""
-                return f"{self.name}: {self.description}"
+        return f"{self.name}: {self.description}"

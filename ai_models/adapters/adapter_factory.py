@@ -4,19 +4,15 @@ Factory for creating model adapters.
 This module provides a factory for creating model adapters based on adapter type.
 """
 
-
 import logging
 import os
 import sys
 from typing import Dict, List, Type
 
-sys.path.insert
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from errors import ModelError
 from interfaces.model_interfaces import IModelAdapter
 
-
-
-(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -65,7 +61,7 @@ class AdapterFactory:
             adapter = adapter_class(**kwargs)
 
             logger.debug(f"Created adapter: {adapter_type}")
-                    return adapter
+            return adapter
 
         except Exception as e:
             # Create a ModelError with the appropriate message and details
@@ -82,7 +78,7 @@ class AdapterFactory:
             error.log()
             raise error
             # This line won't be reached due to reraise=True
-                    return None
+            return None
 
     def get_available_adapters(self) -> List[str]:
         """
@@ -91,7 +87,7 @@ class AdapterFactory:
         Returns:
             List of adapter types
         """
-                return list(self._adapters.keys())
+        return list(self._adapters.keys())
 
 
 # Create a global adapter factory
@@ -105,4 +101,4 @@ def get_adapter_factory() -> AdapterFactory:
     Returns:
         Global adapter factory
     """
-            return adapter_factory
+    return adapter_factory

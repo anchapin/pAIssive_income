@@ -4,16 +4,12 @@ Specializes in designing and developing AI-powered software solutions.
 """
 
 import time
-
-
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
 
-class DeveloperAgent
-
-:
+class DeveloperAgent:
     """
     AI agent specialized in designing and developing AI-powered software solutions.
     Creates the technical specifications and implementation plans for niche AI tools.
@@ -55,7 +51,7 @@ class DeveloperAgent
         # Store the solution design in the team's project state
         self.team.project_state["solution_design"] = solution
 
-                return solution
+        return solution
 
     def _create_solution_design(
         self, niche: Dict[str, Any], user_problems: List[Dict[str, Any]]
@@ -171,7 +167,7 @@ class DeveloperAgent
             },
         ]
 
-                return {
+        return {
             "id": str(uuid.uuid4()),
             "name": solution_name,
             "description": f"An AI-powered solution for {niche['description']}",
@@ -205,7 +201,7 @@ class DeveloperAgent
         # In a real implementation, this would use AI to generate the plan
         # For now, we'll return a placeholder implementation
 
-                return {
+        return {
             "id": str(uuid.uuid4()),
             "solution_id": solution["id"],
             "development_phases": [
@@ -279,4 +275,4 @@ class DeveloperAgent
 
     def __str__(self) -> str:
         """String representation of the Developer Agent."""
-                return f"{self.name}: {self.description}"
+        return f"{self.name}: {self.description}"

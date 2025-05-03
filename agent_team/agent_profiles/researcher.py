@@ -4,8 +4,6 @@ Specializes in market research and niche identification.
 """
 
 import time
-
-
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
@@ -13,9 +11,7 @@ from typing import Any, Dict, List
 from interfaces.agent_interfaces import IAgentTeam, IResearchAgent
 
 
-class ResearchAgent
-
-(IResearchAgent):
+class ResearchAgent(IResearchAgent):
     """
     AI agent specialized in market research and niche identification.
     Identifies profitable niches and user pain points that can be addressed
@@ -37,12 +33,12 @@ class ResearchAgent
     @property
     def name(self) -> str:
         """Get the agent name."""
-                return self._name
+        return self._name
 
     @property
     def description(self) -> str:
         """Get the agent description."""
-                return self._description
+        return self._description
 
     def identify_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
         """
@@ -89,7 +85,7 @@ class ResearchAgent
         if hasattr(self.team, "project_state"):
             self.team.project_state["identified_niches"] = niches
 
-                return niches
+        return niches
 
     def analyze_market_segments(self, segments: List[str]) -> List[Dict[str, Any]]:
         """
@@ -102,7 +98,7 @@ class ResearchAgent
             List of identified niche opportunities with scores
         """
         # This method is kept for backward compatibility
-                return self.identify_niches(segments)
+        return self.identify_niches(segments)
 
     def identify_niches_in_segment(self, segment: str) -> List[Dict[str, Any]]:
         """
@@ -196,7 +192,7 @@ class ResearchAgent
         }
 
         # Return niches for the specified segment, or an empty list if not found
-                return segment_niches.get(segment.lower(), [])
+        return segment_niches.get(segment.lower(), [])
 
     def analyze_problems(self, niche_name: str) -> List[Dict[str, Any]]:
         """
@@ -248,7 +244,7 @@ class ResearchAgent
         # Sort problems by priority
         problems.sort(key=lambda x: x["priority"], reverse=True)
 
-                return problems
+        return problems
 
     def analyze_user_problems(self, niche: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
@@ -293,7 +289,7 @@ class ResearchAgent
         # Sort problems by priority
         problems.sort(key=lambda x: x["priority"], reverse=True)
 
-                return problems
+        return problems
 
     def _analyze_problem(self, niche_name: str, problem_name: str) -> Dict[str, Any]:
         """
@@ -309,7 +305,7 @@ class ResearchAgent
         # In a real implementation, this would use AI to analyze the problem
         # For now, we'll return a placeholder implementation
 
-                return {
+        return {
             "id": str(uuid.uuid4()),
             "name": problem_name,
             "description": f"Users in the {niche_name} niche struggle with {problem_name}",
@@ -353,7 +349,7 @@ class ResearchAgent
         Returns:
             Niche dictionary
         """
-                return {
+        return {
             "id": str(uuid.uuid4()),
             "name": name,
             "description": description,
@@ -386,8 +382,8 @@ class ResearchAgent
             Niche dictionary
         """
         # Use the public method for consistency
-                return self.create_niche(name, description, problem_areas, opportunity_score)
+        return self.create_niche(name, description, problem_areas, opportunity_score)
 
     def __str__(self) -> str:
         """String representation of the Research Agent."""
-                return f"{self.name}: {self.description}"
+        return f"{self.name}: {self.description}"

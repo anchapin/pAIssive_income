@@ -3,15 +3,12 @@ Feedback Agent for the pAIssive Income project.
 Specializes in gathering and analyzing user feedback.
 """
 
-
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
 
-class FeedbackAgent
-
-:
+class FeedbackAgent:
     """
     AI agent specialized in gathering and analyzing user feedback.
     Processes feedback to identify improvement opportunities for niche AI tools.
@@ -51,7 +48,7 @@ class FeedbackAgent
         # Generate recommendations
         recommendations = self._generate_recommendations(themes)
 
-                return {
+        return {
             "id": str(uuid.uuid4()),
             "feedback_count": len(feedback_data),
             "categorized_feedback": categorized_feedback,
@@ -130,7 +127,7 @@ class FeedbackAgent
             else:
                 categories["other"].append(item)
 
-                return categories
+        return categories
 
     def _identify_themes(
         self, categorized_feedback: Dict[str, List[Dict[str, Any]]]
@@ -182,7 +179,7 @@ class FeedbackAgent
         # Sort themes by count
         themes.sort(key=lambda x: x["count"], reverse=True)
 
-                return themes
+        return themes
 
     def _generate_recommendations(
         self, themes: List[Dict[str, Any]]
@@ -279,7 +276,7 @@ class FeedbackAgent
         priority_order = {"high": 0, "medium": 1, "low": 2}
         recommendations.sort(key=lambda x: priority_order[x["priority"]])
 
-                return recommendations
+        return recommendations
 
     def generate_feedback_collection_plan(
         self, solution: Dict[str, Any]
@@ -296,7 +293,7 @@ class FeedbackAgent
         # In a real implementation, this would use AI to generate the plan
         # For now, we'll return a placeholder implementation
 
-                return {
+        return {
             "id": str(uuid.uuid4()),
             "solution_id": solution["id"],
             "collection_methods": [
@@ -393,4 +390,4 @@ class FeedbackAgent
 
     def __str__(self) -> str:
         """String representation of the Feedback Agent."""
-                return f"{self.name}: {self.description}"
+        return f"{self.name}: {self.description}"
