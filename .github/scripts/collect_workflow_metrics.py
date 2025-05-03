@@ -11,7 +11,6 @@ import datetime
 import json
 import os
 import sys
-from pathlib import Path
 
 
 def parse_args():
@@ -42,7 +41,7 @@ def save_metrics(metrics, file_path):
     """Save metrics to file."""
     # Ensure directory exists
     os.makedirs(os.path.dirname(os.path.abspath(file_path)), exist_ok=True)
-    
+
     with open(file_path, "w") as f:
         json.dump(metrics, f, indent=2)
 
@@ -50,14 +49,14 @@ def save_metrics(metrics, file_path):
 def main():
     """Main function."""
     args = parse_args()
-    
+
     # Parse duration string to seconds
     try:
         duration_seconds = float(args.duration)
     except ValueError:
         print(f"Error: Could not parse duration '{args.duration}' as a number")
         duration_seconds = 0
-    
+
     # Create metrics entry
     timestamp = datetime.datetime.now().isoformat()
     metrics_entry = {
@@ -68,22 +67,22 @@ def main():
         "branch": args.branch,
         "commit": args.commit
     }
-    
+
     # Load existing metrics
     metrics = load_existing_metrics(args.output)
-    
+
     # Add new entry
     metrics["workflows"].append(metrics_entry)
-    
+
     # Save updated metrics
     save_metrics(metrics, args.output)
-    
+
     print(f"Metrics saved to {args.output}")
-    
+
     # Exit with status code based on workflow status
     if args.status.lower() != "success":
         sys.exit(1)
-    
+
     sys.exit(0)
 
 

@@ -10,10 +10,17 @@ import argparse
 import datetime
 import json
 import os
-from pathlib import Path
+import sys
 
 import matplotlib.pyplot as plt
 import pandas as pd
+
+
+def get_status_class(recent_runs):
+    """Return the CSS class based on the status of the most recent run."""
+    if recent_runs.empty:
+        return ""
+    return "success" if recent_runs.iloc[0]["status"].lower() == "success" else "failure"
 
 
 def parse_args():
@@ -29,7 +36,7 @@ def load_metrics(file_path):
     if not os.path.exists(file_path):
         print(f"Error: Metrics file {file_path} does not exist")
         return None
-    
+
     try:
         with open(file_path, "r") as f:
             return json.load(f)
@@ -43,15 +50,15 @@ def create_dataframe(metrics):
     if not metrics or "workflows" not in metrics or not metrics["workflows"]:
         print("Error: No workflow metrics found")
         return None
-    
+
     df = pd.DataFrame(metrics["workflows"])
-    
+
     # Convert timestamp to datetime
     df["timestamp"] = pd.to_datetime(df["timestamp"])
-    
+
     # Sort by timestamp
     df = df.sort_values("timestamp")
-    
+
     return df
 
 
@@ -59,11 +66,11 @@ def generate_workflow_status_chart(df, output_dir):
     """Generate a chart of workflow status over time."""
     if df is None or df.empty:
         return
-    
+
     # Count status by day
     df["date"] = df["timestamp"].dt.date
     status_counts = df.groupby(["date", "status"]).size().unstack().fillna(0)
-    
+
     # Plot
     plt.figure(figsize=(12, 6))
     status_counts.plot(kind="bar", stacked=True)
@@ -71,12 +78,12 @@ def generate_workflow_status_chart(df, output_dir):
     plt.xlabel("Date")
     plt.ylabel("Count")
     plt.tight_layout()
-    
+
     # Save
     output_path = os.path.join(output_dir, "workflow_status.png")
     plt.savefig(output_path)
     plt.close()
-    
+
     return output_path
 
 
@@ -84,11 +91,11 @@ def generate_workflow_duration_chart(df, output_dir):
     """Generate a chart of workflow duration over time."""
     if df is None or df.empty:
         return
-    
+
     # Group by workflow and date
     df["date"] = df["timestamp"].dt.date
     duration_by_workflow = df.groupby(["date", "workflow"])["duration_seconds"].mean().unstack()
-    
+
     # Plot
     plt.figure(figsize=(12, 6))
     duration_by_workflow.plot(kind="line", marker="o")
@@ -97,12 +104,12 @@ def generate_workflow_duration_chart(df, output_dir):
     plt.ylabel("Duration (seconds)")
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
-    
+
     # Save
     output_path = os.path.join(output_dir, "workflow_duration.png")
     plt.savefig(output_path)
     plt.close()
-    
+
     return output_path
 
 
@@ -110,13 +117,13 @@ def generate_workflow_success_rate_chart(df, output_dir):
     """Generate a chart of workflow success rate over time."""
     if df is None or df.empty:
         return
-    
+
     # Calculate success rate by day
     df["date"] = df["timestamp"].dt.date
     df["is_success"] = df["status"].str.lower() == "success"
-    
+
     success_rate = df.groupby(["date", "workflow"])["is_success"].mean().unstack() * 100
-    
+
     # Plot
     plt.figure(figsize=(12, 6))
     success_rate.plot(kind="line", marker="o")
@@ -126,12 +133,12 @@ def generate_workflow_success_rate_chart(df, output_dir):
     plt.ylim(0, 100)
     plt.grid(True, linestyle="--", alpha=0.7)
     plt.tight_layout()
-    
+
     # Save
     output_path = os.path.join(output_dir, "workflow_success_rate.png")
     plt.savefig(output_path)
     plt.close()
-    
+
     return output_path
 
 
@@ -139,16 +146,16 @@ def generate_html_dashboard(df, chart_paths, output_dir):
     """Generate an HTML dashboard with metrics and charts."""
     if df is None or df.empty:
         return
-    
+
     # Calculate summary metrics
     total_runs = len(df)
     success_runs = len(df[df["status"].str.lower() == "success"])
     success_rate = (success_runs / total_runs) * 100 if total_runs > 0 else 0
     avg_duration = df["duration_seconds"].mean()
-    
+
     # Get recent runs
     recent_runs = df.sort_values("timestamp", ascending=False).head(10)
-    
+
     # Generate HTML
     html = f"""
     <!DOCTYPE html>
@@ -173,7 +180,7 @@ def generate_html_dashboard(df, chart_paths, output_dir):
     <body>
         <h1>CI/CD Metrics Dashboard</h1>
         <p>Generated on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-        
+
         <div class="summary">
             <div class="metric">
                 <h3>Total Runs</h3>
@@ -189,15 +196,15 @@ def generate_html_dashboard(df, chart_paths, output_dir):
             </div>
             <div class="metric">
                 <h3>Last Run</h3>
-                <p class="{('success' if recent_runs.iloc[0]['status'].lower() == 'success' else 'failure') if not recent_runs.empty else ''}">
+                <p class="{get_status_class(recent_runs) if not recent_runs.empty else ''}">
                     {recent_runs.iloc[0]['status'] if not recent_runs.empty else 'N/A'}
                 </p>
             </div>
         </div>
-        
+
         <div class="charts">
     """
-    
+
     # Add charts
     for chart_path in chart_paths:
         if chart_path:
@@ -207,11 +214,11 @@ def generate_html_dashboard(df, chart_paths, output_dir):
                 <img src="{chart_filename}" alt="{chart_filename}" style="width: 100%;">
             </div>
             """
-    
+
     # Add recent runs table
     html += """
         </div>
-        
+
         <h2>Recent Workflow Runs</h2>
         <table>
             <tr>
@@ -222,7 +229,7 @@ def generate_html_dashboard(df, chart_paths, output_dir):
                 <th>Branch</th>
             </tr>
     """
-    
+
     for _, run in recent_runs.iterrows():
         status_class = "success" if run["status"].lower() == "success" else "failure"
         html += f"""
@@ -234,48 +241,48 @@ def generate_html_dashboard(df, chart_paths, output_dir):
                 <td>{run["branch"]}</td>
             </tr>
         """
-    
+
     html += """
         </table>
     </body>
     </html>
     """
-    
+
     # Save HTML
     output_path = os.path.join(output_dir, "dashboard.html")
     with open(output_path, "w") as f:
         f.write(html)
-    
+
     return output_path
 
 
 def main():
     """Main function."""
     args = parse_args()
-    
+
     # Load metrics
     metrics = load_metrics(args.input)
     if not metrics:
         return 1
-    
+
     # Create DataFrame
     df = create_dataframe(metrics)
     if df is None:
         return 1
-    
+
     # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)
-    
+
     # Generate charts
     chart_paths = [
         generate_workflow_status_chart(df, args.output_dir),
         generate_workflow_duration_chart(df, args.output_dir),
         generate_workflow_success_rate_chart(df, args.output_dir)
     ]
-    
+
     # Generate HTML dashboard
     dashboard_path = generate_html_dashboard(df, chart_paths, args.output_dir)
-    
+
     if dashboard_path:
         print(f"Dashboard generated at {dashboard_path}")
         return 0
