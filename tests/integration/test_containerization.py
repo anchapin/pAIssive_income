@@ -207,7 +207,9 @@ class TestContainerization:
             # Configure mock to simulate K8s scaling
             apps_api = MagicMock()
             apps_api.patch_namespaced_deployment_scale.side_effect = (
-                lambda name, namespace, body: mock_scale_deployment(name, body.spec.replicas)
+                lambda name, namespace, body: mock_scale_deployment(
+                    name, body.spec.replicas
+                )
             )
             apps_api.read_namespaced_deployment.side_effect = (
                 lambda name, namespace: self.k8s_deployments.get(name, MagicMock())
@@ -378,7 +380,7 @@ class TestContainerization:
                 try:
                     response = requests.get(url)
                     return response.status_code == 200
-                except:
+                except Exception:  # Use specific exception instead of bare except
                     return False
             
             # Patch service registry health check

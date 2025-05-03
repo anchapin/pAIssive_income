@@ -25,6 +25,7 @@ BASE_WEBHOOK_COUNT = 10             # Base number of webhooks
 BASE_EVENT_COUNT = 100              # Base number of events
 BASE_CONCURRENCY = 5                # Base concurrency level
 
+
 class ScalabilityTest:
     """Test the scalability of the webhook system."""
     
@@ -160,14 +161,20 @@ class ScalabilityTest:
                 # Calculate results
                 self.results["total_duration"] = self.results["end_time"] - self.results["start_time"]
                 total_deliveries = len(self.webhooks) * len(self.events)
-                self.results["events_per_second"] = total_deliveries / self.results["total_duration"] if self.results["total_duration"] > 0 else 0
+                if self.results["total_duration"] > 0:
+                    self.results["events_per_second"] = total_deliveries / self.results["total_duration"] 
+                else:
+                    self.results["events_per_second"] = 0
                 
                 # Calculate success rate
                 successful_deliveries = sum(
                     1 for d in deliveries 
                     if not isinstance(d, Exception) and d["status"] == WebhookDeliveryStatus.SUCCESS
                 )
-                self.results["success_rate"] = successful_deliveries / total_deliveries if total_deliveries > 0 else 0
+                if total_deliveries > 0:
+                    self.results["success_rate"] = successful_deliveries / total_deliveries
+                else:
+                    self.results["success_rate"] = 0
                 
                 # Calculate average CPU and memory usage
                 if self.results["cpu_usage"]:
@@ -201,6 +208,7 @@ class ScalabilityTest:
         finally:
             # Clean up
             await self.teardown()
+
 
 async def run_scalability_tests():
     """Run scalability tests with different scaling factors."""
@@ -246,7 +254,10 @@ async def run_scalability_tests():
     for r in results:
         cpu_percent = r.get("avg_cpu_percent", 0)
         memory_mb = r.get("avg_memory_mb", 0)
-        print(f"{r['scaling_factor']:14} | {r['events_per_second']:13.2f} | {r['success_rate']*100:10.2f}% | {cpu_percent:9.2f} | {memory_mb:14.2f}")
+        print(
+            f"{r['scaling_factor']:14} | {r['events_per_second']:13.2f} | "
+            f"{r['success_rate']*100:10.2f}% | {cpu_percent:9.2f} | {memory_mb:14.2f}"
+        )
     
     # Calculate scaling efficiency
     base_result = next((r for r in results if r["scaling_factor"] == 1), None)
@@ -261,13 +272,21 @@ async def run_scalability_tests():
             if r["scaling_factor"] > 1:
                 ideal_throughput = base_events_per_second * r["scaling_factor"]
                 actual_throughput = r["events_per_second"]
-                efficiency = actual_throughput / ideal_throughput if ideal_throughput > 0 else 0
+                if ideal_throughput > 0:
+                    efficiency = actual_throughput / ideal_throughput
+                else:
+                    efficiency = 0
                 
-                print(f"{r['scaling_factor']:14} | {ideal_throughput:15.2f} | {actual_throughput:16.2f} | {efficiency*100:8.2f}%")
+                print(
+                    f"{r['scaling_factor']:14} | {ideal_throughput:15.2f} | "
+                    f"{actual_throughput:16.2f} | {efficiency*100:8.2f}%"
+                )
+
 
 async def main():
     """Run the scalability tests."""
     await run_scalability_tests()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

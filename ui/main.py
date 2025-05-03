@@ -1,36 +1,39 @@
 """
-Main entry point for the pAIssive Income UI.
+Main entry point for the UI service.
 
-This module initializes the UI application and services in the correct order.
+This module provides the main entry point for starting the UI service
+as a standalone application.
 """
 
 import logging
+from typing import Dict, Any, Optional
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from .app_factory import create_app
 
-def initialize_application():
-    """Initialize the application and services in the correct order."""
-    logger.info("Initializing pAIssive Income application")
-    
-    # Import the UI module
-    from ui import app, init_app_with_services
-    
-    # Initialize services
-    init_app_with_services()
-    
-    # Initialize routes services
-    from ui.routes import init_services
-    init_services()
-    
-    logger.info("pAIssive Income application initialized")
-    
-    return app
 
-# Create the application
-app = initialize_application()
+def start_ui(config: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Start the UI service.
 
-if __name__ == '__main__':
-    # Run the application
-    app.run(debug=True)
+    Args:
+        config: Optional configuration dictionary
+    """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+    
+    # Create and configure the Flask app
+    app = create_app(config)
+    
+    # Log startup
+    logger.info("Starting UI service")
+    
+    # Start the app
+    app.run(host='0.0.0.0', port=5000)
+
+
+if __name__ == "__main__":
+    start_ui()

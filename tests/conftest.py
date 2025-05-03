@@ -29,7 +29,7 @@ from tests.mocks.fixtures import (
     patch_external_apis,
 
     # Complete test scenario fixtures
-    mock_ai_model_testing_setup,  
+    mock_ai_model_testing_setup,
     mock_monetization_testing_setup,
     mock_marketing_testing_setup,
     mock_niche_analysis_testing_setup,
@@ -45,6 +45,7 @@ from tests.mocks.fixtures import (
 from tests.mocks.mock_model_providers import (
     create_mock_provider,
 )
+
 
 # Keep existing mock payment APIs for backward compatibility
 try:

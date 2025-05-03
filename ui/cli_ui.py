@@ -5,12 +5,11 @@ This module provides a command line interface for interacting with the pAIssive 
 """
 
 import logging
-import json
-import os
-from typing import Dict, List, Any, Optional, Tuple
+from typing import List
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
 
 class CommandLineInterface:
     """
@@ -278,4 +277,4 @@ class CommandLineInterface:
         }
         
         # Export the plan (mock implementation)
-        return f"Exported plan to plan.json"
+        return "Exported plan to plan.json"

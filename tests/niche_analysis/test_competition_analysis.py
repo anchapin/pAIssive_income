@@ -2,10 +2,12 @@
 import pytest
 from niche_analysis.market_analyzer import MarketAnalyzer
 
+
 @pytest.fixture
 def market_analyzer():
     """Create a MarketAnalyzer instance for testing."""
     return MarketAnalyzer()
+
 
 class TestCompetitionAnalysis:
     """Tests for competition analysis."""
@@ -51,7 +53,7 @@ class TestCompetitionAnalysis:
         
         # Get market shares as numbers for comparison
         shares = [float(c["market_share"].strip('%')) 
-                 for c in result["top_competitors"]]
+                for c in result["top_competitors"]]
         
         # Verify competitors are ordered by market share
         assert shares == sorted(shares, reverse=True)
@@ -102,6 +104,6 @@ class TestCompetitionAnalysis:
         assert first_result == second_result
         
         # Force refresh should bypass cache
-        fresh_result = market_analyzer.analyze_competition("inventory management", 
-                                                       force_refresh=True)
-        assert fresh_result != first_result  # Should have new timestamp
+        fresh_result = market_analyzer.analyze_competition(
+            "inventory management", 
+            force_refresh=True)

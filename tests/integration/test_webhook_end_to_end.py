@@ -36,6 +36,7 @@ TEST_EVENT_DATA = {
     "created_at": datetime.now(timezone.utc).isoformat()
 }
 
+
 @pytest.fixture
 def webhook_service():
     """Create a webhook service for testing."""
@@ -43,6 +44,7 @@ def webhook_service():
     asyncio.run(service.start())
     yield service
     asyncio.run(service.stop())
+
 
 @pytest.fixture
 def webhook_receiver_app():
@@ -62,8 +64,8 @@ def webhook_receiver_app():
         
         # Verify the signature
         is_valid = WebhookSignatureVerifier.verify_signature(
-            app.webhook_secret, 
-            payload, 
+            app.webhook_secret,
+            payload,
             signature
         )
         
@@ -85,6 +87,7 @@ def webhook_receiver_app():
         return {"status": "success", "received_at": datetime.now(timezone.utc).isoformat()}
     
     return app
+
 
 @pytest.fixture
 def webhook_sender_app(webhook_service):
@@ -113,6 +116,7 @@ def webhook_sender_app(webhook_service):
     
     return app
 
+
 class TestWebhookEndToEnd:
     """End-to-end tests for the webhook system."""
     
@@ -123,7 +127,8 @@ class TestWebhookEndToEnd:
              TestClient(webhook_receiver_app) as receiver_client:
             
             # Get the receiver URL
-            receiver_url = f"http://{receiver_client.base_url.host}:{receiver_client.base_url.port}/webhook"
+            receiver_url = (f"http://{receiver_client.base_url.host}:"
+                           f"{receiver_client.base_url.port}/webhook")
             
             # Register a webhook
             webhook_data = {
@@ -135,7 +140,8 @@ class TestWebhookEndToEnd:
             }
             
             # Mock the secret generation to use our test secret
-            with patch.object(webhook_sender_app.app.state.webhook_service, "_generate_secret", return_value=TEST_SECRET):
+            with patch.object(webhook_sender_app.app.state.webhook_service,
+                             "_generate_secret", return_value=TEST_SECRET):
                 response = sender_client.post("/webhooks", json=webhook_data)
             
             assert response.status_code == 200
@@ -169,7 +175,8 @@ class TestWebhookEndToEnd:
              TestClient(webhook_receiver_app) as receiver_client:
             
             # Get the receiver URL
-            receiver_url = f"http://{receiver_client.base_url.host}:{receiver_client.base_url.port}/webhook"
+            receiver_url = (f"http://{receiver_client.base_url.host}:"
+                           f"{receiver_client.base_url.port}/webhook")
             
             # Register a webhook
             webhook_data = {
@@ -180,7 +187,8 @@ class TestWebhookEndToEnd:
             }
             
             # Mock the secret generation to use our test secret
-            with patch.object(webhook_sender_app.app.state.webhook_service, "_generate_secret", return_value=TEST_SECRET):
+            with patch.object(webhook_sender_app.app.state.webhook_service,
+                             "_generate_secret", return_value=TEST_SECRET):
                 response = sender_client.post("/webhooks", json=webhook_data)
             
             webhook = response.json()
@@ -238,7 +246,8 @@ class TestWebhookEndToEnd:
              TestClient(webhook_receiver_app) as receiver_client:
             
             # Get the receiver URL
-            receiver_url = f"http://{receiver_client.base_url.host}:{receiver_client.base_url.port}/webhook"
+            receiver_url = (f"http://{receiver_client.base_url.host}:"
+                           f"{receiver_client.base_url.port}/webhook")
             
             # Try to register a webhook without allowlisting the IP
             webhook_data = {
@@ -275,7 +284,8 @@ class TestWebhookEndToEnd:
              TestClient(webhook_receiver_app) as receiver_client:
             
             # Get the receiver URL
-            receiver_url = f"http://{receiver_client.base_url.host}:{receiver_client.base_url.port}/webhook"
+            receiver_url = (f"http://{receiver_client.base_url.host}:"
+                           f"{receiver_client.base_url.port}/webhook")
             
             # Register a webhook
             webhook_data = {

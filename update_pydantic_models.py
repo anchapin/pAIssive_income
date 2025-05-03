@@ -5,6 +5,7 @@ Script to update Pydantic models from class-based Config to model_config.
 import re
 import sys
 
+
 def update_pydantic_models(file_path):
     """
     Update Pydantic models in a file from class-based Config to model_config.
@@ -24,7 +25,10 @@ def update_pydantic_models(file_path):
         )
     
     # Replace class Config with model_config
-    pattern = r'class Config:\s+"""Configuration for the model."""\s+extra = "allow"  # Allow extra fields'
+    pattern = (
+        r'class Config:\s+"""Configuration for the model."""\s+'
+        r'extra = "allow"  # Allow extra fields'
+    )
     replacement = r'model_config = ConfigDict(extra="allow")  # Allow extra fields'
     content = re.sub(pattern, replacement, content)
     
@@ -32,6 +36,7 @@ def update_pydantic_models(file_path):
         f.write(content)
     
     print(f"Updated Pydantic models in {file_path}")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

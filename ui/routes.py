@@ -6,8 +6,6 @@ for different parts of the application.
 """
 
 from flask import render_template, request, jsonify, redirect, url_for, session, flash
-import os
-import json
 import logging
 from datetime import datetime
 import uuid
@@ -16,14 +14,14 @@ import traceback
 from . import app
 from .errors import (
     UIError, RouteError, ServiceError, ValidationError,
-    api_error_handler, handle_exception
+    api_error_handler
 )
 from .tasks import (
     analyze_niches, create_solution, create_monetization_strategy,
     create_marketing_campaign
 )
 from .task_manager import (
-    get_task_status, check_task_completion, store_task_id, get_task_id, cancel_task
+    get_task_status, store_task_id, get_task_id, cancel_task
 )
 
 # Set up logging
@@ -35,6 +33,7 @@ niche_analysis_service = None
 developer_service = None
 monetization_service = None
 marketing_service = None
+
 
 def init_services():
     """Initialize services from the dependency container."""
@@ -56,13 +55,17 @@ def init_services():
 
     logger.info("UI services initialized")
 
+
 # Home route
 @app.route('/')
 def index():
     """Render the home page."""
-    return render_template('index.html',
-                          title='pAIssive Income Framework',
-                          description='A comprehensive framework for developing and monetizing niche AI agents')
+    return render_template(
+        'index.html',
+        title='pAIssive Income Framework',
+        description='A comprehensive framework for developing and monetizing niche AI agents'
+    )
+
 
 # Dashboard route
 @app.route('/dashboard')
@@ -71,9 +74,12 @@ def dashboard():
     # Get project data
     projects = agent_team_service.get_projects()
 
-    return render_template('dashboard.html',
-                          title='Dashboard',
-                          projects=projects)
+    return render_template(
+        'dashboard.html',
+        title='Dashboard',
+        projects=projects
+    )
+
 
 # Niche Analysis routes
 @app.route('/niche-analysis')
@@ -82,9 +88,12 @@ def niche_analysis():
     # Get market segments
     market_segments = niche_analysis_service.get_market_segments()
 
-    return render_template('niche_analysis.html',
-                          title='Niche Analysis',
-                          market_segments=market_segments)
+    return render_template(
+        'niche_analysis.html',
+        title='Niche Analysis',
+        market_segments=market_segments
+    )
+
 
 @app.route('/niche-analysis/run', methods=['POST'])
 def run_niche_analysis():
@@ -111,6 +120,7 @@ def run_niche_analysis():
         flash(f"An error occurred: {str(e)}", "error")
         return redirect(url_for('niche_analysis'))
 
+
 @app.route('/niche-analysis/status')
 def niche_analysis_status():
     """Show status of niche analysis task."""
@@ -131,11 +141,14 @@ def niche_analysis_status():
         return redirect(url_for('niche_results'))
 
     # Render status page
-    return render_template('task_status.html',
-                         title='Niche Analysis Progress',
-                         task_id=task_id,
-                         task_name='Niche Analysis',
-                         status=status)
+    return render_template(
+        'task_status.html',
+        title='Niche Analysis Progress',
+        task_id=task_id,
+        task_name='Niche Analysis',
+        status=status
+    )
+
 
 @app.route('/niche-analysis/results')
 def niche_results():
@@ -143,9 +156,12 @@ def niche_results():
     # Get niches from session
     niches = session.get('niches', [])
 
-    return render_template('niche_results.html',
-                          title='Niche Analysis Results',
-                          niches=niches)
+    return render_template(
+        'niche_results.html',
+        title='Niche Analysis Results',
+        niches=niches
+    )
+
 
 # Developer routes
 @app.route('/developer')
@@ -154,9 +170,12 @@ def developer():
     # Get niches
     niches = niche_analysis_service.get_niches()
 
-    return render_template('developer.html',
-                          title='Solution Development',
-                          niches=niches)
+    return render_template(
+        'developer.html',
+        title='Solution Development',
+        niches=niches
+    )
+
 
 @app.route('/developer/solution', methods=['POST'])
 def develop_solution():
@@ -183,6 +202,7 @@ def develop_solution():
         flash(f"An error occurred: {str(e)}", "error")
         return redirect(url_for('developer'))
 
+
 @app.route('/developer/status')
 def solution_status():
     """Show status of solution development task."""
@@ -203,11 +223,14 @@ def solution_status():
         return redirect(url_for('solution_results'))
 
     # Render status page
-    return render_template('task_status.html',
-                         title='Solution Development Progress',
-                         task_id=task_id,
-                         task_name='Solution Development',
-                         status=status)
+    return render_template(
+        'task_status.html',
+        title='Solution Development Progress',
+        task_id=task_id,
+        task_name='Solution Development',
+        status=status
+    )
+
 
 @app.route('/developer/results')
 def solution_results():
@@ -215,9 +238,12 @@ def solution_results():
     # Get solution from session
     solution = session.get('solution', {})
 
-    return render_template('solution_results.html',
-                          title='Solution Results',
-                          solution=solution)
+    return render_template(
+        'solution_results.html',
+        title='Solution Results',
+        solution=solution
+    )
+
 
 # Monetization routes
 @app.route('/monetization')
@@ -226,9 +252,12 @@ def monetization():
     # Get solutions
     solutions = developer_service.get_solutions()
 
-    return render_template('monetization.html',
-                          title='Monetization Strategy',
-                          solutions=solutions)
+    return render_template(
+        'monetization.html',
+        title='Monetization Strategy',
+        solutions=solutions
+    )
+
 
 @app.route('/monetization/strategy', methods=['POST'])
 def create_monetization_strategy_route():
@@ -255,6 +284,7 @@ def create_monetization_strategy_route():
         flash(f"An error occurred: {str(e)}", "error")
         return redirect(url_for('monetization'))
 
+
 @app.route('/monetization/status')
 def monetization_status():
     """Show status of monetization strategy task."""
@@ -275,11 +305,14 @@ def monetization_status():
         return redirect(url_for('monetization_results'))
 
     # Render status page
-    return render_template('task_status.html',
-                         title='Monetization Strategy Progress',
-                         task_id=task_id,
-                         task_name='Monetization Strategy',
-                         status=status)
+    return render_template(
+        'task_status.html',
+        title='Monetization Strategy Progress',
+        task_id=task_id,
+        task_name='Monetization Strategy',
+        status=status
+    )
+
 
 @app.route('/monetization/results')
 def monetization_results():
@@ -287,9 +320,12 @@ def monetization_results():
     # Get monetization strategy from session
     strategy = session.get('monetization_strategy', {})
 
-    return render_template('monetization_results.html',
-                          title='Monetization Strategy Results',
-                          strategy=strategy)
+    return render_template(
+        'monetization_results.html',
+        title='Monetization Strategy Results',
+        strategy=strategy
+    )
+
 
 # Marketing routes
 @app.route('/marketing')
@@ -298,9 +334,12 @@ def marketing():
     # Get solutions
     solutions = developer_service.get_solutions()
 
-    return render_template('marketing.html',
-                          title='Marketing Campaign',
-                          solutions=solutions)
+    return render_template(
+        'marketing.html',
+        title='Marketing Campaign',
+        solutions=solutions
+    )
+
 
 @app.route('/marketing/campaign', methods=['POST'])
 def create_marketing_campaign_route():
@@ -327,6 +366,7 @@ def create_marketing_campaign_route():
         flash(f"An error occurred: {str(e)}", "error")
         return redirect(url_for('marketing'))
 
+
 @app.route('/marketing/status')
 def marketing_status():
     """Show status of marketing campaign task."""
@@ -347,11 +387,14 @@ def marketing_status():
         return redirect(url_for('marketing_results'))
 
     # Render status page
-    return render_template('task_status.html',
-                         title='Marketing Campaign Progress',
-                         task_id=task_id,
-                         task_name='Marketing Campaign',
-                         status=status)
+    return render_template(
+        'task_status.html',
+        title='Marketing Campaign Progress',
+        task_id=task_id,
+        task_name='Marketing Campaign',
+        status=status
+    )
+
 
 @app.route('/marketing/results')
 def marketing_results():
@@ -359,16 +402,22 @@ def marketing_results():
     # Get marketing campaign from session
     campaign = session.get('marketing_campaign', {})
 
-    return render_template('marketing_results.html',
-                          title='Marketing Campaign Results',
-                          campaign=campaign)
+    return render_template(
+        'marketing_results.html',
+        title='Marketing Campaign Results',
+        campaign=campaign
+    )
+
 
 # About route
 @app.route('/about')
 def about():
     """Render the about page."""
-    return render_template('about.html',
-                          title='About pAIssive Income Framework')
+    return render_template(
+        'about.html',
+        title='About pAIssive Income Framework'
+    )
+
 
 # Task management API endpoints
 @app.route('/api/task/<task_id>', methods=['GET'])
@@ -386,13 +435,16 @@ def get_task(task_id):
         except ValueError:
             raise ValidationError(
                 message="Invalid task ID format",
-                validation_errors=[{"field": "task_id", "error": "Task ID must be a valid UUID"}]
+                validation_errors=[
+                    {"field": "task_id", "error": "Task ID must be a valid UUID"}
+                ]
             )
             
         status = get_task_status(sanitized_task_id)
         return jsonify(status)
     except Exception as e:
         return api_error_handler(e)
+
 
 @app.route('/api/task/<task_id>/cancel', methods=['POST'])
 def cancel_task_route(task_id):
@@ -409,13 +461,19 @@ def cancel_task_route(task_id):
         except ValueError:
             raise ValidationError(
                 message="Invalid task ID format",
-                validation_errors=[{"field": "task_id", "error": "Task ID must be a valid UUID"}]
+                validation_errors=[
+                    {"field": "task_id", "error": "Task ID must be a valid UUID"}
+                ]
             )
             
         result = cancel_task(sanitized_task_id)
-        return jsonify({'success': result, 'message': 'Task cancelled' if result else 'Task could not be cancelled'})
+        return jsonify({
+            'success': result,
+            'message': 'Task cancelled' if result else 'Task could not be cancelled'
+        })
     except Exception as e:
         return api_error_handler(e)
+
 
 # API routes
 @app.route('/api/niches', methods=['GET'])
@@ -439,6 +497,7 @@ def api_get_niches():
     except Exception as e:
         return api_error_handler(e)
 
+
 @app.route('/api/solutions', methods=['GET'])
 def api_get_solutions():
     """API endpoint to get solutions."""
@@ -459,6 +518,7 @@ def api_get_solutions():
         return jsonify(solutions)
     except Exception as e:
         return api_error_handler(e)
+
 
 @app.route('/api/monetization-strategies', methods=['GET'])
 def api_get_monetization_strategies():
@@ -481,6 +541,7 @@ def api_get_monetization_strategies():
     except Exception as e:
         return api_error_handler(e)
 
+
 @app.route('/api/marketing-campaigns', methods=['GET'])
 def api_get_marketing_campaigns():
     """API endpoint to get marketing campaigns."""
@@ -502,6 +563,7 @@ def api_get_marketing_campaigns():
     except Exception as e:
         return api_error_handler(e)
 
+
 # Error handlers
 @app.errorhandler(404)
 def page_not_found(e):
@@ -514,6 +576,7 @@ def page_not_found(e):
     )
     error.log(logging.WARNING)
     return render_template('errors/404.html', title='Page Not Found', error=error), 404
+
 
 @app.errorhandler(500)
 def server_error(e):
@@ -534,6 +597,7 @@ def server_error(e):
     error.log(logging.ERROR)
     return render_template('errors/500.html', title='Server Error', error=error), 500
 
+
 @app.errorhandler(ValidationError)
 def validation_error(e):
     """Handle validation errors."""
@@ -553,6 +617,7 @@ def validation_error(e):
     # Try to redirect back to the previous page
     return redirect(request.referrer or url_for('index'))
 
+
 @app.errorhandler(ServiceError)
 def service_error(e):
     """Handle service errors."""
@@ -564,6 +629,7 @@ def service_error(e):
 
     # For regular requests, show error page
     return render_template('errors/500.html', title='Service Error', error=e), e.http_status
+
 
 @app.errorhandler(Exception)
 def handle_exception(e):
