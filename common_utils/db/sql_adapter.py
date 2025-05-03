@@ -76,7 +76,7 @@ class SQLiteAdapter(DatabaseInterface):
             else:
                 result = self.cursor.execute(query)
 
-            return result
+                    return result
         except sqlite3.Error as e:
             logger.error(f"Error executing query: {e}")
             if self.connection:
@@ -102,7 +102,7 @@ class SQLiteAdapter(DatabaseInterface):
         try:
             self.execute(query, params)
             row = self.cursor.fetchone()
-            return dict(row) if row else None
+                    return dict(row) if row else None
         except sqlite3.Error as e:
             logger.error(f"Error fetching data: {e}")
             raise
@@ -126,7 +126,7 @@ class SQLiteAdapter(DatabaseInterface):
         try:
             self.execute(query, params)
             rows = self.cursor.fetchall()
-            return [dict(row) for row in rows]
+                    return [dict(row) for row in rows]
         except sqlite3.Error as e:
             logger.error(f"Error fetching data: {e}")
             raise
@@ -152,7 +152,7 @@ class SQLiteAdapter(DatabaseInterface):
 
         try:
             self.execute(query, data)
-            return self.cursor.lastrowid
+                    return self.cursor.lastrowid
         except sqlite3.Error as e:
             logger.error(f"Error inserting data: {e}")
             raise
@@ -189,7 +189,7 @@ class SQLiteAdapter(DatabaseInterface):
 
         try:
             self.execute(query, combined_params)
-            return self.cursor.rowcount
+                    return self.cursor.rowcount
         except sqlite3.Error as e:
             logger.error(f"Error updating data: {e}")
             raise
@@ -215,7 +215,7 @@ class SQLiteAdapter(DatabaseInterface):
 
         try:
             self.execute(query, params)
-            return self.cursor.rowcount
+                    return self.cursor.rowcount
         except sqlite3.Error as e:
             logger.error(f"Error deleting data: {e}")
             raise
@@ -237,7 +237,7 @@ class SQLiteUnitOfWork(UnitOfWork):
         """Start a transaction."""
         self.adapter._ensure_connection()
         self.adapter.execute("BEGIN TRANSACTION")
-        return self
+                return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """End a transaction."""

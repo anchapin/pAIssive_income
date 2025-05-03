@@ -62,9 +62,9 @@ class TestMessageQueueIntegration:
                 received_messages[service_name].append(
                     {"message": message, "headers": headers}
                 )
-                return True
+                        return True
 
-            return handler
+                    return handler
 
         # Register handlers
         for service in services:
@@ -218,9 +218,9 @@ class TestMessageQueueIntegration:
                         },
                     )
 
-                return True
+                        return True
 
-            return handler
+                    return handler
 
         # Register handlers
         for i, step in enumerate(workflow):
@@ -295,9 +295,9 @@ class TestMessageQueueIntegration:
         def create_topic_handler(topic):
             def handler(message, headers):
                 topic_handlers[topic].append({"message": message, "headers": headers})
-                return True
+                        return True
 
-            return handler
+                    return handler
 
         # Register handlers with different routing patterns
         for topic in topic_handlers:

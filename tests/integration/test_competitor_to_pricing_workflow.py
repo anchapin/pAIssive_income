@@ -22,13 +22,13 @@ from monetization import
 @pytest.fixture
 def market_analyzer():
     """Create a market analyzer instance for testing."""
-    return MarketAnalyzer()
+            return MarketAnalyzer()
 
 
 @pytest.fixture
 def subscription_model():
     """Create a subscription model instance for testing."""
-    return SubscriptionModel(
+            return SubscriptionModel(
         name="Test Subscription Model",
         description="A test subscription model"
     )
@@ -37,7 +37,7 @@ def subscription_model():
 @pytest.fixture
 def freemium_model():
     """Create a freemium model instance for testing."""
-    return FreemiumModel(
+            return FreemiumModel(
         name="Test Freemium Model",
         description="A test freemium model"
     )
@@ -46,7 +46,7 @@ def freemium_model():
 @pytest.fixture
 def pricing_calculator():
     """Create a pricing calculator instance for testing."""
-    return PricingCalculator(
+            return PricingCalculator(
         name="Test Pricing Calculator",
         description="A test pricing calculator",
         base_cost=5.0,
@@ -58,7 +58,7 @@ def pricing_calculator():
 @pytest.fixture
 def revenue_projector():
     """Create a revenue projector instance for testing."""
-    return RevenueProjector(
+            return RevenueProjector(
         name="Test Revenue Projector",
         description="A test revenue projector",
         initial_users=0,

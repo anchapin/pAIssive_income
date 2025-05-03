@@ -77,18 +77,18 @@ class MockResponse:
     @property
     def content(self) -> bytes:
         """Get the raw content of the response."""
-        return self._content
+                return self._content
 
     @property
     def text(self) -> str:
         """Get the decoded content of the response."""
-        return self._content.decode(self.encoding)
+                return self._content.decode(self.encoding)
 
     def json(self) -> Any:
         """Parse the response as JSON."""
         if self._json_data is not None:
-            return self._json_data
-        return json.loads(self.text)
+                    return self._json_data
+                return json.loads(self.text)
 
     def iter_content(self, chunk_size: int = 1) -> Iterator[bytes]:
         """
@@ -120,7 +120,7 @@ class MockSession(MagicMock):
 
     def get_request_history(self) -> List[Dict[str, Any]]:
         """Get the history of requests made through this session."""
-        return self._request_history
+                return self._request_history
 
     def request(self, method: str, url: str, **kwargs) -> MockResponse:
         """
@@ -139,7 +139,7 @@ class MockSession(MagicMock):
         self._request_history.append(request_info)
 
         # Call the parent method
-        return super().request(method, url, **kwargs)
+                return super().request(method, url, **kwargs)
 
 
 class MockRequests:
@@ -177,9 +177,9 @@ class MockRequests:
         """
 
         def request_method(url: str, **kwargs) -> MockResponse:
-            return self.request(method, url, **kwargs)
+                    return self.request(method, url, **kwargs)
 
-        return request_method
+                return request_method
 
     def request(self, method: str, url: str, **kwargs) -> MockResponse:
         """
@@ -233,7 +233,7 @@ class MockRequests:
                 reason="Not Found",
             )
 
-        return response
+                return response
 
     def _url_matches_pattern(self, url: str, pattern: str) -> bool:
         """
@@ -248,14 +248,14 @@ class MockRequests:
         """
         # If the pattern is an exact match, return True
         if url == pattern:
-            return True
+                    return True
 
         # If the pattern is a regex pattern, check if it matches
         if pattern.startswith("^") or pattern.endswith("$"):
-            return bool(re.match(pattern, url))
+                    return bool(re.match(pattern, url))
 
         # Otherwise, check if the pattern is a substring of the URL
-        return pattern in url
+                return pattern in url
 
     def add_response(
         self,
@@ -285,9 +285,7 @@ class MockRequests:
             if callable(response):
                 # If response is a callable, keep it as is
                 self.responses[pattern] = response
-                return
-
-            # Convert the response to a MockResponse
+                        return # Convert the response to a MockResponse
             if isinstance(response, (dict, list)):
                 # Convert to JSON
                 headers = headers or {"Content-Type": "application/json"}
@@ -326,7 +324,7 @@ class MockRequests:
         session = MockSession()
         session_id = id(session)
         self.sessions[session_id] = session
-        return session
+                return session
 
 
 # Create a mock requests module

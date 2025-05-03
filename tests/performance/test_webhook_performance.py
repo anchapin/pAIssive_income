@@ -44,7 +44,7 @@ class MockResponse:
     async def __call__(self, *args, **kwargs):
         """Simulate network delay."""
         await asyncio.sleep(self.delay)
-        return self
+                return self
 
     def raise_for_status(self):
         """Raise an exception if status code is 4xx or 5xx."""
@@ -74,7 +74,7 @@ async def create_test_webhooks(
         }
         webhook = await service.register_webhook(webhook_data)
         webhooks.append(webhook)
-    return webhooks
+            return webhooks
 
 
 async def create_test_events(count: int) -> List[Dict[str, Any]]:
@@ -88,7 +88,7 @@ async def create_test_events(count: int) -> List[Dict[str, Any]]:
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
         events.append(event_data)
-    return events
+            return events
 
 
 async def test_sequential_delivery(
@@ -123,7 +123,7 @@ async def test_sequential_delivery(
         total_deliveries = len(webhooks) * len(events)
         deliveries_per_second = total_deliveries / total_time if total_time > 0 else 0
 
-        return {
+                return {
             "test_type": "sequential",
             "num_webhooks": len(webhooks),
             "num_events": len(events),
@@ -155,7 +155,7 @@ async def test_concurrent_delivery(
 
         async def deliver_with_semaphore(webhook_id, event_type, event_data):
             async with semaphore:
-                return await service.deliver_event(
+                        return await service.deliver_event(
                     webhook_id=webhook_id, event_type=event_type, event_data=event_data
                 )
 
@@ -180,7 +180,7 @@ async def test_concurrent_delivery(
         total_deliveries = len(webhooks) * len(events)
         deliveries_per_second = total_deliveries / total_time if total_time > 0 else 0
 
-        return {
+                return {
             "test_type": "concurrent",
             "num_webhooks": len(webhooks),
             "num_events": len(events),
@@ -228,7 +228,7 @@ async def test_retry_performance(
         total_time = end_time - start_time
         expected_time = retry_count * retry_delay + (retry_count + 1) * 0.05
 
-        return {
+                return {
             "test_type": "retry",
             "retry_count": retry_count,
             "retry_delay": retry_delay,
@@ -273,7 +273,7 @@ async def test_memory_usage(
     # Get final memory usage
     final_memory = process.memory_info().rss / 1024 / 1024  # MB
 
-    return {
+            return {
         "test_type": "memory",
         "num_webhooks": num_webhooks,
         "num_events": num_events,

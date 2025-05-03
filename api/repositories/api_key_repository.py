@@ -104,7 +104,7 @@ class APIKeyRepository:
         # Save to storage
         self._save()
 
-        return api_key
+                return api_key
 
     def get_by_id(self, api_key_id: str) -> Optional[APIKey]:
         """
@@ -116,7 +116,7 @@ class APIKeyRepository:
         Returns:
             API key if found, None otherwise
         """
-        return self.api_keys.get(api_key_id)
+                return self.api_keys.get(api_key_id)
 
     def get_by_key(self, key: str) -> Optional[APIKey]:
         """
@@ -135,10 +135,10 @@ class APIKeyRepository:
             key_hash = APIKey.hash_key(key)
             for api_key in self.api_keys.values():
                 if api_key.key_hash == key_hash:
-                    return api_key
-            return None
+                            return api_key
+                    return None
 
-        return self.api_keys.get(api_key_id)
+                return self.api_keys.get(api_key_id)
 
     def get_by_prefix(self, prefix: str) -> List[APIKey]:
         """
@@ -150,7 +150,7 @@ class APIKeyRepository:
         Returns:
             List of API keys with matching prefix
         """
-        return [
+                return [
             api_key for api_key in self.api_keys.values() if api_key.prefix == prefix
         ]
 
@@ -164,7 +164,7 @@ class APIKeyRepository:
         Returns:
             List of API keys for the user
         """
-        return [
+                return [
             api_key for api_key in self.api_keys.values() if api_key.user_id == user_id
         ]
 
@@ -175,7 +175,7 @@ class APIKeyRepository:
         Returns:
             List of all API keys
         """
-        return list(self.api_keys.values())
+                return list(self.api_keys.values())
 
     def update(self, api_key: APIKey) -> APIKey:
         """
@@ -195,7 +195,7 @@ class APIKeyRepository:
         # Save to storage
         self._save()
 
-        return api_key
+                return api_key
 
     def delete(self, api_key_id: str) -> bool:
         """
@@ -209,7 +209,7 @@ class APIKeyRepository:
         """
         # Check if API key exists
         if api_key_id not in self.api_keys:
-            return False
+                    return False
 
         # Get API key
         api_key = self.api_keys[api_key_id]
@@ -222,7 +222,7 @@ class APIKeyRepository:
         # Save to storage
         self._save()
 
-        return True
+                return True
 
     def verify_key(self, key: str) -> Optional[APIKey]:
         """
@@ -238,14 +238,14 @@ class APIKeyRepository:
         api_key = self.get_by_key(key)
 
         if not api_key:
-            return None
+                    return None
 
         # Check if API key is valid
         if not api_key.is_valid():
-            return None
+                    return None
 
         # Update last used timestamp
         api_key.update_last_used()
         self.update(api_key)
 
-        return api_key
+                return api_key

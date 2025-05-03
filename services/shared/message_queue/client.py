@@ -239,7 +239,7 @@ class MessageQueueClient:
 
             logger.info(f"Published message {message.id} to {routing_key}")
 
-            return message
+                    return message
 
         except AMQPError as e:
             logger.error(f"Failed to publish message: {str(e)}")
@@ -280,7 +280,7 @@ class MessageQueueClient:
             )
 
             # Return the queue name (which might be different if queue_name was empty)
-            return result.method.queue
+                    return result.method.queue
 
         except AMQPError as e:
             logger.error(f"Failed to declare queue {queue_name}: {str(e)}")
@@ -409,7 +409,7 @@ class MessageQueueClient:
             # Store the thread
             self.consumer_threads[consumer_tag] = thread
 
-            return consumer_tag
+                    return consumer_tag
 
         except AMQPError as e:
             logger.error(f"Failed to start consuming from queue {queue_name}: {str(e)}")
@@ -456,7 +456,7 @@ class MessageQueueClient:
             auto_delete=True,
         )
 
-        return queue_name, correlation_id
+                return queue_name, correlation_id
 
     def request(
         self, message: Message, routing_key: Optional[str] = None, timeout: float = 30.0
@@ -512,9 +512,9 @@ class MessageQueueClient:
                 logger.warning(
                     f"Request {message.id} timed out after {timeout} seconds"
                 )
-                return None
+                        return None
 
-            return response["message"]
+                    return response["message"]
 
         finally:
             # Stop consuming from the response queue
@@ -580,7 +580,7 @@ class AsyncMessageQueueClient:
     async def __aenter__(self):
         """Enter async context manager."""
         await self.connect()
-        return self
+                return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Exit async context manager."""
@@ -711,7 +711,7 @@ class AsyncMessageQueueClient:
 
             logger.info(f"Published message {message.id} to {routing_key}")
 
-            return message
+                    return message
 
         except aio_pika.exceptions.AMQPException as e:
             logger.error(f"Failed to publish message: {str(e)}")
@@ -751,7 +751,7 @@ class AsyncMessageQueueClient:
                 arguments=arguments,
             )
 
-            return queue
+                    return queue
 
         except aio_pika.exceptions.AMQPException as e:
             logger.error(f"Failed to declare queue {queue_name}: {str(e)}")
@@ -871,7 +871,7 @@ class AsyncMessageQueueClient:
                 f"Started consuming from queue {queue_name} with tag {consumer_tag}"
             )
 
-            return consumer_tag
+                    return consumer_tag
 
         except aio_pika.exceptions.AMQPException as e:
             logger.error(f"Failed to start consuming from queue {queue_name}: {str(e)}")
@@ -918,7 +918,7 @@ class AsyncMessageQueueClient:
             auto_delete=True,
         )
 
-        return queue, correlation_id
+                return queue, correlation_id
 
     async def request(
         self, message: Message, routing_key: Optional[str] = None, timeout: float = 30.0
@@ -964,12 +964,12 @@ class AsyncMessageQueueClient:
             # Wait for the response
             try:
                 response = await asyncio.wait_for(future, timeout=timeout)
-                return response
+                        return response
             except asyncio.TimeoutError:
                 logger.warning(
                     f"Request {message.id} timed out after {timeout} seconds"
                 )
-                return None
+                        return None
 
         finally:
             # Cancel the consumer

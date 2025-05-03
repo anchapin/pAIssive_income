@@ -32,11 +32,11 @@ logger
 class ROIAnalysisError(MarketingError):
     """Error raised when there's an issue with ROI analysis."""
 
-    def __init__(self, message: str, campaign_id: Optional[str] = None, **kwargs):
+def __init__(self, message: str, campaign_id: Optional[str] = None, **kwargs):
         """
         Initialize the ROI analysis error.
 
-        Args:
+Args:
             message: Human-readable error message
             campaign_id: ID of the campaign that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -45,7 +45,7 @@ class ROIAnalysisError(MarketingError):
         if campaign_id:
             details["campaign_id"] = campaign_id
 
-        super().__init__(
+super().__init__(
             message=message, code="roi_analysis_error", details=details, **kwargs
         )
 
@@ -53,11 +53,11 @@ class ROIAnalysisError(MarketingError):
 class InsufficientDataError(ROIAnalysisError):
     """Error raised when there's insufficient data for ROI analysis."""
 
-    def __init__(self, message: str, campaign_id: Optional[str] = None, **kwargs):
+def __init__(self, message: str, campaign_id: Optional[str] = None, **kwargs):
         """
         Initialize the insufficient data error.
 
-        Args:
+Args:
             message: Human-readable error message
             campaign_id: ID of the campaign that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -70,16 +70,16 @@ class InsufficientDataError(ROIAnalysisError):
 class ROIAnalyzer(IROIAnalyzer):
     """Class for analyzing marketing campaign ROI."""
 
-    def __init__(self, campaign_tracker: ICampaignTracker):
+def __init__(self, campaign_tracker: ICampaignTracker):
         """
         Initialize the ROI analyzer.
 
-        Args:
+Args:
             campaign_tracker: Campaign tracker instance for accessing campaign data
         """
         self.campaign_tracker = campaign_tracker
 
-    def calculate_roi(
+def calculate_roi(
         self,
         campaign_id: str,
         costs: Dict[str, float],
@@ -90,33 +90,33 @@ class ROIAnalyzer(IROIAnalyzer):
         """
         Calculate ROI for a marketing campaign.
 
-        Args:
+Args:
             campaign_id: ID of the campaign to analyze
             costs: Dictionary mapping cost categories to amounts
             revenue_metrics: Metric name(s) to use for revenue calculation
             time_period: Optional tuple of (start_date, end_date) to limit analysis
             include_details: Whether to include detailed breakdown in results
 
-        Returns:
+Returns:
             Dictionary containing ROI analysis results
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
             InvalidParameterError: If an invalid parameter is provided
         """
         # Validate campaign
         campaign = self.campaign_tracker.get_campaign(campaign_id)
 
-        # Convert single metric to list
+# Convert single metric to list
         if isinstance(revenue_metrics, str):
             revenue_metrics = [revenue_metrics]
 
-        # Calculate total cost
+# Calculate total cost
         total_cost = sum(costs.values())
         if total_cost <= 0:
             raise InvalidParameterError("Total cost must be greater than zero")
 
-        # Set time period if not provided
+# Set time period if not provided
         if time_period is None:
             campaign_start = datetime.fromisoformat(campaign["start_date"])
             campaign_end = (
@@ -126,7 +126,7 @@ class ROIAnalyzer(IROIAnalyzer):
             )
             time_period = (campaign_start, campaign_end)
 
-        # Get metrics data for the specified time period
+# Get metrics data for the specified time period
         metrics_data = self.campaign_tracker.get_metrics(
             campaign_id=campaign_id,
             metric_name=None,  # Get all metrics
@@ -136,11 +136,11 @@ class ROIAnalyzer(IROIAnalyzer):
             aggregation="sum",
         )
 
-        # Calculate total revenue
+# Calculate total revenue
         total_revenue = 0
         revenue_breakdown = {}
 
-        for metric_name in revenue_metrics:
+for metric_name in revenue_metrics:
             # Check if metric data exists
             if (
                 "grouped_data" in metrics_data
@@ -150,15 +150,15 @@ class ROIAnalyzer(IROIAnalyzer):
                 revenue_breakdown[metric_name] = metric_value
                 total_revenue += metric_value
 
-        # Calculate ROI
+# Calculate ROI
         roi_value = 0
         roi_percentage = 0
 
-        if total_cost > 0:
+if total_cost > 0:
             roi_value = total_revenue - total_cost
             roi_percentage = (roi_value / total_cost) * 100
 
-        # Prepare result
+# Prepare result
         result = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
@@ -171,7 +171,7 @@ class ROIAnalyzer(IROIAnalyzer):
             "roi": {"value": roi_value, "percentage": roi_percentage},
         }
 
-        # Add details if requested
+# Add details if requested
         if include_details:
             # Add cost per acquisition if possible
             conversions = 0
@@ -181,11 +181,11 @@ class ROIAnalyzer(IROIAnalyzer):
             ):
                 conversions = metrics_data["grouped_data"]["conversions"]["aggregate"]
 
-            cost_per_acquisition = 0
+cost_per_acquisition = 0
             if conversions > 0:
                 cost_per_acquisition = total_cost / conversions
 
-            # Add cost per click if possible
+# Add cost per click if possible
             clicks = 0
             if (
                 "grouped_data" in metrics_data
@@ -193,11 +193,11 @@ class ROIAnalyzer(IROIAnalyzer):
             ):
                 clicks = metrics_data["grouped_data"]["clicks"]["aggregate"]
 
-            cost_per_click = 0
+cost_per_click = 0
             if clicks > 0:
                 cost_per_click = total_cost / clicks
 
-            # Add more efficiency metrics
+# Add more efficiency metrics
             result["efficiency_metrics"] = {
                 "cost_per_acquisition": cost_per_acquisition,
                 "cost_per_click": cost_per_click,
@@ -209,27 +209,27 @@ class ROIAnalyzer(IROIAnalyzer):
                 ),
             }
 
-            # Add performance against targets
+# Add performance against targets
             target_metrics = campaign.get("target_metrics", {})
             performance = {}
 
-            for metric_name in revenue_metrics:
+for metric_name in revenue_metrics:
                 if metric_name in target_metrics:
                     target = target_metrics[metric_name]
                     actual = revenue_breakdown.get(metric_name, 0)
                     achievement = (actual / target) * 100 if target > 0 else 0
 
-                    performance[metric_name] = {
+performance[metric_name] = {
                         "target": target,
                         "actual": actual,
                         "achievement_percentage": achievement,
                     }
 
-            result["performance"] = performance
+result["performance"] = performance
 
-        return result
+            return result
 
-    def calculate_cumulative_roi(
+def calculate_cumulative_roi(
         self,
         campaign_id: str,
         costs: Dict[str, float],
@@ -241,7 +241,7 @@ class ROIAnalyzer(IROIAnalyzer):
         """
         Calculate cumulative ROI over time for a campaign.
 
-        Args:
+Args:
             campaign_id: ID of the campaign to analyze
             costs: Dictionary mapping cost categories to amounts
             revenue_metrics: Metric name(s) to use for revenue calculation
@@ -249,33 +249,33 @@ class ROIAnalyzer(IROIAnalyzer):
             end_date: End date for analysis
             interval: Time interval for ROI points ("daily", "weekly", "monthly")
 
-        Returns:
+Returns:
             Dictionary containing cumulative ROI analysis
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
             InvalidParameterError: If an invalid parameter is provided
         """
         # Validate campaign
         campaign = self.campaign_tracker.get_campaign(campaign_id)
 
-        # Validate interval
+# Validate interval
         valid_intervals = ["daily", "weekly", "monthly"]
         if interval not in valid_intervals:
             raise InvalidParameterError(
                 f"Invalid interval: {interval}. Must be one of {valid_intervals}"
             )
 
-        # Convert single metric to list
+# Convert single metric to list
         if isinstance(revenue_metrics, str):
             revenue_metrics = [revenue_metrics]
 
-        # Calculate total cost
+# Calculate total cost
         total_cost = sum(costs.values())
         if total_cost <= 0:
             raise InvalidParameterError("Total cost must be greater than zero")
 
-        # Get time-based metrics
+# Get time-based metrics
         metrics_data = self.campaign_tracker.get_metrics(
             campaign_id=campaign_id,
             start_time=start_date,
@@ -284,11 +284,11 @@ class ROIAnalyzer(IROIAnalyzer):
             aggregation="sum",
         )
 
-        # Initialize time periods
+# Initialize time periods
         time_periods = []
         current_date = start_date
 
-        while current_date <= end_date:
+while current_date <= end_date:
             if interval == "daily":
                 period_key = current_date.date().isoformat()
                 time_periods.append(period_key)
@@ -303,7 +303,7 @@ class ROIAnalyzer(IROIAnalyzer):
                 period_key = f"{current_date.year}-{current_date.month:02d}"
                 time_periods.append(period_key)
 
-                # Move to next month
+# Move to next month
                 if current_date.month == 12:
                     current_date = current_date.replace(
                         year=current_date.year + 1, month=1
@@ -311,14 +311,14 @@ class ROIAnalyzer(IROIAnalyzer):
                 else:
                     current_date = current_date.replace(month=current_date.month + 1)
 
-        # Remove duplicates and sort
+# Remove duplicates and sort
         time_periods = sorted(list(set(time_periods)))
 
-        # Calculate cost distribution across time periods
+# Calculate cost distribution across time periods
         # Simplified approach: distribute cost evenly across all time periods
         cost_per_period = total_cost / len(time_periods)
 
-        # Initialize result
+# Initialize result
         result = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
@@ -336,33 +336,33 @@ class ROIAnalyzer(IROIAnalyzer):
             },
         }
 
-        # Calculate cumulative ROI over time
+# Calculate cumulative ROI over time
         cumulative_cost = 0
         cumulative_revenue = 0
         grouped_data = metrics_data.get("grouped_data", {})
 
-        for period in time_periods:
+for period in time_periods:
             period_revenue = 0
 
-            # Get revenue metrics for this period
+# Get revenue metrics for this period
             if period in grouped_data:
                 period_metrics = grouped_data[period]
 
-                for metric_name in revenue_metrics:
+for metric_name in revenue_metrics:
                     if metric_name in period_metrics:
                         period_revenue += period_metrics[metric_name]
 
-            # Update cumulatives
+# Update cumulatives
             cumulative_cost += cost_per_period
             cumulative_revenue += period_revenue
 
-            # Calculate ROI
+# Calculate ROI
             roi_value = cumulative_revenue - cumulative_cost
             roi_percentage = (
                 (roi_value / cumulative_cost) * 100 if cumulative_cost > 0 else 0
             )
 
-            # Add to result
+# Add to result
             result["cumulative_data"].append(
                 {
                     "period": period,
@@ -375,14 +375,14 @@ class ROIAnalyzer(IROIAnalyzer):
                 }
             )
 
-        # Update summary
+# Update summary
         if result["cumulative_data"]:
             last_period = result["cumulative_data"][-1]
             result["summary"]["total_revenue"] = last_period["cumulative_revenue"]
             result["summary"]["final_roi_value"] = last_period["roi_value"]
             result["summary"]["final_roi_percentage"] = last_period["roi_percentage"]
 
-            # Add break-even point if applicable
+# Add break-even point if applicable
             for i, period_data in enumerate(result["cumulative_data"]):
                 if period_data["cumulative_revenue"] >= period_data["cumulative_cost"]:
                     result["summary"]["break_even_index"] = i
@@ -392,9 +392,9 @@ class ROIAnalyzer(IROIAnalyzer):
                 result["summary"]["break_even_index"] = None
                 result["summary"]["break_even_period"] = None
 
-        return result
+            return result
 
-    def compare_campaign_roi(
+def compare_campaign_roi(
         self,
         campaign_ids: List[str],
         costs: Dict[str, Dict[str, float]],
@@ -404,16 +404,16 @@ class ROIAnalyzer(IROIAnalyzer):
         """
         Compare ROI across multiple campaigns.
 
-        Args:
+Args:
             campaign_ids: List of campaign IDs to compare
             costs: Dictionary mapping campaign IDs to their cost dictionaries
             revenue_metrics: Dictionary mapping campaign IDs to their revenue metrics
             time_periods: Optional dictionary mapping campaign IDs to time period tuples
 
-        Returns:
+Returns:
             Dictionary containing comparative ROI analysis
 
-        Raises:
+Raises:
             CampaignNotFoundError: If any campaign is not found
             InvalidParameterError: If an invalid parameter is provided
         """
@@ -421,7 +421,7 @@ class ROIAnalyzer(IROIAnalyzer):
         for campaign_id in campaign_ids:
             self.campaign_tracker.get_campaign(campaign_id)
 
-        # Initialize result
+# Initialize result
         result = {
             "campaigns": {},
             "roi_comparison": {
@@ -434,22 +434,22 @@ class ROIAnalyzer(IROIAnalyzer):
             },
         }
 
-        # Calculate ROI for each campaign
+# Calculate ROI for each campaign
         roi_percentages = []
 
-        for campaign_id in campaign_ids:
+for campaign_id in campaign_ids:
             # Get time period for this campaign
             time_period = None
             if time_periods and campaign_id in time_periods:
                 time_period = time_periods[campaign_id]
 
-            # Get cost for this campaign
+# Get cost for this campaign
             campaign_costs = costs.get(campaign_id, {})
 
-            # Get revenue metrics for this campaign
+# Get revenue metrics for this campaign
             campaign_revenue_metrics = revenue_metrics.get(campaign_id, [])
 
-            try:
+try:
                 # Calculate ROI
                 roi_data = self.calculate_roi(
                     campaign_id=campaign_id,
@@ -459,16 +459,16 @@ class ROIAnalyzer(IROIAnalyzer):
                     include_details=True,
                 )
 
-                # Add to result
+# Add to result
                 result["campaigns"][campaign_id] = roi_data
 
-                # Add to comparison
+# Add to comparison
                 roi_value = roi_data["roi"]["value"]
                 roi_percentage = roi_data["roi"]["percentage"]
                 total_cost = roi_data["costs"]["total"]
                 total_revenue = roi_data["revenue"]["total"]
 
-                # Add to list for comparison
+# Add to list for comparison
                 result["roi_comparison"]["values"].append(
                     {
                         "campaign_id": campaign_id,
@@ -477,7 +477,7 @@ class ROIAnalyzer(IROIAnalyzer):
                     }
                 )
 
-                result["roi_comparison"]["percentages"].append(
+result["roi_comparison"]["percentages"].append(
                     {
                         "campaign_id": campaign_id,
                         "campaign_name": roi_data["campaign_name"],
@@ -485,7 +485,7 @@ class ROIAnalyzer(IROIAnalyzer):
                     }
                 )
 
-                revenue_cost_ratio = total_revenue / total_cost if total_cost > 0 else 0
+revenue_cost_ratio = total_revenue / total_cost if total_cost > 0 else 0
                 result["roi_comparison"]["revenue_cost_ratios"].append(
                     {
                         "campaign_id": campaign_id,
@@ -494,7 +494,7 @@ class ROIAnalyzer(IROIAnalyzer):
                     }
                 )
 
-                # Track highest and lowest ROI
+# Track highest and lowest ROI
                 if (
                     result["roi_comparison"]["highest_roi"]["campaign_id"] is None
                     or roi_percentage
@@ -507,7 +507,7 @@ class ROIAnalyzer(IROIAnalyzer):
                         "percentage": roi_percentage,
                     }
 
-                if (
+if (
                     result["roi_comparison"]["lowest_roi"]["campaign_id"] is None
                     or roi_percentage
                     < result["roi_comparison"]["lowest_roi"]["percentage"]
@@ -519,13 +519,13 @@ class ROIAnalyzer(IROIAnalyzer):
                         "percentage": roi_percentage,
                     }
 
-                roi_percentages.append(roi_percentage)
+roi_percentages.append(roi_percentage)
 
-            except Exception as e:
+except Exception as e:
                 logger.warning(f"Error calculating ROI for campaign {campaign_id}: {e}")
                 continue
 
-        # Sort comparison lists
+# Sort comparison lists
         result["roi_comparison"]["values"].sort(
             key=lambda x: x["roi_value"], reverse=True
         )
@@ -536,13 +536,13 @@ class ROIAnalyzer(IROIAnalyzer):
             key=lambda x: x["ratio"], reverse=True
         )
 
-        # Calculate average ROI percentage
+# Calculate average ROI percentage
         if roi_percentages:
             result["roi_comparison"]["average_roi_percentage"] = sum(
                 roi_percentages
             ) / len(roi_percentages)
 
-        # Add statistical analysis
+# Add statistical analysis
         if len(roi_percentages) > 1:
             result["roi_comparison"]["statistical_analysis"] = {
                 "mean": np.mean(roi_percentages),
@@ -553,9 +553,9 @@ class ROIAnalyzer(IROIAnalyzer):
                 "range": np.max(roi_percentages) - np.min(roi_percentages),
             }
 
-        return result
+            return result
 
-    def forecast_roi(
+def forecast_roi(
         self,
         campaign_id: str,
         costs: Dict[str, float],
@@ -567,7 +567,7 @@ class ROIAnalyzer(IROIAnalyzer):
         """
         Forecast future ROI based on historical data.
 
-        Args:
+Args:
             campaign_id: ID of the campaign to forecast
             costs: Dictionary mapping cost categories to amounts
             revenue_metrics: Metric name(s) to use for revenue calculation
@@ -575,10 +575,10 @@ class ROIAnalyzer(IROIAnalyzer):
             forecast_unit: Unit for forecast period ("days", "weeks", "months")
             historical_period: Optional tuple of (start_date, end_date) for historical data
 
-        Returns:
+Returns:
             Dictionary containing ROI forecast results
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
             InvalidParameterError: If an invalid parameter is provided
             InsufficientDataError: If there's not enough data for forecasting
@@ -586,28 +586,28 @@ class ROIAnalyzer(IROIAnalyzer):
         # Validate campaign
         campaign = self.campaign_tracker.get_campaign(campaign_id)
 
-        # Validate forecast unit
+# Validate forecast unit
         valid_units = ["days", "weeks", "months"]
         if forecast_unit not in valid_units:
             raise InvalidParameterError(
                 f"Invalid forecast unit: {forecast_unit}. Must be one of {valid_units}"
             )
 
-        # Convert single metric to list
+# Convert single metric to list
         if isinstance(revenue_metrics, str):
             revenue_metrics = [revenue_metrics]
 
-        # Set historical period if not provided
+# Set historical period if not provided
         if historical_period is None:
             campaign_start = datetime.fromisoformat(campaign["start_date"])
             now = datetime.now()
             historical_period = (campaign_start, now)
 
-        # Map forecast unit to metrics interval
+# Map forecast unit to metrics interval
         interval_map = {"days": "daily", "weeks": "weekly", "months": "monthly"}
         interval = interval_map[forecast_unit]
 
-        # Get historical metrics
+# Get historical metrics
         metrics_data = self.campaign_tracker.get_metrics(
             campaign_id=campaign_id,
             start_time=historical_period[0],
@@ -616,23 +616,23 @@ class ROIAnalyzer(IROIAnalyzer):
             aggregation="sum",
         )
 
-        # Extract revenue data
+# Extract revenue data
         historical_revenue = []
         time_periods = []
 
-        grouped_data = metrics_data.get("grouped_data", {})
+grouped_data = metrics_data.get("grouped_data", {})
         for period, period_data in sorted(grouped_data.items()):
             period_revenue = 0
 
-            # Sum revenue metrics for this period
+# Sum revenue metrics for this period
             for metric_name in revenue_metrics:
                 if metric_name in period_data:
                     period_revenue += period_data[metric_name]
 
-            historical_revenue.append(period_revenue)
+historical_revenue.append(period_revenue)
             time_periods.append(period)
 
-        # Check if we have enough historical data
+# Check if we have enough historical data
         min_data_points = 3
         if len(historical_revenue) < min_data_points:
             raise InsufficientDataError(
@@ -640,33 +640,33 @@ class ROIAnalyzer(IROIAnalyzer):
                 campaign_id=campaign_id,
             )
 
-        # Calculate total cost
+# Calculate total cost
         total_cost = sum(costs.values())
         if total_cost <= 0:
             raise InvalidParameterError("Total cost must be greater than zero")
 
-        # Calculate cost per period (simple distribution)
+# Calculate cost per period (simple distribution)
         cost_per_period = total_cost / forecast_period
 
-        # Simple linear regression for revenue forecasting
+# Simple linear regression for revenue forecasting
         x = np.arange(len(historical_revenue)).reshape(-1, 1)
         y = np.array(historical_revenue)
 
-        # Add constant for intercept
+# Add constant for intercept
         X = np.hstack([x, np.ones_like(x)])
 
-        # Fit model
+# Fit model
         beta, _, _, _ = np.linalg.lstsq(X, y, rcond=None)
         slope, intercept = beta
 
-        # Generate forecast
+# Generate forecast
         forecast_data = []
 
-        # Generate new period labels
+# Generate new period labels
         last_period = time_periods[-1]
         new_periods = []
 
-        if interval == "daily":
+if interval == "daily":
             last_date = datetime.fromisoformat(last_period)
             for i in range(1, forecast_period + 1):
                 new_date = last_date + timedelta(days=i)
@@ -685,40 +685,40 @@ class ROIAnalyzer(IROIAnalyzer):
                     year += 1
                 new_periods.append(f"{year}-{month:02d}")
 
-        # Generate forecast values
+# Generate forecast values
         x_forecast = np.arange(
             len(historical_revenue), len(historical_revenue) + forecast_period
         )
         forecast_values = slope * x_forecast + intercept
 
-        # Apply confidence adjustments
+# Apply confidence adjustments
         confidence_level = 0.95
         n = len(historical_revenue)
         t_value = stats.t.ppf(1 - (1 - confidence_level) / 2, n - 2)
 
-        mse = np.mean((y - (slope * x.flatten() + intercept)) ** 2)
+mse = np.mean((y - (slope * x.flatten() + intercept)) ** 2)
         std_error = np.sqrt(mse)
 
-        # Pessimistic forecast: Lower confidence bound
+# Pessimistic forecast: Lower confidence bound
         lower_forecast = forecast_values - t_value * std_error
         lower_forecast = np.maximum(lower_forecast, 0)  # Ensure non-negative values
 
-        # Optimistic forecast: Upper confidence bound
+# Optimistic forecast: Upper confidence bound
         upper_forecast = forecast_values + t_value * std_error
 
-        # Calculate cumulative values
+# Calculate cumulative values
         cum_cost = 0
         cum_optimistic = 0
         cum_expected = 0
         cum_pessimistic = 0
 
-        for i in range(forecast_period):
+for i in range(forecast_period):
             cum_cost += cost_per_period
             cum_expected += max(0, forecast_values[i])
             cum_optimistic += max(0, upper_forecast[i])
             cum_pessimistic += max(0, lower_forecast[i])
 
-            # Calculate ROI
+# Calculate ROI
             expected_roi = (
                 (cum_expected - cum_cost) / cum_cost * 100 if cum_cost > 0 else 0
             )
@@ -729,7 +729,7 @@ class ROIAnalyzer(IROIAnalyzer):
                 (cum_pessimistic - cum_cost) / cum_cost * 100 if cum_cost > 0 else 0
             )
 
-            forecast_data.append(
+forecast_data.append(
                 {
                     "period": new_periods[i],
                     "period_index": i + 1,
@@ -747,7 +747,7 @@ class ROIAnalyzer(IROIAnalyzer):
                 }
             )
 
-        # Prepare result
+# Prepare result
         result = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
@@ -776,7 +776,7 @@ class ROIAnalyzer(IROIAnalyzer):
             },
         }
 
-        # Add break-even points
+# Add break-even points
         for scenario in ["expected", "pessimistic", "optimistic"]:
             for i, data in enumerate(forecast_data):
                 cum_revenue = data[f"cumulative_{scenario}_revenue"]
@@ -790,9 +790,9 @@ class ROIAnalyzer(IROIAnalyzer):
                 result["forecast_summary"][f"{scenario}_break_even_index"] = None
                 result["forecast_summary"][f"{scenario}_break_even_period"] = None
 
-        return result
+            return result
 
-    def calculate_channel_roi(
+def calculate_channel_roi(
         self,
         campaign_id: str,
         channel_costs: Dict[str, float],
@@ -802,23 +802,23 @@ class ROIAnalyzer(IROIAnalyzer):
         """
         Calculate ROI for each channel in a campaign.
 
-        Args:
+Args:
             campaign_id: ID of the campaign to analyze
             channel_costs: Dictionary mapping channel names to costs
             channel_revenue_metrics: Dictionary mapping channels to revenue metrics
             time_period: Optional tuple of (start_date, end_date) to limit analysis
 
-        Returns:
+Returns:
             Dictionary containing channel ROI analysis
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
             InvalidParameterError: If an invalid parameter is provided
         """
         # Validate campaign
         campaign = self.campaign_tracker.get_campaign(campaign_id)
 
-        # Verify channels
+# Verify channels
         campaign_channels = campaign.get("channels", [])
         for channel in channel_costs.keys():
             if channel not in campaign_channels:
@@ -826,7 +826,7 @@ class ROIAnalyzer(IROIAnalyzer):
                     f"Channel '{channel}' not found in campaign '{campaign_id}' channels"
                 )
 
-        # Set time period if not provided
+# Set time period if not provided
         if time_period is None:
             campaign_start = datetime.fromisoformat(campaign["start_date"])
             campaign_end = (
@@ -836,7 +836,7 @@ class ROIAnalyzer(IROIAnalyzer):
             )
             time_period = (campaign_start, campaign_end)
 
-        # Initialize result
+# Initialize result
         result = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
@@ -854,7 +854,7 @@ class ROIAnalyzer(IROIAnalyzer):
             "ranking": [],
         }
 
-        # Calculate ROI for each channel
+# Calculate ROI for each channel
         for channel, cost in channel_costs.items():
             # Get metrics for this channel
             metrics_data = self.campaign_tracker.get_metrics(
@@ -866,16 +866,16 @@ class ROIAnalyzer(IROIAnalyzer):
                 aggregation="sum",
             )
 
-            # Get revenue metrics for this channel
+# Get revenue metrics for this channel
             revenue_metrics = channel_revenue_metrics.get(channel, [])
             if isinstance(revenue_metrics, str):
                 revenue_metrics = [revenue_metrics]
 
-            # Calculate total revenue for this channel
+# Calculate total revenue for this channel
             channel_revenue = 0
             revenue_breakdown = {}
 
-            for metric_name in revenue_metrics:
+for metric_name in revenue_metrics:
                 # Check if metric data exists
                 if (
                     "grouped_data" in metrics_data
@@ -887,18 +887,18 @@ class ROIAnalyzer(IROIAnalyzer):
                     revenue_breakdown[metric_name] = metric_value
                     channel_revenue += metric_value
 
-            # Calculate ROI
+# Calculate ROI
             roi_value = channel_revenue - cost
             roi_percentage = (roi_value / cost) * 100 if cost > 0 else 0
 
-            # Add to result
+# Add to result
             result["channels"][channel] = {
                 "cost": cost,
                 "revenue": {"total": channel_revenue, "breakdown": revenue_breakdown},
                 "roi": {"value": roi_value, "percentage": roi_percentage},
             }
 
-            # Update overall
+# Update overall
             result["overall"]["total_revenue"] += channel_revenue
             result["ranking"].append(
                 {
@@ -911,20 +911,20 @@ class ROIAnalyzer(IROIAnalyzer):
                 }
             )
 
-        # Calculate overall ROI
+# Calculate overall ROI
         total_cost = result["overall"]["total_cost"]
         total_revenue = result["overall"]["total_revenue"]
 
-        if total_cost > 0:
+if total_cost > 0:
             result["overall"]["roi_value"] = total_revenue - total_cost
             result["overall"]["roi_percentage"] = (
                 result["overall"]["roi_value"] / total_cost
             ) * 100
 
-        # Sort ranking
+# Sort ranking
         result["ranking"].sort(key=lambda x: x["roi_percentage"], reverse=True)
 
-        # Add efficiency analysis
+# Add efficiency analysis
         total_conversions = 0
         for channel in result["channels"].keys():
             channel_data = self.campaign_tracker.get_metrics(
@@ -936,7 +936,7 @@ class ROIAnalyzer(IROIAnalyzer):
                 aggregation="sum",
             )
 
-            if channel_data.get("aggregate", {}).get("conversions", 0) > 0:
+if channel_data.get("aggregate", {}).get("conversions", 0) > 0:
                 conversions = channel_data["aggregate"]["conversions"]
                 result["channels"][channel]["efficiency"] = {
                     "cost_per_acquisition": (
@@ -952,16 +952,16 @@ class ROIAnalyzer(IROIAnalyzer):
                 }
                 total_conversions += conversions
 
-        # Add overall efficiency
+# Add overall efficiency
         if total_conversions > 0:
             result["overall"]["efficiency"] = {
                 "cost_per_acquisition": total_cost / total_conversions,
                 "revenue_per_acquisition": total_revenue / total_conversions,
             }
 
-        return result
+            return result
 
-    def optimize_budget_allocation(
+def optimize_budget_allocation(
         self,
         campaign_id: str,
         total_budget: float,
@@ -973,7 +973,7 @@ class ROIAnalyzer(IROIAnalyzer):
         """
         Optimize budget allocation across channels to maximize ROI.
 
-        Args:
+Args:
             campaign_id: ID of the campaign to optimize
             total_budget: Total budget to allocate
             channel_costs: Dictionary mapping channel names to costs
@@ -981,10 +981,10 @@ class ROIAnalyzer(IROIAnalyzer):
             constraints: Optional constraints for optimization
             time_period: Optional tuple of (start_date, end_date) for historical data
 
-        Returns:
+Returns:
             Dictionary containing optimized budget allocation
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
             InvalidParameterError: If an invalid parameter is provided
             InsufficientDataError: If there's not enough data for optimization
@@ -992,24 +992,24 @@ class ROIAnalyzer(IROIAnalyzer):
         # Validate campaign
         campaign = self.campaign_tracker.get_campaign(campaign_id)
 
-        # Validate budget
+# Validate budget
         if total_budget <= 0:
             raise InvalidParameterError("Total budget must be greater than zero")
 
-        # Set default constraints if not provided
+# Set default constraints if not provided
         if constraints is None:
             constraints = {
                 "min_channel_allocation": 0.05,  # Minimum 5% of budget per channel
                 "max_channel_allocation": 0.5,  # Maximum 50% of budget per channel
             }
 
-        # Set time period if not provided
+# Set time period if not provided
         if time_period is None:
             campaign_start = datetime.fromisoformat(campaign["start_date"])
             now = datetime.now()
             time_period = (campaign_start, now)
 
-        # Calculate current ROI for each channel
+# Calculate current ROI for each channel
         channel_roi = self.calculate_channel_roi(
             campaign_id=campaign_id,
             channel_costs=channel_costs,
@@ -1017,26 +1017,26 @@ class ROIAnalyzer(IROIAnalyzer):
             time_period=time_period,
         )
 
-        # Extract revenue-to-cost ratio for each channel
+# Extract revenue-to-cost ratio for each channel
         channel_efficiencies = {}
         for channel, data in channel_roi["channels"].items():
             cost = data["cost"]
             revenue = data["revenue"]["total"]
 
-            if cost > 0:
+if cost > 0:
                 revenue_cost_ratio = revenue / cost
                 channel_efficiencies[channel] = revenue_cost_ratio
             else:
                 channel_efficiencies[channel] = 0
 
-        # Check if we have enough data
+# Check if we have enough data
         if not channel_efficiencies:
             raise InsufficientDataError(
                 "Insufficient data for optimization. No channel revenue data available.",
                 campaign_id=campaign_id,
             )
 
-        # Define optimization function (negative because we want to maximize)
+# Define optimization function (negative because we want to maximize)
         def objective_function(allocations):
             total_revenue = 0
             for i, channel in enumerate(channel_efficiencies.keys()):
@@ -1046,21 +1046,21 @@ class ROIAnalyzer(IROIAnalyzer):
 
             return -total_revenue  # Negative because we want to maximize
 
-        # Define constraints
+# Define constraints
         num_channels = len(channel_efficiencies)
         min_allocation = constraints["min_channel_allocation"]
         max_allocation = constraints["max_channel_allocation"]
 
-        # Bounds for each channel allocation (min and max percentages)
+# Bounds for each channel allocation (min and max percentages)
         bounds = [(min_allocation, max_allocation) for _ in range(num_channels)]
 
-        # Constraint: sum of allocations must equal 1
+# Constraint: sum of allocations must equal 1
         constraint = {"type": "eq", "fun": lambda x: sum(x) - 1.0}
 
-        # Initial allocation (equal split)
+# Initial allocation (equal split)
         initial_allocation = [1.0 / num_channels] * num_channels
 
-        # Run optimization
+# Run optimization
         result = minimize(
             objective_function,
             initial_allocation,
@@ -1069,32 +1069,32 @@ class ROIAnalyzer(IROIAnalyzer):
             constraints=constraint,
         )
 
-        # Process optimization results
+# Process optimization results
         optimized_allocations = result.x
         channels = list(channel_efficiencies.keys())
 
-        # Ensure allocations sum to 1
+# Ensure allocations sum to 1
         optimized_allocations = optimized_allocations / np.sum(optimized_allocations)
 
-        # Calculate optimized budget distribution
+# Calculate optimized budget distribution
         budget_allocation = {}
         for i, channel in enumerate(channels):
             budget_allocation[channel] = optimized_allocations[i] * total_budget
 
-        # Calculate expected ROI with new allocation
+# Calculate expected ROI with new allocation
         expected_revenue = 0
         for channel, allocation in budget_allocation.items():
             expected_channel_revenue = allocation * channel_efficiencies[channel]
             expected_revenue += expected_channel_revenue
 
-        expected_roi_value = expected_revenue - total_budget
+expected_roi_value = expected_revenue - total_budget
         expected_roi_percentage = (expected_roi_value / total_budget) * 100
 
-        # Calculate ROI improvement
+# Calculate ROI improvement
         current_roi_percentage = channel_roi["overall"]["roi_percentage"]
         roi_improvement = expected_roi_percentage - current_roi_percentage
 
-        # Prepare result
+# Prepare result
         optimization_result = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
@@ -1126,9 +1126,9 @@ class ROIAnalyzer(IROIAnalyzer):
             "constraints": constraints,
         }
 
-        return optimization_result
+            return optimization_result
 
-    def generate_roi_report(
+def generate_roi_report(
         self,
         campaign_id: str,
         costs: Dict[str, float],
@@ -1141,7 +1141,7 @@ class ROIAnalyzer(IROIAnalyzer):
         """
         Generate a comprehensive ROI report for a campaign.
 
-        Args:
+Args:
             campaign_id: ID of the campaign to analyze
             costs: Dictionary mapping cost categories to amounts
             revenue_metrics: Metric name(s) to use for revenue calculation
@@ -1150,24 +1150,24 @@ class ROIAnalyzer(IROIAnalyzer):
             forecast_period: Number of days to forecast if include_forecast is True
             report_type: Type of report to generate ("summary", "detailed", "executive")
 
-        Returns:
+Returns:
             Dictionary containing ROI report data
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
             InvalidParameterError: If an invalid parameter is provided
         """
         # Validate campaign
         campaign = self.campaign_tracker.get_campaign(campaign_id)
 
-        # Validate report type
+# Validate report type
         valid_report_types = ["summary", "detailed", "executive"]
         if report_type not in valid_report_types:
             raise InvalidParameterError(
                 f"Invalid report type: {report_type}. Must be one of {valid_report_types}"
             )
 
-        # Set time period if not provided
+# Set time period if not provided
         if time_period is None:
             campaign_start = datetime.fromisoformat(campaign["start_date"])
             campaign_end = (
@@ -1177,7 +1177,7 @@ class ROIAnalyzer(IROIAnalyzer):
             )
             time_period = (campaign_start, campaign_end)
 
-        # Calculate basic ROI
+# Calculate basic ROI
         roi_data = self.calculate_roi(
             campaign_id=campaign_id,
             costs=costs,
@@ -1186,7 +1186,7 @@ class ROIAnalyzer(IROIAnalyzer):
             include_details=True,
         )
 
-        # Initialize report
+# Initialize report
         report = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
@@ -1199,21 +1199,21 @@ class ROIAnalyzer(IROIAnalyzer):
             "roi_summary": roi_data,
         }
 
-        # Add channel analysis if detailed or executive report
+# Add channel analysis if detailed or executive report
         if report_type in ["detailed", "executive"]:
             # Organize cost and revenue by channel
             channels = campaign.get("channels", [])
             channel_costs = {}
             channel_revenue_metrics = {}
 
-            # Split costs equally among channels if not provided by channel
+# Split costs equally among channels if not provided by channel
             cost_per_channel = sum(costs.values()) / len(channels) if channels else 0
 
-            for channel in channels:
+for channel in channels:
                 channel_costs[channel] = cost_per_channel
                 channel_revenue_metrics[channel] = revenue_metrics
 
-            # Calculate channel ROI
+# Calculate channel ROI
             try:
                 channel_roi = self.calculate_channel_roi(
                     campaign_id=campaign_id,
@@ -1223,14 +1223,14 @@ class ROIAnalyzer(IROIAnalyzer):
                 )
                 report["channel_analysis"] = channel_roi
 
-            except Exception as e:
+except Exception as e:
                 logger.warning(f"Error calculating channel ROI: {e}")
                 report["channel_analysis"] = {"error": str(e)}
 
-        # Add time-based analysis for all report types
+# Add time-based analysis for all report types
         interval = "daily" if (time_period[1] - time_period[0]).days <= 30 else "weekly"
 
-        try:
+try:
             cumulative_roi = self.calculate_cumulative_roi(
                 campaign_id=campaign_id,
                 costs=costs,
@@ -1241,11 +1241,11 @@ class ROIAnalyzer(IROIAnalyzer):
             )
             report["time_analysis"] = cumulative_roi
 
-        except Exception as e:
+except Exception as e:
             logger.warning(f"Error calculating cumulative ROI: {e}")
             report["time_analysis"] = {"error": str(e)}
 
-        # Add forecast if requested
+# Add forecast if requested
         if include_forecast:
             try:
                 forecast = self.forecast_roi(
@@ -1258,15 +1258,15 @@ class ROIAnalyzer(IROIAnalyzer):
                 )
                 report["forecast"] = forecast
 
-            except Exception as e:
+except Exception as e:
                 logger.warning(f"Error forecasting ROI: {e}")
                 report["forecast"] = {"error": str(e)}
 
-        # Add recommendations for detailed or executive reports
+# Add recommendations for detailed or executive reports
         if report_type in ["detailed", "executive"]:
             recommendations = []
 
-            # Check ROI performance
+# Check ROI performance
             roi_percentage = roi_data["roi"]["percentage"]
             if roi_percentage < 0:
                 recommendations.append(
@@ -1293,7 +1293,7 @@ class ROIAnalyzer(IROIAnalyzer):
                     }
                 )
 
-            # Channel-specific recommendations
+# Channel-specific recommendations
             if "channel_analysis" in report and "ranking" in report["channel_analysis"]:
                 # Best performing channel
                 best_channel = (
@@ -1310,7 +1310,7 @@ class ROIAnalyzer(IROIAnalyzer):
                         }
                     )
 
-                # Worst performing channel
+# Worst performing channel
                 worst_channels = [
                     c
                     for c in report["channel_analysis"]["ranking"]
@@ -1325,7 +1325,7 @@ class ROIAnalyzer(IROIAnalyzer):
                         }
                     )
 
-            # Budget optimization recommendation
+# Budget optimization recommendation
             if roi_percentage > 0:
                 recommendations.append(
                     {
@@ -1335,17 +1335,17 @@ class ROIAnalyzer(IROIAnalyzer):
                     }
                 )
 
-            report["recommendations"] = recommendations
+report["recommendations"] = recommendations
 
-        # Executive summary for executive report
+# Executive summary for executive report
         if report_type == "executive":
             summary_points = []
 
-            # Overall ROI statement
+# Overall ROI statement
             roi_value = roi_data["roi"]["value"]
             roi_percentage = roi_data["roi"]["percentage"]
 
-            if roi_percentage >= 0:
+if roi_percentage >= 0:
                 summary_points.append(
                     f"The campaign generated a positive ROI of {roi_percentage:.1f}%, with {roi_value:.2f} in profit from a {roi_data['costs']['total']:.2f} investment."
                 )
@@ -1354,7 +1354,7 @@ class ROIAnalyzer(IROIAnalyzer):
                     f"The campaign resulted in a negative ROI of {roi_percentage:.1f}%, with a {-roi_value:.2f} loss on a {roi_data['costs']['total']:.2f} investment."
                 )
 
-            # Best performing channels
+# Best performing channels
             if (
                 "channel_analysis" in report
                 and "ranking" in report["channel_analysis"]
@@ -1366,12 +1366,12 @@ class ROIAnalyzer(IROIAnalyzer):
                     for c in top_channels
                 ]
 
-                if channel_names:
+if channel_names:
                     summary_points.append(
                         f"Top performing channels: {', '.join(channel_names)}."
                     )
 
-            # Break-even information
+# Break-even information
             if (
                 "time_analysis" in report
                 and "summary" in report["time_analysis"]
@@ -1387,7 +1387,7 @@ class ROIAnalyzer(IROIAnalyzer):
                         "Campaign has not yet reached break-even point."
                     )
 
-            # Forecast highlight
+# Forecast highlight
             if "forecast" in report and "forecast_summary" in report["forecast"]:
                 expected_roi = report["forecast"]["forecast_summary"][
                     "final_expected_roi"
@@ -1396,6 +1396,6 @@ class ROIAnalyzer(IROIAnalyzer):
                     f"Based on current trends, the campaign is projected to achieve a {expected_roi:.1f}% ROI in the next {forecast_period} days."
                 )
 
-            report["executive_summary"] = summary_points
+report["executive_summary"] = summary_points
 
-        return report
+            return report

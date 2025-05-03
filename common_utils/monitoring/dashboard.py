@@ -288,7 +288,7 @@ class MonitoringDashboard:
                 yaxis_title='Response Time (ms)'
             )
             
-            return health_status, cpu_figure, memory_figure, api_figure
+                    return health_status, cpu_figure, memory_figure, api_figure
         
         @self.dash_app.callback(
             dash.dependencies.Output('metrics-container', 'children'),
@@ -331,7 +331,7 @@ class MonitoringDashboard:
                 ]) for name, data in sorted(metrics_data.items())]
             )
             
-            return metrics_table
+                    return metrics_table
         
         @self.dash_app.callback(
             dash.dependencies.Output('logs-container', 'children'),
@@ -404,9 +404,9 @@ class MonitoringDashboard:
             )
             
             if not logs.get("logs"):
-                return html.Div("No logs found matching the criteria")
+                        return html.Div("No logs found matching the criteria")
             
-            return logs_table
+                    return logs_table
         
         @self.dash_app.callback(
             [
@@ -430,7 +430,7 @@ class MonitoringDashboard:
             logs_per_page = 50
             total_pages = (total_logs + logs_per_page - 1) // logs_per_page
             
-            return f"Page {current_page} of {total_pages}", total_pages
+                    return f"Page {current_page} of {total_pages}", total_pages
         
         @self.dash_app.callback(
             dash.dependencies.Output('logs-current-page', 'data'),
@@ -448,22 +448,22 @@ class MonitoringDashboard:
             ctx = dash.callback_context
             if not ctx.triggered:
                 # No clicks yet, return current page
-                return current_page
+                        return current_page
             
             button_id = ctx.triggered[0]['prop_id'].split('.')[0]
             
             if button_id == 'logs-previous':
                 # Go to previous page, but not below 1
-                return max(current_page - 1, 1)
+                        return max(current_page - 1, 1)
             elif button_id == 'logs-next':
                 # Go to next page, but not above total
-                return min(current_page + 1, total_pages)
+                        return min(current_page + 1, total_pages)
             elif button_id == 'log-refresh-button':
                 # Refresh resets to page 1
-                return 1
+                        return 1
             else:
                 # Default: stay on current page
-                return current_page
+                        return current_page
         
         @self.dash_app.callback(
             [
@@ -541,7 +541,7 @@ class MonitoringDashboard:
                 yaxis_title='Traffic (MB/s)'
             )
             
-            return cpu_figure, memory_figure, disk_figure, network_figure
+                    return cpu_figure, memory_figure, disk_figure, network_figure
     
     def _simulate_logs(self, start_time, end_time, level, limit, offset, search_term):
         """Generate simulated logs for demonstration purposes."""
@@ -618,7 +618,7 @@ class MonitoringDashboard:
         # In a real application, we'd return the actual count
         total = random.randint(max(limit, 100), 1000)  # Simulated total
         
-        return {
+                return {
             "logs": logs,
             "total": total,
             "metadata": {

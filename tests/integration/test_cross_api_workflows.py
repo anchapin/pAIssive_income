@@ -26,7 +26,7 @@ def auth_api_test_client():
     """Create an authenticated API test client."""
     client = APITestClient(base_url="http://localhost:8000/api")
     client.authenticate("test_user", "test_password")
-    return client
+            return client
 
 
 class TestCrossAPIWorkflows:
@@ -37,7 +37,7 @@ class TestCrossAPIWorkflows:
         assert response.status_code == expected_status
         data = response.json()
         assert "error" not in data
-        return data
+                return data
 
     def validate_field_exists(self, data, field_name):
         """Validate that a field exists in the data."""

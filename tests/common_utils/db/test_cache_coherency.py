@@ -23,7 +23,7 @@ from ai_models.caching import
 @pytest.fixture
 def memory_cache_config():
     """Fixture for memory cache configuration."""
-    return CacheConfig(
+            return CacheConfig(
         enabled=True,
         backend="memory",
         ttl=60,  # 60 seconds
@@ -37,7 +37,7 @@ def disk_cache_config(tmp_path):
     """Fixture for disk cache configuration."""
     cache_dir = tmp_path / "cache"
     cache_dir.mkdir(exist_ok=True)
-    return CacheConfig(
+            return CacheConfig(
         enabled=True,
         backend="disk",
         ttl=60,  # 60 seconds
@@ -55,7 +55,7 @@ def disk_cache_config(tmp_path):
 def sqlite_cache_config(tmp_path):
     """Fixture for SQLite cache configuration."""
     db_path = tmp_path / "cache.db"
-    return CacheConfig(
+            return CacheConfig(
         enabled=True,
         backend="sqlite",
         ttl=60,  # 60 seconds

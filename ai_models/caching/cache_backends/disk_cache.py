@@ -69,7 +69,7 @@ class DiskCache
             if not self.exists(key):
                 self.stats["misses"] += 1
                 self._save_stats()
-                return None
+                        return None
 
             try:
                 # Load metadata first to check expiration
@@ -81,7 +81,7 @@ class DiskCache
                     self.delete(key)
                     self.stats["misses"] += 1
                     self._save_stats()
-                    return None
+                            return None
 
                 # Load value
                 value = self._load_value(key)
@@ -96,12 +96,12 @@ class DiskCache
                 self._save_metadata(key, metadata)
                 self.stats["hits"] += 1
                 self._save_stats()
-                return value
+                        return value
 
             except (IOError, json.JSONDecodeError):
                 self.stats["misses"] += 1
                 self._save_stats()
-                return None
+                        return None
 
     def set(self, key: str, value: Dict[str, Any], ttl: Optional[int] = None) -> bool:
         """
@@ -163,10 +163,10 @@ class DiskCache
 
                 self.stats["sets"] += 1
                 self._save_stats()
-                return True
+                        return True
 
             except Exception:
-                return False
+                        return False
 
     def delete(self, key: str) -> bool:
         """
@@ -196,7 +196,7 @@ class DiskCache
 
             self.stats["deletes"] += 1
             self._save_stats()
-            return True
+                    return True
 
     def exists(self, key: str) -> bool:
         """
@@ -213,7 +213,7 @@ class DiskCache
             metadata_path = self._get_metadata_path(key)
 
             if not os.path.exists(file_path) or not os.path.exists(metadata_path):
-                return False
+                        return False
 
             # Load metadata
             metadata = self._load_metadata(key)
@@ -224,9 +224,9 @@ class DiskCache
                 and time.time() > metadata["expiration_time"]
             ):
                 self.delete(key)
-                return False
+                        return False
 
-            return True
+                    return True
 
     def clear(self) -> bool:
         """
@@ -255,10 +255,10 @@ class DiskCache
 
                 self.stats["clears"] += 1
                 self._save_stats()
-                return True
+                        return True
 
             except Exception:
-                return False
+                        return False
 
     def get_size(self) -> int:
         """
@@ -278,7 +278,7 @@ class DiskCache
                 if item != "_metadata" and os.path.isfile(item_path):
                     count += 1
 
-            return count
+                    return count
 
     def get_keys(self, pattern: Optional[str] = None) -> List[str]:
         """
@@ -308,7 +308,7 @@ class DiskCache
             except (IOError, json.JSONDecodeError):
                 continue
 
-        return keys
+                return keys
 
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -334,7 +334,7 @@ class DiskCache
 
             stats["disk_usage"] = disk_usage
 
-            return stats
+                    return stats
 
     def get_ttl(self, key: str) -> Optional[int]:
         """
@@ -348,15 +348,15 @@ class DiskCache
         """
         with self.lock:
             if not self.exists(key):
-                return None
+                        return None
 
             metadata = self._load_metadata(key)
 
             if metadata.get("expiration_time") is None:
-                return None
+                        return None
 
             ttl = int(metadata["expiration_time"] - time.time())
-            return ttl if ttl > 0 else 0
+                    return ttl if ttl > 0 else 0
 
     def set_ttl(self, key: str, ttl: int) -> bool:
         """
@@ -371,7 +371,7 @@ class DiskCache
         """
         with self.lock:
             if not self.exists(key):
-                return False
+                        return False
 
             metadata = self._load_metadata(key)
 
@@ -379,7 +379,7 @@ class DiskCache
             metadata["expiration_time"] = expiration_time
 
             self._save_metadata(key, metadata)
-            return True
+                    return True
 
     def _get_file_path(self, key: str) -> str:
         """
@@ -393,7 +393,7 @@ class DiskCache
         """
         # Hash the key to create a valid filename
         hashed_key = hashlib.md5(key.encode("utf-8")).hexdigest()
-        return os.path.join(self.cache_dir, hashed_key)
+                return os.path.join(self.cache_dir, hashed_key)
 
     def _get_metadata_path(self, key: str) -> str:
         """
@@ -407,7 +407,7 @@ class DiskCache
         """
         # Hash the key to create a valid filename
         hashed_key = hashlib.md5(key.encode("utf-8")).hexdigest()
-        return os.path.join(self.metadata_dir, f"{hashed_key}.json")
+                return os.path.join(self.metadata_dir, f"{hashed_key}.json")
 
     def _save_value(self, key: str, value: Dict[str, Any]) -> None:
         """
@@ -444,14 +444,14 @@ class DiskCache
 
         if self.serialization == "json":
             with open(file_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                        return json.load(f)
         elif self.serialization == "pickle":
             with open(file_path, "rb") as f:
-                return pickle.load(f)
+                        return pickle.load(f)
         else:
             # Default to JSON
             with open(file_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                        return json.load(f)
 
     def _save_metadata(self, key: str, metadata: Dict[str, Any]) -> None:
         """
@@ -479,7 +479,7 @@ class DiskCache
         metadata_path = self._get_metadata_path(key)
 
         with open(metadata_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+                    return json.load(f)
 
     def _load_stats(self) -> None:
         """
@@ -520,9 +520,7 @@ class DiskCache
         with self.lock:
             keys = self.get_keys()
             if not keys:
-                return
-
-            try:
+                        return try:
                 # Load all metadata up front to avoid multiple disk reads
                 metadata_map = {}
                 current_time = time.time()
@@ -543,9 +541,7 @@ class DiskCache
                         continue
 
                 if not metadata_map:
-                    return
-
-                if self.eviction_policy == "lru":
+                            return if self.eviction_policy == "lru":
                     # Least Recently Used - evict item with oldest last_access_time
                     key_to_evict = min(
                         metadata_map.keys(),
@@ -560,7 +556,7 @@ class DiskCache
                         creation_time = metadata.get("creation_time", float("in"))
                         # Return tuple of (count, creation_time) for comparison
                         # Python will compare tuples element by element
-                        return (
+                                return (
                             count,
                             -creation_time,
                         )  # Negative creation_time so older items are evicted first

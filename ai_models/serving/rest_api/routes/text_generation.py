@@ -28,7 +28,7 @@ except ImportError:
         pass
 
     def Field(*args, **kwargs):
-        return None
+                return None
 
 
 # Create router
@@ -134,14 +134,14 @@ if FASTAPI_AVAILABLE:
         try:
             # Generate text
             if request.stream:
-                return StreamingResponse(
+                        return StreamingResponse(
                     _stream_text_generation(model, request),
                     media_type="text/event-stream",
                 )
 
             # Generate text (non-streaming)
             result = await _generate_text(model, request)
-            return result
+                    return result
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -164,14 +164,14 @@ if FASTAPI_AVAILABLE:
         try:
             # Generate chat completion
             if request.stream:
-                return StreamingResponse(
+                        return StreamingResponse(
                     _stream_chat_completion(model, request),
                     media_type="text/event-stream",
                 )
 
             # Generate chat completion (non-streaming)
             result = await _generate_chat_completion(model, request)
-            return result
+                    return result
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -207,7 +207,7 @@ async def _generate_text(model, request):
     completion_tokens = model.count_tokens(result["text"])
 
     # Create response
-    return {
+            return {
         "text": result["text"],
         "prompt_tokens": prompt_tokens,
         "completion_tokens": completion_tokens,
@@ -291,7 +291,7 @@ async def _generate_chat_completion(model, request):
     completion_tokens = model.count_tokens(result["message"]["content"])
 
     # Create response
-    return {
+            return {
         "message": result["message"],
         "prompt_tokens": prompt_tokens,
         "completion_tokens": completion_tokens,
@@ -327,7 +327,7 @@ async def _stream_chat_completion(model, request):
     completion_tokens = 0
 
     # Stream chat completion
-    for chunk in model.generate_chat_completion_stream(request.messages, **params):
+    for chunk in model.generate_chat_completion_stream(request.messages, **params:
         completion_tokens += 1
 
         # Create response chunk
@@ -336,7 +336,7 @@ async def _stream_chat_completion(model, request):
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens,
             "total_tokens": prompt_tokens + completion_tokens,
-            "finish_reason": chunk.get("finish_reason", None),
+            "finish_reason": chunk.get("finish_reason", None,
         }
 
         # Yield response chunk

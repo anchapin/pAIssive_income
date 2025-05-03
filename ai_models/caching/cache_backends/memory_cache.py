@@ -44,7 +44,7 @@ class MemoryCache
         with self.lock:
             if key not in self.cache:
                 self.stats["misses"] += 1
-                return None
+                        return None
 
             value, expiration_time, access_count, last_access_time = self.cache[key]
 
@@ -53,12 +53,12 @@ class MemoryCache
             if expiration_time is not None and current_time > expiration_time:
                 self.delete(key)
                 self.stats["misses"] += 1
-                return None
+                        return None
 
             # Update access metadata
             self.cache[key] = (value, expiration_time, access_count + 1, current_time)
             self.stats["hits"] += 1
-            return value
+                    return value
 
     def set(self, key: str, value: Dict[str, Any], ttl: Optional[int] = None) -> bool:
         """Set a value in the cache."""
@@ -77,7 +77,7 @@ class MemoryCache
             # Set new value with fresh metadata
             self.cache[key] = (value, expiration_time, 0, current_time)
             self.stats["sets"] += 1
-            return True
+                    return True
 
     def delete(self, key: str) -> bool:
         """Delete a value from the cache."""
@@ -85,49 +85,49 @@ class MemoryCache
             if key in self.cache:
                 del self.cache[key]
                 self.stats["deletes"] += 1
-                return True
-            return False
+                        return True
+                    return False
 
     def exists(self, key: str) -> bool:
         """Check if a key exists in the cache."""
         with self.lock:
             if key not in self.cache:
-                return False
+                        return False
 
             # Check if expired
             _, expiration_time, _, _ = self.cache[key]
             current_time = time.time()
             if expiration_time is not None and current_time > expiration_time:
                 self.delete(key)
-                return False
+                        return False
 
-            return True
+                    return True
 
     def clear(self) -> bool:
         """Clear all values from the cache."""
         with self.lock:
             self.cache.clear()
             self.stats["clears"] += 1
-            return True
+                    return True
 
     def get_size(self) -> int:
         """Get the current size of the cache."""
         with self.lock:
             self._remove_expired_items()
-            return len(self.cache)
+                    return len(self.cache)
 
     def get_keys(self, pattern: Optional[str] = None) -> List[str]:
         """Get all keys matching a pattern."""
         with self.lock:
             self._remove_expired_items()
             if pattern is None:
-                return list(self.cache.keys())
+                        return list(self.cache.keys())
 
             try:
                 regex = re.compile(pattern)
-                return [key for key in self.cache.keys() if regex.match(key)]
+                        return [key for key in self.cache.keys() if regex.match(key)]
             except re.error:
-                return [
+                        return [
                     key
                     for key in self.cache.keys()
                     if key.startswith(pattern.rstrip("^$"))
@@ -136,17 +136,17 @@ class MemoryCache
     def get_stats(self) -> Dict[str, Any]:
         """Get statistics about the cache."""
         with self.lock:
-            return self.stats.copy()
+                    return self.stats.copy()
 
     def get_ttl(self, key: str) -> Optional[int]:
         """Get the time to live for a key."""
         with self.lock:
             if key not in self.cache:
-                return None
+                        return None
 
             _, expiration_time, _, _ = self.cache[key]
             if expiration_time is None:
-                return None
+                        return None
 
             current_time = time.time()
             remaining = expiration_time - current_time
@@ -154,30 +154,28 @@ class MemoryCache
             # If expired, delete and return None
             if remaining <= 0:
                 self.delete(key)
-                return None
+                        return None
 
-            return int(remaining)
+                    return int(remaining)
 
     def set_ttl(self, key: str, ttl: int) -> bool:
         """Set the time to live for a key."""
         with self.lock:
             if key not in self.cache:
-                return False
+                        return False
 
             value, _, access_count, last_access_time = self.cache[key]
             current_time = time.time()
             expiration_time = current_time + ttl if ttl is not None else None
 
             self.cache[key] = (value, expiration_time, access_count, last_access_time)
-            return True
+                    return True
 
     def _evict_item(self) -> None:
         """Evict an item based on the eviction policy."""
         with self.lock:
             if not self.cache:
-                return
-
-            current_time = time.time()
+                        return current_time = time.time()
 
             # Filter out expired items first
             valid_items = {
@@ -187,9 +185,7 @@ class MemoryCache
             }
 
             if not valid_items:
-                return
-
-            if self.eviction_policy == "lru":
+                        return if self.eviction_policy == "lru":
                 # Get least recently accessed key
                 key_to_evict = min(valid_items.items(), key=lambda x: x[1][3])[0]
             elif self.eviction_policy == "lfu":

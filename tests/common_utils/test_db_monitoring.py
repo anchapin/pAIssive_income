@@ -31,19 +31,19 @@ def mock_db():
     db.insert.return_value = 1
     db.update.return_value = 1
     db.delete.return_value = 1
-    return db
+            return db
 
 
 @pytest.fixture
 def db_metrics():
     """Create a database metrics instance."""
-    return DatabaseMetrics()
+            return DatabaseMetrics()
 
 
 @pytest.fixture
 def monitoring_db(mock_db):
     """Create a monitoring database proxy."""
-    return MonitoringDatabaseProxy(mock_db)
+            return MonitoringDatabaseProxy(mock_db)
 
 
 def test_database_metrics_init(db_metrics):
@@ -403,8 +403,8 @@ def test_real_sqlite_database(temp_db_path):
                 cursor.execute(query)
             row = cursor.fetchone()
             if row:
-                return dict(row)
-            return None
+                        return dict(row)
+                    return None
         
         def fetch_all(self, query, params=None):
             cursor = self.conn.cursor()
@@ -413,7 +413,7 @@ def test_real_sqlite_database(temp_db_path):
             else:
                 cursor.execute(query)
             rows = cursor.fetchall()
-            return [dict(row) for row in rows]
+                    return [dict(row) for row in rows]
         
         def insert(self, table, data):
             cursor = self.conn.cursor()
@@ -422,7 +422,7 @@ def test_real_sqlite_database(temp_db_path):
             query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
             cursor.execute(query, list(data.values()))
             self.conn.commit()
-            return cursor.lastrowid
+                    return cursor.lastrowid
     
     # Create a database with monitoring
     db = SQLiteDB(temp_db_path)

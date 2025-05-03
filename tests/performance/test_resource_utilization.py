@@ -62,9 +62,7 @@ except ImportError:
         """Start monitoring resources."""
         if not PSUTIL_AVAILABLE:
             print("psutil not available, resource monitoring disabled")
-            return
-        
-        self.running = True
+                    return self.running = True
         self.thread = threading.Thread(target=self._monitor_resources)
         self.thread.daemon = True
         self.thread.start()
@@ -112,7 +110,7 @@ except ImportError:
     def get_metrics(self) -> Dict[str, Any]:
         """Get collected metrics."""
         if not PSUTIL_AVAILABLE or not self.timestamps:
-            return {
+                    return {
                 "error": "No metrics collected"
             }
         
@@ -141,7 +139,7 @@ except ImportError:
         max_read_rate = max(r["read_rate"] for r in io_rates) if io_rates else 0
         max_write_rate = max(r["write_rate"] for r in io_rates) if io_rates else 0
         
-        return {
+                return {
             "duration": self.timestamps[-1] - self.timestamps[0] if len(self.timestamps) > 1 else 0,
             "samples": len(self.timestamps),
             "cpu": {
@@ -177,7 +175,7 @@ class MemoryLeakTester:
         self.service = service
         self.monitor = ResourceMonitor(interval=0.5)
     
-    async def run_memory_test(self, 
+    async def run_memory_test(self,
                              iterations: int, 
                              operation_func: callable, 
                              cleanup_func: Optional[callable] = None) -> Dict[str, Any]:
@@ -193,7 +191,7 @@ class MemoryLeakTester:
             Test results
         """
         if not PSUTIL_AVAILABLE:
-            return {"error": "psutil not available, test skipped"}
+                    return {"error": "psutil not available, test skipped"}
         
         # Start monitoring
         self.monitor.start()
@@ -248,7 +246,7 @@ class MemoryLeakTester:
             metrics["memory"]["growth_rate_mb_per_hour"] = memory_growth_rate
             metrics["memory"]["potential_leak_detected"] = has_leak
         
-        return {
+                return {
             "iterations": iterations,
             "duration": duration,
             "iterations_per_second": iterations / duration,
@@ -269,7 +267,7 @@ class CPUUtilizationTester:
         self.service = service
         self.monitor = ResourceMonitor(interval=0.1)
     
-    async def run_cpu_test(self, 
+    async def run_cpu_test(self,
                           concurrency_levels: List[int],
                           operation_func: callable,
                           operations_per_level: int = 100) -> Dict[str, Any]:
@@ -285,7 +283,7 @@ class CPUUtilizationTester:
             Test results
         """
         if not PSUTIL_AVAILABLE:
-            return {"error": "psutil not available, test skipped"}
+                    return {"error": "psutil not available, test skipped"}
         
         results = []
         
@@ -335,7 +333,7 @@ class CPUUtilizationTester:
             print(f"  Max CPU: {metrics['cpu']['max']:.2f}%")
             print(f"  Average memory: {metrics['memory']['average_mb']:.2f} MB")
         
-        return {
+                return {
             "concurrency_levels": concurrency_levels,
             "results": results
         }
@@ -353,7 +351,7 @@ class IOBottleneckTester:
         """Clean up temporary files."""
         shutil.rmtree(self.temp_dir, ignore_errors=True)
     
-    async def run_io_test(self, 
+    async def run_io_test(self,
                          file_sizes: List[int],
                          concurrency_levels: List[int],
                          operations_per_test: int = 100) -> Dict[str, Any]:
@@ -369,7 +367,7 @@ class IOBottleneckTester:
             Test results
         """
         if not PSUTIL_AVAILABLE:
-            return {"error": "psutil not available, test skipped"}
+                    return {"error": "psutil not available, test skipped"}
         
         results = []
         
@@ -431,7 +429,7 @@ class IOBottleneckTester:
             # Clean up
             self.cleanup()
         
-        return {
+                return {
             "file_sizes": file_sizes,
             "concurrency_levels": concurrency_levels,
             "results": results
@@ -503,7 +501,7 @@ async def test_memory_usage_patterns():
             event_data=event_data
         )
         
-        return webhook["id"]
+                return webhook["id"]
     
     # Define the cleanup function
     async def cleanup():
@@ -537,7 +535,7 @@ async def test_memory_usage_patterns():
     with open("memory_usage_results.json", "w") as f:
         json.dump(results, f, indent=2)
     
-    return results
+            return results
 
 
 async def test_cpu_utilization():
@@ -603,7 +601,7 @@ async def test_cpu_utilization():
     with open("cpu_utilization_results.json", "w") as f:
         json.dump(results, f, indent=2)
     
-    return results
+            return results
 
 
 async def test_io_bottleneck():
@@ -633,16 +631,14 @@ async def test_io_bottleneck():
     with open("io_bottleneck_results.json", "w") as f:
         json.dump(results, f, indent=2)
     
-    return results
+            return results
 
 
 async def main():
     """Run all tests."""
     if not PSUTIL_AVAILABLE:
         print("psutil not available, tests will be skipped")
-        return
-    
-    print("\n=== Testing Memory Usage Patterns ===")
+                return print("\n=== Testing Memory Usage Patterns ===")
     await test_memory_usage_patterns()
     
     print("\n=== Testing CPU Utilization ===")

@@ -152,7 +152,7 @@ class AWQQuantizer(Quantizer):
 
             # Process dataset
             def preprocess_function(examples):
-                return tokenizer("\n\n".join(examples["text"]))
+                        return tokenizer("\n\n".join(examples["text"]))
 
             calibration_dataset = calibration_dataset.map(
                 preprocess_function, batched=True, remove_columns=["text"]
@@ -190,7 +190,7 @@ class AWQQuantizer(Quantizer):
             except Exception as e:
                 logger.error(f"Error exporting model to ONNX: {e}")
 
-        return output_path
+                return output_path
 
     def _save_quantization_config(self, output_path: str) -> None:
         """
@@ -219,7 +219,7 @@ class AWQQuantizer(Quantizer):
         # AWQ primarily supports causal language models
         supported_types = ["text-generation", "causal-lm"]
 
-        return model_type in supported_types
+                return model_type in supported_types
 
     def get_supported_methods(self) -> List[QuantizationMethod]:
         """
@@ -228,7 +228,7 @@ class AWQQuantizer(Quantizer):
         Returns:
             List of supported quantization methods
         """
-        return [QuantizationMethod.AWQ]
+                return [QuantizationMethod.AWQ]
 
     def get_quantization_info(self) -> Dict[str, Any]:
         """
@@ -237,7 +237,7 @@ class AWQQuantizer(Quantizer):
         Returns:
             Dictionary with quantization information
         """
-        return {
+                return {
             "quantizer": "AWQ",
             "method": self.config.method.value,
             "bits": self.config.bits,

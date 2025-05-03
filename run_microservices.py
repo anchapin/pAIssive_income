@@ -31,7 +31,7 @@ def check_consul_installation() -> bool:
     """
     Check if Consul is installed.
 
-    Returns:
+Returns:
         bool: True if Consul is installed, False otherwise
     """
     try:
@@ -41,26 +41,26 @@ def check_consul_installation() -> bool:
             stderr=subprocess.PIPE,
             text=True,
         )
-        return result.returncode == 0
+                    return result.returncode == 0
     except FileNotFoundError:
-        return False
+                    return False
 
 
 def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subprocess.Popen:
     """
     Start Consul in development mode.
 
-    Args:
+Args:
         data_dir: Directory for Consul data (default: "./consul_data")
         port: Port for Consul HTTP API (default: 8500)
 
-    Returns:
+Returns:
         subprocess.Popen: The Consul process
     """
     # Create data directory if it doesn't exist
     os.makedirs(data_dir, exist_ok=True)
 
-    # Command to start Consul in development mode
+# Command to start Consul in development mode
     cmd = [
         "consul",
         "agent",
@@ -74,19 +74,19 @@ def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subproces
         "0.0.0.0",
     ]
 
-    if port != 8500:
+if port != 8500:
         cmd.extend(["-http-port", str(port)])
 
-    logger.info(f"Starting Consul with command: {' '.join(cmd)}")
+logger.info(f"Starting Consul with command: {' '.join(cmd)}")
     process = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
 
-    # Wait for Consul to start
+# Wait for Consul to start
     max_attempts = 10
     attempt = 0
 
-    while attempt < max_attempts:
+while attempt < max_attempts:
         try:
             result = subprocess.run(
                 ["consul", "catalog", "services"],
@@ -100,43 +100,43 @@ def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subproces
         except Exception:
             pass
 
-        logger.info(
+logger.info(
             f"Waiting for Consul to start (attempt {attempt + 1}/{max_attempts})..."
         )
         time.sleep(1)
         attempt += 1
 
-    if attempt == max_attempts:
+if attempt == max_attempts:
         logger.warning("Consul may not have started properly")
 
-    return process
+            return process
 
 
 def start_service(service_name: str, script_path: str, port: int) -> subprocess.Popen:
     """
     Start a microservice.
 
-    Args:
+Args:
         service_name: Name of the service
         script_path: Path to the service script
         port: Port for the service to listen on
 
-    Returns:
+Returns:
         subprocess.Popen: The service process
     """
     # Make sure the directory exists
     os.makedirs(os.path.dirname(script_path), exist_ok=True)
 
-    logger.info(f"Starting {service_name} on port {port}")
+logger.info(f"Starting {service_name} on port {port}")
 
-    # Set up environment variables for service registration
+# Set up environment variables for service registration
     env = os.environ.copy()
     env["SERVICE_REGISTRY_HOST"] = "localhost"
     env["SERVICE_REGISTRY_PORT"] = "8500"
     env["ENVIRONMENT"] = "development"
     env["PYTHONPATH"] = os.getcwd()
 
-    process = subprocess.Popen(
+process = subprocess.Popen(
         [sys.executable, script_path, "--port", str(port)],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -144,7 +144,7 @@ def start_service(service_name: str, script_path: str, port: int) -> subprocess.
         env=env,
     )
 
-    return process
+            return process
 
 
 def main():
@@ -170,11 +170,11 @@ def main():
         help="Port for Niche Analysis Service",
     )
 
-    args = parser.parse_args()
+args = parser.parse_args()
 
-    processes = {}
+processes = {}
 
-    try:
+try:
         # Check if Consul is installed
         if not check_consul_installation():
             logger.error(
@@ -183,14 +183,14 @@ def main():
             logger.error(
                 "See https://developer.hashicorp.com/consul/downloads for installation instructions."
             )
-            return 1
+                        return 1
 
-        # Start Consul if requested
+# Start Consul if requested
         if not args.no_consul:
             processes["consul"] = start_consul(port=args.consul_port)
             time.sleep(2)  # Wait for Consul to initialize
 
-        # Start API Gateway service
+# Start API Gateway service
         api_gateway_path = os.path.join("services", "api_gateway", "app.py")
         processes["api_gateway"] = start_service(
             service_name="API Gateway",
@@ -198,13 +198,13 @@ def main():
             port=args.api_gateway_port,
         )
 
-        # Start UI Service
+# Start UI Service
         ui_service_path = os.path.join("services", "ui_service", "app.py")
         processes["ui_service"] = start_service(
             service_name="UI Service", script_path=ui_service_path, port=args.ui_port
         )
 
-        # Start AI Models Service
+# Start AI Models Service
         ai_models_service_path = os.path.join("services", "ai_models_service", "app.py")
         processes["ai_models_service"] = start_service(
             service_name="AI Models Service",
@@ -212,7 +212,7 @@ def main():
             port=args.ai_models_port,
         )
 
-        # Start Niche Analysis Service
+# Start Niche Analysis Service
         niche_analysis_service_path = os.path.join(
             "services", "niche_analysis_service", "app.py"
         )
@@ -222,7 +222,7 @@ def main():
             port=args.niche_analysis_port,
         )
 
-        # Print access information
+# Print access information
         logger.info("\n" + "=" * 80)
         logger.info("pAIssive Income Microservices are running!")
         logger.info("=" * 80)
@@ -236,34 +236,34 @@ def main():
         logger.info("=" * 80)
         logger.info("Press Ctrl+C to stop all services.")
 
-        # Keep the script running
+# Keep the script running
         while True:
             time.sleep(1)
 
-            # Check if any process has terminated
+# Check if any process has terminated
             for name, process in list(processes.items()):
                 if process.poll() is not None:
                     logger.error(
                         f"{name} terminated unexpectedly with return code {process.returncode}"
                     )
 
-                    # Get the error output
+# Get the error output
                     stderr = process.stderr.read() if process.stderr else ""
                     if stderr:
                         logger.error(f"{name} error output: {stderr}")
 
-                    # Remove from processes dict
+# Remove from processes dict
                     del processes[name]
 
-            # Exit if all processes have terminated
+# Exit if all processes have terminated
             if not processes:
                 logger.error("All services have terminated. Exiting.")
-                return 1
+                            return 1
 
-    except KeyboardInterrupt:
+except KeyboardInterrupt:
         logger.info("Stopping all services...")
 
-    finally:
+finally:
         # Terminate all processes
         for name, process in processes.items():
             logger.info(f"Terminating {name}...")
@@ -274,9 +274,9 @@ def main():
                 logger.warning(f"{name} did not terminate gracefully. Killing...")
                 process.kill()
 
-        logger.info("All services stopped.")
+logger.info("All services stopped.")
 
-    return 0
+            return 0
 
 
 if __name__ == "__main__":

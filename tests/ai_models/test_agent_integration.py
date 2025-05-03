@@ -28,31 +28,31 @@ class MockModelInfo
 
     @property
     def id(self) -> str:
-        return self._id
+                return self._id
 
     @property
     def name(self) -> str:
-        return self._name
+                return self._name
 
     @property
     def path(self) -> str:
-        return self._path
+                return self._path
 
     @property
     def type(self) -> str:
-        return self._type
+                return self._type
 
     @property
     def description(self) -> str:
-        return self._description
+                return self._description
 
     @property
     def capabilities(self) -> list:
-        return self._capabilities
+                return self._capabilities
 
     @property
     def metadata(self) -> Dict[str, Any]:
-        return {
+                return {
             "id": self._id,
             "name": self._name,
             "description": self._description,
@@ -70,7 +70,7 @@ def mock_model_manager():
     # Mock get_models_by_type method
     def get_models_by_type(model_type):
         if model_type == "huggingface":
-            return [
+                    return [
                 MockModelInfo(
                     id="model1",
                     name="Model 1",
@@ -89,7 +89,7 @@ def mock_model_manager():
                 ),
             ]
         elif model_type == "embedding":
-            return [
+                    return [
                 MockModelInfo(
                     id="model3",
                     name="Model 3",
@@ -100,14 +100,14 @@ def mock_model_manager():
                 )
             ]
         else:
-            return []
+                    return []
 
     manager.get_models_by_type.side_effect = get_models_by_type
 
     # Mock get_model_info method
     def get_model_info(model_id):
         if model_id == "model1":
-            return MockModelInfo(
+                    return MockModelInfo(
                 id="model1",
                 name="Model 1",
                 description="A test model",
@@ -116,7 +116,7 @@ def mock_model_manager():
                 capabilities=["text-generation"],
             )
         elif model_id == "model2":
-            return MockModelInfo(
+                    return MockModelInfo(
                 id="model2",
                 name="Model 2",
                 description="Another test model",
@@ -125,7 +125,7 @@ def mock_model_manager():
                 capabilities=["text-generation", "embedding"],
             )
         elif model_id == "model3":
-            return MockModelInfo(
+                    return MockModelInfo(
                 id="model3",
                 name="Model 3",
                 description="An embedding model",
@@ -134,24 +134,24 @@ def mock_model_manager():
                 capabilities=["embedding"],
             )
         else:
-            return None
+                    return None
 
     manager.get_model_info.side_effect = get_model_info
 
     # Mock load_model method
     def load_model(model_id, **kwargs):
         if model_id == "model1":
-            return MagicMock(name="Model 1")
+                    return MagicMock(name="Model 1")
         elif model_id == "model2":
-            return MagicMock(name="Model 2")
+                    return MagicMock(name="Model 2")
         elif model_id == "model3":
-            return MagicMock(name="Model 3")
+                    return MagicMock(name="Model 3")
         else:
             raise ValueError(f"Model with ID {model_id} not found")
 
     manager.load_model.side_effect = load_model
 
-    return manager
+            return manager
 
 
 def test_agent_model_provider_init(mock_model_manager):

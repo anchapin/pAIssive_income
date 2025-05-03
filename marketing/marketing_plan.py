@@ -15,10 +15,10 @@ class MarketingPlan
 :
     """Class for creating and managing marketing plans."""
 
-    def __init__(self, name: str, description: str = ""):
+def __init__(self, name: str, description: str = ""):
         """Initialize a marketing plan.
 
-        Args:
+Args:
             name: The name of the marketing plan.
             description: A description of the marketing plan.
         """
@@ -40,7 +40,7 @@ class MarketingPlan
         self.messaging_strategy = {}
         self.conversion_funnels = []
 
-    def set_budget(
+def set_budget(
         self,
         total_amount: float,
         period: str = "monthly",
@@ -48,7 +48,7 @@ class MarketingPlan
     ):
         """Set the budget for the marketing plan.
 
-        Args:
+Args:
             total_amount: The total budget amount.
             period: The budget period (e.g., "monthly", "quarterly", "annual").
             allocation_strategy: The strategy for allocating the budget.
@@ -62,7 +62,7 @@ class MarketingPlan
         }
         self.updated_at = datetime.now().isoformat()
 
-    def add_channel(
+def add_channel(
         self,
         name: str,
         description: str = "",
@@ -73,7 +73,7 @@ class MarketingPlan
     ):
         """Add a marketing channel to the plan.
 
-        Args:
+Args:
             name: The name of the channel.
             description: A description of the channel.
             budget_percentage: The percentage of the budget allocated to this channel.
@@ -92,14 +92,14 @@ class MarketingPlan
         }
         self.channels.append(channel)
 
-        # Update budget allocation if budget exists
+# Update budget allocation if budget exists
         if self.budget:
             self.budget["allocation"][name] = budget_percentage
 
-        self.updated_at = datetime.now().isoformat()
-        return channel
+self.updated_at = datetime.now().isoformat()
+                    return channel
 
-    def add_tier_budget_allocation(
+def add_tier_budget_allocation(
         self,
         tier_name: str,
         amount: float,
@@ -108,7 +108,7 @@ class MarketingPlan
     ):
         """Add a budget allocation for a specific tier.
 
-        Args:
+Args:
             tier_name: The name of the tier.
             amount: The budget amount allocated to this tier.
             percentage: The percentage of the total budget allocated to this tier.
@@ -125,38 +125,38 @@ class MarketingPlan
         }
         self.updated_at = datetime.now().isoformat()
 
-    def add_content_type(self, content_type: str):
+def add_content_type(self, content_type: str):
         """Add a content type to the content calendar.
 
-        Args:
+Args:
             content_type: The type of content to add.
         """
         if content_type not in self.content_calendar["content_types"]:
             self.content_calendar["content_types"].append(content_type)
         self.updated_at = datetime.now().isoformat()
 
-    def set_content_frequency(self, frequency: str):
+def set_content_frequency(self, frequency: str):
         """Set the frequency for the content calendar.
 
-        Args:
+Args:
             frequency: The frequency for content creation (e.g., "daily", "weekly", "monthly").
         """
         self.content_calendar["frequency"] = frequency
         self.updated_at = datetime.now().isoformat()
 
-    def set_target_audience(self, target_audience: str):
+def set_target_audience(self, target_audience: str):
         """Set the target audience for the marketing plan.
 
-        Args:
+Args:
             target_audience: A description of the target audience.
         """
         self.target_audience = target_audience
         self.updated_at = datetime.now().isoformat()
 
-    def add_metric(self, name: str, description: str, target_value: float, unit: str):
+def add_metric(self, name: str, description: str, target_value: float, unit: str):
         """Add a metric to track for the marketing plan.
 
-        Args:
+Args:
             name: The name of the metric.
             description: A description of the metric.
             target_value: The target value for the metric.
@@ -172,9 +172,9 @@ class MarketingPlan
         }
         self.metrics.append(metric)
         self.updated_at = datetime.now().isoformat()
-        return metric
+                    return metric
 
-    def add_tactic(
+def add_tactic(
         self,
         name: str,
         channel_name: str,
@@ -183,7 +183,7 @@ class MarketingPlan
     ):
         """Add a marketing tactic to the plan.
 
-        Args:
+Args:
             name: The name of the tactic.
             channel_name: The name of the channel this tactic belongs to.
             description: A description of the tactic.
@@ -198,15 +198,15 @@ class MarketingPlan
         }
         self.tactics.append(tactic)
         self.updated_at = datetime.now().isoformat()
-        return tactic
+                    return tactic
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """Convert the marketing plan to a dictionary.
 
-        Returns:
+Returns:
             A dictionary representation of the marketing plan.
         """
-        return {
+                    return {
             "id": self.id,
             "name": self.name,
             "description": self.description,
@@ -221,33 +221,33 @@ class MarketingPlan
             "tactics": self.tactics,
         }
 
-    def calculate_channel_budget(self, channel_name: str) -> float:
+def calculate_channel_budget(self, channel_name: str) -> float:
         """Calculate the budget for a specific channel.
 
-        Args:
+Args:
             channel_name: The name of the channel.
 
-        Returns:
+Returns:
             The budget amount for the channel.
         """
         if not self.budget:
+                        return 0.0
+
+for channel in self.channels:
+            if channel["name"] == channel_name:
+                            return self.budget["amount"] * channel["budget_percentage"]
+
             return 0.0
 
-        for channel in self.channels:
-            if channel["name"] == channel_name:
-                return self.budget["amount"] * channel["budget_percentage"]
-
-        return 0.0
-
-    def calculate_total_expected_impact(self) -> float:
+def calculate_total_expected_impact(self) -> float:
         """Calculate the total expected impact of all tactics.
 
-        Returns:
+Returns:
             The total expected impact.
         """
-        return sum(tactic["expected_impact"] for tactic in self.tactics)
+                    return sum(tactic["expected_impact"] for tactic in self.tactics)
 
-    def add_goal(
+def add_goal(
         self,
         name: str,
         description: str,
@@ -257,7 +257,7 @@ class MarketingPlan
     ):
         """Add a goal to the marketing plan.
 
-        Args:
+Args:
             name: The name of the goal.
             description: A description of the goal.
             metric: The metric to track for this goal.
@@ -274,9 +274,9 @@ class MarketingPlan
         }
         self.goals.append(goal)
         self.updated_at = datetime.now().isoformat()
-        return goal
+                    return goal
 
-    def add_persona(
+def add_persona(
         self,
         name: str,
         description: str,
@@ -286,7 +286,7 @@ class MarketingPlan
     ):
         """Add a persona to the marketing plan.
 
-        Args:
+Args:
             name: The name of the persona.
             description: A description of the persona.
             target_tier: The tier this persona belongs to.
@@ -303,14 +303,14 @@ class MarketingPlan
         }
         self.personas.append(persona)
         self.updated_at = datetime.now().isoformat()
-        return persona
+                    return persona
 
-    def add_content_strategy(
+def add_content_strategy(
         self, name: str, description: str, content_types: List[Dict[str, Any]]
     ):
         """Add a content strategy to the marketing plan.
 
-        Args:
+Args:
             name: The name of the content strategy.
             description: A description of the content strategy.
             content_types: List of content types in this strategy.
@@ -323,24 +323,24 @@ class MarketingPlan
         }
         self.content_strategies.append(strategy)
         self.updated_at = datetime.now().isoformat()
-        return strategy
+                    return strategy
 
-    def set_messaging_strategy(self, messaging: Dict[str, str]):
+def set_messaging_strategy(self, messaging: Dict[str, str]):
         """Set the messaging strategy for the marketing plan.
 
-        Args:
+Args:
             messaging: Dictionary of messaging elements.
         """
         self.messaging_strategy = messaging
         self.updated_at = datetime.now().isoformat()
-        return self.messaging_strategy
+                    return self.messaging_strategy
 
-    def add_conversion_funnel(
+def add_conversion_funnel(
         self, name: str, target_tier: str, stages: List[Dict[str, Any]]
     ):
         """Add a conversion funnel to the marketing plan.
 
-        Args:
+Args:
             name: The name of the funnel.
             target_tier: The tier this funnel targets.
             stages: The stages of the funnel.
@@ -353,4 +353,4 @@ class MarketingPlan
         }
         self.conversion_funnels.append(funnel)
         self.updated_at = datetime.now().isoformat()
-        return funnel
+                    return funnel

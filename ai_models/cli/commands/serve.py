@@ -137,7 +137,7 @@ class ServeRESTCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_path"]):
-            return 1
+                    return 1
 
         try:
             # Import required modules
@@ -210,11 +210,11 @@ class ServeRESTCommand(BaseCommand):
                 logger.info("Stopping server...")
                 server.stop()
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error serving model: {e}", exc_info=True)
-            return 1
+                    return 1
 
 
 class ServeGRPCCommand(BaseCommand):
@@ -296,7 +296,7 @@ class ServeGRPCCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_path"]):
-            return 1
+                    return 1
 
         try:
             # Import required modules
@@ -350,8 +350,8 @@ class ServeGRPCCommand(BaseCommand):
                 logger.info("Stopping server...")
                 server.stop()
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error serving model: {e}", exc_info=True)
-            return 1
+                    return 1

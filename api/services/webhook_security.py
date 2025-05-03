@@ -39,9 +39,9 @@ class WebhookIPAllowlist:
             # Check if it's a valid IP address
             ipaddress.ip_address(ip)
             self.allowlisted_ips.add(ip)
-            return True
+                    return True
         except ValueError:
-            return False
+                    return False
 
     def add_network(self, network: str) -> bool:
         """
@@ -59,9 +59,9 @@ class WebhookIPAllowlist:
                 self.allowlisted_networks.append(ip_network)
             else:
                 self.allowlisted_networks_v6.append(ip_network)
-            return True
+                    return True
         except ValueError:
-            return False
+                    return False
 
     def remove_ip(self, ip: str) -> bool:
         """
@@ -75,8 +75,8 @@ class WebhookIPAllowlist:
         """
         if ip in self.allowlisted_ips:
             self.allowlisted_ips.remove(ip)
-            return True
-        return False
+                    return True
+                return False
 
     def remove_network(self, network: str) -> bool:
         """
@@ -93,14 +93,14 @@ class WebhookIPAllowlist:
             if isinstance(ip_network, ipaddress.IPv4Network):
                 if ip_network in self.allowlisted_networks:
                     self.allowlisted_networks.remove(ip_network)
-                    return True
+                            return True
             else:
                 if ip_network in self.allowlisted_networks_v6:
                     self.allowlisted_networks_v6.remove(ip_network)
-                    return True
-            return False
+                            return True
+                    return False
         except ValueError:
-            return False
+                    return False
 
     def is_allowed(self, ip: str) -> bool:
         """
@@ -118,11 +118,11 @@ class WebhookIPAllowlist:
             and not self.allowlisted_networks
             and not self.allowlisted_networks_v6
         ):
-            return True
+                    return True
 
         # Check if IP is directly in the allowlist
         if ip in self.allowlisted_ips:
-            return True
+                    return True
 
         try:
             # Check if IP is in any of the allowlisted networks
@@ -131,16 +131,16 @@ class WebhookIPAllowlist:
             if isinstance(ip_obj, ipaddress.IPv4Address):
                 for network in self.allowlisted_networks:
                     if ip_obj in network:
-                        return True
+                                return True
             else:
                 for network in self.allowlisted_networks_v6:
                     if ip_obj in network:
-                        return True
+                                return True
 
-            return False
+                    return False
         except ValueError:
             # Invalid IP address
-            return False
+                    return False
 
 
 class WebhookSignatureVerifier:
@@ -159,7 +159,7 @@ class WebhookSignatureVerifier:
             Base64-encoded HMAC-SHA256 signature
         """
         signature = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).digest()
-        return base64.b64encode(signature).decode()
+                return base64.b64encode(signature).decode()
 
     @staticmethod
     def verify_signature(secret: str, payload: str, signature: str) -> bool:
@@ -177,7 +177,7 @@ class WebhookSignatureVerifier:
         expected_signature = WebhookSignatureVerifier.create_signature(secret, payload)
 
         # Use constant-time comparison to prevent timing attacks
-        return hmac.compare_digest(expected_signature, signature)
+                return hmac.compare_digest(expected_signature, signature)
 
     @staticmethod
     def verify_request_signature(
@@ -206,9 +206,9 @@ class WebhookSignatureVerifier:
                 break
 
         if not signature:
-            return False
+                    return False
 
-        return WebhookSignatureVerifier.verify_signature(secret, payload, signature)
+                return WebhookSignatureVerifier.verify_signature(secret, payload, signature)
 
 
 class WebhookRateLimiter:
@@ -248,7 +248,7 @@ class WebhookRateLimiter:
         ]
 
         # Check if limit is exceeded
-        return len(self.requests[key]) >= self.limit
+                return len(self.requests[key]) >= self.limit
 
     def add_request(self, key: str) -> None:
         """
@@ -285,7 +285,7 @@ class WebhookRateLimiter:
 
         # Initialize if key doesn't exist
         if key not in self.requests:
-            return self.limit
+                    return self.limit
 
         # Remove requests outside the time window
         self.requests[key] = [
@@ -293,7 +293,7 @@ class WebhookRateLimiter:
         ]
 
         # Calculate remaining requests
-        return max(0, self.limit - len(self.requests[key]))
+                return max(0, self.limit - len(self.requests[key]))
 
     def get_reset_time(self, key: str) -> Optional[float]:
         """
@@ -306,10 +306,10 @@ class WebhookRateLimiter:
             Time when the rate limit will reset, or None if not rate limited
         """
         if key not in self.requests or not self.requests[key]:
-            return None
+                    return None
 
         # Get the oldest request in the window
         oldest_request = min(self.requests[key])
 
         # Calculate reset time
-        return oldest_request + self.window_seconds
+                return oldest_request + self.window_seconds

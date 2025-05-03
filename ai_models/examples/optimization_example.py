@@ -73,9 +73,7 @@ def test_quantization(
 
     if not TORCH_AVAILABLE or not TRANSFORMERS_AVAILABLE:
         print("PyTorch and Transformers are required for quantization examples")
-        return
-
-    # Create output directory
+                return # Create output directory
     os.makedirs(output_dir, exist_ok=True)
 
     # Determine output path
@@ -154,9 +152,7 @@ def test_pruning(
 
     if not TORCH_AVAILABLE or not TRANSFORMERS_AVAILABLE:
         print("PyTorch and Transformers are required for pruning examples")
-        return
-
-    # Create output directory
+                return # Create output directory
     os.makedirs(output_dir, exist_ok=True)
 
     # Determine output path

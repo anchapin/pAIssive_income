@@ -45,10 +45,10 @@ async def health_check():
     """
     Health check endpoint.
 
-    Returns:
+Returns:
         Health status
     """
-    return {"status": "ok"}
+                return {"status": "ok"}
 
 
 # Add version endpoint
@@ -57,10 +57,10 @@ async def get_version():
     """
     Get API version.
 
-    Returns:
+Returns:
         API version information
     """
-    return {
+                return {
         "version": "1.0.0",
         "name": "pAIssive Income API",
     }
@@ -72,14 +72,14 @@ async def http_exception_handler(request, exc):
     """
     Handle HTTP exceptions.
 
-    Args:
+Args:
         request: Request that caused the exception
         exc: HTTP exception
 
-    Returns:
+Returns:
         JSON response with error details
     """
-    return JSONResponse(
+                return JSONResponse(
         status_code=exc.status_code,
         content={"error": {"code": exc.status_code, "message": exc.detail}},
     )
@@ -90,14 +90,14 @@ async def general_exception_handler(request, exc):
     """
     Handle general exceptions.
 
-    Args:
+Args:
         request: Request that caused the exception
         exc: Exception
 
-    Returns:
+Returns:
         JSON response with error details
     """
-    return JSONResponse(
+                return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"error": {"code": 500, "message": "Internal server error"}},
     )

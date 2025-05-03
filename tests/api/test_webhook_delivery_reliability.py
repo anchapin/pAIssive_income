@@ -107,7 +107,7 @@ class TestDeliveryConfirmation
             async def mock_post(*args, **kwargs):
                 nonlocal request_count
                 request_count += 1
-                return success_response
+                        return success_response
             
             # Patch the httpx.AsyncClient.post method to track requests
             with patch("httpx.AsyncClient.post", mock_post):
@@ -175,7 +175,7 @@ class TestSlowEndpoints:
                 mock_response = AsyncMock()
                 mock_response.status = 200
                 mock_response.text = AsyncMock(return_value="OK")
-                return mock_response
+                        return mock_response
             
             # Patch the httpx.AsyncClient.post method to simulate a slow endpoint
             with patch("httpx.AsyncClient.post", mock_slow_response):
@@ -308,7 +308,7 @@ class TestDeliveryOrdering:
                 # Extract the payload from kwargs
                 payload = json.loads(kwargs.get("data", "{}"))
                 delivered_events.append(payload)
-                return success_response
+                        return success_response
             
             # Patch the httpx.AsyncClient.post method to track deliveries
             with patch("httpx.AsyncClient.post", mock_post):
@@ -470,7 +470,7 @@ class TestDifferentEventTypes:
                 # Extract the payload from kwargs
                 payload = json.loads(kwargs.get("data", "{}"))
                 delivered_event_types.append(payload["type"])
-                return success_response
+                        return success_response
             
             # Patch the httpx.AsyncClient.post method to track event types
             with patch("httpx.AsyncClient.post", mock_post):

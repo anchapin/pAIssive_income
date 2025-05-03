@@ -29,13 +29,13 @@ except ImportError:
         pass
 
     def Field(*args, **kwargs):
-        return None
+                return None
     def File(*args, **kwargs):
-        return None
+                return None
     def Form(*args, **kwargs):
-        return None
+                return None
     def UploadFile(*args, **kwargs):
-        return None
+                return None
 
 
 # Create router
@@ -103,7 +103,7 @@ if FASTAPI_AVAILABLE:
         try:
             # Generate images
             result = await _generate_images(model, request)
-            return result
+                    return result
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -129,7 +129,7 @@ if FASTAPI_AVAILABLE:
 
             # Classify image
             result = await _classify_image(model, image_data)
-            return result
+                    return result
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -154,7 +154,7 @@ if FASTAPI_AVAILABLE:
             image_data, content_type = await _get_image(model, image_id)
 
             # Return image
-            return Response(content=image_data, media_type=content_type)
+                    return Response(content=image_data, media_type=content_type)
 
         except Exception as e:
             raise HTTPException(status_code=404, detail=f"Image not found: {str(e)}")
@@ -189,7 +189,7 @@ async def _generate_images(model, request):
             image_id = model.store_image(image, f"image_{i}.png")
             data.append({"url": f"/v1/images/{image_id}"})
 
-    return {"created": int(model.get_current_timestamp()), "data": data}
+            return {"created": int(model.get_current_timestamp()), "data": data}
 
 
 async def _classify_image(model, image_data):
@@ -207,10 +207,10 @@ async def _classify_image(model, image_data):
     result = model.classify_image(image_data)
 
     # Create response
-    return {"labels": result["labels"], "top_label": result["top_label"]}
+            return {"labels": result["labels"], "top_label": result["top_label"]}
 
 
-async def _get_image(model, image_id):
+async def _get_image(model, image_id:
     """
     Get a generated image.
 
@@ -222,6 +222,6 @@ async def _get_image(model, image_id):
         Image data and content type
     """
     # Get image
-    image_data, content_type = model.get_image(image_id)
+    image_data, content_type = model.get_image(image_id
 
-    return image_data, content_type
+            return image_data, content_type

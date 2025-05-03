@@ -127,7 +127,7 @@ class OptimizeCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_path", "output_path"]):
-            return 1
+                    return 1
 
         try:
             # Load configuration from file if provided
@@ -138,22 +138,22 @@ class OptimizeCommand(BaseCommand):
 
             # Perform optimization based on method
             if self.args.method == "quantize":
-                return self._quantize_model(config_dict)
+                        return self._quantize_model(config_dict)
             elif self.args.method == "prune":
-                return self._prune_model(config_dict)
+                        return self._prune_model(config_dict)
             elif self.args.method == "distill":
-                return self._distill_model(config_dict)
+                        return self._distill_model(config_dict)
             elif self.args.method == "onnx":
-                return self._convert_to_onnx(config_dict)
+                        return self._convert_to_onnx(config_dict)
             elif self.args.method == "tensorrt":
-                return self._convert_to_tensorrt(config_dict)
+                        return self._convert_to_tensorrt(config_dict)
             else:
                 logger.error(f"Unsupported optimization method: {self.args.method}")
-                return 1
+                        return 1
 
         except Exception as e:
             logger.error(f"Error optimizing model: {e}", exc_info=True)
-            return 1
+                    return 1
 
     def _quantize_model(self, config_dict: Dict[str, Any]) -> int:
         """
@@ -189,7 +189,7 @@ class OptimizeCommand(BaseCommand):
 
         if not quantized_path:
             logger.error("Failed to quantize model")
-            return 1
+                    return 1
 
         logger.info(f"Model quantized successfully to {quantized_path}")
 
@@ -227,7 +227,7 @@ class OptimizeCommand(BaseCommand):
             else:
                 logger.warning("Failed to analyze quantization effects")
 
-        return 0
+                return 0
 
     def _prune_model(self, config_dict: Dict[str, Any]) -> int:
         """
@@ -263,7 +263,7 @@ class OptimizeCommand(BaseCommand):
 
         if not pruned_path:
             logger.error("Failed to prune model")
-            return 1
+                    return 1
 
         logger.info(f"Model pruned successfully to {pruned_path}")
 
@@ -302,7 +302,7 @@ class OptimizeCommand(BaseCommand):
             else:
                 logger.warning("Failed to analyze pruning effects")
 
-        return 0
+                return 0
 
     def _distill_model(self, config_dict: Dict[str, Any]) -> int:
         """
@@ -315,7 +315,7 @@ class OptimizeCommand(BaseCommand):
             Exit code
         """
         logger.error("Model distillation is not implemented yet")
-        return 1
+                return 1
 
     def _convert_to_onnx(self, config_dict: Dict[str, Any]) -> int:
         """
@@ -328,7 +328,7 @@ class OptimizeCommand(BaseCommand):
             Exit code
         """
         logger.error("ONNX conversion is not implemented yet")
-        return 1
+                return 1
 
     def _convert_to_tensorrt(self, config_dict: Dict[str, Any]) -> int:
         """
@@ -341,4 +341,4 @@ class OptimizeCommand(BaseCommand):
             Exit code
         """
         logger.error("TensorRT conversion is not implemented yet")
-        return 1
+                return 1

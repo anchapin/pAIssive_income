@@ -54,7 +54,7 @@ class FallbackEvent:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the fallback event to a dictionary."""
-        return {
+                return {
             "original_model_id": self.original_model_id,
             "fallback_model_id": self.fallback_model_id,
             "reason": self.reason,
@@ -119,7 +119,7 @@ class FallbackManager:
         """Find a fallback model when the primary model is unavailable."""
         if not self.fallback_enabled:
             self.logger.info("Fallback is disabled, not attempting model fallback")
-            return None, None
+                    return None, None
 
         # Select strategy to use
         strategy = strategy_override or self.default_strategy
@@ -139,7 +139,7 @@ class FallbackManager:
         # Execute the selected fallback strategy
         if strategy == FallbackStrategy.NONE:
             # No fallback, just return None
-            return None, None
+                    return None, None
 
         elif strategy == FallbackStrategy.DEFAULT:
             # Use the default model if specified
@@ -190,12 +190,12 @@ class FallbackManager:
             )
 
             self.track_fallback_event(event)
-            return fallback_model, event
+                    return fallback_model, event
 
         self.logger.warning(
             f"No fallback model found after trying strategy: {strategy.value}"
         )
-        return None, None
+                return None, None
 
     def track_fallback_event(
         self, event: FallbackEvent, was_successful: bool = True
@@ -239,11 +239,11 @@ class FallbackManager:
                 "success_rate": success_rate,
             }
 
-        return metrics
+                return metrics
 
     def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
         """Get history of fallback events."""
-        return [event.to_dict() for event in self.fallback_history[-limit:]]
+                return [event.to_dict() for event in self.fallback_history[-limit:]]
 
     def configure(self, **kwargs) -> None:
         """Configure the fallback manager."""
@@ -283,13 +283,13 @@ class FallbackManager:
     def _apply_default_model_strategy(self):
         """Apply the default model fallback strategy."""
         if self.default_model_id:
-            return self.model_manager.get_model_info(self.default_model_id)
-        return None
+                    return self.model_manager.get_model_info(self.default_model_id)
+                return None
 
     def _apply_similar_model_strategy(self, original_model):
         """Find a model with similar capabilities to the original model."""
         if not original_model:
-            return None
+                    return None
 
         # Get all models
         all_models = self.model_manager.get_all_models()
@@ -299,7 +299,7 @@ class FallbackManager:
 
         # If no candidates, return None
         if not candidates:
-            return None
+                    return None
 
         # If the original model has capabilities, try to find models with similar capabilities
         if hasattr(original_model, "capabilities") and original_model.capabilities:
@@ -324,15 +324,15 @@ class FallbackManager:
 
             # If we have a candidate with a score > 0, return it
             if scored_candidates and scored_candidates[0][1] > 0:
-                return scored_candidates[0][0]
+                        return scored_candidates[0][0]
 
         # If no similarity-based match, fall back to same type
         same_type_models = [m for m in candidates if m.type == original_model.type]
         if same_type_models:
-            return same_type_models[0]
+                    return same_type_models[0]
 
         # If still no match, return any model
-        return candidates[0] if candidates else None
+                return candidates[0] if candidates else None
 
     def _apply_model_type_strategy(self, original_model, agent_type, task_type):
         """Try other models of the same type as the original model."""
@@ -343,7 +343,7 @@ class FallbackManager:
             )
             filtered_models = [m for m in same_type_models if m.id != original_model.id]
             if filtered_models:
-                return filtered_models[0]
+                        return filtered_models[0]
 
         # If no original model or no other models of the same type, try using agent/task preferences
         if agent_type and agent_type in self.fallback_preferences:
@@ -354,21 +354,21 @@ class FallbackManager:
             for model_type in preferred_types:
                 models = self.model_manager.get_models_by_type(model_type)
                 if models:
-                    return models[0]
+                            return models[0]
 
         # If all else fails, try default preferences
         if "default" in self.fallback_preferences:
             for model_type in self.fallback_preferences["default"]:
                 models = self.model_manager.get_models_by_type(model_type)
                 if models:
-                    return models[0]
+                            return models[0]
 
-        return None
+                return None
 
     def _apply_any_available_strategy(self):
         """Use any available model as a fallback."""
         all_models = self.model_manager.get_all_models()
-        return all_models[0] if all_models else None
+                return all_models[0] if all_models else None
 
     def _apply_specified_list_strategy(self, agent_type):
         """Try models in a specified order based on agent type."""
@@ -381,9 +381,9 @@ class FallbackManager:
         for model_type in preferred_types:
             models = self.model_manager.get_models_by_type(model_type)
             if models:
-                return models[0]
+                        return models[0]
 
-        return None
+                return None
 
     def _apply_size_tier_strategy(self, original_model):
         """Try models of different size tiers, preferring smaller models as fallbacks."""
@@ -392,12 +392,12 @@ class FallbackManager:
 
         # If no original model, just return any model
         if not original_model:
-            return all_models[0] if all_models else None
+                    return all_models[0] if all_models else None
 
         # Filter out the original model
         candidates = [m for m in all_models if m.id != original_model.id]
         if not candidates:
-            return None
+                    return None
 
         # Get the original model's size if available
         original_size = getattr(original_model, "size_mb", 0)
@@ -417,20 +417,20 @@ class FallbackManager:
 
             # If we have smaller models, return the largest of them
             if smaller_models:
-                return smaller_models[-1]
+                        return smaller_models[-1]
 
         # If no size info or no smaller models, fall back to same type
         same_type_models = [m for m in candidates if m.type == original_model.type]
         if same_type_models:
-            return same_type_models[0]
+                    return same_type_models[0]
 
         # If still no match, return any model
-        return candidates[0]
+                return candidates[0]
 
     def _apply_capability_strategy(self, required_capabilities):
         """Find a model that has all the required capabilities."""
         if not required_capabilities:
-            return None
+                    return None
 
         all_models = self.model_manager.get_all_models()
 
@@ -444,7 +444,7 @@ class FallbackManager:
                 capable_models.append(model)
 
         # Return the first capable model if any
-        return capable_models[0] if capable_models else None
+                return capable_models[0] if capable_models else None
 
 
 # Mock classes for testing
@@ -460,7 +460,7 @@ class MockModelInfo:
         self.size_mb = size_mb
 
     def __str__(self):
-        return f"{self.name} ({self.type})"
+                return f"{self.name} ({self.type})"
 
 
 class MockModelManager:
@@ -472,19 +472,19 @@ class MockModelManager:
     def register_model(self, model):
         """Register a mock model."""
         self.models[model.id] = model
-        return model
+                return model
 
     def get_model_info(self, model_id):
         """Get mock model info."""
-        return self.models.get(model_id)
+                return self.models.get(model_id)
 
     def get_models_by_type(self, model_type):
         """Get mock models by type."""
-        return [m for m in self.models.values() if m.type == model_type]
+                return [m for m in self.models.values() if m.type == model_type]
 
     def get_all_models(self):
         """Get all mock models."""
-        return list(self.models.values())
+                return list(self.models.values())
 
 
 def setup_test_environment():
@@ -531,7 +531,7 @@ def setup_test_environment():
         manager.register_model(model)
         print(f"Registered test model: {model.name} ({model.id}) - Type: {model.type}")
 
-    return manager
+            return manager
 
 
 def test_fallback_strategies(manager):

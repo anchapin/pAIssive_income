@@ -44,7 +44,7 @@ class FallbackPreferences(BaseModel):
 
     def get_preferences_for_agent(self, agent_type: str) -> List[str]:
         """Get fallback preferences for a specific agent type."""
-        return self.preferred_model_types.get(
+                return self.preferred_model_types.get(
             agent_type, self.preferred_model_types.get("default", [])
         )
 
@@ -153,7 +153,7 @@ class FallbackMetrics(BaseModel):
 
     success_rate: float = Field(
         default=0.0,
-        description="Success rate of this strategy (0.0 to 1.0)",
+        description="Success rate of this strategy (0.0 to 1.0",
         ge=0.0,
         le=1.0,
-    )
+    

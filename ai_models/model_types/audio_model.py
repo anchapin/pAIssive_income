@@ -98,7 +98,7 @@ except ImportError:
     LIBROSA_AVAILABLE = False
 
 try:
- as sf
+as sf
 
     SOUNDFILE_AVAILABLE = True
 except ImportError:
@@ -106,7 +106,7 @@ except ImportError:
     SOUNDFILE_AVAILABLE = False
 
 try:
- as ort
+as ort
 
     ONNX_AVAILABLE = True
 except ImportError:
@@ -172,21 +172,21 @@ class AudioModel:
         if os.path.isdir(self.model_path):
             # Check if it's a Hugging Face model
             if os.path.exists(os.path.join(self.model_path, "config.json")):
-                return "huggingface"
+                        return "huggingface"
         else:
             # Check file extension
             file_ext = os.path.splitext(self.model_path)[1].lower()
             if file_ext == ".onnx":
-                return "onnx"
+                        return "onnx"
             elif file_ext in [".pt", ".pth"]:
-                return "pytorch"
+                        return "pytorch"
             elif file_ext == ".bin" and os.path.exists(
                 os.path.join(os.path.dirname(self.model_path), "config.json")
             ):
-                return "huggingface"
+                        return "huggingface"
 
         # Default to huggingface
-        return "huggingface"
+                return "huggingface"
 
     def load(self) -> None:
         """
@@ -313,9 +313,7 @@ class AudioModel:
             logger.warning(
                 "Transformers not available. Cannot load processor for ONNX model."
             )
-            return
-
-        try:
+                    return try:
             # Try to load processor from processor_path
             if self.processor_path and os.path.exists(self.processor_path):
                 if self.model_type == "speech-recognition":
@@ -399,9 +397,7 @@ class AudioModel:
             logger.warning(
                 "Transformers not available. Cannot load processor for PyTorch model."
             )
-            return
-
-        try:
+                    return try:
             # Try to load processor from processor_path
             if self.processor_path and os.path.exists(self.processor_path):
                 if self.model_type == "speech-recognition":
@@ -441,7 +437,7 @@ class AudioModel:
             # Load audio file
             audio_array, sample_rate = librosa.load(audio_path, sr=None)
 
-            return audio_array, sample_rate
+                    return audio_array, sample_rate
 
         except Exception as e:
             logger.error(f"Error loading audio file: {e}")
@@ -474,15 +470,15 @@ class AudioModel:
             audio_array, sample_rate = self._load_audio(audio_path)
 
             if self.model_format == "huggingface":
-                return self._transcribe_huggingface(
+                        return self._transcribe_huggingface(
                     audio_array, sample_rate, language, **kwargs
                 )
             elif self.model_format == "onnx":
-                return self._transcribe_onnx(
+                        return self._transcribe_onnx(
                     audio_array, sample_rate, language, **kwargs
                 )
             elif self.model_format == "pytorch":
-                return self._transcribe_pytorch(
+                        return self._transcribe_pytorch(
                     audio_array, sample_rate, language, **kwargs
                 )
             else:
@@ -569,7 +565,7 @@ class AudioModel:
             # Create result
             result = {"text": transcription, "language": language}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error transcribing with Hugging Face model: {e}")
@@ -669,7 +665,7 @@ class AudioModel:
             # Create result
             result = {"text": transcription, "language": language}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error transcribing with ONNX model: {e}")
@@ -777,7 +773,7 @@ class AudioModel:
             # Create result
             result = {"text": transcription, "language": language}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error transcribing with PyTorch model: {e}")
@@ -814,15 +810,15 @@ class AudioModel:
 
         try:
             if self.model_format == "huggingface":
-                return self._synthesize_speech_huggingface(
+                        return self._synthesize_speech_huggingface(
                     text, output_path, voice_id, language, **kwargs
                 )
             elif self.model_format == "onnx":
-                return self._synthesize_speech_onnx(
+                        return self._synthesize_speech_onnx(
                     text, output_path, voice_id, language, **kwargs
                 )
             elif self.model_format == "pytorch":
-                return self._synthesize_speech_pytorch(
+                        return self._synthesize_speech_pytorch(
                     text, output_path, voice_id, language, **kwargs
                 )
             else:
@@ -913,7 +909,7 @@ class AudioModel:
                 "language": language,
             }
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error synthesizing speech with Hugging Face model: {e}")
@@ -1019,7 +1015,7 @@ class AudioModel:
                 "language": language,
             }
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error synthesizing speech with ONNX model: {e}")
@@ -1129,7 +1125,7 @@ class AudioModel:
                 "language": language,
             }
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error synthesizing speech with PyTorch model: {e}")
@@ -1167,11 +1163,11 @@ class AudioModel:
                     voice_info = {"id": speaker_id, "name": speaker_name}
                     voices.append(voice_info)
 
-            return voices
+                    return voices
 
         except Exception as e:
             logger.error(f"Error getting available voices: {e}")
-            return []
+                    return []
 
     def classify_audio(self, audio_path: str, **kwargs) -> Dict[str, float]:
         """
@@ -1197,13 +1193,13 @@ class AudioModel:
             audio_array, sample_rate = self._load_audio(audio_path)
 
             if self.model_format == "huggingface":
-                return self._classify_audio_huggingface(
+                        return self._classify_audio_huggingface(
                     audio_array, sample_rate, **kwargs
                 )
             elif self.model_format == "onnx":
-                return self._classify_audio_onnx(audio_array, sample_rate, **kwargs)
+                        return self._classify_audio_onnx(audio_array, sample_rate, **kwargs)
             elif self.model_format == "pytorch":
-                return self._classify_audio_pytorch(audio_array, sample_rate, **kwargs)
+                        return self._classify_audio_pytorch(audio_array, sample_rate, **kwargs)
             else:
                 raise ValueError(f"Unsupported model format: {self.model_format}")
 
@@ -1266,7 +1262,7 @@ class AudioModel:
             # Create result dictionary
             result = {label: float(prob) for label, prob in zip(labels, probs)}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error classifying audio with Hugging Face model: {e}")
@@ -1387,7 +1383,7 @@ class AudioModel:
             # Create result dictionary
             result = {label: float(prob) for label, prob in zip(labels, probs)}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error classifying audio with ONNX model: {e}")
@@ -1465,7 +1461,7 @@ class AudioModel:
             # Create result dictionary
             result = {label: float(prob) for label, prob in zip(labels, probs)}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error classifying audio with PyTorch model: {e}")
@@ -1549,7 +1545,7 @@ class AudioModel:
 
                         events.append(event)
 
-            return events
+                    return events
 
         except Exception as e:
             logger.error(f"Error detecting sound events: {e}")
@@ -1580,7 +1576,7 @@ class AudioModel:
                     "num_attention_heads": getattr(config, "num_attention_heads", None),
                 }
 
-        return metadata
+                return metadata
 
 
 # Example usage

@@ -48,9 +48,9 @@ class RandomLoadBalancer
             ]
 
         if not healthy_instances:
-            return None
+                    return None
 
-        return random.choice(healthy_instances)
+                return random.choice(healthy_instances)
 
 
 class RoundRobinLoadBalancer(LoadBalancingStrategy):
@@ -77,7 +77,7 @@ class RoundRobinLoadBalancer(LoadBalancingStrategy):
             The selected instance, or None if no instances are available
         """
         if not instances:
-            return None
+                    return None
 
         # Filter to only get healthy instances
         healthy_instances = [
@@ -96,7 +96,7 @@ class RoundRobinLoadBalancer(LoadBalancingStrategy):
             ]
 
         if not healthy_instances:
-            return None
+                    return None
 
         # Get the service ID from the first instance
         service_id = healthy_instances[0].service_id
@@ -110,7 +110,7 @@ class RoundRobinLoadBalancer(LoadBalancingStrategy):
         # Update the last used index
         self._last_index[service_id] = next_index
 
-        return healthy_instances[next_index]
+                return healthy_instances[next_index]
 
 
 class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
@@ -138,7 +138,7 @@ class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
             The selected instance, or None if no instances are available
         """
         if not instances:
-            return None
+                    return None
 
         # Filter to only get healthy instances
         healthy_instances = [
@@ -157,7 +157,7 @@ class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
             ]
 
         if not healthy_instances:
-            return None
+                    return None
 
         # Find the instance with the fewest connections
         min_connections = float("in")
@@ -174,7 +174,7 @@ class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
             instance_id = selected_instance.instance_id
             self._connections[instance_id] = self._connections.get(instance_id, 0) + 1
 
-        return selected_instance
+                return selected_instance
 
     def release_connection(self, instance_id: str) -> None:
         """
@@ -207,7 +207,7 @@ class WeightedLoadBalancer(LoadBalancingStrategy):
             The selected instance, or None if no instances are available
         """
         if not instances:
-            return None
+                    return None
 
         # Filter to only get healthy instances
         healthy_instances = [
@@ -226,7 +226,7 @@ class WeightedLoadBalancer(LoadBalancingStrategy):
             ]
 
         if not healthy_instances:
-            return None
+                    return None
 
         # Get weights for each instance (default to 1 if not specified)
         weights = [instance.metadata.get("weight", 1) for instance in healthy_instances]
@@ -242,7 +242,7 @@ class WeightedLoadBalancer(LoadBalancingStrategy):
         for i, weight in enumerate(weights):
             upto += weight
             if upto >= r:
-                return healthy_instances[i]
+                        return healthy_instances[i]
 
         # Fallback to the last instance if something went wrong
-        return healthy_instances[-1]
+                return healthy_instances[-1]

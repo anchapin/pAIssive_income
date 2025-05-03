@@ -78,7 +78,7 @@ class MockRegionalEndpoint:
             raise Exception(f"Request failed in region {self.region}")
         
         # Return mock response
-        return {
+                return {
             "region": self.region,
             "timestamp": datetime.now().isoformat(),
             "request_id": str(uuid.uuid4()),
@@ -87,7 +87,7 @@ class MockRegionalEndpoint:
     
     def get_metrics(self) -> Dict[str, Any]:
         """Get metrics for this endpoint."""
-        return {
+                return {
             "region": self.region,
             "request_count": self.request_count,
             "failed_requests": self.failed_requests,
@@ -123,7 +123,7 @@ class GeoDistributedLoadTester:
             "regional_metrics": {}
         }
     
-    async def run_distributed_load_test(self, 
+    async def run_distributed_load_test(self,
                                         requests_per_region: int, 
                                         concurrency: int,
                                         request_distribution: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
@@ -212,7 +212,7 @@ class GeoDistributedLoadTester:
         if self.results["total_requests"] > 0:
             self.results["average_latency"] = total_latency / self.results["total_requests"]
         
-        return self.results
+                return self.results
     
     async def _process_request(self, queue: asyncio.Queue) -> None:
         """
@@ -380,7 +380,7 @@ async def test_load_balancing_optimization():
     # Test weighted load balancer based on capacity
     def capacity_weight(instance):
         """Calculate weight based on capacity."""
-        return instance["metadata"].get("capacity", 50)
+                return instance["metadata"].get("capacity", 50)
     
     weighted = WeightedRandomLoadBalancer(weight_function=capacity_weight)
     

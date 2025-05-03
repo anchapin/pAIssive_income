@@ -23,19 +23,19 @@ from agent_team import AgentTeam
 @pytest.fixture
 def market_analyzer():
     """Create a market analyzer instance for testing."""
-    return MarketAnalyzer()
+            return MarketAnalyzer()
 
 
 @pytest.fixture
 def ab_testing():
     """Create an A/B testing instance for testing."""
-    return ABTesting()
+            return ABTesting()
 
 
 @pytest.fixture
 def subscription_model():
     """Create a subscription model instance for testing."""
-    return SubscriptionModel(
+            return SubscriptionModel(
         name="Test Subscription Model",
         description="A test subscription model"
     )
@@ -44,7 +44,7 @@ def subscription_model():
 @pytest.fixture
 def pricing_calculator():
     """Create a pricing calculator instance for testing."""
-    return PricingCalculator(
+            return PricingCalculator(
         name="Test Pricing Calculator",
         description="A test pricing calculator",
         base_cost=5.0,
@@ -83,7 +83,7 @@ def test_partial_failure_recovery_in_workflow(market_analyzer, ab_testing, mock_
             raise ConnectionError("Simulated network error")
         else:
             # Return normal result on subsequent calls
-            return original_analyze_market(segment)
+                    return original_analyze_market(segment)
     
     # Apply the mock
     market_analyzer.analyze_market = mock_analyze_market
@@ -104,7 +104,7 @@ def test_partial_failure_recovery_in_workflow(market_analyzer, ab_testing, mock_
                 user_analysis = market_analyzer.analyze_target_users(selected_niche)
                 
                 # Return the complete analysis
-                return {
+                        return {
                     "market_analysis": market_analysis,
                     "trend_analysis": trend_analysis,
                     "user_analysis": user_analysis,
@@ -195,7 +195,7 @@ def test_data_consistency_after_interruption(subscription_model, pricing_calcula
                     raise InterruptedError("Simulated interruption during batch update")
             
             # If we get here, all updates were successful
-            return True, updated_tiers, None
+                    return True, updated_tiers, None
         except Exception as e:
             # Rollback changes
             for tier_id in updated_tiers:
@@ -204,7 +204,7 @@ def test_data_consistency_after_interruption(subscription_model, pricing_calcula
                     price_monthly=original_prices[tier_id]["monthly"],
                     price_yearly=original_prices[tier_id]["yearly"]
                 )
-            return False, updated_tiers, e
+                    return False, updated_tiers, e
     
     # Step 3: Run the update function with a fixed seed for reproducibility
     random.seed(42)  # Set seed for reproducible test
@@ -262,11 +262,11 @@ def test_transaction_rollback_scenarios(ab_testing):
                     raise ValueError(f"Simulated failure after {i+1} interactions")
             
             # If we get here, all interactions were recorded successfully
-            return True, recorded, None
+                    return True, recorded, None
         except Exception as e:
             # In a real system, this would trigger a transaction rollback
             # For this test, we'll simulate rollback by tracking what happened
-            return False, recorded, e
+                    return False, recorded, e
     
     # Step 3: Run successful and failing transactions
     success_result, success_count, _ = record_interactions_in_transaction(test_id, control_id, 100)
@@ -363,7 +363,7 @@ def test_workflow_with_compensating_actions(mock_agent_team):
             marketing = team.create_marketing_plan(niche_id, solution["id"], monetization["id"])
             audit_trail.append({"action": "create_marketing_plan", "status": "completed", "marketing_id": marketing["id"]})
             
-            return True, {"solution": solution, "monetization": monetization, "marketing": marketing}, audit_trail
+                    return True, {"solution": solution, "monetization": monetization, "marketing": marketing}, audit_trail
         
         except Exception as e:
             # Record the error
@@ -386,7 +386,7 @@ def test_workflow_with_compensating_actions(mock_agent_team):
                     audit_trail.append({"action": "compensate_develop_solution", "status": "completed"})
             
             # Return failure status
-            return False, None, audit_trail
+                    return False, None, audit_trail
     
     # Step 3: Run the workflow and verify it fails the first time
     success, result, audit_trail = complete_workflow_with_compensation(mock_agent_team, "niche-123")

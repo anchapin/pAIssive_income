@@ -73,9 +73,7 @@ def setup_cors_middleware(app: Any, config: APIConfig) -> None:
     """
     if not FASTAPI_AVAILABLE:
         logger.warning("FastAPI is required for CORS middleware")
-        return
-
-    # Add CORS middleware
+                return # Add CORS middleware
     app.add_middleware(
         FastAPICORSMiddleware,
         allow_origins=["*"],  # In production, specify allowed origins

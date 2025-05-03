@@ -43,7 +43,7 @@ class MockModelInfo:
         self.size_mb = size_mb
 
     def __str__(self):
-        return f"{self.name} ({self.type})"
+                return f"{self.name} ({self.type})"
 
 
 class MockModelManager:
@@ -55,19 +55,19 @@ class MockModelManager:
     def register_model(self, model):
         """Register a mock model."""
         self.models[model.id] = model
-        return model
+                return model
 
     def get_model_info(self, model_id):
         """Get mock model info."""
-        return self.models.get(model_id)
+                return self.models.get(model_id)
 
     def get_models_by_type(self, model_type):
         """Get mock models by type."""
-        return [m for m in self.models.values() if m.type == model_type]
+                return [m for m in self.models.values() if m.type == model_type]
 
     def get_all_models(self):
         """Get all mock models."""
-        return list(self.models.values())
+                return list(self.models.values())
 
 
 def setup_test_environment():
@@ -114,7 +114,7 @@ def setup_test_environment():
         manager.register_model(model)
         print(f"Registered test model: {model.name} ({model.id}) - Type: {model.type}")
 
-    return manager
+            return manager
 
 
 def test_fallback_strategies(manager):

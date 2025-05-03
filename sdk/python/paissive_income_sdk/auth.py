@@ -22,7 +22,7 @@ class Auth
         Returns:
             Authentication headers
         """
-        return {}
+                return {}
 
 
 class APIKeyAuth(Auth):
@@ -46,7 +46,7 @@ class APIKeyAuth(Auth):
         Returns:
             Authentication headers
         """
-        return {"X-API-Key": self.api_key}
+                return {"X-API-Key": self.api_key}
 
 
 class JWTAuth(Auth):
@@ -70,7 +70,7 @@ class JWTAuth(Auth):
         Returns:
             Authentication headers
         """
-        return {"Authorization": f"Bearer {self.token}"}
+                return {"Authorization": f"Bearer {self.token}"}
 
 
 class NoAuth(Auth):
@@ -85,4 +85,4 @@ class NoAuth(Auth):
         Returns:
             Empty headers
         """
-        return {}
+                return {}

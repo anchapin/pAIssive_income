@@ -92,8 +92,8 @@ class Event(BaseModel):
     def validate_metadata(cls, v, values):
         """Validate and convert metadata if needed."""
         if isinstance(v, dict):
-            return EventMetadata(**v)
-        return v
+                    return EventMetadata(**v)
+                return v
 
     @classmethod
     def create(
@@ -135,7 +135,7 @@ class Event(BaseModel):
             additional=additional_metadata or {},
         )
 
-        return cls(name=name, metadata=metadata, data=data)
+                return cls(name=name, metadata=metadata, data=data)
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -144,7 +144,7 @@ class Event(BaseModel):
         Returns:
             Dict[str, Any]: Dictionary representation of the event
         """
-        return self.dict()
+                return self.dict()
 
 
 # Type variable for event data
@@ -202,7 +202,7 @@ class EventSchema(Generic[T]):
             data_dict = self.data_model(**data).dict()
 
         # Create the event
-        return Event.create(
+                return Event.create(
             name=self.event_name,
             source=source,
             event_type=event_type,
@@ -214,7 +214,7 @@ class EventSchema(Generic[T]):
             additional_metadata=additional_metadata,
         )
 
-    def parse_event(self, event: Event) -> T:
+    def parse_event(self, event: Event -> T:
         """
         Parse the data of an event.
 
@@ -224,7 +224,7 @@ class EventSchema(Generic[T]):
         Returns:
             T: Parsed data
         """
-        return self.data_model(**event.data)
+                return self.data_model(**event.data
 
 
 # Type for event handlers

@@ -119,19 +119,19 @@ class TestContainerization
             # Simulate starting containers
             for service_name, container in self.docker_containers.items():
                 container.status = "running"
-            return 0
+                    return 0
 
         def mock_docker_compose_down(*args, **kwargs):
             """Mock Docker Compose down command."""
             # Simulate stopping containers
             for service_name, container in self.docker_containers.items():
                 container.status = "exited"
-            return 0
+                    return 0
 
         def mock_docker_compose_ps(*args, **kwargs):
             """Mock Docker Compose ps command."""
             # Return container status
-            return "\n".join(
+                    return "\n".join(
                 [
                     f"{container.name}  {container.status}  {container.ports}"
                     for container in self.docker_containers.values()
@@ -201,8 +201,8 @@ class TestContainerization
                 deployment.spec.replicas = replicas
                 deployment.status.available_replicas = replicas
                 deployment.status.ready_replicas = replicas
-                return True
-            return False
+                        return True
+                    return False
 
         # Patch Kubernetes client
         with patch("kubernetes.client.AppsV1Api") as mock_apps_api:
@@ -296,13 +296,13 @@ class TestContainerization
         def mock_health_check(service_name):
             """Mock health check for a service."""
             if health_status.get(service_name, False):
-                return {
+                        return {
                     "status": "healthy",
                     "version": "1.0.0",
                     "timestamp": datetime.utcnow().isoformat(),
                 }
             else:
-                return {
+                        return {
                     "status": "unhealthy",
                     "error": "Service unavailable",
                     "timestamp": datetime.utcnow().isoformat(),
@@ -328,13 +328,13 @@ class TestContainerization
                         200 if health_status.get(service_name, False) else 503
                     )
                     response.json.return_value = mock_health_check(service_name)
-                    return response
+                            return response
 
                 # Default response
                 response = MagicMock()
                 response.status_code = 404
                 response.json.return_value = {"error": "Not found"}
-                return response
+                        return response
 
             mock_get.side_effect = get_response
 
@@ -374,16 +374,16 @@ class TestContainerization
             def check_service_health(service_name):
                 """Check health of a service."""
                 if service_name not in self.container_config:
-                    return False
+                            return False
 
                 config = self.container_config[service_name]
                 url = f"http://localhost:{config['port']}{config['health_check']}"
 
                 try:
                     response = requests.get(url)
-                    return response.status_code == 200
+                            return response.status_code == 200
                 except Exception:
-                    return False
+                            return False
 
             # Patch service registry health check
             service_registry.check_health.side_effect = check_service_health

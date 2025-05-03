@@ -76,7 +76,7 @@ class AuditEvent:
         Returns:
             Dictionary representation of the audit event
         """
-        return {
+                return {
             "id": self.id,
             "event_type": self.event_type,
             "resource_type": self.resource_type,
@@ -107,7 +107,7 @@ class AuditEvent:
             datetime.fromisoformat(data["timestamp"]) if data.get("timestamp") else None
         )
 
-        return cls(
+                return cls(
             id=data.get("id"),
             event_type=data.get("event_type", ""),
             resource_type=data.get("resource_type", ""),
@@ -188,7 +188,7 @@ class AuditService:
             f"Audit event recorded: {event.event_type} - {event.action} - {event.resource_type}/{event.resource_id}"
         )
 
-        return event
+                return event
 
     def create_event(
         self,
@@ -236,7 +236,7 @@ class AuditService:
         )
 
         # Record event
-        return self.record_event(event)
+                return self.record_event(event)
 
     def get_events(
         self,
@@ -304,7 +304,7 @@ class AuditService:
         filtered_events.sort(key=lambda e: e.timestamp, reverse=True)
 
         # Apply limit and offset
-        return filtered_events[offset : offset + limit]
+                return filtered_events[offset : offset + limit]
 
     def get_event_by_id(self, event_id: str) -> Optional[AuditEvent]:
         """
@@ -318,6 +318,6 @@ class AuditService:
         """
         for event in self.audit_events:
             if event.id == event_id:
-                return event
+                        return event
 
-        return None
+                return None

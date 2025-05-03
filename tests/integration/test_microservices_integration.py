@@ -130,15 +130,11 @@ class TestMicroservicesIntegration
                 visited = set()
 
             if service_name in visited:
-                return
-
-            visited.add(service_name)
+                        return visited.add(service_name)
             service = client.get_service_instance(service_name)
 
             if not service:
-                return
-
-            service_deps = service.metadata.get("dependencies", [])
+                        return service_deps = service.metadata.get("dependencies", [])
             for dep in service_deps:
                 resolve_dependencies(dep, visited)
 
@@ -185,7 +181,7 @@ class TestMicroservicesIntegration
 
         def mock_health_check(service_id):
             """Mock health check function."""
-            return health_checks.get(service_id, False)
+                    return health_checks.get(service_id, False)
 
         # Patch the health check method
         with patch.object(self.registry, "check_health", side_effect=mock_health_check):
@@ -253,7 +249,7 @@ class TestMicroservicesIntegration
         # Test feature-based selection
         def has_feature(instance, feature):
             """Check if an instance has a specific feature."""
-            return feature in instance.metadata.get("features", [])
+                    return feature in instance.metadata.get("features", [])
 
         # Find instances with feature-1
         feature_instances = [
@@ -268,10 +264,10 @@ class TestMicroservicesIntegration
         def version_weight(instance):
             """Calculate weight based on version."""
             if instance.version == "2.0.0":
-                return 10
+                        return 10
             elif instance.version == "1.1.0":
-                return 5
-            return 1
+                        return 5
+                    return 1
 
         # Create weighted strategy
         weighted_strategy = WeightedRandomStrategy(version_weight)

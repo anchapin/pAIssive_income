@@ -104,7 +104,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
     """
     Class for integrating with social media platforms.
 
-    This class provides functionality to:
+This class provides functionality to:
     1. Connect to various social media platforms
     2. Post content to connected platforms
     3. Retrieve analytics data from platforms
@@ -112,11 +112,11 @@ class SocialMediaIntegration(ISocialMediaIntegration):
     5. Retrieve audience insights
     """
 
-    def __init__(self, storage_path: Optional[str] = None):
+def __init__(self, storage_path: Optional[str] = None):
         """
         Initialize the social media integration.
 
-        Args:
+Args:
             storage_path: Optional path to store connection data. If None, data will be stored
                           in memory only.
         """
@@ -126,17 +126,17 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         self.campaigns = {}
         self.storage_path = storage_path
 
-        # Create storage directory if it doesn't exist
+# Create storage directory if it doesn't exist
         if storage_path and not os.path.exists(storage_path):
             os.makedirs(storage_path)
 
-        # Load existing data if available
+# Load existing data if available
         if storage_path:
             self._load_connections()
             self._load_posts()
             self._load_campaigns()
 
-    def _load_connections(self):
+def _load_connections(self):
         """Load connection data from storage."""
         connections_path = os.path.join(self.storage_path, "connections.json")
         try:
@@ -150,10 +150,10 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                             connection["platform"], connection_id
                         )
 
-        except Exception as e:
+except Exception as e:
             logger.error(f"Error loading social media connections: {e}")
 
-    def _load_posts(self):
+def _load_posts(self):
         """Load posts data from storage."""
         posts_path = os.path.join(self.storage_path, "posts.json")
         try:
@@ -164,7 +164,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         except Exception as e:
             logger.error(f"Error loading social media posts: {e}")
 
-    def _load_campaigns(self):
+def _load_campaigns(self):
         """Load campaigns data from storage."""
         campaigns_path = os.path.join(self.storage_path, "campaigns.json")
         try:
@@ -175,70 +175,64 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         except Exception as e:
             logger.error(f"Error loading social media campaigns: {e}")
 
-    def _save_connections(self):
+def _save_connections(self):
         """Save connection data to storage."""
         if not self.storage_path:
-            return
-
-        connections_path = os.path.join(self.storage_path, "connections.json")
+                        return connections_path = os.path.join(self.storage_path, "connections.json")
         try:
             with open(connections_path, "w", encoding="utf-8") as file:
                 json.dump(self.connections, file, indent=2)
         except Exception as e:
             logger.error(f"Error saving social media connections: {e}")
 
-    def _save_posts(self):
+def _save_posts(self):
         """Save posts data to storage."""
         if not self.storage_path:
-            return
-
-        posts_path = os.path.join(self.storage_path, "posts.json")
+                        return posts_path = os.path.join(self.storage_path, "posts.json")
         try:
             with open(posts_path, "w", encoding="utf-8") as file:
                 json.dump(self.posts, file, indent=2)
         except Exception as e:
             logger.error(f"Error saving social media posts: {e}")
 
-    def _save_campaigns(self):
+def _save_campaigns(self):
         """Save campaigns data to storage."""
         if not self.storage_path:
-            return
-
-        campaigns_path = os.path.join(self.storage_path, "campaigns.json")
+                        return campaigns_path = os.path.join(self.storage_path, "campaigns.json")
         try:
             with open(campaigns_path, "w", encoding="utf-8") as file:
                 json.dump(self.campaigns, file, indent=2)
         except Exception as e:
             logger.error(f"Error saving social media campaigns: {e}")
 
-    def _init_platform_adapter(self, platform: str, connection_id: str):
+def _init_platform_adapter(self, platform: str, connection_id: str):
         """
         Initialize a platform adapter for a connection.
 
-        Args:
+Args:
             platform: Social media platform name
             connection_id: Connection ID
 
-        Returns:
+Returns:
             Platform adapter instance
 
-        Raises:
+Raises:
             PlatformNotSupportedError: If the platform is not supported
             ImportError: If the adapter module cannot be imported
         """
         if platform not in SUPPORTED_PLATFORMS:
             raise PlatformNotSupportedError(platform)
 
-        adapter_module_path = SUPPORTED_PLATFORMS[platform]["adapter_module"]
+adapter_module_path = SUPPORTED_PLATFORMS[platform]["adapter_module"]
 
-        try:
+try:
             # Check if adapter is already loaded
             if connection_id not in self.platform_adapters:
                 # Use importlib to dynamically import the adapter
                 module_name = adapter_module_path
                 adapter_module = importlib.import_module(module_name)
 
-                # Get the adapter class (should be the first class in the module)
+# Get the adapter class (should be the first class in the module)
                 adapter_class = None
                 for attr_name in dir(adapter_module):
                     attr = getattr(adapter_module, attr_name)
@@ -249,23 +243,23 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                         adapter_class = attr
                         break
 
-                if not adapter_class:
+if not adapter_class:
                     raise ImportError(
                         f"Could not find adapter class in {adapter_module_path}"
                     )
 
-                # Create instance of adapter
+# Create instance of adapter
                 connection_data = self.connections[connection_id]
                 adapter = adapter_class(
                     connection_id=connection_id, connection_data=connection_data
                 )
 
-                # Store adapter
+# Store adapter
                 self.platform_adapters[connection_id] = adapter
 
             return self.platform_adapters[connection_id]
 
-        except ImportError as e:
+except ImportError as e:
             logger.error(f"Could not import adapter module for {platform}: {e}")
             if platform not in SUPPORTED_PLATFORMS:
                 raise PlatformNotSupportedError(platform)
@@ -273,19 +267,19 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                 # Still raise but with the original exception
                 raise
 
-    def _generate_platform_id(self, platform: str) -> str:
+def _generate_platform_id(self, platform: str) -> str:
         """
         Generate a unique platform connection ID.
 
-        Args:
+Args:
             platform: Social media platform name
 
-        Returns:
+Returns:
             Unique platform connection ID
         """
-        return f"{platform}_{uuid.uuid4().hex[:8]}"
+                    return f"{platform}_{uuid.uuid4().hex[:8]}"
 
-    def connect_platform(
+def connect_platform(
         self,
         platform: str,
         credentials: Dict[str, Any],
@@ -294,15 +288,15 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         """
         Connect to a social media platform with provided credentials.
 
-        Args:
+Args:
             platform: Social media platform name (e.g., "twitter", "facebook", "linkedin")
             credentials: Platform-specific authentication credentials
             settings: Optional platform-specific settings
 
-        Returns:
+Returns:
             Dictionary containing the connection details
 
-        Raises:
+Raises:
             PlatformNotSupportedError: If the platform is not supported
             AuthenticationError: If authentication fails
         """
@@ -310,10 +304,10 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         if platform not in SUPPORTED_PLATFORMS:
             raise PlatformNotSupportedError(platform)
 
-        # Generate a unique connection ID
+# Generate a unique connection ID
         connection_id = self._generate_platform_id(platform)
 
-        # Create connection object
+# Create connection object
         connection = {
             "id": connection_id,
             "platform": platform,
@@ -328,17 +322,17 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             "credentials": credentials,
         }
 
-        # Store the connection
+# Store the connection
         self.connections[connection_id] = connection
 
-        # Initialize the platform adapter
+# Initialize the platform adapter
         adapter = self._init_platform_adapter(platform, connection_id)
 
-        # Verify credentials with the adapter
+# Verify credentials with the adapter
         try:
             verified_connection = adapter.verify_credentials()
 
-            # Update connection with verified data
+# Update connection with verified data
             self.connections[connection_id].update(
                 {
                     "account_name": verified_connection.get(
@@ -354,15 +348,15 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                 }
             )
 
-            # Save connections
+# Save connections
             self._save_connections()
 
-            # Return the connection without credentials for security
+# Return the connection without credentials for security
             connection_copy = self.connections[connection_id].copy()
             connection_copy.pop("credentials", None)
-            return connection_copy
+                        return connection_copy
 
-        except Exception as e:
+except Exception as e:
             # Remove the connection on failure
             self.connections.pop(connection_id, None)
             if hasattr(e, "platform") and hasattr(e, "message"):
@@ -370,55 +364,55 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             else:
                 raise AuthenticationError(platform, str(e))
 
-    def disconnect_platform(self, platform_id: str) -> bool:
+def disconnect_platform(self, platform_id: str) -> bool:
         """
         Disconnect from a connected social media platform.
 
-        Args:
+Args:
             platform_id: ID of the connected platform
 
-        Returns:
+Returns:
             True if disconnected successfully, False otherwise
 
-        Raises:
+Raises:
             PlatformNotFoundError: If the platform ID is not found
         """
         # Check if the platform connection exists
         if platform_id not in self.connections:
             raise PlatformNotFoundError(platform_id)
 
-        try:
+try:
             # If adapter exists, call its disconnect method
             if platform_id in self.platform_adapters:
                 adapter = self.platform_adapters[platform_id]
                 adapter.disconnect()
                 del self.platform_adapters[platform_id]
 
-            # Remove the connection
+# Remove the connection
             del self.connections[platform_id]
 
-            # Save connections
+# Save connections
             self._save_connections()
 
             return True
         except Exception as e:
             logger.error(f"Error disconnecting from platform {platform_id}: {e}")
-            return False
+                        return False
 
-    def get_connected_platforms(self) -> List[Dict[str, Any]]:
+def get_connected_platforms(self) -> List[Dict[str, Any]]:
         """
         Get a list of connected social media platforms.
 
-        Returns:
+Returns:
             List of dictionaries containing connected platform details
         """
         # Return all connections without credentials
-        return [
+                    return [
             {k: v for k, v in connection.items() if k != "credentials"}
             for connection in self.connections.values()
         ]
 
-    def post_content(
+def post_content(
         self,
         platform_id: str,
         content: Dict[str, Any],
@@ -429,17 +423,17 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         """
         Post content to a connected social media platform.
 
-        Args:
+Args:
             platform_id: ID of the connected platform
             content: Content to post (text, media, etc.)
             schedule_time: Optional time to schedule the post for
             visibility: Visibility setting (public, private, etc.)
             targeting: Optional audience targeting parameters
 
-        Returns:
+Returns:
             Dictionary containing the post details and ID
 
-        Raises:
+Raises:
             PlatformNotFoundError: If the platform ID is not found
             ContentValidationError: If the content is invalid
             PostingError: If posting fails
@@ -448,12 +442,12 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         if platform_id not in self.connections:
             raise PlatformNotFoundError(platform_id)
 
-        # Get the platform adapter
+# Get the platform adapter
         adapter = self._init_platform_adapter(
             self.connections[platform_id]["platform"], platform_id
         )
 
-        # Prepare the post content
+# Prepare the post content
         post_data = {
             "platform_id": platform_id,
             "content": content,
@@ -467,24 +461,24 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             "created_at": datetime.now().isoformat(),
         }
 
-        try:
+try:
             # Validate the content
             adapter.validate_content(content)
 
-            # If scheduled for the future
+# If scheduled for the future
             if schedule_time and schedule_time > datetime.now():
                 # Generate local post ID
                 post_id = f"post_{uuid.uuid4().hex}"
                 post_data["id"] = post_id
 
-                # Store the scheduled post
+# Store the scheduled post
                 if platform_id not in self.posts:
                     self.posts[platform_id] = {}
 
-                self.posts[platform_id][post_id] = post_data
+self.posts[platform_id][post_id] = post_data
                 self._save_posts()
 
-                return {
+            return {
                     "id": post_id,
                     "platform_id": platform_id,
                     "status": "scheduled",
@@ -495,20 +489,20 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                 # Post immediately
                 result = adapter.post_content(content, visibility, targeting)
 
-                # Store the post with the platform-assigned ID
+# Store the post with the platform-assigned ID
                 post_id = result["id"]
                 post_data["id"] = post_id
                 post_data["status"] = "posted"
                 post_data["posted_at"] = datetime.now().isoformat()
                 post_data["platform_data"] = result.get("platform_data", {})
 
-                if platform_id not in self.posts:
+if platform_id not in self.posts:
                     self.posts[platform_id] = {}
 
-                self.posts[platform_id][post_id] = post_data
+self.posts[platform_id][post_id] = post_data
                 self._save_posts()
 
-                return {
+            return {
                     "id": post_id,
                     "platform_id": platform_id,
                     "status": "posted",
@@ -517,23 +511,23 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                     "platform_data": result.get("platform_data", {}),
                 }
 
-        except ContentValidationError:
+except ContentValidationError:
             raise
         except Exception as e:
             raise PostingError(self.connections[platform_id]["platform"], str(e))
 
-    def get_post(self, platform_id: str, post_id: str) -> Dict[str, Any]:
+def get_post(self, platform_id: str, post_id: str) -> Dict[str, Any]:
         """
         Get details of a specific post.
 
-        Args:
+Args:
             platform_id: ID of the connected platform
             post_id: ID of the post to retrieve
 
-        Returns:
+Returns:
             Dictionary containing the post details
 
-        Raises:
+Raises:
             PlatformNotFoundError: If the platform ID is not found
             PostNotFoundError: If the post ID is not found
         """
@@ -541,18 +535,18 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         if platform_id not in self.connections:
             raise PlatformNotFoundError(platform_id)
 
-        # Check if we have the post locally
+# Check if we have the post locally
         if platform_id in self.posts and post_id in self.posts[platform_id]:
             post_data = self.posts[platform_id][post_id]
 
-            # If post was already posted, try to get latest data from platform
+# If post was already posted, try to get latest data from platform
             if post_data["status"] == "posted":
                 try:
                     adapter = self._init_platform_adapter(
                         self.connections[platform_id]["platform"], platform_id
                     )
 
-                    # Get updated post data from the platform
+# Get updated post data from the platform
                     updated_post = adapter.get_post(post_id)
                     post_data["platform_data"] = updated_post
                     self._save_posts()
@@ -563,19 +557,19 @@ class SocialMediaIntegration(ISocialMediaIntegration):
 
             return post_data
 
-        # If not found locally, try to get from platform
+# If not found locally, try to get from platform
         try:
             adapter = self._init_platform_adapter(
                 self.connections[platform_id]["platform"], platform_id
             )
 
-            post_data = adapter.get_post(post_id)
+post_data = adapter.get_post(post_id)
 
-            # Store the post
+# Store the post
             if platform_id not in self.posts:
                 self.posts[platform_id] = {}
 
-            self.posts[platform_id][post_id] = {
+self.posts[platform_id][post_id] = {
                 "id": post_id,
                 "platform_id": platform_id,
                 "status": "posted",
@@ -583,24 +577,24 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                 "created_at": post_data.get("created_time", datetime.now().isoformat()),
             }
 
-            self._save_posts()
-            return self.posts[platform_id][post_id]
+self._save_posts()
+                        return self.posts[platform_id][post_id]
 
-        except Exception:
+except Exception:
             raise PostNotFoundError(platform_id, post_id)
 
-    def delete_post(self, platform_id: str, post_id: str) -> bool:
+def delete_post(self, platform_id: str, post_id: str) -> bool:
         """
         Delete a post from a connected social media platform.
 
-        Args:
+Args:
             platform_id: ID of the connected platform
             post_id: ID of the post to delete
 
-        Returns:
+Returns:
             True if deleted successfully, False otherwise
 
-        Raises:
+Raises:
             PlatformNotFoundError: If the platform ID is not found
             PostNotFoundError: If the post ID is not found
             DeletionError: If deletion fails
@@ -609,12 +603,12 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         if platform_id not in self.connections:
             raise PlatformNotFoundError(platform_id)
 
-        # Check if we have the post locally
+# Check if we have the post locally
         post_exists_locally = (
             platform_id in self.posts and post_id in self.posts[platform_id]
         )
 
-        # If it's a scheduled post that hasn't been posted yet
+# If it's a scheduled post that hasn't been posted yet
         if (
             post_exists_locally
             and self.posts[platform_id][post_id]["status"] == "scheduled"
@@ -622,29 +616,29 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             # Just remove it from our storage
             del self.posts[platform_id][post_id]
             self._save_posts()
-            return True
+                        return True
 
-        # Otherwise, we need to delete from the platform
+# Otherwise, we need to delete from the platform
         try:
             adapter = self._init_platform_adapter(
                 self.connections[platform_id]["platform"], platform_id
             )
 
-            result = adapter.delete_post(post_id)
+result = adapter.delete_post(post_id)
 
-            # If successfully deleted from platform, remove from local storage
+# If successfully deleted from platform, remove from local storage
             if post_exists_locally:
                 del self.posts[platform_id][post_id]
                 self._save_posts()
 
             return result
 
-        except Exception as e:
+except Exception as e:
             raise DeletionError(
                 self.connections[platform_id]["platform"], post_id, str(e)
             )
 
-    def get_analytics(
+def get_analytics(
         self,
         platform_id: str,
         post_id: Optional[str] = None,
@@ -656,7 +650,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         """
         Get analytics for posts on a connected social media platform.
 
-        Args:
+Args:
             platform_id: ID of the connected platform
             post_id: Optional ID of a specific post to get analytics for
             metrics: Optional list of specific metrics to retrieve
@@ -664,10 +658,10 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             end_date: Optional end date for analytics data
             granularity: Time granularity for data (day, week, month)
 
-        Returns:
+Returns:
             Dictionary containing analytics data
 
-        Raises:
+Raises:
             PlatformNotFoundError: If the platform ID is not found
             PostNotFoundError: If the post ID is not found
             InvalidParameterError: If parameters are invalid
@@ -676,24 +670,24 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         if platform_id not in self.connections:
             raise PlatformNotFoundError(platform_id)
 
-        # Set default date range if not provided
+# Set default date range if not provided
         if not end_date:
             end_date = datetime.now()
 
-        if not start_date:
+if not start_date:
             start_date = end_date - timedelta(days=30)
 
-        # Check if analytics is supported
+# Check if analytics is supported
         platform = self.connections[platform_id]["platform"]
         capabilities = SUPPORTED_PLATFORMS[platform]["capabilities"]
 
-        if "analytics" not in capabilities:
+if "analytics" not in capabilities:
             raise NotSupportedError(platform, "analytics")
 
-        # Get the platform adapter
+# Get the platform adapter
         adapter = self._init_platform_adapter(platform, platform_id)
 
-        try:
+try:
             # Get analytics data from the platform
             analytics_data = adapter.get_analytics(
                 post_id=post_id,
@@ -703,7 +697,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                 granularity=granularity,
             )
 
-            # Format the results
+# Format the results
             result = {
                 "platform_id": platform_id,
                 "post_id": post_id,
@@ -719,11 +713,11 @@ class SocialMediaIntegration(ISocialMediaIntegration):
 
             return result
 
-        except PostNotFoundError:
+except PostNotFoundError:
             raise
         except Exception as e:
             logger.error(f"Error getting analytics from {platform}: {e}")
-            return {
+                        return {
                 "platform_id": platform_id,
                 "post_id": post_id,
                 "time_period": {
@@ -737,7 +731,7 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                 "error": str(e),
             }
 
-    def schedule_campaign(
+def schedule_campaign(
         self,
         platform_ids: List[str],
         campaign_name: str,
@@ -748,17 +742,17 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         """
         Schedule a social media campaign with multiple content items.
 
-        Args:
+Args:
             platform_ids: List of connected platform IDs
             campaign_name: Name of the campaign
             content_items: List of content items to post
             schedule_settings: Settings for content scheduling
             targeting: Optional audience targeting parameters
 
-        Returns:
+Returns:
             Dictionary containing the campaign details and scheduled post IDs
 
-        Raises:
+Raises:
             PlatformNotFoundError: If a platform ID is not found
             ContentValidationError: If content validation fails
             SchedulingError: If scheduling fails
@@ -768,21 +762,21 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             if platform_id not in self.connections:
                 raise PlatformNotFoundError(platform_id)
 
-        # Check if scheduling is supported for all platforms
+# Check if scheduling is supported for all platforms
         for platform_id in platform_ids:
             platform = self.connections[platform_id]["platform"]
             capabilities = SUPPORTED_PLATFORMS[platform]["capabilities"]
 
-            if "scheduling" not in capabilities:
+if "scheduling" not in capabilities:
                 raise NotSupportedError(platform, "scheduling")
 
-        # Validate all content items
+# Validate all content items
         for platform_id in platform_ids:
             adapter = self._init_platform_adapter(
                 self.connections[platform_id]["platform"], platform_id
             )
 
-            # Validate each content item for this platform
+# Validate each content item for this platform
             for content_item in content_items:
                 try:
                     adapter.validate_content(content_item)
@@ -792,32 +786,32 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                         f"Invalid content for item: {str(e)}",
                     )
 
-        # Generate a campaign ID
+# Generate a campaign ID
         campaign_id = f"campaign_{uuid.uuid4().hex}"
 
-        # Handle schedule settings
+# Handle schedule settings
         start_date = datetime.fromisoformat(schedule_settings.get("start_date"))
         end_date = None
         if "end_date" in schedule_settings:
             end_date = datetime.fromisoformat(schedule_settings["end_date"])
 
-        schedule_type = schedule_settings.get("type", "spread")
+schedule_type = schedule_settings.get("type", "spread")
 
-        # Calculate post times based on schedule settings
+# Calculate post times based on schedule settings
         scheduled_posts = {}
 
-        if schedule_type == "spread":
+if schedule_type == "spread":
             # Distribute posts evenly between start and end date
             if not end_date:
                 end_date = start_date + timedelta(days=30)  # Default to 30 days
 
-            total_duration = (end_date - start_date).total_seconds()
+total_duration = (end_date - start_date).total_seconds()
             interval = total_duration / (len(content_items) + 1)
 
-            for i, content_item in enumerate(content_items):
+for i, content_item in enumerate(content_items):
                 post_time = start_date + timedelta(seconds=(i + 1) * interval)
 
-                for platform_id in platform_ids:
+for platform_id in platform_ids:
                     try:
                         post_result = self.post_content(
                             platform_id=platform_id,
@@ -827,26 +821,26 @@ class SocialMediaIntegration(ISocialMediaIntegration):
                             targeting=targeting,
                         )
 
-                        if platform_id not in scheduled_posts:
+if platform_id not in scheduled_posts:
                             scheduled_posts[platform_id] = []
 
-                        scheduled_posts[platform_id].append(post_result["id"])
+scheduled_posts[platform_id].append(post_result["id"])
 
-                    except Exception as e:
+except Exception as e:
                         logger.error(f"Error scheduling post to {platform_id}: {e}")
                         raise SchedulingError(
                             f"Error scheduling to {platform_id}: {str(e)}"
                         )
 
-        elif schedule_type == "best_time":
+elif schedule_type == "best_time":
             # Schedule at optimal times (would need platform-specific logic)
             raise NotImplementedError("Best time scheduling not yet implemented")
 
-        else:
+else:
             # Custom schedule or other types
             raise SchedulingError(f"Unsupported schedule type: {schedule_type}")
 
-        # Create campaign object
+# Create campaign object
         campaign = {
             "id": campaign_id,
             "name": campaign_name,
@@ -861,13 +855,13 @@ class SocialMediaIntegration(ISocialMediaIntegration):
             "created_at": datetime.now().isoformat(),
         }
 
-        # Store the campaign
+# Store the campaign
         self.campaigns[campaign_id] = campaign
         self._save_campaigns()
 
-        return campaign
+            return campaign
 
-    def get_audience_insights(
+def get_audience_insights(
         self,
         platform_id: str,
         metrics: Optional[List[str]] = None,
@@ -876,15 +870,15 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         """
         Get audience insights from a connected social media platform.
 
-        Args:
+Args:
             platform_id: ID of the connected platform
             metrics: Optional list of specific metrics to retrieve
             segment: Optional audience segment parameters
 
-        Returns:
+Returns:
             Dictionary containing audience insights data
 
-        Raises:
+Raises:
             PlatformNotFoundError: If the platform ID is not found
             InvalidParameterError: If parameters are invalid
             NotSupportedError: If the platform doesn't support audience insights
@@ -893,21 +887,21 @@ class SocialMediaIntegration(ISocialMediaIntegration):
         if platform_id not in self.connections:
             raise PlatformNotFoundError(platform_id)
 
-        # Check if audience insights is supported
+# Check if audience insights is supported
         platform = self.connections[platform_id]["platform"]
         capabilities = SUPPORTED_PLATFORMS[platform]["capabilities"]
 
-        if "audience_insights" not in capabilities:
+if "audience_insights" not in capabilities:
             raise NotSupportedError(platform, "audience_insights")
 
-        # Get the platform adapter
+# Get the platform adapter
         adapter = self._init_platform_adapter(platform, platform_id)
 
-        try:
+try:
             # Get audience insights from the platform
             insights = adapter.get_audience_insights(metrics, segment)
 
-            # Format the results
+# Format the results
             result = {
                 "platform_id": platform_id,
                 "segment": segment,
@@ -921,11 +915,11 @@ class SocialMediaIntegration(ISocialMediaIntegration):
 
             return result
 
-        except Exception as e:
+except Exception as e:
             logger.error(f"Error getting audience insights from {platform}: {e}")
-            return {"platform_id": platform_id, "segment": segment, "error": str(e)}
+                        return {"platform_id": platform_id, "segment": segment, "error": str(e)}
 
-    # Additional methods that could be implemented:
+# Additional methods that could be implemented:
     # - get_campaigns() - Get list of campaigns
     # - get_campaign(campaign_id) - Get campaign details
     # - update_campaign(campaign_id, ...) - Update campaign

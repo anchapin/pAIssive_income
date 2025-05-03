@@ -39,7 +39,7 @@ async def register_webhook_example
     print("Webhook registered:")
     print(json.dumps(webhook, indent=2))
 
-    return webhook
+            return webhook
 
 
 async def emit_event_example():

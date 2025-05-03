@@ -23,7 +23,7 @@ def generate_id
     Returns:
         Random ID
     """
-    return str(uuid.uuid4())
+            return str(uuid.uuid4())
 
 
 def generate_string(length: int = 10) -> str:
@@ -36,7 +36,7 @@ def generate_string(length: int = 10) -> str:
     Returns:
         Random string
     """
-    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+            return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
 def generate_email() -> str:
@@ -46,7 +46,7 @@ def generate_email() -> str:
     Returns:
         Random email address
     """
-    return f"{generate_string(8)}@example.com"
+            return f"{generate_string(8)}@example.com"
 
 
 def generate_date(days_ago: int = 0) -> str:
@@ -59,7 +59,7 @@ def generate_date(days_ago: int = 0) -> str:
     Returns:
         Date string in ISO format
     """
-    return (datetime.now() - timedelta(days=days_ago)).isoformat()
+            return (datetime.now() - timedelta(days=days_ago)).isoformat()
 
 
 def generate_niche_analysis_data() -> Dict[str, Any]:
@@ -69,7 +69,7 @@ def generate_niche_analysis_data() -> Dict[str, Any]:
     Returns:
         Test data for niche analysis
     """
-    return {
+            return {
         "market_segments": ["e-commerce", "digital-marketing", "education"],
         "target_audience": "small businesses",
         "problem_statement": "Small businesses struggle with inventory management",
@@ -84,7 +84,7 @@ def generate_niche_data() -> Dict[str, Any]:
     Returns:
         Test data for a niche
     """
-    return {
+            return {
         "id": generate_id(),
         "name": f"AI {generate_string(8)} Solution",
         "description": f"An AI solution for {generate_string(12)}",
@@ -104,7 +104,7 @@ def generate_monetization_data() -> Dict[str, Any]:
     Returns:
         Test data for monetization
     """
-    return {
+            return {
         "subscription_type": random.choice(["freemium", "premium", "enterprise"]),
         "billing_period": random.choice(["monthly", "quarterly", "annual"]),
         "base_price": random.uniform(10, 100),
@@ -145,7 +145,7 @@ def generate_revenue_projection_data() -> Dict[str, Any]:
     Returns:
         Test data for revenue projection
     """
-    return {
+            return {
         "subscription_model_id": generate_id(),
         "initial_users": random.randint(10, 100),
         "growth_rate": random.uniform(0.05, 0.2),
@@ -161,7 +161,7 @@ def generate_marketing_strategy_data() -> Dict[str, Any]:
     Returns:
         Test data for marketing strategy
     """
-    return {
+            return {
         "niche_id": generate_id(),
         "target_audience": {
             "demographics": {
@@ -220,7 +220,7 @@ def generate_ai_model_data() -> Dict[str, Any]:
     Returns:
         Test data for AI model
     """
-    return {
+            return {
         "id": generate_id(),
         "name": f"Model-{generate_string(6)}",
         "description": f"An AI model for {generate_string(12)}",
@@ -256,7 +256,7 @@ def generate_agent_team_data() -> Dict[str, Any]:
     Returns:
         Test data for agent team
     """
-    return {
+            return {
         "name": f"Team-{generate_string(6)}",
         "description": f"A team for {generate_string(12)}",
         "agents": [
@@ -297,7 +297,7 @@ def generate_user_data() -> Dict[str, Any]:
     Returns:
         Test data for user
     """
-    return {
+            return {
         "username": generate_string(8),
         "email": generate_email(),
         "password": generate_string(12),
@@ -313,7 +313,7 @@ def generate_api_key_data() -> Dict[str, Any]:
     Returns:
         Test data for API key
     """
-    return {
+            return {
         "name": f"Key-{generate_string(6)}",
         "description": f"API key for {generate_string(12)}",
         "permissions": [
@@ -331,7 +331,7 @@ def generate_webhook_data() -> Dict[str, Any]:
     Returns:
         Test data for webhook
     """
-    return {
+            return {
         "url": f"https://example.com/webhook/{generate_string(8)}",
         "event_types": [
             random.choice(
@@ -352,7 +352,7 @@ def generate_webhook_data() -> Dict[str, Any]:
 
 def generate_solution_data() -> Dict[str, Any]:
     """Generate test data for a solution."""
-    return {
+            return {
         "name": f"Test Solution {generate_id()}",
         "description": "A test solution for automated testing",
         "tech_stack": ["python", "fastapi", "react", "postgresql"],
@@ -368,7 +368,7 @@ def generate_solution_data() -> Dict[str, Any]:
 
 def generate_template_data() -> Dict[str, Any]:
     """Generate test data for a template."""
-    return {
+            return {
         "name": f"Test Template {generate_id()}",
         "description": "A test template for automated testing",
         "tech_stack": ["python", "fastapi", "react", "postgresql"],
@@ -390,7 +390,7 @@ def generate_monetization_strategy_data() -> Dict[str, Any]:
     Returns:
         Test data for monetization strategy
     """
-    return {
+            return {
         "id": generate_id(),
         "name": f"Strategy-{generate_string(6)}",
         "description": f"A monetization strategy for {generate_string(12)}",
@@ -445,7 +445,7 @@ def generate_ui_component_data() -> Dict[str, Any]:
     Returns:
         Test data for UI component
     """
-    return {
+            return {
         "id": generate_id(),
         "name": f"Component-{generate_string(6)}",
         "description": f"A UI component for {generate_string(12)}",

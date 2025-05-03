@@ -40,7 +40,7 @@ if FASTAPI_AVAILABLE:
         Returns:
             Agent team information
         """
-        return {
+                return {
             "message": "Agent Team API is under development",
             "status": "coming_soon",
         }

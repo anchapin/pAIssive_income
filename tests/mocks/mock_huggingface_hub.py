@@ -245,7 +245,7 @@ class MockHuggingFaceHub:
         if progress_callback:
             progress_callback(file_info["size"], file_info["size"])
 
-        return dest_path
+                return dest_path
 
     def snapshot_download(
         self,
@@ -358,7 +358,7 @@ class MockHuggingFaceHub:
                 if progress_callback:
                     progress_callback(downloaded_size, total_size)
 
-        return dest_dir
+                return dest_dir
 
     def list_models(
         self,
@@ -423,7 +423,7 @@ class MockHuggingFaceHub:
             if len(results) >= limit:
                 break
 
-        return results
+                return results
 
     def _match_pattern(self, path: str, pattern: str) -> bool:
         """
@@ -436,7 +436,7 @@ class MockHuggingFaceHub:
         Returns:
             True if the path matches the pattern, False otherwise
         """
-        return fnmatch.fnmatch(path, pattern)
+                return fnmatch.fnmatch(path, pattern)
 
 
 class HfHubHTTPError(Exception):
@@ -459,7 +459,7 @@ class MockResponse:
 
     def json(self) -> Dict[str, Any]:
         """Return the JSON content of the response."""
-        return self._json
+                return self._json
 
 
 # Create a mock Hugging Face Hub

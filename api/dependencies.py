@@ -23,12 +23,12 @@ def get_niche_service():
     """
     Get the niche service.
 
-    Returns:
+Returns:
         Niche service
     """
     # In a real application, this would return a service instance
     # For now, we'll return a mock service
-    return {
+                return {
         "get_niches": lambda: [],
         "get_niche": lambda id: {"id": id, "name": "Test Niche"},
         "create_niche": lambda niche: {"id": "new-id", **niche},
@@ -41,12 +41,12 @@ def get_market_segment_service():
     """
     Get the market segment service.
 
-    Returns:
+Returns:
         Market segment service
     """
     # In a real application, this would return a service instance
     # For now, we'll return a mock service
-    return {
+                return {
         "get_segments": lambda: [],
         "get_segment": lambda id: {"id": id, "name": "Test Segment"},
         "create_segment": lambda segment: {"id": "new-id", **segment},
@@ -59,12 +59,12 @@ def get_problem_service():
     """
     Get the problem service.
 
-    Returns:
+Returns:
         Problem service
     """
     # In a real application, this would return a service instance
     # For now, we'll return a mock service
-    return {
+                return {
         "get_problems": lambda: [],
         "get_problem": lambda id: {"id": id, "name": "Test Problem"},
         "create_problem": lambda problem: {"id": "new-id", **problem},
@@ -77,12 +77,12 @@ def get_opportunity_service():
     """
     Get the opportunity service.
 
-    Returns:
+Returns:
         Opportunity service
     """
     # In a real application, this would return a service instance
     # For now, we'll return a mock service
-    return {
+                return {
         "get_opportunities": lambda: [],
         "get_opportunity": lambda id: {"id": id, "name": "Test Opportunity"},
         "create_opportunity": lambda opportunity: {"id": "new-id", **opportunity},
@@ -95,45 +95,45 @@ def validate_token(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
     """
     Validate a JWT token.
 
-    Args:
+Args:
         token: JWT token
 
-    Returns:
+Returns:
         Decoded token payload
 
-    Raises:
+Raises:
         HTTPException: If the token is invalid
     """
-    return verify_token(token)
+                return verify_token(token)
 
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
     """
     Get the current user from a JWT token.
 
-    Args:
+Args:
         token: JWT token
 
-    Returns:
+Returns:
         User data from the token
 
-    Raises:
+Raises:
         HTTPException: If the token is invalid
     """
-    return get_user_from_token(token)
+                return get_user_from_token(token)
 
 
 def validate_api_key(api_key: str = Depends(api_key_header)) -> Dict[str, Any]:
     """
     Validate an API key.
 
-    Args:
+Args:
         api_key: API key
 
-    Returns:
+Returns:
         API key data
 
-    Raises:
+Raises:
         HTTPException: If the API key is invalid
     """
     # In a real application, this would validate the API key against a database
@@ -145,8 +145,8 @@ def validate_api_key(api_key: str = Depends(api_key_header)) -> Dict[str, Any]:
             headers={"WWW-Authenticate": "ApiKey"},
         )
 
-    # Return mock API key data
-    return {
+# Return mock API key data
+                return {
         "id": "api-key-id",
         "name": "Test API Key",
         "scopes": ["read:niche_analysis", "write:niche_analysis"],

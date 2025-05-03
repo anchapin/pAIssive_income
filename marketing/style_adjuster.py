@@ -17,11 +17,11 @@ import uuid
 from typing import Any, Dict, List, Optional, Tuple
 
 
-    import nltk
+import nltk
     from nltk.corpus import stopwords
     from nltk.tokenize import sent_tokenize, word_tokenize
 
-    NLTK_AVAILABLE 
+NLTK_AVAILABLE 
 from .tone_analyzer import ToneAnalyzer
 
 
@@ -39,11 +39,11 @@ except ImportError:
     """
     Class for adjusting the style and tone of content.
 
-    This class provides methods for adjusting tone, sentiment, and style
+This class provides methods for adjusting tone, sentiment, and style
     in content based on analysis and target style preferences.
     """
 
-    # Define style categories
+# Define style categories
     STYLE_CATEGORIES = {
         "formal": {
             "description": "Professional, academic, or business-like style",
@@ -252,7 +252,7 @@ except ImportError:
         },
     }
 
-    # Define word replacement dictionaries
+# Define word replacement dictionaries
     WORD_REPLACEMENTS = {
         "formal": {
             # Casual to formal word replacements
@@ -357,7 +357,7 @@ except ImportError:
         },
     }
 
-    # Define sentence structure patterns
+# Define sentence structure patterns
     SENTENCE_STRUCTURE_PATTERNS = {
         "simple": {
             "description": "Short, direct sentences with a single clause",
@@ -405,7 +405,7 @@ except ImportError:
         },
     }
 
-    def __init__(
+def __init__(
         self,
         content: Optional[Dict[str, Any]] = None,
         target_style: Optional[str] = None,
@@ -415,7 +415,7 @@ except ImportError:
         """
         Initialize a style adjuster.
 
-        Args:
+Args:
             content: Optional content to adjust
             target_style: Optional target style for the content
             analyzer: Optional ToneAnalyzer instance
@@ -429,21 +429,21 @@ except ImportError:
         self.created_at = datetime.datetime.now().isoformat()
         self.results = None
 
-        # Initialize NLTK if available
+# Initialize NLTK if available
         if NLTK_AVAILABLE:
             try:
                 nltk.data.find("tokenizers/punkt")
             except LookupError:
                 nltk.download("punkt")
 
-    def get_default_config(self) -> Dict[str, Any]:
+def get_default_config(self) -> Dict[str, Any]:
         """
         Get the default configuration for the style adjuster.
 
-        Returns:
+Returns:
             Default configuration dictionary
         """
-        return {
+                    return {
             "max_suggestions": 10,  # Maximum number of suggestions to generate
             "min_suggestion_confidence": 0.7,  # Minimum confidence score for suggestions
             "prioritize_by": "impact",  # How to prioritize suggestions: impact, confidence, or position
@@ -456,41 +456,41 @@ except ImportError:
             "timestamp": datetime.datetime.now().isoformat(),
         }
 
-    def validate_content(self) -> Tuple[bool, List[str]]:
+def validate_content(self) -> Tuple[bool, List[str]]:
         """
         Validate the content for style adjustment.
 
-        Returns:
+Returns:
             Tuple of (is_valid, error_messages)
         """
         if self.content is None:
-            return False, ["No content provided"]
+                        return False, ["No content provided"]
 
-        errors = []
+errors = []
 
-        # Check if there's text to analyze
+# Check if there's text to analyze
         text = self._extract_text_from_content()
         if not text:
             errors.append("No text found in content")
 
-        # Check if target style is valid
+# Check if target style is valid
         if self.target_style and self.target_style not in self.STYLE_CATEGORIES:
             errors.append(
                 f"Invalid target style: {self.target_style}. Must be one of: {', '.join(self.STYLE_CATEGORIES.keys())}"
             )
 
-        return len(errors) == 0, errors
+            return len(errors) == 0, errors
 
-    def validate_config(self) -> Tuple[bool, List[str]]:
+def validate_config(self) -> Tuple[bool, List[str]]:
         """
         Validate the configuration dictionary.
 
-        Returns:
+Returns:
             Tuple of (is_valid, error_messages)
         """
         errors = []
 
-        # Check required fields
+# Check required fields
         required_fields = [
             "max_suggestions",
             "min_suggestion_confidence",
@@ -498,31 +498,31 @@ except ImportError:
             "target_style",
         ]
 
-        for field in required_fields:
+for field in required_fields:
             if field not in self.config:
                 errors.append(f"Missing required field: {field}")
 
-        # Validate field types and values
+# Validate field types and values
         if "max_suggestions" in self.config and not (
             isinstance(self.config["max_suggestions"], int)
             and self.config["max_suggestions"] > 0
         ):
             errors.append("max_suggestions must be a positive integer")
 
-        if "min_suggestion_confidence" in self.config and not (
+if "min_suggestion_confidence" in self.config and not (
             isinstance(self.config["min_suggestion_confidence"], (int, float))
             and 0 <= self.config["min_suggestion_confidence"] <= 1
         ):
             errors.append("min_suggestion_confidence must be a number between 0 and 1")
 
-        if "prioritize_by" in self.config and self.config["prioritize_by"] not in [
+if "prioritize_by" in self.config and self.config["prioritize_by"] not in [
             "impact",
             "confidence",
             "position",
         ]:
             errors.append("prioritize_by must be one of: impact, confidence, position")
 
-        if (
+if (
             "target_style" in self.config
             and self.config["target_style"] not in self.STYLE_CATEGORIES
         ):
@@ -530,7 +530,7 @@ except ImportError:
                 f"target_style must be one of: {', '.join(self.STYLE_CATEGORIES.keys())}"
             )
 
-        # Check boolean fields
+# Check boolean fields
         boolean_fields = [
             "adjust_word_choice",
             "adjust_sentence_structure",
@@ -539,27 +539,27 @@ except ImportError:
             "adjust_voice",
         ]
 
-        for field in boolean_fields:
+for field in boolean_fields:
             if field in self.config and not isinstance(self.config[field], bool):
                 errors.append(f"{field} must be a boolean")
 
-        return len(errors) == 0, errors
+            return len(errors) == 0, errors
 
-    def set_content(self, content: Dict[str, Any]) -> None:
+def set_content(self, content: Dict[str, Any]) -> None:
         """
         Set the content to adjust.
 
-        Args:
+Args:
             content: Content dictionary
         """
         self.content = content
         self.results = None  # Reset results
 
-    def set_target_style(self, target_style: str) -> None:
+def set_target_style(self, target_style: str) -> None:
         """
         Set the target style for the content.
 
-        Args:
+Args:
             target_style: Target style
         """
         if target_style not in self.STYLE_CATEGORIES:
@@ -567,197 +567,197 @@ except ImportError:
                 f"Invalid target style: {target_style}. Must be one of: {', '.join(self.STYLE_CATEGORIES.keys())}"
             )
 
-        self.target_style = target_style
+self.target_style = target_style
         self.config["target_style"] = target_style
         self.results = None  # Reset results
 
-    def set_analyzer(self, analyzer: ToneAnalyzer) -> None:
+def set_analyzer(self, analyzer: ToneAnalyzer) -> None:
         """
         Set the tone analyzer.
 
-        Args:
+Args:
             analyzer: ToneAnalyzer instance
         """
         self.analyzer = analyzer
         self.results = None  # Reset results
 
-    def set_config(self, config: Dict[str, Any]) -> None:
+def set_config(self, config: Dict[str, Any]) -> None:
         """
         Set the configuration dictionary.
 
-        Args:
+Args:
             config: Configuration dictionary
         """
         self.config = config
         self.results = None  # Reset results
 
-    def update_config(self, key: str, value: Any) -> None:
+def update_config(self, key: str, value: Any) -> None:
         """
         Update a specific configuration value.
 
-        Args:
+Args:
             key: Configuration key
             value: Configuration value
         """
         self.config[key] = value
         self.results = None  # Reset results
 
-    def _extract_text_from_content(self) -> str:
+def _extract_text_from_content(self) -> str:
         """
         Extract text from content for analysis.
 
-        Returns:
+Returns:
             Extracted text
         """
         if self.content is None:
-            return ""
+                        return ""
 
-        text = ""
+text = ""
 
-        # Add title
+# Add title
         if "title" in self.content:
             text += self.content["title"] + "\n\n"
 
-        # Add meta description
+# Add meta description
         if "meta_description" in self.content:
             text += self.content["meta_description"] + "\n\n"
 
-        # Add introduction
+# Add introduction
         if "introduction" in self.content:
             text += self.content["introduction"] + "\n\n"
 
-        # Add sections
+# Add sections
         if "sections" in self.content:
             for section in self.content["sections"]:
                 if "title" in section:
                     text += section["title"] + "\n\n"
 
-                if "content" in section:
+if "content" in section:
                     text += section["content"] + "\n\n"
 
-        # Add conclusion
+# Add conclusion
         if "conclusion" in self.content:
             text += self.content["conclusion"] + "\n\n"
 
-        # Add overview (for product descriptions)
+# Add overview (for product descriptions)
         if "overview" in self.content:
             text += self.content["overview"] + "\n\n"
 
-        # Add features (for product descriptions)
+# Add features (for product descriptions)
         if "features" in self.content:
             for feature in self.content["features"]:
                 if "name" in feature:
                     text += feature["name"] + "\n"
 
-                if "description" in feature:
+if "description" in feature:
                     text += feature["description"] + "\n\n"
 
-        # Add benefits (for product descriptions)
+# Add benefits (for product descriptions)
         if "benefits" in self.content:
             for benefit in self.content["benefits"]:
                 if "name" in benefit:
                     text += benefit["name"] + "\n"
 
-                if "description" in benefit:
+if "description" in benefit:
                     text += benefit["description"] + "\n\n"
 
-        # Add executive summary (for case studies)
+# Add executive summary (for case studies)
         if "executive_summary" in self.content:
             text += self.content["executive_summary"] + "\n\n"
 
-        # Add challenge (for case studies)
+# Add challenge (for case studies)
         if "challenge" in self.content:
             text += self.content["challenge"] + "\n\n"
 
-        # Add solution (for case studies)
+# Add solution (for case studies)
         if "solution" in self.content:
             text += self.content["solution"] + "\n\n"
 
-        # Add implementation (for case studies)
+# Add implementation (for case studies)
         if "implementation" in self.content:
             text += self.content["implementation"] + "\n\n"
 
-        # Add results (for case studies)
+# Add results (for case studies)
         if "results" in self.content:
             text += self.content["results"] + "\n\n"
 
-        # Add testimonial (for case studies)
+# Add testimonial (for case studies)
         if "testimonial" in self.content:
             text += self.content["testimonial"] + "\n\n"
 
-        return text
+            return text
 
-    def _get_sentences(self, text: str) -> List[str]:
+def _get_sentences(self, text: str) -> List[str]:
         """
         Get sentences from text.
 
-        Args:
+Args:
             text: Text to analyze
 
-        Returns:
+Returns:
             List of sentences
         """
         if NLTK_AVAILABLE:
             # Use NLTK for sentence tokenization
-            return sent_tokenize(text)
+                        return sent_tokenize(text)
         else:
             # Simple sentence tokenization
             # Split on periods, exclamation points, and question marks
             sentences = re.split(r"(?<=[.!?])\s+", text)
 
-            # Filter out empty sentences
-            return [s.strip() for s in sentences if s.strip()]
+# Filter out empty sentences
+                        return [s.strip() for s in sentences if s.strip()]
 
-    def _get_words(self, text: str) -> List[str]:
+def _get_words(self, text: str) -> List[str]:
         """
         Get words from text.
 
-        Args:
+Args:
             text: Text to analyze
 
-        Returns:
+Returns:
             List of words
         """
         if NLTK_AVAILABLE:
             # Use NLTK for word tokenization
-            return word_tokenize(text.lower())
+                        return word_tokenize(text.lower())
         else:
             # Simple word tokenization
             # Remove punctuation
             text = re.sub(r"[^\w\s]", "", text.lower())
 
-            # Split on whitespace
-            return text.split()
+# Split on whitespace
+                        return text.split()
 
-    def _get_paragraphs(self, text: str) -> List[str]:
+def _get_paragraphs(self, text: str) -> List[str]:
         """
         Get paragraphs from text.
 
-        Args:
+Args:
             text: Text to analyze
 
-        Returns:
+Returns:
             List of paragraphs
         """
         # Split on double newlines
         paragraphs = text.split("\n\n")
 
-        # Filter out empty paragraphs
-        return [p.strip() for p in paragraphs if p.strip()]
+# Filter out empty paragraphs
+                    return [p.strip() for p in paragraphs if p.strip()]
 
-    def _get_stopwords(self) -> List[str]:
+def _get_stopwords(self) -> List[str]:
         """
         Get stopwords.
 
-        Returns:
+Returns:
             List of stopwords
         """
         if NLTK_AVAILABLE:
             # Use NLTK for stopwords
-            return stopwords.words("english")
+                        return stopwords.words("english")
         else:
             # Simple stopwords list
-            return [
+                        return [
                 "a",
                 "an",
                 "the",
@@ -973,14 +973,14 @@ except ImportError:
                 "mustn't",
             ]
 
-    def _is_passive_voice(self, sentence: str) -> bool:
+def _is_passive_voice(self, sentence: str) -> bool:
         """
         Check if a sentence is in passive voice.
 
-        Args:
+Args:
             sentence: Sentence to check
 
-        Returns:
+Returns:
             True if the sentence is in passive voice, False otherwise
         """
         # Simple passive voice detection patterns
@@ -990,27 +990,27 @@ except ImportError:
             r"\b(?:am|is|are|was|were|be|being|been)\s+(\w+t)\b",
         ]
 
-        # Check if any pattern matches
+# Check if any pattern matches
         for pattern in passive_patterns:
             if re.search(pattern, sentence, re.IGNORECASE):
-                return True
+                            return True
 
-        return False
+            return False
 
-    def _convert_to_active_voice(self, sentence: str) -> str:
+def _convert_to_active_voice(self, sentence: str) -> str:
         """
         Convert a passive voice sentence to active voice.
 
-        Args:
+Args:
             sentence: Sentence to convert
 
-        Returns:
+Returns:
             Sentence in active voice
         """
         # This is a simplified implementation
         # A full implementation would require more complex NLP
 
-        # Passive voice patterns and their active voice transformations
+# Passive voice patterns and their active voice transformations
         passive_patterns = [
             (r"\b(am|is|are)\s+(\w+ed)\s+by\s+(.+)", r"\3 \2s \1"),
             (r"\b(was|were)\s+(\w+ed)\s+by\s+(.+)", r"\3 \2ed \1"),
@@ -1025,28 +1025,28 @@ except ImportError:
             ),
         ]
 
-        # Try each pattern
+# Try each pattern
         for pattern, replacement in passive_patterns:
             if re.search(pattern, sentence, re.IGNORECASE):
-                return re.sub(pattern, replacement, sentence, flags=re.IGNORECASE)
+                            return re.sub(pattern, replacement, sentence, flags=re.IGNORECASE)
 
-        # If no pattern matches, return the original sentence
-        return sentence
+# If no pattern matches, return the original sentence
+                    return sentence
 
-    def _convert_to_passive_voice(self, sentence: str) -> str:
+def _convert_to_passive_voice(self, sentence: str) -> str:
         """
         Convert an active voice sentence to passive voice.
 
-        Args:
+Args:
             sentence: Sentence to convert
 
-        Returns:
+Returns:
             Sentence in passive voice
         """
         # This is a simplified implementation
         # A full implementation would require more complex NLP
 
-        # Active voice patterns and their passive voice transformations
+# Active voice patterns and their passive voice transformations
         active_patterns = [
             (r"\b(.+)\s+(\w+s)\s+(.+)", r"\3 is \2ed by \1"),
             (r"\b(.+)\s+(\w+ed)\s+(.+)", r"\3 was \2ed by \1"),
@@ -1058,22 +1058,22 @@ except ImportError:
             (r"\b(.+)\s+would\s+(\w+)\s+(.+)", r"\3 would be \2ed by \1"),
         ]
 
-        # Try each pattern
+# Try each pattern
         for pattern, replacement in active_patterns:
             if re.search(pattern, sentence, re.IGNORECASE):
-                return re.sub(pattern, replacement, sentence, flags=re.IGNORECASE)
+                            return re.sub(pattern, replacement, sentence, flags=re.IGNORECASE)
 
-        # If no pattern matches, return the original sentence
-        return sentence
+# If no pattern matches, return the original sentence
+                    return sentence
 
-    def _get_sentence_structure(self, sentence: str) -> str:
+def _get_sentence_structure(self, sentence: str) -> str:
         """
         Determine the structure of a sentence.
 
-        Args:
+Args:
             sentence: Sentence to analyze
 
-        Returns:
+Returns:
             Sentence structure type
         """
         # Count clauses
@@ -1085,51 +1085,51 @@ except ImportError:
             )
         )
 
-        # Determine sentence structure
+# Determine sentence structure
         if independent_clauses == 1 and dependent_clauses == 0:
-            return "simple"
+                        return "simple"
         elif independent_clauses > 1 and dependent_clauses == 0:
-            return "compound"
+                        return "compound"
         elif independent_clauses == 1 and dependent_clauses >= 1:
-            return "complex"
+                        return "complex"
         elif independent_clauses > 1 and dependent_clauses >= 1:
-            return "compound-complex"
+                        return "compound-complex"
         else:
-            return "unknown"
+                        return "unknown"
 
-    def _get_sentence_complexity(self, sentence: str) -> float:
+def _get_sentence_complexity(self, sentence: str) -> float:
         """
         Calculate the complexity of a sentence.
 
-        Args:
+Args:
             sentence: Sentence to analyze
 
-        Returns:
+Returns:
             Complexity score
         """
         # Count words
         words = self._get_words(sentence)
         word_count = len(words)
 
-        # Count clauses
+# Count clauses
         clauses = len(re.findall(r"[^,;:]+(?:[,;:]|$)", sentence))
 
-        # Count commas, semicolons, and colons
+# Count commas, semicolons, and colons
         punctuation_count = len(re.findall(r"[,;:]", sentence))
 
-        # Calculate complexity
+# Calculate complexity
         complexity = (word_count / 10) + clauses + (punctuation_count / 2)
 
-        return complexity
+            return complexity
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the style adjuster to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the style adjuster
         """
-        return {
+                    return {
             "id": self.id,
             "target_style": self.target_style,
             "config": self.config,
@@ -1137,50 +1137,50 @@ except ImportError:
             "results": self.results,
         }
 
-    def to_json(self, indent: int = 2) -> str:
+def to_json(self, indent: int = 2) -> str:
         """
         Convert the style adjuster to a JSON string.
 
-        Args:
+Args:
             indent: Number of spaces for indentation
 
-        Returns:
+Returns:
             JSON string representation of the style adjuster
         """
-        return json.dumps(self.to_dict(), indent=indent)
+                    return json.dumps(self.to_dict(), indent=indent)
 
-    def analyze(self) -> Dict[str, Any]:
+def analyze(self) -> Dict[str, Any]:
         """
         Analyze the content for style adjustment.
 
-        Returns:
+Returns:
             Dictionary with analysis results
         """
         # Validate content
         is_valid, errors = self.validate_content()
 
-        if not is_valid:
+if not is_valid:
             raise ValueError(f"Invalid content: {', '.join(errors)}")
 
-        # Use existing analyzer if available
+# Use existing analyzer if available
         if self.analyzer is not None:
             # Set content and target tone
             self.analyzer.content = self.content
             self.analyzer.set_target_tone(self.target_style)
 
-            # Analyze content
+# Analyze content
             analysis_results = self.analyzer.analyze()
         else:
             # Create a new analyzer
             analyzer = ToneAnalyzer(self.content, self.target_style)
 
-            # Analyze content
+# Analyze content
             analysis_results = analyzer.analyze()
 
-            # Store analyzer
+# Store analyzer
             self.analyzer = analyzer
 
-        # Initialize results
+# Initialize results
         self.results = {
             "id": str(uuid.uuid4()),
             "timestamp": datetime.datetime.now().isoformat(),
@@ -1197,87 +1197,87 @@ except ImportError:
             "adjusted_content": None,
         }
 
-        return self.results
+            return self.results
 
-    def adjust(self) -> Dict[str, Any]:
+def adjust(self) -> Dict[str, Any]:
         """
         Adjust the content to match the target style.
 
-        Returns:
+Returns:
             Dictionary with adjustment results
         """
         # Analyze content if not already analyzed
         if self.results is None:
             self.analyze()
 
-        # Initialize adjusted content
+# Initialize adjusted content
         adjusted_content = self.content.copy()
 
-        # Apply adjustments
+# Apply adjustments
         if self.config["adjust_word_choice"]:
             adjusted_content = self._adjust_word_choice(adjusted_content)
 
-        if self.config["adjust_sentence_structure"]:
+if self.config["adjust_sentence_structure"]:
             adjusted_content = self._adjust_sentence_structure(adjusted_content)
 
-        if self.config["adjust_paragraph_structure"]:
+if self.config["adjust_paragraph_structure"]:
             adjusted_content = self._adjust_paragraph_structure(adjusted_content)
 
-        if self.config["adjust_punctuation"]:
+if self.config["adjust_punctuation"]:
             adjusted_content = self._adjust_punctuation(adjusted_content)
 
-        if self.config["adjust_voice"]:
+if self.config["adjust_voice"]:
             adjusted_content = self._adjust_voice(adjusted_content)
 
-        # Store adjusted content
+# Store adjusted content
         self.results["adjusted_content"] = adjusted_content
 
-        return self.results
+            return self.results
 
-    def _adjust_word_choice(self, content: Dict[str, Any]) -> Dict[str, Any]:
+def _adjust_word_choice(self, content: Dict[str, Any]) -> Dict[str, Any]:
         """
         Adjust word choice in content.
 
-        Args:
+Args:
             content: Content to adjust
 
-        Returns:
+Returns:
             Adjusted content
         """
         # Get target style word replacements
         if self.target_style not in self.WORD_REPLACEMENTS:
-            return content
+                        return content
 
-        word_replacements = self.WORD_REPLACEMENTS[self.target_style]
+word_replacements = self.WORD_REPLACEMENTS[self.target_style]
 
-        # Create a copy of the content
+# Create a copy of the content
         adjusted_content = content.copy()
 
-        # Extract text from content
+# Extract text from content
         text = self._extract_text_from_content()
 
-        # Get sentences
+# Get sentences
         sentences = self._get_sentences(text)
 
-        # Initialize adjustments
+# Initialize adjustments
         adjustments = []
 
-        # Process each sentence
+# Process each sentence
         for sentence in sentences:
             # Check for words to replace
             for word, replacements in word_replacements.items():
                 # Create pattern to match whole word
                 pattern = r"\b" + re.escape(word) + r"\b"
 
-                # Find all matches
+# Find all matches
                 matches = list(re.finditer(pattern, sentence, re.IGNORECASE))
 
-                # Process each match
+# Process each match
                 for match in matches:
                     # Get replacement word
                     replacement = random.choice(replacements)
 
-                    # Create adjustment
+# Create adjustment
                     adjustment = {
                         "id": str(uuid.uuid4()),
                         "type": "word_choice",
@@ -1289,10 +1289,10 @@ except ImportError:
                         "impact": "medium",
                     }
 
-                    # Add adjustment
+# Add adjustment
                     adjustments.append(adjustment)
 
-                    # Replace in content
+# Replace in content
                     for key in adjusted_content:
                         if isinstance(adjusted_content[key], str):
                             adjusted_content[key] = re.sub(
@@ -1317,57 +1317,57 @@ except ImportError:
                                                 flags=re.IGNORECASE,
                                             )
 
-        # Store adjustments
+# Store adjustments
         self.results["adjustments"]["word_choice"] = adjustments
 
-        return adjusted_content
+            return adjusted_content
 
-    def _adjust_sentence_structure(self, content: Dict[str, Any]) -> Dict[str, Any]:
+def _adjust_sentence_structure(self, content: Dict[str, Any]) -> Dict[str, Any]:
         """
         Adjust sentence structure in content.
 
-        Args:
+Args:
             content: Content to adjust
 
-        Returns:
+Returns:
             Adjusted content
         """
         # Get target style
         style_data = self.STYLE_CATEGORIES.get(self.target_style, {})
         target_sentence_structure = style_data.get("sentence_structure", "")
 
-        # If no target sentence structure, return content
+# If no target sentence structure, return content
         if not target_sentence_structure:
-            return content
+                        return content
 
-        # Create a copy of the content
+# Create a copy of the content
         adjusted_content = content.copy()
 
-        # Extract text from content
+# Extract text from content
         text = self._extract_text_from_content()
 
-        # Get sentences
+# Get sentences
         sentences = self._get_sentences(text)
 
-        # Initialize adjustments
+# Initialize adjustments
         adjustments = []
 
-        # Process each sentence
+# Process each sentence
         for sentence in sentences:
             # Get sentence structure
             structure = self._get_sentence_structure(sentence)
 
-            # Check if adjustment needed
+# Check if adjustment needed
             if structure != target_sentence_structure:
                 # Get sentence complexity
                 complexity = self._get_sentence_complexity(sentence)
 
-                # Determine adjustment type
+# Determine adjustment type
                 if "simple" in target_sentence_structure and complexity > 2:
                     # Split into simpler sentences
                     adjusted_sentence = self._simplify_sentence(sentence)
 
-                    # Create adjustment
+# Create adjustment
                     adjustment = {
                         "id": str(uuid.uuid4()),
                         "type": "sentence_structure",
@@ -1379,10 +1379,10 @@ except ImportError:
                         "impact": "high",
                     }
 
-                    # Add adjustment
+# Add adjustment
                     adjustments.append(adjustment)
 
-                    # Replace in content
+# Replace in content
                     for key in adjusted_content:
                         if isinstance(adjusted_content[key], str):
                             adjusted_content[key] = adjusted_content[key].replace(
@@ -1401,11 +1401,11 @@ except ImportError:
                                                 sentence, adjusted_sentence
                                             )
 
-                elif "complex" in target_sentence_structure and complexity < 3:
+elif "complex" in target_sentence_structure and complexity < 3:
                     # Combine with adjacent sentence or add complexity
                     adjusted_sentence = self._complexify_sentence(sentence, sentences)
 
-                    # Create adjustment
+# Create adjustment
                     adjustment = {
                         "id": str(uuid.uuid4()),
                         "type": "sentence_structure",
@@ -1417,10 +1417,10 @@ except ImportError:
                         "impact": "high",
                     }
 
-                    # Add adjustment
+# Add adjustment
                     adjustments.append(adjustment)
 
-                    # Replace in content
+# Replace in content
                     for key in adjusted_content:
                         if isinstance(adjusted_content[key], str):
                             adjusted_content[key] = adjusted_content[key].replace(
@@ -1439,30 +1439,30 @@ except ImportError:
                                                 sentence, adjusted_sentence
                                             )
 
-        # Store adjustments
+# Store adjustments
         self.results["adjustments"]["sentence_structure"] = adjustments
 
-        return adjusted_content
+            return adjusted_content
 
-    def _simplify_sentence(self, sentence: str) -> str:
+def _simplify_sentence(self, sentence: str) -> str:
         """
         Simplify a complex sentence.
 
-        Args:
+Args:
             sentence: Sentence to simplify
 
-        Returns:
+Returns:
             Simplified sentence
         """
         # Split on conjunctions
         conjunctions = [", and ", ", but ", ", or ", ", nor ", ", yet ", ", so "]
 
-        for conjunction in conjunctions:
+for conjunction in conjunctions:
             if conjunction in sentence:
                 parts = sentence.split(conjunction, 1)
-                return parts[0] + ". " + parts[1].capitalize()
+                            return parts[0] + ". " + parts[1].capitalize()
 
-        # Split on dependent clause markers
+# Split on dependent clause markers
         markers = [
             ", which ",
             ", who ",
@@ -1486,52 +1486,52 @@ except ImportError:
             " as though ",
         ]
 
-        for marker in markers:
+for marker in markers:
             if marker in sentence.lower():
                 parts = sentence.lower().split(marker, 1)
 
-                # Determine which part is the independent clause
+# Determine which part is the independent clause
                 if "." in parts[0] or "!" in parts[0] or "?" in parts[0]:
                     # First part is a complete sentence
-                    return parts[0] + ". " + parts[1].capitalize()
+                                return parts[0] + ". " + parts[1].capitalize()
                 else:
                     # Second part might be the independent clause
-                    return parts[0] + ". " + parts[1].capitalize()
+                                return parts[0] + ". " + parts[1].capitalize()
 
-        # If no clear way to split, return original
-        return sentence
+# If no clear way to split, return original
+                    return sentence
 
-    def _complexify_sentence(self, sentence: str, all_sentences: List[str]) -> str:
+def _complexify_sentence(self, sentence: str, all_sentences: List[str]) -> str:
         """
         Make a simple sentence more complex.
 
-        Args:
+Args:
             sentence: Sentence to make more complex
             all_sentences: All sentences in the text
 
-        Returns:
+Returns:
             More complex sentence
         """
         # Try to combine with adjacent sentence
         index = all_sentences.index(sentence)
 
-        if index < len(all_sentences) - 1:
+if index < len(all_sentences) - 1:
             next_sentence = all_sentences[index + 1]
 
-            # Check if next sentence is short
+# Check if next sentence is short
             if len(self._get_words(next_sentence)) < 10:
                 # Combine with conjunction
                 conjunctions = [", and ", ", but ", ", or ", ", yet ", ", so "]
                 conjunction = random.choice(conjunctions)
 
-                return (
+            return (
                     sentence
                     + conjunction
                     + next_sentence[0].lower()
                     + next_sentence[1:]
                 )
 
-        # Add a dependent clause
+# Add a dependent clause
         dependent_clauses = [
             "which is important",
             "which is significant",
@@ -1545,55 +1545,55 @@ except ImportError:
             "which is necessary",
         ]
 
-        return sentence[:-1] + ", " + random.choice(dependent_clauses) + sentence[-1]
+            return sentence[:-1] + ", " + random.choice(dependent_clauses) + sentence[-1]
 
-    def _adjust_paragraph_structure(self, content: Dict[str, Any]) -> Dict[str, Any]:
+def _adjust_paragraph_structure(self, content: Dict[str, Any]) -> Dict[str, Any]:
         """
         Adjust paragraph structure in content.
 
-        Args:
+Args:
             content: Content to adjust
 
-        Returns:
+Returns:
             Adjusted content
         """
         # Get target style
         style_data = self.STYLE_CATEGORIES.get(self.target_style, {})
         target_paragraph_length = style_data.get("paragraph_length", "")
 
-        # If no target paragraph length, return content
+# If no target paragraph length, return content
         if not target_paragraph_length:
-            return content
+                        return content
 
-        # Create a copy of the content
+# Create a copy of the content
         adjusted_content = content.copy()
 
-        # Extract text from content
+# Extract text from content
         text = self._extract_text_from_content()
 
-        # Get paragraphs
+# Get paragraphs
         paragraphs = self._get_paragraphs(text)
 
-        # Initialize adjustments
+# Initialize adjustments
         adjustments = []
 
-        # Process each paragraph
+# Process each paragraph
         for paragraph in paragraphs:
             # Get paragraph length
             word_count = len(self._get_words(paragraph))
 
-            # Check if adjustment needed
+# Check if adjustment needed
             if "short" in target_paragraph_length and word_count > 75:
                 # Split into shorter paragraphs
                 sentences = self._get_sentences(paragraph)
                 mid_point = len(sentences) // 2
 
-                first_half = " ".join(sentences[:mid_point])
+first_half = " ".join(sentences[:mid_point])
                 second_half = " ".join(sentences[mid_point:])
 
-                adjusted_paragraph = first_half + "\n\n" + second_half
+adjusted_paragraph = first_half + "\n\n" + second_half
 
-                # Create adjustment
+# Create adjustment
                 adjustment = {
                     "id": str(uuid.uuid4()),
                     "type": "paragraph_structure",
@@ -1605,10 +1605,10 @@ except ImportError:
                     "impact": "medium",
                 }
 
-                # Add adjustment
+# Add adjustment
                 adjustments.append(adjustment)
 
-                # Replace in content
+# Replace in content
                 for key in adjusted_content:
                     if isinstance(adjusted_content[key], str):
                         adjusted_content[key] = adjusted_content[key].replace(
@@ -1627,7 +1627,7 @@ except ImportError:
                                             paragraph, adjusted_paragraph
                                         )
 
-            elif (
+elif (
                 "long" in target_paragraph_length
                 and word_count < 50
                 and len(paragraphs) > 1
@@ -1635,11 +1635,11 @@ except ImportError:
                 # Try to combine with adjacent paragraph
                 index = paragraphs.index(paragraph)
 
-                if index < len(paragraphs) - 1:
+if index < len(paragraphs) - 1:
                     next_paragraph = paragraphs[index + 1]
                     combined = paragraph + " " + next_paragraph
 
-                    # Create adjustment
+# Create adjustment
                     adjustment = {
                         "id": str(uuid.uuid4()),
                         "type": "paragraph_structure",
@@ -1651,10 +1651,10 @@ except ImportError:
                         "impact": "medium",
                     }
 
-                    # Add adjustment
+# Add adjustment
                     adjustments.append(adjustment)
 
-                    # Replace in content
+# Replace in content
                     for key in adjusted_content:
                         if isinstance(adjusted_content[key], str):
                             adjusted_content[key] = adjusted_content[key].replace(
@@ -1674,42 +1674,42 @@ except ImportError:
                                                 combined,
                                             )
 
-        # Store adjustments
+# Store adjustments
         self.results["adjustments"]["paragraph_structure"] = adjustments
 
-        return adjusted_content
+            return adjusted_content
 
-    def _adjust_punctuation(self, content: Dict[str, Any]) -> Dict[str, Any]:
+def _adjust_punctuation(self, content: Dict[str, Any]) -> Dict[str, Any]:
         """
         Adjust punctuation in content.
 
-        Args:
+Args:
             content: Content to adjust
 
-        Returns:
+Returns:
             Adjusted content
         """
         # Get target style
         style_data = self.STYLE_CATEGORIES.get(self.target_style, {})
         target_punctuation = style_data.get("punctuation", "")
 
-        # If no target punctuation, return content
+# If no target punctuation, return content
         if not target_punctuation:
-            return content
+                        return content
 
-        # Create a copy of the content
+# Create a copy of the content
         adjusted_content = content.copy()
 
-        # Extract text from content
+# Extract text from content
         text = self._extract_text_from_content()
 
-        # Get sentences
+# Get sentences
         sentences = self._get_sentences(text)
 
-        # Initialize adjustments
+# Initialize adjustments
         adjustments = []
 
-        # Process each sentence
+# Process each sentence
         for sentence in sentences:
             # Count punctuation
             exclamation_count = sentence.count("!")
@@ -1718,7 +1718,7 @@ except ImportError:
             sentence.count(";")
             dash_count = sentence.count("-") + sentence.count("—")
 
-            # Check if adjustment needed
+# Check if adjustment needed
             if "emphatic" in target_punctuation:
                 # Add more emphatic punctuation
                 if (
@@ -1733,7 +1733,7 @@ except ImportError:
                     else:
                         adjusted_sentence = sentence + "!"
 
-                    # Create adjustment
+# Create adjustment
                     adjustment = {
                         "id": str(uuid.uuid4()),
                         "type": "punctuation",
@@ -1744,10 +1744,10 @@ except ImportError:
                         "impact": "low",
                     }
 
-                    # Add adjustment
+# Add adjustment
                     adjustments.append(adjustment)
 
-                    # Replace in content
+# Replace in content
                     for key in adjusted_content:
                         if isinstance(adjusted_content[key], str):
                             adjusted_content[key] = adjusted_content[key].replace(
@@ -1766,7 +1766,7 @@ except ImportError:
                                                 sentence, adjusted_sentence
                                             )
 
-            elif "standard" in target_punctuation:
+elif "standard" in target_punctuation:
                 # Normalize punctuation
                 if exclamation_count > 0 or question_count > 0 or ellipsis_count > 0:
                     # Replace excessive punctuation
@@ -1774,7 +1774,7 @@ except ImportError:
                     adjusted_sentence = re.sub(r"\?+", "?", adjusted_sentence)
                     adjusted_sentence = re.sub(r"\.{3,}", ".", adjusted_sentence)
 
-                    # Create adjustment
+# Create adjustment
                     adjustment = {
                         "id": str(uuid.uuid4()),
                         "type": "punctuation",
@@ -1785,10 +1785,10 @@ except ImportError:
                         "impact": "low",
                     }
 
-                    # Add adjustment
+# Add adjustment
                     adjustments.append(adjustment)
 
-                    # Replace in content
+# Replace in content
                     for key in adjusted_content:
                         if isinstance(adjusted_content[key], str):
                             adjusted_content[key] = adjusted_content[key].replace(
@@ -1807,7 +1807,7 @@ except ImportError:
                                                 sentence, adjusted_sentence
                                             )
 
-            elif "relaxed" in target_punctuation:
+elif "relaxed" in target_punctuation:
                 # Add more casual punctuation
                 if (
                     not any([exclamation_count, question_count, ellipsis_count])
@@ -1819,7 +1819,7 @@ except ImportError:
                     else:
                         adjusted_sentence = sentence[:-1] + "!"
 
-                    # Create adjustment
+# Create adjustment
                     adjustment = {
                         "id": str(uuid.uuid4()),
                         "type": "punctuation",
@@ -1830,10 +1830,10 @@ except ImportError:
                         "impact": "low",
                     }
 
-                    # Add adjustment
+# Add adjustment
                     adjustments.append(adjustment)
 
-                    # Replace in content
+# Replace in content
                     for key in adjusted_content:
                         if isinstance(adjusted_content[key], str):
                             adjusted_content[key] = adjusted_content[key].replace(
@@ -1852,52 +1852,52 @@ except ImportError:
                                                 sentence, adjusted_sentence
                                             )
 
-        # Store adjustments
+# Store adjustments
         self.results["adjustments"]["punctuation"] = adjustments
 
-        return adjusted_content
+            return adjusted_content
 
-    def _adjust_voice(self, content: Dict[str, Any]) -> Dict[str, Any]:
+def _adjust_voice(self, content: Dict[str, Any]) -> Dict[str, Any]:
         """
         Adjust voice in content.
 
-        Args:
+Args:
             content: Content to adjust
 
-        Returns:
+Returns:
             Adjusted content
         """
         # Get target style
         style_data = self.STYLE_CATEGORIES.get(self.target_style, {})
         target_voice = style_data.get("voice", "")
 
-        # If no target voice, return content
+# If no target voice, return content
         if not target_voice:
-            return content
+                        return content
 
-        # Create a copy of the content
+# Create a copy of the content
         adjusted_content = content.copy()
 
-        # Extract text from content
+# Extract text from content
         text = self._extract_text_from_content()
 
-        # Get sentences
+# Get sentences
         sentences = self._get_sentences(text)
 
-        # Initialize adjustments
+# Initialize adjustments
         adjustments = []
 
-        # Process each sentence
+# Process each sentence
         for sentence in sentences:
             # Check if sentence is in passive voice
             is_passive = self._is_passive_voice(sentence)
 
-            # Check if adjustment needed
+# Check if adjustment needed
             if "active" in target_voice and is_passive:
                 # Convert to active voice
                 adjusted_sentence = self._convert_to_active_voice(sentence)
 
-                # Only adjust if the sentence actually changed
+# Only adjust if the sentence actually changed
                 if adjusted_sentence != sentence:
                     # Create adjustment
                     adjustment = {
@@ -1911,10 +1911,10 @@ except ImportError:
                         "impact": "medium",
                     }
 
-                    # Add adjustment
+# Add adjustment
                     adjustments.append(adjustment)
 
-                    # Replace in content
+# Replace in content
                     for key in adjusted_content:
                         if isinstance(adjusted_content[key], str):
                             adjusted_content[key] = adjusted_content[key].replace(
@@ -1933,11 +1933,11 @@ except ImportError:
                                                 sentence, adjusted_sentence
                                             )
 
-            elif "passive" in target_voice and not is_passive:
+elif "passive" in target_voice and not is_passive:
                 # Convert to passive voice
                 adjusted_sentence = self._convert_to_passive_voice(sentence)
 
-                # Only adjust if the sentence actually changed
+# Only adjust if the sentence actually changed
                 if adjusted_sentence != sentence:
                     # Create adjustment
                     adjustment = {
@@ -1951,10 +1951,10 @@ except ImportError:
                         "impact": "medium",
                     }
 
-                    # Add adjustment
+# Add adjustment
                     adjustments.append(adjustment)
 
-                    # Replace in content
+# Replace in content
                     for key in adjusted_content:
                         if isinstance(adjusted_content[key], str):
                             adjusted_content[key] = adjusted_content[key].replace(
@@ -1973,63 +1973,63 @@ except ImportError:
                                                 sentence, adjusted_sentence
                                             )
 
-        # Store adjustments
+# Store adjustments
         self.results["adjustments"]["voice"] = adjustments
 
-        return adjusted_content
+            return adjusted_content
 
-    def get_suggestions(self) -> List[Dict[str, Any]]:
+def get_suggestions(self) -> List[Dict[str, Any]]:
         """
         Get suggestions for style adjustments.
 
-        Returns:
+Returns:
             List of suggestion dictionaries
         """
         # Analyze content if not already analyzed
         if self.results is None:
             self.analyze()
 
-        # Get all adjustments
+# Get all adjustments
         all_adjustments = []
 
-        for adjustment_type, adjustments in self.results["adjustments"].items():
+for adjustment_type, adjustments in self.results["adjustments"].items():
             all_adjustments.extend(adjustments)
 
-        # Sort adjustments by priority
+# Sort adjustments by priority
         prioritized_adjustments = self._prioritize_adjustments(all_adjustments)
 
-        # Limit to max suggestions
+# Limit to max suggestions
         max_suggestions = self.config["max_suggestions"]
         limited_adjustments = prioritized_adjustments[:max_suggestions]
 
-        # Convert adjustments to suggestions
+# Convert adjustments to suggestions
         suggestions = []
 
-        for adjustment in limited_adjustments:
+for adjustment in limited_adjustments:
             suggestion = self._adjustment_to_suggestion(adjustment)
             suggestions.append(suggestion)
 
-        return suggestions
+            return suggestions
 
-    def _prioritize_adjustments(
+def _prioritize_adjustments(
         self, adjustments: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """
         Prioritize adjustments.
 
-        Args:
+Args:
             adjustments: List of adjustments
 
-        Returns:
+Returns:
             Prioritized list of adjustments
         """
         # Get prioritization method
         prioritize_by = self.config["prioritize_by"]
 
-        if prioritize_by == "impact":
+if prioritize_by == "impact":
             # Sort by impact (high, medium, low)
             impact_order = {"high": 0, "medium": 1, "low": 2}
-            return sorted(
+                        return sorted(
                 adjustments,
                 key=lambda x: (
                     impact_order.get(x["impact"], 3),
@@ -2037,22 +2037,22 @@ except ImportError:
                 ),
             )
 
-        elif prioritize_by == "confidence":
+elif prioritize_by == "confidence":
             # Sort by confidence (highest first)
-            return sorted(adjustments, key=lambda x: -x.get("confidence", 0))
+                        return sorted(adjustments, key=lambda x: -x.get("confidence", 0))
 
-        elif prioritize_by == "position":
+elif prioritize_by == "position":
             # Sort by position in text (earliest first)
             # This requires position information, which we don't always have
             # Fall back to impact if position is not available
             if all("position" in adjustment for adjustment in adjustments):
-                return sorted(
+                            return sorted(
                     adjustments,
                     key=lambda x: x["position"][0] if "position" in x else float("inf"),
                 )
             else:
                 impact_order = {"high": 0, "medium": 1, "low": 2}
-                return sorted(
+                            return sorted(
                     adjustments,
                     key=lambda x: (
                         impact_order.get(x["impact"], 3),
@@ -2060,21 +2060,21 @@ except ImportError:
                     ),
                 )
 
-        # Default to impact
+# Default to impact
         impact_order = {"high": 0, "medium": 1, "low": 2}
-        return sorted(
+                    return sorted(
             adjustments,
             key=lambda x: (impact_order.get(x["impact"], 3), -x.get("confidence", 0)),
         )
 
-    def _adjustment_to_suggestion(self, adjustment: Dict[str, Any]) -> Dict[str, Any]:
+def _adjustment_to_suggestion(self, adjustment: Dict[str, Any]) -> Dict[str, Any]:
         """
         Convert an adjustment to a suggestion.
 
-        Args:
+Args:
             adjustment: Adjustment dictionary
 
-        Returns:
+Returns:
             Suggestion dictionary
         """
         # Create base suggestion
@@ -2087,7 +2087,7 @@ except ImportError:
             "impact": adjustment.get("impact", "low"),
         }
 
-        # Add type-specific fields
+# Add type-specific fields
         if adjustment["type"] == "word_choice":
             suggestion["message"] = (
                 f"Replace '{adjustment['original']}' with '{adjustment['replacement']}' for a more {self.target_style} style."
@@ -2096,7 +2096,7 @@ except ImportError:
                 f"The word '{adjustment['original']}' is not typical of {self.target_style} writing. '{adjustment['replacement']}' is a better choice for this style."
             )
 
-        elif adjustment["type"] == "sentence_structure":
+elif adjustment["type"] == "sentence_structure":
             if "simple" in adjustment.get("target_structure", ""):
                 suggestion["message"] = (
                     "Simplify this sentence for a more direct style."
@@ -2112,7 +2112,7 @@ except ImportError:
                     "This sentence is too simple for the target style. Adding more complexity will make it match the desired style better."
                 )
 
-        elif adjustment["type"] == "paragraph_structure":
+elif adjustment["type"] == "paragraph_structure":
             if adjustment.get("target_length", "") == "short":
                 suggestion["message"] = "Break this paragraph into smaller ones."
                 suggestion["explanation"] = (
@@ -2124,7 +2124,7 @@ except ImportError:
                     "This paragraph is too short for the target style. Combining it with another paragraph will make it match the desired style better."
                 )
 
-        elif adjustment["type"] == "punctuation":
+elif adjustment["type"] == "punctuation":
             if adjustment.get("target_punctuation", "") == "emphatic":
                 suggestion["message"] = "Use more emphatic punctuation."
                 suggestion["explanation"] = (
@@ -2141,7 +2141,7 @@ except ImportError:
                     "The target style uses more relaxed punctuation. Adding ellipses or other casual punctuation will make the content more conversational."
                 )
 
-        elif adjustment["type"] == "voice":
+elif adjustment["type"] == "voice":
             if adjustment.get("target_voice", "") == "active":
                 suggestion["message"] = "Convert this sentence to active voice."
                 suggestion["explanation"] = (
@@ -2153,7 +2153,7 @@ except ImportError:
                     "The target style allows or prefers passive voice in some contexts. Converting active voice to passive voice can make the content more formal or objective."
                 )
 
-        # Add examples
+# Add examples
         suggestion["examples"] = [
             {
                 "original": adjustment["original"],
@@ -2161,37 +2161,37 @@ except ImportError:
             }
         ]
 
-        return suggestion
+            return suggestion
 
-    def apply_suggestion(self, suggestion_id: str) -> Dict[str, Any]:
+def apply_suggestion(self, suggestion_id: str) -> Dict[str, Any]:
         """
         Apply a specific suggestion to the content.
 
-        Args:
+Args:
             suggestion_id: ID of the suggestion to apply
 
-        Returns:
+Returns:
             Updated content
         """
         # Find the suggestion
         suggestion = None
 
-        for adjustment_type, adjustments in self.results["adjustments"].items():
+for adjustment_type, adjustments in self.results["adjustments"].items():
             for adjustment in adjustments:
                 if adjustment["id"] == suggestion_id:
                     suggestion = adjustment
                     break
 
-            if suggestion:
+if suggestion:
                 break
 
-        if not suggestion:
+if not suggestion:
             raise ValueError(f"Suggestion with ID {suggestion_id} not found")
 
-        # Create a copy of the content
+# Create a copy of the content
         adjusted_content = self.content.copy()
 
-        # Apply the suggestion
+# Apply the suggestion
         for key in adjusted_content:
             if isinstance(adjusted_content[key], str):
                 adjusted_content[key] = adjusted_content[key].replace(
@@ -2210,45 +2210,45 @@ except ImportError:
                                     suggestion["original"], suggestion["replacement"]
                                 )
 
-        # Update content
+# Update content
         self.content = adjusted_content
 
-        # Re-analyze
+# Re-analyze
         self.analyze()
 
-        return self.content
+            return self.content
 
-    def apply_all_suggestions(self) -> Dict[str, Any]:
+def apply_all_suggestions(self) -> Dict[str, Any]:
         """
         Apply all suggestions to the content.
 
-        Returns:
+Returns:
             Updated content
         """
         # Get all suggestions
         suggestions = self.get_suggestions()
 
-        # Apply each suggestion
+# Apply each suggestion
         for suggestion in suggestions:
             self.apply_suggestion(suggestion["id"])
 
-        return self.content
+            return self.content
 
-    def get_style_report(self) -> Dict[str, Any]:
+def get_style_report(self) -> Dict[str, Any]:
         """
         Get a report on the style of the content.
 
-        Returns:
+Returns:
             Style report dictionary
         """
         # Analyze content if not already analyzed
         if self.results is None:
             self.analyze()
 
-        # Get analysis results
+# Get analysis results
         analysis = self.results["analysis"]
 
-        # Create report
+# Create report
         report = {
             "id": str(uuid.uuid4()),
             "timestamp": datetime.datetime.now().isoformat(),
@@ -2279,188 +2279,188 @@ except ImportError:
             "improvement_potential": self._get_improvement_potential(),
         }
 
-        return report
+            return report
 
-    def _get_word_choice_report(self) -> Dict[str, Any]:
+def _get_word_choice_report(self) -> Dict[str, Any]:
         """
         Get a report on word choice.
 
-        Returns:
+Returns:
             Word choice report dictionary
         """
         # Get word choice adjustments
         adjustments = self.results["adjustments"]["word_choice"]
 
-        # Count adjustments
+# Count adjustments
         count = len(adjustments)
 
-        # Calculate impact
+# Calculate impact
         impact = sum(1 for adj in adjustments if adj["impact"] == "high") * 3
         impact += sum(1 for adj in adjustments if adj["impact"] == "medium") * 2
         impact += sum(1 for adj in adjustments if adj["impact"] == "low")
 
-        # Normalize impact
+# Normalize impact
         if count > 0:
             impact = impact / (count * 3)
         else:
             impact = 0
 
-        return {
+            return {
             "count": count,
             "impact": impact,
             "examples": [adj["original"] for adj in adjustments[:3]],
         }
 
-    def _get_sentence_structure_report(self) -> Dict[str, Any]:
+def _get_sentence_structure_report(self) -> Dict[str, Any]:
         """
         Get a report on sentence structure.
 
-        Returns:
+Returns:
             Sentence structure report dictionary
         """
         # Get sentence structure adjustments
         adjustments = self.results["adjustments"]["sentence_structure"]
 
-        # Count adjustments
+# Count adjustments
         count = len(adjustments)
 
-        # Calculate impact
+# Calculate impact
         impact = sum(1 for adj in adjustments if adj["impact"] == "high") * 3
         impact += sum(1 for adj in adjustments if adj["impact"] == "medium") * 2
         impact += sum(1 for adj in adjustments if adj["impact"] == "low")
 
-        # Normalize impact
+# Normalize impact
         if count > 0:
             impact = impact / (count * 3)
         else:
             impact = 0
 
-        return {
+            return {
             "count": count,
             "impact": impact,
             "examples": [adj["original"] for adj in adjustments[:3]],
         }
 
-    def _get_paragraph_structure_report(self) -> Dict[str, Any]:
+def _get_paragraph_structure_report(self) -> Dict[str, Any]:
         """
         Get a report on paragraph structure.
 
-        Returns:
+Returns:
             Paragraph structure report dictionary
         """
         # Get paragraph structure adjustments
         adjustments = self.results["adjustments"]["paragraph_structure"]
 
-        # Count adjustments
+# Count adjustments
         count = len(adjustments)
 
-        # Calculate impact
+# Calculate impact
         impact = sum(1 for adj in adjustments if adj["impact"] == "high") * 3
         impact += sum(1 for adj in adjustments if adj["impact"] == "medium") * 2
         impact += sum(1 for adj in adjustments if adj["impact"] == "low")
 
-        # Normalize impact
+# Normalize impact
         if count > 0:
             impact = impact / (count * 3)
         else:
             impact = 0
 
-        return {
+            return {
             "count": count,
             "impact": impact,
             "examples": [adj["original"][:100] + "..." for adj in adjustments[:3]],
         }
 
-    def _get_punctuation_report(self) -> Dict[str, Any]:
+def _get_punctuation_report(self) -> Dict[str, Any]:
         """
         Get a report on punctuation.
 
-        Returns:
+Returns:
             Punctuation report dictionary
         """
         # Get punctuation adjustments
         adjustments = self.results["adjustments"]["punctuation"]
 
-        # Count adjustments
+# Count adjustments
         count = len(adjustments)
 
-        # Calculate impact
+# Calculate impact
         impact = sum(1 for adj in adjustments if adj["impact"] == "high") * 3
         impact += sum(1 for adj in adjustments if adj["impact"] == "medium") * 2
         impact += sum(1 for adj in adjustments if adj["impact"] == "low")
 
-        # Normalize impact
+# Normalize impact
         if count > 0:
             impact = impact / (count * 3)
         else:
             impact = 0
 
-        return {
+            return {
             "count": count,
             "impact": impact,
             "examples": [adj["original"] for adj in adjustments[:3]],
         }
 
-    def _get_voice_report(self) -> Dict[str, Any]:
+def _get_voice_report(self) -> Dict[str, Any]:
         """
         Get a report on voice.
 
-        Returns:
+Returns:
             Voice report dictionary
         """
         # Get voice adjustments
         adjustments = self.results["adjustments"]["voice"]
 
-        # Count adjustments
+# Count adjustments
         count = len(adjustments)
 
-        # Calculate impact
+# Calculate impact
         impact = sum(1 for adj in adjustments if adj["impact"] == "high") * 3
         impact += sum(1 for adj in adjustments if adj["impact"] == "medium") * 2
         impact += sum(1 for adj in adjustments if adj["impact"] == "low")
 
-        # Normalize impact
+# Normalize impact
         if count > 0:
             impact = impact / (count * 3)
         else:
             impact = 0
 
-        return {
+            return {
             "count": count,
             "impact": impact,
             "examples": [adj["original"] for adj in adjustments[:3]],
         }
 
-    def _get_improvement_potential(self) -> float:
+def _get_improvement_potential(self) -> float:
         """
         Calculate the potential for improvement.
 
-        Returns:
+Returns:
             Improvement potential score (0-1)
         """
         # Get all adjustments
         all_adjustments = []
 
-        for adjustment_type, adjustments in self.results["adjustments"].items():
+for adjustment_type, adjustments in self.results["adjustments"].items():
             all_adjustments.extend(adjustments)
 
-        # Count adjustments by impact
+# Count adjustments by impact
         high_impact = sum(1 for adj in all_adjustments if adj["impact"] == "high")
         medium_impact = sum(1 for adj in all_adjustments if adj["impact"] == "medium")
         low_impact = sum(1 for adj in all_adjustments if adj["impact"] == "low")
 
-        # Calculate weighted impact
+# Calculate weighted impact
         weighted_impact = (high_impact * 3) + (medium_impact * 2) + low_impact
 
-        # Get text length
+# Get text length
         text = self._extract_text_from_content()
         word_count = len(self._get_words(text))
 
-        # Normalize by text length
+# Normalize by text length
         if word_count > 0:
             normalized_impact = weighted_impact / (word_count / 100)
         else:
             normalized_impact = 0
 
-        # Clamp to 0-1 range
-        return min(1.0, normalized_impact / 10)
+# Clamp to 0-1 range
+                    return min(1.0, normalized_impact / 10)

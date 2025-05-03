@@ -51,7 +51,7 @@ class HealthCheckRegistry:
                 cls._instance._cache_duration = (
                     60  # Cache health check results for 60 seconds by default
                 )
-        return cls._instance
+                return cls._instance
 
     def register_check(
         self, name: str, check_func: Callable[[], Tuple[HealthStatus, Dict[str, Any]]]
@@ -81,7 +81,7 @@ class HealthCheckRegistry:
         """
         if name not in self._health_checks:
             logger.error(f"Health check '{name}' not registered")
-            return HealthStatus.UNKNOWN, {
+                    return HealthStatus.UNKNOWN, {
                 "error": f"Health check '{name}' not registered"
             }
 
@@ -91,7 +91,7 @@ class HealthCheckRegistry:
             name in self._cache_timestamp
             and current_time - self._cache_timestamp[name] < self._cache_duration
         ):
-            return (
+                    return (
                 self._results_cache[name]["status"],
                 self._results_cache[name]["details"],
             )
@@ -108,10 +108,10 @@ class HealthCheckRegistry:
             }
             self._cache_timestamp[name] = current_time
 
-            return status, details
+                    return status, details
         except Exception as e:
             logger.error(f"Error running health check '{name}': {str(e)}")
-            return HealthStatus.UNHEALTHY, {"error": str(e)}
+                    return HealthStatus.UNHEALTHY, {"error": str(e)}
 
     def run_all_checks(self) -> Dict[str, Dict[str, Any]]:
         """
@@ -128,7 +128,7 @@ class HealthCheckRegistry:
                 "details": details,
                 "timestamp": time.time(),
             }
-        return results
+                return results
 
     def set_cache_duration(self, seconds: int) -> None:
         """
@@ -172,7 +172,7 @@ def get_health_status(name: Optional[str] = None) -> Dict[str, Any]:
     """
     if name:
         status, details = _registry.run_check(name)
-        return {name: {"status": status, "details": details, "timestamp": time.time()}}
+                return {name: {"status": status, "details": details, "timestamp": time.time()}}
     else:
         results = _registry.run_all_checks()
 
@@ -188,7 +188,7 @@ def get_health_status(name: Optional[str] = None) -> Dict[str, Any]:
             ):
                 overall_status = HealthStatus.DEGRADED
 
-        return {
+                return {
             "status": overall_status,
             "timestamp": time.time(),
             "components": results,
@@ -218,14 +218,14 @@ def database_health_check(
             db_connection.execute("SELECT 1")
             response_time = time.time() - start_time
 
-            return HealthStatus.HEALTHY, {
+                    return HealthStatus.HEALTHY, {
                 "response_time_ms": round(response_time * 1000, 2),
                 "connected": True,
             }
         except Exception as e:
-            return HealthStatus.UNHEALTHY, {"error": str(e), "connected": False}
+                    return HealthStatus.UNHEALTHY, {"error": str(e), "connected": False}
 
-    return check
+            return check
 
 
 def api_health_check(
@@ -251,22 +251,22 @@ def api_health_check(
             response_time = time.time() - start_time
 
             if response.status_code < 300:
-                return HealthStatus.HEALTHY, {
+                        return HealthStatus.HEALTHY, {
                     "response_time_ms": round(response_time * 1000, 2),
                     "status_code": response.status_code,
                 }
             else:
-                return HealthStatus.DEGRADED, {
+                        return HealthStatus.DEGRADED, {
                     "response_time_ms": round(response_time * 1000, 2),
                     "status_code": response.status_code,
                     "error": f"API returned status code {response.status_code}",
                 }
         except requests.Timeout:
-            return HealthStatus.DEGRADED, {
+                    return HealthStatus.DEGRADED, {
                 "error": f"API request timed out after {timeout} seconds",
                 "status_code": None,
             }
         except Exception as e:
-            return HealthStatus.UNHEALTHY, {"error": str(e), "status_code": None}
+                    return HealthStatus.UNHEALTHY, {"error": str(e), "status_code": None}
 
-    return check
+            return check

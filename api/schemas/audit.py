@@ -152,5 +152,5 @@ class AuditEventFilter(BaseModel):
     action: Optional[AuditAction] = Field(None, description="Filter by action")
     actor_id: Optional[str] = Field(None, description="Filter by actor ID")
     status: Optional[AuditStatus] = Field(None, description="Filter by status")
-    start_time: Optional[datetime] = Field(None, description="Filter by start time")
-    end_time: Optional[datetime] = Field(None, description="Filter by end time")
+    start_time: Optional[datetime] = Field(None, description="Filter by start time"
+    end_time: Optional[datetime] = Field(None, description="Filter by end time"

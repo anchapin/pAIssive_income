@@ -42,7 +42,7 @@ class MarketingService(BaseService, IMarketingService):
 
         # Import the Marketing Agent class
         try:
-# noqa: F401
+    # noqa: F401
 
             self.marketing_agent_available = True
         except ImportError:
@@ -67,7 +67,7 @@ class MarketingService(BaseService, IMarketingService):
 
         if solution is None:
             logger.error(f"Solution with ID {solution_id} not found")
-            return {}
+                    return {}
 
         if self.marketing_agent_available:
             try:
@@ -94,7 +94,7 @@ class MarketingService(BaseService, IMarketingService):
         campaigns.append(campaign)
         self.save_data(self.campaigns_file, campaigns)
 
-        return campaign
+                return campaign
 
     def get_campaigns(self) -> List[Dict[str, Any]]:
         """
@@ -107,7 +107,7 @@ class MarketingService(BaseService, IMarketingService):
         if campaigns is None:
             campaigns = []
             self.save_data(self.campaigns_file, campaigns)
-        return campaigns
+                return campaigns
 
     def get_campaign(self, campaign_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -122,8 +122,8 @@ class MarketingService(BaseService, IMarketingService):
         campaigns = self.get_campaigns()
         for campaign in campaigns:
             if campaign["id"] == campaign_id:
-                return campaign
-        return None
+                        return campaign
+                return None
 
     def save_campaign(self, campaign: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -144,7 +144,7 @@ class MarketingService(BaseService, IMarketingService):
                 campaign["updated_at"] = datetime.now().isoformat()
                 campaigns[i] = campaign
                 self.save_data(self.campaigns_file, campaigns)
-                return campaign
+                        return campaign
 
         # Add new campaign
         if "created_at" not in campaign:
@@ -153,7 +153,7 @@ class MarketingService(BaseService, IMarketingService):
             campaign["updated_at"] = datetime.now().isoformat()
         campaigns.append(campaign)
         self.save_data(self.campaigns_file, campaigns)
-        return campaign
+                return campaign
 
     def _create_mock_campaign(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -335,7 +335,7 @@ class MarketingService(BaseService, IMarketingService):
         ]
 
         # Create mock campaign
-        return {
+                return {
             "id": str(uuid.uuid4()),
             "name": f"{solution['name']} Marketing Campaign",
             "description": f"Marketing campaign for {solution['name']}",

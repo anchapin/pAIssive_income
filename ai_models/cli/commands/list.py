@@ -65,7 +65,7 @@ class ListCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_dir"]):
-            return 1
+                    return 1
 
         try:
             # Import required modules
@@ -138,8 +138,8 @@ class ListCommand(BaseCommand):
             else:
                 print(output)
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error listing models: {e}", exc_info=True)
-            return 1
+                    return 1

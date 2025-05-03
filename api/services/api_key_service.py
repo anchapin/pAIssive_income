@@ -55,7 +55,7 @@ class APIKeyService:
         )
 
         # Create API key in repository
-        return self.repository.create(api_key)
+                return self.repository.create(api_key)
 
     def get_api_key(self, api_key_id: str) -> Optional[APIKey]:
         """
@@ -67,7 +67,7 @@ class APIKeyService:
         Returns:
             API key if found, None otherwise
         """
-        return self.repository.get_by_id(api_key_id)
+                return self.repository.get_by_id(api_key_id)
 
     def get_api_keys_by_user(self, user_id: str) -> List[APIKey]:
         """
@@ -79,7 +79,7 @@ class APIKeyService:
         Returns:
             List of API keys for the user
         """
-        return self.repository.get_by_user_id(user_id)
+                return self.repository.get_by_user_id(user_id)
 
     def get_all_api_keys(self) -> List[APIKey]:
         """
@@ -88,7 +88,7 @@ class APIKeyService:
         Returns:
             List of all API keys
         """
-        return self.repository.get_all()
+                return self.repository.get_all()
 
     def update_api_key(self, api_key_id: str, data: APIKeyUpdate) -> Optional[APIKey]:
         """
@@ -106,7 +106,7 @@ class APIKeyService:
 
         # Check if API key exists
         if not api_key:
-            return None
+                    return None
 
         # Update API key fields
         if data.name is not None:
@@ -121,7 +121,7 @@ class APIKeyService:
             api_key.is_active = data.is_active
 
         # Update API key in repository
-        return self.repository.update(api_key)
+                return self.repository.update(api_key)
 
     def delete_api_key(self, api_key_id: str) -> bool:
         """
@@ -133,7 +133,7 @@ class APIKeyService:
         Returns:
             True if the API key was deleted, False otherwise
         """
-        return self.repository.delete(api_key_id)
+                return self.repository.delete(api_key_id)
 
     def verify_api_key(self, key: str) -> Optional[APIKey]:
         """
@@ -145,7 +145,7 @@ class APIKeyService:
         Returns:
             API key if valid, None otherwise
         """
-        return self.repository.verify_key(key)
+                return self.repository.verify_key(key)
 
     def revoke_api_key(self, api_key_id: str) -> Optional[APIKey]:
         """
@@ -162,13 +162,13 @@ class APIKeyService:
 
         # Check if API key exists
         if not api_key:
-            return None
+                    return None
 
         # Revoke API key
         api_key.is_active = False
 
         # Update API key in repository
-        return self.repository.update(api_key)
+                return self.repository.update(api_key)
 
     def check_api_key_permissions(
         self, api_key: APIKey, required_scopes: List[str]
@@ -185,11 +185,11 @@ class APIKeyService:
         """
         # Check if API key is valid
         if not api_key.is_valid():
-            return False
+                    return False
 
         # Check if API key has all required scopes
         for scope in required_scopes:
             if scope not in api_key.scopes:
-                return False
+                        return False
 
-        return True
+                return True

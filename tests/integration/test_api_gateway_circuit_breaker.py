@@ -149,7 +149,7 @@ class TestAPIGatewayCircuitBreaker:
                 raise ConnectionError(f"Service unavailable: {service}")
 
             # Return mock response
-            return service_responses.get(
+                    return service_responses.get(
                 service, {"status": 404, "data": {"error": "Service not found"}}
             )
 
@@ -177,14 +177,14 @@ class TestAPIGatewayCircuitBreaker:
 
                 try:
                     # Execute request through circuit breaker
-                    return self.circuit_breaker.execute_with_fallback(
+                            return self.circuit_breaker.execute_with_fallback(
                         service,
                         lambda: mock_forward_request(request_data),
                         self.fallback_handler,
                     )
                 except Exception as e:
                     # If circuit breaker fails, return error response
-                    return {"status": 503, "data": {"error": str(e)}}
+                            return {"status": 503, "data": {"error": str(e)}}
 
             # Replace the forward method with circuit-wrapped version
             with patch(
@@ -278,7 +278,7 @@ class TestAPIGatewayCircuitBreaker:
                 raise ConnectionError(f"Service unavailable: {service}")
 
             # Return mock response
-            return service_responses.get(
+                    return service_responses.get(
                 service, {"status": 404, "data": {"error": "Service not found"}}
             )
 
@@ -289,14 +289,14 @@ class TestAPIGatewayCircuitBreaker:
 
             try:
                 # Execute request through circuit breaker
-                return self.circuit_breaker.execute_with_fallback(
+                        return self.circuit_breaker.execute_with_fallback(
                     service,
                     lambda: mock_forward_request(request_data),
                     self.fallback_handler,
                 )
             except Exception as e:
                 # If circuit breaker fails, return error response
-                return {"status": 503, "data": {"error": str(e)}}
+                        return {"status": 503, "data": {"error": str(e)}}
 
         # Patch the forward request method
         with patch(
@@ -381,7 +381,7 @@ class TestAPIGatewayCircuitBreaker:
             mock_product_service.counter = (
                 getattr(mock_product_service, "counter", 0) + 1
             )
-            return {
+                    return {
                 "status": 200,
                 "data": {"products": [{"id": 1, "name": "Test Product"}]},
             }
@@ -392,10 +392,10 @@ class TestAPIGatewayCircuitBreaker:
             service = request_data.get("service")
 
             if service == "product-service":
-                return mock_product_service(request_data)
+                        return mock_product_service(request_data)
 
             # Other services work normally
-            return {"status": 200, "data": {"message": f"{service} response"}}
+                    return {"status": 200, "data": {"message": f"{service} response"}}
 
         # Integrate circuit breaker with gateway
         def circuit_wrapped_forward(request_data):
@@ -404,14 +404,14 @@ class TestAPIGatewayCircuitBreaker:
 
             try:
                 # Execute request through circuit breaker
-                return self.circuit_breaker.execute_with_fallback(
+                        return self.circuit_breaker.execute_with_fallback(
                     service,
                     lambda: mock_forward_request(request_data),
                     self.fallback_handler,
                 )
             except Exception as e:
                 # If circuit breaker fails, return error response
-                return {"status": 503, "data": {"error": str(e)}}
+                        return {"status": 503, "data": {"error": str(e)}}
 
         # Patch the forward request method
         with patch(

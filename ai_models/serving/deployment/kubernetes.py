@@ -76,7 +76,7 @@ class KubernetesConfig:
         Returns:
             Dictionary representation of the configuration
         """
-        return {
+                return {
             "name": self.name,
             "namespace": self.namespace,
             "image": self.image,
@@ -116,7 +116,7 @@ class KubernetesConfig:
         Returns:
             Kubernetes configuration
         """
-        return cls(**config_dict)
+                return cls(**config_dict)
 
 
 def generate_kubernetes_config(config: KubernetesConfig, output_dir: str) -> str:
@@ -157,7 +157,7 @@ def generate_kubernetes_config(config: KubernetesConfig, output_dir: str) -> str
 
     logger.info(f"Kubernetes configuration files generated in {output_dir}")
 
-    return deployment_path
+            return deployment_path
 
 
 def _generate_deployment(config: KubernetesConfig, output_path: str) -> None:
@@ -173,32 +173,32 @@ def _generate_deployment(config: KubernetesConfig, output_path: str) -> None:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {config.name}
+name: {config.name}
   namespace: {config.namespace}
   labels:
     app: {config.name}
 spec:
-  replicas: {config.replicas}
+replicas: {config.replicas}
   selector:
     matchLabels:
-      app: {config.name}
-  strategy:
+    app: {config.name}
+strategy:
     type: {config.strategy}
-  template:
+template:
     metadata:
-      labels:
+    labels:
         app: {config.name}
     spec:
-      containers:
-      - name: {config.name}
+    containers:
+    - name: {config.name}
         image: {config.image}
         ports:
         - containerPort: {config.port}
         resources:
-          requests:
+        requests:
             cpu: {config.cpu_request}
             memory: {config.memory_request}
-          limits:
+        limits:
             cpu: {config.cpu_limit}
             memory: {config.memory_limit}
 """
@@ -217,7 +217,7 @@ spec:
         content += "        env:\n"
         for key, value in config.env_vars.items():
             content += """        - name: {key}
-          value: "{value}"
+        value: "{value}"
 """
 
     # Add volumes
@@ -235,7 +235,7 @@ spec:
             if volume_type == "hostPath":
                 content += """      - name: volume-{i}
         hostPath:
-          path: {volume['source']}
+        path: {volume['source']}
 """
             elif volume_type == "persistentVolumeClaim":
                 content += """      - name: volume-{i}
@@ -261,16 +261,16 @@ def _generate_service(config: KubernetesConfig, output_path: str) -> None:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {config.name}
+name: {config.name}
   namespace: {config.namespace}
   labels:
     app: {config.name}
 spec:
-  type: {config.service_type}
+type: {config.service_type}
   selector:
     app: {config.name}
-  ports:
-  - port: {config.port}
+ports:
+- port: {config.port}
     targetPort: {config.port}
     protocol: TCP
     name: {config.server_type}
@@ -298,46 +298,46 @@ def _generate_ingress(config: KubernetesConfig, output_path: str) -> None:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {config.name}
+name: {config.name}
   namespace: {config.namespace}
   labels:
     app: {config.name}
-  annotations:
+annotations:
     kubernetes.io/ingress.class: nginx
 """
 
     # Add TLS if enabled
     if config.ingress_tls:
         content += """spec:
-  tls:
-  - hosts:
+tls:
+- hosts:
     - {config.ingress_host}
     secretName: {config.ingress_tls_secret}
-  rules:
-  - host: {config.ingress_host}
+rules:
+- host: {config.ingress_host}
     http:
       paths:
-      - path: {config.ingress_path}
+    - path: {config.ingress_path}
         pathType: Prefix
         backend:
           service:
             name: {config.name}
             port:
-              number: {config.port}
+            number: {config.port}
 """
     else:
         content += """spec:
-  rules:
-  - host: {config.ingress_host}
+rules:
+- host: {config.ingress_host}
     http:
       paths:
-      - path: {config.ingress_path}
+    - path: {config.ingress_path}
         pathType: Prefix
         backend:
           service:
             name: {config.name}
             port:
-              number: {config.port}
+            number: {config.port}
 """
 
     # Write ingress.yaml
@@ -358,19 +358,19 @@ def _generate_hpa(config: KubernetesConfig, output_path: str) -> None:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {config.name}
+name: {config.name}
   namespace: {config.namespace}
   labels:
     app: {config.name}
 spec:
-  scaleTargetRef:
+scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: {config.name}
-  minReplicas: {config.min_replicas}
+minReplicas: {config.min_replicas}
   maxReplicas: {config.max_replicas}
   metrics:
-  - type: Resource
+- type: Resource
     resource:
       name: cpu
       target:

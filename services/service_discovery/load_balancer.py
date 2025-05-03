@@ -41,10 +41,10 @@ class RoundRobinStrategy(LoadBalancerStrategy[T]):
     def select(self, instances: List[T]) -> Optional[T]:
         """Select an instance using round-robin strategy."""
         if not instances:
-            return None
+                    return None
 
         self.counter = (self.counter + 1) % len(instances)
-        return instances[self.counter]
+                return instances[self.counter]
 
 
 class RandomStrategy(LoadBalancerStrategy[T]):
@@ -53,9 +53,9 @@ class RandomStrategy(LoadBalancerStrategy[T]):
     def select(self, instances: List[T]) -> Optional[T]:
         """Select a random instance."""
         if not instances:
-            return None
+                    return None
 
-        return random.choice(instances)
+                return random.choice(instances)
 
 
 class WeightedRandomStrategy(LoadBalancerStrategy[T]):
@@ -73,13 +73,13 @@ class WeightedRandomStrategy(LoadBalancerStrategy[T]):
     def select(self, instances: List[T]) -> Optional[T]:
         """Select an instance using weighted random selection."""
         if not instances:
-            return None
+                    return None
 
         # Get weights for all instances
         weights = [self.weight_function(instance) for instance in instances]
 
         # Select an instance based on weights
-        return random.choices(instances, weights=weights, k=1)[0]
+                return random.choices(instances, weights=weights, k=1)[0]
 
 
 class LeastConnectionsStrategy(LoadBalancerStrategy[T]):
@@ -97,9 +97,9 @@ class LeastConnectionsStrategy(LoadBalancerStrategy[T]):
     def select(self, instances: List[T]) -> Optional[T]:
         """Select the instance with the least connections."""
         if not instances:
-            return None
+                    return None
 
-        return min(instances, key=self.get_connections)
+                return min(instances, key=self.get_connections)
 
 
 class LoadBalancer(Generic[T]):
@@ -127,7 +127,7 @@ class LoadBalancer(Generic[T]):
             Optional[T]: The selected instance, or None if no suitable instances found
         """
         if not instances:
-            return None
+                    return None
 
         # Apply filter if provided
         if self.filter_function:
@@ -136,4 +136,4 @@ class LoadBalancer(Generic[T]):
                 instances = filtered_instances
 
         # Use strategy to select an instance
-        return self.strategy.select(instances)
+                return self.strategy.select(instances)

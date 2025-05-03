@@ -36,7 +36,7 @@ def disk_cache(temp_cache_dir):
         max_size=3,  # Small size to test eviction
         eviction_policy="lru",
     )
-    return cache
+            return cache
 
 
 def test_cache_hit_miss(disk_cache):

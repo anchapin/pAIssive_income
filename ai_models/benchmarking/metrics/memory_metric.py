@@ -90,7 +90,7 @@ class MemoryMetric(BaseMetric):
         # Add value
         self.add_value(memory_usage)
 
-        return memory_usage
+                return memory_usage
 
     def _get_memory_usage(self) -> float:
         """
@@ -110,7 +110,7 @@ class MemoryMetric(BaseMetric):
             gpu_memory = torch.cuda.memory_allocated() / (1024 * 1024)
             memory_mb += gpu_memory
 
-        return memory_mb
+                return memory_mb
 
     def measure_peak(self, func: Callable, *args, **kwargs) -> float:
         """
@@ -152,4 +152,4 @@ class MemoryMetric(BaseMetric):
         # Add value
         self.add_value(peak_memory_usage)
 
-        return peak_memory_usage
+                return peak_memory_usage

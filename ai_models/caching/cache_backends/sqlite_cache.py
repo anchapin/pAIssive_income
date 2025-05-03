@@ -80,7 +80,7 @@ class SQLiteCache
                 if row is None:
                     self.stats["misses"] += 1
                     self._save_stats()
-                    return None
+                            return None
 
                 value_blob, expiration_time = row
 
@@ -89,7 +89,7 @@ class SQLiteCache
                     self.delete(key)
                     self.stats["misses"] += 1
                     self._save_stats()
-                    return None
+                            return None
 
                 # Deserialize value
                 value = self._deserialize(value_blob)
@@ -103,13 +103,13 @@ class SQLiteCache
 
                 self.stats["hits"] += 1
                 self._save_stats()
-                return value
+                        return value
 
             except Exception:
                 conn.rollback()
                 self.stats["misses"] += 1
                 self._save_stats()
-                return None
+                        return None
 
             finally:
                 conn.close()
@@ -180,11 +180,11 @@ class SQLiteCache
 
                 self.stats["sets"] += 1
                 self._save_stats()
-                return True
+                        return True
 
             except Exception:
                 conn.rollback()
-                return False
+                        return False
 
             finally:
                 conn.close()
@@ -210,11 +210,11 @@ class SQLiteCache
 
                 self.stats["deletes"] += 1
                 self._save_stats()
-                return True
+                        return True
 
             except Exception:
                 conn.rollback()
-                return False
+                        return False
 
             finally:
                 conn.close()
@@ -241,19 +241,19 @@ class SQLiteCache
                 row = cursor.fetchone()
 
                 if row is None:
-                    return False
+                            return False
 
                 expiration_time = row[0]
 
                 # Check if expired
                 if expiration_time is not None and time.time() > expiration_time:
                     self.delete(key)
-                    return False
+                            return False
 
-                return True
+                        return True
 
             except Exception:
-                return False
+                        return False
 
             finally:
                 conn.close()
@@ -276,11 +276,11 @@ class SQLiteCache
 
                 self.stats["clears"] += 1
                 self._save_stats()
-                return True
+                        return True
 
             except Exception:
                 conn.rollback()
-                return False
+                        return False
 
             finally:
                 conn.close()
@@ -304,10 +304,10 @@ class SQLiteCache
                 cursor.execute("SELECT COUNT(*) FROM cache")
                 count = cursor.fetchone()[0]
 
-                return count
+                        return count
 
             except Exception:
-                return 0
+                        return 0
 
             finally:
                 conn.close()
@@ -335,14 +335,14 @@ class SQLiteCache
                 keys = [row[0] for row in cursor.fetchall()]
 
                 if pattern is None:
-                    return keys
+                            return keys
 
                 # Filter keys by pattern
                 regex = re.compile(pattern)
-                return [key for key in keys if regex.match(key)]
+                        return [key for key in keys if regex.match(key)]
 
             except Exception:
-                return []
+                        return []
 
             finally:
                 conn.close()
@@ -366,7 +366,7 @@ class SQLiteCache
             else:
                 stats["db_size"] = 0
 
-            return stats
+                    return stats
 
     def get_ttl(self, key: str) -> Optional[int]:
         """
@@ -390,18 +390,18 @@ class SQLiteCache
                 row = cursor.fetchone()
 
                 if row is None:
-                    return None
+                            return None
 
                 expiration_time = row[0]
 
                 if expiration_time is None:
-                    return None
+                            return None
 
                 ttl = int(expiration_time - time.time())
-                return ttl if ttl > 0 else 0
+                        return ttl if ttl > 0 else 0
 
             except Exception:
-                return None
+                        return None
 
             finally:
                 conn.close()
@@ -432,11 +432,11 @@ class SQLiteCache
                 )
                 conn.commit()
 
-                return cursor.rowcount > 0
+                        return cursor.rowcount > 0
 
             except Exception:
                 conn.rollback()
-                return False
+                        return False
 
             finally:
                 conn.close()
@@ -492,7 +492,7 @@ class SQLiteCache
         """
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        return conn
+                return conn
 
     def _serialize(self, value: Dict[str, Any]) -> bytes:
         """
@@ -505,12 +505,12 @@ class SQLiteCache
             Serialized value
         """
         if self.serialization == "json":
-            return json.dumps(value).encode("utf-8")
+                    return json.dumps(value).encode("utf-8")
         elif self.serialization == "pickle":
-            return pickle.dumps(value)
+                    return pickle.dumps(value)
         else:
             # Default to JSON
-            return json.dumps(value).encode("utf-8")
+                    return json.dumps(value).encode("utf-8")
 
     def _deserialize(self, value_blob: bytes) -> Dict[str, Any]:
         """
@@ -523,12 +523,12 @@ class SQLiteCache
             Deserialized value
         """
         if self.serialization == "json":
-            return json.loads(value_blob.decode("utf-8"))
+                    return json.loads(value_blob.decode("utf-8"))
         elif self.serialization == "pickle":
-            return pickle.loads(value_blob)
+                    return pickle.loads(value_blob)
         else:
             # Default to JSON
-            return json.loads(value_blob.decode("utf-8"))
+                    return json.loads(value_blob.decode("utf-8"))
 
     def _load_stats(self) -> None:
         """

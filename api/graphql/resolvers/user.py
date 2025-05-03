@@ -55,9 +55,9 @@ if STRAWBERRY_AVAILABLE:
             # Get user from context
             user = info.context.get("user")
             if not user:
-                return None
+                        return None
 
-            return UserType(
+                    return UserType(
                 id=str(user.id),
                 username=user.username,
                 email=user.email,
@@ -86,13 +86,13 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("user")
             if not service:
                 logger.warning("User service not available")
-                return []
+                        return []
 
             # Get users from service
             try:
                 users = await service.get_users(limit=limit, offset=offset)
 
-                return [
+                        return [
                     UserType(
                         id=str(user.id),
                         username=user.username,
@@ -110,7 +110,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting users: {str(e)}")
-                return []
+                        return []
 
         @strawberry.field
         async def user(self, info: Info, id: str) -> Optional[UserType]:
@@ -128,15 +128,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("user")
             if not service:
                 logger.warning("User service not available")
-                return None
+                        return None
 
             # Get user from service
             try:
                 user = await service.get_user(id)
                 if not user:
-                    return None
+                            return None
 
-                return UserType(
+                        return UserType(
                     id=str(user.id),
                     username=user.username,
                     email=user.email,
@@ -147,7 +147,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error getting user: {str(e)}")
-                return None
+                        return None
 
         @strawberry.field
         async def projects(
@@ -173,7 +173,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("user")
             if not service:
                 logger.warning("User service not available")
-                return []
+                        return []
 
             # Get projects from service
             try:
@@ -181,7 +181,7 @@ if STRAWBERRY_AVAILABLE:
                     user_id=user_id, limit=limit, offset=offset
                 )
 
-                return [
+                        return [
                     ProjectType(
                         id=str(project.id),
                         user_id=str(project.user_id),
@@ -203,7 +203,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting projects: {str(e)}")
-                return []
+                        return []
 
     @strawberry.type
     class UserMutation:
@@ -225,7 +225,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("user")
             if not service:
                 logger.warning("User service not available")
-                return None
+                        return None
 
             # Create user
             try:
@@ -237,7 +237,7 @@ if STRAWBERRY_AVAILABLE:
                     role=input.role.value,
                 )
 
-                return UserType(
+                        return UserType(
                     id=str(user.id),
                     username=user.username,
                     email=user.email,
@@ -248,7 +248,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating user: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def update_user(
@@ -269,7 +269,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("user")
             if not service:
                 logger.warning("User service not available")
-                return None
+                        return None
 
             # Update user
             try:
@@ -283,9 +283,9 @@ if STRAWBERRY_AVAILABLE:
                 )
 
                 if not user:
-                    return None
+                            return None
 
-                return UserType(
+                        return UserType(
                     id=str(user.id),
                     username=user.username,
                     email=user.email,
@@ -296,7 +296,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error updating user: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def delete_user(self, info: Info, id: str) -> bool:
@@ -314,15 +314,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("user")
             if not service:
                 logger.warning("User service not available")
-                return False
+                        return False
 
             # Delete user
             try:
                 success = await service.delete_user(id)
-                return success
+                        return success
             except Exception as e:
                 logger.error(f"Error deleting user: {str(e)}")
-                return False
+                        return False
 
         @strawberry.mutation
         async def create_project(
@@ -342,13 +342,13 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("user")
             if not service:
                 logger.warning("User service not available")
-                return None
+                        return None
 
             # Get current user
             user = info.context.get("user")
             if not user:
                 logger.warning("User not authenticated")
-                return None
+                        return None
 
             # Create project
             try:
@@ -359,7 +359,7 @@ if STRAWBERRY_AVAILABLE:
                     is_public=input.is_public,
                 )
 
-                return ProjectType(
+                        return ProjectType(
                     id=str(project.id),
                     user_id=str(project.user_id),
                     name=project.name,
@@ -374,7 +374,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating project: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def share_project(
@@ -396,7 +396,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("user")
             if not service:
                 logger.warning("User service not available")
-                return None
+                        return None
 
             # Share project
             try:
@@ -404,7 +404,7 @@ if STRAWBERRY_AVAILABLE:
                     project_id=project_id, user_id=user_id, role=role.value
                 )
 
-                return CollaborationType(
+                        return CollaborationType(
                     id=str(collaboration.id),
                     project_id=str(collaboration.project_id),
                     user_id=str(collaboration.user_id),
@@ -422,4 +422,4 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error sharing project: {str(e)}")
-                return None
+                        return None

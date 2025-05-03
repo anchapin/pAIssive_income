@@ -126,7 +126,7 @@ def in_memory_registry():
         )
         registry.register(instance)
     
-    return registry
+            return registry
 
 
 @pytest.fixture
@@ -137,19 +137,19 @@ def discovery_client(in_memory_registry):
         auto_register=False
     )
     client.registry = in_memory_registry
-    return client
+            return client
 
 
 @pytest.fixture
 def version_manager(discovery_client):
     """Create a version manager."""
-    return VersionManager(discovery_client=discovery_client)
+            return VersionManager(discovery_client=discovery_client)
 
 
 @pytest.fixture
 def compatibility_checker(version_manager):
     """Create a version compatibility checker."""
-    return VersionCompatibilityChecker(version_manager=version_manager)
+            return VersionCompatibilityChecker(version_manager=version_manager)
 
 
 class TestServiceVersionCompatibility:

@@ -55,11 +55,11 @@ except ImportError:
     class MockStripeGateway:
         pass
 
-    class MockPayPalGateway:
+class MockPayPalGateway:
         pass
 
-    def create_payment_gateway(gateway_type, config=None):
-        return MagicMock()
+def create_payment_gateway(gateway_type, config=None):
+                    return MagicMock()
 
 
 # Re-export all fixtures from tests.mocks.fixtures
@@ -78,10 +78,10 @@ def mock_stripe_gateway():
         {"simulate_network_errors": False, "success_rate": 1.0},  # Always succeed
     )
 
-    # Add some test data
+# Add some test data
     customer = gateway.create_customer(email="test@example.com", name="Test Customer")
 
-    # Create a payment method
+# Create a payment method
     payment_method = gateway.create_payment_method(
         customer_id=customer["id"],
         payment_type="card",
@@ -93,25 +93,25 @@ def mock_stripe_gateway():
         },
     )
 
-    # Create a plan
+# Create a plan
     plan = gateway.create_plan(
         name="Test Plan", currency="USD", interval="month", amount=9.99
     )
 
-    # Create a subscription
+# Create a subscription
     gateway.create_subscription(
         customer_id=customer["id"],
         plan_id=plan["id"],
         payment_method_id=payment_method["id"],
     )
 
-    return gateway
+            return gateway
 
 
 @pytest.fixture
 def mock_paypal_gateway():
     """Create a mock PayPal payment gateway."""
-    return create_payment_gateway("paypal")
+                return create_payment_gateway("paypal")
 
 
 @pytest.fixture
@@ -119,7 +119,7 @@ def mock_model_manager():
     """Create a mock model manager with predefined models."""
     mock_manager = MagicMock()
 
-    # Define available models
+# Define available models
     mock_manager.list_models.return_value = [
         {
             "id": "gpt-3.5-turbo",
@@ -147,25 +147,25 @@ def mock_model_manager():
         },
     ]
 
-    # Mock the get_model_info method
+# Mock the get_model_info method
     def get_model_info(model_id):
         for model in mock_manager.list_models():
             if model["id"] == model_id:
-                return model
-        return None
+                            return model
+                    return None
 
-    mock_manager.get_model_info.side_effect = get_model_info
+mock_manager.get_model_info.side_effect = get_model_info
 
-    # Mock the load_model method
+# Mock the load_model method
     mock_manager.load_model.return_value = MagicMock()
 
-    return mock_manager
+            return mock_manager
 
 
 @pytest.fixture
 def mock_test_solution():
     """Create a mock solution for testing."""
-    return {
+                return {
         "id": "solution1",
         "name": "AI Inventory Manager",
         "description": "An AI-powered solution for inventory management",
@@ -214,7 +214,7 @@ def mock_test_solution():
 @pytest.fixture
 def mock_test_monetization_strategy():
     """Create a mock monetization strategy for testing."""
-    return {
+                return {
         "id": "strategy1",
         "name": "Freemium Strategy",
         "description": "A freemium monetization strategy",
@@ -282,7 +282,7 @@ def mock_test_monetization_strategy():
 @pytest.fixture
 def mock_test_niche():
     """Create a mock niche for testing."""
-    return {
+                return {
         "id": "niche1",
         "name": "Inventory Management",
         "market_segment": "e-commerce",
@@ -314,19 +314,19 @@ def patch_payment_processor(monkeypatch):
     """
     Patch the payment processor with a mock implementation.
 
-    Args:
+Args:
         monkeypatch: pytest's monkeypatch fixture
 
-    Returns:
+Returns:
         A mock stripe gateway instance
     """
     mock_gateway = create_payment_gateway("stripe")
 
-    # Define a function to return the mock gateway
+# Define a function to return the mock gateway
     def mock_get_payment_gateway(*args, **kwargs):
-        return mock_gateway
+                    return mock_gateway
 
-    # Apply the patch
+# Apply the patch
     if hasattr(monkeypatch, "setattr"):
         try:
             # Try to patch the appropriate module
@@ -337,7 +337,7 @@ def patch_payment_processor(monkeypatch):
         except (ImportError, AttributeError):
             pass  # Module might not exist yet
 
-    return mock_gateway
+            return mock_gateway
 
 
 @pytest.fixture
@@ -345,19 +345,19 @@ def patch_model_provider(monkeypatch):
     """
     Patch the model provider with a mock implementation.
 
-    Args:
+Args:
         monkeypatch: pytest's monkeypatch fixture
 
-    Returns:
+Returns:
         A mock OpenAI provider instance
     """
     mock_provider = create_mock_provider("openai")
 
-    # Define a function to return the mock provider
+# Define a function to return the mock provider
     def mock_get_model_provider(*args, **kwargs):
-        return mock_provider
+                    return mock_provider
 
-    # Apply the patch
+# Apply the patch
     if hasattr(monkeypatch, "setattr"):
         try:
             # Try to patch the appropriate module
@@ -367,7 +367,7 @@ def patch_model_provider(monkeypatch):
         except (ImportError, AttributeError):
             pass  # Module might not exist yet
 
-    return mock_provider
+            return mock_provider
 
 
 @pytest.fixture
@@ -375,17 +375,17 @@ def temp_dir(tmpdir):
     """
     Create a temporary directory for tests.
 
-    Args:
+Args:
         tmpdir: pytest's tmpdir fixture
 
-    Returns:
+Returns:
         Path to the temporary directory
     """
     # Create a temporary directory
     temp_path = tmpdir.mkdir("test_temp_dir")
 
-    # Return the path as a string
-    return str(temp_path)
+# Return the path as a string
+                return str(temp_path)
 
 
 """
@@ -417,11 +417,11 @@ def webhook_service() -> WebhookService:
     """
     Fixture that provides a WebhookService instance for testing.
     
-    Returns:
+Returns:
         A WebhookService instance
     """
     service = WebhookService()
-    return service
+                return service
 
 
 @pytest.fixture(scope="function")
@@ -429,15 +429,15 @@ async def running_webhook_service() -> Generator[WebhookService, None, None]:
     """
     Fixture that provides a running WebhookService instance and cleans up afterward.
     
-    Yields:
+Yields:
         A running WebhookService instance
     """
     service = WebhookService()
     await service.start()
     
-    yield service
+yield service
     
-    # Cleanup after the test
+# Cleanup after the test
     await service.stop()
 
 
@@ -446,10 +446,10 @@ async def registered_webhook(running_webhook_service: WebhookService) -> Dict[st
     """
     Fixture that registers a test webhook and returns it.
     
-    Args:
+Args:
         running_webhook_service: A running webhook service instance
         
-    Returns:
+Returns:
         A registered webhook dictionary
     """
     webhook_data = {
@@ -463,8 +463,8 @@ async def registered_webhook(running_webhook_service: WebhookService) -> Dict[st
         "is_active": True,
     }
     
-    webhook = await running_webhook_service.register_webhook(webhook_data)
-    return webhook
+webhook = await running_webhook_service.register_webhook(webhook_data)
+                return webhook
 
 
 @pytest.fixture(scope="function")
@@ -472,26 +472,25 @@ def mock_http_client(monkeypatch: MonkeyPatch) -> None:
     """
     Fixture that mocks the HTTP client to avoid real HTTP requests during tests.
     
-    Args:
+Args:
         monkeypatch: PyTest's monkeypatch fixture
     """
     from unittest.mock import AsyncMock, MagicMock
     
-    # Create mock response
+# Create mock response
     mock_response = MagicMock()
     mock_response.status = 200
     mock_response.text = AsyncMock(return_value='{"status": "success"}')
     
-    # Create mock for aiohttp.ClientSession
+# Create mock for aiohttp.ClientSession
     mock_session = MagicMock()
     mock_session.__aenter__ = AsyncMock(return_value=mock_session)
     mock_session.__aexit__ = AsyncMock(return_value=None)
     mock_session.post = AsyncMock(return_value=mock_response)
     
-    # Mock the ClientSession class
-    mock_client_session = MagicMock(return_value=mock_session)
+# Mock the ClientSession class  MagicMock(return_value=mock_session)
     
-    # Apply the patch
+# Apply the patch
     import aiohttp
     monkeypatch.setattr(aiohttp, "ClientSession", mock_client_session)
 
@@ -501,13 +500,13 @@ def mock_audit_service(monkeypatch: MonkeyPatch) -> None:
     """
     Fixture that mocks the AuditService to avoid side effects during tests.
     
-    Args:
+Args:
         monkeypatch: PyTest's monkeypatch fixture
     """
     mock_audit = MagicMock(spec=AuditService)
     mock_audit.create_event = AsyncMock()
     
-    # Apply the patch
+# Apply the patch
     monkeypatch.setattr("api.services.webhook_service.AuditService", lambda: mock_audit)
     
-    return mock_audit
+            return mock_audit

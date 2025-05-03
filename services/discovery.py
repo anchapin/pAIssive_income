@@ -9,5 +9,5 @@ class ServiceDiscoveryClient:
     def __init__(self):
         pass
 
-    def discover(self):
-        return {"discovered": True}
+def discover(self):
+                    return {"discovered": True}

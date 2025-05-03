@@ -52,16 +52,16 @@ class SecurityLogFilter(logging.Filter):
             hasattr(record, "security_level")
             and record.security_level in self.security_levels
         ):
-            return True
+                    return True
 
         # Check if the record has security in the message
         if any(
             level.lower() in record.getMessage().lower()
             for level in self.security_levels
         ):
-            return True
+                    return True
 
-        return False
+                return False
 
 
 class JsonFormatter(logging.Formatter):
@@ -139,7 +139,7 @@ class JsonFormatter(logging.Formatter):
             ]:
                 log_data[key] = value
 
-        return json.dumps(log_data)
+                return json.dumps(log_data)
 
 
 class LoggingService:
@@ -235,7 +235,7 @@ class LoggingService:
         Returns:
             Logger instance
         """
-        return logging.getLogger(name)
+                return logging.getLogger(name)
 
     def log_security_event(
         self,
@@ -491,7 +491,7 @@ class LoggingService:
 
         # Check if log file exists
         if not os.path.exists(log_path):
-            return []
+                    return []
 
         # Parse log file
         logs = []
@@ -537,4 +537,4 @@ class LoggingService:
         logs.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
 
         # Apply limit and offset
-        return logs[offset : offset + limit]
+                return logs[offset : offset + limit]

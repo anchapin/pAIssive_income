@@ -66,7 +66,7 @@ class ConsulServiceRegistry(ServiceRegistry):
             logger.info(
                 f"Registered service {service_instance.service_name} with ID {service_instance.service_id}"
             )
-            return result
+                    return result
 
         except Exception as e:
             error_msg = (
@@ -80,7 +80,7 @@ class ConsulServiceRegistry(ServiceRegistry):
         try:
             result = self.consul_client.agent.service.deregister(service_id)
             logger.info(f"Deregistered service with ID {service_id}")
-            return result
+                    return result
         except Exception as e:
             error_msg = f"Failed to deregister service {service_id}: {str(e)}"
             logger.error(error_msg)
@@ -98,10 +98,10 @@ class ConsulServiceRegistry(ServiceRegistry):
             # This is a simplified version assuming the check is named after the service ID
             self.consul_client.agent.check.ttl_pass(f"service:{service_id}")
             logger.debug(f"Renewed TTL for service {service_id}")
-            return True
+                    return True
         except Exception as e:
             logger.warning(f"Failed to renew TTL for service {service_id}: {str(e)}")
-            return False
+                    return False
 
     def get_service(self, service_name: str) -> List[ServiceInstance]:
         """Get all instances of a service by name from Consul."""
@@ -133,7 +133,7 @@ class ConsulServiceRegistry(ServiceRegistry):
                 )
                 instances.append(instance)
 
-            return instances
+                    return instances
 
         except Exception as e:
             error_msg = f"Failed to look up service {service_name}: {str(e)}"
@@ -157,7 +157,7 @@ class ConsulServiceRegistry(ServiceRegistry):
                 instances = self.get_service(service_name)
                 result[service_name] = instances
 
-            return result
+                    return result
 
         except Exception as e:
             error_msg = f"Failed to retrieve all services: {str(e)}"
@@ -172,7 +172,7 @@ class ConsulServiceRegistry(ServiceRegistry):
 
             # Service is healthy if all checks are passing
             is_healthy = all(check.get("Status") == "passing" for check in checks)
-            return is_healthy
+                    return is_healthy
 
         except Exception as e:
             error_msg = f"Failed to check health for service {service_id}: {str(e)}"

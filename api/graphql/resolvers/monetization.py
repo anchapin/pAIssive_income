@@ -60,14 +60,14 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("monetization")
             if not service:
                 logger.warning("Monetization service not available")
-                return []
+                        return []
 
             # Get subscription models from service
             try:
                 models = await service.get_subscription_models(
                     limit=limit, offset=offset
                 )
-                return [
+                        return [
                     SubscriptionModelType(
                         id=str(model.id),
                         name=model.name,
@@ -84,7 +84,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting subscription models: {str(e)}")
-                return []
+                        return []
 
         @strawberry.field
         async def subscription_model(
@@ -104,15 +104,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("monetization")
             if not service:
                 logger.warning("Monetization service not available")
-                return None
+                        return None
 
             # Get subscription model from service
             try:
                 model = await service.get_subscription_model(id)
                 if not model:
-                    return None
+                            return None
 
-                return SubscriptionModelType(
+                        return SubscriptionModelType(
                     id=str(model.id),
                     name=model.name,
                     description=model.description,
@@ -126,7 +126,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error getting subscription model: {str(e)}")
-                return None
+                        return None
 
         @strawberry.field
         async def revenue_projection(
@@ -146,7 +146,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("monetization")
             if not service:
                 logger.warning("Monetization service not available")
-                return None
+                        return None
 
             # Get revenue projection from service
             try:
@@ -159,9 +159,9 @@ if STRAWBERRY_AVAILABLE:
                 )
 
                 if not projection:
-                    return None
+                            return None
 
-                return RevenueProjectionType(
+                        return RevenueProjectionType(
                     subscription_model_id=str(projection.subscription_model_id),
                     initial_customers=projection.initial_customers,
                     growth_rate=projection.growth_rate,
@@ -174,7 +174,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error calculating revenue projection: {str(e)}")
-                return None
+                        return None
 
     @strawberry.type
     class MonetizationMutation:
@@ -198,7 +198,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("monetization")
             if not service:
                 logger.warning("Monetization service not available")
-                return None
+                        return None
 
             # Create subscription model
             try:
@@ -208,7 +208,7 @@ if STRAWBERRY_AVAILABLE:
                     subscription_type=input.subscription_type.value,
                 )
 
-                return SubscriptionModelType(
+                        return SubscriptionModelType(
                     id=str(model.id),
                     name=model.name,
                     description=model.description,
@@ -222,7 +222,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating subscription model: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def update_subscription_model(
@@ -243,7 +243,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("monetization")
             if not service:
                 logger.warning("Monetization service not available")
-                return None
+                        return None
 
             # Update subscription model
             try:
@@ -255,9 +255,9 @@ if STRAWBERRY_AVAILABLE:
                 )
 
                 if not model:
-                    return None
+                            return None
 
-                return SubscriptionModelType(
+                        return SubscriptionModelType(
                     id=str(model.id),
                     name=model.name,
                     description=model.description,
@@ -271,7 +271,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error updating subscription model: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def delete_subscription_model(self, info: Info, id: str) -> bool:
@@ -289,15 +289,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("monetization")
             if not service:
                 logger.warning("Monetization service not available")
-                return False
+                        return False
 
             # Delete subscription model
             try:
                 success = await service.delete_subscription_model(id)
-                return success
+                        return success
             except Exception as e:
                 logger.error(f"Error deleting subscription model: {str(e)}")
-                return False
+                        return False
 
         @strawberry.mutation
         async def add_pricing_tier(
@@ -318,7 +318,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("monetization")
             if not service:
                 logger.warning("Monetization service not available")
-                return None
+                        return None
 
             # Add pricing tier
             try:
@@ -331,9 +331,9 @@ if STRAWBERRY_AVAILABLE:
                 )
 
                 if not model:
-                    return None
+                            return None
 
-                return SubscriptionModelType(
+                        return SubscriptionModelType(
                     id=str(model.id),
                     name=model.name,
                     description=model.description,
@@ -347,4 +347,4 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error adding pricing tier: {str(e)}")
-                return None
+                        return None

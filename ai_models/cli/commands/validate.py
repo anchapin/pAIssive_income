@@ -134,7 +134,7 @@ class ValidateCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_path"]):
-            return 1
+                    return 1
 
         try:
             # Load configuration from file if provided
@@ -191,14 +191,14 @@ class ValidateCommand(BaseCommand):
 
             if passed:
                 logger.info("Validation passed successfully")
-                return 0
+                        return 0
             else:
                 logger.warning("Validation failed")
-                return 1
+                        return 1
 
         except Exception as e:
             logger.error(f"Error validating model: {e}", exc_info=True)
-            return 1
+                    return 1
 
     def _validate_model(
         self, checks: List[str], config_dict: Dict[str, Any]
@@ -221,7 +221,7 @@ class ValidateCommand(BaseCommand):
         # Check if model exists
         if not os.path.exists(self.args.model_path):
             logger.error(f"Model not found: {self.args.model_path}")
-            return {
+                    return {
                 "basic": {
                     "passed": False,
                     "issues": [f"Model not found: {self.args.model_path}"],
@@ -266,7 +266,7 @@ class ValidateCommand(BaseCommand):
                 )
             else:
                 logger.error(f"Unsupported model type: {self.args.model_type}")
-                return {
+                        return {
                     "basic": {
                         "passed": False,
                         "issues": [f"Unsupported model type: {self.args.model_type}"],
@@ -275,7 +275,7 @@ class ValidateCommand(BaseCommand):
                 }
         except Exception as e:
             logger.error(f"Error loading model: {e}")
-            return {
+                    return {
                 "basic": {
                     "passed": False,
                     "issues": [f"Error loading model: {e}"],
@@ -294,7 +294,7 @@ class ValidateCommand(BaseCommand):
             elif check == "security":
                 results["security"] = self._check_security(model, tokenizer)
 
-        return results
+                return results
 
     def _check_weights(self, model) -> Dict[str, Any]:
         """
@@ -331,7 +331,7 @@ class ValidateCommand(BaseCommand):
                     f"Large values (>{param.abs().max().item():.2f}) found in parameter: {name}"
                 )
 
-        return {"passed": len(issues) == 0, "issues": issues, "warnings": warnings}
+                return {"passed": len(issues) == 0, "issues": issues, "warnings": warnings}
 
     def _check_tokenizer(self, tokenizer) -> Dict[str, Any]:
         """
@@ -381,7 +381,7 @@ class ValidateCommand(BaseCommand):
         except Exception as e:
             issues.append(f"Error during tokenization: {e}")
 
-        return {"passed": len(issues) == 0, "issues": issues, "warnings": warnings}
+                return {"passed": len(issues) == 0, "issues": issues, "warnings": warnings}
 
     def _check_performance(self, model, tokenizer) -> Dict[str, Any]:
         """
@@ -433,7 +433,7 @@ class ValidateCommand(BaseCommand):
         except Exception as e:
             issues.append(f"Error during performance check: {e}")
 
-        return {"passed": len(issues) == 0, "issues": issues, "warnings": warnings}
+                return {"passed": len(issues) == 0, "issues": issues, "warnings": warnings}
 
     def _check_security(self, model, tokenizer) -> Dict[str, Any]:
         """
@@ -510,4 +510,4 @@ class ValidateCommand(BaseCommand):
         except Exception as e:
             warnings.append(f"Error during dependency scan: {e}")
 
-        return {"passed": len(issues) == 0, "issues": issues, "warnings": warnings}
+                return {"passed": len(issues) == 0, "issues": issues, "warnings": warnings}

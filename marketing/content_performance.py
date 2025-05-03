@@ -91,7 +91,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
     """
     Class for tracking and analyzing the performance of marketing content.
 
-    This class provides tools to:
+This class provides tools to:
     1. Track content across different channels
     2. Record various engagement metrics
     3. Analyze content performance
@@ -100,61 +100,59 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
     6. Generate performance reports
     """
 
-    def __init__(self, storage_path: Optional[str] = None):
+def __init__(self, storage_path: Optional[str] = None):
         """
         Initialize the content performance analyzer.
 
-        Args:
+Args:
             storage_path: Optional path to store content data. If None, data will be stored in memory only.
         """
         self.content = {}
         self.engagements = {}
         self.storage_path = storage_path
 
-        # Create storage directory if it doesn't exist
+# Create storage directory if it doesn't exist
         if storage_path and not os.path.exists(storage_path):
             os.makedirs(storage_path)
 
-        # Load existing data if available
+# Load existing data if available
         if storage_path:
             self._load_data()
 
-    def _load_data(self):
+def _load_data(self):
         """Load content and engagement data from storage."""
         content_path = os.path.join(self.storage_path, "content.json")
         engagements_path = os.path.join(self.storage_path, "engagements.json")
 
-        try:
+try:
             if os.path.exists(content_path):
                 with open(content_path, "r", encoding="utf-8") as file:
                     self.content = json.load(file)
 
-            if os.path.exists(engagements_path):
+if os.path.exists(engagements_path):
                 with open(engagements_path, "r", encoding="utf-8") as file:
                     self.engagements = json.load(file)
         except Exception as e:
             logger.error(f"Error loading content performance data: {e}")
             raise StorageError(f"Could not load content performance data: {e}")
 
-    def _save_data(self):
+def _save_data(self):
         """Save content and engagement data to storage."""
         if not self.storage_path:
-            return
-
-        content_path = os.path.join(self.storage_path, "content.json")
+                        return content_path = os.path.join(self.storage_path, "content.json")
         engagements_path = os.path.join(self.storage_path, "engagements.json")
 
-        try:
+try:
             with open(content_path, "w", encoding="utf-8") as file:
                 json.dump(self.content, file, indent=2)
 
-            with open(engagements_path, "w", encoding="utf-8") as file:
+with open(engagements_path, "w", encoding="utf-8") as file:
                 json.dump(self.engagements, file, indent=2)
         except Exception as e:
             logger.error(f"Error saving content performance data: {e}")
             raise StorageError(f"Could not save content performance data: {e}")
 
-    def track_content(
+def track_content(
         self,
         content_id: str,
         content_type: str,
@@ -165,29 +163,29 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         """
         Register content for performance tracking.
 
-        Args:
+Args:
             content_id: Unique identifier for the content
             content_type: Type of content (blog_post, social_media, email, etc.)
             title: Title or headline of the content
             channels: List of channels where the content is published
             metadata: Optional additional data about the content
 
-        Returns:
+Returns:
             Dictionary containing the registered content data
 
-        Raises:
+Raises:
             InvalidParameterError: If required parameters are missing or invalid
         """
         # Validate parameters
         if not content_id:
             content_id = str(uuid.uuid4())
 
-        if not content_type or not title or not channels:
+if not content_type or not title or not channels:
             raise InvalidParameterError(
                 "Content type, title, and channels are required parameters"
             )
 
-        # Create content object
+# Create content object
         now = datetime.now()
         content = {
             "content_id": content_id,
@@ -200,19 +198,19 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             "tags": metadata.get("tags", []) if metadata else [],
         }
 
-        # Store content
+# Store content
         self.content[content_id] = content
 
-        # Initialize engagements for this content
+# Initialize engagements for this content
         if content_id not in self.engagements:
             self.engagements[content_id] = []
 
-        # Save to disk if storage path is set
+# Save to disk if storage path is set
         self._save_data()
 
-        return content
+            return content
 
-    def record_engagement(
+def record_engagement(
         self,
         content_id: str,
         engagement_type: str,
@@ -224,7 +222,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         """
         Record an engagement with content.
 
-        Args:
+Args:
             content_id: ID of the content
             engagement_type: Type of engagement (view, click, comment, share, conversion, etc.)
             channel: Channel where the engagement occurred
@@ -232,10 +230,10 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             timestamp: Optional timestamp for the engagement, defaults to current time
             metadata: Optional additional data about the engagement
 
-        Returns:
+Returns:
             Dictionary containing the recorded engagement
 
-        Raises:
+Raises:
             ContentNotFoundError: If the content ID is not found
             InvalidParameterError: If required parameters are missing or invalid
         """
@@ -243,21 +241,21 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         if content_id not in self.content:
             raise ContentNotFoundError(content_id)
 
-        # Validate parameters
+# Validate parameters
         if not engagement_type or not channel or count < 1:
             raise InvalidParameterError(
                 "Engagement type, channel, and positive count are required"
             )
 
-        # Set timestamp if not provided
+# Set timestamp if not provided
         if timestamp is None:
             timestamp = datetime.now()
 
-        # Format timestamp as ISO string if it's a datetime object
+# Format timestamp as ISO string if it's a datetime object
         if isinstance(timestamp, datetime):
             timestamp = timestamp.isoformat()
 
-        # Create engagement object
+# Create engagement object
         engagement_id = str(uuid.uuid4())
         engagement = {
             "engagement_id": engagement_id,
@@ -272,36 +270,36 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             ),
         }
 
-        # Store engagement
+# Store engagement
         if content_id not in self.engagements:
             self.engagements[content_id] = []
 
-        self.engagements[content_id].append(engagement)
+self.engagements[content_id].append(engagement)
 
-        # Save to disk if storage path is set
+# Save to disk if storage path is set
         self._save_data()
 
-        return engagement
+            return engagement
 
-    def get_content(self, content_id: str) -> Dict[str, Any]:
+def get_content(self, content_id: str) -> Dict[str, Any]:
         """
         Get content details.
 
-        Args:
+Args:
             content_id: ID of the content to retrieve
 
-        Returns:
+Returns:
             Content dictionary
 
-        Raises:
+Raises:
             ContentNotFoundError: If the content ID is not found
         """
         if content_id not in self.content:
             raise ContentNotFoundError(content_id)
 
-        return self.content[content_id]
+            return self.content[content_id]
 
-    def list_content(
+def list_content(
         self,
         content_type: Optional[str] = None,
         channel: Optional[str] = None,
@@ -312,48 +310,48 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         """
         List content with optional filtering.
 
-        Args:
+Args:
             content_type: Optional filter for content type
             channel: Optional filter for content published on a specific channel
             date_published_after: Optional filter for content published after a date
             date_published_before: Optional filter for content published before a date
             tags: Optional filter for content with specific tags
 
-        Returns:
+Returns:
             List of content dictionaries matching the filters
         """
         filtered_content = []
 
-        for content in self.content.values():
+for content in self.content.values():
             # Apply content type filter
             if content_type and content["content_type"] != content_type:
                 continue
 
-            # Apply channel filter
+# Apply channel filter
             if channel and channel not in content["channels"]:
                 continue
 
-            # Apply date filters
+# Apply date filters
             created_at = datetime.fromisoformat(content["created_at"])
 
-            if date_published_after and created_at < date_published_after:
+if date_published_after and created_at < date_published_after:
                 continue
 
-            if date_published_before and created_at > date_published_before:
+if date_published_before and created_at > date_published_before:
                 continue
 
-            # Apply tag filter
+# Apply tag filter
             if tags:
                 content_tags = set(content.get("tags", []))
                 if not content_tags.intersection(tags):
                     continue
 
-            # Add to results
+# Add to results
             filtered_content.append(content)
 
-        return filtered_content
+            return filtered_content
 
-    def get_engagement_metrics(
+def get_engagement_metrics(
         self,
         content_id: str,
         engagement_types: Optional[List[str]] = None,
@@ -366,7 +364,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         """
         Get engagement metrics for content with optional filtering and aggregation.
 
-        Args:
+Args:
             content_id: ID of the content
             engagement_types: Optional list of engagement types to include
             channels: Optional list of channels to include
@@ -375,10 +373,10 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             group_by: Optional grouping ("channel", "engagement_type", "daily", "weekly", "monthly")
             aggregation: Aggregation method ("sum", "avg", "min", "max", "count")
 
-        Returns:
+Returns:
             Dictionary containing the engagement metrics
 
-        Raises:
+Raises:
             ContentNotFoundError: If the content ID is not found
             InvalidParameterError: If parameters are invalid
         """
@@ -386,9 +384,9 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         if content_id not in self.content:
             raise ContentNotFoundError(content_id)
 
-        # Check if there are engagements for this content
+# Check if there are engagements for this content
         if content_id not in self.engagements or not self.engagements[content_id]:
-            return {
+                        return {
                 "content_id": content_id,
                 "metrics": [],
                 "total_count": 0,
@@ -396,7 +394,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 "grouped_data": {},
             }
 
-        # Initialize result
+# Initialize result
         result = {
             "content_id": content_id,
             "metrics": [],
@@ -405,10 +403,10 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             "grouped_data": {},
         }
 
-        # Get engagements for this content
+# Get engagements for this content
         content_engagements = self.engagements[content_id]
 
-        # Filter engagements
+# Filter engagements
         filtered_engagements = []
         for engagement in content_engagements:
             # Filter by engagement type
@@ -418,36 +416,36 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             ):
                 continue
 
-            # Filter by channel
+# Filter by channel
             if channels and engagement["channel"] not in channels:
                 continue
 
-            # Filter by time range
+# Filter by time range
             if isinstance(engagement["timestamp"], str):
                 engagement_time = datetime.fromisoformat(engagement["timestamp"])
             else:
                 engagement_time = engagement["timestamp"]
 
-            if start_time and engagement_time < start_time:
+if start_time and engagement_time < start_time:
                 continue
 
-            if end_time and engagement_time > end_time:
+if end_time and engagement_time > end_time:
                 continue
 
-            # Add to filtered engagements
+# Add to filtered engagements
             filtered_engagements.append(engagement)
             result["metrics"].append(engagement)
 
-        # Set total count
+# Set total count
         result["total_count"] = len(filtered_engagements)
 
-        # Aggregate metrics by engagement type
+# Aggregate metrics by engagement type
         aggregates = defaultdict(list)
         for engagement in filtered_engagements:
             engagement_type = engagement["engagement_type"]
             aggregates[engagement_type].append(engagement["count"])
 
-        # Calculate aggregates
+# Calculate aggregates
         for engagement_type, values in aggregates.items():
             if aggregation == "sum":
                 result["aggregate"][engagement_type] = sum(values)
@@ -462,7 +460,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             else:
                 result["aggregate"][engagement_type] = sum(values)
 
-        # Group data if requested
+# Group data if requested
         if group_by:
             if group_by == "channel":
                 # Group by channel
@@ -472,7 +470,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     engagement_type = engagement["engagement_type"]
                     channels_data[channel][engagement_type].append(engagement["count"])
 
-                # Calculate aggregates for each channel
+# Calculate aggregates for each channel
                 for channel, channel_data in channels_data.items():
                     result["grouped_data"][channel] = {}
                     for engagement_type, values in channel_data.items():
@@ -501,7 +499,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                                 values
                             )
 
-            elif group_by == "engagement_type":
+elif group_by == "engagement_type":
                 # Group by engagement type
                 for engagement_type, values in aggregates.items():
                     if aggregation == "sum":
@@ -519,17 +517,17 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     else:
                         result["grouped_data"][engagement_type] = sum(values)
 
-            elif group_by in ["daily", "weekly", "monthly"]:
+elif group_by in ["daily", "weekly", "monthly"]:
                 # Group by time period
                 time_periods = defaultdict(lambda: defaultdict(list))
 
-                for engagement in filtered_engagements:
+for engagement in filtered_engagements:
                     if isinstance(engagement["timestamp"], str):
                         timestamp = datetime.fromisoformat(engagement["timestamp"])
                     else:
                         timestamp = engagement["timestamp"]
 
-                    # Format timestamp based on group_by
+# Format timestamp based on group_by
                     if group_by == "daily":
                         period = timestamp.strftime("%Y-%m-%d")
                     elif group_by == "weekly":
@@ -539,10 +537,10 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     elif group_by == "monthly":
                         period = timestamp.strftime("%Y-%m")
 
-                    engagement_type = engagement["engagement_type"]
+engagement_type = engagement["engagement_type"]
                     time_periods[period][engagement_type].append(engagement["count"])
 
-                # Calculate aggregates for each time period
+# Calculate aggregates for each time period
                 for period, period_data in sorted(time_periods.items()):
                     result["grouped_data"][period] = {}
                     for engagement_type, values in period_data.items():
@@ -571,59 +569,59 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                                 values
                             )
 
-        return result
+            return result
 
-    def analyze_performance(
+def analyze_performance(
         self, content_id: str, benchmark_metrics: Optional[Dict[str, float]] = None
     ) -> Dict[str, Any]:
         """
         Analyze content performance against benchmarks or averages.
 
-        Args:
+Args:
             content_id: ID of the content
             benchmark_metrics: Optional dictionary of benchmark metrics for comparison
 
-        Returns:
+Returns:
             Dictionary containing the performance analysis
 
-        Raises:
+Raises:
             ContentNotFoundError: If the content ID is not found
         """
         # Check if content exists
         if content_id not in self.content:
             raise ContentNotFoundError(content_id)
 
-        content = self.content[content_id]
+content = self.content[content_id]
         content_type = content["content_type"]
 
-        # Get engagement metrics
+# Get engagement metrics
         metrics = self.get_engagement_metrics(
             content_id=content_id, group_by="engagement_type"
         )
 
-        # Use provided benchmarks or defaults
+# Use provided benchmarks or defaults
         benchmarks = benchmark_metrics or DEFAULT_BENCHMARKS.get(content_type, {})
 
-        # Calculate performance relative to benchmarks
+# Calculate performance relative to benchmarks
         performance = {}
         for engagement_type, value in metrics["aggregate"].items():
             benchmark = benchmarks.get(engagement_type, 0)
 
-            if benchmark > 0:
+if benchmark > 0:
                 performance_pct = (value / benchmark) * 100
             elif value > 0:
                 performance_pct = float("inf")  # Undefined comparison
             else:
                 performance_pct = 0
 
-            performance[engagement_type] = {
+performance[engagement_type] = {
                 "actual": value,
                 "benchmark": benchmark,
                 "performance_percentage": performance_pct,
                 "difference": value - benchmark,
             }
 
-        # Calculate overall performance score
+# Calculate overall performance score
         if performance:
             pct_values = [
                 p["performance_percentage"]
@@ -634,7 +632,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         else:
             overall_score = 0
 
-        # Calculate engagement rate
+# Calculate engagement rate
         views = metrics["aggregate"].get("view", 0) + metrics["aggregate"].get(
             "impression", 0
         )
@@ -643,16 +641,16 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             for e in ["click", "like", "comment", "share"]
         )
 
-        engagement_rate = (engagements / views) * 100 if views > 0 else 0
+engagement_rate = (engagements / views) * 100 if views > 0 else 0
 
-        # Calculate conversion rate
+# Calculate conversion rate
         conversions = sum(
             metrics["aggregate"].get(c, 0)
             for c in ["lead", "signup", "download", "purchase"]
         )
         conversion_rate = (conversions / views) * 100 if views > 0 else 0
 
-        # Create performance analysis result
+# Create performance analysis result
         result = {
             "content_id": content_id,
             "content_type": content_type,
@@ -672,36 +670,36 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             "performance_rating": self._get_performance_rating(overall_score),
         }
 
-        # Add performance insights
+# Add performance insights
         result["insights"] = self._generate_performance_insights(result)
 
-        return result
+            return result
 
-    def _get_performance_rating(self, score: float) -> str:
+def _get_performance_rating(self, score: float) -> str:
         """Get a performance rating based on score."""
         if score >= 150:
-            return "exceptional"
+                        return "exceptional"
         elif score >= 120:
-            return "excellent"
+                        return "excellent"
         elif score >= 100:
-            return "good"
+                        return "good"
         elif score >= 80:
-            return "average"
+                        return "average"
         elif score >= 50:
-            return "below_average"
+                        return "below_average"
         else:
-            return "poor"
+                        return "poor"
 
-    def _generate_performance_insights(
+def _generate_performance_insights(
         self, analysis: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """
         Generate performance insights based on content analysis.
 
-        Args:
+Args:
             analysis: Content performance analysis dictionary
 
-        Returns:
+Returns:
             List of insight dictionaries with message and type
         """
         insights = []
@@ -709,7 +707,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         performance = analysis["performance"]
         engagement_metrics = analysis["engagement_metrics"]
 
-        # Check engagement rate
+# Check engagement rate
         if engagement_metrics["engagement_rate"] > 10:
             insights.append(
                 {
@@ -725,7 +723,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 }
             )
 
-        # Check conversion rate
+# Check conversion rate
         if engagement_metrics["conversion_rate"] > 5:
             insights.append(
                 {
@@ -744,7 +742,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 }
             )
 
-        # Check for high-performing metrics
+# Check for high-performing metrics
         for metric_name, metric_data in performance.items():
             if metric_data["performance_percentage"] > 150:
                 insights.append(
@@ -754,7 +752,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     }
                 )
 
-        # Check for underperforming metrics
+# Check for underperforming metrics
         underperforming = [
             m for m, d in performance.items() if d["performance_percentage"] < 50
         ]
@@ -767,7 +765,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 }
             )
 
-        # Check for trending potential
+# Check for trending potential
         if metrics.get("share", 0) > metrics.get("like", 0) * 0.2:
             insights.append(
                 {
@@ -776,7 +774,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 }
             )
 
-        # Add generic insight if none generated
+# Add generic insight if none generated
         if not insights:
             if analysis["overall_performance_score"] >= 100:
                 insights.append(
@@ -793,32 +791,32 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     }
                 )
 
-        return insights
+            return insights
 
-    def compare_content(
+def compare_content(
         self, content_ids: List[str], metrics: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Compare performance of multiple content items.
 
-        Args:
+Args:
             content_ids: List of content IDs to compare
             metrics: Optional list of metrics to include in the comparison
 
-        Returns:
+Returns:
             Dictionary containing the content comparison
 
-        Raises:
+Raises:
             InvalidParameterError: If no valid content IDs are provided
         """
         if not content_ids:
             raise InvalidParameterError("At least one content ID must be provided")
 
-        # Get analysis for each content item
+# Get analysis for each content item
         content_analyses = {}
         valid_content_ids = []
 
-        for content_id in content_ids:
+for content_id in content_ids:
             try:
                 analysis = self.analyze_performance(content_id)
                 content_analyses[content_id] = analysis
@@ -826,10 +824,10 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             except ContentNotFoundError:
                 continue
 
-        if not valid_content_ids:
+if not valid_content_ids:
             raise InvalidParameterError("None of the provided content IDs were found")
 
-        # Extract content information
+# Extract content information
         content_info = {}
         for content_id in valid_content_ids:
             content = self.content[content_id]
@@ -840,14 +838,14 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 "created_at": content["created_at"],
             }
 
-        # Determine metrics to compare
+# Determine metrics to compare
         all_metrics = set()
         for analysis in content_analyses.values():
             all_metrics.update(analysis["metrics"].keys())
 
-        compare_metrics = metrics or list(all_metrics)
+compare_metrics = metrics or list(all_metrics)
 
-        # Compare metrics across content
+# Compare metrics across content
         metrics_comparison = {}
         for metric_name in compare_metrics:
             metric_comparison = {
@@ -857,40 +855,40 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 "average_value": 0,
             }
 
-            values = []
+values = []
 
-            for content_id, analysis in content_analyses.items():
+for content_id, analysis in content_analyses.items():
                 value = analysis["metrics"].get(metric_name, 0)
 
-                metric_comparison["content_values"][content_id] = value
+metric_comparison["content_values"][content_id] = value
                 values.append(value)
 
-                # Update highest value
+# Update highest value
                 if value > metric_comparison["highest_value"]["value"]:
                     metric_comparison["highest_value"] = {
                         "content_id": content_id,
                         "value": value,
                     }
 
-                # Update lowest value
+# Update lowest value
                 if value < metric_comparison["lowest_value"]["value"]:
                     metric_comparison["lowest_value"] = {
                         "content_id": content_id,
                         "value": value,
                     }
 
-            # Calculate average
+# Calculate average
             metric_comparison["average_value"] = (
                 sum(values) / len(values) if values else 0
             )
 
-            # Set lowest value to 0 if it was not updated
+# Set lowest value to 0 if it was not updated
             if metric_comparison["lowest_value"]["value"] == float("in"):
                 metric_comparison["lowest_value"] = {"content_id": None, "value": 0}
 
-            metrics_comparison[metric_name] = metric_comparison
+metrics_comparison[metric_name] = metric_comparison
 
-        # Rank content by overall performance
+# Rank content by overall performance
         ranking = []
         for content_id, analysis in content_analyses.items():
             ranking.append(
@@ -901,10 +899,10 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 }
             )
 
-        # Sort by performance score (highest first)
+# Sort by performance score (highest first)
         ranking.sort(key=lambda x: x["performance_score"], reverse=True)
 
-        # Create final comparison result
+# Create final comparison result
         result = {
             "content_ids": valid_content_ids,
             "content_info": content_info,
@@ -912,9 +910,9 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             "performance_ranking": ranking,
         }
 
-        return result
+            return result
 
-    def identify_top_performing_content(
+def identify_top_performing_content(
         self,
         content_type: Optional[str] = None,
         channel: Optional[str] = None,
@@ -925,29 +923,29 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         """
         Identify top-performing content based on engagement metrics.
 
-        Args:
+Args:
             content_type: Optional filter for content type
             channel: Optional filter for a specific channel
             engagement_metric: Metric to use for ranking
             time_period: Optional tuple of (start_date, end_date) to limit analysis
             limit: Maximum number of items to return
 
-        Returns:
+Returns:
             List of top-performing content items with metrics
         """
         # Get all content matching filters
         content_list = self.list_content(content_type=content_type, channel=channel)
 
-        if not content_list:
-            return []
+if not content_list:
+                        return []
 
-        # Get metrics for each content item
+# Get metrics for each content item
         content_metrics = []
 
-        for content in content_list:
+for content in content_list:
             content_id = content["content_id"]
 
-            try:
+try:
                 # Get metrics for this content
                 metrics = self.get_engagement_metrics(
                     content_id=content_id,
@@ -955,10 +953,10 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     end_time=time_period[1] if time_period else None,
                 )
 
-                # Get the value for the ranking metric
+# Get the value for the ranking metric
                 metric_value = metrics["aggregate"].get(engagement_metric, 0)
 
-                # Add to content metrics
+# Add to content metrics
                 content_metrics.append(
                     {
                         "content_id": content_id,
@@ -974,15 +972,15 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 logger.warning(f"Error getting metrics for content {content_id}: {e}")
                 continue
 
-        # Sort by metric value (highest first)
+# Sort by metric value (highest first)
         content_metrics.sort(key=lambda x: x["metric_value"], reverse=True)
 
-        # Limit results
+# Limit results
         top_content = content_metrics[:limit]
 
-        return top_content
+            return top_content
 
-    def generate_content_report(
+def generate_content_report(
         self,
         content_id: str,
         report_type: str = "summary",
@@ -992,25 +990,25 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
         """
         Generate a content performance report.
 
-        Args:
+Args:
             content_id: ID of the content
             report_type: Type of report to generate ("summary", "detailed", "channel")
             start_date: Optional start date for report data
             end_date: Optional end date for report data
 
-        Returns:
+Returns:
             Dictionary containing the report data
 
-        Raises:
+Raises:
             ContentNotFoundError: If the content ID is not found
         """
         # Check if content exists
         if content_id not in self.content:
             raise ContentNotFoundError(content_id)
 
-        content = self.content[content_id]
+content = self.content[content_id]
 
-        # Initialize report
+# Initialize report
         report = {
             "content_id": content_id,
             "title": content["title"],
@@ -1027,10 +1025,10 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             },
         }
 
-        # Add performance analysis
+# Add performance analysis
         analysis = self.analyze_performance(content_id)
 
-        # Create report based on type
+# Create report based on type
         if report_type == "summary":
             # Summary report with high-level metrics
             report["performance_summary"] = {
@@ -1042,12 +1040,12 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 "insights": analysis["insights"],
             }
 
-            # Add top metrics
+# Add top metrics
             sorted_metrics = sorted(
                 analysis["metrics"].items(), key=lambda x: x[1], reverse=True
             )
 
-            for metric_name, value in sorted_metrics[:5]:
+for metric_name, value in sorted_metrics[:5]:
                 report["performance_summary"]["top_metrics"].append(
                     {
                         "name": metric_name,
@@ -1061,7 +1059,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     }
                 )
 
-            # Add time series data
+# Add time series data
             time_metrics = self.get_engagement_metrics(
                 content_id=content_id,
                 start_time=start_date,
@@ -1069,16 +1067,16 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                 group_by="daily",
             )
 
-            report["time_series"] = time_metrics.get("grouped_data", {})
+report["time_series"] = time_metrics.get("grouped_data", {})
 
-        elif report_type == "detailed":
+elif report_type == "detailed":
             # Detailed report with all metrics and analysis
             report["performance_analysis"] = analysis
 
-            # Add time series data with different groupings
+# Add time series data with different groupings
             report["time_series"] = {}
 
-            for group_by in ["daily", "weekly", "monthly"]:
+for group_by in ["daily", "weekly", "monthly"]:
                 time_metrics = self.get_engagement_metrics(
                     content_id=content_id,
                     start_time=start_date,
@@ -1086,13 +1084,13 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     group_by=group_by,
                 )
 
-                report["time_series"][group_by] = time_metrics.get("grouped_data", {})
+report["time_series"][group_by] = time_metrics.get("grouped_data", {})
 
-        elif report_type == "channel":
+elif report_type == "channel":
             # Channel report with metrics by channel
             report["channel_performance"] = {}
 
-            for channel in content["channels"]:
+for channel in content["channels"]:
                 channel_metrics = self.get_engagement_metrics(
                     content_id=content_id,
                     start_time=start_date,
@@ -1100,15 +1098,15 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     channels=[channel],
                 )
 
-                report["channel_performance"][channel] = {
+report["channel_performance"][channel] = {
                     "metrics": channel_metrics["aggregate"],
                     "total_engagements": sum(channel_metrics["aggregate"].values()),
                 }
 
-            # Add channel comparison
+# Add channel comparison
             channels_data = []
 
-            for channel, data in report["channel_performance"].items():
+for channel, data in report["channel_performance"].items():
                 channels_data.append(
                     {
                         "channel": channel,
@@ -1117,29 +1115,29 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                     }
                 )
 
-            # Sort by total engagements (highest first)
+# Sort by total engagements (highest first)
             channels_data.sort(key=lambda x: x["total_engagements"], reverse=True)
 
-            report["channel_comparison"] = channels_data
+report["channel_comparison"] = channels_data
 
-            # Add recommendations for channels
+# Add recommendations for channels
             report["channel_recommendations"] = []
 
-            # Find best and worst channels
+# Find best and worst channels
             if channels_data:
                 best_channel = channels_data[0]["channel"]
                 worst_channel = (
                     channels_data[-1]["channel"] if len(channels_data) > 1 else None
                 )
 
-                report["channel_recommendations"].append(
+report["channel_recommendations"].append(
                     {
                         "type": "positive",
                         "message": f"The {best_channel} channel is performing best. Consider allocating more resources to this channel.",
                     }
                 )
 
-                if worst_channel and worst_channel != best_channel:
+if worst_channel and worst_channel != best_channel:
                     report["channel_recommendations"].append(
                         {
                             "type": "negative",
@@ -1147,4 +1145,4 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
                         }
                     )
 
-        return report
+            return report

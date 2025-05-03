@@ -97,7 +97,7 @@ class RedisCache(CacheBackend):
         if not self.redis.exists(redis_key):
             self.stats["misses"] += 1
             self._save_stats()
-            return None
+                    return None
 
         # Get value
         value_blob = self.redis.get(redis_key)
@@ -105,7 +105,7 @@ class RedisCache(CacheBackend):
         if value_blob is None:
             self.stats["misses"] += 1
             self._save_stats()
-            return None
+                    return None
 
         # Deserialize value
         try:
@@ -117,12 +117,12 @@ class RedisCache(CacheBackend):
 
             self.stats["hits"] += 1
             self._save_stats()
-            return value
+                    return value
 
         except Exception:
             self.stats["misses"] += 1
             self._save_stats()
-            return None
+                    return None
 
     def set(self, key: str, value: Dict[str, Any], ttl: Optional[int] = None) -> bool:
         """
@@ -166,10 +166,10 @@ class RedisCache(CacheBackend):
 
             self.stats["sets"] += 1
             self._save_stats()
-            return True
+                    return True
 
         except Exception:
-            return False
+                    return False
 
     def delete(self, key: str) -> bool:
         """
@@ -189,7 +189,7 @@ class RedisCache(CacheBackend):
 
         self.stats["deletes"] += 1
         self._save_stats()
-        return True
+                return True
 
     def exists(self, key: str) -> bool:
         """
@@ -202,7 +202,7 @@ class RedisCache(CacheBackend):
             True if the key exists, False otherwise
         """
         redis_key = self._get_redis_key(key)
-        return bool(self.redis.exists(redis_key))
+                return bool(self.redis.exists(redis_key))
 
     def clear(self) -> bool:
         """
@@ -222,10 +222,10 @@ class RedisCache(CacheBackend):
 
             self.stats["clears"] += 1
             self._save_stats()
-            return True
+                    return True
 
         except Exception:
-            return False
+                    return False
 
     def get_size(self) -> int:
         """
@@ -236,7 +236,7 @@ class RedisCache(CacheBackend):
         """
         # Count keys with value prefix
         pattern = f"{self.prefix}value:*"
-        return len(self.redis.keys(pattern))
+                return len(self.redis.keys(pattern))
 
     def get_keys(self, pattern: Optional[str] = None) -> List[str]:
         """
@@ -261,11 +261,11 @@ class RedisCache(CacheBackend):
             keys.append(key)
 
         if pattern is None:
-            return keys
+                    return keys
 
         # Filter keys by pattern
         regex = re.compile(pattern)
-        return [key for key in keys if regex.match(key)]
+                return [key for key in keys if regex.match(key)]
 
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -291,7 +291,7 @@ class RedisCache(CacheBackend):
         except Exception:
             pass
 
-        return stats
+                return stats
 
     def get_ttl(self, key: str) -> Optional[int]:
         """
@@ -308,11 +308,11 @@ class RedisCache(CacheBackend):
         ttl = self.redis.ttl(redis_key)
 
         if ttl == -1:  # No expiration
-            return None
+                    return None
         elif ttl == -2:  # Key does not exist
-            return None
+                    return None
         else:
-            return ttl
+                    return ttl
 
     def set_ttl(self, key: str, ttl: int) -> bool:
         """
@@ -330,13 +330,13 @@ class RedisCache(CacheBackend):
 
         # Check if key exists
         if not self.redis.exists(redis_key):
-            return False
+                    return False
 
         # Set TTL
         self.redis.expire(redis_key, ttl)
         self.redis.expire(metadata_key, ttl)
 
-        return True
+                return True
 
     def _get_redis_key(self, key: str) -> str:
         """
@@ -348,7 +348,7 @@ class RedisCache(CacheBackend):
         Returns:
             Redis key
         """
-        return f"{self.prefix}value:{key}"
+                return f"{self.prefix}value:{key}"
 
     def _get_metadata_key(self, key: str) -> str:
         """
@@ -360,7 +360,7 @@ class RedisCache(CacheBackend):
         Returns:
             Redis metadata key
         """
-        return f"{self.prefix}metadata:{key}"
+                return f"{self.prefix}metadata:{key}"
 
     def _get_stats_key(self, name: str) -> str:
         """
@@ -372,7 +372,7 @@ class RedisCache(CacheBackend):
         Returns:
             Redis stats key
         """
-        return f"{self.prefix}stats:{name}"
+                return f"{self.prefix}stats:{name}"
 
     def _serialize(self, value: Dict[str, Any]) -> bytes:
         """
@@ -385,12 +385,12 @@ class RedisCache(CacheBackend):
             Serialized value
         """
         if self.serialization == "json":
-            return json.dumps(value).encode("utf-8")
+                    return json.dumps(value).encode("utf-8")
         elif self.serialization == "pickle":
-            return pickle.dumps(value)
+                    return pickle.dumps(value)
         else:
             # Default to JSON
-            return json.dumps(value).encode("utf-8")
+                    return json.dumps(value).encode("utf-8")
 
     def _deserialize(self, value_blob: bytes) -> Dict[str, Any]:
         """
@@ -403,12 +403,12 @@ class RedisCache(CacheBackend):
             Deserialized value
         """
         if self.serialization == "json":
-            return json.loads(value_blob.decode("utf-8"))
+                    return json.loads(value_blob.decode("utf-8"))
         elif self.serialization == "pickle":
-            return pickle.loads(value_blob)
+                    return pickle.loads(value_blob)
         else:
             # Default to JSON
-            return json.loads(value_blob.decode("utf-8"))
+                    return json.loads(value_blob.decode("utf-8"))
 
     def _load_stats(self) -> None:
         """

@@ -28,7 +28,7 @@ class MeteringInterval
 :
     """Enumeration of metering intervals."""
 
-    HOURLY = "hourly"
+HOURLY = "hourly"
     DAILY = "daily"
     WEEKLY = "weekly"
     MONTHLY = "monthly"
@@ -39,12 +39,12 @@ class MeteredBillingPricing(UsageBasedPricing):
     """
     Metered billing pricing model.
 
-    This model implements metered billing, where customers are charged based on
+This model implements metered billing, where customers are charged based on
     their actual measured usage of a service over a specific time period. The
     model supports different metering intervals and can generate invoices based
     on the metered usage.
 
-    Key features:
+Key features:
     - Real-time usage tracking and cost calculation
     - Support for different metering intervals (hourly, daily, monthly)
     - Automatic invoice generation based on metered usage
@@ -52,7 +52,7 @@ class MeteredBillingPricing(UsageBasedPricing):
     - Support for minimum and maximum billing amounts
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "Metered Billing",
         description: str = "Pay only for what you use with precise metering",
@@ -68,7 +68,7 @@ class MeteredBillingPricing(UsageBasedPricing):
         """
         Initialize a metered billing pricing model.
 
-        Args:
+Args:
             name: Name of the pricing model
             description: Description of the pricing model
             billing_calculator: Billing calculator to use
@@ -87,7 +87,7 @@ class MeteredBillingPricing(UsageBasedPricing):
             usage_tracker=usage_tracker,
         )
 
-        self.invoice_manager = invoice_manager or InvoiceManager()
+self.invoice_manager = invoice_manager or InvoiceManager()
         self.metering_interval = metering_interval
         self.minimum_bill_amount = minimum_bill_amount
         self.maximum_bill_amount = maximum_bill_amount
@@ -95,7 +95,7 @@ class MeteredBillingPricing(UsageBasedPricing):
         self.prorate_partial_periods = prorate_partial_periods
         self.billing_periods = {}  # Track billing periods by customer
 
-    def add_metered_metric(
+def add_metered_metric(
         self,
         metric: str,
         price_per_unit: float,
@@ -107,7 +107,7 @@ class MeteredBillingPricing(UsageBasedPricing):
         """
         Add a metered metric to the pricing model.
 
-        Args:
+Args:
             metric: Type of usage metric
             price_per_unit: Price per unit
             category: Category of usage
@@ -115,10 +115,10 @@ class MeteredBillingPricing(UsageBasedPricing):
             minimum_cost: Minimum cost for this metric
             maximum_cost: Maximum cost for this metric
 
-        Returns:
+Returns:
             The created pricing rule
         """
-        return self.add_per_unit_pricing(
+                    return self.add_per_unit_pricing(
             metric=metric,
             price_per_unit=price_per_unit,
             category=category,
@@ -127,7 +127,7 @@ class MeteredBillingPricing(UsageBasedPricing):
             maximum_cost=maximum_cost,
         )
 
-    def add_metered_tiered_metric(
+def add_metered_tiered_metric(
         self,
         metric: str,
         tiers: List[Dict[str, Any]],
@@ -140,7 +140,7 @@ class MeteredBillingPricing(UsageBasedPricing):
         """
         Add a metered metric with tiered pricing.
 
-        Args:
+Args:
             metric: Type of usage metric
             tiers: List of pricing tiers
             graduated: Whether to use graduated pricing
@@ -149,10 +149,10 @@ class MeteredBillingPricing(UsageBasedPricing):
             minimum_cost: Minimum cost for this metric
             maximum_cost: Maximum cost for this metric
 
-        Returns:
+Returns:
             The created pricing rule
         """
-        return self.add_tiered_pricing(
+                    return self.add_tiered_pricing(
             metric=metric,
             tiers=tiers,
             graduated=graduated,
@@ -162,16 +162,16 @@ class MeteredBillingPricing(UsageBasedPricing):
             maximum_cost=maximum_cost,
         )
 
-    def set_metering_interval(self, interval: str) -> None:
+def set_metering_interval(self, interval: str) -> None:
         """
         Set the metering interval.
 
-        Args:
+Args:
             interval: Metering interval (e.g., HOURLY, DAILY, MONTHLY)
         """
         self.metering_interval = interval
 
-    def get_interval_start_end(
+def get_interval_start_end(
         self,
         reference_time: Optional[datetime] = None,
         customer_id: Optional[str] = None,
@@ -179,22 +179,22 @@ class MeteredBillingPricing(UsageBasedPricing):
         """
         Get the start and end times for the current metering interval.
 
-        Args:
+Args:
             reference_time: Reference time (defaults to now)
             customer_id: Customer ID for custom billing periods
 
-        Returns:
+Returns:
             Tuple of (start_time, end_time)
         """
         now = reference_time or datetime.now()
 
-        # Check for custom billing period for this customer
+# Check for custom billing period for this customer
         if customer_id and customer_id in self.billing_periods:
             period = self.billing_periods[customer_id]
             if now >= period["start"] and now <= period["end"]:
-                return period["start"], period["end"]
+                            return period["start"], period["end"]
 
-        # Calculate based on standard intervals
+# Calculate based on standard intervals
         if self.metering_interval == MeteringInterval.HOURLY:
             start = datetime(now.year, now.month, now.day, now.hour)
             end = start + timedelta(hours=1)
@@ -219,43 +219,43 @@ class MeteredBillingPricing(UsageBasedPricing):
             start = datetime(now.year, now.month, now.day)
             end = start + timedelta(days=1)
 
-        return start, end
+            return start, end
 
-    def set_custom_billing_period(
+def set_custom_billing_period(
         self, customer_id: str, start_time: datetime, end_time: datetime
     ) -> None:
         """
         Set a custom billing period for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
             start_time: Start time for the billing period
             end_time: End time for the billing period
         """
         self.billing_periods[customer_id] = {"start": start_time, "end": end_time}
 
-    def calculate_current_usage_cost(
+def calculate_current_usage_cost(
         self, customer_id: str, reference_time: Optional[datetime] = None
     ) -> Dict[str, Any]:
         """
         Calculate the cost for a customer's current usage period.
 
-        Args:
+Args:
             customer_id: ID of the customer
             reference_time: Reference time (defaults to now)
 
-        Returns:
+Returns:
             Dictionary with cost information
         """
         start_time, end_time = self.get_interval_start_end(
             reference_time=reference_time, customer_id=customer_id
         )
 
-        return self.calculate_cost(
+            return self.calculate_cost(
             customer_id=customer_id, start_time=start_time, end_time=end_time
         )
 
-    def generate_invoice(
+def generate_invoice(
         self,
         customer_id: str,
         reference_time: Optional[datetime] = None,
@@ -266,14 +266,14 @@ class MeteredBillingPricing(UsageBasedPricing):
         """
         Generate an invoice for a customer's usage.
 
-        Args:
+Args:
             customer_id: ID of the customer
             reference_time: Reference time (defaults to now)
             due_days: Number of days until the invoice is due
             customer_info: Customer information for the invoice
             metadata: Additional metadata for the invoice
 
-        Returns:
+Returns:
             Dictionary with invoice information
         """
         # Get the billing period
@@ -281,26 +281,26 @@ class MeteredBillingPricing(UsageBasedPricing):
             reference_time=reference_time, customer_id=customer_id
         )
 
-        # Calculate the cost
+# Calculate the cost
         cost = self.calculate_cost(
             customer_id=customer_id, start_time=start_time, end_time=end_time
         )
 
-        # Apply minimum and maximum bill amounts
+# Apply minimum and maximum bill amounts
         total_cost = cost["total"]
         if total_cost < self.minimum_bill_amount:
             total_cost = self.minimum_bill_amount
 
-        if (
+if (
             self.maximum_bill_amount is not None
             and total_cost > self.maximum_bill_amount
         ):
             total_cost = self.maximum_bill_amount
 
-        # Calculate due date
+# Calculate due date
         due_date = datetime.now() + timedelta(days=due_days)
 
-        # Generate the invoice
+# Generate the invoice
         invoice = self.invoice_manager.generate_invoice_from_usage(
             customer_id=customer_id,
             start_time=start_time,
@@ -310,8 +310,8 @@ class MeteredBillingPricing(UsageBasedPricing):
             metadata=metadata,
         )
 
-        if invoice:
-            return {
+if invoice:
+                        return {
                 "invoice_id": invoice.id,
                 "customer_id": customer_id,
                 "start_time": start_time,
@@ -326,7 +326,7 @@ class MeteredBillingPricing(UsageBasedPricing):
                 "invoice_url": invoice.metadata.get("invoice_url"),
             }
 
-        return {
+            return {
             "error": "Failed to generate invoice",
             "customer_id": customer_id,
             "start_time": start_time,
@@ -334,7 +334,7 @@ class MeteredBillingPricing(UsageBasedPricing):
             "total_amount": total_cost,
         }
 
-    def track_usage_and_bill(
+def track_usage_and_bill(
         self,
         customer_id: str,
         metric: str,
@@ -347,11 +347,11 @@ class MeteredBillingPricing(UsageBasedPricing):
         """
         Track usage and calculate the current bill.
 
-        This method tracks usage for a customer and returns the current bill amount.
+This method tracks usage for a customer and returns the current bill amount.
         If auto_invoice is enabled and the billing period has ended, it will also
         generate an invoice.
 
-        Args:
+Args:
             customer_id: ID of the customer
             metric: Type of usage metric
             quantity: Quantity of usage
@@ -360,7 +360,7 @@ class MeteredBillingPricing(UsageBasedPricing):
             resource_type: Type of resource being used
             metadata: Additional metadata for the usage record
 
-        Returns:
+Returns:
             Dictionary with usage and billing information
         """
         # Track the usage
@@ -374,10 +374,10 @@ class MeteredBillingPricing(UsageBasedPricing):
             metadata=metadata,
         )
 
-        # Calculate the current cost
+# Calculate the current cost
         cost = self.calculate_current_usage_cost(customer_id=customer_id)
 
-        result = {
+result = {
             "usage_record_id": record.id,
             "customer_id": customer_id,
             "metric": metric,
@@ -387,19 +387,19 @@ class MeteredBillingPricing(UsageBasedPricing):
             "cost_breakdown": cost["breakdown"],
         }
 
-        # Check if we need to generate an invoice
+# Check if we need to generate an invoice
         if self.auto_invoice:
             now = datetime.now()
             _, period_end = self.get_interval_start_end(
                 reference_time=now, customer_id=customer_id
             )
 
-            # If we're at the end of the billing period, generate an invoice
+# If we're at the end of the billing period, generate an invoice
             if now >= period_end - timedelta(minutes=5):  # 5-minute buffer
                 invoice_result = self.generate_invoice(customer_id=customer_id)
                 result["invoice"] = invoice_result
 
-        return result
+            return result
 
 
 # Example usage
@@ -411,14 +411,14 @@ if __name__ == "__main__":
         metering_interval=MeteringInterval.DAILY,
     )
 
-    # Add metered metrics
+# Add metered metrics
     model.add_metered_metric(
         metric=UsageMetric.API_CALL,
         price_per_unit=0.01,
         category=UsageCategory.INFERENCE,
     )
 
-    model.add_metered_tiered_metric(
+model.add_metered_tiered_metric(
         metric=UsageMetric.TOKEN,
         tiers=[
             {"min_quantity": 0, "max_quantity": 1000, "price_per_unit": 0.001},
@@ -428,10 +428,10 @@ if __name__ == "__main__":
         category=UsageCategory.INFERENCE,
     )
 
-    # Track some usage
+# Track some usage
     customer_id = "customer123"
 
-    result = model.track_usage_and_bill(
+result = model.track_usage_and_bill(
         customer_id=customer_id,
         metric=UsageMetric.API_CALL,
         quantity=100,
@@ -441,6 +441,6 @@ if __name__ == "__main__":
         metadata={"endpoint": "/v1/completions"},
     )
 
-    print(f"Tracked usage: {result['quantity']} {result['metric']}")
+print(f"Tracked usage: {result['quantity']} {result['metric']}")
     print(f"Current cost: ${result['current_cost']:.2f}")
     print(f"Cost breakdown: {result['cost_breakdown']}")

@@ -58,12 +58,12 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("niche_analysis")
             if not service:
                 logger.warning("Niche analysis service not available")
-                return []
+                        return []
 
             # Get niches from service
             try:
                 niches = await service.get_niches(limit=limit, offset=offset)
-                return [
+                        return [
                     NicheType(
                         id=str(niche.id),
                         name=niche.name,
@@ -82,7 +82,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting niches: {str(e)}")
-                return []
+                        return []
 
         @strawberry.field
         async def niche(self, info: Info, id: str) -> Optional[NicheType]:
@@ -100,15 +100,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("niche_analysis")
             if not service:
                 logger.warning("Niche analysis service not available")
-                return None
+                        return None
 
             # Get niche from service
             try:
                 niche = await service.get_niche(id)
                 if not niche:
-                    return None
+                            return None
 
-                return NicheType(
+                        return NicheType(
                     id=str(niche.id),
                     name=niche.name,
                     description=niche.description,
@@ -124,7 +124,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error getting niche: {str(e)}")
-                return None
+                        return None
 
         @strawberry.field
         async def opportunities(
@@ -150,7 +150,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("niche_analysis")
             if not service:
                 logger.warning("Niche analysis service not available")
-                return []
+                        return []
 
             # Get opportunities from service
             try:
@@ -158,7 +158,7 @@ if STRAWBERRY_AVAILABLE:
                     niche_id=niche_id, limit=limit, offset=offset
                 )
 
-                return [
+                        return [
                     OpportunityType(
                         id=str(opp.id),
                         niche_id=str(opp.niche_id),
@@ -180,7 +180,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting opportunities: {str(e)}")
-                return []
+                        return []
 
     @strawberry.type
     class NicheAnalysisMutation:
@@ -204,7 +204,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("niche_analysis")
             if not service:
                 logger.warning("Niche analysis service not available")
-                return None
+                        return None
 
             # Create niche analysis
             try:
@@ -216,7 +216,7 @@ if STRAWBERRY_AVAILABLE:
                     competition_level=input.competition_level,
                 )
 
-                return NicheType(
+                        return NicheType(
                     id=str(niche.id),
                     name=niche.name,
                     description=niche.description,
@@ -232,7 +232,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating niche analysis: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def update_niche(
@@ -253,7 +253,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("niche_analysis")
             if not service:
                 logger.warning("Niche analysis service not available")
-                return None
+                        return None
 
             # Update niche
             try:
@@ -267,9 +267,9 @@ if STRAWBERRY_AVAILABLE:
                 )
 
                 if not niche:
-                    return None
+                            return None
 
-                return NicheType(
+                        return NicheType(
                     id=str(niche.id),
                     name=niche.name,
                     description=niche.description,
@@ -285,7 +285,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error updating niche: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def delete_niche(self, info: Info, id: str) -> bool:
@@ -303,12 +303,12 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("niche_analysis")
             if not service:
                 logger.warning("Niche analysis service not available")
-                return False
+                        return False
 
             # Delete niche
             try:
                 success = await service.delete_niche(id)
-                return success
+                        return success
             except Exception as e:
                 logger.error(f"Error deleting niche: {str(e)}")
-                return False
+                        return False

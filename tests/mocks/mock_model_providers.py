@@ -93,8 +93,8 @@ class MockBaseModelProvider:
     ) -> List[Dict[str, Any]]:
         """Get the call history, optionally filtered by method name."""
         if method_name:
-            return [call for call in self.call_history if call["method"] == method_name]
-        return self.call_history
+                    return [call for call in self.call_history if call["method"] == method_name]
+                return self.call_history
 
     def clear_call_history(self):
         """Clear the call history."""
@@ -227,7 +227,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
-        return self.available_models
+                return self.available_models
 
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
@@ -236,9 +236,9 @@ class MockOpenAIProvider(MockBaseModelProvider):
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
-                return model
+                        return model
 
-        return None
+                return None
 
     def create_completion(
         self,
@@ -298,9 +298,9 @@ class MockOpenAIProvider(MockBaseModelProvider):
                         ],
                     }
 
-            return generate_stream()
+                    return generate_stream()
 
-        return response
+                return response
 
     def create_chat_completion(
         self,
@@ -367,9 +367,9 @@ class MockOpenAIProvider(MockBaseModelProvider):
                         ],
                     }
 
-            return generate_stream()
+                    return generate_stream()
 
-        return response
+                return response
 
     def create_embedding(
         self, model: str, input: Union[str, List[str]], **kwargs
@@ -402,7 +402,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
             )
             response["usage"]["total_tokens"] = response["usage"]["prompt_tokens"]
 
-        return response
+                return response
 
     def create_image(
         self,
@@ -437,7 +437,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
                     {"url": f"https://mock-url.com/image_{i}.png", "b64_json": None}
                 )
 
-        return response
+                return response
 
 
 class MockOllamaProvider(MockBaseModelProvider):
@@ -497,7 +497,7 @@ class MockOllamaProvider(MockBaseModelProvider):
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
-        return {"models": self.available_models}
+                return {"models": self.available_models}
 
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
@@ -506,9 +506,9 @@ class MockOllamaProvider(MockBaseModelProvider):
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
-                return model
+                        return model
 
-        return None
+                return None
 
     def generate(
         self,
@@ -558,9 +558,9 @@ class MockOllamaProvider(MockBaseModelProvider):
                     chunk["done"] = done
                     yield chunk
 
-            return generate_stream()
+                    return generate_stream()
 
-        return response
+                return response
 
     def chat(
         self,
@@ -617,9 +617,9 @@ class MockOllamaProvider(MockBaseModelProvider):
                     chunk["done"] = done
                     yield chunk
 
-            return generate_stream()
+                    return generate_stream()
 
-        return response
+                return response
 
 
 class MockLMStudioProvider(MockBaseModelProvider):
@@ -685,7 +685,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
     def list_models(self) -> Dict[str, Any]:
         """List available models."""
         self.record_call("list_models")
-        return {"data": self.available_models, "object": "list"}
+                return {"data": self.available_models, "object": "list"}
 
     def create_completion(
         self,
@@ -741,9 +741,9 @@ class MockLMStudioProvider(MockBaseModelProvider):
                         ],
                     }
 
-            return generate_stream()
+                    return generate_stream()
 
-        return response
+                return response
 
     def create_chat_completion(
         self,
@@ -806,9 +806,9 @@ class MockLMStudioProvider(MockBaseModelProvider):
                         ],
                     }
 
-            return generate_stream()
+                    return generate_stream()
 
-        return response
+                return response
 
 
 class MockHuggingFaceProvider(MockBaseModelProvider):
@@ -902,7 +902,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
-        return self.available_models
+                return self.available_models
 
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
@@ -911,9 +911,9 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
-                return model
+                        return model
 
-        return None
+                return None
 
     def text_generation(
         self,
@@ -951,7 +951,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                 response["generated_text"] = custom_response
                 break
 
-        return [response]
+                return [response]
 
     def text2text_generation(
         self, model_id: str, text: str, max_length: int = 100, **kwargs
@@ -983,7 +983,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                 response["generated_text"] = custom_response
                 break
 
-        return [response]
+                return [response]
 
     def summarization(
         self,
@@ -1019,7 +1019,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                 response["summary_text"] = custom_response
                 break
 
-        return [response]
+                return [response]
 
     def translation(
         self,
@@ -1055,7 +1055,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                 response["translation_text"] = custom_response
                 break
 
-        return [response]
+                return [response]
 
     def text_classification(
         self, model_id: str, text: str, **kwargs
@@ -1074,7 +1074,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         response = self.mock_responses["text_classification"].copy()
 
-        return response
+                return response
 
     def token_classification(
         self, model_id: str, text: str, **kwargs
@@ -1093,7 +1093,7 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         response = self.mock_responses["token_classification"].copy()
 
-        return response
+                return response
 
     def embedding(
         self, model_id: str, text: Union[str, List[str]], **kwargs
@@ -1122,14 +1122,14 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                     * 0.1
                 )
                 embeddings.append(base_embedding + offset)
-            return np.vstack(embeddings)
+                    return np.vstack(embeddings)
         else:
             # Add a small random offset for determinism based on text hash
             offset = (
                 np.random.RandomState(hash(text) % 2**32).rand(*base_embedding.shape)
                 * 0.1
             )
-            return base_embedding + offset
+                    return base_embedding + offset
 
 
 class MockLocalModelProvider(MockBaseModelProvider):
@@ -1211,7 +1211,7 @@ class MockLocalModelProvider(MockBaseModelProvider):
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
-        return self.available_models
+                return self.available_models
 
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
@@ -1220,9 +1220,9 @@ class MockLocalModelProvider(MockBaseModelProvider):
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
-                return model
+                        return model
 
-        return None
+                return None
 
     def generate_completion(
         self,
@@ -1270,9 +1270,9 @@ class MockLocalModelProvider(MockBaseModelProvider):
                         chunk["stop"] = True
                     yield chunk
 
-            return generate_stream()
+                    return generate_stream()
 
-        return response
+                return response
 
     def generate_chat_completion(
         self,
@@ -1328,9 +1328,9 @@ class MockLocalModelProvider(MockBaseModelProvider):
                         chunk["stop"] = True
                     yield chunk
 
-            return generate_stream()
+                    return generate_stream()
 
-        return response
+                return response
 
 
 class MockONNXProvider(MockBaseModelProvider):
@@ -1389,7 +1389,7 @@ class MockONNXProvider(MockBaseModelProvider):
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models."""
         self.record_call("list_models")
-        return self.available_models
+                return self.available_models
 
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a specific model."""
@@ -1398,9 +1398,9 @@ class MockONNXProvider(MockBaseModelProvider):
         # Find the model in available models
         for model in self.available_models:
             if model["id"] == model_id:
-                return model
+                        return model
 
-        return None
+                return None
 
     def run_inference(
         self, model_id: str, inputs: Dict[str, Any], **kwargs
@@ -1417,13 +1417,13 @@ class MockONNXProvider(MockBaseModelProvider):
         capabilities = model_info.get("capabilities", [])
 
         if "text-classification" in capabilities:
-            return self.mock_responses["text_classification"].copy()
+                    return self.mock_responses["text_classification"].copy()
         elif "feature-extraction" in capabilities:
-            return self.mock_responses["feature_extraction"].copy()
+                    return self.mock_responses["feature_extraction"].copy()
         elif "image-classification" in capabilities:
-            return self.mock_responses["image_classification"].copy()
+                    return self.mock_responses["image_classification"].copy()
         elif "text-generation" in capabilities:
-            return self.mock_responses["text_generation"].copy()
+                    return self.mock_responses["text_generation"].copy()
         else:
             raise ValueError(f"Unsupported capability for model {model_id}")
 
@@ -1462,4 +1462,4 @@ def create_mock_provider(
     if not provider_class:
         raise ValueError(f"Unknown provider type: {provider_type}")
 
-    return provider_class(config)
+            return provider_class(config)

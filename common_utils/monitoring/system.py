@@ -62,13 +62,11 @@ class SystemMonitor:
                 cls._instance._monitor_interval = (
                     60  # Default: Monitor every 60 seconds
                 )
-        return cls._instance
+                return cls._instance
 
     def __init__(self):
         if self._initialized:
-            return
-
-        # Initialize metrics
+                    return # Initialize metrics
         self._cpu_usage = create_metric(
             "system_cpu_usage_percent", MetricType.GAUGE, "CPU usage in percent"
         )
@@ -120,13 +118,13 @@ class SystemMonitor:
             # Record the metric
             record_value("system_cpu_usage_percent", cpu_percent)
 
-            return metrics
+                    return metrics
         except ImportError:
             logger.warning("psutil not installed, cannot monitor CPU usage")
-            return {"error": "psutil not installed"}
+                    return {"error": "psutil not installed"}
         except Exception as e:
             logger.error(f"Error getting CPU metrics: {e}")
-            return {"error": str(e)}
+                    return {"error": str(e)}
 
     def get_memory_metrics(self) -> Dict[str, float]:
         """
@@ -151,13 +149,13 @@ class SystemMonitor:
             record_value("system_memory_usage_bytes", memory.used)
             record_value("system_memory_usage_percent", memory.percent)
 
-            return metrics
+                    return metrics
         except ImportError:
             logger.warning("psutil not installed, cannot monitor memory usage")
-            return {"error": "psutil not installed"}
+                    return {"error": "psutil not installed"}
         except Exception as e:
             logger.error(f"Error getting memory metrics: {e}")
-            return {"error": str(e)}
+                    return {"error": str(e)}
 
     def get_disk_metrics(self, path: str = "/") -> Dict[str, float]:
         """
@@ -185,13 +183,13 @@ class SystemMonitor:
             record_value("system_disk_usage_bytes", disk.used, {"path": path})
             record_value("system_disk_usage_percent", disk.percent, {"path": path})
 
-            return metrics
+                    return metrics
         except ImportError:
             logger.warning("psutil not installed, cannot monitor disk usage")
-            return {"error": "psutil not installed"}
+                    return {"error": "psutil not installed"}
         except Exception as e:
             logger.error(f"Error getting disk metrics: {e}")
-            return {"error": str(e)}
+                    return {"error": str(e)}
 
     def get_network_metrics(self) -> Dict[str, Dict[str, float]]:
         """
@@ -231,13 +229,13 @@ class SystemMonitor:
                         {"interface": interface},
                     )
 
-            return metrics
+                    return metrics
         except ImportError:
             logger.warning("psutil not installed, cannot monitor network usage")
-            return {"error": "psutil not installed"}
+                    return {"error": "psutil not installed"}
         except Exception as e:
             logger.error(f"Error getting network metrics: {e}")
-            return {"error": str(e)}
+                    return {"error": str(e)}
 
     def get_process_metrics(self) -> Dict[str, Any]:
         """
@@ -268,13 +266,13 @@ class SystemMonitor:
             record_value("process_memory_percent", process_info["memory_percent"])
             record_value("process_cpu_percent", process_info["cpu_percent"])
 
-            return {"current_process": process_info, "total_processes": process_count}
+                    return {"current_process": process_info, "total_processes": process_count}
         except ImportError:
             logger.warning("psutil not installed, cannot monitor processes")
-            return {"error": "psutil not installed"}
+                    return {"error": "psutil not installed"}
         except Exception as e:
             logger.error(f"Error getting process metrics: {e}")
-            return {"error": str(e)}
+                    return {"error": str(e)}
 
     def get_all_metrics(self) -> Dict[str, Any]:
         """
@@ -283,7 +281,7 @@ class SystemMonitor:
         Returns:
             Dictionary containing all system metrics
         """
-        return {
+                return {
             "cpu": self.get_cpu_metrics(),
             "memory": self.get_memory_metrics(),
             "disk": self.get_disk_metrics(),
@@ -305,9 +303,7 @@ class SystemMonitor:
         """
         if self._monitoring_thread and self._monitoring_thread.is_alive():
             logger.warning("Monitoring thread is already running")
-            return
-
-        self._stop_event.clear()
+                    return self._stop_event.clear()
         self._monitor_interval = interval
 
         self._monitoring_thread = threading.Thread(
@@ -320,9 +316,7 @@ class SystemMonitor:
         """Stop the background monitoring thread."""
         if not self._monitoring_thread or not self._monitoring_thread.is_alive():
             logger.warning("Monitoring thread is not running")
-            return
-
-        logger.info("Stopping system monitoring thread")
+                    return logger.info("Stopping system monitoring thread")
         self._stop_event.set()
         self._monitoring_thread.join(timeout=5.0)
 
@@ -365,24 +359,24 @@ def get_system_metrics(
         Dictionary containing the requested metrics
     """
     if resource_type is None:
-        return _monitor.get_all_metrics()
+                return _monitor.get_all_metrics()
 
     if isinstance(resource_type, str):
         resource_type = ResourceType(resource_type)
 
     if resource_type == ResourceType.CPU:
-        return _monitor.get_cpu_metrics()
+                return _monitor.get_cpu_metrics()
     elif resource_type == ResourceType.MEMORY:
-        return _monitor.get_memory_metrics()
+                return _monitor.get_memory_metrics()
     elif resource_type == ResourceType.DISK:
-        return _monitor.get_disk_metrics()
+                return _monitor.get_disk_metrics()
     elif resource_type == ResourceType.NETWORK:
-        return _monitor.get_network_metrics()
+                return _monitor.get_network_metrics()
     elif resource_type == ResourceType.PROCESS:
-        return _monitor.get_process_metrics()
+                return _monitor.get_process_metrics()
     else:
         logger.error(f"Unknown resource type: {resource_type}")
-        return {"error": f"Unknown resource type: {resource_type}"}
+                return {"error": f"Unknown resource type: {resource_type}"}
 
 
 def monitor_resources(interval: int = 60, start_monitoring: bool = True) -> None:

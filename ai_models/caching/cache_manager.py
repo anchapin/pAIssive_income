@@ -60,7 +60,7 @@ class CacheManager:
         key = generate_cache_key(model_id, operation, inputs, parameters)
 
         # Create a composite key with strict component separation for uniqueness
-        return f"model:{key.model_id}|op:{key.operation}|in:{key.input_hash}|params:{key.parameters_hash}"
+                return f"model:{key.model_id}|op:{key.operation}|in:{key.input_hash}|params:{key.parameters_hash}"
 
     def get(
         self,
@@ -82,13 +82,13 @@ class CacheManager:
             Cached value or None if not found
         """
         if not self.config.should_cache(model_id, operation):
-            return None
+                    return None
 
         # Generate structured cache key
         key = self._make_key(model_id, operation, inputs, parameters)
 
         # Get value from cache
-        return self.backend.get(key)
+                return self.backend.get(key)
 
     def set(
         self,
@@ -114,7 +114,7 @@ class CacheManager:
             True if successful, False otherwise
         """
         if not self.config.should_cache(model_id, operation):
-            return False
+                    return False
 
         # Generate structured cache key
         key = self._make_key(model_id, operation, inputs, parameters)
@@ -124,7 +124,7 @@ class CacheManager:
             ttl = self.config.ttl
 
         # Set value in cache
-        return self.backend.set(key, value, ttl)
+                return self.backend.set(key, value, ttl)
 
     def delete(
         self,
@@ -149,7 +149,7 @@ class CacheManager:
         key = self._make_key(model_id, operation, inputs, parameters)
 
         # Delete value from cache
-        return self.backend.delete(key)
+                return self.backend.delete(key)
 
     def exists(
         self,
@@ -171,13 +171,13 @@ class CacheManager:
             True if the value exists, False otherwise
         """
         if not self.config.should_cache(model_id, operation):
-            return False
+                    return False
 
         # Generate structured cache key
         key = self._make_key(model_id, operation, inputs, parameters)
 
         # Check if value exists in cache
-        return self.backend.exists(key)
+                return self.backend.exists(key)
 
     def clear(self) -> bool:
         """
@@ -186,7 +186,7 @@ class CacheManager:
         Returns:
             True if successful, False otherwise
         """
-        return self.backend.clear()
+                return self.backend.clear()
 
     def clear_namespace(self, namespace: str) -> bool:
         """
@@ -205,7 +205,7 @@ class CacheManager:
 
         if not keys:
             # No keys found for this namespace
-            return True
+                    return True
 
         # Delete each key in the namespace
         success = True
@@ -213,7 +213,7 @@ class CacheManager:
             if not self.backend.delete(key):
                 success = False
 
-        return success
+                return success
 
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -227,7 +227,7 @@ class CacheManager:
         stats["backend"] = self.config.backend
         stats["ttl"] = self.config.ttl
 
-        return stats
+                return stats
 
     def get_keys(self, pattern: Optional[str] = None) -> List[str]:
         """
@@ -239,7 +239,7 @@ class CacheManager:
         Returns:
             List of keys
         """
-        return self.backend.get_keys(pattern)
+                return self.backend.get_keys(pattern)
 
     def get_size(self) -> int:
         """
@@ -248,7 +248,7 @@ class CacheManager:
         Returns:
             Number of items in the cache
         """
-        return self.backend.get_size()
+                return self.backend.get_size()
 
     def set_config(self, config: CacheConfig) -> None:
         """
@@ -271,23 +271,23 @@ class CacheManager:
         backend_config = self.config.get_backend_config()
 
         if backend_name == "memory":
-            return MemoryCache(**backend_config)
+                    return MemoryCache(**backend_config)
 
         elif backend_name == "disk":
-            return DiskCache(**backend_config)
+                    return DiskCache(**backend_config)
 
         elif backend_name == "sqlite":
-            return SQLiteCache(**backend_config)
+                    return SQLiteCache(**backend_config)
 
         elif backend_name == "redis":
             if not REDIS_AVAILABLE:
                 logger.warning("Redis not available. Falling back to memory cache.")
-                return MemoryCache(**self.config.get_backend_config("memory"))
+                        return MemoryCache(**self.config.get_backend_config("memory"))
 
-            return RedisCache(**backend_config)
+                    return RedisCache(**backend_config)
 
         else:
             logger.warning(
                 f"Unknown cache backend: {backend_name}. Falling back to memory cache."
             )
-            return MemoryCache(**self.config.get_backend_config("memory"))
+                    return MemoryCache(**self.config.get_backend_config("memory"))

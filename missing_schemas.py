@@ -24,11 +24,11 @@ class TimeframeSchema
     value: int = Field(..., description="The numeric value of the timeframe", gt=0)
     unit: TimeframeUnit = Field(..., description="The unit of the timeframe")
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
-    def __str__(self) -> str:
+def __str__(self) -> str:
         """Return a string representation of the timeframe."""
-        return f"{self.value} {self.unit.value}"
+                    return f"{self.value} {self.unit.value}"
 
 
 class ConfigSchema(BaseModel):
@@ -49,7 +49,7 @@ class ConfigSchema(BaseModel):
     )
     updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class MetricSchema(BaseModel):
@@ -70,7 +70,7 @@ class MetricSchema(BaseModel):
         default_factory=lambda: datetime.now().isoformat(), description="Timestamp"
     )
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class ContentItemSchema(BaseModel):
@@ -99,7 +99,7 @@ class ContentItemSchema(BaseModel):
     )
     notes: Optional[str] = Field(default=None, description="Notes for the content item")
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class ContentCalendarSchema(BaseModel):
@@ -122,7 +122,7 @@ class ContentCalendarSchema(BaseModel):
     )
     updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class PersonaSchema(BaseModel):
@@ -150,7 +150,7 @@ class PersonaSchema(BaseModel):
     )
     updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class ChannelAnalysisSchema(BaseModel):
@@ -184,7 +184,7 @@ class ChannelAnalysisSchema(BaseModel):
         description="Analysis timestamp",
     )
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class MarketingPlanSchema(BaseModel):
@@ -215,7 +215,7 @@ class MarketingPlanSchema(BaseModel):
     )
     updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class MarketingStrategyInputSchema(BaseModel):
@@ -237,7 +237,7 @@ class MarketingStrategyInputSchema(BaseModel):
         default=None, description="Competitor names"
     )
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class MarketingStrategyResultsSchema(BaseModel):
@@ -265,7 +265,7 @@ class MarketingStrategyResultsSchema(BaseModel):
         description="Results timestamp",
     )
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class AudienceAnalysisSchema(BaseModel):
@@ -307,7 +307,7 @@ class AudienceAnalysisSchema(BaseModel):
         description="Analysis timestamp",
     )
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow")
 
 
 class BusinessAnalysisSchema(BaseModel):
@@ -325,26 +325,28 @@ class BusinessAnalysisSchema(BaseModel):
     strengths: List[str] = Field(default_factory=list, description="Business strengths")
     weaknesses: List[str] = Field(
         default_factory=list, description="Business weaknesses"
-    )
+    
     opportunities: List[str] = Field(
         default_factory=list, description="Business opportunities"
-    )
-    threats: List[str] = Field(default_factory=list, description="Business threats")
+    
+    threats: List[str] = Field(default_factory=list, description="Business threats"
     unique_selling_points: List[str] = Field(
         default_factory=list, description="Unique selling points"
-    )
+    
     competitors: List[Dict[str, Any]] = Field(
         default_factory=list, description="Competitor analysis"
-    )
+    
     market_position: Dict[str, Any] = Field(
         default_factory=dict, description="Market position analysis"
-    )
+    
     recommendations: List[str] = Field(
         default_factory=list, description="Recommendations for the business"
-    )
+    
     timestamp: str = Field(
-        default_factory=lambda: datetime.now().isoformat(),
+        default_factory=lambda: datetime.now(.isoformat(,
         description="Analysis timestamp",
-    )
+    
 
-    model_config = ConfigDict(extra="allow")
+model_config = ConfigDict(extra="allow"
+except Exception as e:
+    pass

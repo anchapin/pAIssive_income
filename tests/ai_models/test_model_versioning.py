@@ -21,7 +21,7 @@ from ai_models.model_versioning import
 @pytest.fixture
 def model_info():
     """Fixture providing a basic ModelInfo instance."""
-    return ModelInfo(
+            return ModelInfo(
         id="test-model",
         name="Test Model",
         description="A test model",
@@ -35,13 +35,13 @@ def model_info():
 def version_registry(tmp_path):
     """Fixture providing a ModelVersionRegistry instance."""
     registry_path = tmp_path / "version_registry.json"
-    return ModelVersionRegistry(str(registry_path))
+            return ModelVersionRegistry(str(registry_path))
 
 
 @pytest.fixture
 def migration_tool(version_registry):
     """Fixture providing a ModelMigrationTool instance."""
-    return ModelMigrationTool(version_registry)
+            return ModelMigrationTool(version_registry)
 
 
 def test_version_compatibility_same_major():
@@ -171,11 +171,11 @@ def test_version_migration_execution(migration_tool, model_info):
 
     def upgrade_to_v11(model, **kwargs):
         model.capabilities.append("embedding")
-        return model
+                return model
 
     def upgrade_to_v20(model, **kwargs):
         model.capabilities.append("classification")
-        return model
+                return model
 
     # Register migration functions
     migration_tool.register_migration_function(
@@ -212,15 +212,15 @@ def test_direct_vs_indirect_migration(migration_tool, model_info):
 
     def direct_migration(model, **kwargs):
         model.capabilities.append("direct")
-        return model
+                return model
 
     def indirect_step1(model, **kwargs):
         model.capabilities.append("step1")
-        return model
+                return model
 
     def indirect_step2(model, **kwargs):
         model.capabilities.append("step2")
-        return model
+                return model
 
     # Register both direct and indirect paths
     migration_tool.register_migration_function(

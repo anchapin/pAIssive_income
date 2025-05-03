@@ -60,7 +60,7 @@ except ImportError:
     PSUTIL_AVAILABLE = False
 
 try:
- as np
+as np
 
     NUMPY_AVAILABLE = True
 except ImportError:
@@ -121,9 +121,7 @@ class BenchmarkRunner:
         if not TORCH_AVAILABLE:
             logger.warning("PyTorch not available. Using CPU for benchmarks.")
             self.device = "cpu"
-            return
-
-        if self.config.device == "cuda" and not torch.cuda.is_available():
+                    return if self.config.device == "cuda" and not torch.cuda.is_available():
             logger.warning("CUDA not available. Using CPU for benchmarks.")
             self.device = "cpu"
         else:
@@ -146,9 +144,7 @@ class BenchmarkRunner:
 
             # Limit to num_samples
             self.input_data = self.input_data[: self.config.num_samples]
-            return
-
-        # If input file is provided, load it
+                    return # If input file is provided, load it
         if self.config.input_file is not None:
             if not os.path.exists(self.config.input_file):
                 raise ValueError(f"Input file not found: {self.config.input_file}")
@@ -166,9 +162,7 @@ class BenchmarkRunner:
 
             # Limit to num_samples
             self.input_data = self.input_data[: self.config.num_samples]
-            return
-
-        # If no input data is provided, use default prompts
+                    return # If no input data is provided, use default prompts
         self.input_data = [
             "Once upon a time in a land far away,",
             "The quick brown fox jumps over the lazy dog.",
@@ -231,7 +225,7 @@ class BenchmarkRunner:
             self.result.save(output_path)
             logger.info(f"Saved benchmark results to {output_path}")
 
-        return self.result
+                return self.result
 
     def _run_latency_benchmark(self) -> None:
         """
@@ -560,7 +554,7 @@ class BenchmarkRunner:
         else:
             raise ValueError(f"Unsupported model type: {self.config.model_type}")
 
-        return model
+                return model
 
     def _generate_text(self, model, tokenizer, prompt: str) -> str:
         """
@@ -592,7 +586,7 @@ class BenchmarkRunner:
         with torch.no_grad():
             outputs = model.generate(**inputs, **generation_kwargs)
 
-        return tokenizer.decode(outputs[0], skip_special_tokens=True)
+                return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     def _generate_batch(self, model, tokenizer, prompts: List[str]) -> List[str]:
         """
@@ -628,7 +622,7 @@ class BenchmarkRunner:
             outputs = model.generate(**batch_inputs, **generation_kwargs)
 
         # Decode outputs
-        return [
+                return [
             tokenizer.decode(output, skip_special_tokens=True) for output in outputs
         ]
 
@@ -655,9 +649,9 @@ class BenchmarkRunner:
 
         # Convert to label
         if hasattr(model.config, "id2label"):
-            return model.config.id2label[predicted_class]
+                    return model.config.id2label[predicted_class]
         else:
-            return str(predicted_class)
+                    return str(predicted_class)
 
     def _calculate_perplexity(self, model, tokenizer, text: str) -> Tuple[float, int]:
         """
@@ -683,7 +677,7 @@ class BenchmarkRunner:
         # Get number of tokens
         num_tokens = input_ids.numel()
 
-        return loss.item(), num_tokens
+                return loss.item(), num_tokens
 
     def _get_memory_usage(self) -> float:
         """
@@ -704,4 +698,4 @@ class BenchmarkRunner:
             gpu_memory = torch.cuda.memory_allocated() / (1024 * 1024)
             memory_mb += gpu_memory
 
-        return memory_mb
+                return memory_mb

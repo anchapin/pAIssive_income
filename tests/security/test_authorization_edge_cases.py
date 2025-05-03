@@ -60,28 +60,28 @@ class TestAuthorizationEdgeCases
         
     def _get_role_permissions(self, role: str) -> Set[str]:
         """Mock getting permissions for a role."""
-        return self.role_permissions.get(role, set())
+                return self.role_permissions.get(role, set())
         
     def _has_permission(self, user_data: Dict[str, Any], permission: str) -> bool:
         """Mock checking if a user has a permission."""
         # Get user's role
         role = user_data.get("role")
         if not role:
-            return False
+                    return False
             
         # Get permissions for role
         role_perms = self.permission_service.get_role_permissions(role)
         
         # Check direct permission
         if permission in role_perms:
-            return True
+                    return True
             
         # Check additional permissions
         additional_perms = user_data.get("permissions", [])
         if permission in additional_perms:
-            return True
+                    return True
             
-        return False
+                return False
 
     def test_role_transition_basic(self):
         """Test basic role transition scenario."""
@@ -127,18 +127,18 @@ class TestAuthorizationEdgeCases
         # Mock token verification to return different user data based on token
         def mock_verify_token(token):
             if token == "token1":
-                return {
+                        return {
                     "user_id": "123",
                     "username": "testuser",
                     "role": "user"
                 }
             elif token == "token2":
-                return {
+                        return {
                     "user_id": "123",
                     "username": "testuser",
                     "role": "manager"
                 }
-            return None
+                    return None
             
         self.auth_middleware.verify_token = MagicMock(side_effect=mock_verify_token)
         
@@ -193,7 +193,7 @@ class TestAuthorizationEdgeCases
                 
             threading.Thread(target=complete_transition).start()
             
-            return transition
+                    return transition
             
         # Start role transition
         transition = transition_role(user_id, new_role)
@@ -400,14 +400,14 @@ class TestAuthorizationEdgeCases
                 elevated_until = datetime.fromisoformat(user_data["elevated_until"])
                 if elevated_until < datetime.now():
                     # Elevation has expired, fall back to role-based permissions
-                    return self._has_permission({"role": user_data["role"]}, permission)
+                            return self._has_permission({"role": user_data["role"]}, permission)
                 else:
                     # Elevation is still valid
                     if permission in user_data["permissions"]:
-                        return True
+                                return True
             
             # Fall back to regular permission check
-            return self._has_permission(user_data, permission)
+                    return self._has_permission(user_data, permission)
         
         # Override permission check
         self.permission_service.has_permission.side_effect = has_permission_with_expiry
@@ -465,7 +465,7 @@ class TestAuthorizationEdgeCases
                 "expires_at": None
             }
             
-            return elevation_request
+                    return elevation_request
             
         def approve_elevation(request_id, approver_id):
             # Simulate approval
@@ -481,7 +481,7 @@ class TestAuthorizationEdgeCases
                 "expires_at": expires_at.isoformat()
             }
             
-            return elevation_request
+                    return elevation_request
             
         # Request elevation
         requested_permissions = ["write", "temporary_admin"]

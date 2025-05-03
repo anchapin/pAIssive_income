@@ -21,7 +21,7 @@ class PromotionStatus
 :
     """Enumeration of promotion statuses."""
 
-    DRAFT = "draft"
+DRAFT = "draft"
     ACTIVE = "active"
     PAUSED = "paused"
     EXPIRED = "expired"
@@ -31,7 +31,7 @@ class PromotionStatus
 class PromotionType:
     """Enumeration of promotion types."""
 
-    TIME_LIMITED = "time_limited"
+TIME_LIMITED = "time_limited"
     COUPON = "coupon"
     REFERRAL = "referral"
     BUNDLE = "bundle"
@@ -44,7 +44,7 @@ class PromotionType:
 class DiscountType:
     """Enumeration of discount types."""
 
-    PERCENTAGE = "percentage"
+PERCENTAGE = "percentage"
     FIXED_AMOUNT = "fixed_amount"
     FREE_UNITS = "free_units"
     FREE_PRODUCT = "free_product"
@@ -55,12 +55,12 @@ class Promotion:
     """
     Base class for promotions.
 
-    This class provides a framework for implementing various types of
+This class provides a framework for implementing various types of
     promotional pricing, including time-limited promotions, coupon codes,
     referral discounts, and more.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str,
         description: str,
@@ -86,7 +86,7 @@ class Promotion:
         """
         Initialize a promotion.
 
-        Args:
+Args:
             name: Name of the promotion
             description: Description of the promotion
             promotion_type: Type of promotion
@@ -134,7 +134,7 @@ class Promotion:
         self.usage_count = 0
         self.customer_usage = {}  # Dict[customer_id, usage_count]
 
-    def is_valid(
+def is_valid(
         self,
         customer_id: Optional[str] = None,
         product_id: Optional[str] = None,
@@ -145,81 +145,81 @@ class Promotion:
         """
         Check if the promotion is valid for a given context.
 
-        Args:
+Args:
             customer_id: ID of the customer
             product_id: ID of the product
             category_id: ID of the category
             purchase_amount: Purchase amount
             reference_time: Reference time (defaults to now)
 
-        Returns:
+Returns:
             Tuple of (is_valid, reason)
         """
         # Check status
         if self.status != PromotionStatus.ACTIVE:
-            return False, f"Promotion is not active (status: {self.status})"
+                        return False, f"Promotion is not active (status: {self.status})"
 
-        # Check dates
+# Check dates
         now = reference_time or datetime.now()
 
-        if now < self.start_date:
-            return False, f"Promotion has not started yet (starts: {self.start_date})"
+if now < self.start_date:
+                        return False, f"Promotion has not started yet (starts: {self.start_date})"
 
-        if self.end_date and now > self.end_date:
-            return False, f"Promotion has expired (ended: {self.end_date})"
+if self.end_date and now > self.end_date:
+                        return False, f"Promotion has expired (ended: {self.end_date})"
 
-        # Check usage limits
+# Check usage limits
         if self.max_uses is not None and self.usage_count >= self.max_uses:
-            return False, f"Promotion has reached maximum uses ({self.max_uses})"
+                        return False, f"Promotion has reached maximum uses ({self.max_uses})"
 
-        if customer_id and self.max_uses_per_customer is not None:
+if customer_id and self.max_uses_per_customer is not None:
             customer_usage = self.customer_usage.get(customer_id, 0)
             if customer_usage >= self.max_uses_per_customer:
-                return (
+                            return (
                     False,
                     f"Customer has reached maximum uses ({self.max_uses_per_customer})",
                 )
 
-        # Check purchase amount
+# Check purchase amount
         if purchase_amount < self.min_purchase_amount:
-            return (
+                        return (
                 False,
                 f"Purchase amount ({purchase_amount}) is below minimum ({self.min_purchase_amount})",
             )
 
-        # Check product and category restrictions
+# Check product and category restrictions
         if product_id:
             if self.applies_to_products and product_id not in self.applies_to_products:
-                return False, f"Promotion does not apply to product {product_id}"
+                            return False, f"Promotion does not apply to product {product_id}"
 
-            if product_id in self.excludes_products:
-                return False, f"Promotion excludes product {product_id}"
+if product_id in self.excludes_products:
+                            return False, f"Promotion excludes product {product_id}"
 
-        if category_id:
+if category_id:
             if (
                 self.applies_to_categories
                 and category_id not in self.applies_to_categories
             ):
-                return False, f"Promotion does not apply to category {category_id}"
+                            return False, f"Promotion does not apply to category {category_id}"
 
-            if category_id in self.excludes_categories:
-                return False, f"Promotion excludes category {category_id}"
+if category_id in self.excludes_categories:
+                            return False, f"Promotion excludes category {category_id}"
 
-        # Check customer restrictions
+# Check customer restrictions
         if customer_id:
             if (
                 self.applies_to_customers
                 and customer_id not in self.applies_to_customers
             ):
-                return False, f"Promotion does not apply to customer {customer_id}"
+                            return False, f"Promotion does not apply to customer {customer_id}"
 
-            if customer_id in self.excludes_customers:
-                return False, f"Promotion excludes customer {customer_id}"
+if customer_id in self.excludes_customers:
+                            return False, f"Promotion excludes customer {customer_id}"
 
-        # All checks passed
-        return True, None
+# All checks passed
+                    return True, None
 
-    def apply_discount(
+def apply_discount(
         self,
         amount: float,
         quantity: float = 1.0,
@@ -228,57 +228,57 @@ class Promotion:
         """
         Apply the promotion discount to an amount.
 
-        Args:
+Args:
             amount: Amount to apply discount to
             quantity: Quantity of items
             context: Additional context for discount calculation
 
-        Returns:
+Returns:
             Tuple of (discounted_amount, discount_info)
         """
         context = context or {}
         discount_amount = 0.0
 
-        # Calculate discount based on type
+# Calculate discount based on type
         if self.discount_type == DiscountType.PERCENTAGE:
             # Percentage discount
             discount_amount = amount * (self.discount_value / 100.0)
 
-        elif self.discount_type == DiscountType.FIXED_AMOUNT:
+elif self.discount_type == DiscountType.FIXED_AMOUNT:
             # Fixed amount discount
             discount_amount = min(amount, self.discount_value)
 
-        elif self.discount_type == DiscountType.FREE_UNITS:
+elif self.discount_type == DiscountType.FREE_UNITS:
             # Free units discount
             unit_price = amount / quantity if quantity > 0 else 0
             free_units = min(quantity, self.discount_value)
             discount_amount = unit_price * free_units
 
-        elif self.discount_type == DiscountType.FREE_PRODUCT:
+elif self.discount_type == DiscountType.FREE_PRODUCT:
             # Free product discount
             # This is handled differently depending on the implementation
             # For now, we'll just use the discount_value as the product value
             discount_amount = self.discount_value
 
-        elif self.discount_type == DiscountType.CUSTOM:
+elif self.discount_type == DiscountType.CUSTOM:
             # Custom discount calculation
             # This should be overridden by subclasses
             discount_amount = self.calculate_custom_discount(amount, quantity, context)
 
-        # Apply maximum discount amount if specified
+# Apply maximum discount amount if specified
         if (
             self.max_discount_amount is not None
             and discount_amount > self.max_discount_amount
         ):
             discount_amount = self.max_discount_amount
 
-        # Ensure discount doesn't exceed the original amount
+# Ensure discount doesn't exceed the original amount
         discount_amount = min(discount_amount, amount)
 
-        # Calculate discounted amount
+# Calculate discounted amount
         discounted_amount = amount - discount_amount
 
-        # Prepare discount info
+# Prepare discount info
         discount_info = {
             "promotion_id": self.id,
             "promotion_name": self.name,
@@ -289,25 +289,25 @@ class Promotion:
             "discount_value": self.discount_value,
         }
 
-        return discounted_amount, discount_info
+            return discounted_amount, discount_info
 
-    def record_usage(self, customer_id: Optional[str] = None) -> None:
+def record_usage(self, customer_id: Optional[str] = None) -> None:
         """
         Record usage of the promotion.
 
-        Args:
+Args:
             customer_id: ID of the customer
         """
         self.usage_count += 1
 
-        if customer_id:
+if customer_id:
             self.customer_usage[customer_id] = (
                 self.customer_usage.get(customer_id, 0) + 1
             )
 
-        self.updated_at = datetime.now()
+self.updated_at = datetime.now()
 
-    def calculate_custom_discount(
+def calculate_custom_discount(
         self,
         amount: float,
         quantity: float = 1.0,
@@ -316,28 +316,28 @@ class Promotion:
         """
         Calculate a custom discount.
 
-        This method should be overridden by subclasses that use
+This method should be overridden by subclasses that use
         the CUSTOM discount type.
 
-        Args:
+Args:
             amount: Amount to apply discount to
             quantity: Quantity of items
             context: Additional context for discount calculation
 
-        Returns:
+Returns:
             Discount amount
         """
         # Default implementation returns 0
-        return 0.0
+                    return 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the promotion to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the promotion
         """
-        return {
+                    return {
             "id": self.id,
             "name": self.name,
             "description": self.description,
@@ -365,15 +365,15 @@ class Promotion:
             "customer_usage": self.customer_usage,
         }
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Promotion":
         """
         Create a promotion from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with promotion data
 
-        Returns:
+Returns:
             Promotion instance
         """
         # Convert date strings to datetime objects
@@ -381,11 +381,11 @@ class Promotion:
         if data.get("start_date"):
             start_date = datetime.fromisoformat(data["start_date"])
 
-        end_date = None
+end_date = None
         if data.get("end_date"):
             end_date = datetime.fromisoformat(data["end_date"])
 
-        # Create the promotion
+# Create the promotion
         promotion = cls(
             name=data["name"],
             description=data["description"],
@@ -409,37 +409,37 @@ class Promotion:
             status=data.get("status", PromotionStatus.DRAFT),
         )
 
-        # Set additional attributes
+# Set additional attributes
         if "id" in data:
             promotion.id = data["id"]
 
-        if "created_at" in data:
+if "created_at" in data:
             promotion.created_at = datetime.fromisoformat(data["created_at"])
 
-        if "updated_at" in data:
+if "updated_at" in data:
             promotion.updated_at = datetime.fromisoformat(data["updated_at"])
 
-        if "usage_count" in data:
+if "usage_count" in data:
             promotion.usage_count = data["usage_count"]
 
-        if "customer_usage" in data:
+if "customer_usage" in data:
             promotion.customer_usage = data["customer_usage"]
 
-        return promotion
+            return promotion
 
-    def __str__(self) -> str:
+def __str__(self) -> str:
         """String representation of the promotion."""
-        return f"{self.__class__.__name__}({self.name}, {self.promotion_type}, {self.discount_type}, {self.discount_value})"
+                    return f"{self.__class__.__name__}({self.name}, {self.promotion_type}, {self.discount_type}, {self.discount_value})"
 
 
 class PromotionManager:
     """
     Manager for promotions.
 
-    This class provides methods for managing and applying promotions.
+This class provides methods for managing and applying promotions.
     """
 
-    def __init__(
+def __init__(
         self,
         promotions: Optional[List[Promotion]] = None,
         allow_stacking: bool = True,
@@ -448,7 +448,7 @@ class PromotionManager:
         """
         Initialize a promotion manager.
 
-        Args:
+Args:
             promotions: List of promotions
             allow_stacking: Whether to allow stacking promotions
             max_stacked_promotions: Maximum number of stacked promotions
@@ -457,49 +457,49 @@ class PromotionManager:
         self.allow_stacking = allow_stacking
         self.max_stacked_promotions = max_stacked_promotions
 
-    def add_promotion(self, promotion: Promotion) -> None:
+def add_promotion(self, promotion: Promotion) -> None:
         """
         Add a promotion.
 
-        Args:
+Args:
             promotion: Promotion to add
         """
         self.promotions.append(promotion)
 
-    def remove_promotion(self, promotion_id: str) -> bool:
+def remove_promotion(self, promotion_id: str) -> bool:
         """
         Remove a promotion.
 
-        Args:
+Args:
             promotion_id: ID of the promotion to remove
 
-        Returns:
+Returns:
             True if the promotion was removed, False otherwise
         """
         for i, promotion in enumerate(self.promotions):
             if promotion.id == promotion_id:
                 self.promotions.pop(i)
-                return True
+                            return True
 
-        return False
+            return False
 
-    def get_promotion(self, promotion_id: str) -> Optional[Promotion]:
+def get_promotion(self, promotion_id: str) -> Optional[Promotion]:
         """
         Get a promotion by ID.
 
-        Args:
+Args:
             promotion_id: ID of the promotion to get
 
-        Returns:
+Returns:
             The promotion, or None if not found
         """
         for promotion in self.promotions:
             if promotion.id == promotion_id:
-                return promotion
+                            return promotion
 
-        return None
+            return None
 
-    def get_valid_promotions(
+def get_valid_promotions(
         self,
         customer_id: Optional[str] = None,
         product_id: Optional[str] = None,
@@ -510,19 +510,19 @@ class PromotionManager:
         """
         Get valid promotions for a given context.
 
-        Args:
+Args:
             customer_id: ID of the customer
             product_id: ID of the product
             category_id: ID of the category
             purchase_amount: Purchase amount
             reference_time: Reference time (defaults to now)
 
-        Returns:
+Returns:
             List of valid promotions
         """
         valid_promotions = []
 
-        for promotion in self.promotions:
+for promotion in self.promotions:
             is_valid, _ = promotion.is_valid(
                 customer_id=customer_id,
                 product_id=product_id,
@@ -531,12 +531,12 @@ class PromotionManager:
                 reference_time=reference_time,
             )
 
-            if is_valid:
+if is_valid:
                 valid_promotions.append(promotion)
 
-        return valid_promotions
+            return valid_promotions
 
-    def apply_promotions(
+def apply_promotions(
         self,
         amount: float,
         quantity: float = 1.0,
@@ -550,7 +550,7 @@ class PromotionManager:
         """
         Apply promotions to an amount.
 
-        Args:
+Args:
             amount: Amount to apply promotions to
             quantity: Quantity of items
             customer_id: ID of the customer
@@ -560,12 +560,12 @@ class PromotionManager:
             context: Additional context for discount calculation
             record_usage: Whether to record usage of applied promotions
 
-        Returns:
+Returns:
             Tuple of (discounted_amount, discount_info_list)
         """
         context = context or {}
 
-        # Get valid promotions
+# Get valid promotions
         if promotion_ids:
             # Use specified promotions
             promotions = [p for p in self.promotions if p.id in promotion_ids]
@@ -578,44 +578,44 @@ class PromotionManager:
                 purchase_amount=amount,
             )
 
-        # Filter out non-stackable promotions if needed
+# Filter out non-stackable promotions if needed
         if not self.allow_stacking:
             # If stacking is not allowed, find the best promotion
             best_promotion = None
             best_discount = 0.0
 
-            for promotion in promotions:
+for promotion in promotions:
                 discounted, discount_info = promotion.apply_discount(
                     amount, quantity, context
                 )
                 discount_amount = discount_info["discount_amount"]
 
-                if discount_amount > best_discount:
+if discount_amount > best_discount:
                     best_discount = discount_amount
                     best_promotion = promotion
 
-            promotions = [best_promotion] if best_promotion else []
+promotions = [best_promotion] if best_promotion else []
         else:
             # If stacking is allowed, filter out non-stackable promotions
             stackable_promotions = [p for p in promotions if p.stackable]
             non_stackable_promotions = [p for p in promotions if not p.stackable]
 
-            if non_stackable_promotions:
+if non_stackable_promotions:
                 # Find the best non-stackable promotion
                 best_non_stackable = None
                 best_discount = 0.0
 
-                for promotion in non_stackable_promotions:
+for promotion in non_stackable_promotions:
                     discounted, discount_info = promotion.apply_discount(
                         amount, quantity, context
                     )
                     discount_amount = discount_info["discount_amount"]
 
-                    if discount_amount > best_discount:
+if discount_amount > best_discount:
                         best_discount = discount_amount
                         best_non_stackable = promotion
 
-                # Use the best non-stackable promotion and all stackable promotions
+# Use the best non-stackable promotion and all stackable promotions
                 promotions = stackable_promotions + (
                     [best_non_stackable] if best_non_stackable else []
                 )
@@ -623,7 +623,7 @@ class PromotionManager:
                 # Use all stackable promotions
                 promotions = stackable_promotions
 
-        # Apply maximum stacked promotions limit
+# Apply maximum stacked promotions limit
         if (
             self.max_stacked_promotions is not None
             and len(promotions) > self.max_stacked_promotions
@@ -631,80 +631,80 @@ class PromotionManager:
             # Sort promotions by discount amount (highest first)
             promotion_discounts = []
 
-            for promotion in promotions:
+for promotion in promotions:
                 discounted, discount_info = promotion.apply_discount(
                     amount, quantity, context
                 )
                 discount_amount = discount_info["discount_amount"]
                 promotion_discounts.append((promotion, discount_amount))
 
-            promotion_discounts.sort(key=lambda x: x[1], reverse=True)
+promotion_discounts.sort(key=lambda x: x[1], reverse=True)
 
-            # Take the top N promotions
+# Take the top N promotions
             promotions = [
                 p for p, _ in promotion_discounts[: self.max_stacked_promotions]
             ]
 
-        # Apply promotions
+# Apply promotions
         current_amount = amount
         discount_info_list = []
 
-        for promotion in promotions:
+for promotion in promotions:
             discounted, discount_info = promotion.apply_discount(
                 current_amount, quantity, context
             )
 
-            if discount_info["discount_amount"] > 0:
+if discount_info["discount_amount"] > 0:
                 discount_info_list.append(discount_info)
                 current_amount = discounted
 
-                if record_usage:
+if record_usage:
                     promotion.record_usage(customer_id)
 
-        return current_amount, discount_info_list
+            return current_amount, discount_info_list
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the promotion manager to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the promotion manager
         """
-        return {
+                    return {
             "promotions": [p.to_dict() for p in self.promotions],
             "allow_stacking": self.allow_stacking,
             "max_stacked_promotions": self.max_stacked_promotions,
         }
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "PromotionManager":
         """
         Create a promotion manager from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with promotion manager data
 
-        Returns:
+Returns:
             PromotionManager instance
         """
         promotions = []
 
-        if "promotions" in data:
+if "promotions" in data:
             for promotion_data in data["promotions"]:
                 promotion_type = promotion_data.get(
                     "promotion_type", PromotionType.CUSTOM
                 )
 
-                # Import the promotion class dynamically
+# Import the promotion class dynamically
                 # This assumes all promotion classes are defined in this module
                 promotion_class = globals().get(
                     f"{promotion_type.title()}Promotion", Promotion
                 )
 
-                promotion = promotion_class.from_dict(promotion_data)
+promotion = promotion_class.from_dict(promotion_data)
                 promotions.append(promotion)
 
-        return cls(
+            return cls(
             promotions=promotions,
             allow_stacking=data.get("allow_stacking", True),
             max_stacked_promotions=data.get("max_stacked_promotions"),
@@ -715,11 +715,11 @@ class TimeLimitedPromotion(Promotion):
     """
     Time-limited promotion.
 
-    This class implements a promotion that is only valid for a specific
+This class implements a promotion that is only valid for a specific
     time period, such as a seasonal sale or limited-time offer.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str,
         description: str,
@@ -747,7 +747,7 @@ class TimeLimitedPromotion(Promotion):
         """
         Initialize a time-limited promotion.
 
-        Args:
+Args:
             name: Name of the promotion
             description: Description of the promotion
             discount_type: Type of discount
@@ -794,11 +794,11 @@ class TimeLimitedPromotion(Promotion):
             status=status,
         )
 
-        self.time_of_day_start = time_of_day_start
+self.time_of_day_start = time_of_day_start
         self.time_of_day_end = time_of_day_end
         self.days_of_week = days_of_week
 
-    def is_valid(
+def is_valid(
         self,
         customer_id: Optional[str] = None,
         product_id: Optional[str] = None,
@@ -809,14 +809,14 @@ class TimeLimitedPromotion(Promotion):
         """
         Check if the promotion is valid for a given context.
 
-        Args:
+Args:
             customer_id: ID of the customer
             product_id: ID of the product
             category_id: ID of the category
             purchase_amount: Purchase amount
             reference_time: Reference time (defaults to now)
 
-        Returns:
+Returns:
             Tuple of (is_valid, reason)
         """
         # Check basic validity
@@ -828,39 +828,39 @@ class TimeLimitedPromotion(Promotion):
             reference_time=reference_time,
         )
 
-        if not is_valid:
-            return False, reason
+if not is_valid:
+                        return False, reason
 
-        # Check time of day
+# Check time of day
         now = reference_time or datetime.now()
 
-        if self.time_of_day_start and self.time_of_day_end:
+if self.time_of_day_start and self.time_of_day_end:
             current_time_str = now.strftime("%H:%M")
 
-            if not (self.time_of_day_start <= current_time_str <= self.time_of_day_end):
-                return (
+if not (self.time_of_day_start <= current_time_str <= self.time_of_day_end):
+                            return (
                     False,
                     f"Promotion is not valid at this time of day (valid: {self.time_of_day_start} to {self.time_of_day_end})",
                 )
 
-        # Check day of week
+# Check day of week
         if self.days_of_week:
             current_day = now.isoweekday()  # 1=Monday, 7=Sunday
 
-            if current_day not in self.days_of_week:
-                return (
+if current_day not in self.days_of_week:
+                            return (
                     False,
                     f"Promotion is not valid on this day of week (valid days: {self.days_of_week})",
                 )
 
-        # All checks passed
-        return True, None
+# All checks passed
+                    return True, None
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the time-limited promotion to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the time-limited promotion
         """
         result = super().to_dict()
@@ -871,17 +871,17 @@ class TimeLimitedPromotion(Promotion):
                 "days_of_week": self.days_of_week,
             }
         )
-        return result
+                    return result
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "TimeLimitedPromotion":
         """
         Create a time-limited promotion from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with time-limited promotion data
 
-        Returns:
+Returns:
             TimeLimitedPromotion instance
         """
         # Convert date strings to datetime objects
@@ -889,11 +889,11 @@ class TimeLimitedPromotion(Promotion):
         if data.get("start_date"):
             start_date = datetime.fromisoformat(data["start_date"])
 
-        end_date = None
+end_date = None
         if data.get("end_date"):
             end_date = datetime.fromisoformat(data["end_date"])
 
-        # Create the promotion
+# Create the promotion
         promotion = cls(
             name=data["name"],
             description=data["description"],
@@ -919,34 +919,34 @@ class TimeLimitedPromotion(Promotion):
             days_of_week=data.get("days_of_week"),
         )
 
-        # Set additional attributes
+# Set additional attributes
         if "id" in data:
             promotion.id = data["id"]
 
-        if "created_at" in data:
+if "created_at" in data:
             promotion.created_at = datetime.fromisoformat(data["created_at"])
 
-        if "updated_at" in data:
+if "updated_at" in data:
             promotion.updated_at = datetime.fromisoformat(data["updated_at"])
 
-        if "usage_count" in data:
+if "usage_count" in data:
             promotion.usage_count = data["usage_count"]
 
-        if "customer_usage" in data:
+if "customer_usage" in data:
             promotion.customer_usage = data["customer_usage"]
 
-        return promotion
+            return promotion
 
 
 class CouponPromotion(Promotion):
     """
     Coupon promotion.
 
-    This class implements a promotion that is activated by a coupon code,
+This class implements a promotion that is activated by a coupon code,
     such as a discount code or voucher.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str,
         description: str,
@@ -976,7 +976,7 @@ class CouponPromotion(Promotion):
         """
         Initialize a coupon promotion.
 
-        Args:
+Args:
             name: Name of the promotion
             description: Description of the promotion
             code: Coupon code
@@ -1025,21 +1025,21 @@ class CouponPromotion(Promotion):
             status=status,
         )
 
-        self.code = code
+self.code = code
         self.case_sensitive = case_sensitive
         self.prefix = prefix
         self.suffix = suffix
         self.valid_codes = valid_codes or [code]
         self.used_codes = {}  # Dict[code, usage_count]
 
-    def is_valid_code(self, code: str) -> bool:
+def is_valid_code(self, code: str) -> bool:
         """
         Check if a coupon code is valid.
 
-        Args:
+Args:
             code: Coupon code to check
 
-        Returns:
+Returns:
             True if the code is valid, False otherwise
         """
         if not self.case_sensitive:
@@ -1048,42 +1048,42 @@ class CouponPromotion(Promotion):
         else:
             valid_codes = self.valid_codes
 
-        # Check if the code matches exactly
+# Check if the code matches exactly
         if code in valid_codes:
-            return True
+                        return True
 
-        # Check if the code matches with prefix/suffix
+# Check if the code matches with prefix/suffix
         if self.prefix and self.suffix:
             # Check if the code has the correct prefix and suffix
             if code.startswith(self.prefix) and code.endswith(self.suffix):
                 # Extract the middle part
                 middle = code[len(self.prefix) : -len(self.suffix)]
 
-                # Check if the middle part is valid
+# Check if the middle part is valid
                 if middle.isalnum():
-                    return True
+                                return True
         elif self.prefix:
             # Check if the code has the correct prefix
             if code.startswith(self.prefix):
                 # Extract the rest
                 rest = code[len(self.prefix) :]
 
-                # Check if the rest is valid
+# Check if the rest is valid
                 if rest.isalnum():
-                    return True
+                                return True
         elif self.suffix:
             # Check if the code has the correct suffix
             if code.endswith(self.suffix):
                 # Extract the rest
                 rest = code[: -len(self.suffix)]
 
-                # Check if the rest is valid
+# Check if the rest is valid
                 if rest.isalnum():
-                    return True
+                                return True
 
-        return False
+            return False
 
-    def is_valid(
+def is_valid(
         self,
         customer_id: Optional[str] = None,
         product_id: Optional[str] = None,
@@ -1095,7 +1095,7 @@ class CouponPromotion(Promotion):
         """
         Check if the promotion is valid for a given context.
 
-        Args:
+Args:
             customer_id: ID of the customer
             product_id: ID of the product
             category_id: ID of the category
@@ -1103,7 +1103,7 @@ class CouponPromotion(Promotion):
             reference_time: Reference time (defaults to now)
             code: Coupon code to check
 
-        Returns:
+Returns:
             Tuple of (is_valid, reason)
         """
         # Check basic validity
@@ -1115,39 +1115,39 @@ class CouponPromotion(Promotion):
             reference_time=reference_time,
         )
 
-        if not is_valid:
-            return False, reason
+if not is_valid:
+                        return False, reason
 
-        # Check coupon code
+# Check coupon code
         if code is not None:
             if not self.is_valid_code(code):
-                return False, f"Invalid coupon code: {code}"
+                            return False, f"Invalid coupon code: {code}"
 
-            # Check if the code has reached its maximum uses
+# Check if the code has reached its maximum uses
             if self.max_uses is not None:
                 code_usage = self.used_codes.get(code, 0)
                 if code_usage >= self.max_uses:
-                    return False, f"Coupon code has reached maximum uses: {code}"
+                                return False, f"Coupon code has reached maximum uses: {code}"
 
-        # All checks passed
-        return True, None
+# All checks passed
+                    return True, None
 
-    def record_usage(
+def record_usage(
         self, customer_id: Optional[str] = None, code: Optional[str] = None
     ) -> None:
         """
         Record usage of the promotion.
 
-        Args:
+Args:
             customer_id: ID of the customer
             code: Coupon code that was used
         """
         super().record_usage(customer_id)
 
-        if code:
+if code:
             self.used_codes[code] = self.used_codes.get(code, 0) + 1
 
-    def generate_codes(
+def generate_codes(
         self,
         count: int,
         length: int = 8,
@@ -1158,40 +1158,40 @@ class CouponPromotion(Promotion):
         """
         Generate random coupon codes.
 
-        Args:
+Args:
             count: Number of codes to generate
             length: Length of each code
             prefix: Prefix for the codes
             suffix: Suffix for the codes
             characters: Characters to use for the codes
 
-        Returns:
+Returns:
             List of generated codes
         """
         prefix = prefix or self.prefix or ""
         suffix = suffix or self.suffix or ""
 
-        codes = []
+codes = []
 
-        for _ in range(count):
+for _ in range(count):
             # Generate a random code
             code = "".join(random.choice(characters) for _ in range(length))
 
-            # Add prefix and suffix
+# Add prefix and suffix
             full_code = f"{prefix}{code}{suffix}"
 
-            codes.append(full_code)
+codes.append(full_code)
 
-        # Add the generated codes to the valid codes
+# Add the generated codes to the valid codes
         self.valid_codes.extend(codes)
 
-        return codes
+            return codes
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the coupon promotion to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the coupon promotion
         """
         result = super().to_dict()
@@ -1205,17 +1205,17 @@ class CouponPromotion(Promotion):
                 "used_codes": self.used_codes,
             }
         )
-        return result
+                    return result
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "CouponPromotion":
         """
         Create a coupon promotion from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with coupon promotion data
 
-        Returns:
+Returns:
             CouponPromotion instance
         """
         # Convert date strings to datetime objects
@@ -1223,11 +1223,11 @@ class CouponPromotion(Promotion):
         if data.get("start_date"):
             start_date = datetime.fromisoformat(data["start_date"])
 
-        end_date = None
+end_date = None
         if data.get("end_date"):
             end_date = datetime.fromisoformat(data["end_date"])
 
-        # Create the promotion
+# Create the promotion
         promotion = cls(
             name=data["name"],
             description=data["description"],
@@ -1255,37 +1255,37 @@ class CouponPromotion(Promotion):
             valid_codes=data.get("valid_codes"),
         )
 
-        # Set additional attributes
+# Set additional attributes
         if "id" in data:
             promotion.id = data["id"]
 
-        if "created_at" in data:
+if "created_at" in data:
             promotion.created_at = datetime.fromisoformat(data["created_at"])
 
-        if "updated_at" in data:
+if "updated_at" in data:
             promotion.updated_at = datetime.fromisoformat(data["updated_at"])
 
-        if "usage_count" in data:
+if "usage_count" in data:
             promotion.usage_count = data["usage_count"]
 
-        if "customer_usage" in data:
+if "customer_usage" in data:
             promotion.customer_usage = data["customer_usage"]
 
-        if "used_codes" in data:
+if "used_codes" in data:
             promotion.used_codes = data["used_codes"]
 
-        return promotion
+            return promotion
 
 
 class ReferralPromotion(Promotion):
     """
     Referral promotion.
 
-    This class implements a promotion that rewards customers for referring
+This class implements a promotion that rewards customers for referring
     new customers, such as a refer-a-friend discount.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str,
         description: str,
@@ -1317,7 +1317,7 @@ class ReferralPromotion(Promotion):
         """
         Initialize a referral promotion.
 
-        Args:
+Args:
             name: Name of the promotion
             description: Description of the promotion
             referrer_discount_type: Type of discount for the referrer
@@ -1368,7 +1368,7 @@ class ReferralPromotion(Promotion):
             status=status,
         )
 
-        self.referrer_discount_type = referrer_discount_type
+self.referrer_discount_type = referrer_discount_type
         self.referrer_discount_value = referrer_discount_value
         self.referee_discount_type = referee_discount_type
         self.referee_discount_value = referee_discount_value
@@ -1378,114 +1378,114 @@ class ReferralPromotion(Promotion):
         self.referee_max_uses = referee_max_uses
         self.require_referee_account = require_referee_account
 
-        self.referral_codes = {}  # Dict[customer_id, referral_code]
+self.referral_codes = {}  # Dict[customer_id, referral_code]
         self.referrals = {}  # Dict[referral_code, List[referee_id]]
         self.referee_usage = {}  # Dict[referee_id, usage_count]
 
-    def generate_referral_code(self, customer_id: str) -> str:
+def generate_referral_code(self, customer_id: str) -> str:
         """
         Generate a referral code for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
 
-        Returns:
+Returns:
             Referral code
         """
         # Check if the customer already has a referral code
         if customer_id in self.referral_codes:
-            return self.referral_codes[customer_id]
+                        return self.referral_codes[customer_id]
 
-        # Generate a random code
+# Generate a random code
         code = "".join(
             random.choice(string.ascii_uppercase + string.digits)
             for _ in range(self.referral_code_length)
         )
 
-        # Add prefix
+# Add prefix
         full_code = f"{self.referral_code_prefix}{code}"
 
-        # Store the code
+# Store the code
         self.referral_codes[customer_id] = full_code
 
-        return full_code
+            return full_code
 
-    def get_referral_code(self, customer_id: str) -> Optional[str]:
+def get_referral_code(self, customer_id: str) -> Optional[str]:
         """
         Get the referral code for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
 
-        Returns:
+Returns:
             Referral code, or None if not found
         """
-        return self.referral_codes.get(customer_id)
+                    return self.referral_codes.get(customer_id)
 
-    def get_referrer_id(self, referral_code: str) -> Optional[str]:
+def get_referrer_id(self, referral_code: str) -> Optional[str]:
         """
         Get the ID of the referrer for a referral code.
 
-        Args:
+Args:
             referral_code: Referral code
 
-        Returns:
+Returns:
             ID of the referrer, or None if not found
         """
         for customer_id, code in self.referral_codes.items():
             if code == referral_code:
-                return customer_id
+                            return customer_id
 
-        return None
+            return None
 
-    def record_referral(self, referral_code: str, referee_id: str) -> bool:
+def record_referral(self, referral_code: str, referee_id: str) -> bool:
         """
         Record a referral.
 
-        Args:
+Args:
             referral_code: Referral code
             referee_id: ID of the referee
 
-        Returns:
+Returns:
             True if the referral was recorded, False otherwise
         """
         # Check if the referral code is valid
         referrer_id = self.get_referrer_id(referral_code)
 
-        if not referrer_id:
-            return False
+if not referrer_id:
+                        return False
 
-        # Check if the referee has already been referred
+# Check if the referee has already been referred
         for code, referees in self.referrals.items():
             if referee_id in referees:
-                return False
+                            return False
 
-        # Record the referral
+# Record the referral
         if referral_code not in self.referrals:
             self.referrals[referral_code] = []
 
-        self.referrals[referral_code].append(referee_id)
+self.referrals[referral_code].append(referee_id)
 
-        return True
+            return True
 
-    def get_referrals(self, customer_id: str) -> List[str]:
+def get_referrals(self, customer_id: str) -> List[str]:
         """
         Get the referrals for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
 
-        Returns:
+Returns:
             List of referee IDs
         """
         referral_code = self.get_referral_code(customer_id)
 
-        if not referral_code:
-            return []
+if not referral_code:
+                        return []
 
-        return self.referrals.get(referral_code, [])
+            return self.referrals.get(referral_code, [])
 
-    def is_valid(
+def is_valid(
         self,
         customer_id: Optional[str] = None,
         product_id: Optional[str] = None,
@@ -1498,7 +1498,7 @@ class ReferralPromotion(Promotion):
         """
         Check if the promotion is valid for a given context.
 
-        Args:
+Args:
             customer_id: ID of the customer
             product_id: ID of the product
             category_id: ID of the category
@@ -1507,7 +1507,7 @@ class ReferralPromotion(Promotion):
             referral_code: Referral code
             is_referee: Whether the customer is a referee
 
-        Returns:
+Returns:
             Tuple of (is_valid, reason)
         """
         # Check basic validity
@@ -1519,47 +1519,47 @@ class ReferralPromotion(Promotion):
             reference_time=reference_time,
         )
 
-        if not is_valid:
-            return False, reason
+if not is_valid:
+                        return False, reason
 
-        if is_referee:
+if is_referee:
             # Check referee-specific conditions
             if purchase_amount < self.min_referee_purchase_amount:
-                return (
+                            return (
                     False,
                     f"Purchase amount ({purchase_amount}) is below minimum for referees ({self.min_referee_purchase_amount})",
                 )
 
-            if customer_id:
+if customer_id:
                 # Check if the referee has reached maximum uses
                 referee_usage = self.referee_usage.get(customer_id, 0)
                 if referee_usage >= self.referee_max_uses:
-                    return (
+                                return (
                         False,
                         f"Referee has reached maximum uses ({self.referee_max_uses})",
                     )
 
-            if referral_code:
+if referral_code:
                 # Check if the referral code is valid
                 referrer_id = self.get_referrer_id(referral_code)
                 if not referrer_id:
-                    return False, f"Invalid referral code: {referral_code}"
+                                return False, f"Invalid referral code: {referral_code}"
 
-                # Check if the referrer is the same as the referee
+# Check if the referrer is the same as the referee
                 if referrer_id == customer_id:
-                    return False, "Referrer cannot be the same as referee"
+                                return False, "Referrer cannot be the same as referee"
         else:
             # Check referrer-specific conditions
             if customer_id:
                 # Check if the customer has any referrals
                 referrals = self.get_referrals(customer_id)
                 if not referrals:
-                    return False, "Customer has no referrals"
+                                return False, "Customer has no referrals"
 
-        # All checks passed
-        return True, None
+# All checks passed
+                    return True, None
 
-    def apply_discount(
+def apply_discount(
         self,
         amount: float,
         quantity: float = 1.0,
@@ -1568,18 +1568,18 @@ class ReferralPromotion(Promotion):
         """
         Apply the promotion discount to an amount.
 
-        Args:
+Args:
             amount: Amount to apply discount to
             quantity: Quantity of items
             context: Additional context for discount calculation
 
-        Returns:
+Returns:
             Tuple of (discounted_amount, discount_info)
         """
         context = context or {}
         is_referee = context.get("is_referee", False)
 
-        if is_referee:
+if is_referee:
             # Use referee discount
             discount_type = self.referee_discount_type
             discount_value = self.referee_discount_value
@@ -1588,43 +1588,43 @@ class ReferralPromotion(Promotion):
             discount_type = self.referrer_discount_type
             discount_value = self.referrer_discount_value
 
-        # Calculate discount based on type
+# Calculate discount based on type
         discount_amount = 0.0
 
-        if discount_type == DiscountType.PERCENTAGE:
+if discount_type == DiscountType.PERCENTAGE:
             # Percentage discount
             discount_amount = amount * (discount_value / 100.0)
 
-        elif discount_type == DiscountType.FIXED_AMOUNT:
+elif discount_type == DiscountType.FIXED_AMOUNT:
             # Fixed amount discount
             discount_amount = min(amount, discount_value)
 
-        elif discount_type == DiscountType.FREE_UNITS:
+elif discount_type == DiscountType.FREE_UNITS:
             # Free units discount
             unit_price = amount / quantity if quantity > 0 else 0
             free_units = min(quantity, discount_value)
             discount_amount = unit_price * free_units
 
-        elif discount_type == DiscountType.FREE_PRODUCT:
+elif discount_type == DiscountType.FREE_PRODUCT:
             # Free product discount
             # This is handled differently depending on the implementation
             # For now, we'll just use the discount_value as the product value
             discount_amount = discount_value
 
-        # Apply maximum discount amount if specified
+# Apply maximum discount amount if specified
         if (
             self.max_discount_amount is not None
             and discount_amount > self.max_discount_amount
         ):
             discount_amount = self.max_discount_amount
 
-        # Ensure discount doesn't exceed the original amount
+# Ensure discount doesn't exceed the original amount
         discount_amount = min(discount_amount, amount)
 
-        # Calculate discounted amount
+# Calculate discounted amount
         discounted_amount = amount - discount_amount
 
-        # Prepare discount info
+# Prepare discount info
         discount_info = {
             "promotion_id": self.id,
             "promotion_name": self.name,
@@ -1636,9 +1636,9 @@ class ReferralPromotion(Promotion):
             "is_referee": is_referee,
         }
 
-        return discounted_amount, discount_info
+            return discounted_amount, discount_info
 
-    def record_usage(
+def record_usage(
         self,
         customer_id: Optional[str] = None,
         referral_code: Optional[str] = None,
@@ -1647,21 +1647,21 @@ class ReferralPromotion(Promotion):
         """
         Record usage of the promotion.
 
-        Args:
+Args:
             customer_id: ID of the customer
             referral_code: Referral code
             is_referee: Whether the customer is a referee
         """
         super().record_usage(customer_id)
 
-        if is_referee and customer_id:
+if is_referee and customer_id:
             self.referee_usage[customer_id] = self.referee_usage.get(customer_id, 0) + 1
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the referral promotion to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the referral promotion
         """
         result = super().to_dict()
@@ -1681,17 +1681,17 @@ class ReferralPromotion(Promotion):
                 "referee_usage": self.referee_usage,
             }
         )
-        return result
+                    return result
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ReferralPromotion":
         """
         Create a referral promotion from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with referral promotion data
 
-        Returns:
+Returns:
             ReferralPromotion instance
         """
         # Convert date strings to datetime objects
@@ -1699,11 +1699,11 @@ class ReferralPromotion(Promotion):
         if data.get("start_date"):
             start_date = datetime.fromisoformat(data["start_date"])
 
-        end_date = None
+end_date = None
         if data.get("end_date"):
             end_date = datetime.fromisoformat(data["end_date"])
 
-        # Create the promotion
+# Create the promotion
         promotion = cls(
             name=data["name"],
             description=data["description"],
@@ -1737,43 +1737,43 @@ class ReferralPromotion(Promotion):
             require_referee_account=data.get("require_referee_account", True),
         )
 
-        # Set additional attributes
+# Set additional attributes
         if "id" in data:
             promotion.id = data["id"]
 
-        if "created_at" in data:
+if "created_at" in data:
             promotion.created_at = datetime.fromisoformat(data["created_at"])
 
-        if "updated_at" in data:
+if "updated_at" in data:
             promotion.updated_at = datetime.fromisoformat(data["updated_at"])
 
-        if "usage_count" in data:
+if "usage_count" in data:
             promotion.usage_count = data["usage_count"]
 
-        if "customer_usage" in data:
+if "customer_usage" in data:
             promotion.customer_usage = data["customer_usage"]
 
-        if "referral_codes" in data:
+if "referral_codes" in data:
             promotion.referral_codes = data["referral_codes"]
 
-        if "referrals" in data:
+if "referrals" in data:
             promotion.referrals = data["referrals"]
 
-        if "referee_usage" in data:
+if "referee_usage" in data:
             promotion.referee_usage = data["referee_usage"]
 
-        return promotion
+            return promotion
 
 
 class BundlePromotion(Promotion):
     """
     Bundle promotion.
 
-    This class implements a promotion that offers discounts for purchasing
+This class implements a promotion that offers discounts for purchasing
     multiple products together, such as a bundle discount.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str,
         description: str,
@@ -1803,7 +1803,7 @@ class BundlePromotion(Promotion):
         """
         Initialize a bundle promotion.
 
-        Args:
+Args:
             name: Name of the promotion
             description: Description of the promotion
             bundle_items: List of items in the bundle, each with product_id and quantity
@@ -1852,13 +1852,13 @@ class BundlePromotion(Promotion):
             status=status,
         )
 
-        self.bundle_items = bundle_items
+self.bundle_items = bundle_items
         self.require_all_items = require_all_items
         self.min_quantity_per_item = min_quantity_per_item
         self.apply_to_cheapest = apply_to_cheapest
         self.apply_to_most_expensive = apply_to_most_expensive
 
-    def is_valid(
+def is_valid(
         self,
         customer_id: Optional[str] = None,
         product_id: Optional[str] = None,
@@ -1870,7 +1870,7 @@ class BundlePromotion(Promotion):
         """
         Check if the promotion is valid for a given context.
 
-        Args:
+Args:
             customer_id: ID of the customer
             product_id: ID of the product
             category_id: ID of the category
@@ -1878,7 +1878,7 @@ class BundlePromotion(Promotion):
             reference_time: Reference time (defaults to now)
             cart_items: List of items in the cart, each with product_id, quantity, and price
 
-        Returns:
+Returns:
             Tuple of (is_valid, reason)
         """
         # Check basic validity
@@ -1890,14 +1890,14 @@ class BundlePromotion(Promotion):
             reference_time=reference_time,
         )
 
-        if not is_valid:
-            return False, reason
+if not is_valid:
+                        return False, reason
 
-        # Check bundle-specific conditions
+# Check bundle-specific conditions
         if not cart_items:
-            return False, "No cart items provided"
+                        return False, "No cart items provided"
 
-        # Check if the cart contains the required bundle items
+# Check if the cart contains the required bundle items
         if self.require_all_items:
             # All items in the bundle must be in the cart with the required quantity
             for bundle_item in self.bundle_items:
@@ -1906,7 +1906,7 @@ class BundlePromotion(Promotion):
                     "quantity", self.min_quantity_per_item
                 )
 
-                # Find the item in the cart
+# Find the item in the cart
                 cart_item = next(
                     (
                         item
@@ -1916,11 +1916,11 @@ class BundlePromotion(Promotion):
                     None,
                 )
 
-                if not cart_item:
-                    return False, f"Bundle item {bundle_product_id} not in cart"
+if not cart_item:
+                                return False, f"Bundle item {bundle_product_id} not in cart"
 
-                if cart_item["quantity"] < bundle_quantity:
-                    return (
+if cart_item["quantity"] < bundle_quantity:
+                                return (
                         False,
                         f"Bundle item {bundle_product_id} quantity ({cart_item['quantity']}) is less than required ({bundle_quantity})",
                     )
@@ -1928,13 +1928,13 @@ class BundlePromotion(Promotion):
             # At least one item in the bundle must be in the cart with the required quantity
             valid_items = 0
 
-            for bundle_item in self.bundle_items:
+for bundle_item in self.bundle_items:
                 bundle_product_id = bundle_item["product_id"]
                 bundle_quantity = bundle_item.get(
                     "quantity", self.min_quantity_per_item
                 )
 
-                # Find the item in the cart
+# Find the item in the cart
                 cart_item = next(
                     (
                         item
@@ -1944,16 +1944,16 @@ class BundlePromotion(Promotion):
                     None,
                 )
 
-                if cart_item and cart_item["quantity"] >= bundle_quantity:
+if cart_item and cart_item["quantity"] >= bundle_quantity:
                     valid_items += 1
 
-            if valid_items == 0:
-                return False, "No valid bundle items in cart"
+if valid_items == 0:
+                            return False, "No valid bundle items in cart"
 
-        # All checks passed
-        return True, None
+# All checks passed
+                    return True, None
 
-    def apply_discount(
+def apply_discount(
         self,
         amount: float,
         quantity: float = 1.0,
@@ -1962,39 +1962,39 @@ class BundlePromotion(Promotion):
         """
         Apply the promotion discount to an amount.
 
-        Args:
+Args:
             amount: Amount to apply discount to
             quantity: Quantity of items
             context: Additional context for discount calculation
 
-        Returns:
+Returns:
             Tuple of (discounted_amount, discount_info)
         """
         context = context or {}
         cart_items = context.get("cart_items", [])
 
-        # If no cart items, use the standard discount calculation
+# If no cart items, use the standard discount calculation
         if not cart_items:
-            return super().apply_discount(amount, quantity, context)
+                        return super().apply_discount(amount, quantity, context)
 
-        # Calculate the discount based on the bundle configuration
+# Calculate the discount based on the bundle configuration
         discount_amount = 0.0
 
-        if self.apply_to_cheapest:
+if self.apply_to_cheapest:
             # Apply the discount to the cheapest item in the bundle
             bundle_product_ids = [item["product_id"] for item in self.bundle_items]
             bundle_cart_items = [
                 item for item in cart_items if item["product_id"] in bundle_product_ids
             ]
 
-            if bundle_cart_items:
+if bundle_cart_items:
                 # Sort by price (cheapest first)
                 bundle_cart_items.sort(key=lambda item: item["price"])
 
-                # Get the cheapest item
+# Get the cheapest item
                 cheapest_item = bundle_cart_items[0]
 
-                # Calculate the discount for the cheapest item
+# Calculate the discount for the cheapest item
                 if self.discount_type == DiscountType.PERCENTAGE:
                     discount_amount = (
                         cheapest_item["price"]
@@ -2012,21 +2012,21 @@ class BundlePromotion(Promotion):
                 elif self.discount_type == DiscountType.FREE_PRODUCT:
                     discount_amount = self.discount_value
 
-        elif self.apply_to_most_expensive:
+elif self.apply_to_most_expensive:
             # Apply the discount to the most expensive item in the bundle
             bundle_product_ids = [item["product_id"] for item in self.bundle_items]
             bundle_cart_items = [
                 item for item in cart_items if item["product_id"] in bundle_product_ids
             ]
 
-            if bundle_cart_items:
+if bundle_cart_items:
                 # Sort by price (most expensive first)
                 bundle_cart_items.sort(key=lambda item: item["price"], reverse=True)
 
-                # Get the most expensive item
+# Get the most expensive item
                 most_expensive_item = bundle_cart_items[0]
 
-                # Calculate the discount for the most expensive item
+# Calculate the discount for the most expensive item
                 if self.discount_type == DiscountType.PERCENTAGE:
                     discount_amount = (
                         most_expensive_item["price"]
@@ -2046,7 +2046,7 @@ class BundlePromotion(Promotion):
                 elif self.discount_type == DiscountType.FREE_PRODUCT:
                     discount_amount = self.discount_value
 
-        else:
+else:
             # Apply the discount to the entire purchase amount
             if self.discount_type == DiscountType.PERCENTAGE:
                 discount_amount = amount * (self.discount_value / 100.0)
@@ -2058,20 +2058,20 @@ class BundlePromotion(Promotion):
             elif self.discount_type == DiscountType.FREE_PRODUCT:
                 discount_amount = self.discount_value
 
-        # Apply maximum discount amount if specified
+# Apply maximum discount amount if specified
         if (
             self.max_discount_amount is not None
             and discount_amount > self.max_discount_amount
         ):
             discount_amount = self.max_discount_amount
 
-        # Ensure discount doesn't exceed the original amount
+# Ensure discount doesn't exceed the original amount
         discount_amount = min(discount_amount, amount)
 
-        # Calculate discounted amount
+# Calculate discounted amount
         discounted_amount = amount - discount_amount
 
-        # Prepare discount info
+# Prepare discount info
         discount_info = {
             "promotion_id": self.id,
             "promotion_name": self.name,
@@ -2085,13 +2085,13 @@ class BundlePromotion(Promotion):
             "apply_to_most_expensive": self.apply_to_most_expensive,
         }
 
-        return discounted_amount, discount_info
+            return discounted_amount, discount_info
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the bundle promotion to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the bundle promotion
         """
         result = super().to_dict()
@@ -2104,17 +2104,17 @@ class BundlePromotion(Promotion):
                 "apply_to_most_expensive": self.apply_to_most_expensive,
             }
         )
-        return result
+                    return result
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "BundlePromotion":
         """
         Create a bundle promotion from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with bundle promotion data
 
-        Returns:
+Returns:
             BundlePromotion instance
         """
         # Convert date strings to datetime objects
@@ -2122,11 +2122,11 @@ class BundlePromotion(Promotion):
         if data.get("start_date"):
             start_date = datetime.fromisoformat(data["start_date"])
 
-        end_date = None
+end_date = None
         if data.get("end_date"):
             end_date = datetime.fromisoformat(data["end_date"])
 
-        # Create the promotion
+# Create the promotion
         promotion = cls(
             name=data["name"],
             description=data["description"],
@@ -2154,34 +2154,34 @@ class BundlePromotion(Promotion):
             apply_to_most_expensive=data.get("apply_to_most_expensive", False),
         )
 
-        # Set additional attributes
+# Set additional attributes
         if "id" in data:
             promotion.id = data["id"]
 
-        if "created_at" in data:
+if "created_at" in data:
             promotion.created_at = datetime.fromisoformat(data["created_at"])
 
-        if "updated_at" in data:
+if "updated_at" in data:
             promotion.updated_at = datetime.fromisoformat(data["updated_at"])
 
-        if "usage_count" in data:
+if "usage_count" in data:
             promotion.usage_count = data["usage_count"]
 
-        if "customer_usage" in data:
+if "customer_usage" in data:
             promotion.customer_usage = data["customer_usage"]
 
-        return promotion
+            return promotion
 
 
 class LoyaltyPromotion(Promotion):
     """
     Loyalty promotion.
 
-    This class implements a promotion that rewards customers for their loyalty,
+This class implements a promotion that rewards customers for their loyalty,
     such as discounts based on purchase history or account age.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str,
         description: str,
@@ -2208,7 +2208,7 @@ class LoyaltyPromotion(Promotion):
         """
         Initialize a loyalty promotion.
 
-        Args:
+Args:
             name: Name of the promotion
             description: Description of the promotion
             loyalty_tiers: List of loyalty tiers, each with min_value, max_value, and discount_value
@@ -2239,7 +2239,7 @@ class LoyaltyPromotion(Promotion):
             # Use the highest tier's discount value
             default_discount_value = sorted_tiers[-1].get("discount_value", 0.0)
 
-        super().__init__(
+super().__init__(
             name=name,
             description=description,
             promotion_type=PromotionType.LOYALTY,
@@ -2262,25 +2262,25 @@ class LoyaltyPromotion(Promotion):
             status=status,
         )
 
-        self.loyalty_tiers = loyalty_tiers
+self.loyalty_tiers = loyalty_tiers
         self.loyalty_criteria = loyalty_criteria
         self.reset_period = reset_period
         self.customer_loyalty = {}  # Dict[customer_id, Dict[criteria, value]]
         self.last_reset = {}  # Dict[customer_id, datetime]
 
-    def get_customer_loyalty(self, customer_id: str) -> Dict[str, Any]:
+def get_customer_loyalty(self, customer_id: str) -> Dict[str, Any]:
         """
         Get the loyalty data for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
 
-        Returns:
+Returns:
             Dictionary with loyalty data
         """
-        return self.customer_loyalty.get(customer_id, {})
+                    return self.customer_loyalty.get(customer_id, {})
 
-    def update_customer_loyalty(
+def update_customer_loyalty(
         self,
         customer_id: str,
         purchase_count: int = 0,
@@ -2290,7 +2290,7 @@ class LoyaltyPromotion(Promotion):
         """
         Update the loyalty data for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
             purchase_count: Number of purchases to add
             purchase_amount: Purchase amount to add
@@ -2305,108 +2305,108 @@ class LoyaltyPromotion(Promotion):
                 "last_updated": datetime.now(),
             }
 
-        # Check if we need to reset loyalty
+# Check if we need to reset loyalty
         if self.should_reset_loyalty(customer_id):
             self.reset_customer_loyalty(customer_id)
 
-        # Update loyalty data
+# Update loyalty data
         loyalty = self.customer_loyalty[customer_id]
         loyalty["purchase_count"] += purchase_count
         loyalty["purchase_amount"] += purchase_amount
         loyalty["account_age"] = max(loyalty["account_age"], account_age)
         loyalty["last_updated"] = datetime.now()
 
-        # Update last reset time if needed
+# Update last reset time if needed
         if customer_id not in self.last_reset:
             self.last_reset[customer_id] = datetime.now()
 
-    def should_reset_loyalty(self, customer_id: str) -> bool:
+def should_reset_loyalty(self, customer_id: str) -> bool:
         """
         Check if loyalty should be reset for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
 
-        Returns:
+Returns:
             True if loyalty should be reset, False otherwise
         """
         if not self.reset_period or self.reset_period == "never":
-            return False
+                        return False
 
-        if customer_id not in self.last_reset:
-            return False
+if customer_id not in self.last_reset:
+                        return False
 
-        last_reset = self.last_reset[customer_id]
+last_reset = self.last_reset[customer_id]
         now = datetime.now()
 
-        if self.reset_period == "monthly":
+if self.reset_period == "monthly":
             # Reset if we're in a different month
-            return now.year != last_reset.year or now.month != last_reset.month
+                        return now.year != last_reset.year or now.month != last_reset.month
 
-        elif self.reset_period == "yearly":
+elif self.reset_period == "yearly":
             # Reset if we're in a different year
-            return now.year != last_reset.year
+                        return now.year != last_reset.year
 
-        return False
+            return False
 
-    def reset_customer_loyalty(self, customer_id: str) -> None:
+def reset_customer_loyalty(self, customer_id: str) -> None:
         """
         Reset the loyalty data for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
         """
         if customer_id in self.customer_loyalty:
             # Keep account age, reset everything else
             account_age = self.customer_loyalty[customer_id].get("account_age", 0)
 
-            self.customer_loyalty[customer_id] = {
+self.customer_loyalty[customer_id] = {
                 "purchase_count": 0,
                 "purchase_amount": 0.0,
                 "account_age": account_age,
                 "last_updated": datetime.now(),
             }
 
-            self.last_reset[customer_id] = datetime.now()
+self.last_reset[customer_id] = datetime.now()
 
-    def get_loyalty_tier(self, customer_id: str) -> Optional[Dict[str, Any]]:
+def get_loyalty_tier(self, customer_id: str) -> Optional[Dict[str, Any]]:
         """
         Get the loyalty tier for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
 
-        Returns:
+Returns:
             Loyalty tier dictionary, or None if not found
         """
         loyalty = self.get_customer_loyalty(customer_id)
 
-        if not loyalty:
-            return None
+if not loyalty:
+                        return None
 
-        # Get the value based on the loyalty criteria
+# Get the value based on the loyalty criteria
         value = 0
 
-        if self.loyalty_criteria == "purchase_count":
+if self.loyalty_criteria == "purchase_count":
             value = loyalty.get("purchase_count", 0)
         elif self.loyalty_criteria == "purchase_amount":
             value = loyalty.get("purchase_amount", 0.0)
         elif self.loyalty_criteria == "account_age":
             value = loyalty.get("account_age", 0)
 
-        # Find the matching tier
+# Find the matching tier
         matching_tier = None
 
-        for tier in self.loyalty_tiers:
+for tier in self.loyalty_tiers:
             min_value = tier.get("min_value", 0)
             max_value = tier.get("max_value")
 
-            if min_value <= value and (max_value is None or value <= max_value):
+if min_value <= value and (max_value is None or value <= max_value):
                 matching_tier = tier
 
-        return matching_tier
+            return matching_tier
 
-    def is_valid(
+def is_valid(
         self,
         customer_id: Optional[str] = None,
         product_id: Optional[str] = None,
@@ -2417,14 +2417,14 @@ class LoyaltyPromotion(Promotion):
         """
         Check if the promotion is valid for a given context.
 
-        Args:
+Args:
             customer_id: ID of the customer
             product_id: ID of the product
             category_id: ID of the category
             purchase_amount: Purchase amount
             reference_time: Reference time (defaults to now)
 
-        Returns:
+Returns:
             Tuple of (is_valid, reason)
         """
         # Check basic validity
@@ -2436,29 +2436,29 @@ class LoyaltyPromotion(Promotion):
             reference_time=reference_time,
         )
 
-        if not is_valid:
-            return False, reason
+if not is_valid:
+                        return False, reason
 
-        # Check loyalty-specific conditions
+# Check loyalty-specific conditions
         if not customer_id:
-            return False, "Customer ID is required for loyalty promotions"
+                        return False, "Customer ID is required for loyalty promotions"
 
-        # Check if the customer has loyalty data
+# Check if the customer has loyalty data
         loyalty = self.get_customer_loyalty(customer_id)
 
-        if not loyalty:
-            return False, "Customer has no loyalty data"
+if not loyalty:
+                        return False, "Customer has no loyalty data"
 
-        # Check if the customer qualifies for any tier
+# Check if the customer qualifies for any tier
         tier = self.get_loyalty_tier(customer_id)
 
-        if not tier:
-            return False, "Customer does not qualify for any loyalty tier"
+if not tier:
+                        return False, "Customer does not qualify for any loyalty tier"
 
-        # All checks passed
-        return True, None
+# All checks passed
+                    return True, None
 
-    def apply_discount(
+def apply_discount(
         self,
         amount: float,
         quantity: float = 1.0,
@@ -2467,27 +2467,27 @@ class LoyaltyPromotion(Promotion):
         """
         Apply the promotion discount to an amount.
 
-        Args:
+Args:
             amount: Amount to apply discount to
             quantity: Quantity of items
             context: Additional context for discount calculation
 
-        Returns:
+Returns:
             Tuple of (discounted_amount, discount_info)
         """
         context = context or {}
         customer_id = context.get("customer_id")
 
-        # If no customer ID, use the standard discount calculation
+# If no customer ID, use the standard discount calculation
         if not customer_id:
-            return super().apply_discount(amount, quantity, context)
+                        return super().apply_discount(amount, quantity, context)
 
-        # Get the customer's loyalty tier
+# Get the customer's loyalty tier
         tier = self.get_loyalty_tier(customer_id)
 
-        if not tier:
+if not tier:
             # No tier, no discount
-            return amount, {
+                        return amount, {
                 "promotion_id": self.id,
                 "promotion_name": self.name,
                 "original_amount": amount,
@@ -2498,46 +2498,46 @@ class LoyaltyPromotion(Promotion):
                 "tier": None,
             }
 
-        # Use the tier's discount value
+# Use the tier's discount value
         discount_value = tier.get("discount_value", 0.0)
 
-        # Calculate discount based on type
+# Calculate discount based on type
         discount_amount = 0.0
 
-        if self.discount_type == DiscountType.PERCENTAGE:
+if self.discount_type == DiscountType.PERCENTAGE:
             # Percentage discount
             discount_amount = amount * (discount_value / 100.0)
 
-        elif self.discount_type == DiscountType.FIXED_AMOUNT:
+elif self.discount_type == DiscountType.FIXED_AMOUNT:
             # Fixed amount discount
             discount_amount = min(amount, discount_value)
 
-        elif self.discount_type == DiscountType.FREE_UNITS:
+elif self.discount_type == DiscountType.FREE_UNITS:
             # Free units discount
             unit_price = amount / quantity if quantity > 0 else 0
             free_units = min(quantity, discount_value)
             discount_amount = unit_price * free_units
 
-        elif self.discount_type == DiscountType.FREE_PRODUCT:
+elif self.discount_type == DiscountType.FREE_PRODUCT:
             # Free product discount
             # This is handled differently depending on the implementation
             # For now, we'll just use the discount_value as the product value
             discount_amount = discount_value
 
-        # Apply maximum discount amount if specified
+# Apply maximum discount amount if specified
         if (
             self.max_discount_amount is not None
             and discount_amount > self.max_discount_amount
         ):
             discount_amount = self.max_discount_amount
 
-        # Ensure discount doesn't exceed the original amount
+# Ensure discount doesn't exceed the original amount
         discount_amount = min(discount_amount, amount)
 
-        # Calculate discounted amount
+# Calculate discounted amount
         discounted_amount = amount - discount_amount
 
-        # Prepare discount info
+# Prepare discount info
         discount_info = {
             "promotion_id": self.id,
             "promotion_name": self.name,
@@ -2553,13 +2553,13 @@ class LoyaltyPromotion(Promotion):
             ),
         }
 
-        return discounted_amount, discount_info
+            return discounted_amount, discount_info
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the loyalty promotion to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the loyalty promotion
         """
         result = super().to_dict()
@@ -2572,17 +2572,17 @@ class LoyaltyPromotion(Promotion):
                 "last_reset": {k: v.isoformat() for k, v in self.last_reset.items()},
             }
         )
-        return result
+                    return result
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "LoyaltyPromotion":
         """
         Create a loyalty promotion from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with loyalty promotion data
 
-        Returns:
+Returns:
             LoyaltyPromotion instance
         """
         # Convert date strings to datetime objects
@@ -2590,11 +2590,11 @@ class LoyaltyPromotion(Promotion):
         if data.get("start_date"):
             start_date = datetime.fromisoformat(data["start_date"])
 
-        end_date = None
+end_date = None
         if data.get("end_date"):
             end_date = datetime.fromisoformat(data["end_date"])
 
-        # Create the promotion
+# Create the promotion
         promotion = cls(
             name=data["name"],
             description=data["description"],
@@ -2619,31 +2619,31 @@ class LoyaltyPromotion(Promotion):
             reset_period=data.get("reset_period"),
         )
 
-        # Set additional attributes
+# Set additional attributes
         if "id" in data:
             promotion.id = data["id"]
 
-        if "created_at" in data:
+if "created_at" in data:
             promotion.created_at = datetime.fromisoformat(data["created_at"])
 
-        if "updated_at" in data:
+if "updated_at" in data:
             promotion.updated_at = datetime.fromisoformat(data["updated_at"])
 
-        if "usage_count" in data:
+if "usage_count" in data:
             promotion.usage_count = data["usage_count"]
 
-        if "customer_usage" in data:
+if "customer_usage" in data:
             promotion.customer_usage = data["customer_usage"]
 
-        if "customer_loyalty" in data:
+if "customer_loyalty" in data:
             promotion.customer_loyalty = data["customer_loyalty"]
 
-        if "last_reset" in data:
+if "last_reset" in data:
             promotion.last_reset = {
                 k: datetime.fromisoformat(v) for k, v in data["last_reset"].items()
             }
 
-        return promotion
+            return promotion
 
 
 # Example usage
@@ -2662,7 +2662,7 @@ if __name__ == "__main__":
         status=PromotionStatus.ACTIVE,
     )
 
-    # Create a coupon promotion
+# Create a coupon promotion
     coupon_promotion = CouponPromotion(
         name="Welcome Discount",
         description="15% off your first purchase",
@@ -2673,7 +2673,7 @@ if __name__ == "__main__":
         status=PromotionStatus.ACTIVE,
     )
 
-    # Create a referral promotion
+# Create a referral promotion
     referral_promotion = ReferralPromotion(
         name="Refer a Friend",
         description="Get $10 off when a friend signs up, and they get 20% off their first purchase",
@@ -2684,7 +2684,7 @@ if __name__ == "__main__":
         status=PromotionStatus.ACTIVE,
     )
 
-    # Create a bundle promotion
+# Create a bundle promotion
     bundle_promotion = BundlePromotion(
         name="API Bundle",
         description="Buy 3 API products and get 25% off",
@@ -2699,7 +2699,7 @@ if __name__ == "__main__":
         status=PromotionStatus.ACTIVE,
     )
 
-    # Create a loyalty promotion
+# Create a loyalty promotion
     loyalty_promotion = LoyaltyPromotion(
         name="Loyalty Rewards",
         description="Get increasing discounts based on your purchase history",
@@ -2726,7 +2726,7 @@ if __name__ == "__main__":
         status=PromotionStatus.ACTIVE,
     )
 
-    # Update customer loyalty
+# Update customer loyalty
     customer_id = "customer123"
     loyalty_promotion.update_customer_loyalty(
         customer_id=customer_id,
@@ -2735,17 +2735,17 @@ if __name__ == "__main__":
         account_age=180,
     )
 
-    # Create a promotion manager
+# Create a promotion manager
     manager = PromotionManager(allow_stacking=True)
 
-    # Add the promotions
+# Add the promotions
     manager.add_promotion(time_promotion)
     manager.add_promotion(coupon_promotion)
     manager.add_promotion(referral_promotion)
     manager.add_promotion(bundle_promotion)
     manager.add_promotion(loyalty_promotion)
 
-    # Apply the loyalty promotion
+# Apply the loyalty promotion
     discounted_amount, discount_info = manager.apply_promotions(
         amount=100.0,
         customer_id=customer_id,
@@ -2753,29 +2753,29 @@ if __name__ == "__main__":
         context={"customer_id": customer_id},
     )
 
-    print(f"Customer loyalty: {loyalty_promotion.get_customer_loyalty(customer_id)}")
+print(f"Customer loyalty: {loyalty_promotion.get_customer_loyalty(customer_id)}")
     print(f"Customer loyalty tier: {loyalty_promotion.get_loyalty_tier(customer_id)}")
     print("Original amount: $100.00")
     print(f"Discounted amount (loyalty): ${discounted_amount:.2f}")
     print(f"Discount info: {discount_info}")
 
-    # Create a cart with bundle items
+# Create a cart with bundle items
     cart_items = [
         {"product_id": "api_product_1", "quantity": 1, "price": 50.0},
         {"product_id": "api_product_2", "quantity": 2, "price": 75.0},
         {"product_id": "api_product_3", "quantity": 1, "price": 100.0},
     ]
 
-    # Calculate the cart total
+# Calculate the cart total
     cart_total = sum(item["price"] * item["quantity"] for item in cart_items)
 
-    # Apply multiple promotions
+# Apply multiple promotions
     discounted_amount, discount_info = manager.apply_promotions(
         amount=cart_total,
         customer_id=customer_id,
         context={"customer_id": customer_id, "cart_items": cart_items},
     )
 
-    print(f"\nCart total: ${cart_total:.2f}")
+print(f"\nCart total: ${cart_total:.2f}")
     print(f"Discounted amount (all promotions): ${discounted_amount:.2f}")
     print(f"Discount info: {discount_info}")

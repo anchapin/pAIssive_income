@@ -297,7 +297,7 @@ def content_dict_strategy(draw, with_keywords=True):
     if seo_data:
         content["seo_data"] = seo_data
 
-    return content
+            return content
 
 
 @composite
@@ -319,7 +319,7 @@ def keywords_strategy(draw):
         keyword = " ".join(keyword_words)
         keywords.append(keyword)
 
-    return keywords
+            return keywords
 
 
 @composite
@@ -343,7 +343,7 @@ def keyword_analyzer_config_strategy(draw):
         st.integers(min_value=min_meta_desc_length, max_value=160)
     )
 
-    return {
+            return {
         "min_keyword_density": min_density,
         "max_keyword_density": max_density,
         "min_word_count": min_word_count,
@@ -392,7 +392,7 @@ def readability_analyzer_config_strategy(draw):
     # Grade level thresholds
     max_grade_level = draw(st.floats(min_value=6.0, max_value=16.0))
 
-    return {
+            return {
         "target_reading_level": reading_level,
         "max_sentence_length": max_sentence_length,
         "min_sentence_length": min_sentence_length,

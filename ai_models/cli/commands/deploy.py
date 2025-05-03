@@ -127,7 +127,7 @@ class DeployCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_path"]):
-            return 1
+                    return 1
 
         try:
             # Create output directory if it doesn't exist
@@ -141,22 +141,22 @@ class DeployCommand(BaseCommand):
 
             # Generate deployment configuration based on type
             if self.args.deployment_type == "docker":
-                return self._generate_docker_config(config_dict)
+                        return self._generate_docker_config(config_dict)
             elif self.args.deployment_type == "kubernetes":
-                return self._generate_kubernetes_config(config_dict)
+                        return self._generate_kubernetes_config(config_dict)
             elif self.args.deployment_type in ["aws", "gcp", "azure"]:
-                return self._generate_cloud_config(config_dict)
+                        return self._generate_cloud_config(config_dict)
             else:
                 logger.error(
                     f"Unsupported deployment type: {self.args.deployment_type}"
                 )
-                return 1
+                        return 1
 
         except Exception as e:
             logger.error(
                 f"Error generating deployment configuration: {e}", exc_info=True
             )
-            return 1
+                    return 1
 
     def _generate_docker_config(self, config_dict: Dict[str, Any]) -> int:
         """
@@ -204,7 +204,7 @@ class DeployCommand(BaseCommand):
         logger.info(f"docker build -t {name}:latest .")
         logger.info(f"docker run -p {self.args.port}:{self.args.port} {name}:latest")
 
-        return 0
+                return 0
 
     def _generate_kubernetes_config(self, config_dict: Dict[str, Any]) -> int:
         """
@@ -265,7 +265,7 @@ class DeployCommand(BaseCommand):
         logger.info(f"cd {output_dir}")
         logger.info("kubectl apply -k .")
 
-        return 0
+                return 0
 
     def _generate_cloud_config(self, config_dict: Dict[str, Any]) -> int:
         """
@@ -347,4 +347,4 @@ class DeployCommand(BaseCommand):
         logger.info(f"cd {output_dir}")
         logger.info("./deploy.sh")
 
-        return 0
+                return 0

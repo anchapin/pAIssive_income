@@ -64,7 +64,7 @@ class ServiceClient:
 
     async def __aenter__(self):
         """Enter async context manager."""
-        return self
+                return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Exit async context manager."""
@@ -92,7 +92,7 @@ class ServiceClient:
         """
         try:
             # Try to create the token locally first
-            return create_service_token(
+                    return create_service_token(
                 issuer=self.service_name,
                 audience=target_service,
                 expiration=expiration,
@@ -122,7 +122,7 @@ class ServiceClient:
                 result = response.json()
 
                 # Return the token
-                return result["token"]
+                        return result["token"]
             except Exception as e:
                 logger.error(f"Failed to get service token from API Gateway: {str(e)}")
                 raise ServiceTokenError(f"Failed to get service token: {str(e)}")
@@ -172,7 +172,7 @@ class ServiceClient:
         request_headers["X-Service-Token"] = token
 
         # Send request
-        return await self.client.request(
+                return await self.client.request(
             method=method,
             url=url,
             params=params,
@@ -194,7 +194,7 @@ class ServiceClient:
         Returns:
             httpx.Response: The response
         """
-        return await self.request("GET", service_name, path, **kwargs)
+                return await self.request("GET", service_name, path, **kwargs)
 
     async def post(self, service_name: str, path: str, **kwargs) -> httpx.Response:
         """
@@ -208,7 +208,7 @@ class ServiceClient:
         Returns:
             httpx.Response: The response
         """
-        return await self.request("POST", service_name, path, **kwargs)
+                return await self.request("POST", service_name, path, **kwargs)
 
     async def put(self, service_name: str, path: str, **kwargs) -> httpx.Response:
         """
@@ -222,7 +222,7 @@ class ServiceClient:
         Returns:
             httpx.Response: The response
         """
-        return await self.request("PUT", service_name, path, **kwargs)
+                return await self.request("PUT", service_name, path, **kwargs)
 
     async def delete(self, service_name: str, path: str, **kwargs) -> httpx.Response:
         """
@@ -236,4 +236,4 @@ class ServiceClient:
         Returns:
             httpx.Response: The response
         """
-        return await self.request("DELETE", service_name, path, **kwargs)
+                return await self.request("DELETE", service_name, path, **kwargs)

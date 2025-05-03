@@ -16,10 +16,10 @@ from common_utils.caching.cache_service import CacheService
         
                 from ai_models.caching.cache_key import CacheKey
 
-                return CacheKey
+                        return CacheKey
                 from ai_models.caching.cache_key import CacheKey
 
-                return CacheKey
+                        return CacheKey
 
 # Set up logging
 logging.basicConfig(
@@ -138,7 +138,7 @@ class TestNamespaceClearing(unittest.TestCase):
                     parameters_hash="hash",
                 )
             else:
-                return original_parse_cache_key(key_str)
+                        return original_parse_cache_key(key_str)
 
         # Create a patch for the parse_cache_key function
         with patch(

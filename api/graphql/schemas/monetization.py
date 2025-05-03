@@ -101,10 +101,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("monetization")
             if not service:
-                return []
+                        return []
 
             strategies = service.get_all_strategies()
-            return [
+                    return [
                 MonetizationStrategy(
                     id=str(strategy.id),
                     solution_id=str(strategy.solution_id),
@@ -155,13 +155,13 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("monetization")
             if not service:
-                return None
+                        return None
 
             strategy = service.get_strategy(id)
             if not strategy:
-                return None
+                        return None
 
-            return MonetizationStrategy(
+                    return MonetizationStrategy(
                 id=str(strategy.id),
                 solution_id=str(strategy.solution_id),
                 solution_name=strategy.solution_name,
@@ -213,7 +213,7 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("monetization")
             if not service:
-                return None
+                        return None
 
             # Convert custom tiers if provided
             custom_tiers = None
@@ -240,9 +240,9 @@ if STRAWBERRY_AVAILABLE:
             )
 
             if not strategy:
-                return None
+                        return None
 
-            return MonetizationStrategy(
+                    return MonetizationStrategy(
                 id=str(strategy.id),
                 solution_id=str(strategy.solution_id),
                 solution_name=strategy.solution_name,

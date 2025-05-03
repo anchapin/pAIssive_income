@@ -84,13 +84,13 @@ service_registration = None
 @app.get("/")
 async def root():
     """Root endpoint for API Gateway."""
-    return {"message": "pAIssive Income API Gateway", "status": "running"}
+            return {"message": "pAIssive Income API Gateway", "status": "running"}
 
 
 @app.get("/api/status")
 async def api_status():
     """API status endpoint."""
-    return {"status": "ok", "version": "1.0.0", "service": "api-gateway"}
+            return {"status": "ok", "version": "1.0.0", "service": "api-gateway"}
 
 
 @app.get("/api/services")
@@ -104,7 +104,7 @@ async def list_services():
 
     try:
         services = service_registration.client.discover_all_services()
-        return {
+                return {
             "services": {
                 name: [s.dict() for s in instances]
                 for name, instances in services.items()
@@ -136,7 +136,7 @@ async def health_check():
             services_available = False
 
     # Return health status
-    return {
+            return {
         "status": "healthy",
         "service_discovery": (
             "available" if service_discovery_available else "unavailable"
@@ -197,7 +197,7 @@ async def create_service_token_endpoint(request: ServiceTokenRequest):
         expires_at = current_time + expiration
 
         # Return the token
-        return {
+                return {
             "token": token,
             "expires_at": expires_at,
             "issuer": request.service_name,
@@ -239,7 +239,7 @@ async def validate_service_token_endpoint(
         )
 
         # Return the validated token payload
-        return {
+                return {
             "valid": True,
             "issuer": token_payload.iss,
             "audience": token_payload.aud,
@@ -249,7 +249,7 @@ async def validate_service_token_endpoint(
             "claims": token_payload.claims,
         }
     except ServiceTokenError as e:
-        return {"valid": False, "error": str(e)}
+                return {"valid": False, "error": str(e)}
     except Exception as e:
         logger.error(f"Error validating service token: {str(e)}")
         raise HTTPException(
@@ -275,7 +275,7 @@ async def route_requests(request: Request, call_next):
         or path.startswith("/api/services")
         or path.startswith("/health")
     ):
-        return await call_next(request)
+                return await call_next(request)
 
     # Extract service name from path (e.g., /api/niche-analysis/... -> niche-analysis)
     parts = path.split("/")
@@ -360,7 +360,7 @@ async def route_requests(request: Request, call_next):
                         )
 
                         # Create FastAPI response from httpx response
-                        return Response(
+                                return Response(
                             content=response.content,
                             status_code=response.status_code,
                             headers=dict(response.headers),
@@ -371,7 +371,7 @@ async def route_requests(request: Request, call_next):
                         logger.error(
                             f"Error forwarding request to {target_service}: {str(e)}"
                         )
-                        return JSONResponse(
+                                return JSONResponse(
                             content={"detail": f"Service unavailable: {str(e)}"},
                             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                         )
@@ -387,7 +387,7 @@ async def route_requests(request: Request, call_next):
                 )
 
     # If we get here, just pass the request through
-    return await call_next(request)
+            return await call_next(request)
 
 
 def check_service_health() -> bool:
@@ -399,7 +399,7 @@ def check_service_health() -> bool:
     """
     # For now, always return True
     # In a real implementation, check database connections, etc.
-    return True
+            return True
 
 
 def register_with_service_registry(port: int):
@@ -458,7 +458,7 @@ if __name__ == "__main__":
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on")
 
-    args = parser.parse_args()
+    args = parser.parse_args(
 
     # Start the API Gateway
-    start_api_gateway(host=args.host, port=args.port)
+    start_api_gateway(host=args.host, port=args.port

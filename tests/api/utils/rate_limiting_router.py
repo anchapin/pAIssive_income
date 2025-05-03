@@ -99,15 +99,15 @@ def create_rate_limiting_router() -> APIRouter:
 
         # Handle throttling
         if endpoint == "test-concurrent-throttling":
-            return await handle_throttling(client_id, response)
+                    return await handle_throttling(client_id, response)
 
         # Handle degradation testing
         if endpoint == "test-degradation":
-            return await handle_degradation(request, response)
+                    return await handle_degradation(request, response)
 
         # Handle quota-based limiting
         if endpoint == "test-quota-limit":
-            return await handle_quota(client_id, response)
+                    return await handle_quota(client_id, response)
 
         # Get rate limit configuration
         limit_config = rate_limits.get(endpoint, {"limit": 3, "window": 60})
@@ -121,7 +121,7 @@ def create_rate_limiting_router() -> APIRouter:
         # Return 429 if rate limited
         if not allowed:
             response.status_code = 429
-            return {
+                    return {
                 "error": {
                     "message": "Rate limit exceeded",
                     "retry_after": info["retry_after"],
@@ -129,7 +129,7 @@ def create_rate_limiting_router() -> APIRouter:
             }
 
         # Return success response
-        return {"status": "ok", "endpoint": endpoint, "client_id": client_id}
+                return {"status": "ok", "endpoint": endpoint, "client_id": client_id}
 
     @router.post("/config")
     async def configure_rate_limits(config: RateLimitConfig, response: Response):
@@ -150,7 +150,7 @@ def create_rate_limiting_router() -> APIRouter:
                 "window": 1,  # 1 second window
             }
 
-        return {
+                return {
             "status": "ok",
             "message": "Rate limit configuration updated",
             "tier": config.tier,
@@ -173,7 +173,7 @@ def create_rate_limiting_router() -> APIRouter:
         throttle_config["max_concurrent_requests"] = config.max_concurrent_requests
         throttle_config["timeout_seconds"] = config.timeout_seconds
 
-        return {
+                return {
             "status": "ok",
             "message": "Throttling configuration updated",
             "config": throttle_config,
@@ -203,7 +203,7 @@ def create_rate_limiting_router() -> APIRouter:
         if config.customer_id not in quota_usage:
             quota_usage[config.customer_id] = {"daily": 0, "monthly": 0}
 
-        return {
+                return {
             "status": "ok",
             "message": "Quota configuration updated",
             "customer_id": config.customer_id,
@@ -230,7 +230,7 @@ def create_rate_limiting_router() -> APIRouter:
                 response.headers["Retry-After"] = str(
                     throttle_config["timeout_seconds"]
                 )
-                return {
+                        return {
                     "error": {
                         "message": "Too many concurrent requests",
                         "retry_after": throttle_config["timeout_seconds"],
@@ -245,7 +245,7 @@ def create_rate_limiting_router() -> APIRouter:
             await asyncio.sleep(0.1)
 
             # Return success response
-            return {"status": "ok", "concurrent_requests": active_count + 1}
+                    return {"status": "ok", "concurrent_requests": active_count + 1}
         finally:
             # Decrement active request count
             with active_requests_lock:
@@ -290,7 +290,7 @@ def create_rate_limiting_router() -> APIRouter:
         response.headers["X-Response-Time"] = str(response_time)
 
         # Return success response
-        return {
+                return {
             "status": "ok",
             "response_time": response_time,
             "concurrent_requests": concurrent_requests,
@@ -333,7 +333,7 @@ def create_rate_limiting_router() -> APIRouter:
         # Check if daily quota is exceeded
         if usage["daily"] >= config["daily_limit"] and not config["overage_allowed"]:
             response.status_code = 429
-            return {
+                    return {
                 "error": {
                     "message": "Daily quota exceeded",
                     "limit": config["daily_limit"],
@@ -347,7 +347,7 @@ def create_rate_limiting_router() -> APIRouter:
             and not config["overage_allowed"]
         ):
             response.status_code = 429
-            return {
+                    return {
                 "error": {
                     "message": "Monthly quota exceeded",
                     "limit": config["monthly_limit"],
@@ -371,7 +371,7 @@ def create_rate_limiting_router() -> APIRouter:
         )
 
         # Return success response
-        return {
+                return {
             "status": "ok",
             "daily_usage": usage["daily"],
             "monthly_usage": usage["monthly"],
@@ -388,7 +388,7 @@ def create_rate_limiting_router() -> APIRouter:
             Client identifier
         """
         # Use client IP as identifier
-        return request.client.host if request.client else "unknown"
+                return request.client.host if request.client else "unknown"
 
     def check_rate_limit(
         client_id: str, endpoint: str, config: Dict[str, Any]
@@ -437,7 +437,7 @@ def create_rate_limiting_router() -> APIRouter:
             request_history[key].append(current_time)
 
         # Return rate limit info
-        return allowed, {
+                return allowed, {
             "limit": limit,
             "remaining": max(0, limit - count - (1 if allowed else 0)),
             "reset": reset_after,
@@ -460,7 +460,7 @@ def create_rate_limiting_router() -> APIRouter:
 
         if info["retry_after"] > 0:
             response.headers["Retry-After"] = str(
-                int(info["retry_after"])
-            )  # Convert to integer
+                int(info["retry_after"]
+              # Convert to integer
 
-    return router
+            return router

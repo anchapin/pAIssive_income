@@ -108,5 +108,5 @@ class MarketingCampaignResponse(BaseModel):
     goals: Optional[CampaignGoals] = Field(None, description="Campaign goals")
     metrics: Optional[Dict[str, Any]] = Field(None, description="Campaign metrics")
     activation_date: Optional[str] = Field(None, description="Campaign activation date")
-    created_at: Optional[str] = Field(None, description="Creation timestamp")
-    updated_at: Optional[str] = Field(None, description="Last update timestamp")
+    created_at: Optional[str] = Field(None, description="Creation timestamp"
+    updated_at: Optional[str] = Field(None, description="Last update timestamp"

@@ -57,7 +57,7 @@ def cached(
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Check if we should use cache based on condition
             if condition is not None and not condition(*args, **kwargs):
-                return func(*args, **kwargs)
+                        return func(*args, **kwargs)
 
             # Generate cache key
             if key_generator is not None:
@@ -83,7 +83,7 @@ def cached(
             cached_result = cache_service.get(cache_key)
             if cached_result is not None:
                 logger.debug(f"Cache hit for {func.__qualname__}")
-                return cached_result
+                        return cached_result
 
             # Cache miss - execute function
             logger.debug(f"Cache miss for {func.__qualname__}")
@@ -100,7 +100,7 @@ def cached(
                 f"(execution time: {execution_time:.3f}s)"
             )
 
-            return result
+                    return result
 
         # Add cache control methods to the wrapped function
         wrapper.clear_cache = lambda: cache_service.clear_namespace(namespace)
@@ -109,9 +109,9 @@ def cached(
             generate_versioned_key(func, a, kw, namespace, version_with_code)
         )
 
-        return wrapper
+                return wrapper
 
-    return decorator
+            return decorator
 
 
 def method_cached(
@@ -157,7 +157,7 @@ def method_cached(
         def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
             # Check if we should use cache based on condition
             if condition is not None and not condition(self, *args, **kwargs):
-                return method(self, *args, **kwargs)
+                        return method(self, *args, **kwargs)
 
             # Add instance info to namespace if instance_aware
             effective_namespace = namespace
@@ -190,7 +190,7 @@ def method_cached(
             cached_result = cache_service.get(cache_key)
             if cached_result is not None:
                 logger.debug(f"Cache hit for {method.__qualname__}")
-                return cached_result
+                        return cached_result
 
             # Cache miss - execute method
             logger.debug(f"Cache miss for {method.__qualname__}")
@@ -207,7 +207,7 @@ def method_cached(
                 f"(execution time: {execution_time:.3f}s)"
             )
 
-            return result
+                    return result
 
         # Add cache control methods to the wrapped function
         wrapper.clear_cache = lambda slf=None: cache_service.clear_namespace(
@@ -230,9 +230,9 @@ def method_cached(
             )
         )
 
-        return wrapper
+                return wrapper
 
-    return decorator
+            return decorator
 
 
 def cache_result(func: Optional[Callable] = None, **kwargs: Any) -> Callable:
@@ -244,11 +244,11 @@ def cache_result(func: Optional[Callable] = None, **kwargs: Any) -> Callable:
     Examples:
         @cache_result
         def my_func(x):
-            return x * 2
+                    return x * 2
 
         @cache_result(ttl=300)
         def another_func(x):
-            return x + 1
+                    return x + 1
 
     Args:
         func: Function to decorate when used without arguments
@@ -259,7 +259,7 @@ def cache_result(func: Optional[Callable] = None, **kwargs: Any) -> Callable:
     """
     if func is None:
         # Called with arguments: @cache_result(...)
-        return cached(**kwargs)
+                return cached(**kwargs)
     else:
         # Called without arguments: @cache_result
-        return cached()(func)
+                return cached()(func)

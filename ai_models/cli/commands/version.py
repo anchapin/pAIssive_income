@@ -80,23 +80,23 @@ class VersionCommand(BaseCommand):
         # Check if a subcommand was specified
         if not hasattr(self.args, "subcommand") or not self.args.subcommand:
             logger.error("No subcommand specified")
-            return 1
+                    return 1
 
         # Create model manager
         model_manager = ModelManager()
 
         # Execute subcommand
         if self.args.subcommand == "list":
-            return self._list_versions(model_manager)
+                    return self._list_versions(model_manager)
         elif self.args.subcommand == "create":
-            return self._create_version(model_manager)
+                    return self._create_version(model_manager)
         elif self.args.subcommand == "get":
-            return self._get_version(model_manager)
+                    return self._get_version(model_manager)
         elif self.args.subcommand == "check":
-            return self._check_compatibility(model_manager)
+                    return self._check_compatibility(model_manager)
         else:
             logger.error(f"Unknown subcommand: {self.args.subcommand}")
-            return 1
+                    return 1
 
     def _list_versions(self, model_manager: ModelManager) -> int:
         """
@@ -112,7 +112,7 @@ class VersionCommand(BaseCommand):
         model_info = model_manager.get_model_info(self.args.model_id)
         if not model_info:
             logger.error(f"Model with ID {self.args.model_id} not found")
-            return 1
+                    return 1
 
         # Get versions
         versions = model_manager.get_model_versions(self.args.model_id)
@@ -125,7 +125,7 @@ class VersionCommand(BaseCommand):
             for version in versions:
                 print(f"  {version.version} - {version.timestamp}")
 
-        return 0
+                return 0
 
     def _create_version(self, model_manager: ModelManager) -> int:
         """
@@ -141,7 +141,7 @@ class VersionCommand(BaseCommand):
         model_info = model_manager.get_model_info(self.args.model_id)
         if not model_info:
             logger.error(f"Model with ID {self.args.model_id} not found")
-            return 1
+                    return 1
 
         # Create version
         try:
@@ -152,11 +152,11 @@ class VersionCommand(BaseCommand):
             )
 
             print(f"Created version {version.version} for model {model_info.name}")
-            return 0
+                    return 0
 
         except ValueError as e:
             logger.error(f"Error creating version: {e}")
-            return 1
+                    return 1
 
     def _get_version(self, model_manager: ModelManager) -> int:
         """
@@ -172,7 +172,7 @@ class VersionCommand(BaseCommand):
         model_info = model_manager.get_model_info(self.args.model_id)
         if not model_info:
             logger.error(f"Model with ID {self.args.model_id} not found")
-            return 1
+                    return 1
 
         # Get version
         version = model_manager.versioned_manager.get_model_version(
@@ -183,7 +183,7 @@ class VersionCommand(BaseCommand):
             logger.error(
                 f"Version {self.args.version} of model {self.args.model_id} not found"
             )
-            return 1
+                    return 1
 
         # Print version info
         print(
@@ -199,7 +199,7 @@ class VersionCommand(BaseCommand):
             f"  Compatible with: {', '.join(version.is_compatible_with) if version.is_compatible_with else 'None'}"
         )
 
-        return 0
+                return 0
 
     def _check_compatibility(self, model_manager: ModelManager) -> int:
         """
@@ -230,4 +230,4 @@ class VersionCommand(BaseCommand):
                 f"version {self.args.version2} of model {self.args.model_id2}"
             )
 
-        return 0
+                return 0

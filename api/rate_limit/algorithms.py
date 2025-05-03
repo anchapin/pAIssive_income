@@ -93,7 +93,7 @@ class FixedWindowRateLimiter(RateLimiter):
             reset_time = window_end
             retry_after = reset_time - current_time
 
-            return False, {
+                    return False, {
                 "limit": self.limit,
                 "remaining": 0,
                 "reset": reset_time,
@@ -104,7 +104,7 @@ class FixedWindowRateLimiter(RateLimiter):
         self.counters[key]["count"] += cost
         remaining = max(0, self.limit - self.counters[key]["count"])
 
-        return True, {
+                return True, {
             "limit": self.limit,
             "remaining": remaining,
             "reset": window_end,
@@ -167,7 +167,7 @@ class TokenBucketRateLimiter(RateLimiter):
             retry_after = tokens_needed / self.rate
             reset_time = current_time + retry_after
 
-            return False, {
+                    return False, {
                 "limit": self.burst,
                 "remaining": self.buckets[key]["tokens"],
                 "reset": reset_time,
@@ -181,7 +181,7 @@ class TokenBucketRateLimiter(RateLimiter):
         time_to_full = (self.burst - self.buckets[key]["tokens"]) / self.rate
         reset_time = current_time + time_to_full
 
-        return True, {
+                return True, {
             "limit": self.burst,
             "remaining": self.buckets[key]["tokens"],
             "reset": reset_time,
@@ -244,7 +244,7 @@ class LeakyBucketRateLimiter(RateLimiter):
             retry_after = water_to_leak / self.rate
             reset_time = current_time + retry_after
 
-            return False, {
+                    return False, {
                 "limit": self.capacity,
                 "remaining": self.capacity - self.buckets[key]["water_level"],
                 "reset": reset_time,
@@ -258,7 +258,7 @@ class LeakyBucketRateLimiter(RateLimiter):
         time_to_empty = self.buckets[key]["water_level"] / self.rate
         reset_time = current_time + time_to_empty
 
-        return True, {
+                return True, {
             "limit": self.capacity,
             "remaining": self.capacity - self.buckets[key]["water_level"],
             "reset": reset_time,
@@ -321,7 +321,7 @@ class SlidingWindowRateLimiter(RateLimiter):
 
             reset_time = current_time + retry_after
 
-            return False, {
+                    return False, {
                 "limit": self.limit,
                 "remaining": 0,
                 "reset": reset_time,
@@ -342,7 +342,7 @@ class SlidingWindowRateLimiter(RateLimiter):
         else:
             reset_time = current_time + self.window
 
-        return True, {
+                return True, {
             "limit": self.limit,
             "remaining": remaining,
             "reset": reset_time,
@@ -366,15 +366,15 @@ def create_rate_limiter(
         Rate limiter instance
     """
     if strategy == "fixed":
-        return FixedWindowRateLimiter(limit, period)
+                return FixedWindowRateLimiter(limit, period)
     elif strategy == "token_bucket":
         rate = limit / period
         burst_size = burst or limit
-        return TokenBucketRateLimiter(rate, burst_size)
+                return TokenBucketRateLimiter(rate, burst_size)
     elif strategy == "leaky_bucket":
         rate = limit / period
-        return LeakyBucketRateLimiter(rate, limit)
+                return LeakyBucketRateLimiter(rate, limit)
     elif strategy == "sliding_window":
-        return SlidingWindowRateLimiter(limit, period)
+                return SlidingWindowRateLimiter(limit, period)
     else:
         raise ValueError(f"Unknown rate limiting strategy: {strategy}")

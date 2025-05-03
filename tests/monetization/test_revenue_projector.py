@@ -29,7 +29,7 @@ def temp_dir():
 @pytest.fixture
 def revenue_projector():
     """Create a RevenueProjector instance for testing."""
-    return RevenueProjector(
+            return RevenueProjector(
         name="Test Revenue Projector",
         description="A test revenue projector",
         initial_users=100,
@@ -78,7 +78,7 @@ def subscription_model():
         features=[feature1["id"], feature2["id"]],
     )
 
-    return model
+            return model
 
 
 def test_revenue_projector_init(revenue_projector):

@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 
-            import psutil
+import psutil
             import resource
             import matplotlib.pyplot
             import pandas
@@ -49,50 +49,50 @@ class InferenceMetrics:
     Holds metrics for a single model inference.
     """
 
-    model_id: str
+model_id: str
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
     batch_id: Optional[str] = None
     inference_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
-    # Time metrics
+# Time metrics
     total_time: float = 0.0  # Total inference time in seconds
     latency_ms: float = 0.0  # Latency in milliseconds
     time_to_first_token: float = 0.0  # Time until first token generated
     start_time: float = 0.0  # Start time in seconds since epoch
     end_time: float = 0.0  # End time in seconds since epoch
 
-    # Token metrics
+# Token metrics
     input_tokens: int = 0
     output_tokens: int = 0
     tokens_per_second: float = 0.0
     input_text: str = ""
     output_text: str = ""
 
-    # Memory metrics
+# Memory metrics
     memory_usage_mb: float = 0.0
     peak_cpu_memory_mb: float = 0.0
     peak_gpu_memory_mb: float = 0.0
 
-    # System metrics
+# System metrics
     cpu_percent: float = 0.0
     gpu_percent: float = 0.0
 
-    # Quality metrics
+# Quality metrics
     perplexity: float = 0.0
     bleu_score: float = 0.0
     rouge_score: float = 0.0
 
-    # Cost metrics
+# Cost metrics
     estimated_cost: float = 0.0
     currency: str = "USD"
 
-    # Additional metadata
+# Additional metadata
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    # Request info
+# Request info
     request_id: Optional[str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert to dictionary, excluding input/output text by default.
         """
@@ -100,9 +100,9 @@ class InferenceMetrics:
         # Remove large fields for storage
         result.pop("input_text", None)
         result.pop("output_text", None)
-        return result
+                    return result
 
-    def calculate_derived_metrics(self) -> None:
+def calculate_derived_metrics(self) -> None:
         """
         Calculate derived metrics based on raw measurements.
         """
@@ -110,12 +110,12 @@ class InferenceMetrics:
         if self.total_time == 0.0 and self.start_time > 0 and self.end_time > 0:
             self.total_time = self.end_time - self.start_time
 
-        # Calculate tokens per second
+# Calculate tokens per second
         total_tokens = self.input_tokens + self.output_tokens
         if total_tokens > 0 and self.total_time > 0:
             self.tokens_per_second = total_tokens / self.total_time
 
-        # Convert time_to_first_token to latency_ms if not set
+# Convert time_to_first_token to latency_ms if not set
         if self.latency_ms == 0.0 and self.time_to_first_token > 0:
             self.latency_ms = self.time_to_first_token * 1000
 
@@ -126,22 +126,22 @@ class ModelPerformanceReport:
     Performance report for a model across multiple inferences.
     """
 
-    model_id: str
+model_id: str
     model_name: str = None
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
-    def __post_init__(self):
+def __post_init__(self):
         if self.model_name is None:
             self.model_name = self.model_id
 
-    # Query parameters
+# Query parameters
     start_time: Optional[str] = None
     end_time: Optional[str] = None
 
-    # Summary count
+# Summary count
     num_inferences: int = 0
 
-    # Time metrics
+# Time metrics
     avg_inference_time: float = 0.0
     min_inference_time: float = 0.0
     max_inference_time: float = 0.0
@@ -153,44 +153,44 @@ class ModelPerformanceReport:
     avg_latency_ms: float = 0.0
     avg_time_to_first_token: float = 0.0
 
-    # Token metrics
+# Token metrics
     total_input_tokens: int = 0
     total_output_tokens: int = 0
     avg_input_tokens: float = 0.0
     avg_output_tokens: float = 0.0
     avg_tokens_per_second: float = 0.0
 
-    # Memory metrics
+# Memory metrics
     avg_memory_usage_mb: float = 0.0
     max_memory_usage_mb: float = 0.0
     avg_peak_cpu_memory_mb: float = 0.0
     avg_peak_gpu_memory_mb: float = 0.0
 
-    # System metrics
+# System metrics
     avg_cpu_percent: float = 0.0
     avg_gpu_percent: float = 0.0
 
-    # Quality metrics
+# Quality metrics
     avg_perplexity: float = 0.0
     avg_bleu_score: float = 0.0
     avg_rouge_score: float = 0.0
 
-    # Cost metrics
+# Cost metrics
     total_estimated_cost: float = 0.0
     avg_cost_per_inference: float = 0.0
     currency: str = "USD"
 
-    # Raw metrics for further analysis
+# Raw metrics for further analysis
     raw_metrics: List[Dict[str, Any]] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert to dictionary.
         """
         result = asdict(self)
         # Remove raw metrics
         result.pop("raw_metrics", None)
-        return result
+                    return result
 
 
 @dataclass
@@ -199,21 +199,21 @@ class ModelComparisonReport:
     Report comparing the performance of multiple models.
     """
 
-    title: str
+title: str
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
     comparison_metrics: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert to dictionary.
         """
-        return asdict(self)
+                    return asdict(self)
 
-    def calculate_percent_differences(self, key_metrics: List[str]) -> None:
+def calculate_percent_differences(self, key_metrics: List[str]) -> None:
         """
         Calculate percent differences between models for key metrics.
 
-        For each metric, find the best value across all models and calculate
+For each metric, find the best value across all models and calculate
         the percent difference for each model relative to the best.
         """
         for metric in key_metrics:
@@ -222,27 +222,27 @@ class ModelComparisonReport:
                 "time" in metric or "latency" in metric or "memory" in metric
             )
 
-            # Find the best value
+# Find the best value
             values = []
             for model_key in self.comparison_metrics:
                 if metric in self.comparison_metrics[model_key]:
                     values.append(self.comparison_metrics[model_key][metric])
 
-            if not values:
+if not values:
                 continue
 
-            best_value = min(values) if lower_is_better else max(values)
+best_value = min(values) if lower_is_better else max(values)
             if best_value == 0:
                 continue
 
-            # Calculate percent differences
+# Calculate percent differences
             for model_key in self.comparison_metrics:
                 if metric in self.comparison_metrics[model_key]:
                     current_value = self.comparison_metrics[model_key][metric]
                     if current_value == 0:
                         continue
 
-                    # Calculate percent difference
+# Calculate percent difference
                     if lower_is_better:
                         # (current - best) / best * 100
                         # Positive: current is worse (higher)
@@ -254,7 +254,7 @@ class ModelComparisonReport:
                         # Negative: current is better (higher)
                         percent_diff = (best_value - current_value) / best_value * 100
 
-                    self.comparison_metrics[model_key][
+self.comparison_metrics[model_key][
                         f"{metric}_percent_dif"
                     ] = percent_diff
 
@@ -264,7 +264,7 @@ class AlertConfig:
     Configuration for performance metric alerts.
     """
 
-    def __init__(
+def __init__(
         self,
         model_id: str,
         metric_name: str,
@@ -281,9 +281,9 @@ class AlertConfig:
         self.notification_channels = notification_channels or ["log"]
         self.last_triggered = None
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
-        return {
+                    return {
             "model_id": self.model_id,
             "metric_name": self.metric_name,
             "threshold_value": self.threshold_value,
@@ -295,7 +295,7 @@ class AlertConfig:
             ),
         }
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "AlertConfig":
         """Create from dictionary."""
         alert = cls(
@@ -308,31 +308,31 @@ class AlertConfig:
         )
         if data.get("last_triggered"):
             alert.last_triggered = datetime.fromisoformat(data["last_triggered"])
-        return alert
+                    return alert
 
-    def check_alert(self, metric_value: float) -> bool:
+def check_alert(self, metric_value: float) -> bool:
         """
         Check if the metric value triggers an alert.
 
-        Returns:
+Returns:
             bool: True if alert should be triggered
         """
         # Check if value triggers alert
         if self.is_upper_bound and metric_value <= self.threshold_value:
-            return False
+                        return False
         if not self.is_upper_bound and metric_value >= self.threshold_value:
-            return False
+                        return False
 
-        # Check cooldown period
+# Check cooldown period
         if self.last_triggered:
             now = datetime.now()
             cooldown = timedelta(minutes=self.cooldown_minutes)
             if now - self.last_triggered < cooldown:
-                return False
+                            return False
 
-        return True
+            return True
 
-    def trigger(self) -> None:
+def trigger(self) -> None:
         """Mark this alert as triggered."""
         self.last_triggered = datetime.now()
 
@@ -342,7 +342,7 @@ class InferenceTracker:
     A utility for tracking performance metrics of model inferences.
     """
 
-    def __init__(
+def __init__(
         self,
         monitor: "PerformanceMonitor",
         model_id: str,
@@ -361,76 +361,74 @@ class InferenceTracker:
         self.memory_usage_start = 0
         self.memory_usage_end = 0
 
-    def start(self, input_text: str = "", input_tokens: int = 0) -> None:
+def start(self, input_text: str = "", input_tokens: int = 0) -> None:
         """
         Start tracking an inference.
         """
         if self._has_started:
             logger.warning("Tracker has already been started")
-            return
-
-        self._has_started = True
+                        return self._has_started = True
         self.start_time = time.time()
         self.metrics.start_time = self.start_time
         self.metrics.input_text = input_text
         self.input_tokens = input_tokens or self._estimate_tokens(input_text)
         self.metrics.input_tokens = self.input_tokens
 
-        # Capture initial memory usage
+# Capture initial memory usage
         self._capture_system_metrics(is_start=True)
 
-    def stop(self, output_text: str = "", output_tokens: int = 0) -> InferenceMetrics:
+def stop(self, output_text: str = "", output_tokens: int = 0) -> InferenceMetrics:
         """
         Stop tracking and save the metrics.
         """
         if not self._has_started:
             logger.warning("Tracker hasn't been started")
-            return self.metrics
+                        return self.metrics
 
-        if self._has_stopped:
+if self._has_stopped:
             logger.warning("Tracker has already been stopped")
-            return self.metrics
+                        return self.metrics
 
-        self._has_stopped = True
+self._has_stopped = True
         self.end_time = time.time()
         self.metrics.end_time = self.end_time
         self.metrics.total_time = self.end_time - self.start_time
 
-        # Record output information
+# Record output information
         self.metrics.output_text = output_text
         self.output_tokens = output_tokens or self._estimate_tokens(output_text)
         self.metrics.output_tokens = self.output_tokens
 
-        # Capture final memory and system metrics
+# Capture final memory and system metrics
         self._capture_system_metrics(is_start=False)
 
-        # Calculate derived metrics
+# Calculate derived metrics
         self.metrics.calculate_derived_metrics()
 
-        # Set latency if not already set
+# Set latency if not already set
         if self.metrics.latency_ms == 0:
             self.metrics.latency_ms = self.metrics.total_time * 1000
 
-        # Save the metrics
+# Save the metrics
         try:
             self.monitor.save_metrics(self.metrics)
         except Exception as e:
             logger.error(f"Error saving metrics: {e}")
             traceback.print_exc()
 
-        return self.metrics
+            return self.metrics
 
-    def add_metadata(self, key: str, value: Any) -> None:
+def add_metadata(self, key: str, value: Any) -> None:
         """
         Add metadata to the metrics.
         """
         self.metrics.metadata[key] = value
 
-    def _capture_system_metrics(self, is_start: bool = True) -> None:
+def _capture_system_metrics(self, is_start: bool = True) -> None:
         """
         Capture system metrics like memory usage and CPU/GPU usage.
 
-        Args:
+Args:
             is_start: Whether this is the start of tracking (True) or end (False)
         """
         # Measure memory usage - we'll use a very simple approach here
@@ -438,11 +436,11 @@ class InferenceTracker:
         try:
 
 
-            process = psutil.Process(os.getpid())
+process = psutil.Process(os.getpid())
             memory_info = process.memory_info()
             memory_mb = memory_info.rss / (1024 * 1024)  # Convert bytes to MB
 
-            if is_start:
+if is_start:
                 self.memory_usage_start = memory_mb
                 self.metrics.memory_usage_mb = memory_mb
             else:
@@ -450,16 +448,16 @@ class InferenceTracker:
                 # Update the metrics with the higher value
                 self.metrics.memory_usage_mb = max(self.memory_usage_start, memory_mb)
 
-            self.metrics.cpu_percent = process.cpu_percent()
+self.metrics.cpu_percent = process.cpu_percent()
         except ImportError:
             # psutil not available, use generic memory info
 
 
-            memory_mb = (
+memory_mb = (
                 resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
             )  # kB to MB
 
-            if is_start:
+if is_start:
                 self.memory_usage_start = memory_mb
                 self.metrics.memory_usage_mb = memory_mb
             else:
@@ -469,7 +467,7 @@ class InferenceTracker:
         except Exception as e:
             logger.debug(f"Error capturing system metrics: {e}")
 
-        # GPU metrics - would typically use NVIDIA SMI or equivalent
+# GPU metrics - would typically use NVIDIA SMI or equivalent
         try:
             # This is a placeholder - real implementation would use
             # libraries like pynvml for NVIDIA GPUs
@@ -477,17 +475,17 @@ class InferenceTracker:
         except Exception:
             pass
 
-    def _estimate_tokens(self, text: str) -> int:
+def _estimate_tokens(self, text: str) -> int:
         """
         Estimate the number of tokens in the text.
 
-        This is a very simple estimation - in a real system, you'd use
+This is a very simple estimation - in a real system, you'd use
         the actual tokenizer from the model.
         """
         if not text:
-            return 0
+                        return 0
         # Simple estimate: ~4 characters per token for English text
-        return max(1, len(text) // 4)
+                    return max(1, len(text) // 4)
 
 
 class MetricsDatabase:
@@ -495,11 +493,11 @@ class MetricsDatabase:
     Manages storage and retrieval of performance metrics in SQLite.
     """
 
-    def __init__(self, db_path: str = None):
+def __init__(self, db_path: str = None):
         """
         Initialize the metrics database.
 
-        Args:
+Args:
             db_path: Path to the SQLite database file
         """
         self.db_path = db_path or DEFAULT_DB_PATH
@@ -507,22 +505,22 @@ class MetricsDatabase:
         self._connect()
         self._init_schema()
 
-    def _ensure_db_dir(self) -> None:
+def _ensure_db_dir(self) -> None:
         """Ensure the database directory exists."""
         db_dir = os.path.dirname(self.db_path)
         if db_dir and not os.path.exists(db_dir):
             os.makedirs(db_dir, exist_ok=True)
 
-    def _connect(self) -> None:
+def _connect(self) -> None:
         """Connect to the SQLite database."""
         self.conn = sqlite3.connect(self.db_path)
         self.conn.row_factory = sqlite3.Row
 
-    def _init_schema(self) -> None:
+def _init_schema(self) -> None:
         """Initialize the database schema if needed."""
         cursor = self.conn.cursor()
 
-        # Check if the schema version table exists
+# Check if the schema version table exists
         cursor.execute(
             """
             SELECT name FROM sqlite_master
@@ -530,7 +528,7 @@ class MetricsDatabase:
         """
         )
 
-        if not cursor.fetchone():
+if not cursor.fetchone():
             # Create schema version table
             cursor.execute(
                 """
@@ -544,7 +542,7 @@ class MetricsDatabase:
                 "INSERT INTO schema_version (version) VALUES (?)", (DB_SCHEMA_VERSION,)
             )
 
-            # Create tables
+# Create tables
             cursor.execute(
                 """
                 CREATE TABLE inference_metrics (
@@ -574,7 +572,7 @@ class MetricsDatabase:
             """
             )
 
-            # Create indexes
+# Create indexes
             cursor.execute(
                 "CREATE INDEX idx_inference_model_id ON inference_metrics(model_id)"
             )
@@ -585,7 +583,7 @@ class MetricsDatabase:
                 "CREATE INDEX idx_inference_batch_id ON inference_metrics(batch_id)"
             )
 
-            # Create alerts table
+# Create alerts table
             cursor.execute(
                 """
                 CREATE TABLE alert_configs (
@@ -602,7 +600,7 @@ class MetricsDatabase:
             """
             )
 
-            # Create alert history table
+# Create alert history table
             cursor.execute(
                 """
                 CREATE TABLE alert_history (
@@ -617,21 +615,21 @@ class MetricsDatabase:
             """
             )
 
-            self.conn.commit()
+self.conn.commit()
 
-    def save_metrics(self, metrics: InferenceMetrics) -> None:
+def save_metrics(self, metrics: InferenceMetrics) -> None:
         """
         Save inference metrics to the database.
 
-        Args:
+Args:
             metrics: The metrics to save
         """
         cursor = self.conn.cursor()
 
-        # Convert metadata dict to JSON string
+# Convert metadata dict to JSON string
         metadata_json = json.dumps(metrics.metadata) if metrics.metadata else "{}"
 
-        # Insert the metrics
+# Insert the metrics
         cursor.execute(
             """
             INSERT OR REPLACE INTO inference_metrics (
@@ -672,9 +670,9 @@ class MetricsDatabase:
             ),
         )
 
-        self.conn.commit()
+self.conn.commit()
 
-    def get_metrics(
+def get_metrics(
         self,
         model_id: str = None,
         batch_id: str = None,
@@ -684,46 +682,46 @@ class MetricsDatabase:
         """
         Get metrics from the database.
 
-        Args:
+Args:
             model_id: Filter by model ID
             batch_id: Filter by batch ID
             time_range: Filter by time range (start_time, end_time)
             limit: Maximum number of records to return
 
-        Returns:
+Returns:
             List of metrics dictionaries
         """
         cursor = self.conn.cursor()
 
-        query = "SELECT * FROM inference_metrics"
+query = "SELECT * FROM inference_metrics"
         params = []
         where_clauses = []
 
-        if model_id:
+if model_id:
             where_clauses.append("model_id = ?")
             params.append(model_id)
 
-        if batch_id:
+if batch_id:
             where_clauses.append("batch_id = ?")
             params.append(batch_id)
 
-        if time_range:
+if time_range:
             start_time, end_time = time_range
             where_clauses.append("timestamp >= ?")
             params.append(start_time.isoformat())
             where_clauses.append("timestamp <= ?")
             params.append(end_time.isoformat())
 
-        if where_clauses:
+if where_clauses:
             query += " WHERE " + " AND ".join(where_clauses)
 
-        query += " ORDER BY timestamp DESC LIMIT ?"
+query += " ORDER BY timestamp DESC LIMIT ?"
         params.append(limit)
 
-        cursor.execute(query, params)
+cursor.execute(query, params)
         results = []
 
-        for row in cursor.fetchall():
+for row in cursor.fetchall():
             metric = dict(row)
             # Parse metadata
             if "metadata" in metric and metric["metadata"]:
@@ -732,23 +730,23 @@ class MetricsDatabase:
                 except Exception:
                     metric["metadata"] = {}
 
-            results.append(metric)
+results.append(metric)
 
-        return results
+            return results
 
-    def save_alert_config(self, alert_config: AlertConfig) -> None:
+def save_alert_config(self, alert_config: AlertConfig) -> None:
         """
         Save an alert configuration to the database.
 
-        Args:
+Args:
             alert_config: The alert configuration to save
         """
         cursor = self.conn.cursor()
 
-        # Convert notification channels to JSON string
+# Convert notification channels to JSON string
         notification_channels = json.dumps(alert_config.notification_channels)
 
-        # Insert or update
+# Insert or update
         cursor.execute(
             """
             INSERT OR REPLACE INTO alert_configs (
@@ -772,41 +770,41 @@ class MetricsDatabase:
             ),
         )
 
-        self.conn.commit()
+self.conn.commit()
 
-    def get_alert_configs(self, model_id: str = None) -> List[AlertConfig]:
+def get_alert_configs(self, model_id: str = None) -> List[AlertConfig]:
         """
         Get alert configurations from the database.
 
-        Args:
+Args:
             model_id: Filter by model ID
 
-        Returns:
+Returns:
             List of AlertConfig objects
         """
         cursor = self.conn.cursor()
 
-        query = "SELECT * FROM alert_configs"
+query = "SELECT * FROM alert_configs"
         params = []
 
-        if model_id:
+if model_id:
             query += " WHERE model_id = ?"
             params.append(model_id)
 
-        cursor.execute(query, params)
+cursor.execute(query, params)
         results = []
 
-        for row in cursor.fetchall():
+for row in cursor.fetchall():
             # Convert row to dict
             data = dict(row)
 
-            # Parse notification channels
+# Parse notification channels
             try:
                 notification_channels = json.loads(data["notification_channels"])
             except Exception:
                 notification_channels = ["log"]
 
-            # Create AlertConfig
+# Create AlertConfig
             alert_config = AlertConfig(
                 model_id=data["model_id"],
                 metric_name=data["metric_name"],
@@ -816,17 +814,17 @@ class MetricsDatabase:
                 notification_channels=notification_channels,
             )
 
-            # Set last_triggered
+# Set last_triggered
             if data["last_triggered"]:
                 alert_config.last_triggered = datetime.fromisoformat(
                     data["last_triggered"]
                 )
 
-            results.append(alert_config)
+results.append(alert_config)
 
-        return results
+            return results
 
-    def save_alert_history(
+def save_alert_history(
         self,
         model_id: str,
         metric_name: str,
@@ -837,7 +835,7 @@ class MetricsDatabase:
         """
         Save an alert event to the alert history.
 
-        Args:
+Args:
             model_id: The model ID
             metric_name: The metric name
             threshold_value: The threshold value
@@ -846,7 +844,7 @@ class MetricsDatabase:
         """
         cursor = self.conn.cursor()
 
-        cursor.execute(
+cursor.execute(
             """
             INSERT INTO alert_history (
                 model_id, metric_name, threshold_value,
@@ -863,71 +861,71 @@ class MetricsDatabase:
             ),
         )
 
-        self.conn.commit()
+self.conn.commit()
 
-    def get_alert_history(
+def get_alert_history(
         self, model_id: str = None, days: int = 7, limit: int = 100
     ) -> List[Dict[str, Any]]:
         """
         Get alert history from the database.
 
-        Args:
+Args:
             model_id: Filter by model ID
             days: Number of days of history to retrieve
             limit: Maximum number of records to return
 
-        Returns:
+Returns:
             List of alert history dictionaries
         """
         cursor = self.conn.cursor()
 
-        query = "SELECT * FROM alert_history"
+query = "SELECT * FROM alert_history"
         params = []
         where_clauses = []
 
-        if model_id:
+if model_id:
             where_clauses.append("model_id = ?")
             params.append(model_id)
 
-        if days > 0:
+if days > 0:
             start_time = datetime.now() - timedelta(days=days)
             where_clauses.append("triggered_at >= ?")
             params.append(start_time.isoformat())
 
-        if where_clauses:
+if where_clauses:
             query += " WHERE " + " AND ".join(where_clauses)
 
-        query += " ORDER BY triggered_at DESC LIMIT ?"
+query += " ORDER BY triggered_at DESC LIMIT ?"
         params.append(limit)
 
-        cursor.execute(query, params)
-        return [dict(row) for row in cursor.fetchall()]
+cursor.execute(query, params)
+                    return [dict(row) for row in cursor.fetchall()]
 
-    def cleanup_old_metrics(self, days: int = DEFAULT_METRICS_RETENTION_DAYS) -> int:
+def cleanup_old_metrics(self, days: int = DEFAULT_METRICS_RETENTION_DAYS) -> int:
         """
         Remove metrics older than the specified number of days.
 
-        Args:
+Args:
             days: Number of days to keep
 
-        Returns:
+Returns:
             Number of records deleted
         """
         if days <= 0:
-            return 0
+                        return 0
 
-        cursor = self.conn.cursor()
+cursor = self.conn.cursor()
         threshold_date = (datetime.now() - timedelta(days=days)).isoformat()
 
-        cursor.execute(
+cursor.execute(
             "DELETE FROM inference_metrics WHERE timestamp < ?", (threshold_date,)
         )
         count = cursor.rowcount
         self.conn.commit()
 
-        return count
+            return count
 
-    def close(self) -> None:
+def close(self) -> None:
         """Close the database connection."""
         if hasattr(self, "conn"):
             self.conn.close()
@@ -938,7 +936,7 @@ class PerformanceMonitor:
         """
         Initialize the performance monitor.
 
-        Args:
+Args:
             config: Model configuration object or dict
             db_path: Path to the metrics database (default: ~/.paissive_income/performance_metrics.db)
         """
@@ -949,7 +947,7 @@ class PerformanceMonitor:
         self._lock = threading.Lock()
         self._alert_handlers = {"log": self._log_alert}
 
-    def track_inference(
+def track_inference(
         self,
         model=None,
         model_id: str = None,
@@ -960,40 +958,40 @@ class PerformanceMonitor:
         """
         Track a model inference and return metrics.
 
-        Args:
+Args:
             model: The model object (optional)
             model_id: ID of the model (required if model not provided)
             batch_id: Optional batch ID to group related inferences
             input_text: Optional input text for the inference
             output_text: Optional output text from the inference
 
-        Returns:
+Returns:
             InferenceMetrics: The metrics for the inference
         """
         if model is None and model_id is None:
             raise ValueError("Either model or model_id must be provided")
 
-        model_id = model_id or model.id
+model_id = model_id or model.id
         tracker = InferenceTracker(self, model_id, batch_id)
 
-        # Start tracking
+# Start tracking
         start_time = time.time()
         tracker.start(input_text=input_text)
 
-        # If output text is provided, stop tracking and return metrics
+# If output text is provided, stop tracking and return metrics
         if output_text:
             # Add a small delay to ensure latency is measurable
             time.sleep(0.01)
             metrics = tracker.stop(output_text=output_text)
 
-            # Ensure latency is set
+# Ensure latency is set
             if metrics.latency_ms <= 0:
                 end_time = time.time()
                 metrics.latency_ms = (end_time - start_time) * 1000
 
             return metrics
 
-        # If no output text, create and return metrics directly
+# If no output text, create and return metrics directly
         end_time = time.time()
         metrics = InferenceMetrics(
             model_id=model_id,
@@ -1008,49 +1006,49 @@ class PerformanceMonitor:
             latency_ms=(end_time - start_time) * 1000,  # Convert to milliseconds
         )
 
-        # Save to history
+# Save to history
         if model_id not in self.metrics_history:
             self.metrics_history[model_id] = []
         self.metrics_history[model_id].append(metrics)
 
-        return metrics
+            return metrics
 
-    def save_metrics(self, metrics: InferenceMetrics) -> None:
+def save_metrics(self, metrics: InferenceMetrics) -> None:
         """
         Save metrics to the database and update metrics history.
 
-        Args:
+Args:
             metrics: The metrics to save
         """
         with self._lock:
             # Save to database
             self.metrics_db.save_metrics(metrics)
 
-            # Update metrics history
+# Update metrics history
             if metrics.model_id not in self.metrics_history:
                 self.metrics_history[metrics.model_id] = []
             self.metrics_history[metrics.model_id].append(metrics)
 
-        # Check for alerts
+# Check for alerts
         self._check_alerts(metrics)
 
-    def _check_alerts(self, metrics: InferenceMetrics) -> None:
+def _check_alerts(self, metrics: InferenceMetrics) -> None:
         """
         Check if any metrics have triggered alerts.
 
-        Args:
+Args:
             metrics: The metrics to check
         """
         alert_configs = self.metrics_db.get_alert_configs(model_id=metrics.model_id)
 
-        for alert_config in alert_configs:
+for alert_config in alert_configs:
             # Get the metric value
             metric_value = getattr(metrics, alert_config.metric_name, None)
 
-            if metric_value is None:
+if metric_value is None:
                 continue
 
-            # Check if alert is triggered
+# Check if alert is triggered
             if alert_config.check_alert(metric_value):
                 # Log the alert
                 alert_msg = (
@@ -1059,7 +1057,7 @@ class PerformanceMonitor:
                     f"{'>' if alert_config.is_upper_bound else '<'} {alert_config.threshold_value}"
                 )
 
-                # Save to history
+# Save to history
                 self.metrics_db.save_alert_history(
                     model_id=metrics.model_id,
                     metric_name=alert_config.metric_name,
@@ -1068,39 +1066,39 @@ class PerformanceMonitor:
                     message=alert_msg,
                 )
 
-                # Mark as triggered
+# Mark as triggered
                 alert_config.trigger()
                 self.metrics_db.save_alert_config(alert_config)
 
-                # Send notifications via registered handlers
+# Send notifications via registered handlers
                 for channel in alert_config.notification_channels:
                     handler = self._alert_handlers.get(channel)
                     if handler:
                         handler(alert_msg, alert_config, metric_value)
 
-    def _log_alert(self, message: str, alert_config: AlertConfig, value: float) -> None:
+def _log_alert(self, message: str, alert_config: AlertConfig, value: float) -> None:
         """
         Log an alert to the logger.
 
-        Args:
+Args:
             message: The alert message
             alert_config: The alert configuration
             value: The value that triggered the alert
         """
         logger.warning(message)
 
-    def register_alert_handler(self, channel: str, handler_func) -> None:
+def register_alert_handler(self, channel: str, handler_func) -> None:
         """
         Register a handler function for an alert notification channel.
 
-        Args:
+Args:
             channel: The channel name
             handler_func: Function to call when an alert is triggered.
                         Should accept (message, alert_config, value)
         """
         self._alert_handlers[channel] = handler_func
 
-    def generate_report(
+def generate_report(
         self,
         model_id: str,
         model_name: str = None,
@@ -1111,14 +1109,14 @@ class PerformanceMonitor:
         """
         Generate a performance report for a model.
 
-        Args:
+Args:
             model_id: ID of the model
             model_name: Optional name of the model (defaults to model_id)
             time_range: Optional time range to filter metrics (start_time, end_time)
             batch_id: Optional batch ID to filter metrics
             include_metrics: Whether to include raw metrics in the report
 
-        Returns:
+Returns:
             ModelPerformanceReport: A report of the model's performance
         """
         # First check if we have metrics in memory
@@ -1132,18 +1130,18 @@ class PerformanceMonitor:
                 model_id=model_id, time_range=time_range, batch_id=batch_id, limit=10000
             )
 
-        if not metrics_data:
+if not metrics_data:
             logger.warning(f"No metrics found for model {model_id}")
-            return ModelPerformanceReport(
+                        return ModelPerformanceReport(
                 model_id=model_id, model_name=model_name or model_id
             )
 
-        # Create report
+# Create report
         report = ModelPerformanceReport(
             model_id=model_id, model_name=model_name or model_id
         )
 
-        # Set time range
+# Set time range
         if time_range:
             report.start_time = time_range[0].isoformat()
             report.end_time = time_range[1].isoformat()
@@ -1156,10 +1154,10 @@ class PerformanceMonitor:
                 report.start_time = min(all_timestamps).isoformat()
                 report.end_time = max(all_timestamps).isoformat()
 
-        # Number of inferences
+# Number of inferences
         report.num_inferences = len(metrics_data)
 
-        # Time metrics
+# Time metrics
         inference_times = [m["total_time"] for m in metrics_data if m["total_time"] > 0]
         if inference_times:
             report.avg_inference_time = statistics.mean(inference_times)
@@ -1167,21 +1165,21 @@ class PerformanceMonitor:
             report.max_inference_time = max(inference_times)
             report.median_inference_time = statistics.median(inference_times)
 
-            if len(inference_times) > 1:
+if len(inference_times) > 1:
                 report.stddev_inference_time = statistics.stdev(inference_times)
 
-            # Percentiles
+# Percentiles
             sorted_times = sorted(inference_times)
             report.p90_inference_time = sorted_times[int(len(sorted_times) * 0.9)]
             report.p95_inference_time = sorted_times[int(len(sorted_times) * 0.95)]
             report.p99_inference_time = sorted_times[int(len(sorted_times) * 0.99)]
 
-        # Latency metrics
+# Latency metrics
         latency_values = [m["latency_ms"] for m in metrics_data if m["latency_ms"] > 0]
         if latency_values:
             report.avg_latency_ms = statistics.mean(latency_values)
 
-        ttft_values = [
+ttft_values = [
             m["time_to_first_token"]
             for m in metrics_data
             if m["time_to_first_token"] > 0
@@ -1189,23 +1187,23 @@ class PerformanceMonitor:
         if ttft_values:
             report.avg_time_to_first_token = statistics.mean(ttft_values)
 
-        # Token metrics
+# Token metrics
         report.total_input_tokens = sum(m["input_tokens"] for m in metrics_data)
         report.total_output_tokens = sum(m["output_tokens"] for m in metrics_data)
 
-        if report.num_inferences > 0:
+if report.num_inferences > 0:
             report.avg_input_tokens = report.total_input_tokens / report.num_inferences
             report.avg_output_tokens = (
                 report.total_output_tokens / report.num_inferences
             )
 
-        tokens_per_second = [
+tokens_per_second = [
             m["tokens_per_second"] for m in metrics_data if m["tokens_per_second"] > 0
         ]
         if tokens_per_second:
             report.avg_tokens_per_second = statistics.mean(tokens_per_second)
 
-        # Memory metrics
+# Memory metrics
         memory_values = [
             m["memory_usage_mb"] for m in metrics_data if m["memory_usage_mb"] > 0
         ]
@@ -1213,43 +1211,43 @@ class PerformanceMonitor:
             report.avg_memory_usage_mb = statistics.mean(memory_values)
             report.max_memory_usage_mb = max(memory_values)
 
-        cpu_memory_values = [
+cpu_memory_values = [
             m["peak_cpu_memory_mb"] for m in metrics_data if m["peak_cpu_memory_mb"] > 0
         ]
         if cpu_memory_values:
             report.avg_peak_cpu_memory_mb = statistics.mean(cpu_memory_values)
 
-        gpu_memory_values = [
+gpu_memory_values = [
             m["peak_gpu_memory_mb"] for m in metrics_data if m["peak_gpu_memory_mb"] > 0
         ]
         if gpu_memory_values:
             report.avg_peak_gpu_memory_mb = statistics.mean(gpu_memory_values)
 
-        # System metrics
+# System metrics
         cpu_values = [m["cpu_percent"] for m in metrics_data if m["cpu_percent"] > 0]
         if cpu_values:
             report.avg_cpu_percent = statistics.mean(cpu_values)
 
-        gpu_values = [m["gpu_percent"] for m in metrics_data if m["gpu_percent"] > 0]
+gpu_values = [m["gpu_percent"] for m in metrics_data if m["gpu_percent"] > 0]
         if gpu_values:
             report.avg_gpu_percent = statistics.mean(gpu_values)
 
-        # Quality metrics
+# Quality metrics
         perplexity_values = [
             m["perplexity"] for m in metrics_data if m["perplexity"] > 0
         ]
         if perplexity_values:
             report.avg_perplexity = statistics.mean(perplexity_values)
 
-        bleu_values = [m["bleu_score"] for m in metrics_data if m["bleu_score"] > 0]
+bleu_values = [m["bleu_score"] for m in metrics_data if m["bleu_score"] > 0]
         if bleu_values:
             report.avg_bleu_score = statistics.mean(bleu_values)
 
-        rouge_values = [m["rouge_score"] for m in metrics_data if m["rouge_score"] > 0]
+rouge_values = [m["rouge_score"] for m in metrics_data if m["rouge_score"] > 0]
         if rouge_values:
             report.avg_rouge_score = statistics.mean(rouge_values)
 
-        # Cost metrics
+# Cost metrics
         report.total_estimated_cost = sum(m["estimated_cost"] for m in metrics_data)
         if report.num_inferences > 0 and report.total_estimated_cost > 0:
             report.avg_cost_per_inference = (
@@ -1260,13 +1258,13 @@ class PerformanceMonitor:
             if len(currencies) == 1:
                 report.currency = list(currencies)[0]
 
-        # Include raw metrics if requested
+# Include raw metrics if requested
         if include_metrics:
             report.raw_metrics = metrics_data
 
-        return report
+            return report
 
-    def compare_models(
+def compare_models(
         self,
         model_ids: List[str],
         model_names: List[str] = None,
@@ -1276,23 +1274,23 @@ class PerformanceMonitor:
         """
         Compare performance across multiple models.
 
-        Args:
+Args:
             model_ids: List of model IDs to compare
             model_names: Optional list of model names
             title: Title for the comparison
             time_range: Optional time range to filter metrics
 
-        Returns:
+Returns:
             ModelComparisonReport: A comparison of the models' performance
         """
         comparison = ModelComparisonReport(title=title)
 
-        # Generate reports for each model
+# Generate reports for each model
         model_names = model_names or model_ids
         if len(model_names) < len(model_ids):
             model_names = model_names + model_ids[len(model_names) :]
 
-        metrics_to_compare = [
+metrics_to_compare = [
             "avg_inference_time",
             "median_inference_time",
             "min_inference_time",
@@ -1308,27 +1306,27 @@ class PerformanceMonitor:
             "avg_rouge_score",
         ]
 
-        for idx, model_id in enumerate(model_ids):
+for idx, model_id in enumerate(model_ids):
             # Generate a report for this model
             model_name = model_names[idx] if idx < len(model_names) else model_id
             report = self.generate_report(
                 model_id=model_id, model_name=model_name, time_range=time_range
             )
 
-            # Add to comparison metrics
+# Add to comparison metrics
             comparison.comparison_metrics[model_id] = {
                 "model_name": model_name,
                 "num_inferences": report.num_inferences,
             }
 
-            # Add selected metrics
+# Add selected metrics
             for metric in metrics_to_compare:
                 if hasattr(report, metric) and getattr(report, metric) > 0:
                     comparison.comparison_metrics[model_id][metric] = getattr(
                         report, metric
                     )
 
-        # Calculate percent differences
+# Calculate percent differences
         comparison.calculate_percent_differences(
             [
                 "avg_inference_time",
@@ -1339,9 +1337,9 @@ class PerformanceMonitor:
             ]
         )
 
-        return comparison
+            return comparison
 
-    def set_alert_threshold(
+def set_alert_threshold(
         self,
         model_id: str,
         metric_name: str,
@@ -1353,7 +1351,7 @@ class PerformanceMonitor:
         """
         Set an alert threshold for a model metric.
 
-        Args:
+Args:
             model_id: ID of the model
             metric_name: Name of the metric to monitor
             threshold_value: Value to trigger alert
@@ -1371,36 +1369,36 @@ class PerformanceMonitor:
             notification_channels=notification_channels or ["log"],
         )
 
-        self.metrics_db.save_alert_config(alert_config)
+self.metrics_db.save_alert_config(alert_config)
 
-    def get_alert_configs(self, model_id: str = None) -> List[AlertConfig]:
+def get_alert_configs(self, model_id: str = None) -> List[AlertConfig]:
         """
         Get alert configurations.
 
-        Args:
+Args:
             model_id: Optional model ID to filter by
 
-        Returns:
+Returns:
             List of AlertConfig objects
         """
-        return self.metrics_db.get_alert_configs(model_id=model_id)
+                    return self.metrics_db.get_alert_configs(model_id=model_id)
 
-    def get_alert_history(
+def get_alert_history(
         self, model_id: str = None, days: int = 7
     ) -> List[Dict[str, Any]]:
         """
         Get alert history.
 
-        Args:
+Args:
             model_id: Optional model ID to filter by
             days: Number of days of history to retrieve
 
-        Returns:
+Returns:
             List of alert history entries
         """
-        return self.metrics_db.get_alert_history(model_id=model_id, days=days)
+                    return self.metrics_db.get_alert_history(model_id=model_id, days=days)
 
-    def visualize_metrics(
+def visualize_metrics(
         self,
         model_id: str,
         metric_names: List[str] = None,
@@ -1410,66 +1408,66 @@ class PerformanceMonitor:
         """
         Visualize model performance metrics.
 
-        Args:
+Args:
             model_id: ID of the model
             metric_names: List of metrics to visualize (default: latency_ms, tokens_per_second)
             days: Number of days of data to include
             save_path: Directory to save visualizations in
 
-        Returns:
+Returns:
             List of paths to generated visualization files
         """
         try:
- as plt
+as plt
  as pd
 :
             logger.error(
                 "Visualization requires matplotlib and pandas. Install with: pip install matplotlib pandas"
             )
-            return []
+                        return []
 
-        metric_names = metric_names or [
+metric_names = metric_names or [
             "latency_ms",
             "tokens_per_second",
             "memory_usage_mb",
         ]
 
-        # Get metrics
+# Get metrics
         end_time = datetime.now()
         start_time = end_time - timedelta(days=days)
         time_range = (start_time, end_time)
 
-        metrics_data = self.metrics_db.get_metrics(
+metrics_data = self.metrics_db.get_metrics(
             model_id=model_id, time_range=time_range, limit=10000
         )
 
-        if not metrics_data:
+if not metrics_data:
             logger.warning(
                 f"No metrics found for model {model_id} in the last {days} days"
             )
-            return []
+                        return []
 
-        # Convert to pandas DataFrame
+# Convert to pandas DataFrame
         df = pd.DataFrame(metrics_data)
         df["timestamp"] = pd.to_datetime(df["timestamp"])
         df = df.sort_values("timestamp")
 
-        # Create save directory if needed
+# Create save directory if needed
         if save_path:
             os.makedirs(save_path, exist_ok=True)
         else:
             save_path = os.path.join(os.getcwd(), "model_performance_viz")
             os.makedirs(save_path, exist_ok=True)
 
-        # Generate visualizations
+# Generate visualizations
         generated_files = []
 
-        for metric_name in metric_names:
+for metric_name in metric_names:
             if metric_name not in df.columns or df[metric_name].max() <= 0:
                 logger.warning(f"No data for metric {metric_name}")
                 continue
 
-            try:
+try:
                 plt.figure(figsize=(10, 6))
                 plt.plot(df["timestamp"], df[metric_name])
                 plt.title(f"{metric_name} - Model {model_id}")
@@ -1477,14 +1475,14 @@ class PerformanceMonitor:
                 plt.ylabel(metric_name)
                 plt.grid(True)
 
-                # Format x-axis date labels
+# Format x-axis date labels
                 date_format = DateFormatter("%Y-%m-%d")
                 plt.gca().xaxis.set_major_formatter(date_format)
                 plt.xticks(rotation=45)
 
-                # Add trend line
+# Add trend line
                 try:
- as np
+as np
 # Convert timestamps to numbers for correlation
                     x = np.array(
                         [
@@ -1494,11 +1492,11 @@ class PerformanceMonitor:
                     )
                     y = df[metric_name].values
 
-                    # Calculate trend line
+# Calculate trend line
                     slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
                     trend_y = intercept + slope * x
 
-                    # Add trend line to plot
+# Add trend line to plot
                     plt.plot(
                         df["timestamp"],
                         trend_y,
@@ -1508,27 +1506,27 @@ class PerformanceMonitor:
                     )
                     plt.legend()
 
-                    # Add trend information to title
+# Add trend information to title
                     direction = "increasing" if slope > 0 else "decreasing"
                     plt.title(f"{metric_name} - Model {model_id} (Trend: {direction})")
                 except ImportError:
                     pass
 
-                # Save figure
+# Save figure
                 filename = f"{model_id}_{metric_name}_{int(time.time())}.png"
                 filepath = os.path.join(save_path, filename)
                 plt.tight_layout()
                 plt.savefig(filepath)
                 plt.close()
 
-                generated_files.append(filepath)
+generated_files.append(filepath)
 
-            except Exception as e:
+except Exception as e:
                 logger.error(f"Error generating visualization for {metric_name}: {e}")
 
-        return generated_files
+            return generated_files
 
-    def export_metrics_csv(
+def export_metrics_csv(
         self,
         model_id: str,
         time_range: Tuple[datetime, datetime] = None,
@@ -1538,13 +1536,13 @@ class PerformanceMonitor:
         """
         Export metrics to a CSV file.
 
-        Args:
+Args:
             model_id: ID of the model
             time_range: Optional time range to filter metrics
             batch_id: Optional batch ID to filter metrics
             filename: Output CSV filename
 
-        Returns:
+Returns:
             Path to the exported CSV file
         """
         # Get metrics from database
@@ -1555,70 +1553,70 @@ class PerformanceMonitor:
             limit=100000,  # Higher limit for exports
         )
 
-        if not metrics_data:
+if not metrics_data:
             logger.warning(f"No metrics found for model {model_id}")
-            return None
+                        return None
 
-        # Determine output filename
+# Determine output filename
         if not filename:
             timestamp = int(time.time())
             filename = f"{model_id}_metrics_{timestamp}.csv"
 
-        # Write CSV
+# Write CSV
         try:
             with open(filename, "w", newline="") as f:
                 # Determine the fields to include
                 fieldnames = list(metrics_data[0].keys())
 
-                # Remove large/complex fields
+# Remove large/complex fields
                 if "metadata" in fieldnames:
                     fieldnames.remove("metadata")
 
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
+writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
 
-                for row in metrics_data:
+for row in metrics_data:
                     # Make a copy without excluded fields
                     row_copy = {k: v for k, v in row.items() if k in fieldnames}
                     writer.writerow(row_copy)
 
             return os.path.abspath(filename)
 
-        except Exception as e:
+except Exception as e:
             logger.error(f"Error exporting metrics to CSV: {e}")
-            return None
+                        return None
 
-    def cleanup(self, days: int = DEFAULT_METRICS_RETENTION_DAYS) -> int:
+def cleanup(self, days: int = DEFAULT_METRICS_RETENTION_DAYS) -> int:
         """
         Clean up old data from the metrics database.
 
-        Args:
+Args:
             days: Number of days of data to keep
 
-        Returns:
+Returns:
             Number of records deleted
         """
-        return self.metrics_db.cleanup_old_metrics(days)
+                    return self.metrics_db.cleanup_old_metrics(days)
 
-    def close(self) -> None:
+def close(self) -> None:
         """
         Close the metrics database connection.
         """
         self.metrics_db.close()
 
-    def get_model_metrics(self, model_id: str) -> List[Dict[str, Any]]:
+def get_model_metrics(self, model_id: str) -> List[Dict[str, Any]]:
         """
         Get all metrics for a model.
 
-        Args:
+Args:
             model_id: ID of the model
 
-        Returns:
+Returns:
             List of metric dictionaries or InferenceMetrics objects
         """
         # First check if we have metrics in memory
         if model_id in self.metrics_history and self.metrics_history[model_id]:
-            return self.metrics_history[model_id]
+                        return self.metrics_history[model_id]
 
-        # Fall back to database if no in-memory metrics
-        return self.metrics_db.get_metrics(model_id=model_id)
+# Fall back to database if no in-memory metrics
+                    return self.metrics_db.get_metrics(model_id=model_id)

@@ -70,7 +70,7 @@ def mock_agent_team():
         "target_audience": "E-commerce store owners",
     }
 
-    return team
+            return team
 
 
 @pytest.fixture
@@ -84,7 +84,7 @@ def mock_model_manager():
         {"id": "model2", "name": "DALL-E 3", "capabilities": ["image-generation"]},
     ]
 
-    return manager
+            return manager
 
 
 @pytest.fixture
@@ -105,7 +105,7 @@ def mock_subscription_manager():
         }
     ]
 
-    return manager
+            return manager
 
 
 @pytest.fixture
@@ -126,7 +126,7 @@ def mock_agent_team_service():
         {"id": "project1", "name": "Test Project", "status": "active"}
     ]
 
-    return service
+            return service
 
 
 @pytest.fixture
@@ -163,4 +163,4 @@ def register_mock_services(
         ISubscriptionManager, lambda: mock_subscription_manager, singleton=True
     )
 
-    return container
+            return container

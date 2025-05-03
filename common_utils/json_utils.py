@@ -21,18 +21,18 @@ def to_json(obj: Any, indent: int = 2) -> str:
     """
     Convert an object to a JSON string.
 
-    Args:
+Args:
         obj: Object to convert
         indent: Number of spaces for indentation (default: 2)
 
-    Returns:
+Returns:
         JSON string representation of the object
 
-    Raises:
+Raises:
         TypeError: If the object is not JSON serializable
     """
     try:
-        return json.dumps(obj, indent=indent)
+                    return json.dumps(obj, indent=indent)
     except (TypeError, ValueError) as e:
         logger.error(f"Error converting object to JSON: {e}")
         raise
@@ -42,17 +42,17 @@ def from_json(json_str: str) -> Any:
     """
     Convert a JSON string to an object.
 
-    Args:
+Args:
         json_str: JSON string to convert
 
-    Returns:
+Returns:
         Object representation of the JSON string
 
-    Raises:
+Raises:
         json.JSONDecodeError: If the string is not valid JSON
     """
     try:
-        return json.loads(json_str)
+                    return json.loads(json_str)
     except json.JSONDecodeError as e:
         logger.error(f"Error parsing JSON string: {e}")
         raise
@@ -62,12 +62,12 @@ def save_to_json_file(obj: Any, file_path: str, indent: int = 2) -> None:
     """
     Save an object to a JSON file.
 
-    Args:
+Args:
         obj: Object to save
         file_path: Path to save the file
         indent: Number of spaces for indentation (default: 2)
 
-    Raises:
+Raises:
         TypeError: If the object is not JSON serializable
         IOError: If there's an issue writing to the file
     """
@@ -87,13 +87,13 @@ def load_from_json_file(file_path: str) -> Any:
     """
     Load an object from a JSON file.
 
-    Args:
+Args:
         file_path: Path to the file
 
-    Returns:
+Returns:
         Object loaded from the file
 
-    Raises:
+Raises:
         FileNotFoundError: If the file doesn't exist
         json.JSONDecodeError: If the file doesn't contain valid JSON
         IOError: If there's an issue reading the file
@@ -102,7 +102,7 @@ def load_from_json_file(file_path: str) -> Any:
         with open(file_path, "r", encoding="utf-8") as f:
             obj = json.load(f)
         logger.debug(f"Successfully loaded object from {file_path}")
-        return obj
+                    return obj
     except FileNotFoundError:
         logger.error(f"File not found: {file_path}")
         raise
@@ -119,45 +119,45 @@ class JSONEncoder(json.JSONEncoder):
     Custom JSON encoder that handles additional types.
     """
 
-    def default(self, obj: Any) -> Any:
+def default(self, obj: Any) -> Any:
         """
         Convert objects to JSON serializable types.
 
-        Args:
+Args:
             obj: Object to convert
 
-        Returns:
+Returns:
             JSON serializable representation of the object
         """
         # Handle datetime objects
         if hasattr(obj, "isoformat"):
-            return obj.isoformat()
+                        return obj.isoformat()
         # Handle objects with to_dict method
         elif hasattr(obj, "to_dict"):
-            return obj.to_dict()
+                        return obj.to_dict()
         # Handle objects with __dict__ attribute
         elif hasattr(obj, "__dict__"):
-            return obj.__dict__
+                        return obj.__dict__
         # Let the base class handle it (or raise TypeError)
-        return super().default(obj)
+                    return super().default(obj)
 
 
 def json_serialize(obj: Any, indent: int = 2) -> str:
     """
     Serialize an object to a JSON string using the custom encoder.
 
-    Args:
+Args:
         obj: Object to serialize
         indent: Number of spaces for indentation (default: 2)
 
-    Returns:
+Returns:
         JSON string representation of the object
 
-    Raises:
+Raises:
         TypeError: If the object is not JSON serializable
     """
     try:
-        return json.dumps(obj, indent=indent, cls=JSONEncoder)
+                    return json.dumps(obj, indent=indent, cls=JSONEncoder)
     except (TypeError, ValueError) as e:
         logger.error(f"Error serializing object to JSON: {e}")
         raise
@@ -167,15 +167,15 @@ def json_deserialize(json_str: str) -> Any:
     """
     Deserialize a JSON string to an object.
 
-    This is an alias for from_json for consistency.
+This is an alias for from_json for consistency.
 
-    Args:
+Args:
         json_str: JSON string to deserialize
 
-    Returns:
+Returns:
         Object representation of the JSON string
 
-    Raises:
+Raises:
         json.JSONDecodeError: If the string is not valid JSON
     """
-    return from_json(json_str)
+                return from_json(json_str)

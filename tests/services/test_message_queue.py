@@ -186,7 +186,7 @@ class TestMessageQueue
             nonlocal callback_called, received_message
             callback_called = True
             received_message = message
-            return True
+                    return True
 
         # Start consuming
         client.consume("test-queue", callback)
@@ -244,7 +244,7 @@ class TestMessageQueue
 
         # Define callback function that rejects the message
         def callback(message):
-            return False
+                    return False
 
         # Start consuming
         client.consume("test-queue", callback)

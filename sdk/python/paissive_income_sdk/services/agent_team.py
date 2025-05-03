@@ -30,7 +30,7 @@ class AgentTeamService
         Returns:
             Created team
         """
-        return self._post("agent-team/teams", data)
+                return self._post("agent-team/teams", data)
 
     def get_teams(self) -> Dict[str, Any]:
         """
@@ -39,7 +39,7 @@ class AgentTeamService
         Returns:
             List of agent teams
         """
-        return self._get("agent-team/teams")
+                return self._get("agent-team/teams")
 
     def get_team(self, team_id: str) -> Dict[str, Any]:
         """
@@ -51,7 +51,7 @@ class AgentTeamService
         Returns:
             Team details
         """
-        return self._get(f"agent-team/teams/{team_id}")
+                return self._get(f"agent-team/teams/{team_id}")
 
     def update_team(self, team_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -64,7 +64,7 @@ class AgentTeamService
         Returns:
             Updated team
         """
-        return self._put(f"agent-team/teams/{team_id}", data)
+                return self._put(f"agent-team/teams/{team_id}", data)
 
     def delete_team(self, team_id: str) -> Dict[str, Any]:
         """
@@ -76,7 +76,7 @@ class AgentTeamService
         Returns:
             Result of the deletion
         """
-        return self._delete(f"agent-team/teams/{team_id}")
+                return self._delete(f"agent-team/teams/{team_id}")
 
     def get_agents(self) -> Dict[str, Any]:
         """
@@ -85,7 +85,7 @@ class AgentTeamService
         Returns:
             List of agents
         """
-        return self._get("agent-team/agents")
+                return self._get("agent-team/agents")
 
     def get_agent(self, agent_id: str) -> Dict[str, Any]:
         """
@@ -97,7 +97,7 @@ class AgentTeamService
         Returns:
             Agent details
         """
-        return self._get(f"agent-team/agents/{agent_id}")
+                return self._get(f"agent-team/agents/{agent_id}")
 
     def get_workflows(self) -> Dict[str, Any]:
         """
@@ -106,7 +106,7 @@ class AgentTeamService
         Returns:
             List of workflows
         """
-        return self._get("agent-team/workflows")
+                return self._get("agent-team/workflows")
 
     def run_workflow(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -121,4 +121,4 @@ class AgentTeamService
         Returns:
             Workflow execution results
         """
-        return self._post("agent-team/workflows/run", data)
+                return self._post("agent-team/workflows/run", data)

@@ -115,7 +115,7 @@ def mock_agents():
         "target_audience": "E-commerce store owners",
     }
 
-    return {
+            return {
         "researcher": mock_researcher,
         "developer": mock_developer,
         "monetization": mock_monetization,

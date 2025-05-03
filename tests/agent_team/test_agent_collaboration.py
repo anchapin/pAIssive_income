@@ -40,7 +40,7 @@ def mock_team():
         "marketing_plan": None,
         "feedback_data": [],
     }
-    return mock_team
+            return mock_team
 
 
 def test_agent_information_sharing(mock_team):
@@ -131,7 +131,7 @@ def test_agent_conflict_resolution(mock_team):
         if complexity == "high" and market_needs["urgency"] == "high":
             adjusted["features"][0]["priority"] = "high"
 
-        return adjusted
+                return adjusted
 
     # Assign our mock function
     developer.adjust_solution_priority = MagicMock(

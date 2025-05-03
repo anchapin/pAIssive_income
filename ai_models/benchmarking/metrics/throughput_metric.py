@@ -59,7 +59,7 @@ class ThroughputMetric
         # Add value
         self.add_value(throughput)
 
-        return throughput
+                return throughput
 
     def measure_batch(
         self, func: Callable, token_counter: Callable, batch_size: int, *args, **kwargs
@@ -94,4 +94,4 @@ class ThroughputMetric
         # Add value
         self.add_value(throughput)
 
-        return throughput
+                return throughput

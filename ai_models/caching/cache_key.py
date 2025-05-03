@@ -31,7 +31,7 @@ class CacheKey:
         Returns:
             String representation of the cache key
         """
-        return (
+                return (
             f"{self.model_id}:{self.operation}:{self.input_hash}:{self.parameters_hash}"
         )
 
@@ -70,7 +70,7 @@ def generate_cache_key(
     else:
         parameters_hash = _hash_dict({})
 
-    return CacheKey(
+            return CacheKey(
         model_id=model_id,
         operation=operation,
         input_hash=input_hash,
@@ -88,7 +88,7 @@ def _hash_string(s: str) -> str:
     Returns:
         Hash of the string
     """
-    return hashlib.md5(s.encode("utf-8")).hexdigest()
+            return hashlib.md5(s.encode("utf-8")).hexdigest()
 
 
 def _hash_list(lst: List[Any]) -> str:
@@ -101,7 +101,7 @@ def _hash_list(lst: List[Any]) -> str:
     Returns:
         Hash of the list
     """
-    return hashlib.md5(json.dumps(lst, sort_keys=True).encode("utf-8")).hexdigest()
+            return hashlib.md5(json.dumps(lst, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def _hash_dict(d: Dict[str, Any]) -> str:
@@ -114,7 +114,7 @@ def _hash_dict(d: Dict[str, Any]) -> str:
     Returns:
         Hash of the dictionary
     """
-    return hashlib.md5(json.dumps(d, sort_keys=True).encode("utf-8")).hexdigest()
+            return hashlib.md5(json.dumps(d, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def parse_cache_key(key_str: str) -> CacheKey:
@@ -134,7 +134,7 @@ def parse_cache_key(key_str: str) -> CacheKey:
     if len(parts) != 4:
         raise ValueError(f"Invalid cache key format: {key_str}")
 
-    return CacheKey(
+            return CacheKey(
         model_id=parts[0],
         operation=parts[1],
         input_hash=parts[2],

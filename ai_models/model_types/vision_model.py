@@ -93,7 +93,7 @@ except ImportError:
     CV2_AVAILABLE = False
 
 try:
- as ort
+as ort
 
     ONNX_AVAILABLE = True
 except ImportError:
@@ -159,21 +159,21 @@ class VisionModel:
         if os.path.isdir(self.model_path):
             # Check if it's a Hugging Face model
             if os.path.exists(os.path.join(self.model_path, "config.json")):
-                return "huggingface"
+                        return "huggingface"
         else:
             # Check file extension
             file_ext = os.path.splitext(self.model_path)[1].lower()
             if file_ext == ".onnx":
-                return "onnx"
+                        return "onnx"
             elif file_ext in [".pt", ".pth"]:
-                return "pytorch"
+                        return "pytorch"
             elif file_ext == ".bin" and os.path.exists(
                 os.path.join(os.path.dirname(self.model_path), "config.json")
             ):
-                return "huggingface"
+                        return "huggingface"
 
         # Default to huggingface
-        return "huggingface"
+                return "huggingface"
 
     def load(self) -> None:
         """
@@ -363,8 +363,7 @@ class VisionModel:
                             self.labels = [line.strip() for line in f.readlines()]
 
                     logger.info(f"Loaded {len(self.labels)} labels from {label_file}")
-                    return
-                except Exception as e:
+                            return except Exception as e:
                     logger.warning(f"Error loading labels from {label_file}: {e}")
 
         # If no label file found, try to use ImageNet labels for common models
@@ -373,8 +372,7 @@ class VisionModel:
 (self.model, AutoModelForImageClassification):
                     self.labels = list(self.model.config.id2label.values())
                     logger.info(f"Using {len(self.labels)} labels from model config")
-                    return
-        except Exception:
+                            return except Exception:
             pass
 
         logger.warning("No labels found for the model")
@@ -404,11 +402,11 @@ class VisionModel:
             image = Image.open(image_path).convert("RGB")
 
             if self.model_format == "huggingface":
-                return self._classify_image_huggingface(image, **kwargs)
+                        return self._classify_image_huggingface(image, **kwargs)
             elif self.model_format == "onnx":
-                return self._classify_image_onnx(image, **kwargs)
+                        return self._classify_image_onnx(image, **kwargs)
             elif self.model_format == "pytorch":
-                return self._classify_image_pytorch(image, **kwargs)
+                        return self._classify_image_pytorch(image, **kwargs)
             else:
                 raise ValueError(f"Unsupported model format: {self.model_format}")
 
@@ -453,11 +451,11 @@ class VisionModel:
             # Create result dictionary
             result = {label: float(prob) for label, prob in zip(labels, probs)}
 
-            return result
+                    return result
 
         else:
             # For other model types, return raw outputs
-            return {"outputs": str(outputs)}
+                    return {"outputs": str(outputs)}
 
     def _classify_image_onnx(self, image: "Image.Image", **kwargs) -> Dict[str, float]:
         """
@@ -520,7 +518,7 @@ class VisionModel:
         # Create result dictionary
         result = {label: float(prob) for label, prob in zip(labels, probs)}
 
-        return result
+                return result
 
     def _classify_image_pytorch(
         self, image: "Image.Image", **kwargs
@@ -577,7 +575,7 @@ class VisionModel:
         # Create result dictionary
         result = {label: float(prob) for label, prob in zip(labels, probs)}
 
-        return result
+                return result
 
     def detect_objects(
         self, image_path: str, threshold: float = 0.5, **kwargs
@@ -611,11 +609,11 @@ class VisionModel:
             image = Image.open(image_path).convert("RGB")
 
             if self.model_format == "huggingface":
-                return self._detect_objects_huggingface(image, threshold, **kwargs)
+                        return self._detect_objects_huggingface(image, threshold, **kwargs)
             elif self.model_format == "onnx":
-                return self._detect_objects_onnx(image, threshold, **kwargs)
+                        return self._detect_objects_onnx(image, threshold, **kwargs)
             elif self.model_format == "pytorch":
-                return self._detect_objects_pytorch(image, threshold, **kwargs)
+                        return self._detect_objects_pytorch(image, threshold, **kwargs)
             else:
                 raise ValueError(f"Unsupported model format: {self.model_format}")
 
@@ -667,7 +665,7 @@ class VisionModel:
             }
             detections.append(detection)
 
-        return detections
+                return detections
 
     def _detect_objects_onnx(
         self, image: "Image.Image", threshold: float, **kwargs
@@ -755,7 +753,7 @@ class VisionModel:
 
                     detections.append(detection)
 
-        return detections
+                return detections
 
     def _detect_objects_pytorch(
         self, image: "Image.Image", threshold: float, **kwargs
@@ -821,7 +819,7 @@ class VisionModel:
 
                     detections.append(detection)
 
-        return detections
+                return detections
 
     def get_metadata(self) -> Dict[str, Any]:
         """
@@ -848,7 +846,7 @@ class VisionModel:
                     "num_attention_heads": getattr(config, "num_attention_heads", None),
                 }
 
-        return metadata
+                return metadata
 
 
 # Example usage

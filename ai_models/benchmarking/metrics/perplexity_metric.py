@@ -28,7 +28,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
- as np
+as np
 
     NUMPY_AVAILABLE = True
 except ImportError:
@@ -101,7 +101,7 @@ class PerplexityMetric(BaseMetric):
         # Add value
         self.add_value(perplexity)
 
-        return perplexity
+                return perplexity
 
     def measure_single(self, loss: float, num_tokens: int) -> float:
         """
@@ -129,7 +129,7 @@ class PerplexityMetric(BaseMetric):
         # Add value
         self.add_value(perplexity)
 
-        return perplexity
+                return perplexity
 
     def get_overall_perplexity(self) -> float:
         """
@@ -139,14 +139,14 @@ class PerplexityMetric(BaseMetric):
             Overall perplexity
         """
         if self.total_tokens == 0:
-            return float("in")
+                    return float("in")
 
         if TORCH_AVAILABLE and isinstance(self.total_loss, torch.Tensor):
-            return torch.exp(self.total_loss / self.total_tokens).item()
+                    return torch.exp(self.total_loss / self.total_tokens).item()
         elif NUMPY_AVAILABLE and isinstance(self.total_loss, np.ndarray):
-            return float(np.exp(self.total_loss / self.total_tokens))
+                    return float(np.exp(self.total_loss / self.total_tokens))
         else:
-            return math.exp(self.total_loss / self.total_tokens)
+                    return math.exp(self.total_loss / self.total_tokens)
 
     def reset(self) -> None:
         """
@@ -168,4 +168,4 @@ class PerplexityMetric(BaseMetric):
         # Add overall perplexity
         stats["overall"] = self.get_overall_perplexity()
 
-        return stats
+                return stats

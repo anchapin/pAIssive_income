@@ -27,7 +27,7 @@ from niche_analysis.schemas import
 @composite
 def factor_values_strategy(draw):
     """Strategy for generating valid factor values."""
-    return {
+            return {
         "market_size": draw(st.floats(min_value=0.0, max_value=1.0)),
         "growth_rate": draw(st.floats(min_value=0.0, max_value=1.0)),
         "competition": draw(st.floats(min_value=0.0, max_value=1.0)),
@@ -94,26 +94,26 @@ def factor_weights_strategy(draw):
     for name, weight in factor_weights.items():
         assert weight >= 0.05 - epsilon, f"{name} has weight {weight}, less than 0.05"
 
-    return factor_weights
+            return factor_weights
 
 
 def analyze_factor(factor_name, value):
     """Generate an analysis text for a given factor value."""
     if value >= 0.8:
-        return f"Excellent {factor_name} potential"
+                return f"Excellent {factor_name} potential"
     elif value >= 0.6:
-        return f"Very good {factor_name} potential"
+                return f"Very good {factor_name} potential"
     elif value >= 0.4:
-        return f"Good {factor_name} potential"
+                return f"Good {factor_name} potential"
     elif value >= 0.2:
-        return f"Fair {factor_name} potential"
+                return f"Fair {factor_name} potential"
     else:
-        return f"Limited {factor_name} potential"
+                return f"Limited {factor_name} potential"
 
 
 def calculate_weighted_score(value, weight):
     """Calculate weighted score from value and weight."""
-    return value * weight
+            return value * weight
 
 
 def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
@@ -217,7 +217,7 @@ def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
         timestamp=datetime.now().isoformat(),
     )
 
-    return opportunity_score
+            return opportunity_score
 
 
 class TestOpportunityScoringAlgorithmProperties:
@@ -334,13 +334,9 @@ class TestOpportunityScoringAlgorithmProperties:
         """Test that weights influence the score appropriately."""
         # Skip the test if all factors are zero - weights don't matter in this case
         if all(v == 0.0 for v in factors.values()):
-            return
-
-        # Skip if all factors have the same value - weights won't make a difference
+                    return # Skip if all factors have the same value - weights won't make a difference
         if len(set(factors.values())) == 1:
-            return
-
-        # Create a simplified test case with controlled weights
+                    return # Create a simplified test case with controlled weights
         # This ensures we're testing exactly what we want without relying on random generation
 
         # Find the factor with the highest value
@@ -349,9 +345,7 @@ class TestOpportunityScoringAlgorithmProperties:
 
         # Skip if the max value is too small to make a difference
         if max_value < 0.5:
-            return
-
-        # Create two sets of weights with a clear difference for the max factor
+                    return # Create two sets of weights with a clear difference for the max factor
         # First set: max factor gets 0.5 weight
         weights1 = {factor: 0.1 for factor in factors}
         weights1[max_factor] = 0.5

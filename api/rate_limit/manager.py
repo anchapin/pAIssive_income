@@ -72,18 +72,18 @@ class RateLimitManager:
             Rate limit key
         """
         if self.config.rate_limit_scope == RateLimitScope.GLOBAL:
-            return "global"
+                    return "global"
         elif self.config.rate_limit_scope == RateLimitScope.ENDPOINT and endpoint:
-            return f"endpoint:{endpoint}"
+                    return f"endpoint:{endpoint}"
         elif self.config.rate_limit_scope == RateLimitScope.IP:
-            return f"ip:{identifier}"
+                    return f"ip:{identifier}"
         elif self.config.rate_limit_scope == RateLimitScope.API_KEY:
-            return f"api_key:{identifier}"
+                    return f"api_key:{identifier}"
         elif self.config.rate_limit_scope == RateLimitScope.USER:
-            return f"user:{identifier}"
+                    return f"user:{identifier}"
         else:
             # Default to IP-based rate limiting
-            return f"ip:{identifier}"
+                    return f"ip:{identifier}"
 
     def is_exempt(self, identifier: str) -> bool:
         """
@@ -97,17 +97,17 @@ class RateLimitManager:
         """
         # Check if rate limiting is disabled
         if not self.config.enable_rate_limit:
-            return True
+                    return True
 
         # Check if IP is exempt
         if identifier in self.config.rate_limit_exempt_ips:
-            return True
+                    return True
 
         # Check if API key is exempt
         if identifier in self.config.rate_limit_exempt_api_keys:
-            return True
+                    return True
 
-        return False
+                return False
 
     def get_rate_limit_tier(self, api_key: Optional[str]) -> int:
         """
@@ -120,13 +120,13 @@ class RateLimitManager:
             Rate limit for the tier
         """
         if api_key is None:
-            return self.config.rate_limit_tiers.get(
+                    return self.config.rate_limit_tiers.get(
                 "default", self.config.rate_limit_requests
             )
 
         # In a real implementation, you would look up the tier for the API key
         # For now, we'll just return the default tier
-        return self.config.rate_limit_tiers.get(
+                return self.config.rate_limit_tiers.get(
             "default", self.config.rate_limit_requests
         )
 
@@ -142,7 +142,7 @@ class RateLimitManager:
         """
         # In a real implementation, you would have a mapping of endpoints to cost factors
         # For now, we'll just return the default cost factor
-        return self.config.rate_limit_cost_factor
+                return self.config.rate_limit_cost_factor
 
     def check_rate_limit(
         self,
@@ -165,7 +165,7 @@ class RateLimitManager:
         """
         # Check if exempt
         if self.is_exempt(identifier) or self.is_exempt(api_key or ""):
-            return True, {
+                    return True, {
                 "limit": 0,  # 0 means no limit
                 "remaining": 0,
                 "reset": 0,
@@ -186,10 +186,10 @@ class RateLimitManager:
             ].check_rate_limit(endpoint_key, cost)
 
             if not allowed:
-                return allowed, limit_info
+                        return allowed, limit_info
 
         # Check global rate limit
-        return self.rate_limiter.check_rate_limit(key, cost)
+                return self.rate_limiter.check_rate_limit(key, cost)
 
     def get_rate_limit_headers(self, limit_info: Dict[str, Any]) -> Dict[str, str]:
         """
@@ -202,7 +202,7 @@ class RateLimitManager:
             Dictionary of rate limit headers
         """
         if not self.config.enable_rate_limit_headers:
-            return {}
+                    return {}
 
         headers = {}
 
@@ -224,4 +224,4 @@ class RateLimitManager:
                 int(limit_info["retry_after"])
             )
 
-        return headers
+                return headers

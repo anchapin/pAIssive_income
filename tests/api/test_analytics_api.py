@@ -7,7 +7,7 @@ from tests.api.utils.test_validators import
 def generate_id():
     """Generate a random ID."""
 
-    return str(uuid.uuid4())
+            return str(uuid.uuid4())
 
 """
 Tests for the analytics API.

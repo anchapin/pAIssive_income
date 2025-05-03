@@ -80,7 +80,7 @@ class RESTConfig(ServerConfig):
             "metrics_path": self.metrics_path,
         }
 
-        return {**base_dict, **rest_dict}
+                return {**base_dict, **rest_dict}
 
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "RESTConfig":
@@ -97,4 +97,4 @@ class RESTConfig(ServerConfig):
         config_dict["protocol"] = ServerProtocol.REST.value
 
         # Create configuration using parent method
-        return super().from_dict(config_dict)
+                return super().from_dict(config_dict)

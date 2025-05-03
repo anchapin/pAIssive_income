@@ -67,7 +67,7 @@ class BenchmarkConfig:
         Returns:
             Dictionary representation of the configuration
         """
-        return {
+                return {
             "model_path": self.model_path,
             "model_type": self.model_type,
             "benchmark_type": self.benchmark_type.value,
@@ -114,4 +114,4 @@ class BenchmarkConfig:
         config = cls(benchmark_type=benchmark_type, **config_dict)
 
         config.additional_params = additional_params
-        return config
+                return config

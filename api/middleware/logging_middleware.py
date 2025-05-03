@@ -56,7 +56,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         """
         # Skip excluded paths
         if any(request.url.path.startswith(path) for path in self.exclude_paths):
-            return await call_next(request)
+                    return await call_next(request)
 
         # Generate request ID if not present
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
@@ -101,7 +101,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 response_size=int(response.headers.get("content-length", 0)),
             )
 
-            return response
+                    return response
 
         except Exception as e:
             # Calculate duration
@@ -218,4 +218,4 @@ class SecurityLoggingMiddleware(BaseHTTPMiddleware):
                 },
             )
 
-        return response
+                return response

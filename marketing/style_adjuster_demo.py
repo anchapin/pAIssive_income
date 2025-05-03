@@ -15,15 +15,14 @@ from marketing.tone_analyzer import ToneAnalyzer
 from marketing.user_personas import PersonaCreator
 
 
-def demo_style_adjuster
-
-():
+def demo_style_adjuster():
+    ():
     """Demonstrate the StyleAdjuster."""
     print("\n" + "=" * 80)
     print("STYLE ADJUSTER DEMO")
     print("=" * 80)
 
-    # Create a persona
+# Create a persona
     persona_creator = PersonaCreator()
     persona = persona_creator.create_persona(
         name="Professional YouTuber",
@@ -50,7 +49,7 @@ def demo_style_adjuster
         },
     )
 
-    # Create a blog post template with conversational tone
+# Create a blog post template with conversational tone
     template = BlogPostTemplate(
         title="How to Save 5 Hours a Week on YouTube Script Writing",
         target_persona=persona,
@@ -71,47 +70,47 @@ def demo_style_adjuster
         ],
     )
 
-    # Create a blog post generator
+# Create a blog post generator
     generator = BlogPostGenerator(template)
 
-    # Generate content
+# Generate content
     content = generator.generate_content()
 
-    print("\nGenerated Blog Post (Conversational Style):")
+print("\nGenerated Blog Post (Conversational Style):")
     print(f"Title: {content['title']}")
     print(f"Introduction: {content['introduction'][:200]}...")
 
-    # Create a tone analyzer
+# Create a tone analyzer
     analyzer = ToneAnalyzer(content, target_tone="conversational")
 
-    # Analyze content
+# Analyze content
     analysis_results = analyzer.analyze()
 
-    print("\nTone Analysis Results:")
+print("\nTone Analysis Results:")
     print(f"Dominant Tone: {analysis_results['tone_analysis']['dominant_tone']}")
     print(f"Target Tone: {analysis_results['tone_analysis']['target_tone']}")
     print(f"Tone Consistency: {analysis_results['tone_analysis']['consistency']:.2f}")
 
-    # Create a style adjuster to convert to formal style
+# Create a style adjuster to convert to formal style
     adjuster = StyleAdjuster(content, target_style="formal", analyzer=analyzer)
 
-    # Analyze content for style adjustment
+# Analyze content for style adjustment
     adjuster.analyze()
 
-    # Get style report
+# Get style report
     report = adjuster.get_style_report()
 
-    print("\nStyle Report:")
+print("\nStyle Report:")
     print(f"Current Style: {report['current_style']}")
     print(f"Target Style: {report['target_style']}")
     print(f"Style Match: {report['style_match']}")
     print(f"Style Consistency: {report['style_consistency']:.2f}")
     print(f"Improvement Potential: {report['improvement_potential']:.2f}")
 
-    # Get suggestions
+# Get suggestions
     suggestions = adjuster.get_suggestions()
 
-    print(f"\nTop {len(suggestions)} Style Adjustment Suggestions:")
+print(f"\nTop {len(suggestions)} Style Adjustment Suggestions:")
     for i, suggestion in enumerate(suggestions[:5], 1):
         print(f"{i}. {suggestion['message']}")
         print("   Original: \"{suggestion['original'][:50]}...\"")
@@ -120,16 +119,16 @@ def demo_style_adjuster
             f"   Impact: {suggestion['impact']}, Confidence: {suggestion['confidence']:.2f}"
         )
 
-    # Adjust content
+# Adjust content
     adjusted_content = adjuster.adjust()
 
-    print("\nAdjusted Blog Post (Formal Style):")
+print("\nAdjusted Blog Post (Formal Style):")
     print(f"Title: {adjusted_content['adjusted_content']['title']}")
     print(
         f"Introduction: {adjusted_content['adjusted_content']['introduction'][:200]}..."
     )
 
-    # Get adjustment statistics
+# Get adjustment statistics
     word_choice_count = len(adjusted_content["adjustments"]["word_choice"])
     sentence_structure_count = len(
         adjusted_content["adjustments"]["sentence_structure"]
@@ -140,7 +139,7 @@ def demo_style_adjuster
     punctuation_count = len(adjusted_content["adjustments"]["punctuation"])
     voice_count = len(adjusted_content["adjustments"]["voice"])
 
-    print("\nAdjustment Statistics:")
+print("\nAdjustment Statistics:")
     print(f"Word Choice Adjustments: {word_choice_count}")
     print(f"Sentence Structure Adjustments: {sentence_structure_count}")
     print(f"Paragraph Structure Adjustments: {paragraph_structure_count}")

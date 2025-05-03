@@ -55,7 +55,7 @@ async def register_user(data: UserRegisterRequest = Body(...)):
     """Register a new user."""
     try:
         user_id = str(uuid.uuid4())
-        return {
+                return {
             "id": user_id,
             "username": data.username,
             "email": data.email,
@@ -82,7 +82,7 @@ async def login_user(data: UserLoginRequest = Body(...)):
     try:
         # For testing, authenticate specific test user
         if data.username == "testuser" and data.password == "testpassword":
-            return {"access_token": "mock_token", "token_type": "bearer"}
+                    return {"access_token": "mock_token", "token_type": "bearer"}
         raise HTTPException(status_code=401, detail="Invalid username or password")
     except HTTPException:
         raise
@@ -102,7 +102,7 @@ async def login_user(data: UserLoginRequest = Body(...)):
 async def get_user_profile(token: str = Depends(verify_token)):
     """Get the user profile."""
     try:
-        return {
+                return {
             "id": "test_user_id",
             "username": "testuser",
             "email": "test@example.com",
@@ -129,7 +129,7 @@ async def update_user_profile(
 ):
     """Update the user profile."""
     try:
-        return {
+                return {
             "id": "test_user_id",
             "username": "testuser",
             "email": data.email,
@@ -156,7 +156,7 @@ async def change_password(
 ):
     """Change the user password."""
     try:
-        return {"message": "Password changed successfully"}
+                return {"message": "Password changed successfully"}
     except Exception as e:
         logger.error(f"Error changing password: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -177,7 +177,7 @@ async def get_user_projects(
 ):
     """Get the user's projects."""
     try:
-        return {
+                return {
             "items": [],
             "total": 0,
             "page": page,
@@ -204,7 +204,7 @@ async def get_user_teams(
 ):
     """Get the user's teams."""
     try:
-        return {
+                return {
             "items": [],
             "total": 0,
             "page": page,
@@ -231,7 +231,7 @@ async def get_user_activity(
 ):
     """Get the user's activity."""
     try:
-        return {
+                return {
             "items": [],
             "total": 0,
             "page": page,
@@ -254,7 +254,7 @@ async def get_user_activity(
 async def get_user_settings(token: str = Depends(verify_token)):
     """Get the user's settings."""
     try:
-        return {
+                return {
             "settings": {
                 "theme": "light",
                 "notifications_enabled": True,
@@ -279,7 +279,7 @@ async def update_user_settings(
 ):
     """Update the user's settings."""
     try:
-        return {"settings": data.settings}
+                return {"settings": data.settings}
     except Exception as e:
         logger.error(f"Error updating user settings: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

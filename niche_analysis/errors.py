@@ -40,11 +40,11 @@ __all__ = [
 class MarketSegmentError(MarketAnalysisError):
     """Error raised when there's an issue with market segment analysis."""
 
-    def __init__(self, message: str, segment: Optional[str] = None, **kwargs):
+def __init__(self, message: str, segment: Optional[str] = None, **kwargs):
         """
         Initialize the market segment error.
 
-        Args:
+Args:
             message: Human-readable error message
             segment: Market segment that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -57,11 +57,11 @@ class MarketSegmentError(MarketAnalysisError):
 class ProblemIdentificationError(NicheAnalysisError):
     """Error raised when there's an issue with problem identification."""
 
-    def __init__(self, message: str, niche: Optional[str] = None, **kwargs):
+def __init__(self, message: str, niche: Optional[str] = None, **kwargs):
         """
         Initialize the problem identification error.
 
-        Args:
+Args:
             message: Human-readable error message
             niche: Niche that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -70,7 +70,7 @@ class ProblemIdentificationError(NicheAnalysisError):
         if niche:
             details["niche"] = niche
 
-        super().__init__(
+super().__init__(
             message=message,
             code="problem_identification_error",
             details=details,
@@ -81,11 +81,11 @@ class ProblemIdentificationError(NicheAnalysisError):
 class CompetitionAnalysisError(MarketAnalysisError):
     """Error raised when there's an issue with competition analysis."""
 
-    def __init__(self, message: str, niche: Optional[str] = None, **kwargs):
+def __init__(self, message: str, niche: Optional[str] = None, **kwargs):
         """
         Initialize the competition analysis error.
 
-        Args:
+Args:
             message: Human-readable error message
             niche: Niche that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -94,7 +94,7 @@ class CompetitionAnalysisError(MarketAnalysisError):
         if niche:
             details["niche"] = niche
 
-        super().__init__(
+super().__init__(
             message=message,
             code="competition_analysis_error",
             details=details,
@@ -105,11 +105,11 @@ class CompetitionAnalysisError(MarketAnalysisError):
 class TrendAnalysisError(MarketAnalysisError):
     """Error raised when there's an issue with trend analysis."""
 
-    def __init__(self, message: str, segment: Optional[str] = None, **kwargs):
+def __init__(self, message: str, segment: Optional[str] = None, **kwargs):
         """
         Initialize the trend analysis error.
 
-        Args:
+Args:
             message: Human-readable error message
             segment: Market segment that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -122,11 +122,11 @@ class TrendAnalysisError(MarketAnalysisError):
 class TargetUserAnalysisError(MarketAnalysisError):
     """Error raised when there's an issue with target user analysis."""
 
-    def __init__(self, message: str, niche: Optional[str] = None, **kwargs):
+def __init__(self, message: str, niche: Optional[str] = None, **kwargs):
         """
         Initialize the target user analysis error.
 
-        Args:
+Args:
             message: Human-readable error message
             niche: Niche that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -135,7 +135,7 @@ class TargetUserAnalysisError(MarketAnalysisError):
         if niche:
             details["niche"] = niche
 
-        super().__init__(
+super().__init__(
             message=message,
             code="target_user_analysis_error",
             details=details,

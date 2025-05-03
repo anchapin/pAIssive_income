@@ -29,7 +29,7 @@ def auth_api_test_client():
     """Create an authenticated API test client."""
     client = APITestClient(base_url="http://localhost:8000/api")
     client.authenticate("test_user", "test_password")
-    return client
+            return client
 
 
 @pytest.fixture
@@ -45,10 +45,10 @@ def mock_webhook_server():
             "headers": headers,
             "timestamp": time.time()
         })
-        return {"status": "success"}
+                return {"status": "success"}
     
     server.receive_event = receive_event
-    return server
+            return server
 
 
 class TestWebhookAPIIntegration:
@@ -59,7 +59,7 @@ class TestWebhookAPIIntegration:
         assert response.status_code == expected_status
         data = response.json()
         assert "error" not in data
-        return data
+                return data
 
     def validate_field_exists(self, data, field_name):
         """Validate that a field exists in the data."""
@@ -164,7 +164,7 @@ class TestWebhookAPIIntegration:
                     "X-Webhook-Signature": signature,
                     "X-Webhook-Event": event_type
                 }
-                return mock_webhook_server.receive_event(event_data, headers)
+                        return mock_webhook_server.receive_event(event_data, headers)
             
             mock_send_event.side_effect = side_effect
             

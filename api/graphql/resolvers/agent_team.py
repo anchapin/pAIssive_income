@@ -68,7 +68,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("agent_team")
             if not service:
                 logger.warning("Agent team service not available")
-                return []
+                        return []
 
             # Get agents from service
             try:
@@ -76,7 +76,7 @@ if STRAWBERRY_AVAILABLE:
                     team_id=team_id, limit=limit, offset=offset
                 )
 
-                return [
+                        return [
                     AgentType(
                         id=str(agent.id),
                         name=agent.name,
@@ -95,7 +95,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting agents: {str(e)}")
-                return []
+                        return []
 
         @strawberry.field
         async def agent(self, info: Info, id: str) -> Optional[AgentType]:
@@ -113,15 +113,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("agent_team")
             if not service:
                 logger.warning("Agent team service not available")
-                return None
+                        return None
 
             # Get agent from service
             try:
                 agent = await service.get_agent(id)
                 if not agent:
-                    return None
+                            return None
 
-                return AgentType(
+                        return AgentType(
                     id=str(agent.id),
                     name=agent.name,
                     description=agent.description,
@@ -137,7 +137,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error getting agent: {str(e)}")
-                return None
+                        return None
 
         @strawberry.field
         async def teams(
@@ -158,13 +158,13 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("agent_team")
             if not service:
                 logger.warning("Agent team service not available")
-                return []
+                        return []
 
             # Get teams from service
             try:
                 teams = await service.get_teams(limit=limit, offset=offset)
 
-                return [
+                        return [
                     TeamType(
                         id=str(team.id),
                         name=team.name,
@@ -180,7 +180,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting teams: {str(e)}")
-                return []
+                        return []
 
         @strawberry.field
         async def tasks(
@@ -210,7 +210,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("agent_team")
             if not service:
                 logger.warning("Agent team service not available")
-                return []
+                        return []
 
             # Get tasks from service
             try:
@@ -222,7 +222,7 @@ if STRAWBERRY_AVAILABLE:
                     offset=offset,
                 )
 
-                return [
+                        return [
                     TaskType(
                         id=str(task.id),
                         team_id=str(task.team_id) if task.team_id else None,
@@ -243,7 +243,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting tasks: {str(e)}")
-                return []
+                        return []
 
     @strawberry.type
     class AgentTeamMutation:
@@ -267,7 +267,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("agent_team")
             if not service:
                 logger.warning("Agent team service not available")
-                return None
+                        return None
 
             # Create agent
             try:
@@ -279,7 +279,7 @@ if STRAWBERRY_AVAILABLE:
                     model_id=input.model_id,
                 )
 
-                return AgentType(
+                        return AgentType(
                     id=str(agent.id),
                     name=agent.name,
                     description=agent.description,
@@ -295,7 +295,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating agent: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def update_agent(
@@ -316,7 +316,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("agent_team")
             if not service:
                 logger.warning("Agent team service not available")
-                return None
+                        return None
 
             # Update agent
             try:
@@ -330,9 +330,9 @@ if STRAWBERRY_AVAILABLE:
                 )
 
                 if not agent:
-                    return None
+                            return None
 
-                return AgentType(
+                        return AgentType(
                     id=str(agent.id),
                     name=agent.name,
                     description=agent.description,
@@ -348,7 +348,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error updating agent: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def delete_agent(self, info: Info, id: str) -> bool:
@@ -366,15 +366,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("agent_team")
             if not service:
                 logger.warning("Agent team service not available")
-                return False
+                        return False
 
             # Delete agent
             try:
                 success = await service.delete_agent(id)
-                return success
+                        return success
             except Exception as e:
                 logger.error(f"Error deleting agent: {str(e)}")
-                return False
+                        return False
 
         @strawberry.mutation
         async def create_team(self, info: Info, input: TeamInput) -> Optional[TeamType]:
@@ -392,7 +392,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("agent_team")
             if not service:
                 logger.warning("Agent team service not available")
-                return None
+                        return None
 
             # Create team
             try:
@@ -402,7 +402,7 @@ if STRAWBERRY_AVAILABLE:
                     agent_ids=input.agent_ids,
                 )
 
-                return TeamType(
+                        return TeamType(
                     id=str(team.id),
                     name=team.name,
                     description=team.description,
@@ -411,7 +411,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating team: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def create_task(self, info: Info, input: TaskInput) -> Optional[TaskType]:
@@ -429,7 +429,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("agent_team")
             if not service:
                 logger.warning("Agent team service not available")
-                return None
+                        return None
 
             # Create task
             try:
@@ -442,7 +442,7 @@ if STRAWBERRY_AVAILABLE:
                     due_date=input.due_date,
                 )
 
-                return TaskType(
+                        return TaskType(
                     id=str(task.id),
                     team_id=str(task.team_id) if task.team_id else None,
                     agent_id=str(task.agent_id) if task.agent_id else None,
@@ -456,4 +456,4 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating task: {str(e)}")
-                return None
+                        return None

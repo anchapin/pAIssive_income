@@ -29,13 +29,13 @@ def ip_allowlist():
     allowlist.add_ip("127.0.0.1")
     allowlist.add_ip("testclient")  # TestClient uses this as the client IP
     allowlist.add_network("10.0.0.0/8")
-    return allowlist
+            return allowlist
 
 
 @pytest.fixture
 def rate_limiter():
     """Create a rate limiter for testing."""
-    return WebhookRateLimiter(limit=3, window_seconds=1)
+            return WebhookRateLimiter(limit=3, window_seconds=1)
 
 
 @pytest.fixture
@@ -53,13 +53,13 @@ def app_with_ip_allowlist(ip_allowlist):
     # Add test routes
     @app.get("/webhooks/test")
     async def test_webhook():
-        return {"status": "success"}
+                return {"status": "success"}
 
     @app.get("/api/other")
     async def other_endpoint():
-        return {"status": "success"}
+                return {"status": "success"}
 
-    return app
+            return app
 
 
 @pytest.fixture
@@ -77,13 +77,13 @@ def app_with_rate_limit(rate_limiter):
     # Add test routes
     @app.get("/webhooks/test")
     async def test_webhook():
-        return {"status": "success"}
+                return {"status": "success"}
 
     @app.get("/api/other")
     async def other_endpoint():
-        return {"status": "success"}
+                return {"status": "success"}
 
-    return app
+            return app
 
 
 @pytest.fixture
@@ -106,18 +106,18 @@ def app_with_both_middleware(ip_allowlist, rate_limiter):
     # Add test routes
     @app.get("/webhooks/test")
     async def test_webhook():
-        return {"status": "success"}
+                return {"status": "success"}
 
     @app.get("/api/other")
     async def other_endpoint():
-        return {"status": "success"}
+                return {"status": "success"}
 
     # Add a route that returns client IP
     @app.get("/client-ip")
     async def client_ip(request: Request):
-        return {"client_ip": request.client.host}
+                return {"client_ip": request.client.host}
 
-    return app
+            return app
 
 
 class TestIPAllowlistMiddleware:

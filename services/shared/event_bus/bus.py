@@ -73,7 +73,7 @@ class EventSubscription:
         Returns:
             bool: True if the subscription matches, False otherwise
         """
-        return bool(self.pattern.match(event_name))
+                return bool(self.pattern.match(event_name))
 
 
 class EventPublisher:
@@ -130,7 +130,7 @@ class EventPublisher:
 
             logger.info(f"Published event {event.name} with ID {event.metadata.id}")
 
-            return event
+                    return event
 
         except MessageQueueError as e:
             logger.error(f"Failed to publish event {event.name}: {str(e)}")
@@ -205,7 +205,7 @@ class EventSubscriber:
                 f"Created subscription {subscription.subscription_id} for pattern {event_pattern}"
             )
 
-            return subscription
+                    return subscription
 
         except Exception as e:
             logger.error(
@@ -226,10 +226,10 @@ class EventSubscriber:
         if subscription_id in self.subscriptions:
             del self.subscriptions[subscription_id]
             logger.info(f"Removed subscription {subscription_id}")
-            return True
+                    return True
 
         logger.warning(f"Subscription {subscription_id} not found")
-        return False
+                return False
 
     def start(self) -> str:
         """
@@ -268,9 +268,7 @@ class EventSubscriber:
 
                     if not matching_subscriptions:
                         logger.debug(f"No subscriptions match event {event.name}")
-                        return
-
-                    # Call the handlers for matching subscriptions
+                                return # Call the handlers for matching subscriptions
                     for subscription in matching_subscriptions:
                         try:
                             subscription.handler(event)
@@ -289,7 +287,7 @@ class EventSubscriber:
 
             logger.info(f"Started consuming events with tag {self.consumer_tag}")
 
-            return self.consumer_tag
+                    return self.consumer_tag
 
         except MessageQueueError as e:
             logger.error(f"Failed to start consuming events: {str(e)}")
@@ -384,7 +382,7 @@ class EventBus:
         Raises:
             EventPublishError: If the event cannot be published
         """
-        return self.publisher.publish(event, routing_key)
+                return self.publisher.publish(event, routing_key)
 
     def subscribe(
         self,
@@ -406,7 +404,7 @@ class EventBus:
         Raises:
             EventSubscribeError: If the subscription cannot be created
         """
-        return self.subscriber.subscribe(event_pattern, handler, subscription_id)
+                return self.subscriber.subscribe(event_pattern, handler, subscription_id)
 
     def unsubscribe(self, subscription_id: str) -> bool:
         """
@@ -418,7 +416,7 @@ class EventBus:
         Returns:
             bool: True if the subscription was removed, False otherwise
         """
-        return self.subscriber.unsubscribe(subscription_id)
+                return self.subscriber.unsubscribe(subscription_id)
 
     def start(self) -> str:
         """
@@ -430,7 +428,7 @@ class EventBus:
         Raises:
             EventSubscribeError: If consumption cannot be started
         """
-        return self.subscriber.start()
+                return self.subscriber.start()
 
     def stop(self):
         """Stop consuming events."""
@@ -489,7 +487,7 @@ class AsyncEventBus:
     async def __aenter__(self):
         """Enter async context manager."""
         await self.connect()
-        return self
+                return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Exit async context manager."""
@@ -559,7 +557,7 @@ class AsyncEventBus:
 
             logger.info(f"Published event {event.name} with ID {event.metadata.id}")
 
-            return event
+                    return event
 
         except MessageQueueError as e:
             logger.error(f"Failed to publish event {event.name}: {str(e)}")
@@ -604,7 +602,7 @@ class AsyncEventBus:
                 f"Created subscription {subscription.subscription_id} for pattern {event_pattern}"
             )
 
-            return subscription
+                    return subscription
 
         except Exception as e:
             logger.error(
@@ -625,10 +623,10 @@ class AsyncEventBus:
         if subscription_id in self.subscriptions:
             del self.subscriptions[subscription_id]
             logger.info(f"Removed subscription {subscription_id}")
-            return True
+                    return True
 
         logger.warning(f"Subscription {subscription_id} not found")
-        return False
+                return False
 
     async def start(self) -> str:
         """
@@ -666,9 +664,7 @@ class AsyncEventBus:
 
                     if not matching_subscriptions:
                         logger.debug(f"No subscriptions match event {event.name}")
-                        return
-
-                    # Call the handlers for matching subscriptions
+                                return # Call the handlers for matching subscriptions
                     for subscription in matching_subscriptions:
                         try:
                             if subscription.is_async:
@@ -690,7 +686,7 @@ class AsyncEventBus:
 
             logger.info(f"Started consuming events with tag {self.consumer_tag}")
 
-            return self.consumer_tag
+                    return self.consumer_tag
 
         except MessageQueueError as e:
             logger.error(f"Failed to start consuming events: {str(e)}")

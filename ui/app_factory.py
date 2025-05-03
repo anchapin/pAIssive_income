@@ -29,7 +29,7 @@ def create_app():
     """
     Create and configure the Flask application.
 
-    Returns:
+Returns:
         Flask application
     """
     # Create Flask application
@@ -39,35 +39,35 @@ def create_app():
         static_folder=os.path.join(os.path.dirname(__file__), "static"),
     )
 
-    # Configure the app
+# Configure the app
     app.config["SECRET_KEY"] = os.environ.get(
         "SECRET_KEY", "dev_key_" + str(uuid.uuid4())
     )
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
 
-    return app
+            return app
 
 
 def init_app(app, initialize_services_func=None):
     """
     Initialize the Flask application.
 
-    Args:
+Args:
         app: Flask application
         initialize_services_func: Function to initialize services
 
-    Returns:
+Returns:
         Initialized Flask application
     """
     logger.info("Initializing pAIssive Income UI")
 
-    # Create necessary directories if they don't exist
+# Create necessary directories if they don't exist
     os.makedirs(
         app.config.get("UPLOAD_FOLDER", os.path.join(app.static_folder, "uploads")),
         exist_ok=True,
     )
 
-    # Load configuration
+# Load configuration
     config_path = os.path.join(os.path.dirname(__file__), "config.json")
     config = None
     if os.path.exists(config_path):
@@ -80,11 +80,11 @@ def init_app(app, initialize_services_func=None):
         except Exception as e:
             logger.error(f"Error loading configuration from {config_path}: {e}")
 
-    # Initialize services with dependency injection if function is provided
+# Initialize services with dependency injection if function is provided
     if initialize_services_func:
         initialize_services_func(config)
         logger.info("Services initialized with dependency injection")
 
-    logger.info("pAIssive Income UI initialized")
+logger.info("pAIssive Income UI initialized")
 
-    return app
+            return app

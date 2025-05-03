@@ -12,10 +12,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 
-def get_payment_gateway
+def get_payment_gateway():
     from tests.mocks.mock_payment_apis import create_payment_gateway
 
-    return create_payment_gateway
+            return create_payment_gateway
 
 (
     gateway_type: str = "stripe", config: Optional[Dict[str, Any]] = None
@@ -23,11 +23,11 @@ def get_payment_gateway
     """
     Get a payment gateway of the specified type.
 
-    Args:
+Args:
         gateway_type: Type of gateway to get (e.g., "stripe", "paypal")
         config: Optional configuration for the gateway
 
-    Returns:
+Returns:
         A payment gateway instance
     """
 (gateway_type, config)
@@ -37,14 +37,14 @@ class PaymentProcessor(ABC):
     """
     Abstract base class for payment processors.
 
-    This class defines the interface that all payment processors must implement.
+This class defines the interface that all payment processors must implement.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+def __init__(self, config: Dict[str, Any]):
         """
         Initialize a payment processor.
 
-        Args:
+Args:
             config: Configuration for the payment processor
         """
         self.id = str(uuid.uuid4())
@@ -52,7 +52,7 @@ class PaymentProcessor(ABC):
         self.config = config
         self.created_at = datetime.now()
 
-    @abstractmethod
+@abstractmethod
     def process_payment(
         self,
         amount: float,
@@ -64,19 +64,19 @@ class PaymentProcessor(ABC):
         """
         Process a payment.
 
-        Args:
+Args:
             amount: Amount to charge
             currency: Currency code (e.g., USD)
             payment_method_id: ID of the payment method
             description: Description of the payment
             metadata: Additional metadata for the payment
 
-        Returns:
+Returns:
             Dictionary with payment result
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def refund_payment(
         self,
         payment_id: str,
@@ -86,30 +86,30 @@ class PaymentProcessor(ABC):
         """
         Refund a payment.
 
-        Args:
+Args:
             payment_id: ID of the payment to refund
             amount: Amount to refund (if None, refund the full amount)
             reason: Reason for the refund
 
-        Returns:
+Returns:
             Dictionary with refund result
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def get_payment(self, payment_id: str) -> Dict[str, Any]:
         """
         Get information about a payment.
 
-        Args:
+Args:
             payment_id: ID of the payment
 
-        Returns:
+Returns:
             Dictionary with payment information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def list_payments(
         self,
         customer_id: Optional[str] = None,
@@ -120,18 +120,18 @@ class PaymentProcessor(ABC):
         """
         List payments.
 
-        Args:
+Args:
             customer_id: ID of the customer
             start_date: Start date for payments
             end_date: End date for payments
             limit: Maximum number of payments to return
 
-        Returns:
+Returns:
             List of payments
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def create_customer(
         self,
         email: str,
@@ -141,30 +141,30 @@ class PaymentProcessor(ABC):
         """
         Create a customer.
 
-        Args:
+Args:
             email: Email of the customer
             name: Name of the customer
             metadata: Additional metadata for the customer
 
-        Returns:
+Returns:
             Dictionary with customer information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def get_customer(self, customer_id: str) -> Dict[str, Any]:
         """
         Get information about a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
 
-        Returns:
+Returns:
             Dictionary with customer information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def update_customer(
         self,
         customer_id: str,
@@ -175,31 +175,31 @@ class PaymentProcessor(ABC):
         """
         Update a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
             email: New email of the customer
             name: New name of the customer
             metadata: New metadata for the customer
 
-        Returns:
+Returns:
             Dictionary with updated customer information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def delete_customer(self, customer_id: str) -> bool:
         """
         Delete a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
 
-        Returns:
+Returns:
             True if the customer was deleted, False otherwise
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def create_payment_method(
         self,
         customer_id: str,
@@ -210,47 +210,47 @@ class PaymentProcessor(ABC):
         """
         Create a payment method.
 
-        Args:
+Args:
             customer_id: ID of the customer
             payment_type: Type of payment method (e.g., card, bank_account)
             payment_details: Details of the payment method
             metadata: Additional metadata for the payment method
 
-        Returns:
+Returns:
             Dictionary with payment method information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def get_payment_method(self, payment_method_id: str) -> Dict[str, Any]:
         """
         Get information about a payment method.
 
-        Args:
+Args:
             payment_method_id: ID of the payment method
 
-        Returns:
+Returns:
             Dictionary with payment method information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def list_payment_methods(
         self, customer_id: str, payment_type: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         List payment methods for a customer.
 
-        Args:
+Args:
             customer_id: ID of the customer
             payment_type: Type of payment methods to list
 
-        Returns:
+Returns:
             List of payment methods
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def update_payment_method(
         self,
         payment_method_id: str,
@@ -260,30 +260,30 @@ class PaymentProcessor(ABC):
         """
         Update a payment method.
 
-        Args:
+Args:
             payment_method_id: ID of the payment method
             payment_details: New details of the payment method
             metadata: New metadata for the payment method
 
-        Returns:
+Returns:
             Dictionary with updated payment method information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def delete_payment_method(self, payment_method_id: str) -> bool:
         """
         Delete a payment method.
 
-        Args:
+Args:
             payment_method_id: ID of the payment method
 
-        Returns:
+Returns:
             True if the payment method was deleted, False otherwise
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def create_subscription(
         self,
         customer_id: str,
@@ -294,31 +294,31 @@ class PaymentProcessor(ABC):
         """
         Create a subscription.
 
-        Args:
+Args:
             customer_id: ID of the customer
             plan_id: ID of the plan
             payment_method_id: ID of the payment method
             metadata: Additional metadata for the subscription
 
-        Returns:
+Returns:
             Dictionary with subscription information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def get_subscription(self, subscription_id: str) -> Dict[str, Any]:
         """
         Get information about a subscription.
 
-        Args:
+Args:
             subscription_id: ID of the subscription
 
-        Returns:
+Returns:
             Dictionary with subscription information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def update_subscription(
         self,
         subscription_id: str,
@@ -329,34 +329,34 @@ class PaymentProcessor(ABC):
         """
         Update a subscription.
 
-        Args:
+Args:
             subscription_id: ID of the subscription
             plan_id: New ID of the plan
             payment_method_id: New ID of the payment method
             metadata: New metadata for the subscription
 
-        Returns:
+Returns:
             Dictionary with updated subscription information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def cancel_subscription(
         self, subscription_id: str, cancel_at_period_end: bool = True
     ) -> Dict[str, Any]:
         """
         Cancel a subscription.
 
-        Args:
+Args:
             subscription_id: ID of the subscription
             cancel_at_period_end: Whether to cancel at the end of the billing period
 
-        Returns:
+Returns:
             Dictionary with updated subscription information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def list_subscriptions(
         self,
         customer_id: Optional[str] = None,
@@ -367,26 +367,26 @@ class PaymentProcessor(ABC):
         """
         List subscriptions.
 
-        Args:
+Args:
             customer_id: ID of the customer
             plan_id: ID of the plan
             status: Status of the subscriptions
             limit: Maximum number of subscriptions to return
 
-        Returns:
+Returns:
             List of subscriptions
         """
         pass
 
-    def format_amount(self, amount: float, currency: str) -> str:
+def format_amount(self, amount: float, currency: str) -> str:
         """
         Format an amount with currency symbol.
 
-        Args:
+Args:
             amount: Amount to format
             currency: Currency code
 
-        Returns:
+Returns:
             Formatted amount with currency symbol
         """
         currency_symbols = {
@@ -398,85 +398,85 @@ class PaymentProcessor(ABC):
             "AUD": "A$",
         }
 
-        symbol = currency_symbols.get(currency, currency)
+symbol = currency_symbols.get(currency, currency)
 
-        if currency == "JPY":
+if currency == "JPY":
             # JPY doesn't use decimal places
-            return f"{symbol}{int(amount):,}"
+                        return f"{symbol}{int(amount):,}"
         else:
-            return f"{symbol}{amount:,.2f}"
+                        return f"{symbol}{amount:,.2f}"
 
-    def validate_card_number(self, card_number: str) -> bool:
+def validate_card_number(self, card_number: str) -> bool:
         """
         Validate a credit card number using the Luhn algorithm.
 
-        Args:
+Args:
             card_number: Credit card number to validate
 
-        Returns:
+Returns:
             True if the card number is valid, False otherwise
         """
         # Remove spaces and dashes
         card_number = card_number.replace(" ", "").replace("-", "")
 
-        # Check if the card number contains only digits
+# Check if the card number contains only digits
         if not card_number.isdigit():
-            return False
+                        return False
 
-        # Check length (most card numbers are 13-19 digits)
+# Check length (most card numbers are 13-19 digits)
         if not (13 <= len(card_number) <= 19):
-            return False
+                        return False
 
-        # Luhn algorithm
+# Luhn algorithm
         digits = [int(d) for d in card_number]
         checksum = 0
 
-        for i, digit in enumerate(reversed(digits)):
+for i, digit in enumerate(reversed(digits)):
             if i % 2 == 1:
                 digit *= 2
                 if digit > 9:
                     digit -= 9
 
-            checksum += digit
+checksum += digit
 
-        return checksum % 10 == 0
+            return checksum % 10 == 0
 
-    def mask_card_number(self, card_number: str) -> str:
+def mask_card_number(self, card_number: str) -> str:
         """
         Mask a credit card number for display.
 
-        Args:
+Args:
             card_number: Credit card number to mask
 
-        Returns:
+Returns:
             Masked card number
         """
         # Remove spaces and dashes
         card_number = card_number.replace(" ", "").replace("-", "")
 
-        # Keep first 6 and last 4 digits, mask the rest
+# Keep first 6 and last 4 digits, mask the rest
         if len(card_number) <= 10:
             # For short numbers, just mask all but the last 4
-            return "****" + card_number[-4:]
+                        return "****" + card_number[-4:]
         else:
-            return card_number[:6] + "*" * (len(card_number) - 10) + card_number[-4:]
+                        return card_number[:6] + "*" * (len(card_number) - 10) + card_number[-4:]
 
-    def get_card_type(self, card_number: str) -> str:
+def get_card_type(self, card_number: str) -> str:
         """
         Get the type of a credit card based on its number.
 
-        Args:
+Args:
             card_number: Credit card number
 
-        Returns:
+Returns:
             Type of the credit card (e.g., Visa, Mastercard)
         """
         # Remove spaces and dashes
         card_number = card_number.replace(" ", "").replace("-", "")
 
-        # Check for common card types based on prefix
+# Check for common card types based on prefix
         if card_number.startswith("4"):
-            return "Visa"
+                        return "Visa"
         elif card_number.startswith(
             ("51", "52", "53", "54", "55")
         ) or card_number.startswith(
@@ -506,40 +506,40 @@ class PaymentProcessor(ABC):
                 "2720",
             )
         ):
-            return "Mastercard"
+                        return "Mastercard"
         elif card_number.startswith(("34", "37")):
-            return "American Express"
+                        return "American Express"
         elif card_number.startswith(
             ("300", "301", "302", "303", "304", "305", "36", "38")
         ):
-            return "Diners Club"
+                        return "Diners Club"
         elif card_number.startswith(
             ("6011", "644", "645", "646", "647", "648", "649", "65")
         ):
-            return "Discover"
+                        return "Discover"
         elif card_number.startswith(("35")):
-            return "JCB"
+                        return "JCB"
         else:
-            return "Unknown"
+                        return "Unknown"
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the payment processor to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the payment processor
         """
-        return {
+                    return {
             "id": self.id,
             "name": self.name,
             "type": self.__class__.__name__,
             "created_at": self.created_at.isoformat(),
         }
 
-    def __str__(self) -> str:
+def __str__(self) -> str:
         """String representation of the payment processor."""
-        return f"{self.name} ({self.__class__.__name__})"
+                    return f"{self.name} ({self.__class__.__name__})"
 
-    def __repr__(self) -> str:
+def __repr__(self) -> str:
         """Detailed string representation of the payment processor."""
-        return f"{self.__class__.__name__}(id={self.id}, name={self.name})"
+                    return f"{self.__class__.__name__}(id={self.id}, name={self.name})"

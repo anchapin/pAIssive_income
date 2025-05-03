@@ -79,9 +79,9 @@ def get_service_secret_key() -> str:
             "SERVICE_AUTH_SECRET environment variable not set. "
             "Using default development key. This is not secure for production."
         )
-        return default_key
+                return default_key
 
-    return secret_key
+            return secret_key
 
 
 def create_service_token(
@@ -142,7 +142,7 @@ def create_service_token(
             payload=payload_dict, key=secret_key, algorithm=JWT_ALGORITHM
         )
 
-        return token
+                return token
 
     except Exception as e:
         logger.error(f"Error creating service token: {str(e)}")
@@ -185,7 +185,7 @@ def validate_service_token(
         )
 
         # Create and return the payload model
-        return ServiceTokenPayload(**payload)
+                return ServiceTokenPayload(**payload)
 
     except jwt.ExpiredSignatureError:
         logger.warning("Service token has expired")
@@ -203,4 +203,4 @@ def validate_service_token(
 
     except Exception as e:
         logger.error(f"Error validating service token: {str(e)}")
-        raise ServiceTokenError(f"Failed to validate service token: {str(e)}")
+        raise ServiceTokenError(f"Failed to validate service token: {str(e)}"

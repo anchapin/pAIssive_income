@@ -56,7 +56,7 @@ def mock_agent_team():
         "messaging": "Reduce inventory costs by 30% with AI",
     }
     
-    return mock_team
+            return mock_team
 
 
 @pytest.fixture
@@ -70,7 +70,7 @@ def mock_model_manager():
         {"name": "DALL-E 3", "type": "image", "provider": "openai"},
     ]
     
-    return mock_manager
+            return mock_manager
 
 
 @pytest.fixture
@@ -84,13 +84,13 @@ def mock_subscription_manager():
         {"name": "Premium", "has_free_tier": False},
     ]
     
-    return mock_manager
+            return mock_manager
 
 
 @pytest.fixture
 def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager):
     """Create a CLI UI instance with mock dependencies."""
-    return CommandLineInterface(
+            return CommandLineInterface(
         agent_team=mock_agent_team,
         model_manager=mock_model_manager,
         subscription_manager=mock_subscription_manager

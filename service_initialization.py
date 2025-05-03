@@ -34,37 +34,37 @@ def initialize_services(config: Optional[Dict[str, Any]] = None) -> DependencyCo
     """
     Initialize all services and register them in the dependency container.
 
-    Args:
+Args:
         config: Optional configuration dictionary
 
-    Returns:
+Returns:
         Dependency container with registered services
     """
     container = get_container()
 
-    # Register configuration
+# Register configuration
     _register_configuration(container, config)
 
-    # Register AI models
+# Register AI models
     _register_ai_models(container)
 
-    # Register agent team
+# Register agent team
     _register_agent_team(container)
 
-    # Register niche analysis
+# Register niche analysis
     _register_niche_analysis(container)
 
-    # Register monetization
+# Register monetization
     _register_monetization(container)
 
-    # Register marketing
+# Register marketing
     _register_marketing(container)
 
-    # Register UI services
+# Register UI services
     register_ui_services()
 
-    logger.info("All services initialized and registered")
-    return container
+logger.info("All services initialized and registered")
+                return container
 
 
 def _register_configuration(
@@ -73,7 +73,7 @@ def _register_configuration(
     """
     Register configuration in the dependency container.
 
-    Args:
+Args:
         container: Dependency container
         config: Optional configuration dictionary
     """
@@ -83,7 +83,7 @@ def _register_configuration(
     else:
         model_config = ModelConfig.get_default()
 
-    container.register(IModelConfig, lambda: model_config, singleton=True)
+container.register(IModelConfig, lambda: model_config, singleton=True)
     logger.info("Registered model configuration")
 
 
@@ -91,7 +91,7 @@ def _register_ai_models(container: DependencyContainer) -> None:
     """
     Register AI model services in the dependency container.
 
-    Args:
+Args:
         container: Dependency container
     """
     # Register model manager
@@ -101,18 +101,18 @@ def _register_ai_models(container: DependencyContainer) -> None:
         singleton=True,
     )
 
-    # Register adapter factory
+# Register adapter factory
     adapter_factory = get_adapter_factory()
     container.register_instance("adapter_factory", adapter_factory)
 
-    logger.info("Registered AI model services")
+logger.info("Registered AI model services")
 
 
 def _register_agent_team(container: DependencyContainer) -> None:
     """
     Register agent team services in the dependency container.
 
-    Args:
+Args:
         container: Dependency container
     """
     # Register agent profile
@@ -120,7 +120,7 @@ def _register_agent_team(container: DependencyContainer) -> None:
         IAgentProfile, lambda: AgentProfile(name="default"), singleton=True
     )
 
-    # Register research agent
+# Register research agent
     container.register(
         IResearchAgent,
         lambda: ResearchAgent(
@@ -130,21 +130,21 @@ def _register_agent_team(container: DependencyContainer) -> None:
         singleton=True,
     )
 
-    # Register agent team
+# Register agent team
     container.register(
         IAgentTeam,
         lambda: AgentTeam(research_agent=container.resolve(IResearchAgent)),
         singleton=True,
     )
 
-    logger.info("Registered agent team services")
+logger.info("Registered agent team services")
 
 
 def _register_niche_analysis(container: DependencyContainer) -> None:
     """
     Register niche analysis services in the dependency container.
 
-    Args:
+Args:
         container: Dependency container
     """
     # Register niche analyzer
@@ -154,14 +154,14 @@ def _register_niche_analysis(container: DependencyContainer) -> None:
         singleton=True,
     )
 
-    logger.info("Registered niche analysis services")
+logger.info("Registered niche analysis services")
 
 
 def _register_monetization(container: DependencyContainer) -> None:
     """
     Register monetization services in the dependency container.
 
-    Args:
+Args:
         container: Dependency container
     """
     # Register monetization calculator
@@ -169,14 +169,14 @@ def _register_monetization(container: DependencyContainer) -> None:
         IMonetizationCalculator, lambda: MonetizationCalculator(), singleton=True
     )
 
-    logger.info("Registered monetization services")
+logger.info("Registered monetization services")
 
 
 def _register_marketing(container: DependencyContainer) -> None:
     """
     Register marketing services in the dependency container.
 
-    Args:
+Args:
         container: Dependency container
     """
     # Register marketing strategy generator
@@ -186,4 +186,4 @@ def _register_marketing(container: DependencyContainer) -> None:
         singleton=True,
     )
 
-    logger.info("Registered marketing services")
+logger.info("Registered marketing services")

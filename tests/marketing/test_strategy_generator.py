@@ -40,7 +40,7 @@ def strategy_generator():
         timeframe={"duration": 6, "unit": "months"},
         business_size="medium",
     )
-    return generator
+            return generator
 
 
 def test_strategy_generator_init():

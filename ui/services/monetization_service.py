@@ -39,7 +39,7 @@ class MonetizationService(BaseService, IMonetizationService):
 
         # Import the Monetization Agent class
         try:
-# noqa: F401
+    # noqa: F401
 
             self.monetization_agent_available = True
         except ImportError:
@@ -62,7 +62,7 @@ class MonetizationService(BaseService, IMonetizationService):
 
         if solution is None:
             logger.error(f"Solution with ID {solution_id} not found")
-            return {}
+                    return {}
 
         if self.monetization_agent_available:
             try:
@@ -89,7 +89,7 @@ class MonetizationService(BaseService, IMonetizationService):
         strategies.append(strategy)
         self.save_data(self.strategies_file, strategies)
 
-        return strategy
+                return strategy
 
     def get_strategies(self) -> List[Dict[str, Any]]:
         """
@@ -102,7 +102,7 @@ class MonetizationService(BaseService, IMonetizationService):
         if strategies is None:
             strategies = []
             self.save_data(self.strategies_file, strategies)
-        return strategies
+                return strategies
 
     def get_strategy(self, strategy_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -117,8 +117,8 @@ class MonetizationService(BaseService, IMonetizationService):
         strategies = self.get_strategies()
         for strategy in strategies:
             if strategy["id"] == strategy_id:
-                return strategy
-        return None
+                        return strategy
+                return None
 
     def save_strategy(self, strategy: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -139,7 +139,7 @@ class MonetizationService(BaseService, IMonetizationService):
                 strategy["updated_at"] = datetime.now().isoformat()
                 strategies[i] = strategy
                 self.save_data(self.strategies_file, strategies)
-                return strategy
+                        return strategy
 
         # Add new strategy
         if "created_at" not in strategy:
@@ -148,7 +148,7 @@ class MonetizationService(BaseService, IMonetizationService):
             strategy["updated_at"] = datetime.now().isoformat()
         strategies.append(strategy)
         self.save_data(self.strategies_file, strategies)
-        return strategy
+                return strategy
 
     def _create_mock_strategy(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -237,7 +237,7 @@ class MonetizationService(BaseService, IMonetizationService):
         }
 
         # Create mock strategy
-        return {
+                return {
             "id": str(uuid.uuid4()),
             "name": f"{solution['name']} Monetization Strategy",
             "description": f"Subscription-based monetization strategy for {solution['name']}",

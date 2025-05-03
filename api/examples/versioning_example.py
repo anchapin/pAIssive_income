@@ -119,7 +119,7 @@ def create_server() -> APIServer:
     # Configure version manager
     configure_version_manager(server.version_manager)
 
-    return server
+            return server
 
 
 def main() -> None:

@@ -24,7 +24,7 @@ class ContentTemplate:
     Base class for all content templates.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "",
         description: str = "",
@@ -37,7 +37,7 @@ class ContentTemplate:
         """
         Initialize a content template.
 
-        Args:
+Args:
             name: Name of the template
             description: Description of the template
             title: Title of the content
@@ -64,14 +64,14 @@ class ContentTemplate:
         self.content_type = "generic"
         self.sections = []
 
-    def generate_outline(self) -> Dict[str, Any]:
+def generate_outline(self) -> Dict[str, Any]:
         """
         Generate an outline for the content.
 
-        Returns:
+Returns:
             Dictionary with outline details
 
-        Raises:
+Raises:
             ValidationError: If the template is invalid
             ContentTemplateError: If there's an issue generating the outline
         """
@@ -86,7 +86,7 @@ class ContentTemplate:
                     ],
                 )
 
-            if not self.key_points or len(self.key_points) == 0:
+if not self.key_points or len(self.key_points) == 0:
                 raise ValidationError(
                     message="Key points are required to generate an outline",
                     field="key_points",
@@ -98,9 +98,9 @@ class ContentTemplate:
                     ],
                 )
 
-            sections = []
+sections = []
 
-            # Add introduction
+# Add introduction
             sections.append(
                 {
                     "section_type": "introduction",
@@ -114,7 +114,7 @@ class ContentTemplate:
                 }
             )
 
-            # Add sections for each key point
+# Add sections for each key point
             for i, point in enumerate(self.key_points):
                 sections.append(
                     {
@@ -129,7 +129,7 @@ class ContentTemplate:
                     }
                 )
 
-            # Add conclusion
+# Add conclusion
             sections.append(
                 {
                     "section_type": "conclusion",
@@ -147,7 +147,7 @@ class ContentTemplate:
                 }
             )
 
-            outline = {
+outline = {
                 "id": self.id,
                 "title": self.title,
                 "content_type": self.content_type,
@@ -159,10 +159,10 @@ class ContentTemplate:
                 "created_at": self.created_at,
             }
 
-            logger.info(f"Generated outline for content: {self.title}")
-            return outline
+logger.info(f"Generated outline for content: {self.title}")
+                        return outline
 
-        except ValidationError:
+except ValidationError:
             # Re-raise validation errors
             raise
         except Exception as e:
@@ -175,13 +175,13 @@ class ContentTemplate:
                 reraise=True,
                 log_level=logging.ERROR,
             )
-            return {}  # This line won't be reached due to reraise=True
+                        return {}  # This line won't be reached due to reraise=True
 
-    def get_style_guidelines(self) -> Dict[str, Any]:
+def get_style_guidelines(self) -> Dict[str, Any]:
         """
         Get style guidelines for the content based on tone.
 
-        Returns:
+Returns:
             Dictionary with style guidelines
         """
         tone_guidelines = {
@@ -222,12 +222,12 @@ class ContentTemplate:
             },
         }
 
-        # Get guidelines for the specified tone, or default to professional
+# Get guidelines for the specified tone, or default to professional
         guidelines = tone_guidelines.get(
             self.tone.lower(), tone_guidelines["professional"]
         )
 
-        # Add persona-specific guidelines
+# Add persona-specific guidelines
         persona_guidelines = {
             "target_audience": self.target_persona["name"],
             "pain_points_to_address": self.target_persona["pain_points"],
@@ -237,7 +237,7 @@ class ContentTemplate:
             ),
         }
 
-        return {
+            return {
             "tone_guidelines": guidelines,
             "persona_guidelines": persona_guidelines,
             "general_guidelines": {
@@ -248,11 +248,11 @@ class ContentTemplate:
             },
         }
 
-    def get_seo_recommendations(self) -> Dict[str, Any]:
+def get_seo_recommendations(self) -> Dict[str, Any]:
         """
         Get SEO recommendations for the content.
 
-        Returns:
+Returns:
             Dictionary with SEO recommendations
         """
         # Extract potential keywords from title and key points
@@ -261,9 +261,9 @@ class ContentTemplate:
         for point in self.key_points:
             key_point_words.extend(point.lower().split())
 
-        all_words = title_words + key_point_words
+all_words = title_words + key_point_words
 
-        # Filter out common stop words (simplified version)
+# Filter out common stop words (simplified version)
         stop_words = [
             "the",
             "and",
@@ -280,7 +280,7 @@ class ContentTemplate:
         ]
         potential_keywords = [word for word in all_words if word not in stop_words]
 
-        # Count occurrences to find most common words
+# Count occurrences to find most common words
         keyword_counts = {}
         for word in potential_keywords:
             if word in keyword_counts:
@@ -288,13 +288,13 @@ class ContentTemplate:
             else:
                 keyword_counts[word] = 1
 
-        # Sort by count and get top keywords
+# Sort by count and get top keywords
         sorted_keywords = sorted(
             keyword_counts.items(), key=lambda x: x[1], reverse=True
         )
         top_keywords = [k for k, v in sorted_keywords[:5]]
 
-        # Generate keyword phrases
+# Generate keyword phrases
         keyword_phrases = []
         if len(title_words) > 2:
             keyword_phrases.append(" ".join(title_words))
@@ -303,7 +303,7 @@ class ContentTemplate:
             if len(point_words) > 2:
                 keyword_phrases.append(" ".join(point_words[:3]))
 
-        return {
+            return {
             "primary_keyword": top_keywords[0] if top_keywords else "",
             "secondary_keywords": top_keywords[1:] if len(top_keywords) > 1 else [],
             "keyword_phrases": keyword_phrases[:3],
@@ -318,7 +318,7 @@ class ContentTemplate:
             ],
         }
 
-    def add_section(
+def add_section(
         self,
         name: str = "",
         description: str = "",
@@ -332,7 +332,7 @@ class ContentTemplate:
         """
         Add a section to the content template.
 
-        Args:
+Args:
             name: Name of the section
             description: Description of the section
             content_type: Type of content (e.g., "text", "image", "video")
@@ -342,7 +342,7 @@ class ContentTemplate:
             title: Title of the section
             content: Optional content for the section
 
-        Returns:
+Returns:
             Dictionary with section details
         """
         section = {
@@ -358,11 +358,11 @@ class ContentTemplate:
             "order": len(self.sections) + 1,
         }
 
-        self.sections.append(section)
+self.sections.append(section)
         self.updated_at = datetime.now().isoformat()
-        return section
+                    return section
 
-    def generate_content(
+def generate_content(
         self,
         topic: str = "",
         target_audience: str = "",
@@ -373,17 +373,17 @@ class ContentTemplate:
         """
         Generate content based on the template.
 
-        Args:
+Args:
             topic: Topic of the content
             target_audience: Target audience for the content
             tone: Tone of the content
             keywords: Keywords for the content
             **kwargs: Additional keyword arguments
 
-        Returns:
+Returns:
             Dictionary with generated content
 
-        Raises:
+Raises:
             ValidationError: If the template is invalid
             ContentTemplateError: If there's an issue generating the content
         """
@@ -392,13 +392,13 @@ class ContentTemplate:
             if topic:
                 self.title = topic
 
-            if target_audience:
+if target_audience:
                 self.target_persona["name"] = target_audience
 
-            if tone:
+if tone:
                 self.tone = tone
 
-            # Generate outline first
+# Generate outline first
             try:
                 outline = self.generate_outline()
             except ValidationError as e:
@@ -406,14 +406,14 @@ class ContentTemplate:
                 field = getattr(e, "field", None)
                 validation_errors = getattr(e, "validation_errors", None)
 
-                raise ValidationError(
+raise ValidationError(
                     message=f"Cannot generate content: {e.message}",
                     field=field,
                     validation_errors=validation_errors,
                     original_exception=e,
                 )
 
-            # Create content structure
+# Create content structure
             content = {
                 "id": self.id,
                 "template_id": self.id,
@@ -431,17 +431,17 @@ class ContentTemplate:
                 "updated_at": self.updated_at,
             }
 
-            # Add keywords if provided
+# Add keywords if provided
             if keywords:
                 content["keywords"] = keywords
 
-            # Only use the custom sections added by the user
+# Only use the custom sections added by the user
             content["sections"] = []
             for section in self.sections:
                 # Create a copy of the section
                 section_copy = section.copy()
 
-                # Add sample content if the section doesn't have any
+# Add sample content if the section doesn't have any
                 if not section_copy.get("content"):
                     if section_copy.get("name") == "Introduction":
                         section_copy["content"] = (
@@ -460,19 +460,19 @@ class ContentTemplate:
                             f"Content about {section_copy.get('name', 'this topic')}."
                         )
 
-                content["sections"].append(section_copy)
+content["sections"].append(section_copy)
 
-            # If no custom sections, use the outline sections
+# If no custom sections, use the outline sections
             if not content["sections"]:
                 content["sections"] = outline["sections"]
 
-            # Update timestamp
+# Update timestamp
             self.updated_at = datetime.now().isoformat()
 
-            logger.info(f"Generated content for: {self.title}")
-            return content
+logger.info(f"Generated content for: {self.title}")
+                        return content
 
-        except ValidationError:
+except ValidationError:
             # Re-raise validation errors
             raise
         except Exception as e:
@@ -485,16 +485,16 @@ class ContentTemplate:
                 reraise=True,
                 log_level=logging.ERROR,
             )
-            return {}  # This line won't be reached due to reraise=True
+                        return {}  # This line won't be reached due to reraise=True
 
-    def get_summary(self) -> Dict[str, Any]:
+def get_summary(self) -> Dict[str, Any]:
         """
         Get a summary of the content template.
 
-        Returns:
+Returns:
             Dictionary with template summary
         """
-        return {
+                    return {
             "id": self.id,
             "name": self.name,
             "description": self.description,
@@ -514,7 +514,7 @@ class BlogPostTemplate(ContentTemplate):
     Template for creating blog post content.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "",
         description: str = "",
@@ -530,7 +530,7 @@ class BlogPostTemplate(ContentTemplate):
         """
         Initialize a blog post template.
 
-        Args:
+Args:
             name: Name of the template
             description: Description of the template
             title: Title of the blog post
@@ -550,7 +550,7 @@ class BlogPostTemplate(ContentTemplate):
         self.include_images = include_images
         self.seo_keywords = seo_keywords or []
 
-        # Add default sections
+# Add default sections
         if not self.sections:
             self.add_section(
                 name="Title",
@@ -560,7 +560,7 @@ class BlogPostTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Meta Description",
                 description="SEO meta description",
                 content_type="text",
@@ -568,7 +568,7 @@ class BlogPostTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Introduction",
                 description="The introduction of the blog post",
                 content_type="text",
@@ -576,7 +576,7 @@ class BlogPostTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Main Content",
                 description="The main content of the blog post",
                 content_type="text",
@@ -584,7 +584,7 @@ class BlogPostTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Conclusion",
                 description="The conclusion of the blog post",
                 content_type="text",
@@ -592,7 +592,7 @@ class BlogPostTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Call to Action",
                 description="The call to action for the blog post",
                 content_type="text",
@@ -600,21 +600,20 @@ class BlogPostTemplate(ContentTemplate):
                 required=False,
             )
 
-    def generate_outline(self) -> Dict[str, Any]:
+def generate_outline(self) -> Dict[str, Any]:
         """
         Generate an outline for the blog post.
 
-        Returns:
+Returns:
             Dictionary with blog post outline details
         """
-        # Get base outline from parent class
-        outline = super().generate_outline()
+        # Get base outline from parent class  super().generate_outline()
 
-        # Add blog-specific elements
+# Add blog-specific elements
         outline["estimated_length"] = f"{self.target_word_count} words"
         outline["estimated_reading_time"] = f"{self.target_word_count // 200} minutes"
 
-        # Add image recommendations if enabled
+# Add image recommendations if enabled
         if self.include_images:
             image_recommendations = []
             image_recommendations.append(
@@ -625,7 +624,7 @@ class BlogPostTemplate(ContentTemplate):
                 }
             )
 
-            # Add image for each key point
+# Add image for each key point
             for i, point in enumerate(self.key_points):
                 image_recommendations.append(
                     {
@@ -635,16 +634,16 @@ class BlogPostTemplate(ContentTemplate):
                     }
                 )
 
-            outline["image_recommendations"] = image_recommendations
+outline["image_recommendations"] = image_recommendations
 
-        # Add SEO recommendations
+# Add SEO recommendations
         if self.seo_keywords:
             outline["seo_keywords"] = self.seo_keywords
 
-        # Add blog-specific section recommendations
+# Add blog-specific section recommendations
         blog_sections = []
 
-        # Add table of contents recommendation for longer posts
+# Add table of contents recommendation for longer posts
         if len(self.key_points) > 3 or self.target_word_count > 1500:
             blog_sections.append(
                 {
@@ -655,10 +654,10 @@ class BlogPostTemplate(ContentTemplate):
                 }
             )
 
-        # Add FAQ section recommendation
+# Add FAQ section recommendation
         suggested_questions = [f"What is the best way to {self.title.lower()}?"]
 
-        if self.key_points:
+if self.key_points:
             suggested_questions.append(
                 f"How long does it take to {self.key_points[0].lower()}?"
             )
@@ -667,7 +666,7 @@ class BlogPostTemplate(ContentTemplate):
                 f"How long does it take to implement {self.title.lower()}?"
             )
 
-        if self.target_persona and self.target_persona.get("pain_points"):
+if self.target_persona and self.target_persona.get("pain_points"):
             suggested_questions.append(
                 f"What tools do I need for {self.target_persona['pain_points'][0]}?"
             )
@@ -676,7 +675,7 @@ class BlogPostTemplate(ContentTemplate):
                 f"What tools do I need for {self.title.lower()}?"
             )
 
-        blog_sections.append(
+blog_sections.append(
             {
                 "section_type": "faq",
                 "title": "Frequently Asked Questions",
@@ -686,23 +685,23 @@ class BlogPostTemplate(ContentTemplate):
             }
         )
 
-        outline["blog_specific_sections"] = blog_sections
+outline["blog_specific_sections"] = blog_sections
 
-        return outline
+            return outline
 
-    def generate_headline_variations(self, count: int = 5) -> List[str]:
+def generate_headline_variations(self, count: int = 5) -> List[str]:
         """
         Generate variations of the blog post headline.
 
-        Args:
+Args:
             count: Number of variations to generate
 
-        Returns:
+Returns:
             List of headline variations
         """
         variations = [self.title]  # Start with the original title
 
-        # Generate variations based on common blog headline patterns
+# Generate variations based on common blog headline patterns
         patterns = [
             f"How to {self.title}",
             f"{self.title}: A Complete Guide",
@@ -714,16 +713,16 @@ class BlogPostTemplate(ContentTemplate):
             f"{self.title} 101: Everything You Need to Know",
         ]
 
-        # Add variations until we reach the requested count
+# Add variations until we reach the requested count
         for pattern in patterns:
             if len(variations) < count:
                 variations.append(pattern)
             else:
                 break
 
-        return variations[:count]
+            return variations[:count]
 
-    def generate_blog_post(
+def generate_blog_post(
         self,
         topic: str = "",
         target_audience: str = "",
@@ -735,7 +734,7 @@ class BlogPostTemplate(ContentTemplate):
         """
         Generate a complete blog post.
 
-        Args:
+Args:
             topic: Topic of the blog post
             target_audience: Target audience for the blog post
             tone: Tone of the blog post
@@ -743,37 +742,37 @@ class BlogPostTemplate(ContentTemplate):
             word_count: Target word count for the blog post
             include_images: Whether to include images in the blog post
 
-        Returns:
+Returns:
             Dictionary with blog post content
         """
         # Update template properties if provided
         if topic:
             self.title = topic
 
-        if target_audience:
+if target_audience:
             self.target_persona["name"] = target_audience
 
-        if tone:
+if tone:
             self.tone = tone
 
-        if keywords is not None:
+if keywords is not None:
             self.seo_keywords = keywords
 
-        if word_count is not None:
+if word_count is not None:
             self.target_word_count = word_count
 
-        if include_images is not None:
+if include_images is not None:
             self.include_images = include_images
 
-        # Generate base content
+# Generate base content
         content = self.generate_content()
 
-        # Add blog-specific elements
+# Add blog-specific elements
         content["word_count"] = self.target_word_count
         content["reading_time"] = f"{self.target_word_count // 200} minutes"
         content["include_images"] = self.include_images
 
-        # Add SEO information
+# Add SEO information
         seo_info = self.get_blog_seo_recommendations()
         content["seo_info"] = {
             "keywords": self.seo_keywords or seo_info.get("secondary_keywords", []),
@@ -782,16 +781,16 @@ class BlogPostTemplate(ContentTemplate):
             "url_slug": f"/{'-'.join(self.title.lower().split()[:5])}/",
         }
 
-        # Add keywords to the main content
+# Add keywords to the main content
         content["keywords"] = self.seo_keywords or seo_info.get(
             "secondary_keywords", []
         )
 
-        # Add image recommendations if enabled
+# Add image recommendations if enabled
         if self.include_images:
             content["images"] = []
 
-            # Featured image
+# Featured image
             content["images"].append(
                 {
                     "type": "featured",
@@ -800,7 +799,7 @@ class BlogPostTemplate(ContentTemplate):
                 }
             )
 
-            # Section images
+# Section images
             for i, section in enumerate(content["sections"]):
                 if section["section_type"] == "body":
                     content["images"].append(
@@ -812,25 +811,25 @@ class BlogPostTemplate(ContentTemplate):
                         }
                     )
 
-        # Add headline variations
+# Add headline variations
         content["headline_variations"] = self.generate_headline_variations()
 
-        # Update timestamp
+# Update timestamp
         self.updated_at = datetime.now().isoformat()
 
-        return content
+            return content
 
-    def get_blog_seo_recommendations(self) -> Dict[str, Any]:
+def get_blog_seo_recommendations(self) -> Dict[str, Any]:
         """
         Get blog-specific SEO recommendations.
 
-        Returns:
+Returns:
             Dictionary with blog SEO recommendations
         """
         # Get base SEO recommendations
         base_recommendations = self.get_seo_recommendations()
 
-        # Add blog-specific recommendations
+# Add blog-specific recommendations
         blog_recommendations = {
             "headline_optimization": [
                 "Include primary keyword in headline",
@@ -853,10 +852,10 @@ class BlogPostTemplate(ContentTemplate):
             ],
         }
 
-        # Combine recommendations
+# Combine recommendations
         combined_recommendations = {**base_recommendations, **blog_recommendations}
 
-        return combined_recommendations
+            return combined_recommendations
 
 
 class SocialMediaTemplate(ContentTemplate):
@@ -864,7 +863,7 @@ class SocialMediaTemplate(ContentTemplate):
     Template for creating social media posts.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "",
         description: str = "",
@@ -881,7 +880,7 @@ class SocialMediaTemplate(ContentTemplate):
         """
         Initialize a social media post template.
 
-        Args:
+Args:
             name: Name of the template
             description: Description of the template
             title: Title or main topic of the social media post
@@ -903,7 +902,7 @@ class SocialMediaTemplate(ContentTemplate):
         self.hashtags = hashtags or []
         self.include_image = include_image
 
-        # Add default sections
+# Add default sections
         if not self.sections:
             self.add_section(
                 name="Caption",
@@ -913,7 +912,7 @@ class SocialMediaTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Hashtags",
                 description="Hashtags for the social media post",
                 content_type="text",
@@ -921,7 +920,7 @@ class SocialMediaTemplate(ContentTemplate):
                 required=False,
             )
 
-            if self.include_image:
+if self.include_image:
                 self.add_section(
                     name="Image Description",
                     description="Description of the image to use",
@@ -930,17 +929,17 @@ class SocialMediaTemplate(ContentTemplate):
                     required=True,
                 )
 
-    def generate_outline(self) -> Dict[str, Any]:
+def generate_outline(self) -> Dict[str, Any]:
         """
         Generate an outline for social media posts.
 
-        Returns:
+Returns:
             Dictionary with social media post details
         """
         # Create platform-specific post variations
         platform_posts = {}
 
-        for platform in self.platforms:
+for platform in self.platforms:
             if platform.lower() == "twitter" or platform.lower() == "x":
                 platform_posts["twitter"] = self._generate_twitter_post()
             elif platform.lower() == "linkedin":
@@ -950,7 +949,7 @@ class SocialMediaTemplate(ContentTemplate):
             elif platform.lower() == "instagram":
                 platform_posts["instagram"] = self._generate_instagram_post()
 
-        # Create a general outline
+# Create a general outline
         outline = {
             "id": self.id,
             "title": self.title,
@@ -964,7 +963,7 @@ class SocialMediaTemplate(ContentTemplate):
             "created_at": self.created_at,
         }
 
-        # Add image recommendations if enabled
+# Add image recommendations if enabled
         if self.include_image:
             image_recommendations = {
                 "description": f"Image related to {self.title}",
@@ -978,9 +977,9 @@ class SocialMediaTemplate(ContentTemplate):
             }
             outline["image_recommendations"] = image_recommendations
 
-        return outline
+            return outline
 
-    def generate_post(
+def generate_post(
         self,
         topic: str = "",
         target_audience: str = "",
@@ -993,7 +992,7 @@ class SocialMediaTemplate(ContentTemplate):
         """
         Generate a social media post for a specific platform.
 
-        Args:
+Args:
             topic: Topic of the post
             target_audience: Target audience for the post
             tone: Tone of the post
@@ -1002,23 +1001,23 @@ class SocialMediaTemplate(ContentTemplate):
             include_call_to_action: Whether to include a call to action
             platform: Optional platform to generate the post for (defaults to self.platform)
 
-        Returns:
+Returns:
             Dictionary with post content
         """
         # Update template properties if provided
         if topic:
             self.title = topic
 
-        if target_audience:
+if target_audience:
             self.target_persona["name"] = target_audience
 
-        if tone:
+if tone:
             self.tone = tone
 
-        # Use specified platform or default to the first platform
+# Use specified platform or default to the first platform
         platform = platform or self.platform
 
-        # Generate platform-specific post
+# Generate platform-specific post
         if platform.lower() == "twitter" or platform.lower() == "x":
             post = self._generate_twitter_post()
         elif platform.lower() == "linkedin":
@@ -1038,7 +1037,7 @@ class SocialMediaTemplate(ContentTemplate):
                 ),
             }
 
-        # Add common elements
+# Add common elements
         post["id"] = self.id
         post["template_id"] = self.id
         post["title"] = self.title
@@ -1048,13 +1047,13 @@ class SocialMediaTemplate(ContentTemplate):
         post["tone"] = self.tone
         post["created_at"] = self.created_at
 
-        # Add sections with content
+# Add sections with content
         post["sections"] = []
         for section in self.sections:
             # Create a copy of the section
             section_copy = section.copy()
 
-            # Add sample content if the section doesn't have any
+# Add sample content if the section doesn't have any
             if not section_copy.get("content"):
                 if section_copy.get("name") == "Caption":
                     section_copy["content"] = (
@@ -1073,9 +1072,9 @@ class SocialMediaTemplate(ContentTemplate):
                         f"Content about {section_copy.get('name', 'this topic')}."
                     )
 
-            post["sections"].append(section_copy)
+post["sections"].append(section_copy)
 
-        # Add image recommendation if enabled
+# Add image recommendation if enabled
         if self.include_image:
             post["image"] = {
                 "description": f"Image related to {self.title}",
@@ -1083,15 +1082,15 @@ class SocialMediaTemplate(ContentTemplate):
                 "recommended_size": self._get_image_size_for_platform(platform),
             }
 
-        # Add emojis if requested
+# Add emojis if requested
         if include_emoji:
             post["content"] = self._add_emojis_to_content(post["content"])
 
-        # Add call to action if requested
+# Add call to action if requested
         if include_call_to_action and not self.call_to_action:
             post["content"] += "\n\nClick the link in bio to learn more!"
 
-        # Update hashtags if requested
+# Update hashtags if requested
         post["include_hashtags"] = (
             include_hashtags if include_hashtags is not None else bool(self.hashtags)
         )
@@ -1102,26 +1101,26 @@ class SocialMediaTemplate(ContentTemplate):
             else bool(self.call_to_action)
         )
 
-        if include_hashtags is not None:
+if include_hashtags is not None:
             if include_hashtags and not self.hashtags:
                 self.hashtags = self.generate_hashtag_recommendations(5)
                 post["hashtags"] = self.hashtags
             elif not include_hashtags:
                 post["hashtags"] = []
 
-        # Update timestamp
+# Update timestamp
         self.updated_at = datetime.now().isoformat()
 
-        return post
+            return post
 
-    def _add_emojis_to_content(self, content: str) -> str:
+def _add_emojis_to_content(self, content: str) -> str:
         """
         Add emojis to content.
 
-        Args:
+Args:
             content: Content to add emojis to
 
-        Returns:
+Returns:
             Content with emojis
         """
         # Simple emoji mapping for common topics
@@ -1148,26 +1147,26 @@ class SocialMediaTemplate(ContentTemplate):
             "video": "🎬",
         }
 
-        # Add emoji to title
+# Add emoji to title
         for keyword, emoji in emoji_mapping.items():
             if keyword in self.title.lower() and not content.startswith(emoji):
                 content = f"{emoji} {content}"
                 break
 
-        # If no emoji was added, add a default one
+# If no emoji was added, add a default one
         if not any(emoji in content[:2] for emoji in emoji_mapping.values()):
             content = f"✨ {content}"
 
-        return content
+            return content
 
-    def _get_image_size_for_platform(self, platform: str) -> str:
+def _get_image_size_for_platform(self, platform: str) -> str:
         """
         Get the recommended image size for a platform.
 
-        Args:
+Args:
             platform: Social media platform
 
-        Returns:
+Returns:
             Recommended image size
         """
         platform_sizes = {
@@ -1178,27 +1177,27 @@ class SocialMediaTemplate(ContentTemplate):
             "instagram": "1080 x 1080 pixels (square) or 1080 x 1350 pixels (portrait)",
         }
 
-        return platform_sizes.get(platform.lower(), "1200 x 1200 pixels")
+            return platform_sizes.get(platform.lower(), "1200 x 1200 pixels")
 
-    def _generate_twitter_post(self) -> Dict[str, Any]:
+def _generate_twitter_post(self) -> Dict[str, Any]:
         """Generate a Twitter post."""
         # Create a short version of the post (max 280 characters)
         main_point = self.key_points[0] if self.key_points else self.title
 
-        # Format hashtags
+# Format hashtags
         hashtag_text = " ".join(
             [f"#{tag.replace(' ', '')}" for tag in self.hashtags[:3]]
         )
 
-        # Create call to action
+# Create call to action
         cta = f" {self.call_to_action}" if self.call_to_action else ""
 
-        # Combine elements, ensuring we don't exceed character limit
+# Combine elements, ensuring we don't exceed character limit
         post_text = f"{main_point}{cta}"
         if len(post_text + " " + hashtag_text) <= 280:
             post_text = f"{post_text} {hashtag_text}"
 
-        return {
+            return {
             "platform": "Twitter",
             "character_limit": 280,
             "content": post_text[:280],
@@ -1212,28 +1211,28 @@ class SocialMediaTemplate(ContentTemplate):
             ],
         }
 
-    def _generate_linkedin_post(self) -> Dict[str, Any]:
+def _generate_linkedin_post(self) -> Dict[str, Any]:
         """Generate a LinkedIn post."""
         # LinkedIn posts can be longer and more professional
         intro = f"📝 {self.title}\n\n"
 
-        # Add key points as bullet points
+# Add key points as bullet points
         body = ""
         for point in self.key_points[:3]:  # Limit to 3 key points
             body += f"• {point}\n"
 
-        # Add a space and the call to action
+# Add a space and the call to action
         cta = f"\n{self.call_to_action}" if self.call_to_action else ""
 
-        # Add hashtags at the end
+# Add hashtags at the end
         hashtag_text = "\n\n" + " ".join(
             [f"#{tag.replace(' ', '')}" for tag in self.hashtags[:5]]
         )
 
-        # Combine all elements
+# Combine all elements
         post_text = intro + body + cta + hashtag_text
 
-        return {
+            return {
             "platform": "LinkedIn",
             "character_limit": 3000,
             "content": post_text[:3000],
@@ -1248,30 +1247,30 @@ class SocialMediaTemplate(ContentTemplate):
             ],
         }
 
-    def _generate_facebook_post(self) -> Dict[str, Any]:
+def _generate_facebook_post(self) -> Dict[str, Any]:
         """Generate a Facebook post."""
         # Facebook posts can be conversational
         intro = f"💡 {self.title}\n\n"
 
-        # Add a brief description
+# Add a brief description
         body = f"I wanted to share some thoughts on {self.title.lower()}:\n\n"
 
-        # Add key points
+# Add key points
         for i, point in enumerate(self.key_points[:3]):
             body += f"{i+1}. {point}\n"
 
-        # Add call to action
+# Add call to action
         cta = f"\n{self.call_to_action}" if self.call_to_action else ""
 
-        # Add hashtags (fewer than Twitter/Instagram)
+# Add hashtags (fewer than Twitter/Instagram)
         hashtag_text = "\n\n" + " ".join(
             [f"#{tag.replace(' ', '')}" for tag in self.hashtags[:3]]
         )
 
-        # Combine all elements
+# Combine all elements
         post_text = intro + body + cta + hashtag_text
 
-        return {
+            return {
             "platform": "Facebook",
             "content": post_text,
             "post_text": post_text,  # For backward compatibility
@@ -1285,26 +1284,26 @@ class SocialMediaTemplate(ContentTemplate):
             ],
         }
 
-    def _generate_instagram_post(self) -> Dict[str, Any]:
+def _generate_instagram_post(self) -> Dict[str, Any]:
         """Generate an Instagram post caption."""
         # Instagram captions focus on the image with supporting text
         intro = f"✨ {self.title}\n\n"
 
-        # Add a brief, engaging description
+# Add a brief, engaging description
         body = f"{self.key_points[0] if self.key_points else ''}\n\n"
 
-        # Add call to action
+# Add call to action
         cta = f"{self.call_to_action}\n\n" if self.call_to_action else ""
 
-        # Add hashtags (Instagram can have more hashtags)
+# Add hashtags (Instagram can have more hashtags)
         hashtag_text = ".\n.\n.\n" + " ".join(
             [f"#{tag.replace(' ', '')}" for tag in self.hashtags]
         )
 
-        # Combine all elements
+# Combine all elements
         post_text = intro + body + cta + hashtag_text
 
-        return {
+            return {
             "platform": "instagram",
             "content": post_text,
             "post_text": post_text,  # For backward compatibility
@@ -1319,20 +1318,20 @@ class SocialMediaTemplate(ContentTemplate):
             ],
         }
 
-    def generate_hashtag_recommendations(self, count: int = 10) -> List[str]:
+def generate_hashtag_recommendations(self, count: int = 10) -> List[str]:
         """
         Generate hashtag recommendations based on the content.
 
-        Args:
+Args:
             count: Number of hashtags to recommend
 
-        Returns:
+Returns:
             List of recommended hashtags
         """
         # Start with any existing hashtags
         recommendations = list(self.hashtags)
 
-        # Add hashtags based on the title
+# Add hashtags based on the title
         title_words = self.title.lower().split()
         for word in title_words:
             if len(word) > 3 and word not in [
@@ -1347,7 +1346,7 @@ class SocialMediaTemplate(ContentTemplate):
             ]:
                 recommendations.append(word)
 
-        # Add hashtags based on key points
+# Add hashtags based on key points
         for point in self.key_points:
             point_words = point.lower().split()
             potential_tag = "".join([word.capitalize() for word in point_words[:3]])
@@ -1356,10 +1355,10 @@ class SocialMediaTemplate(ContentTemplate):
             ):  # Avoid excessively long hashtags
                 recommendations.append(potential_tag)
 
-        # Add hashtags based on target persona
+# Add hashtags based on target persona
         recommendations.append(self.target_persona["name"].replace(" ", ""))
 
-        # Add industry-standard hashtags
+# Add industry-standard hashtags
         industry_hashtags = [
             "ContentCreation",
             "DigitalMarketing",
@@ -1373,9 +1372,9 @@ class SocialMediaTemplate(ContentTemplate):
             "Innovation",
         ]
 
-        # Combine all hashtags, remove duplicates, and limit to requested count
+# Combine all hashtags, remove duplicates, and limit to requested count
         all_hashtags = list(set(recommendations + industry_hashtags))
-        return all_hashtags[:count]
+                    return all_hashtags[:count]
 
 
 class EmailNewsletterTemplate(ContentTemplate):
@@ -1383,7 +1382,7 @@ class EmailNewsletterTemplate(ContentTemplate):
     Template for creating email newsletter content.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "",
         description: str = "",
@@ -1401,7 +1400,7 @@ class EmailNewsletterTemplate(ContentTemplate):
         """
         Initialize an email newsletter template.
 
-        Args:
+Args:
             name: Name of the template
             description: Description of the template
             title: Title of the email newsletter
@@ -1425,7 +1424,7 @@ class EmailNewsletterTemplate(ContentTemplate):
         self.sender_name = sender_name
         self.sender_email = sender_email
 
-        # Add default sections
+# Add default sections
         if not self.sections:
             self.add_section(
                 name="Subject Line",
@@ -1435,7 +1434,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Preheader",
                 description="The preheader text that appears in email clients",
                 content_type="text",
@@ -1443,7 +1442,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Greeting",
                 description="The greeting for the recipient",
                 content_type="text",
@@ -1451,7 +1450,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Introduction",
                 description="The introduction of the email",
                 content_type="text",
@@ -1459,7 +1458,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Main Content",
                 description="The main content of the email",
                 content_type="text",
@@ -1467,7 +1466,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 required=True,
             )
 
-            self.add_section(
+self.add_section(
                 name="Call to Action",
                 description="The call to action for the email",
                 content_type="text",
@@ -1475,7 +1474,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 required=False,
             )
 
-            self.add_section(
+self.add_section(
                 name="Footer",
                 description="The footer of the email",
                 content_type="text",
@@ -1483,17 +1482,17 @@ class EmailNewsletterTemplate(ContentTemplate):
                 required=True,
             )
 
-    def generate_outline(self) -> Dict[str, Any]:
+def generate_outline(self) -> Dict[str, Any]:
         """
         Generate an outline for the email newsletter.
 
-        Returns:
+Returns:
             Dictionary with email newsletter outline details
         """
         # Create sections based on newsletter type
         sections = []
 
-        # Add header section
+# Add header section
         sections.append(
             {
                 "section_type": "header",
@@ -1504,7 +1503,7 @@ class EmailNewsletterTemplate(ContentTemplate):
             }
         )
 
-        # Add greeting section
+# Add greeting section
         sections.append(
             {
                 "section_type": "greeting",
@@ -1514,7 +1513,7 @@ class EmailNewsletterTemplate(ContentTemplate):
             }
         )
 
-        # Add introduction section
+# Add introduction section
         sections.append(
             {
                 "section_type": "introduction",
@@ -1524,7 +1523,7 @@ class EmailNewsletterTemplate(ContentTemplate):
             }
         )
 
-        # Add main content sections based on newsletter type
+# Add main content sections based on newsletter type
         if self.newsletter_type == "general":
             # Add a section for each key point
             for i, point in enumerate(self.key_points):
@@ -1537,7 +1536,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                     }
                 )
 
-        elif self.newsletter_type == "promotional":
+elif self.newsletter_type == "promotional":
             # Add product/service highlight section
             sections.append(
                 {
@@ -1548,7 +1547,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 }
             )
 
-            # Add benefits section
+# Add benefits section
             sections.append(
                 {
                     "section_type": "benefits",
@@ -1559,7 +1558,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 }
             )
 
-            # Add pricing section
+# Add pricing section
             sections.append(
                 {
                     "section_type": "pricing",
@@ -1569,7 +1568,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 }
             )
 
-        elif self.newsletter_type == "educational":
+elif self.newsletter_type == "educational":
             # Add educational content sections
             sections.append(
                 {
@@ -1586,7 +1585,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 }
             )
 
-            # Add resources section
+# Add resources section
             sections.append(
                 {
                     "section_type": "resources",
@@ -1596,7 +1595,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 }
             )
 
-        # Add call-to-action section
+# Add call-to-action section
         if self.call_to_action:
             sections.append(
                 {
@@ -1609,7 +1608,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 }
             )
 
-        # Add footer section
+# Add footer section
         sections.append(
             {
                 "section_type": "footer",
@@ -1621,7 +1620,7 @@ class EmailNewsletterTemplate(ContentTemplate):
             }
         )
 
-        # Create the outline
+# Create the outline
         outline = {
             "id": self.id,
             "title": self.title,
@@ -1636,11 +1635,11 @@ class EmailNewsletterTemplate(ContentTemplate):
             "created_at": self.created_at,
         }
 
-        # Add image recommendations if enabled
+# Add image recommendations if enabled
         if self.include_images:
             image_recommendations = []
 
-            # Header image
+# Header image
             image_recommendations.append(
                 {
                     "description": "Header image or logo",
@@ -1650,7 +1649,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 }
             )
 
-            # Main content image
+# Main content image
             image_recommendations.append(
                 {
                     "description": f"Main image related to {self.title}",
@@ -1660,7 +1659,7 @@ class EmailNewsletterTemplate(ContentTemplate):
                 }
             )
 
-            # Add image for call to action if present
+# Add image for call to action if present
             if self.call_to_action:
                 image_recommendations.append(
                     {
@@ -1671,23 +1670,23 @@ class EmailNewsletterTemplate(ContentTemplate):
                     }
                 )
 
-            outline["image_recommendations"] = image_recommendations
+outline["image_recommendations"] = image_recommendations
 
-        return outline
+            return outline
 
-    def generate_subject_line_variations(self, count: int = 5) -> List[str]:
+def generate_subject_line_variations(self, count: int = 5) -> List[str]:
         """
         Generate variations of the email subject line.
 
-        Args:
+Args:
             count: Number of variations to generate
 
-        Returns:
+Returns:
             List of subject line variations
         """
         variations = [self.subject_line]  # Start with the original subject line
 
-        # Generate variations based on common email subject line patterns
+# Generate variations based on common email subject line patterns
         patterns = [
             f"[Newsletter] {self.title}",
             f"{self.target_persona['name']}'s Guide to {self.title}",
@@ -1699,16 +1698,16 @@ class EmailNewsletterTemplate(ContentTemplate):
             f"🔥 {self.title}: What You Need to Know",
         ]
 
-        # Add variations until we reach the requested count
+# Add variations until we reach the requested count
         for pattern in patterns:
             if len(variations) < count:
                 variations.append(pattern)
             else:
                 break
 
-        return variations[:count]
+            return variations[:count]
 
-    def generate_newsletter(
+def generate_newsletter(
         self,
         topic: str = "",
         target_audience: str = "",
@@ -1720,7 +1719,7 @@ class EmailNewsletterTemplate(ContentTemplate):
         """
         Generate a complete email newsletter.
 
-        Args:
+Args:
             topic: Topic of the newsletter
             target_audience: Target audience for the newsletter
             tone: Tone of the newsletter
@@ -1728,7 +1727,7 @@ class EmailNewsletterTemplate(ContentTemplate):
             include_personalization: Whether to include personalization
             include_call_to_action: Whether to include a call to action
 
-        Returns:
+Returns:
             Dictionary with newsletter content
         """
         # Update template properties if provided
@@ -1736,22 +1735,22 @@ class EmailNewsletterTemplate(ContentTemplate):
             self.title = topic
             self.subject_line = topic
 
-        if target_audience:
+if target_audience:
             self.target_persona["name"] = target_audience
 
-        if tone:
+if tone:
             self.tone = tone
 
-        if include_images is not None:
+if include_images is not None:
             self.include_images = include_images
 
-        if include_call_to_action and not self.call_to_action:
+if include_call_to_action and not self.call_to_action:
             self.call_to_action = "Click here to learn more"
 
-        # Generate base content
+# Generate base content
         outline = self.generate_outline()
 
-        # Create the newsletter content
+# Create the newsletter content
         newsletter = {
             "id": self.id,
             "template_id": self.id,
@@ -1785,13 +1784,13 @@ class EmailNewsletterTemplate(ContentTemplate):
             ),
         }
 
-        # Add sections with content
+# Add sections with content
         newsletter["sections"] = []
         for section in self.sections:
             # Create a copy of the section
             section_copy = section.copy()
 
-            # Add sample content if the section doesn't have any
+# Add sample content if the section doesn't have any
             if not section_copy.get("content"):
                 if section_copy.get("name") == "Subject Line":
                     section_copy["content"] = (
@@ -1824,13 +1823,13 @@ class EmailNewsletterTemplate(ContentTemplate):
                         f"Content about {section_copy.get('name', 'this topic')}."
                     )
 
-            newsletter["sections"].append(section_copy)
+newsletter["sections"].append(section_copy)
 
-        # Add image recommendations if enabled
+# Add image recommendations if enabled
         if self.include_images and "image_recommendations" in outline:
             newsletter["images"] = outline["image_recommendations"]
 
-        # Add personalization if requested
+# Add personalization if requested
         if include_personalization:
             newsletter["personalization"] = {
                 "merge_tags": [
@@ -1862,13 +1861,13 @@ class EmailNewsletterTemplate(ContentTemplate):
                 ],
             }
 
-        # Add best practices
+# Add best practices
         newsletter["best_practices"] = self.get_email_best_practices()
 
-        # Add preview text
+# Add preview text
         newsletter["preview_text"] = f"Check out our latest insights on {self.title}"
 
-        # Add email metrics to track
+# Add email metrics to track
         newsletter["recommended_metrics"] = [
             "open_rate",
             "click_through_rate",
@@ -1877,16 +1876,16 @@ class EmailNewsletterTemplate(ContentTemplate):
             "unsubscribe_rate",
         ]
 
-        # Update timestamp
+# Update timestamp
         self.updated_at = datetime.now().isoformat()
 
-        return newsletter
+            return newsletter
 
-    def get_email_best_practices(self) -> Dict[str, List[str]]:
+def get_email_best_practices(self) -> Dict[str, List[str]]:
         """
         Get best practices for email newsletters.
 
-        Returns:
+Returns:
             Dictionary with email best practices
         """
         best_practices = {
@@ -1925,7 +1924,7 @@ class EmailNewsletterTemplate(ContentTemplate):
             ],
         }
 
-        return best_practices
+            return best_practices
 
 
 class VideoScriptTemplate(ContentTemplate):
@@ -1933,7 +1932,7 @@ class VideoScriptTemplate(ContentTemplate):
     Template for creating video script content.
     """
 
-    def __init__(
+def __init__(
         self,
         title: str,
         target_persona: Dict[str, Any],
@@ -1947,7 +1946,7 @@ class VideoScriptTemplate(ContentTemplate):
         """
         Initialize a video script template.
 
-        Args:
+Args:
             title: Title of the video
             target_persona: The target user persona for this video
             key_points: List of key points to cover in the video
@@ -1963,26 +1962,26 @@ class VideoScriptTemplate(ContentTemplate):
         self.video_type = video_type
         self.include_b_roll = include_b_roll
 
-        # Calculate approximate word count based on video length
+# Calculate approximate word count based on video length
         # Average speaking rate is about 150 words per minute
         self.target_word_count = video_length * 150
 
-    def generate_outline(self) -> Dict[str, Any]:
+def generate_outline(self) -> Dict[str, Any]:
         """
         Generate an outline for the video script.
 
-        Returns:
+Returns:
             Dictionary with video script outline details
         """
         # Create script sections
         script_sections = []
 
-        # Calculate approximate time per section
+# Calculate approximate time per section
         # Reserve 15% for intro and outro
         main_content_time = self.video_length * 0.85
         time_per_point = main_content_time / max(len(self.key_points), 1)
 
-        # Add intro section
+# Add intro section
         script_sections.append(
             {
                 "section_type": "intro",
@@ -1996,13 +1995,13 @@ class VideoScriptTemplate(ContentTemplate):
             }
         )
 
-        # Add main content sections
+# Add main content sections
         for i, point in enumerate(self.key_points):
             b_roll = ""
             if self.include_b_roll:
                 b_roll = f"\n\n[B-ROLL: Footage showing {point}]"
 
-            script_sections.append(
+script_sections.append(
                 {
                     "section_type": "main_content",
                     "title": f"Section {i+1}: {point}",
@@ -2019,7 +2018,7 @@ class VideoScriptTemplate(ContentTemplate):
                 }
             )
 
-        # Add outro section with call to action
+# Add outro section with call to action
         outro_script = (
             f"[HOST ON CAMERA]\n\nThanks for watching this video about {self.title}. "
         )
@@ -2027,7 +2026,7 @@ class VideoScriptTemplate(ContentTemplate):
             outro_script += f"Don't forget to {self.call_to_action}. "
         outro_script += "If you found this helpful, please like and subscribe for more content like this."
 
-        script_sections.append(
+script_sections.append(
             {
                 "section_type": "outro",
                 "title": "Conclusion",
@@ -2038,7 +2037,7 @@ class VideoScriptTemplate(ContentTemplate):
             }
         )
 
-        # Create the outline
+# Create the outline
         outline = {
             "id": self.id,
             "title": self.title,
@@ -2052,11 +2051,11 @@ class VideoScriptTemplate(ContentTemplate):
             "created_at": self.created_at,
         }
 
-        # Add B-roll recommendations if enabled
+# Add B-roll recommendations if enabled
         if self.include_b_roll:
             b_roll_recommendations = []
 
-            # Add intro B-roll
+# Add intro B-roll
             b_roll_recommendations.append(
                 {
                     "description": f"Opening shots related to {self.title}",
@@ -2066,7 +2065,7 @@ class VideoScriptTemplate(ContentTemplate):
                 }
             )
 
-            # Add B-roll for each key point
+# Add B-roll for each key point
             for i, point in enumerate(self.key_points):
                 b_roll_recommendations.append(
                     {
@@ -2077,7 +2076,7 @@ class VideoScriptTemplate(ContentTemplate):
                     }
                 )
 
-            # Add transition B-roll
+# Add transition B-roll
             if len(self.key_points) > 1:
                 b_roll_recommendations.append(
                     {
@@ -2088,48 +2087,48 @@ class VideoScriptTemplate(ContentTemplate):
                     }
                 )
 
-            outline["b_roll_recommendations"] = b_roll_recommendations
+outline["b_roll_recommendations"] = b_roll_recommendations
 
-        return outline
+            return outline
 
-    def generate_script_with_timing(self) -> Dict[str, Any]:
+def generate_script_with_timing(self) -> Dict[str, Any]:
         """
         Generate a detailed script with timing information.
 
-        Returns:
+Returns:
             Dictionary with detailed script information
         """
         # Get the basic outline first
         outline = self.generate_outline()
         script_sections = outline["script_sections"]
 
-        # Calculate cumulative timing
+# Calculate cumulative timing
         current_time = 0
         for section in script_sections:
             # Convert duration from "X seconds" to integer seconds
             duration_seconds = int(section["duration"].split()[0])
 
-            # Add timing information
+# Add timing information
             section["start_time"] = self._format_timestamp(current_time)
             current_time += duration_seconds
             section["end_time"] = self._format_timestamp(current_time)
 
-        # Add total duration
+# Add total duration
         outline["total_duration"] = self._format_timestamp(current_time)
 
-        return outline
+            return outline
 
-    def _format_timestamp(self, seconds: int) -> str:
+def _format_timestamp(self, seconds: int) -> str:
         """Format seconds as MM:SS."""
         minutes = seconds // 60
         remaining_seconds = seconds % 60
-        return f"{minutes:02d}:{remaining_seconds:02d}"
+                    return f"{minutes:02d}:{remaining_seconds:02d}"
 
-    def get_video_best_practices(self) -> Dict[str, List[str]]:
+def get_video_best_practices(self) -> Dict[str, List[str]]:
         """
         Get best practices for video creation.
 
-        Returns:
+Returns:
             Dictionary with video best practices
         """
         best_practices = {
@@ -2179,7 +2178,7 @@ class VideoScriptTemplate(ContentTemplate):
             },
         }
 
-        return best_practices
+            return best_practices
 
 
 class LandingPageTemplate(ContentTemplate):
@@ -2187,7 +2186,7 @@ class LandingPageTemplate(ContentTemplate):
     Template for creating landing page content.
     """
 
-    def __init__(
+def __init__(
         self,
         title: str,
         target_persona: Dict[str, Any],
@@ -2202,7 +2201,7 @@ class LandingPageTemplate(ContentTemplate):
         """
         Initialize a landing page template.
 
-        Args:
+Args:
             title: Title of the landing page
             target_persona: The target user persona for this landing page
             key_points: List of key points to cover (benefits)
@@ -2223,17 +2222,17 @@ class LandingPageTemplate(ContentTemplate):
         self.testimonials = testimonials or []
         self.include_faq = include_faq
 
-    def generate_outline(self) -> Dict[str, Any]:
+def generate_outline(self) -> Dict[str, Any]:
         """
         Generate an outline for the landing page.
 
-        Returns:
+Returns:
             Dictionary with landing page outline details
         """
         # Create sections for the landing page
         sections = []
 
-        # Add hero section
+# Add hero section
         sections.append(
             {
                 "section_type": "hero",
@@ -2248,7 +2247,7 @@ class LandingPageTemplate(ContentTemplate):
             }
         )
 
-        # Add problem section
+# Add problem section
         sections.append(
             {
                 "section_type": "problem",
@@ -2263,7 +2262,7 @@ class LandingPageTemplate(ContentTemplate):
             }
         )
 
-        # Add solution section
+# Add solution section
         sections.append(
             {
                 "section_type": "solution",
@@ -2279,7 +2278,7 @@ class LandingPageTemplate(ContentTemplate):
             }
         )
 
-        # Add benefits section
+# Add benefits section
         benefit_items = []
         for point in self.key_points:
             benefit_items.append(
@@ -2290,7 +2289,7 @@ class LandingPageTemplate(ContentTemplate):
                 }
             )
 
-        sections.append(
+sections.append(
             {
                 "section_type": "benefits",
                 "title": "Benefits Section",
@@ -2299,7 +2298,7 @@ class LandingPageTemplate(ContentTemplate):
             }
         )
 
-        # Add features section if features are provided
+# Add features section if features are provided
         if self.features:
             sections.append(
                 {
@@ -2313,7 +2312,7 @@ class LandingPageTemplate(ContentTemplate):
                 }
             )
 
-        # Add testimonials section if testimonials are provided
+# Add testimonials section if testimonials are provided
         if self.testimonials:
             sections.append(
                 {
@@ -2327,11 +2326,11 @@ class LandingPageTemplate(ContentTemplate):
                 }
             )
 
-        # Add FAQ section if enabled
+# Add FAQ section if enabled
         if self.include_faq:
             faq_items = []
 
-            # Generate FAQs based on key points and persona
+# Generate FAQs based on key points and persona
             faq_items.append(
                 {
                     "question": f"How does {self.title} work?",
@@ -2339,14 +2338,14 @@ class LandingPageTemplate(ContentTemplate):
                 }
             )
 
-            faq_items.append(
+faq_items.append(
                 {
                     "question": f"How much does {self.title} cost?",
                     "answer": "We offer flexible pricing options to suit different needs. Contact us for a personalized quote.",
                 }
             )
 
-            for point in self.key_points[:2]:  # Limit to first 2 key points
+for point in self.key_points[:2]:  # Limit to first 2 key points
                 faq_items.append(
                     {
                         "question": f"How does {self.title} help with {point.lower()}?",
@@ -2354,14 +2353,14 @@ class LandingPageTemplate(ContentTemplate):
                     }
                 )
 
-            faq_items.append(
+faq_items.append(
                 {
                     "question": "How long does it take to get started?",
                     "answer": "You can get started in just a few minutes. Our onboarding process is designed to be quick and hassle-free.",
                 }
             )
 
-            sections.append(
+sections.append(
                 {
                     "section_type": "faq",
                     "title": "FAQ Section",
@@ -2373,7 +2372,7 @@ class LandingPageTemplate(ContentTemplate):
                 }
             )
 
-        # Add CTA section
+# Add CTA section
         sections.append(
             {
                 "section_type": "cta",
@@ -2388,7 +2387,7 @@ class LandingPageTemplate(ContentTemplate):
             }
         )
 
-        # Create the outline
+# Create the outline
         outline = {
             "id": self.id,
             "title": self.title,
@@ -2401,13 +2400,13 @@ class LandingPageTemplate(ContentTemplate):
             "created_at": self.created_at,
         }
 
-        return outline
+            return outline
 
-    def get_landing_page_best_practices(self) -> Dict[str, List[str]]:
+def get_landing_page_best_practices(self) -> Dict[str, List[str]]:
         """
         Get best practices for landing pages.
 
-        Returns:
+Returns:
             Dictionary with landing page best practices
         """
         best_practices = {
@@ -2451,21 +2450,21 @@ class LandingPageTemplate(ContentTemplate):
             ],
         }
 
-        return best_practices
+            return best_practices
 
-    def generate_headline_variations(self, count: int = 5) -> List[str]:
+def generate_headline_variations(self, count: int = 5) -> List[str]:
         """
         Generate variations of the landing page headline.
 
-        Args:
+Args:
             count: Number of variations to generate
 
-        Returns:
+Returns:
             List of headline variations
         """
         variations = [self.title]  # Start with the original title
 
-        # Generate variations based on common landing page headline patterns
+# Generate variations based on common landing page headline patterns
         patterns = [
             f"Introducing {self.title}: The Ultimate Solution for {self.target_persona['name']}s",
             f"How {self.target_persona['name']}s Are {self.target_persona['goals'][0] if self.target_persona['goals'] else 'Achieving Success'} With {self.title}",
@@ -2476,14 +2475,14 @@ class LandingPageTemplate(ContentTemplate):
             f"Unlock Your {self.target_persona['goals'][0] if self.target_persona['goals'] else 'Potential'} with {self.title}",
         ]
 
-        # Add variations until we reach the requested count
+# Add variations until we reach the requested count
         for pattern in patterns:
             if len(variations) < count:
                 variations.append(pattern)
             else:
                 break
 
-        return variations[:count]
+            return variations[:count]
 
 
 class ProductDescriptionTemplate(ContentTemplate):
@@ -2491,7 +2490,7 @@ class ProductDescriptionTemplate(ContentTemplate):
     Template for creating product description content.
     """
 
-    def __init__(
+def __init__(
         self,
         title: str,
         target_persona: Dict[str, Any],
@@ -2506,7 +2505,7 @@ class ProductDescriptionTemplate(ContentTemplate):
         """
         Initialize a product description template.
 
-        Args:
+Args:
             title: Title/name of the product
             target_persona: The target user persona for this product
             key_points: List of key points to cover (benefits)
@@ -2524,17 +2523,17 @@ class ProductDescriptionTemplate(ContentTemplate):
         self.product_type = product_type
         self.include_pricing = include_pricing
 
-    def generate_outline(self) -> Dict[str, Any]:
+def generate_outline(self) -> Dict[str, Any]:
         """
         Generate an outline for the product description.
 
-        Returns:
+Returns:
             Dictionary with product description outline details
         """
         # Create sections for the product description
         sections = []
 
-        # Add product overview section
+# Add product overview section
         sections.append(
             {
                 "section_type": "overview",
@@ -2546,7 +2545,7 @@ class ProductDescriptionTemplate(ContentTemplate):
             }
         )
 
-        # Add key benefits section
+# Add key benefits section
         benefit_items = []
         for point in self.key_points:
             benefit_items.append(
@@ -2556,7 +2555,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 }
             )
 
-        sections.append(
+sections.append(
             {
                 "section_type": "benefits",
                 "title": "Key Benefits",
@@ -2571,13 +2570,13 @@ class ProductDescriptionTemplate(ContentTemplate):
             }
         )
 
-        # Add features section if features are provided
+# Add features section if features are provided
         if self.product_features:
             feature_content = "## Features\n\n"
             for feature in self.product_features:
                 feature_content += f"- **{feature.get('name', 'Feature')}**: {feature.get('description', 'Description')}\n"
 
-            sections.append(
+sections.append(
                 {
                     "section_type": "features",
                     "title": "Features",
@@ -2586,13 +2585,13 @@ class ProductDescriptionTemplate(ContentTemplate):
                 }
             )
 
-        # Add specifications section if specs are provided
+# Add specifications section if specs are provided
         if self.product_specs:
             spec_content = "## Specifications\n\n"
             for key, value in self.product_specs.items():
                 spec_content += f"- **{key}**: {value}\n"
 
-            sections.append(
+sections.append(
                 {
                     "section_type": "specifications",
                     "title": "Specifications",
@@ -2601,14 +2600,14 @@ class ProductDescriptionTemplate(ContentTemplate):
                 }
             )
 
-        # Add use cases section
+# Add use cases section
         use_cases = []
         for i, goal in enumerate(self.target_persona.get("goals", [])[:3]):
             use_cases.append(
                 f"- **Use Case {i+1}**: How {self.title} helps {self.target_persona['name']}s {goal.lower()}"
             )
 
-        if use_cases:
+if use_cases:
             sections.append(
                 {
                     "section_type": "use_cases",
@@ -2618,7 +2617,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 }
             )
 
-        # Add pricing section if enabled
+# Add pricing section if enabled
         if self.include_pricing:
             sections.append(
                 {
@@ -2629,7 +2628,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 }
             )
 
-        # Add call to action section
+# Add call to action section
         if self.call_to_action:
             sections.append(
                 {
@@ -2640,7 +2639,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 }
             )
 
-        # Create the outline
+# Create the outline
         outline = {
             "id": self.id,
             "title": self.title,
@@ -2652,13 +2651,13 @@ class ProductDescriptionTemplate(ContentTemplate):
             "created_at": self.created_at,
         }
 
-        return outline
+            return outline
 
-    def get_product_description_best_practices(self) -> Dict[str, List[str]]:
+def get_product_description_best_practices(self) -> Dict[str, List[str]]:
         """
         Get best practices for product descriptions.
 
-        Returns:
+Returns:
             Dictionary with product description best practices
         """
         best_practices = {
@@ -2692,7 +2691,7 @@ class ProductDescriptionTemplate(ContentTemplate):
             ],
         }
 
-        # Add product type specific best practices
+# Add product type specific best practices
         if self.product_type == "software":
             best_practices["software_specific"] = [
                 "Highlight compatibility with different systems",
@@ -2718,7 +2717,7 @@ class ProductDescriptionTemplate(ContentTemplate):
                 "Include information about support and follow-up",
             ]
 
-        return best_practices
+            return best_practices
 
 
 class CaseStudyTemplate(ContentTemplate):
@@ -2726,7 +2725,7 @@ class CaseStudyTemplate(ContentTemplate):
     Template for creating case study content.
     """
 
-    def __init__(
+def __init__(
         self,
         title: str,
         target_persona: Dict[str, Any],
@@ -2743,7 +2742,7 @@ class CaseStudyTemplate(ContentTemplate):
         """
         Initialize a case study template.
 
-        Args:
+Args:
             title: Title of the case study
             target_persona: The target user persona for this case study
             key_points: List of key points to cover
@@ -2772,17 +2771,17 @@ class CaseStudyTemplate(ContentTemplate):
         ]
         self.include_testimonial = include_testimonial
 
-    def generate_outline(self) -> Dict[str, Any]:
+def generate_outline(self) -> Dict[str, Any]:
         """
         Generate an outline for the case study.
 
-        Returns:
+Returns:
             Dictionary with case study outline details
         """
         # Create sections for the case study
         sections = []
 
-        # Add executive summary section
+# Add executive summary section
         sections.append(
             {
                 "section_type": "executive_summary",
@@ -2795,7 +2794,7 @@ class CaseStudyTemplate(ContentTemplate):
             }
         )
 
-        # Add client background section
+# Add client background section
         sections.append(
             {
                 "section_type": "client_background",
@@ -2807,7 +2806,7 @@ class CaseStudyTemplate(ContentTemplate):
             }
         )
 
-        # Add challenge section
+# Add challenge section
         sections.append(
             {
                 "section_type": "challenge",
@@ -2826,7 +2825,7 @@ class CaseStudyTemplate(ContentTemplate):
             }
         )
 
-        # Add solution section
+# Add solution section
         sections.append(
             {
                 "section_type": "solution",
@@ -2838,7 +2837,7 @@ class CaseStudyTemplate(ContentTemplate):
             }
         )
 
-        # Add implementation section
+# Add implementation section
         sections.append(
             {
                 "section_type": "implementation",
@@ -2854,12 +2853,12 @@ class CaseStudyTemplate(ContentTemplate):
             }
         )
 
-        # Add results section
+# Add results section
         results_content = f"## Results\n\nAfter implementing {self.title}, {self.client_name} achieved the following results:\n\n"
         for result in self.results:
             results_content += f"- {result}\n"
 
-        sections.append(
+sections.append(
             {
                 "section_type": "results",
                 "title": "Results",
@@ -2868,7 +2867,7 @@ class CaseStudyTemplate(ContentTemplate):
             }
         )
 
-        # Add testimonial section if enabled
+# Add testimonial section if enabled
         if self.include_testimonial:
             sections.append(
                 {
@@ -2884,16 +2883,16 @@ class CaseStudyTemplate(ContentTemplate):
                 }
             )
 
-        # Add conclusion section with call to action
+# Add conclusion section with call to action
         conclusion_content = "## Conclusion\n\n"
         conclusion_content += f"This case study demonstrates how {self.title} can help {self.target_persona['name']}s "
         conclusion_content += f"overcome {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'challenges'} "
         conclusion_content += f"and achieve {self.target_persona['goals'][0] if self.target_persona['goals'] else 'their goals'}. "
 
-        if self.call_to_action:
+if self.call_to_action:
             conclusion_content += f"\n\n{self.call_to_action}"
 
-        sections.append(
+sections.append(
             {
                 "section_type": "conclusion",
                 "title": "Conclusion",
@@ -2902,7 +2901,7 @@ class CaseStudyTemplate(ContentTemplate):
             }
         )
 
-        # Create the outline
+# Create the outline
         outline = {
             "id": self.id,
             "title": self.title,
@@ -2915,13 +2914,13 @@ class CaseStudyTemplate(ContentTemplate):
             "created_at": self.created_at,
         }
 
-        return outline
+            return outline
 
-    def get_case_study_best_practices(self) -> Dict[str, List[str]]:
+def get_case_study_best_practices(self) -> Dict[str, List[str]]:
         """
         Get best practices for case studies.
 
-        Returns:
+Returns:
             Dictionary with case study best practices
         """
         best_practices = {
@@ -2962,21 +2961,21 @@ class CaseStudyTemplate(ContentTemplate):
             ],
         }
 
-        return best_practices
+            return best_practices
 
-    def generate_title_variations(self, count: int = 5) -> List[str]:
+def generate_title_variations(self, count: int = 5) -> List[str]:
         """
         Generate variations of the case study title.
 
-        Args:
+Args:
             count: Number of variations to generate
 
-        Returns:
+Returns:
             List of title variations
         """
         variations = [self.title]  # Start with the original title
 
-        # Generate variations based on common case study title patterns
+# Generate variations based on common case study title patterns
         patterns = [
             f"How {self.client_name} {self.target_persona['goals'][0] if self.target_persona['goals'] else 'Achieved Success'} with {self.title}",
             f"Case Study: {self.client_name} Overcomes {self.target_persona['pain_points'][0] if self.target_persona['pain_points'] else 'Challenges'} with {self.title}",
@@ -2987,14 +2986,14 @@ class CaseStudyTemplate(ContentTemplate):
             f"{self.client_name} Increases {self.target_persona['goals'][0] if self.target_persona['goals'] else 'Efficiency'} with {self.title}",
         ]
 
-        # Add variations until we reach the requested count
+# Add variations until we reach the requested count
         for pattern in patterns:
             if len(variations) < count:
                 variations.append(pattern)
             else:
                 break
 
-        return variations[:count]
+            return variations[:count]
 
 
 class TestimonialTemplate(ContentTemplate):
@@ -3002,7 +3001,7 @@ class TestimonialTemplate(ContentTemplate):
     Template for creating testimonial content.
     """
 
-    def __init__(
+def __init__(
         self,
         title: str,
         target_persona: Dict[str, Any],
@@ -3018,7 +3017,7 @@ class TestimonialTemplate(ContentTemplate):
         """
         Initialize a testimonial template.
 
-        Args:
+Args:
             title: Title/subject of the testimonial
             target_persona: The target user persona for this testimonial
             key_points: List of key points to cover in the testimonial
@@ -3038,24 +3037,24 @@ class TestimonialTemplate(ContentTemplate):
         self.testimonial_type = testimonial_type
         self.include_headshot = include_headshot
 
-    def generate_outline(self) -> Dict[str, Any]:
+def generate_outline(self) -> Dict[str, Any]:
         """
         Generate an outline for the testimonial.
 
-        Returns:
+Returns:
             Dictionary with testimonial outline details
         """
         # Create the testimonial content
         testimonial_content = self._generate_testimonial_content()
 
-        # Create the client attribution
+# Create the client attribution
         attribution = f"{self.client_name}"
         if self.client_title:
             attribution += f", {self.client_title}"
         if self.client_company:
             attribution += f", {self.client_company}"
 
-        # Create the outline
+# Create the outline
         outline = {
             "id": self.id,
             "title": self.title,
@@ -3072,7 +3071,7 @@ class TestimonialTemplate(ContentTemplate):
             "created_at": self.created_at,
         }
 
-        # Add headshot recommendation if enabled
+# Add headshot recommendation if enabled
         if self.include_headshot:
             outline["headshot_recommendation"] = {
                 "description": f"Professional headshot of {self.client_name}",
@@ -3081,12 +3080,12 @@ class TestimonialTemplate(ContentTemplate):
                 "style": "Professional, friendly, and approachable",
             }
 
-        # Add formatting variations
+# Add formatting variations
         outline["format_variations"] = self._generate_format_variations()
 
-        return outline
+            return outline
 
-    def _generate_testimonial_content(self) -> str:
+def _generate_testimonial_content(self) -> str:
         """Generate the testimonial content based on key points and type."""
         # Start with an opening statement based on testimonial type
         if self.testimonial_type == "product":
@@ -3098,24 +3097,24 @@ class TestimonialTemplate(ContentTemplate):
         else:
             opening = f"{self.title} has made a significant impact on our work. "
 
-        # Add statements based on key points
+# Add statements based on key points
         middle = ""
         for point in self.key_points:
             middle += f"Thanks to this {self.testimonial_type}, we've been able to {point.lower()}. "
 
-        # Add a statement about pain points being solved
+# Add a statement about pain points being solved
         if self.target_persona.get("pain_points"):
             pain_point = self.target_persona["pain_points"][0]
             middle += f"Before, we struggled with {pain_point.lower()}, but now that's no longer an issue. "
 
-        # Add a statement about goals being achieved
+# Add a statement about goals being achieved
         if self.target_persona.get("goals"):
             goal = self.target_persona["goals"][0]
             middle += (
                 f"We're now able to {goal.lower()} more effectively than ever before. "
             )
 
-        # Add a closing statement
+# Add a closing statement
         if self.testimonial_type == "product":
             closing = f"I would highly recommend {self.title} to any {self.target_persona['name']} looking to improve their results."
         elif self.testimonial_type == "service":
@@ -3125,35 +3124,35 @@ class TestimonialTemplate(ContentTemplate):
         else:
             closing = f"Overall, our experience with {self.title} has exceeded our expectations in every way."
 
-        # Combine all parts
+# Combine all parts
         testimonial = opening + middle + closing
 
-        return testimonial
+            return testimonial
 
-    def _generate_format_variations(self) -> Dict[str, Any]:
+def _generate_format_variations(self) -> Dict[str, Any]:
         """Generate different format variations of the testimonial."""
         # Get the basic testimonial content
         full_testimonial = self._generate_testimonial_content()
 
-        # Create a short version (1-2 sentences)
+# Create a short version (1-2 sentences)
         sentences = full_testimonial.split(". ")
         short_version = ". ".join(sentences[:2]) + "."
         if short_version[-1] != ".":
             short_version += "."
 
-        # Create a medium version (about half the full version)
+# Create a medium version (about half the full version)
         medium_length = max(len(sentences) // 2, 2)
         medium_version = ". ".join(sentences[:medium_length]) + "."
         if medium_version[-1] != ".":
             medium_version += "."
 
-        # Create a one-liner focused on the main benefit
+# Create a one-liner focused on the main benefit
         if self.key_points:
             one_liner = f'"{self.title} helped us {self.key_points[0].lower()}." - {self.client_name}, {self.client_company}'
         else:
             one_liner = f'"{self.title} has been a game-changer for our team." - {self.client_name}, {self.client_company}'
 
-        # Create a quote highlight (key quote from the testimonial)
+# Create a quote highlight (key quote from the testimonial)
         if len(sentences) > 2:
             highlight = sentences[1]
             if highlight[-1] != ".":
@@ -3161,7 +3160,7 @@ class TestimonialTemplate(ContentTemplate):
         else:
             highlight = short_version
 
-        return {
+            return {
             "full_testimonial": full_testimonial,
             "short_version": short_version,
             "medium_version": medium_version,
@@ -3170,11 +3169,11 @@ class TestimonialTemplate(ContentTemplate):
             "attribution": f"{self.client_name}, {self.client_title}, {self.client_company}",
         }
 
-    def get_testimonial_best_practices(self) -> Dict[str, List[str]]:
+def get_testimonial_best_practices(self) -> Dict[str, List[str]]:
         """
         Get best practices for testimonials.
 
-        Returns:
+Returns:
             Dictionary with testimonial best practices
         """
         best_practices = {
@@ -3215,13 +3214,13 @@ class TestimonialTemplate(ContentTemplate):
             ],
         }
 
-        return best_practices
+            return best_practices
 
-    def generate_request_template(self) -> Dict[str, Any]:
+def generate_request_template(self) -> Dict[str, Any]:
         """
         Generate a template for requesting testimonials from clients.
 
-        Returns:
+Returns:
             Dictionary with testimonial request template
         """
         request_template = {
@@ -3278,4 +3277,4 @@ Best regards,
             """,
         }
 
-        return request_template
+            return request_template

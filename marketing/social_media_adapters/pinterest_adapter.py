@@ -88,7 +88,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 # Store the user ID
                 self.user_id = user_data.get("username")
 
-                return {
+                        return {
                     "authenticated": True,
                     "user_id": user_data.get("username"),
                     "account_type": user_data.get("account_type"),
@@ -132,7 +132,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 # Store the user ID
                 self.user_id = user_data.get("username")
 
-                return {
+                        return {
                     "authenticated": True,
                     "user_id": user_data.get("username"),
                     "account_type": user_data.get("account_type"),
@@ -249,7 +249,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 "pinterest", "Link must start with http:// or https://"
             )
 
-        return True
+                return True
 
     def post_content(
         self,
@@ -336,7 +336,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             # Extract pin ID
             pin_id = result.get("id")
 
-            return {
+                    return {
                 "id": pin_id,
                 "status": "posted",
                 "posted_at": datetime.now().isoformat(),
@@ -374,7 +374,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             # Look for a board with the given name
             for board in boards:
                 if board["name"].lower() == board_name.lower():
-                    return board["id"]
+                            return board["id"]
 
             # If not found, create a new board
             response = self.session.post(
@@ -383,7 +383,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             response.raise_for_status()
             new_board = response.json()
 
-            return new_board["id"]
+                    return new_board["id"]
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Pinterest board error: {e}")
@@ -434,7 +434,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 f"pinterest_scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
             )
 
-            return {
+                    return {
                 "id": scheduled_id,
                 "scheduled_time": schedule_time.isoformat(),
                 "status": "scheduled",
@@ -471,7 +471,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             result = response.json()
 
             # Format the response
-            return {
+                    return {
                 "id": result["id"],
                 "title": result.get("title", ""),
                 "description": result.get("description", ""),
@@ -513,7 +513,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             response.raise_for_status()
 
             # Pinterest returns 204 No Content on successful deletion
-            return response.status_code == 204
+                    return response.status_code == 204
 
         except requests.exceptions.RequestException as e:
             if e.response and e.response.status_code == 404:
@@ -578,7 +578,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 result = response.json()
 
                 # Format the response
-                return {
+                        return {
                     "pin_id": post_id,
                     "period": {"start_date": start_date_str, "end_date": end_date_str},
                     "metrics": self._format_analytics_data(result),
@@ -600,7 +600,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 result = response.json()
 
                 # Format the response
-                return {
+                        return {
                     "user_id": self.user_id,
                     "period": {"start_date": start_date_str, "end_date": end_date_str},
                     "metrics": self._format_analytics_data(result),
@@ -609,7 +609,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Pinterest analytics error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "pin_id": post_id,
                 "user_id": self.user_id,
@@ -643,7 +643,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 total = sum(point.get("value", 0) for point in data_points)
                 formatted_data[metric_type.lower()] = total
 
-        return formatted_data
+                return formatted_data
 
     def get_audience_insights(
         self,
@@ -669,7 +669,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             # In a real implementation, we would use the Pinterest Analytics API
 
             # For demonstration, we'll return mock audience insights data
-            return {
+                    return {
                 "user_id": self.user_id,
                 "segment": segment or "all_audience",
                 "demographics": {
@@ -745,7 +745,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"Pinterest audience insights error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "user_id": self.user_id,
                 "segment": segment or "all_audience",

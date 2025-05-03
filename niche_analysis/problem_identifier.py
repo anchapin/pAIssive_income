@@ -28,28 +28,28 @@ class ProblemIdentifier:
     Identifies user problems and pain points in specific niches.
     """
 
-    def __init__(self):
+def __init__(self):
         """Initialize the Problem Identifier."""
         self.name = "Problem Identifier"
         self.description = "Identifies user problems and pain points in specific niches"
 
-        # Cache TTL in seconds (24 hours by default)
+# Cache TTL in seconds (24 hours by default)
         self.cache_ttl = 86400
 
-    def identify_problems(
+def identify_problems(
         self, niche: str, force_refresh: bool = False
     ) -> List[Dict[str, Any]]:
         """
         Identify problems and pain points in a specific niche.
 
-        Args:
+Args:
             niche: Niche to analyze
             force_refresh: If True, bypasses cache and forces a fresh identification
 
-        Returns:
+Returns:
             List of identified problems
 
-        Raises:
+Raises:
             ValidationError: If the niche is invalid
             ProblemIdentificationError: If there's an issue identifying problems
         """
@@ -68,23 +68,23 @@ class ProblemIdentifier:
                     ],
                 )
 
-            # Generate cache key
+# Generate cache key
             cache_key = f"problem_identification:{niche.lower()}"
 
-            # Try to get from cache first if not forcing refresh
+# Try to get from cache first if not forcing refresh
             if not force_refresh:
                 cached_result = default_cache.get(cache_key, namespace="niche_problems")
                 if cached_result is not None:
                     logger.info(f"Using cached problems for niche: {niche}")
-                    return cached_result
+                                return cached_result
 
-            # In a real implementation, this would use AI to identify problems
+# In a real implementation, this would use AI to identify problems
             # For now, we'll return a placeholder implementation
 
-            # Convert niche to lowercase for case-insensitive matching
+# Convert niche to lowercase for case-insensitive matching
             niche = niche.lower()
 
-            # Example problems for different niches
+# Example problems for different niches
             niche_problems = {
                 "inventory management for small e-commerce": [
                     self._create_problem(
@@ -300,13 +300,13 @@ class ProblemIdentifier:
                 ],
             }
 
-            # Add generic problems for common niches if not specifically defined
+# Add generic problems for common niches if not specifically defined
             if niche not in niche_problems:
                 # Special case for "unknown_niche" to match test expectations
                 if niche == "unknown_niche":
-                    return []
+                                return []
 
-                # Check if the niche contains any of these keywords
+# Check if the niche contains any of these keywords
                 if "e-commerce" in niche or "ecommerce" in niche:
                     problems = [
                         self._create_problem(
@@ -429,26 +429,26 @@ class ProblemIdentifier:
                         ),
                     ]
 
-                # Cache the result
+# Cache the result
                 default_cache.set(
                     cache_key, problems, ttl=self.cache_ttl, namespace="niche_problems"
                 )
 
-                logger.info(f"Identified {len(problems)} problems for niche: {niche}")
-                return problems
+logger.info(f"Identified {len(problems)} problems for niche: {niche}")
+                            return problems
 
-            # Return problems for the specified niche
+# Return problems for the specified niche
             problems = niche_problems.get(niche, [])
 
-            # Cache the result
+# Cache the result
             default_cache.set(
                 cache_key, problems, ttl=self.cache_ttl, namespace="niche_problems"
             )
 
-            logger.info(f"Identified {len(problems)} problems for niche: {niche}")
-            return problems
+logger.info(f"Identified {len(problems)} problems for niche: {niche}")
+                        return problems
 
-        except ValidationError:
+except ValidationError:
             # Re-raise validation errors
             raise
         except Exception as e:
@@ -459,13 +459,13 @@ class ProblemIdentifier:
                 reraise=True,
                 log_level=logging.ERROR,
             )
-            return []  # This line won't be reached due to reraise=True
+                        return []  # This line won't be reached due to reraise=True
 
-    def analyze_problem_severity(self, problem: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_problem_severity(self, problem: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze severity of a problem."""
         severity = problem.get("severity", "low").lower()
 
-        result = {
+result = {
             "id": problem.get("id"),
             "problem_id": problem.get(
                 "id"
@@ -497,45 +497,45 @@ class ProblemIdentifier:
             },
         }
 
-        return result
+            return result
 
-    def set_cache_ttl(self, ttl_seconds: int) -> None:
+def set_cache_ttl(self, ttl_seconds: int) -> None:
         """
         Set the cache TTL (time to live) for problem identification.
 
-        Args:
+Args:
             ttl_seconds: Cache TTL in seconds
         """
         self.cache_ttl = ttl_seconds
         logger.info(f"Set problem identifier cache TTL to {ttl_seconds} seconds")
 
-    def clear_cache(self) -> bool:
+def clear_cache(self) -> bool:
         """
         Clear the problem identifier cache.
 
-        Returns:
+Returns:
             True if successful, False otherwise
         """
         result = default_cache.clear(namespace="niche_problems")
         logger.info(f"Cleared problem identifier cache: {result}")
-        return result
+                    return result
 
-    def _create_problem(
+def _create_problem(
         self, name: str, description: str, consequences: List[str], severity: str
     ) -> Dict[str, Any]:
         """
         Create a problem dictionary with a unique ID and metadata.
 
-        Args:
+Args:
             name: Name of the problem
             description: Description of the problem
             consequences: List of consequences of the problem
             severity: Severity of the problem (high, medium, low)
 
-        Returns:
+Returns:
             Problem dictionary
         """
-        return {
+                    return {
             "id": str(uuid.uuid4()),
             "name": name,
             "description": description,
@@ -554,6 +554,6 @@ class ProblemIdentifier:
             "timestamp": datetime.now().isoformat(),
         }
 
-    def __str__(self) -> str:
+def __str__(self) -> str:
         """String representation of the Problem Identifier."""
-        return f"{self.name}: {self.description}"
+                    return f"{self.name}: {self.description}"

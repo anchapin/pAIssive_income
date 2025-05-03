@@ -42,7 +42,7 @@ __all__ = [
 class ServiceError(UIError):
     """Error raised when a service operation fails."""
 
-    def __init__(
+def __init__(
         self,
         message: str,
         service_name: Optional[str] = None,
@@ -52,7 +52,7 @@ class ServiceError(UIError):
         """
         Initialize the service error.
 
-        Args:
+Args:
             message: Human-readable error message
             service_name: Name of the service that raised the error
             operation: Operation that failed
@@ -64,7 +64,7 @@ class ServiceError(UIError):
         if operation:
             details["operation"] = operation
 
-        super().__init__(
+super().__init__(
             message=message, code="service_error", details=details, **kwargs
         )
 
@@ -72,11 +72,11 @@ class ServiceError(UIError):
 class TemplateError(UIError):
     """Error raised when there's an issue with a template."""
 
-    def __init__(self, message: str, template_name: Optional[str] = None, **kwargs):
+def __init__(self, message: str, template_name: Optional[str] = None, **kwargs):
         """
         Initialize the template error.
 
-        Args:
+Args:
             message: Human-readable error message
             template_name: Name of the template that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -85,7 +85,7 @@ class TemplateError(UIError):
         if template_name:
             details["template_name"] = template_name
 
-        super().__init__(
+super().__init__(
             message=message, code="template_error", details=details, **kwargs
         )
 
@@ -93,7 +93,7 @@ class TemplateError(UIError):
 class RouteError(UIError):
     """Error raised when there's an issue with a route."""
 
-    def __init__(
+def __init__(
         self,
         message: str,
         route: Optional[str] = None,
@@ -103,7 +103,7 @@ class RouteError(UIError):
         """
         Initialize the route error.
 
-        Args:
+Args:
             message: Human-readable error message
             route: Route that caused the error
             method: HTTP method used
@@ -115,17 +115,17 @@ class RouteError(UIError):
         if method:
             details["method"] = method
 
-        super().__init__(message=message, code="route_error", details=details, **kwargs)
+super().__init__(message=message, code="route_error", details=details, **kwargs)
 
 
 class ConfigurationError(UIError):
     """Error raised when there's an issue with configuration."""
 
-    def __init__(self, message: str, config_key: Optional[str] = None, **kwargs):
+def __init__(self, message: str, config_key: Optional[str] = None, **kwargs):
         """
         Initialize the configuration error.
 
-        Args:
+Args:
             message: Human-readable error message
             config_key: Configuration key that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -134,7 +134,7 @@ class ConfigurationError(UIError):
         if config_key:
             details["config_key"] = config_key
 
-        super().__init__(
+super().__init__(
             message=message, code="configuration_error", details=details, **kwargs
         )
 
@@ -142,7 +142,7 @@ class ConfigurationError(UIError):
 class DataError(UIError):
     """Error raised when there's an issue with data handling."""
 
-    def __init__(
+def __init__(
         self,
         message: str,
         data_type: Optional[str] = None,
@@ -152,7 +152,7 @@ class DataError(UIError):
         """
         Initialize the data error.
 
-        Args:
+Args:
             message: Human-readable error message
             data_type: Type of data that caused the error
             operation: Operation that failed
@@ -164,17 +164,17 @@ class DataError(UIError):
         if operation:
             details["operation"] = operation
 
-        super().__init__(message=message, code="data_error", details=details, **kwargs)
+super().__init__(message=message, code="data_error", details=details, **kwargs)
 
 
 def api_error_handler(error: Exception) -> tuple:
     """
     Handle API errors and return appropriate JSON responses.
 
-    Args:
+Args:
         error: The error to handle
 
-    Returns:
+Returns:
         Tuple of (JSON response, HTTP status code)
     """
     if isinstance(error, UIError):
@@ -188,25 +188,25 @@ def api_error_handler(error: Exception) -> tuple:
         response = ui_error.to_dict()
         status_code = ui_error.http_status
 
-    return jsonify(response), status_code
+            return jsonify(response), status_code
 
 
 def error_to_json_response(error: Union[UIError, Exception]) -> Dict[str, Any]:
     """
     Convert an error to a JSON response.
 
-    Args:
+Args:
         error: The error to convert
 
-    Returns:
+Returns:
         JSON response dictionary
     """
     if isinstance(error, UIError):
-        return error.to_dict()
+                    return error.to_dict()
 
-    # Convert standard exception to UIError
+# Convert standard exception to UIError
     ui_error = UIError(
         message=str(error), code=error.__class__.__name__, original_exception=error
     )
 
-    return ui_error.to_dict()
+            return ui_error.to_dict()

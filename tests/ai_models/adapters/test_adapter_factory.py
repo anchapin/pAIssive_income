@@ -20,13 +20,13 @@ class MockAdapter(BaseModelAdapter):
         self.kwargs = kwargs
 
     def connect(self, **kwargs):
-        return True
+                return True
 
     def disconnect(self):
-        return True
+                return True
 
     def get_models(self):
-        return []
+                return []
 
 
 def test_adapter_factory_register():

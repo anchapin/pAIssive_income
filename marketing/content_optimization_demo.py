@@ -15,15 +15,14 @@ from marketing.tone_analyzer import ToneAnalyzer
 from marketing.user_personas import PersonaCreator
 
 
-def demo_keyword_analyzer
-
-():
+def demo_keyword_analyzer():
+    ():
     """Demonstrate the KeywordAnalyzer."""
     print("\n" + "=" * 80)
     print("KEYWORD ANALYZER DEMO")
     print("=" * 80)
 
-    # Create a persona
+# Create a persona
     persona_creator = PersonaCreator()
     persona = persona_creator.create_persona(
         name="Professional YouTuber",
@@ -50,7 +49,7 @@ def demo_keyword_analyzer
         },
     )
 
-    # Create a blog post template
+# Create a blog post template
     template = BlogPostTemplate(
         title="How to Save 5 Hours a Week on YouTube Script Writing",
         target_persona=persona,
@@ -71,34 +70,34 @@ def demo_keyword_analyzer
         ],
     )
 
-    # Create a blog post generator
+# Create a blog post generator
     generator = BlogPostGenerator(template)
 
-    # Generate content
+# Generate content
     content = generator.generate_content()
 
-    print("\nGenerated Blog Post:")
+print("\nGenerated Blog Post:")
     print(f"Title: {content['title']}")
     print(f"Meta Description: {content['meta_description']}")
     print(f"Introduction: {content['introduction'][:200]}...")
 
-    # Create a keyword analyzer
+# Create a keyword analyzer
     keywords = ["YouTube script writing", "AI", "content creators", "save time"]
     analyzer = KeywordAnalyzer(content, keywords)
 
-    # Analyze content
+# Analyze content
     results = analyzer.analyze()
 
-    print("\nKeyword Analysis Results:")
+print("\nKeyword Analysis Results:")
     print(f"Overall SEO Score: {results['overall_score']:.2f}")
 
-    print("\nKeyword Density:")
+print("\nKeyword Density:")
     for keyword, data in results["keyword_density"]["keywords"].items():
         print(
             f"- '{keyword}': {data['count']} occurrences, {data['density']:.2%} density, Optimal: {data['is_optimal']}"
         )
 
-    print("\nKeyword Placement:")
+print("\nKeyword Placement:")
     for keyword, data in results["keyword_placement"].items():
         print(f"- '{keyword}':")
         print(f"  - In Title: {data['in_title']}")
@@ -108,7 +107,7 @@ def demo_keyword_analyzer
         print(f"  - In URL: {data['in_url']}")
         print(f"  - Placement Score: {data['score']:.2f}")
 
-    print("\nRecommendations:")
+print("\nRecommendations:")
     for recommendation in results["recommendations"]:
         print(f"- [{recommendation['severity'].upper()}] {recommendation['message']}")
         print(f"  Suggestion: {recommendation['suggestion']}")
@@ -120,7 +119,7 @@ def demo_readability_analyzer():
     print("READABILITY ANALYZER DEMO")
     print("=" * 80)
 
-    # Create a persona
+# Create a persona
     persona_creator = PersonaCreator()
     persona = persona_creator.create_persona(
         name="Professional YouTuber",
@@ -147,7 +146,7 @@ def demo_readability_analyzer():
         },
     )
 
-    # Create a blog post template
+# Create a blog post template
     template = BlogPostTemplate(
         title="How to Save 5 Hours a Week on YouTube Script Writing",
         target_persona=persona,
@@ -168,26 +167,26 @@ def demo_readability_analyzer():
         ],
     )
 
-    # Create a blog post generator
+# Create a blog post generator
     generator = BlogPostGenerator(template)
 
-    # Generate content
+# Generate content
     content = generator.generate_content()
 
-    print("\nGenerated Blog Post:")
+print("\nGenerated Blog Post:")
     print(f"Title: {content['title']}")
     print(f"Introduction: {content['introduction'][:200]}...")
 
-    # Create a readability analyzer
+# Create a readability analyzer
     analyzer = ReadabilityAnalyzer(content)
 
-    # Analyze content
+# Analyze content
     results = analyzer.analyze()
 
-    print("\nReadability Analysis Results:")
+print("\nReadability Analysis Results:")
     print(f"Overall Readability Score: {results['overall_score']:.2f}")
 
-    print("\nText Statistics:")
+print("\nText Statistics:")
     stats = results["text_statistics"]
     print(f"- Sentences: {stats['num_sentences']}")
     print(f"- Words: {stats['num_words']}")
@@ -196,7 +195,7 @@ def demo_readability_analyzer():
     print(f"- Average Words per Paragraph: {stats['avg_words_per_paragraph']:.1f}")
     print(f"- Complex Word Percentage: {stats['complex_word_percentage']:.1%}")
 
-    print("\nReadability Scores:")
+print("\nReadability Scores:")
     scores = results["readability_scores"]
     print(
         f"- Flesch Reading Ease: {scores['flesch_reading_ease']['score']:.1f} ({scores['flesch_reading_ease']['interpretation']})"
@@ -213,7 +212,7 @@ def demo_readability_analyzer():
     print(f"- Average Grade Level: {scores['grade_level']:.1f}")
     print(f"- Reading Level: {scores['reading_level']}")
 
-    print("\nSentence Analysis:")
+print("\nSentence Analysis:")
     sentence = results["sentence_analysis"]["sentence_length"]
     print(
         f"- Sentence Length: Min={sentence['min']}, Max={sentence['max']}, Avg={sentence['avg']:.1f}"
@@ -228,7 +227,7 @@ def demo_readability_analyzer():
         f"- Optimal Sentences: {sentence['optimal_count']} ({sentence['optimal_percentage']:.1%})"
     )
 
-    print("\nParagraph Analysis:")
+print("\nParagraph Analysis:")
     paragraph = results["paragraph_analysis"]["paragraph_length"]
     print(
         f"- Paragraph Length: Min={paragraph['min']}, Max={paragraph['max']}, Avg={paragraph['avg']:.1f}"
@@ -243,23 +242,23 @@ def demo_readability_analyzer():
         f"- Optimal Paragraphs: {paragraph['optimal_count']} ({paragraph['optimal_percentage']:.1%})"
     )
 
-    print("\nWriting Style Analysis:")
+print("\nWriting Style Analysis:")
     passive = results["style_analysis"]["passive_voice"]
     print(
         f"- Passive Voice: {passive['passive_count']} instances ({passive['passive_percentage']:.1%})"
     )
 
-    adverbs = results["style_analysis"]["adverb_usage"]
+adverbs = results["style_analysis"]["adverb_usage"]
     print(
         f"- Adverbs: {adverbs['adverb_count']} instances ({adverbs['adverb_percentage']:.1%})"
     )
 
-    complex_words = results["style_analysis"]["complex_words"]
+complex_words = results["style_analysis"]["complex_words"]
     print(
         f"- Complex Words: {complex_words['complex_word_count']} instances ({complex_words['complex_word_percentage']:.1%})"
     )
 
-    print("\nRecommendations:")
+print("\nRecommendations:")
     for recommendation in results["recommendations"]:
         print(f"- [{recommendation['severity'].upper()}] {recommendation['message']}")
         print(f"  Suggestion: {recommendation['suggestion']}")
@@ -271,7 +270,7 @@ def demo_tone_analyzer():
     print("TONE ANALYZER DEMO")
     print("=" * 80)
 
-    # Create a persona
+# Create a persona
     persona_creator = PersonaCreator()
     persona = persona_creator.create_persona(
         name="Professional YouTuber",
@@ -298,7 +297,7 @@ def demo_tone_analyzer():
         },
     )
 
-    # Create a blog post template
+# Create a blog post template
     template = BlogPostTemplate(
         title="How to Save 5 Hours a Week on YouTube Script Writing",
         target_persona=persona,
@@ -319,33 +318,33 @@ def demo_tone_analyzer():
         ],
     )
 
-    # Create a blog post generator
+# Create a blog post generator
     generator = BlogPostGenerator(template)
 
-    # Generate content
+# Generate content
     content = generator.generate_content()
 
-    print("\nGenerated Blog Post:")
+print("\nGenerated Blog Post:")
     print(f"Title: {content['title']}")
     print(f"Introduction: {content['introduction'][:200]}...")
 
-    # Create a tone analyzer
+# Create a tone analyzer
     analyzer = ToneAnalyzer(content, target_tone="conversational")
 
-    # Analyze content
+# Analyze content
     results = analyzer.analyze()
 
-    print("\nTone Analysis Results:")
+print("\nTone Analysis Results:")
     print(f"Overall Tone Score: {results['overall_score']:.2f}")
 
-    print("\nTone Scores:")
+print("\nTone Scores:")
     for tone, data in results["tone_analysis"]["tone_scores"].items():
         print(
             f"- {tone}: {data['score']:.2f}"
             + (" (target)" if data["is_target"] else "")
         )
 
-    print(
+print(
         f"\nDominant Tone: {results['tone_analysis']['dominant_tone']} ({results['tone_analysis']['dominant_tone_score']:.2f})"
     )
     print(
@@ -354,14 +353,14 @@ def demo_tone_analyzer():
     print(f"Tone Consistency: {results['tone_analysis']['consistency']:.2f}")
     print(f"Is Consistent: {results['tone_analysis']['is_consistent']}")
 
-    print("\nSentiment Analysis:")
+print("\nSentiment Analysis:")
     for sentiment, data in results["sentiment_analysis"]["sentiment_scores"].items():
         print(
             f"- {sentiment}: {data['score']:.2f}"
             + (" (target)" if data["is_target"] else "")
         )
 
-    print(
+print(
         f"\nDominant Sentiment: {results['sentiment_analysis']['dominant_sentiment']} ({results['sentiment_analysis']['dominant_sentiment_score']:.2f})"
     )
     print(
@@ -370,7 +369,7 @@ def demo_tone_analyzer():
     print(f"Sentiment Consistency: {results['sentiment_analysis']['consistency']:.2f}")
     print(f"Is Consistent: {results['sentiment_analysis']['is_consistent']}")
 
-    print("\nStyle Analysis:")
+print("\nStyle Analysis:")
     print(
         f"- Sentence Length Variety: {results['style_analysis']['sentence_length_variety']['score']:.2f}"
     )
@@ -381,7 +380,7 @@ def demo_tone_analyzer():
         f"- Punctuation Density: {results['style_analysis']['punctuation']['density']:.2f}"
     )
 
-    print("\nRecommendations:")
+print("\nRecommendations:")
     for recommendation in results["recommendations"]:
         print(f"- [{recommendation['severity'].upper()}] {recommendation['message']}")
         print(f"  Suggestion: {recommendation['suggestion']}")

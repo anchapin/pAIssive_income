@@ -12,9 +12,9 @@ from .socketio_app import init_socketio, socketio
 from . import routes  
     from service_initialization import initialize_services
 
-    from .app_factory import init_app
+from .app_factory import init_app
 
-    init_app
+init_app
 
 # noqa: E402, F811
 # noqa: E402, F811

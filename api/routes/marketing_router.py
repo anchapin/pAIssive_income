@@ -70,7 +70,7 @@ if FASTAPI_AVAILABLE:
         """Create a marketing strategy."""
         try:
             strategy_id = str(uuid.uuid4())
-            return {
+                    return {
                 "id": strategy_id,
                 "niche_id": data.niche_id,
                 "target_audience": data.target_audience,
@@ -104,7 +104,7 @@ if FASTAPI_AVAILABLE:
         try:
             # Return mock data for now
             strategies = []
-            return PaginatedResponse(
+                    return PaginatedResponse(
                 items=strategies, total=0, page=page, page_size=page_size, pages=0
             )
         except Exception as e:
@@ -117,7 +117,7 @@ if FASTAPI_AVAILABLE:
     async def get_personas():
         """Get all user personas."""
         try:
-            return [
+                    return [
                 {
                     "id": "persona1",
                     "name": "Content Creator",
@@ -139,7 +139,7 @@ if FASTAPI_AVAILABLE:
     async def get_channels():
         """Get all marketing channels."""
         try:
-            return [
+                    return [
                 {
                     "id": "channel1",
                     "name": "Social Media",
@@ -170,7 +170,7 @@ if FASTAPI_AVAILABLE:
         """Generate marketing content."""
         try:
             task_id = str(uuid.uuid4())
-            return {"task_id": task_id, "status_url": f"/api/tasks/{task_id}"}
+                    return {"task_id": task_id, "status_url": f"/api/tasks/{task_id}"}
         except Exception as e:
             logger.error(f"Error generating content: {str(e)}")
             raise HTTPException(
@@ -189,7 +189,7 @@ if FASTAPI_AVAILABLE:
     async def bulk_create_marketing_strategies(data: List[MarketingStrategyRequest]):
         """Bulk create marketing strategies."""
         try:
-            return {
+                    return {
                 "stats": {"total": len(data), "created": len(data), "failed": 0},
                 "items": [{"id": str(uuid.uuid4()), "status": "created"} for _ in data],
             }
@@ -214,7 +214,7 @@ if FASTAPI_AVAILABLE:
         """Create a marketing campaign."""
         try:
             campaign_id = str(uuid.uuid4())
-            return {
+                    return {
                 "id": campaign_id,
                 "name": data.name,
                 "description": data.description,
@@ -245,7 +245,7 @@ if FASTAPI_AVAILABLE:
     async def get_campaign(campaign_id: str = Path(..., description="Campaign ID")):
         """Get a specific campaign."""
         try:
-            return {
+                    return {
                 "id": campaign_id,
                 "name": "Test Campaign",
                 "status": "draft",
@@ -274,7 +274,7 @@ if FASTAPI_AVAILABLE:
     ):
         """Update a campaign's status."""
         try:
-            return {
+                    return {
                 "id": campaign_id,
                 "status": data["status"],
                 "activation_date": data.get("activation_date"),
@@ -302,7 +302,7 @@ if FASTAPI_AVAILABLE:
     ):
         """Get campaign metrics."""
         try:
-            return {
+                    return {
                 "campaign_id": campaign_id,
                 "period": {"start": start_date, "end": end_date},
                 "metrics": {"conversions": 10, "engagement": 0.15, "reach": 1000},

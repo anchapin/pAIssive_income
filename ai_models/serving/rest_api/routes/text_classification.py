@@ -27,7 +27,7 @@ except ImportError:
         pass
 
     def Field(*args, **kwargs):
-        return None
+                return None
 
 
 # Create router
@@ -91,7 +91,7 @@ if FASTAPI_AVAILABLE:
         try:
             # Classify text
             result = await _classify_text(model, request)
-            return result
+                    return result
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -110,13 +110,13 @@ async def _classify_text(model, request):
         Classification result
     """
     # Classify text
-    result = model.classify_text(request.text)
+    result = model.classify_text(request.text
 
     # Count tokens
-    tokens = model.count_tokens(request.text)
+    tokens = model.count_tokens(request.text
 
     # Create response
-    return {
+            return {
         "labels": result["labels"],
         "top_label": result["top_label"],
         "tokens": tokens,

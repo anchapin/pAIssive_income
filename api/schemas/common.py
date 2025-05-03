@@ -125,6 +125,6 @@ class PaginatedResponse(BaseModel, Generic[T]):
     total: int = Field(..., description="Total number of items")
     page: int = Field(..., description="Current page number")
     page_size: int = Field(..., description="Number of items per page")
-    total_pages: int = Field(..., description="Total number of pages")
+    total_pages: int = Field(..., description="Total number of pages"
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True

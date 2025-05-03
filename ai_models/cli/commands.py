@@ -72,12 +72,12 @@ class DownloadCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id", "source"]):
-            return 1
+                    return 1
 
         # Load configuration
         config = self._load_config()
         if not config:
-            return 1
+                    return 1
 
         # Create model manager and downloader
         model_manager = ModelManager(config)
@@ -121,10 +121,10 @@ class DownloadCommand(BaseCommand):
             if model_info:
                 logger.info(f"Registered model as {model_info.id}")
 
-            return 0
+                    return 0
         else:
             logger.error(f"Download failed: {result.error}")
-            return 1
+                    return 1
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -135,15 +135,15 @@ class DownloadCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class ListCommand(BaseCommand):
@@ -171,7 +171,7 @@ class ListCommand(BaseCommand):
         # Load configuration
         config = self._load_config()
         if not config:
-            return 1
+                    return 1
 
         # Create model manager
         model_manager = ModelManager(config)
@@ -203,7 +203,7 @@ class ListCommand(BaseCommand):
                 print(f"  Path: {model.path}")
                 print("")
 
-        return 0
+                return 0
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -214,15 +214,15 @@ class ListCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class InfoCommand(BaseCommand):
@@ -249,12 +249,12 @@ class InfoCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id"]):
-            return 1
+                    return 1
 
         # Load configuration
         config = self._load_config()
         if not config:
-            return 1
+                    return 1
 
         # Create model manager
         model_manager = ModelManager(config)
@@ -264,7 +264,7 @@ class InfoCommand(BaseCommand):
 
         if not model_info:
             logger.error(f"Model with ID {self._get_arg('model_id')} not found")
-            return 1
+                    return 1
 
         # Format output
         if self._get_arg("format") == "json":
@@ -294,7 +294,7 @@ class InfoCommand(BaseCommand):
                 for key, value in model_info.performance.items():
                     print(f"- {key}: {value}")
 
-        return 0
+                return 0
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -305,15 +305,15 @@ class InfoCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class ServeRESTCommand(BaseCommand):
@@ -341,7 +341,7 @@ class ServeRESTCommand(BaseCommand):
         Run the command.
         """
         logger.info("REST server is not implemented yet")
-        return 1
+                return 1
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -352,15 +352,15 @@ class ServeRESTCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class ServeGRPCCommand(BaseCommand):
@@ -388,7 +388,7 @@ class ServeGRPCCommand(BaseCommand):
         Run the command.
         """
         logger.info("gRPC server is not implemented yet")
-        return 1
+                return 1
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -399,15 +399,15 @@ class ServeGRPCCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class OptimizeCommand(BaseCommand):
@@ -441,7 +441,7 @@ class OptimizeCommand(BaseCommand):
         Run the command.
         """
         logger.info("Model optimization is not implemented yet")
-        return 1
+                return 1
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -452,15 +452,15 @@ class OptimizeCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class BenchmarkCommand(BaseCommand):
@@ -491,7 +491,7 @@ class BenchmarkCommand(BaseCommand):
         Run the command.
         """
         logger.info("Model benchmarking is not implemented yet")
-        return 1
+                return 1
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -502,15 +502,15 @@ class BenchmarkCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class DeployCommand(BaseCommand):
@@ -544,7 +544,7 @@ class DeployCommand(BaseCommand):
         Run the command.
         """
         logger.info("Model deployment is not implemented yet")
-        return 1
+                return 1
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -555,15 +555,15 @@ class DeployCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class ValidateCommand(BaseCommand):
@@ -589,7 +589,7 @@ class ValidateCommand(BaseCommand):
         Run the command.
         """
         logger.info("Model validation is not implemented yet")
-        return 1
+                return 1
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -600,15 +600,15 @@ class ValidateCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class VersionCommand(BaseCommand):
@@ -708,30 +708,30 @@ class VersionCommand(BaseCommand):
         version_command = self._get_arg("version_command")
         if not version_command:
             logger.error("No version command specified")
-            return 1
+                    return 1
 
         # Load configuration
         config = self._load_config()
         if not config:
-            return 1
+                    return 1
 
         # Create model manager
         model_manager = ModelManager(config)
 
         # Execute the subcommand
         if version_command == "create":
-            return self._create_version(model_manager)
+                    return self._create_version(model_manager)
         elif version_command == "list":
-            return self._list_versions(model_manager)
+                    return self._list_versions(model_manager)
         elif version_command == "info":
-            return self._get_version_info(model_manager)
+                    return self._get_version_info(model_manager)
         elif version_command == "check-compatibility":
-            return self._check_compatibility(model_manager)
+                    return self._check_compatibility(model_manager)
         elif version_command == "load":
-            return self._load_version(model_manager)
+                    return self._load_version(model_manager)
         else:
             logger.error(f"Unknown version command: {version_command}")
-            return 1
+                    return 1
 
     def _create_version(self, model_manager: ModelManager) -> int:
         """
@@ -739,7 +739,7 @@ class VersionCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id", "version"]):
-            return 1
+                    return 1
 
         # Get model info
         model_id = self._get_arg("model_id")
@@ -747,7 +747,7 @@ class VersionCommand(BaseCommand):
 
         if not model_info:
             logger.error(f"Model with ID {model_id} not found")
-            return 1
+                    return 1
 
         # Parse dependencies
         dependencies = {}
@@ -758,7 +758,7 @@ class VersionCommand(BaseCommand):
                     dependencies[name] = version
                 except ValueError:
                     logger.error(f"Invalid dependency format: {dep}")
-                    return 1
+                            return 1
 
         # Load metadata from file if specified
         metadata = {}
@@ -768,7 +768,7 @@ class VersionCommand(BaseCommand):
                     metadata = json.load(f)
             except Exception as e:
                 logger.error(f"Error loading metadata file: {e}")
-                return 1
+                        return 1
 
         try:
             # Create version
@@ -782,11 +782,11 @@ class VersionCommand(BaseCommand):
             )
 
             logger.info(f"Created version {version_obj.version} for model {model_id}")
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error creating version: {e}")
-            return 1
+                    return 1
 
     def _list_versions(self, model_manager: ModelManager) -> int:
         """
@@ -794,7 +794,7 @@ class VersionCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id"]):
-            return 1
+                    return 1
 
         # Get model info
         model_id = self._get_arg("model_id")
@@ -802,7 +802,7 @@ class VersionCommand(BaseCommand):
 
         if not model_info:
             logger.error(f"Model with ID {model_id} not found")
-            return 1
+                    return 1
 
         # Get versions
         try:
@@ -844,11 +844,11 @@ class VersionCommand(BaseCommand):
                                 f"  Hash: {version.hash_value[:8]}..."
                             )  # Show first 8 chars
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error listing versions: {e}")
-            return 1
+                    return 1
 
     def _get_version_info(self, model_manager: ModelManager) -> int:
         """
@@ -856,7 +856,7 @@ class VersionCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id", "version"]):
-            return 1
+                    return 1
 
         # Get model info
         model_id = self._get_arg("model_id")
@@ -864,7 +864,7 @@ class VersionCommand(BaseCommand):
 
         if not model_info:
             logger.error(f"Model with ID {model_id} not found")
-            return 1
+                    return 1
 
         # Get version
         try:
@@ -876,7 +876,7 @@ class VersionCommand(BaseCommand):
                 logger.error(
                     f"Version {self._get_arg('version')} not found for model {model_id}"
                 )
-                return 1
+                        return 1
 
             # Format output
             if self._get_arg("format") == "json":
@@ -914,11 +914,11 @@ class VersionCommand(BaseCommand):
                     for key, value in version.metadata.items():
                         print(f"- {key}: {value}")
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error getting version info: {e}")
-            return 1
+                    return 1
 
     def _check_compatibility(self, model_manager: ModelManager) -> int:
         """
@@ -926,7 +926,7 @@ class VersionCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id1", "version1", "model_id2", "version2"]):
-            return 1
+                    return 1
 
         try:
             # Check compatibility
@@ -942,11 +942,11 @@ class VersionCommand(BaseCommand):
             else:
                 print("Models are NOT compatible")
 
-            return 0 if compatible else 2  # Use 2 as exit code for incompatible models
+                    return 0 if compatible else 2  # Use 2 as exit code for incompatible models
 
         except Exception as e:
             logger.error(f"Error checking compatibility: {e}")
-            return 1
+                    return 1
 
     def _load_version(self, model_manager: ModelManager) -> int:
         """
@@ -954,7 +954,7 @@ class VersionCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id", "version"]):
-            return 1
+                    return 1
 
         try:
             # Load model
@@ -993,11 +993,11 @@ class VersionCommand(BaseCommand):
                 except Exception as e:
                     print(f"  Generation test failed: {e}")
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error loading model version: {e}")
-            return 1
+                    return 1
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -1008,15 +1008,15 @@ class VersionCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()
 
 
 class PerformanceCommand(BaseCommand):
@@ -1167,12 +1167,12 @@ class PerformanceCommand(BaseCommand):
         perf_command = self._get_arg("perf_command")
         if not perf_command:
             logger.error("No performance command specified")
-            return 1
+                    return 1
 
         # Load configuration
         config = self._load_config()
         if not config:
-            return 1
+                    return 1
 
         # Create model manager and performance monitor
         model_manager = ModelManager(config)
@@ -1180,20 +1180,20 @@ class PerformanceCommand(BaseCommand):
 
         # Execute the subcommand
         if perf_command == "report":
-            return self._generate_report(model_manager, performance_monitor)
+                    return self._generate_report(model_manager, performance_monitor)
         elif perf_command == "compare":
-            return self._compare_models(model_manager, performance_monitor)
+                    return self._compare_models(model_manager, performance_monitor)
         elif perf_command == "visualize":
-            return self._visualize_metrics(model_manager, performance_monitor)
+                    return self._visualize_metrics(model_manager, performance_monitor)
         elif perf_command == "export":
-            return self._export_metrics(model_manager, performance_monitor)
+                    return self._export_metrics(model_manager, performance_monitor)
         elif perf_command == "set-alert":
-            return self._set_alert(model_manager, performance_monitor)
+                    return self._set_alert(model_manager, performance_monitor)
         elif perf_command == "track-inference":
-            return self._track_inference(model_manager, performance_monitor)
+                    return self._track_inference(model_manager, performance_monitor)
         else:
             logger.error(f"Unknown performance command: {perf_command}")
-            return 1
+                    return 1
 
     def _generate_report(
         self, model_manager: ModelManager, performance_monitor: PerformanceMonitor
@@ -1203,7 +1203,7 @@ class PerformanceCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id"]):
-            return 1
+                    return 1
 
         # Get model info
         model_id = self._get_arg("model_id")
@@ -1211,7 +1211,7 @@ class PerformanceCommand(BaseCommand):
 
         if not model_info:
             logger.error(f"Model with ID {model_id} not found")
-            return 1
+                    return 1
 
         # Use model_name from args if provided, otherwise use model name from model_info
         model_name = self._get_arg("model_name") or model_info.name or model_id
@@ -1452,11 +1452,11 @@ class PerformanceCommand(BaseCommand):
                     print("")
                     print(f"Time Range: {report.start_time} to {report.end_time}")
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error generating report: {e}")
-            return 1
+                    return 1
 
     def _compare_models(
         self, model_manager: ModelManager, performance_monitor: PerformanceMonitor
@@ -1466,7 +1466,7 @@ class PerformanceCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_ids"]):
-            return 1
+                    return 1
 
         model_ids = self._get_arg("model_ids")
         model_names = self._get_arg("model_names")
@@ -1476,7 +1476,7 @@ class PerformanceCommand(BaseCommand):
             model_info = model_manager.get_model_info(model_id)
             if not model_info:
                 logger.error(f"Model with ID {model_id} not found")
-                return 1
+                        return 1
 
         try:
             # Generate comparison report
@@ -1609,11 +1609,11 @@ class PerformanceCommand(BaseCommand):
                     "      For tokens/sec, higher values are better (negative % diff means slower)."
                 )
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error comparing models: {e}")
-            return 1
+                    return 1
 
     def _visualize_metrics(
         self, model_manager: ModelManager, performance_monitor: PerformanceMonitor
@@ -1628,11 +1628,11 @@ class PerformanceCommand(BaseCommand):
             logger.error(
                 "Visualization requires matplotlib and pandas. Install with: pip install matplotlib pandas"
             )
-            return 1
+                    return 1
 
         # Validate arguments
         if not self._validate_args(["model_id"]):
-            return 1
+                    return 1
 
         # Get model info
         model_id = self._get_arg("model_id")
@@ -1640,7 +1640,7 @@ class PerformanceCommand(BaseCommand):
 
         if not model_info:
             logger.error(f"Model with ID {model_id} not found")
-            return 1
+                    return 1
 
         # Get arguments
         metrics = self._get_arg("metrics")
@@ -1655,17 +1655,17 @@ class PerformanceCommand(BaseCommand):
 
             if not viz_files:
                 logger.warning("No visualizations were generated - no data available")
-                return 0
+                        return 0
 
             logger.info(f"Generated {len(viz_files)} visualizations")
             for file_path in viz_files:
                 print(f"- {file_path}")
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error generating visualizations: {e}")
-            return 1
+                    return 1
 
     def _export_metrics(
         self, model_manager: ModelManager, performance_monitor: PerformanceMonitor
@@ -1675,7 +1675,7 @@ class PerformanceCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id"]):
-            return 1
+                    return 1
 
         # Get model info
         model_id = self._get_arg("model_id")
@@ -1683,7 +1683,7 @@ class PerformanceCommand(BaseCommand):
 
         if not model_info:
             logger.error(f"Model with ID {model_id} not found")
-            return 1
+                    return 1
 
         # Get output path
         output_path = self._get_arg("output")
@@ -1696,16 +1696,16 @@ class PerformanceCommand(BaseCommand):
 
             if not csv_path:
                 logger.error("Failed to export metrics")
-                return 1
+                        return 1
 
             logger.info(f"Exported metrics to {csv_path}")
             print(f"Metrics exported to: {csv_path}")
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error exporting metrics: {e}")
-            return 1
+                    return 1
 
     def _set_alert(
         self, model_manager: ModelManager, performance_monitor: PerformanceMonitor
@@ -1715,7 +1715,7 @@ class PerformanceCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id", "metric", "threshold"]):
-            return 1
+                    return 1
 
         # Get model info
         model_id = self._get_arg("model_id")
@@ -1723,7 +1723,7 @@ class PerformanceCommand(BaseCommand):
 
         if not model_info:
             logger.error(f"Model with ID {model_id} not found")
-            return 1
+                    return 1
 
         # Get arguments
         metric = self._get_arg("metric")
@@ -1745,11 +1745,11 @@ class PerformanceCommand(BaseCommand):
             )
             print(f"Alert set: {model_id} - {metric} {bound_type} {threshold}")
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error setting alert: {e}")
-            return 1
+                    return 1
 
     def _track_inference(
         self, model_manager: ModelManager, performance_monitor: PerformanceMonitor
@@ -1759,7 +1759,7 @@ class PerformanceCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id", "input"]):
-            return 1
+                    return 1
 
         # Get model info
         model_id = self._get_arg("model_id")
@@ -1767,7 +1767,7 @@ class PerformanceCommand(BaseCommand):
 
         if not model_info:
             logger.error(f"Model with ID {model_id} not found")
-            return 1
+                    return 1
 
         # Get input text
         input_text = self._get_arg("input")
@@ -1778,7 +1778,7 @@ class PerformanceCommand(BaseCommand):
 
             if not model:
                 logger.error(f"Failed to load model {model_id}")
-                return 1
+                        return 1
 
             # Create inference tracker
             tracker = InferenceTracker(performance_monitor, model_id)
@@ -1831,11 +1831,11 @@ class PerformanceCommand(BaseCommand):
             else:
                 print(f"Inference tracked in {metrics.total_time:.4f} seconds")
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error tracking inference: {e}")
-            return 1
+                    return 1
 
     def _load_config(self) -> Optional[ModelConfig]:
         """
@@ -1846,12 +1846,12 @@ class PerformanceCommand(BaseCommand):
         if config_path:
             if not os.path.exists(config_path):
                 logger.error(f"Configuration file {config_path} not found")
-                return None
+                        return None
 
             try:
-                return ModelConfig.load(config_path)
+                        return ModelConfig.load(config_path)
             except Exception as e:
                 logger.error(f"Error loading configuration: {e}")
-                return None
+                        return None
 
-        return ModelConfig.get_default()
+                return ModelConfig.get_default()

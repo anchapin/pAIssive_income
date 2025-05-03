@@ -276,9 +276,7 @@ class EnhancedPerformanceReport(ModelPerformanceReport):
             metrics_data: List of metrics dictionaries
         """
         if not metrics_data:
-            return
-
-        # Initialize counters for additional metrics
+                    return # Initialize counters for additional metrics
         total_prompt_tokens = 0
         total_completion_tokens = 0
         prompt_costs = 0.0
@@ -448,7 +446,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
         Returns:
             Dict with prompt_cost_per_1k and completion_cost_per_1k
         """
-        return self.model_cost_rates.get(
+                return self.model_cost_rates.get(
             model_id, {"prompt_cost_per_1k": 0.0, "completion_cost_per_1k": 0.0}
         )
 
@@ -465,7 +463,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
         Returns:
             EnhancedInferenceTracker: A tracker object for monitoring the inference
         """
-        return EnhancedInferenceTracker(self, model_id, batch_id)
+                return EnhancedInferenceTracker(self, model_id, batch_id)
 
     def generate_enhanced_report(
         self,
@@ -507,7 +505,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
         if not include_metrics:
             enhanced_report.raw_metrics = []
 
-        return enhanced_report
+                return enhanced_report
 
     def compare_models_enhanced(
         self,
@@ -585,7 +583,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
             ]
         )
 
-        return comparison
+                return comparison
 
     def save_enhanced_metrics(self, metrics: EnhancedInferenceMetrics) -> None:
         """
@@ -618,14 +616,14 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
             List of paths to generated visualization files
         """
         try:
- as plt
+as plt
  as np
  as pd
 :
             logger.error(
                 "Visualization requires matplotlib and pandas. Install with: pip install matplotlib pandas"
             )
-            return []
+                    return []
 
         # Get metrics
         end_time = datetime.now()
@@ -640,7 +638,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
             logger.warning(
                 f"No metrics found for model {model_id} in the last {days} days"
             )
-            return []
+                    return []
 
         # Extract token usage from metadata
         token_data = []
@@ -677,7 +675,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
 
         if not token_data:
             logger.warning(f"No token usage data found for model {model_id}")
-            return []
+                    return []
 
         # Convert to DataFrame
         df = pd.DataFrame(token_data)
@@ -818,7 +816,7 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
             except Exception as e:
                 logger.error(f"Error generating cost visualization: {e}")
 
-        return generated_files
+                return generated_files
 
 
 class EnhancedInferenceTracker:
@@ -866,9 +864,7 @@ class EnhancedInferenceTracker:
         """
         if self._has_started:
             logger.warning("Tracker has already been started")
-            return
-
-        self._has_started = True
+                    return self._has_started = True
         now = time.time()
         self.metrics.start_time = now
         self.metrics.input_text = input_text
@@ -887,9 +883,7 @@ class EnhancedInferenceTracker:
         """
         if not self._has_started:
             logger.warning("Tracker hasn't been started")
-            return
-
-        now = time.time()
+                    return now = time.time()
         self.metrics.time_to_first_token = now - self.metrics.start_time
         self.metrics.latency_ms = self.metrics.time_to_first_token * 1000
 
@@ -984,11 +978,11 @@ class EnhancedInferenceTracker:
         """
         if not self._has_started:
             logger.warning("Tracker hasn't been started")
-            return self.metrics
+                    return self.metrics
 
         if self._has_stopped:
             logger.warning("Tracker has already been stopped")
-            return self.metrics
+                    return self.metrics
 
         self._has_stopped = True
         now = time.time()
@@ -1024,7 +1018,7 @@ class EnhancedInferenceTracker:
 
             traceback.print_exc()
 
-        return self.metrics
+                return self.metrics
 
     def _capture_system_metrics(self) -> None:
         """
@@ -1061,6 +1055,6 @@ class EnhancedInferenceTracker:
         the actual tokenizer from the model.
         """
         if not text:
-            return 0
+                    return 0
         # Simple estimate: ~4 characters per token for English text
-        return max(1, len(text) // 4)
+                return max(1, len(text) // 4))

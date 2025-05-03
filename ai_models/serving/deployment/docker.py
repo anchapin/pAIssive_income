@@ -67,7 +67,7 @@ class DockerConfig:
         Returns:
             Dictionary representation of the configuration
         """
-        return {
+                return {
             "image_name": self.image_name,
             "image_tag": self.image_tag,
             "base_image": self.base_image,
@@ -97,7 +97,7 @@ class DockerConfig:
         Returns:
             Docker configuration
         """
-        return cls(**config_dict)
+                return cls(**config_dict)
 
 
 def generate_docker_config(config: DockerConfig, output_dir: str) -> str:
@@ -136,7 +136,7 @@ def generate_docker_config(config: DockerConfig, output_dir: str) -> str:
 
     logger.info(f"Docker configuration files generated in {output_dir}")
 
-    return dockerfile_path
+            return dockerfile_path
 
 
 def _generate_dockerfile(config: DockerConfig, output_path: str) -> None:
@@ -228,16 +228,16 @@ def _generate_docker_compose(config: DockerConfig, output_path: str) -> None:
 version: '3'
 
 services:
-  model-server:
+model-server:
     build:
-      context: .
+    context: .
       dockerfile: Dockerfile
     image: {config.image_name}:{config.image_tag}
     container_name: model-server
     ports:
-      - "{config.port}:{config.port}"
+    - "{config.port}:{config.port}"
     environment:
-      - MODEL_PATH={config.model_path}
+    - MODEL_PATH={config.model_path}
       - MODEL_TYPE={config.model_type}
       - MODEL_ID={config.model_id}
       - SERVER_TYPE={config.server_type}
@@ -258,9 +258,9 @@ services:
     # Add resource limits
     content += """
     deploy:
-      resources:
+    resources:
         limits:
-          cpus: '{config.cpu_limit}'
+        cpus: '{config.cpu_limit}'
           memory: {config.memory_limit}
 """
 
@@ -269,7 +269,7 @@ services:
         content += """
     runtime: nvidia
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
+    - NVIDIA_VISIBLE_DEVICES=all
 """
 
     # Write docker-compose.yml

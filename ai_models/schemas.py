@@ -22,7 +22,7 @@ class ModelConfigSchema
     Pydantic model for AI model configuration.
     """
 
-    models_dir: str = Field(
+models_dir: str = Field(
         default_factory=lambda: os.path.join(
             os.path.expanduser("~"), ".pAIssive_income", "models"
         ),
@@ -65,17 +65,17 @@ class ModelConfigSchema
         default="all-MiniLM-L6-v2", description="Default text embedding model"
     )
 
-    model_config = ConfigDict(
+model_config = ConfigDict(
         validate_assignment=True, extra="ignore", arbitrary_types_allowed=True
     )
 
-    @field_validator("max_threads")
+@field_validator("max_threads")
     @classmethod
     def validate_max_threads(cls, v):
         """Validate max_threads"""
         if v is not None and v <= 0:
             raise ValueError("max_threads must be positive or None")
-        return v
+                    return v
 
 
 class ModelInfoSchema(BaseModel):
@@ -84,7 +84,7 @@ class ModelInfoSchema(BaseModel):
     Pydantic model for AI model information.
     """
 
-    id: str = Field(..., description="Unique identifier for the model")
+id: str = Field(..., description="Unique identifier for the model")
     name: str = Field(..., description="Name of the model")
     model_type: str = Field(..., description="Type of model (text, embedding, etc.)")
     framework: str = Field(
@@ -103,7 +103,7 @@ class ModelInfoSchema(BaseModel):
         default_factory=dict, description="Additional metadata"
     )
 
-    model_config = ConfigDict(
+model_config = ConfigDict(
         validate_assignment=True,
         extra="ignore",
         json_schema_extra={"json_encoders": {datetime: lambda v: v.isoformat()}},
@@ -116,7 +116,7 @@ class ModelParametersSchema(BaseModel):
     Pydantic model for AI model parameters.
     """
 
-    temperature: Optional[float] = Field(
+temperature: Optional[float] = Field(
         default=0.7, description="Temperature for sampling", ge=0.0, le=2.0
     )
     max_tokens: Optional[int] = Field(
@@ -135,7 +135,7 @@ class ModelParametersSchema(BaseModel):
         default_factory=list, description="Sequences that stop generation"
     )
 
-    model_config = ConfigDict(validate_assignment=True, extra="allow")
+model_config = ConfigDict(validate_assignment=True, extra="allow")
 
 
 class TextGenerationRequestSchema(BaseModel):
@@ -144,13 +144,13 @@ class TextGenerationRequestSchema(BaseModel):
     Pydantic model for text generation request.
     """
 
-    prompt: str = Field(..., description="Input prompt for text generation")
+prompt: str = Field(..., description="Input prompt for text generation")
     model_id: Optional[str] = Field(None, description="ID of the model to use")
     parameters: Optional[ModelParametersSchema] = Field(
         default_factory=ModelParametersSchema, description="Generation parameters"
     )
 
-    model_config = ConfigDict(validate_assignment=True, extra="ignore")
+model_config = ConfigDict(validate_assignment=True, extra="ignore")
 
 
 class TextGenerationResponseSchema(BaseModel):
@@ -159,7 +159,7 @@ class TextGenerationResponseSchema(BaseModel):
     Pydantic model for text generation response.
     """
 
-    text: str = Field(..., description="Generated text")
+text: str = Field(..., description="Generated text")
     model_id: str = Field(..., description="ID of the model used")
     prompt: str = Field(..., description="Input prompt")
     parameters: ModelParametersSchema = Field(
@@ -173,7 +173,7 @@ class TextGenerationResponseSchema(BaseModel):
         default_factory=datetime.now, description="Creation timestamp"
     )
 
-    model_config = ConfigDict(
+model_config = ConfigDict(
         validate_assignment=True,
         extra="ignore",
         json_schema_extra={"json_encoders": {datetime: lambda v: v.isoformat()}},
@@ -186,10 +186,10 @@ class EmbeddingRequestSchema(BaseModel):
     Pydantic model for text embedding request.
     """
 
-    text: Union[str, List[str]] = Field(..., description="Text to embed")
+text: Union[str, List[str]] = Field(..., description="Text to embed")
     model_id: Optional[str] = Field(None, description="ID of the model to use")
 
-    model_config = ConfigDict(validate_assignment=True, extra="ignore")
+model_config = ConfigDict(validate_assignment=True, extra="ignore")
 
 
 class EmbeddingResponseSchema(BaseModel):
@@ -198,7 +198,7 @@ class EmbeddingResponseSchema(BaseModel):
     Pydantic model for text embedding response.
     """
 
-    embeddings: List[List[float]] = Field(..., description="Text embeddings")
+embeddings: List[List[float]] = Field(..., description="Text embeddings")
     model_id: str = Field(..., description="ID of the model used")
     dimensions: int = Field(..., description="Dimensions of the embeddings")
     texts: List[str] = Field(..., description="Input texts")
@@ -209,7 +209,7 @@ class EmbeddingResponseSchema(BaseModel):
         default_factory=datetime.now, description="Creation timestamp"
     )
 
-    model_config = ConfigDict(
+model_config = ConfigDict(
         validate_assignment=True,
         extra="ignore",
         json_schema_extra={"json_encoders": {datetime: lambda v: v.isoformat()}},
@@ -222,7 +222,7 @@ class BenchmarkConfigSchema(BaseModel):
     Pydantic model for benchmark configuration.
     """
 
-    name: str = Field(..., description="Name of the benchmark")
+name: str = Field(..., description="Name of the benchmark")
     description: Optional[str] = Field(None, description="Description of the benchmark")
     model_ids: List[str] = Field(..., description="IDs of models to benchmark")
     metrics: List[str] = Field(..., description="Metrics to evaluate")
@@ -234,7 +234,7 @@ class BenchmarkConfigSchema(BaseModel):
     batch_size: int = Field(default=1, description="Batch size for evaluation", gt=0)
     timeout: Optional[float] = Field(None, description="Timeout in seconds")
 
-    model_config = ConfigDict(validate_assignment=True, extra="ignore")
+model_config = ConfigDict(validate_assignment=True, extra="ignore")
 
 
 class BenchmarkResultSchema(BaseModel):
@@ -243,23 +243,23 @@ class BenchmarkResultSchema(BaseModel):
     Pydantic model for benchmark result.
     """
 
-    benchmark_name: str = Field(..., description="Name of the benchmark")
+benchmark_name: str = Field(..., description="Name of the benchmark")
     model_id: str = Field(..., description="ID of the model")
-    metrics: Dict[str, float] = Field(..., description="Metric results")
-    num_samples: int = Field(..., description="Number of samples evaluated")
-    execution_time: float = Field(..., description="Total execution time in seconds")
+    metrics: Dict[str, float] = Field(..., description="Metric results"
+    num_samples: int = Field(..., description="Number of samples evaluated"
+    execution_time: float = Field(..., description="Total execution time in seconds"
     created_at: datetime = Field(
         default_factory=datetime.now, description="Creation timestamp"
-    )
+    
     custom_metrics: Dict[str, Any] = Field(
         default_factory=dict, description="Custom metrics"
-    )
+    
     raw_data: Dict[str, Any] = Field(
         default_factory=dict, description="Raw benchmark data"
-    )
+    
 
-    model_config = ConfigDict(
+model_config = ConfigDict(
         validate_assignment=True,
         extra="ignore",
-        json_schema_extra={"json_encoders": {datetime: lambda v: v.isoformat()}},
-    )
+        json_schema_extra={"json_encoders": {datetime: lambda v: v.isoformat(}},
+    

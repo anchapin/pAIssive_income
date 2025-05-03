@@ -157,7 +157,7 @@ class GPTQQuantizer(Quantizer):
 
             # Process dataset
             def preprocess_function(examples):
-                return tokenizer("\n\n".join(examples["text"]))
+                        return tokenizer("\n\n".join(examples["text"]))
 
             calibration_dataset = calibration_dataset.map(
                 preprocess_function, batched=True, remove_columns=["text"]
@@ -189,7 +189,7 @@ class GPTQQuantizer(Quantizer):
         # Save quantization configuration
         self._save_quantization_config(output_path)
 
-        return output_path
+                return output_path
 
     def _save_quantization_config(self, output_path: str) -> None:
         """
@@ -218,7 +218,7 @@ class GPTQQuantizer(Quantizer):
         # GPTQ primarily supports causal language models
         supported_types = ["text-generation", "causal-lm"]
 
-        return model_type in supported_types
+                return model_type in supported_types
 
     def get_supported_methods(self) -> List[QuantizationMethod]:
         """
@@ -227,7 +227,7 @@ class GPTQQuantizer(Quantizer):
         Returns:
             List of supported quantization methods
         """
-        return [QuantizationMethod.GPTQ]
+                return [QuantizationMethod.GPTQ]
 
     def get_quantization_info(self) -> Dict[str, Any]:
         """
@@ -236,7 +236,7 @@ class GPTQQuantizer(Quantizer):
         Returns:
             Dictionary with quantization information
         """
-        return {
+                return {
             "quantizer": "GPTQ",
             "method": self.config.method.value,
             "bits": self.config.gptq_bits,

@@ -86,7 +86,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 response.raise_for_status()
                 profile_data = response.json()
 
-                return {
+                        return {
                     "authenticated": True,
                     "profile_id": profile_data.get("id"),
                     "first_name": profile_data.get("localizedFirstName"),
@@ -178,7 +178,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             if "title" not in content["document"]:
                 raise ContentValidationError("linkedin", "Document must have a title")
 
-        return True
+                return True
 
     def post_content(
         self,
@@ -217,15 +217,15 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
 
             # Add specific content based on type
             if "text" in content:
-                return self._post_text(content, post_data, targeting)
+                        return self._post_text(content, post_data, targeting)
             elif "article" in content:
-                return self._post_article(content, post_data, targeting)
+                        return self._post_article(content, post_data, targeting)
             elif "image" in content:
-                return self._post_image(content, post_data, targeting)
+                        return self._post_image(content, post_data, targeting)
             elif "video" in content:
-                return self._post_video(content, post_data, targeting)
+                        return self._post_video(content, post_data, targeting)
             elif "document" in content:
-                return self._post_document(content, post_data, targeting)
+                        return self._post_document(content, post_data, targeting)
             else:
                 raise ContentValidationError("linkedin", "No valid content type found")
 
@@ -246,9 +246,9 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             PostingError: If neither organization ID nor person ID is available
         """
         if self.organization_id:
-            return f"urn:li:organization:{self.organization_id}"
+                    return f"urn:li:organization:{self.organization_id}"
         elif self.person_id:
-            return f"urn:li:person:{self.person_id}"
+                    return f"urn:li:person:{self.person_id}"
         else:
             raise PostingError(
                 "linkedin",
@@ -266,11 +266,11 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             Dictionary with visibility settings
         """
         if visibility == "public":
-            return {"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"}
+                    return {"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"}
         elif visibility == "connections":
-            return {"com.linkedin.ugc.MemberNetworkVisibility": "CONNECTIONS"}
+                    return {"com.linkedin.ugc.MemberNetworkVisibility": "CONNECTIONS"}
         else:  # private
-            return {"com.linkedin.ugc.MemberNetworkVisibility": "NONE"}
+                    return {"com.linkedin.ugc.MemberNetworkVisibility": "NONE"}
 
     def _post_text(
         self,
@@ -317,7 +317,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             # Extract the post ID from the URN
             post_id = post_urn.split(":")[-1] if post_urn else None
 
-            return {
+                    return {
                 "id": post_id,
                 "urn": post_urn,
                 "status": "posted",
@@ -384,7 +384,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             # Extract the post ID from the URN
             post_id = post_urn.split(":")[-1] if post_urn else None
 
-            return {
+                    return {
                 "id": post_id,
                 "urn": post_urn,
                 "status": "posted",
@@ -426,7 +426,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             post_id = f"linkedin_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
             post_urn = f"urn:li:share:{post_id}"
 
-            return {
+                    return {
                 "id": post_id,
                 "urn": post_urn,
                 "status": "posted",
@@ -468,7 +468,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             post_id = f"linkedin_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
             post_urn = f"urn:li:share:{post_id}"
 
-            return {
+                    return {
                 "id": post_id,
                 "urn": post_urn,
                 "status": "posted",
@@ -510,7 +510,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             post_id = f"linkedin_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
             post_urn = f"urn:li:share:{post_id}"
 
-            return {
+                    return {
                 "id": post_id,
                 "urn": post_urn,
                 "status": "posted",
@@ -570,7 +570,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 f"linkedin_scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
             )
 
-            return {
+                    return {
                 "id": scheduled_id,
                 "scheduled_time": schedule_time.isoformat(),
                 "status": "scheduled",
@@ -630,7 +630,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 "platform_data": result,
             }
 
-            return post_data
+                    return post_data
 
         except requests.exceptions.RequestException as e:
             if e.response and e.response.status_code == 404:
@@ -663,7 +663,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             response.raise_for_status()
 
             # LinkedIn returns 204 No Content on successful deletion
-            return response.status_code == 204
+                    return response.status_code == 204
 
         except requests.exceptions.RequestException as e:
             if e.response and e.response.status_code == 404:
@@ -723,7 +723,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 )
 
                 # For demonstration, we'll return mock analytics data
-                return {
+                        return {
                     "post_id": post_id,
                     "urn": post_urn,
                     "metrics": {
@@ -740,7 +740,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             # Otherwise, get organization-level analytics
             elif self.organization_id:
                 # For demonstration, we'll return mock analytics data
-                return {
+                        return {
                     "organization_id": self.organization_id,
                     "period": {"start_date": start_date_str, "end_date": end_date_str},
                     "metrics": {
@@ -754,11 +754,11 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 }
 
             else:
-                return {"error": "No post ID or organization ID provided for analytics"}
+                        return {"error": "No post ID or organization ID provided for analytics"}
 
         except Exception as e:
             logger.error(f"LinkedIn analytics error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "post_id": post_id,
                 "organization_id": self.organization_id,
@@ -790,10 +790,10 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
 
             # Check if we have an organization ID
             if not self.organization_id:
-                return {"error": "Organization ID is required for audience insights"}
+                        return {"error": "Organization ID is required for audience insights"}
 
             # For demonstration, we'll return mock audience insights data
-            return {
+                    return {
                 "organization_id": self.organization_id,
                 "segment": segment or "followers",
                 "demographics": {
@@ -852,7 +852,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"LinkedIn audience insights error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "organization_id": self.organization_id,
                 "segment": segment or "followers",

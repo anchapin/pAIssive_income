@@ -91,7 +91,7 @@ class CloudConfig:
         Returns:
             Dictionary representation of the configuration
         """
-        return {
+                return {
             "provider": self.provider.value,
             "name": self.name,
             "region": self.region,
@@ -146,7 +146,7 @@ class CloudConfig:
         config = cls(provider=provider, **config_dict)
 
         config.additional_params = additional_params
-        return config
+                return config
 
 
 def generate_cloud_config(config: CloudConfig, output_dir: str) -> str:
@@ -165,11 +165,11 @@ def generate_cloud_config(config: CloudConfig, output_dir: str) -> str:
 
     # Generate configuration based on provider
     if config.provider == CloudProvider.AWS:
-        return _generate_aws_config(config, output_dir)
+                return _generate_aws_config(config, output_dir)
     elif config.provider == CloudProvider.GCP:
-        return _generate_gcp_config(config, output_dir)
+                return _generate_gcp_config(config, output_dir)
     elif config.provider == CloudProvider.AZURE:
-        return _generate_azure_config(config, output_dir)
+                return _generate_azure_config(config, output_dir)
     else:
         raise ValueError(f"Unsupported cloud provider: {config.provider}")
 
@@ -195,7 +195,7 @@ def _generate_aws_config(config: CloudConfig, output_dir: str) -> str:
 
     logger.info(f"AWS configuration files generated in {output_dir}")
 
-    return template_path
+            return template_path
 
 
 def _generate_gcp_config(config: CloudConfig, output_dir: str) -> str:
@@ -219,7 +219,7 @@ def _generate_gcp_config(config: CloudConfig, output_dir: str) -> str:
 
     logger.info(f"GCP configuration files generated in {output_dir}")
 
-    return terraform_path
+            return terraform_path
 
 
 def _generate_azure_config(config: CloudConfig, output_dir: str) -> str:
@@ -243,7 +243,7 @@ def _generate_azure_config(config: CloudConfig, output_dir: str) -> str:
 
     logger.info(f"Azure configuration files generated in {output_dir}")
 
-    return template_path
+            return template_path
 
 
 def _generate_cloudformation_template(config: CloudConfig, output_path: str) -> None:
@@ -260,86 +260,86 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'AI Model Deployment'
 
 Parameters:
-  ModelName:
+ModelName:
     Type: String
     Default: {config.name}
     Description: Name of the model deployment
   
-  ModelPath:
+ModelPath:
     Type: String
     Default: {config.model_path}
     Description: Path to the model
   
-  ModelType:
+ModelType:
     Type: String
     Default: {config.model_type}
     Description: Type of the model
   
-  ServerType:
+ServerType:
     Type: String
     Default: {config.server_type}
     Description: Type of the server (rest or grpc)
   
-  Port:
+Port:
     Type: Number
     Default: {config.port}
     Description: Port for the server
   
-  InstanceType:
+InstanceType:
     Type: String
     Default: {config.instance_type or "ml.m5.large"}
     Description: Instance type for the deployment
   
-  MinInstances:
+MinInstances:
     Type: Number
     Default: {config.min_instances}
     Description: Minimum number of instances
   
-  MaxInstances:
+MaxInstances:
     Type: Number
     Default: {config.max_instances}
     Description: Maximum number of instances
 
 Resources:
-  ModelRole:
+ModelRole:
     Type: AWS::IAM::Role
     Properties:
-      AssumeRolePolicyDocument:
+    AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Effect: Allow
+        - Effect: Allow
             Principal:
               Service: sagemaker.amazonaws.com
             Action: 'sts:AssumeRole'
-      ManagedPolicyArns:
+    ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
         - 'arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'
 
-  ModelEndpoint:
+ModelEndpoint:
     Type: AWS::SageMaker::Endpoint
     Properties:
-      EndpointName: !Ref ModelName
+    EndpointName: !Ref ModelName
       EndpointConfigName: !GetAtt ModelEndpointConfig.EndpointConfigName
 
-  ModelEndpointConfig:
+ModelEndpointConfig:
     Type: AWS::SageMaker::EndpointConfig
     Properties:
-      ProductionVariants:
+    ProductionVariants:
         - InitialInstanceCount: !Ref MinInstances
           InstanceType: !Ref InstanceType
           ModelName: !GetAtt Model.ModelName
           VariantName: AllTraffic
           InitialVariantWeight: 1.0
 
-  Model:
+Model:
     Type: AWS::SageMaker::Model
     Properties:
-      ModelName: !Ref ModelName
+    ModelName: !Ref ModelName
       ExecutionRoleArn: !GetAtt ModelRole.Arn
       PrimaryContainer:
         Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ModelName}:latest'
         Environment:
-          MODEL_PATH: !Ref ModelPath
+        MODEL_PATH: !Ref ModelPath
           MODEL_TYPE: !Ref ModelType
           SERVER_TYPE: !Ref ServerType
           PORT: !Ref Port
@@ -352,11 +352,11 @@ Resources:
     # Add outputs
     content += """
 Outputs:
-  EndpointName:
+EndpointName:
     Description: Name of the SageMaker endpoint
     Value: !Ref ModelEndpoint
   
-  EndpointUrl:
+EndpointUrl:
     Description: URL of the SageMaker endpoint
     Value: !Sub 'https://runtime.sagemaker.${AWS::Region}.amazonaws.com/endpoints/${ModelEndpoint}'
 """
@@ -527,7 +527,7 @@ resource "google_cloud_run_service" "model_service" {{
         "autoscaling.knative.dev/maxScale" = "{config.max_instances}"
       }}
     }}
-  }}
+}}
   
   traffic {{
     percent         = 100
@@ -616,7 +616,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
     """
     # Create ARM template content
     content = """{{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {{
     "containerRegistryName": {{
@@ -778,7 +778,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
         "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]"
       ]
     }}
-  ],
+],
   "outputs": {{
     "containerAppFqdn": {{
       "type": "string",

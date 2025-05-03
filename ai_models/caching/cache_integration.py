@@ -29,7 +29,7 @@ def get_cache_service() -> CacheService:
     Returns:
         Cache service instance
     """
-    return default_cache
+            return default_cache
 
 
 def cache_model_result(
@@ -48,7 +48,7 @@ def cache_model_result(
         @cache_model_result(ttl=3600)
         def generate_text(model_id, prompt, parameters=None):
             # Call the model to generate text
-            return model.generate(prompt, parameters)
+                    return model.generate(prompt, parameters)
 
     Args:
         func: Function to decorate
@@ -67,7 +67,7 @@ def cache_model_result(
 
             # Check if caching is enabled
             if not cache.is_enabled():
-                return f(*args, **kwargs)
+                        return f(*args, **kwargs)
 
             # Get function signature to map positional args to names
             sig = inspect.signature(f)
@@ -80,7 +80,7 @@ def cache_model_result(
                 logger.warning(
                     f"Cannot cache result: '{model_id_arg}' not found in function arguments"
                 )
-                return f(*args, **kwargs)
+                        return f(*args, **kwargs)
 
             model_id = all_args[model_id_arg]
 
@@ -109,7 +109,7 @@ def cache_model_result(
 
             if cached_result is not None:
                 logger.debug(f"Cache hit for {operation} with model {model_id}")
-                return cached_result
+                        return cached_result
 
             # Call the original function
             logger.debug(f"Cache miss for {operation} with model {model_id}")
@@ -120,14 +120,14 @@ def cache_model_result(
                 model_id, operation, inputs, result, parameters, ttl
             )
 
-            return result
+                    return result
 
-        return wrapper
+                return wrapper
 
     # Handle both @cache_model_result and @cache_model_result()
     if func is not None:
-        return decorator(func)
-    return decorator
+                return decorator(func)
+            return decorator
 
 
 def invalidate_model_cache(model_id: str, operation: Optional[str] = None) -> bool:
@@ -144,4 +144,4 @@ def invalidate_model_cache(model_id: str, operation: Optional[str] = None) -> bo
     # This is a simplified implementation that just clears the entire cache
     # A more sophisticated implementation would selectively clear cache entries
     cache = get_cache_service()
-    return cache.clear()
+            return cache.clear()

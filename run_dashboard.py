@@ -48,23 +48,23 @@ def main():
     )
     parser.add_argument("--debug", action="store_true", help="Run in debug mode")
 
-    args = parser.parse_args()
+args = parser.parse_args()
 
-    print(
+print(
         f"Starting pAIssive Income Monitoring Dashboard on http://{args.host}:{args.port}"
     )
     print("Press Ctrl+C to stop the server")
 
-    try:
+try:
         # Start the dashboard
         start_dashboard(args.host, args.port, args.debug)
     except KeyboardInterrupt:
         print("\nShutting down dashboard...")
     except Exception as e:
         print(f"Error running dashboard: {e}")
-        return 1
+                    return 1
 
-    return 0
+            return 0
 
 
 if __name__ == "__main__":

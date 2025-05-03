@@ -41,7 +41,7 @@ class DatabaseFactory:
         if db_type == "sqlite":
             db_path = config.get("db_path", ":memory:")
             logger.info(f"Creating SQLite database connection to {db_path}")
-            return SQLiteAdapter(db_path)
+                    return SQLiteAdapter(db_path)
 
         elif db_type == "mongodb":
             connection_string = config.get(
@@ -51,7 +51,7 @@ class DatabaseFactory:
             logger.info(
                 f"Creating MongoDB connection to {connection_string}, database: {db_name}"
             )
-            return MongoDBAdapter(connection_string, db_name)
+                    return MongoDBAdapter(connection_string, db_name)
 
         else:
             logger.error(f"Unsupported database type: {db_type}")
@@ -72,9 +72,9 @@ class DatabaseFactory:
             ValueError: If the database type is not supported
         """
         if isinstance(db, SQLiteAdapter):
-            return SQLiteUnitOfWork(db)
+                    return SQLiteUnitOfWork(db)
         elif isinstance(db, MongoDBAdapter):
-            return MongoDBUnitOfWork(db)
+                    return MongoDBUnitOfWork(db)
         else:
             logger.error(f"Unsupported database type for UnitOfWork: {type(db)}")
             raise ValueError(f"Unsupported database type for UnitOfWork: {type(db)}")

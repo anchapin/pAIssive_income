@@ -93,7 +93,7 @@ def apply_pagination(items: List[Any], params: QueryParams) -> Dict[str, Any]:
     end = start + params.page_size
     pages = (total + params.page_size - 1) // params.page_size
 
-    return {
+            return {
         "items": items[start:end],
         "total": total,
         "page": params.page,
@@ -119,17 +119,17 @@ def apply_filtering(
         Filtered list of items
     """
     if not query_params.filters:
-        return items
+                return items
 
     # Default field getter function
     if field_getter is None:
 
         def field_getter(item, field):
             if hasattr(item, field):
-                return getattr(item, field)
+                        return getattr(item, field)
             elif isinstance(item, dict):
-                return item.get(field)
-            return None
+                        return item.get(field)
+                    return None
 
     filtered_items = []
 
@@ -211,7 +211,7 @@ def apply_filtering(
         if include:
             filtered_items.append(item)
 
-    return filtered_items
+            return filtered_items
 
 
 def apply_sorting(
@@ -231,27 +231,27 @@ def apply_sorting(
         Sorted list of items
     """
     if not query_params.sort_by:
-        return items
+                return items
 
     # Default field getter function
     if field_getter is None:
 
         def field_getter(item, field):
             if hasattr(item, field):
-                return getattr(item, field)
+                        return getattr(item, field)
             elif isinstance(item, dict):
-                return item.get(field)
-            return None
+                        return item.get(field)
+                    return None
 
     # Create key function for sorting that handles None values
     def sort_key(item):
         value = field_getter(item, query_params.sort_by)
         if value is None:
             # Sort None values last in ascending order, first in descending
-            return (
+                    return (
                 (1, None) if query_params.sort_dir == SortDirection.ASC else (0, None)
             )
-        return (0, value) if query_params.sort_dir == SortDirection.ASC else (1, value)
+                return (0, value) if query_params.sort_dir == SortDirection.ASC else (1, value
 
     # Sort items
-    return sorted(items, key=sort_key)
+            return sorted(items, key=sort_key

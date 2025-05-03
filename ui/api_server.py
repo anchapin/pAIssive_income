@@ -38,9 +38,9 @@ ACTIVE_SESSIONS = {}
 @app.route("/<path:path>")
 def serve_react(path):
     if path != "" and os.path.exists(app.static_folder + "/" + path):
-        return send_from_directory(app.static_folder, path)
+                    return send_from_directory(app.static_folder, path)
     else:
-        return send_from_directory(app.static_folder, "index.html")
+                    return send_from_directory(app.static_folder, "index.html")
 
 
 # Auth endpoints
@@ -50,26 +50,26 @@ def login():
     username = data.get("username")
     password = data.get("password")
 
-    # Demo auth - in production, this would check credentials properly
+# Demo auth - in production, this would check credentials properly
     if username == "demo" and password == "password":
         user = MOCK_USERS["user1"]
         # In a real app, you'd generate a secure token
         ACTIVE_SESSIONS["session1"] = user["id"]
-        return jsonify(user), 200
+                    return jsonify(user), 200
 
-    return jsonify({"message": "Invalid credentials"}), 401
+            return jsonify({"message": "Invalid credentials"}), 401
 
 
 @app.route("/api/auth/logout", methods=["POST"])
 def logout():
     # In a real app, you'd invalidate the session token
-    return jsonify({"message": "Logged out successfully"}), 200
+                return jsonify({"message": "Logged out successfully"}), 200
 
 
 @app.route("/api/auth/register", methods=["POST"])
 def register():
     # In a real app, you'd validate and store user data
-    return jsonify(MOCK_USERS["user1"]), 201
+                return jsonify(MOCK_USERS["user1"]), 201
 
 
 @app.route("/api/user/profile", methods=["GET"])
@@ -77,14 +77,14 @@ def get_profile():
     # In a real app, you'd get the user ID from the session token
     user_id = ACTIVE_SESSIONS.get("session1")
     if user_id:
-        return jsonify(MOCK_USERS[user_id]), 200
-    return jsonify({"message": "Not authenticated"}), 401
+                    return jsonify(MOCK_USERS[user_id]), 200
+                return jsonify({"message": "Not authenticated"}), 401
 
 
 @app.route("/api/user/profile", methods=["PUT"])
 def update_profile():
     # In a real app, you'd update the user's profile
-    return jsonify(MOCK_USERS["user1"]), 200
+                return jsonify(MOCK_USERS["user1"]), 200
 
 
 # Niche Analysis endpoints
@@ -106,7 +106,7 @@ def get_market_segments():
         {"id": 12, "name": "Retail"},
         {"id": 13, "name": "Transportation"},
     ]
-    return jsonify(segments), 200
+                return jsonify(segments), 200
 
 
 @app.route("/api/niche-analysis/analyze", methods=["POST"])
@@ -114,13 +114,13 @@ def analyze_niches():
     data = request.json
     data.get("segments", [])
 
-    try:
+try:
         # Here we'd call our actual niche analysis logic
         # For now, return mock data
         analysis_id = "analysis123"
-        return jsonify({"analysisId": analysis_id, "message": "Analysis started"}), 202
+                    return jsonify({"analysisId": analysis_id, "message": "Analysis started"}), 202
     except Exception as e:
-        return jsonify({"message": f"Analysis failed: {str(e)}"}), 500
+                    return jsonify({"message": f"Analysis failed: {str(e)}"}), 500
 
 
 @app.route("/api/niche-analysis/results/<analysis_id>", methods=["GET"])
@@ -174,7 +174,7 @@ def get_niche_results(analysis_id):
             },
         ],
     }
-    return jsonify(results), 200
+                return jsonify(results), 200
 
 
 @app.route("/api/niche-analysis/results", methods=["GET"])
@@ -188,7 +188,7 @@ def get_all_niche_results():
             "nicheCount": 3,
         }
     ]
-    return jsonify(results), 200
+                return jsonify(results), 200
 
 
 # Developer endpoints
@@ -215,7 +215,7 @@ def get_niches():
             "opportunityScore": 0.75,
         },
     ]
-    return jsonify(niches), 200
+                return jsonify(niches), 200
 
 
 @app.route("/api/developer/templates", methods=["GET"])
@@ -247,7 +247,7 @@ def get_templates():
             "technologies": ["Python", "Click", "SQLite"],
         },
     ]
-    return jsonify(templates), 200
+                return jsonify(templates), 200
 
 
 @app.route("/api/developer/solution", methods=["POST"])
@@ -256,11 +256,11 @@ def generate_solution():
     data.get("nicheId")
     data.get("templateId")
 
-    try:
+try:
         # Here we'd call our actual solution generation logic
         # For now, return a mock response
         solution_id = 12345  # Normally generated or from database
-        return (
+                    return (
             jsonify(
                 {
                     "solutionId": solution_id,
@@ -270,7 +270,7 @@ def generate_solution():
             201,
         )
     except Exception as e:
-        return jsonify({"message": f"Solution generation failed: {str(e)}"}), 500
+                    return jsonify({"message": f"Solution generation failed: {str(e)}"}), 500
 
 
 @app.route("/api/developer/solutions/<solution_id>", methods=["GET"])
@@ -322,7 +322,7 @@ def get_solution_details(solution_id):
             "Test and refine",
         ],
     }
-    return jsonify(solution), 200
+                return jsonify(solution), 200
 
 
 @app.route("/api/developer/solutions", methods=["GET"])
@@ -338,7 +338,7 @@ def get_all_solutions():
             "dateCreated": "2025-04-28",
         }
     ]
-    return jsonify(solutions), 200
+                return jsonify(solutions), 200
 
 
 # Monetization endpoints
@@ -353,7 +353,7 @@ def get_monetization_solutions():
             "niche": "AI-powered content optimization",
         }
     ]
-    return jsonify(solutions), 200
+                return jsonify(solutions), 200
 
 
 @app.route("/api/monetization/strategy", methods=["POST"])
@@ -362,11 +362,11 @@ def generate_monetization_strategy():
     data.get("solutionId")
     data.get("options", {})
 
-    try:
+try:
         # Here we'd call our actual monetization strategy generation logic
         # For now, return a mock response
         strategy_id = 54321  # Normally generated or from database
-        return (
+                    return (
             jsonify(
                 {
                     "strategyId": strategy_id,
@@ -376,7 +376,7 @@ def generate_monetization_strategy():
             201,
         )
     except Exception as e:
-        return jsonify({"message": f"Strategy generation failed: {str(e)}"}), 500
+                    return jsonify({"message": f"Strategy generation failed: {str(e)}"}), 500
 
 
 @app.route("/api/monetization/strategy/<strategy_id>", methods=["GET"])
@@ -453,7 +453,7 @@ def get_strategy_details(strategy_id):
             },
         ],
     }
-    return jsonify(strategy), 200
+                return jsonify(strategy), 200
 
 
 @app.route("/api/monetization/strategies", methods=["GET"])
@@ -469,7 +469,7 @@ def get_all_strategies():
             "dateCreated": "2025-04-28",
         }
     ]
-    return jsonify(strategies), 200
+                return jsonify(strategies), 200
 
 
 # Marketing endpoints
@@ -484,7 +484,7 @@ def get_marketing_solutions():
             "niche": "AI-powered content optimization",
         }
     ]
-    return jsonify(solutions), 200
+                return jsonify(solutions), 200
 
 
 @app.route("/api/marketing/audience-personas", methods=["GET"])
@@ -517,7 +517,7 @@ def get_audience_personas():
             "interests": ["Campaign Management", "Analytics", "Content Creation"],
         },
     ]
-    return jsonify(personas), 200
+                return jsonify(personas), 200
 
 
 @app.route("/api/marketing/channels", methods=["GET"])
@@ -550,7 +550,7 @@ def get_marketing_channels():
             "platforms": ["Reddit", "Discord", "Forums", "Q&A Sites"],
         },
     ]
-    return jsonify(channels), 200
+                return jsonify(channels), 200
 
 
 @app.route("/api/marketing/campaign", methods=["POST"])
@@ -560,11 +560,11 @@ def generate_marketing_campaign():
     data.get("audienceIds", [])
     data.get("channelIds", [])
 
-    try:
+try:
         # Here we'd call our actual marketing campaign generation logic
         # For now, return a mock response
         campaign_id = 67890  # Normally generated or from database
-        return (
+                    return (
             jsonify(
                 {
                     "campaignId": campaign_id,
@@ -574,7 +574,7 @@ def generate_marketing_campaign():
             201,
         )
     except Exception as e:
-        return jsonify({"message": f"Campaign generation failed: {str(e)}"}), 500
+                    return jsonify({"message": f"Campaign generation failed: {str(e)}"}), 500
 
 
 @app.route("/api/marketing/campaign/<campaign_id>", methods=["GET"])
@@ -624,7 +624,7 @@ def get_campaign_details(campaign_id):
             ],
         },
     }
-    return jsonify(campaign), 200
+                return jsonify(campaign), 200
 
 
 @app.route("/api/marketing/campaigns", methods=["GET"])
@@ -640,7 +640,7 @@ def get_all_campaigns():
             "dateCreated": "2025-04-28",
         }
     ]
-    return jsonify(campaigns), 200
+                return jsonify(campaigns), 200
 
 
 # Dashboard endpoints
@@ -678,7 +678,7 @@ def get_dashboard_overview():
         "totalSubscribers": 48,
         "projectCount": 3,
     }
-    return jsonify(overview), 200
+                return jsonify(overview), 200
 
 
 @app.route("/api/dashboard/revenue", methods=["GET"])
@@ -693,7 +693,7 @@ def get_revenue_stats():
         ],
         "byProduct": [{"name": "AI Writing Assistant", "revenue": 1250}],
     }
-    return jsonify(revenue), 200
+                return jsonify(revenue), 200
 
 
 @app.route("/api/dashboard/subscribers", methods=["GET"])
@@ -713,7 +713,7 @@ def get_subscriber_stats():
             {"tier": "Enterprise", "count": 4},
         ],
     }
-    return jsonify(subscribers), 200
+                return jsonify(subscribers), 200
 
 
 if __name__ == "__main__":

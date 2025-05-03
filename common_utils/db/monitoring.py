@@ -71,8 +71,8 @@ class DatabaseMetrics:
         """
         with self._lock:
             if self.query_count == 0:
-                return 0.0
-            return self.total_query_time / self.query_count
+                        return 0.0
+                    return self.total_query_time / self.query_count
 
     def get_slow_queries(self) -> List[Dict[str, Any]]:
         """
@@ -82,7 +82,7 @@ class DatabaseMetrics:
             List of query info dictionaries for queries that exceeded the slow threshold
         """
         with self._lock:
-            return [q for q in self.queries if q["duration"] > self.slow_threshold]
+                    return [q for q in self.queries if q["duration"] > self.slow_threshold]
 
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -99,7 +99,7 @@ class DatabaseMetrics:
                 "slow_query_count": len(self.get_slow_queries()),
                 "recent_queries": self.queries[-10:] if self.queries else [],
             }
-            return stats
+                    return stats
 
     def reset(self) -> None:
         """Reset all metrics."""
@@ -136,7 +136,7 @@ class MonitoringDatabaseProxy(DatabaseInterface):
         """
         start_time = time.time()
         try:
-            return method(*args, **kwargs)
+                    return method(*args, **kwargs)
         finally:
             duration = time.time() - start_time
 
@@ -152,31 +152,31 @@ class MonitoringDatabaseProxy(DatabaseInterface):
 
     def connect(self) -> None:
         """Establish a connection to the database with monitoring."""
-        return self._time_method("connect", self.db.connect)
+                return self._time_method("connect", self.db.connect)
 
     def disconnect(self) -> None:
         """Close the database connection with monitoring."""
-        return self._time_method("disconnect", self.db.disconnect)
+                return self._time_method("disconnect", self.db.disconnect)
 
     def execute(self, query: str, params: Optional[Dict[str, Any]] = None) -> Any:
         """Execute a query with parameters and monitor performance."""
-        return self._time_method("execute", self.db.execute, query, params)
+                return self._time_method("execute", self.db.execute, query, params)
 
     def fetch_one(
         self, query: str, params: Optional[Dict[str, Any]] = None
     ) -> Optional[Dict[str, Any]]:
         """Fetch a single record from the database with monitoring."""
-        return self._time_method("fetch_one", self.db.fetch_one, query, params)
+                return self._time_method("fetch_one", self.db.fetch_one, query, params)
 
     def fetch_all(
         self, query: str, params: Optional[Dict[str, Any]] = None
     ) -> List[Dict[str, Any]]:
         """Fetch multiple records from the database with monitoring."""
-        return self._time_method("fetch_all", self.db.fetch_all, query, params)
+                return self._time_method("fetch_all", self.db.fetch_all, query, params)
 
     def insert(self, table: str, data: Dict[str, Any]) -> Any:
         """Insert a record into the database with monitoring."""
-        return self._time_method("insert", self.db.insert, table, data)
+                return self._time_method("insert", self.db.insert, table, data)
 
     def update(
         self,
@@ -186,7 +186,7 @@ class MonitoringDatabaseProxy(DatabaseInterface):
         params: Optional[Dict[str, Any]] = None,
     ) -> int:
         """Update records in the database with monitoring."""
-        return self._time_method(
+                return self._time_method(
             "update", self.db.update, table, data, condition, params
         )
 
@@ -194,11 +194,11 @@ class MonitoringDatabaseProxy(DatabaseInterface):
         self, table: str, condition: str, params: Optional[Dict[str, Any]] = None
     ) -> int:
         """Delete records from the database with monitoring."""
-        return self._time_method("delete", self.db.delete, table, condition, params)
+                return self._time_method("delete", self.db.delete, table, condition, params)
 
     def get_metrics(self) -> DatabaseMetrics:
         """Get the collected metrics."""
-        return self.metrics
+                return self.metrics
 
     def reset_metrics(self) -> None:
         """Reset the metrics."""
@@ -212,7 +212,7 @@ class MonitoringDatabaseProxy(DatabaseInterface):
             Dictionary with database performance statistics
         """
         stats = self.metrics.get_stats()
-        return {
+                return {
             "summary": {
                 "query_count": stats["query_count"],
                 "total_query_time": f"{stats['total_query_time']:.3f}s",

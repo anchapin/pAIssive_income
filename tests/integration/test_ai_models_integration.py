@@ -31,7 +31,7 @@ def mock_model_manager():
     # Mock load_model method
     manager.load_model.return_value = MagicMock(name="Test Model")
 
-    return manager
+            return manager
 
 
 @patch("agent_team.team_config.ResearchAgent")
@@ -121,7 +121,7 @@ def mock_all_agents():
         mock_agent = MagicMock(name=f"{agent_type.capitalize()}Agent")
         mock_agents[agent_type] = mock_agent
 
-    return mock_agents
+            return mock_agents
 
 
 @patch("agent_team.team_config.ResearchAgent")
@@ -264,10 +264,10 @@ def test_model_fallback_integration(mock_model_manager):
     # Configure the mocks
     def get_model_info_side_effect(model_id):
         if model_id == "fallback_model":
-            return fallback_model_info
+                    return fallback_model_info
         elif model_id == "primary_model":
-            return primary_model_info
-        return None
+                    return primary_model_info
+                return None
 
     mock_model_manager.get_model_info.side_effect = get_model_info_side_effect
     mock_model_manager.get_all_models.return_value = [
@@ -283,7 +283,7 @@ def test_model_fallback_integration(mock_model_manager):
         if model_id == "primary_model":
             raise Exception("Model loading failed")
         elif model_id == "fallback_model":
-            return fallback_model
+                    return fallback_model
         raise Exception(f"Unknown model: {model_id}")
 
     mock_model_manager.load_model.side_effect = load_model_side_effect

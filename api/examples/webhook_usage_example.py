@@ -88,7 +88,7 @@ class NicheAnalysisService:
                 analysis_id=analysis_id, results=results
             )
 
-            return results
+                    return results
 
         except Exception as e:
             error = str(e)
@@ -141,7 +141,7 @@ class MonetizationService:
             subscription_id=subscription["id"], subscription_data=subscription
         )
 
-        return subscription
+                return subscription
 
     async def process_payment(
         self, payment_id: str, amount: float, user_id: str
@@ -172,7 +172,7 @@ class MonetizationService:
             payment_id=payment_id, payment_data=payment
         )
 
-        return payment
+                return payment
 
 
 # Example usage

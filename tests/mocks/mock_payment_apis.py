@@ -67,18 +67,18 @@ class MockPaymentGateway:
 
     def _generate_id(self, prefix: str) -> str:
         """Generate a random ID with a prefix."""
-        return f"{prefix}_{uuid.uuid4().hex[:12]}"
+                return f"{prefix}_{uuid.uuid4().hex[:12]}"
 
     def _simulate_success(self, success_rate: Optional[float] = None) -> bool:
         """Simulate a success or failure based on success rate."""
         rate = success_rate if success_rate is not None else self.success_rate
-        return random.random() < rate
+                return random.random() < rate
 
     def _simulate_network_error(self) -> bool:
         """Simulate a network error based on error rate."""
         if self.config.get("simulate_network_errors", True) is False:
-            return False
-        return random.random() < self.network_error_rate
+                    return False
+                return random.random() < self.network_error_rate
 
     def record_call(self, method_name: str, **kwargs):
         """Record a method call for testing assertions."""
@@ -95,8 +95,8 @@ class MockPaymentGateway:
     ) -> List[Dict[str, Any]]:
         """Get the call history, optionally filtered by method name."""
         if method_name:
-            return [call for call in self.call_history if call["method"] == method_name]
-        return self.call_history
+                    return [call for call in self.call_history if call["method"] == method_name]
+                return self.call_history
 
     def clear_call_history(self):
         """Clear the call history."""
@@ -117,11 +117,11 @@ class MockPaymentGateway:
 
         # Check if the number contains only digits
         if not card_number.isdigit():
-            return False
+                    return False
 
         # Check if the length is valid (most cards are 13-19 digits)
         if not (13 <= len(card_number) <= 19):
-            return False
+                    return False
 
         # Apply the Luhn algorithm
         total = 0
@@ -135,7 +135,7 @@ class MockPaymentGateway:
                     digit -= 9
             total += digit
 
-        return total % 10 == 0
+                return total % 10 == 0
 
     def get_card_type(self, card_number: str) -> str:
         """
@@ -152,19 +152,19 @@ class MockPaymentGateway:
 
         # Simplified card type detection based on prefix and length
         if card_number.startswith("4"):
-            return "visa"
+                    return "visa"
         elif card_number.startswith(("51", "52", "53", "54", "55")) or (
             51 <= int(card_number[:2]) <= 55
         ):
-            return "mastercard"
+                    return "mastercard"
         elif card_number.startswith(("34", "37")):
-            return "amex"
+                    return "amex"
         elif card_number.startswith(
             ("6011", "644", "645", "646", "647", "648", "649", "65")
         ):
-            return "discover"
+                    return "discover"
         else:
-            return "unknown"
+                    return "unknown"
 
     def mask_card_number(self, card_number: str) -> str:
         """
@@ -182,10 +182,10 @@ class MockPaymentGateway:
         # Determine how many digits to show
         if card_number.startswith(("34", "37")):
             # Amex: show first 6 and last 4
-            return card_number[:6] + "X" * (len(card_number) - 10) + card_number[-4:]
+                    return card_number[:6] + "X" * (len(card_number) - 10) + card_number[-4:]
         else:
             # Other cards: show first 4 and last 4
-            return card_number[:4] + "X" * (len(card_number) - 8) + card_number[-4:]
+                    return card_number[:4] + "X" * (len(card_number) - 8) + card_number[-4:]
 
     def create_customer(
         self,
@@ -226,7 +226,7 @@ class MockPaymentGateway:
         # Store customer
         self.customers[customer_id] = customer
 
-        return copy.deepcopy(customer)
+                return copy.deepcopy(customer)
 
     def get_customer(self, customer_id: str) -> Dict[str, Any]:
         """
@@ -248,7 +248,7 @@ class MockPaymentGateway:
         if customer_id not in self.customers:
             raise ValueError(f"Customer not found: {customer_id}")
 
-        return copy.deepcopy(self.customers[customer_id])
+                return copy.deepcopy(self.customers[customer_id])
 
     def update_customer(
         self,
@@ -300,7 +300,7 @@ class MockPaymentGateway:
 
         customer["updated_at"] = datetime.now().isoformat()
 
-        return copy.deepcopy(customer)
+                return copy.deepcopy(customer)
 
     def list_customers(
         self, email: Optional[str] = None, limit: int = 100
@@ -335,7 +335,7 @@ class MockPaymentGateway:
             if len(filtered_customers) >= limit:
                 break
 
-        return copy.deepcopy(filtered_customers)
+                return copy.deepcopy(filtered_customers)
 
     def delete_customer(self, customer_id: str) -> bool:
         """
@@ -377,7 +377,7 @@ class MockPaymentGateway:
         for payment_method_id in payment_methods_to_delete:
             del self.payment_methods[payment_method_id]
 
-        return True
+                return True
 
     def create_payment_method(
         self,
@@ -490,7 +490,7 @@ class MockPaymentGateway:
         # Store payment method
         self.payment_methods[payment_method_id] = payment_method
 
-        return copy.deepcopy(payment_method)
+                return copy.deepcopy(payment_method)
 
     def get_payment_method(self, payment_method_id: str) -> Dict[str, Any]:
         """
@@ -512,7 +512,7 @@ class MockPaymentGateway:
         if payment_method_id not in self.payment_methods:
             raise ValueError(f"Payment method not found: {payment_method_id}")
 
-        return copy.deepcopy(self.payment_methods[payment_method_id])
+                return copy.deepcopy(self.payment_methods[payment_method_id])
 
     def list_payment_methods(
         self, customer_id: str, payment_type: Optional[str] = None
@@ -553,7 +553,7 @@ class MockPaymentGateway:
 
             filtered_methods.append(payment_method)
 
-        return copy.deepcopy(filtered_methods)
+                return copy.deepcopy(filtered_methods)
 
     def delete_payment_method(self, payment_method_id: str) -> bool:
         """
@@ -588,7 +588,7 @@ class MockPaymentGateway:
         # Delete payment method
         del self.payment_methods[payment_method_id]
 
-        return True
+                return True
 
     def create_payment(
         self,
@@ -674,7 +674,7 @@ class MockPaymentGateway:
         if not success:
             raise ValueError("Payment failed: Your card was declined.")
 
-        return copy.deepcopy(payment)
+                return copy.deepcopy(payment)
 
     def get_payment(self, payment_id: str) -> Dict[str, Any]:
         """
@@ -696,7 +696,7 @@ class MockPaymentGateway:
         if payment_id not in self.payments:
             raise ValueError(f"Payment not found: {payment_id}")
 
-        return copy.deepcopy(self.payments[payment_id])
+                return copy.deepcopy(self.payments[payment_id])
 
     def list_payments(
         self,
@@ -770,7 +770,7 @@ class MockPaymentGateway:
         # Sort by created_at (newest first)
         filtered_payments.sort(key=lambda p: p["created_at"], reverse=True)
 
-        return copy.deepcopy(filtered_payments)
+                return copy.deepcopy(filtered_payments)
 
     def refund_payment(
         self,
@@ -856,7 +856,7 @@ class MockPaymentGateway:
         if not success:
             raise ValueError("Refund failed: The refund could not be processed.")
 
-        return copy.deepcopy(refund)
+                return copy.deepcopy(refund)
 
     def get_refund(self, refund_id: str) -> Dict[str, Any]:
         """
@@ -878,7 +878,7 @@ class MockPaymentGateway:
         if refund_id not in self.refunds:
             raise ValueError(f"Refund not found: {refund_id}")
 
-        return copy.deepcopy(self.refunds[refund_id])
+                return copy.deepcopy(self.refunds[refund_id])
 
     def list_refunds(
         self, payment_id: Optional[str] = None, limit: int = 100
@@ -916,7 +916,7 @@ class MockPaymentGateway:
         # Sort by created_at (newest first)
         filtered_refunds.sort(key=lambda r: r["created_at"], reverse=True)
 
-        return copy.deepcopy(filtered_refunds)
+                return copy.deepcopy(filtered_refunds)
 
     def create_plan(
         self,
@@ -985,7 +985,7 @@ class MockPaymentGateway:
         # Store plan
         self.plans[plan_id] = plan
 
-        return copy.deepcopy(plan)
+                return copy.deepcopy(plan)
 
     def get_plan(self, plan_id: str) -> Dict[str, Any]:
         """
@@ -1007,7 +1007,7 @@ class MockPaymentGateway:
         if plan_id not in self.plans:
             raise ValueError(f"Plan not found: {plan_id}")
 
-        return copy.deepcopy(self.plans[plan_id])
+                return copy.deepcopy(self.plans[plan_id])
 
     def list_plans(self, limit: int = 100) -> List[Dict[str, Any]]:
         """
@@ -1028,7 +1028,7 @@ class MockPaymentGateway:
         # Get all plans up to the limit
         plans_list = list(self.plans.values())[:limit]
 
-        return copy.deepcopy(plans_list)
+                return copy.deepcopy(plans_list)
 
     def create_subscription(
         self,
@@ -1139,7 +1139,7 @@ class MockPaymentGateway:
         # Store subscription
         self.subscriptions[subscription_id] = subscription
 
-        return copy.deepcopy(subscription)
+                return copy.deepcopy(subscription)
 
     def get_subscription(self, subscription_id: str) -> Dict[str, Any]:
         """
@@ -1161,7 +1161,7 @@ class MockPaymentGateway:
         if subscription_id not in self.subscriptions:
             raise ValueError(f"Subscription not found: {subscription_id}")
 
-        return copy.deepcopy(self.subscriptions[subscription_id])
+                return copy.deepcopy(self.subscriptions[subscription_id])
 
     def update_subscription(
         self,
@@ -1253,7 +1253,7 @@ class MockPaymentGateway:
 
         subscription["updated_at"] = datetime.now().isoformat()
 
-        return copy.deepcopy(subscription)
+                return copy.deepcopy(subscription)
 
     def cancel_subscription(
         self, subscription_id: str, cancel_at_period_end: bool = True
@@ -1302,7 +1302,7 @@ class MockPaymentGateway:
 
         subscription["updated_at"] = datetime.now().isoformat()
 
-        return copy.deepcopy(subscription)
+                return copy.deepcopy(subscription)
 
     def resume_subscription(self, subscription_id: str) -> Dict[str, Any]:
         """
@@ -1362,7 +1362,7 @@ class MockPaymentGateway:
         subscription["canceled_at"] = None
         subscription["updated_at"] = datetime.now().isoformat()
 
-        return copy.deepcopy(subscription)
+                return copy.deepcopy(subscription)
 
     def list_subscriptions(
         self,
@@ -1420,7 +1420,7 @@ class MockPaymentGateway:
         # Sort by created_at (newest first)
         filtered_subscriptions.sort(key=lambda s: s["created_at"], reverse=True)
 
-        return copy.deepcopy(filtered_subscriptions)
+                return copy.deepcopy(filtered_subscriptions)
 
 
 class MockStripeGateway(MockPaymentGateway):
@@ -1516,7 +1516,7 @@ class MockStripeGateway(MockPaymentGateway):
             "used": False,
         }
 
-        return token
+                return token
 
 
 class MockPayPalGateway(MockPaymentGateway):
@@ -1583,7 +1583,7 @@ class MockPayPalGateway(MockPaymentGateway):
             "updated_at": datetime.now().isoformat(),
         }
 
-        return agreement
+                return agreement
 
 
 # Create factory function for payment gateways
@@ -1606,4 +1606,4 @@ def create_payment_gateway(
     if not gateway_class:
         raise ValueError(f"Unknown gateway type: {gateway_type}")
 
-    return gateway_class(config)
+            return gateway_class(config)

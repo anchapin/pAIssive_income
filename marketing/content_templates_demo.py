@@ -10,9 +10,8 @@ import time
 from user_personas import PersonaCreator
 
 
-def main
-
-from content_templates import (
+def main():
+    from content_templates import (
     BlogPostTemplate,
     EmailNewsletterTemplate,
     LandingPageTemplate,
@@ -25,7 +24,7 @@ from content_templates import (
     print("Content Templates Module Demo")
     print("=" * 80)
 
-    # Create a sample user persona
+# Create a sample user persona
     persona_creator = PersonaCreator()
     persona = persona_creator.create_persona(
         name="Professional YouTuber",
@@ -48,11 +47,11 @@ from content_templates import (
         },
     )
 
-    print(f"\nCreated sample persona: {persona['name']}")
+print(f"\nCreated sample persona: {persona['name']}")
     print(f"Pain points: {', '.join(persona['pain_points'])}")
     print(f"Goals: {', '.join(persona['goals'])}")
 
-    # Define a sample product/service
+# Define a sample product/service
     product_name = "AI Script Assistant"
     key_points = [
         "Generate video script outlines in seconds",
@@ -61,15 +60,15 @@ from content_templates import (
     ]
     call_to_action = "Sign up for a free trial at aiscriptassistant.com"
 
-    print(f"\nSample product: {product_name}")
+print(f"\nSample product: {product_name}")
     print(f"Key points: {', '.join(key_points)}")
 
-    # Demo 1: Blog Post Template
+# Demo 1: Blog Post Template
     print("\n" + "-" * 40)
     print("DEMO 1: BLOG POST TEMPLATE")
     print("-" * 40)
 
-    blog_post = BlogPostTemplate(
+blog_post = BlogPostTemplate(
         title="How to Save 5 Hours a Week on YouTube Script Writing",
         target_persona=persona,
         key_points=key_points,
@@ -79,25 +78,25 @@ from content_templates import (
         seo_keywords=["youtube script writing", "content creation", "AI for YouTubers"],
     )
 
-    blog_outline = blog_post.generate_outline()
+blog_outline = blog_post.generate_outline()
     print(f"Blog Post Title: {blog_outline['title']}")
     print(f"Estimated Length: {blog_outline['estimated_length']}")
     print(f"Estimated Reading Time: {blog_outline['estimated_reading_time']}")
 
-    print("\nBlog Post Sections:")
+print("\nBlog Post Sections:")
     for section in blog_outline["sections"]:
         print(f"- {section['title']}")
 
-    print("\nHeadline Variations:")
+print("\nHeadline Variations:")
     for headline in blog_post.generate_headline_variations(3):
         print(f"- {headline}")
 
-    # Demo 2: Social Media Template
+# Demo 2: Social Media Template
     print("\n" + "-" * 40)
     print("DEMO 2: SOCIAL MEDIA TEMPLATE")
     print("-" * 40)
 
-    social_media = SocialMediaTemplate(
+social_media = SocialMediaTemplate(
         title="AI Script Assistant for YouTubers",
         target_persona=persona,
         key_points=key_points,
@@ -106,30 +105,30 @@ from content_templates import (
         hashtags=["ContentCreation", "YouTubers", "AItools"],
     )
 
-    social_outline = social_media.generate_outline()
+social_outline = social_media.generate_outline()
     print(f"Social Media Post for: {', '.join(social_outline['platforms'])}")
 
-    print("\nTwitter Post:")
+print("\nTwitter Post:")
     twitter_post = social_outline["platform_specific_posts"].get("twitter", {})
     if twitter_post:
         print(f"Content: {twitter_post['post_text']}")
         print(f"Character Count: {twitter_post['estimated_length']}")
 
-    print("\nLinkedIn Post:")
+print("\nLinkedIn Post:")
     linkedin_post = social_outline["platform_specific_posts"].get("linkedin", {})
     if linkedin_post:
         print(f"Content Preview: {linkedin_post['post_text'][:100]}...")
 
-    print("\nRecommended Hashtags:")
+print("\nRecommended Hashtags:")
     for hashtag in social_media.generate_hashtag_recommendations(5):
         print(f"- #{hashtag}")
 
-    # Demo 3: Email Newsletter Template
+# Demo 3: Email Newsletter Template
     print("\n" + "-" * 40)
     print("DEMO 3: EMAIL NEWSLETTER TEMPLATE")
     print("-" * 40)
 
-    email_newsletter = EmailNewsletterTemplate(
+email_newsletter = EmailNewsletterTemplate(
         title="Revolutionize Your YouTube Workflow",
         target_persona=persona,
         key_points=key_points,
@@ -140,24 +139,24 @@ from content_templates import (
         sender_email="hello@aiscriptassistant.com",
     )
 
-    email_outline = email_newsletter.generate_outline()
+email_outline = email_newsletter.generate_outline()
     print(f"Email Subject Line: {email_outline['subject_line']}")
     print(f"Newsletter Type: {email_outline['newsletter_type']}")
 
-    print("\nEmail Sections:")
+print("\nEmail Sections:")
     for section in email_outline["sections"]:
         print(f"- {section['title']}")
 
-    print("\nSubject Line Variations:")
+print("\nSubject Line Variations:")
     for subject in email_newsletter.generate_subject_line_variations(3):
         print(f"- {subject}")
 
-    # Demo 4: Video Script Template
+# Demo 4: Video Script Template
     print("\n" + "-" * 40)
     print("DEMO 4: VIDEO SCRIPT TEMPLATE")
     print("-" * 40)
 
-    video_script = VideoScriptTemplate(
+video_script = VideoScriptTemplate(
         title="AI Script Assistant Demo",
         target_persona=persona,
         key_points=key_points,
@@ -167,21 +166,21 @@ from content_templates import (
         include_b_roll=True,
     )
 
-    script_outline = video_script.generate_outline()
+script_outline = video_script.generate_outline()
     print(f"Video Title: {script_outline['title']}")
     print(f"Video Length: {script_outline['video_length']}")
     print(f"Target Word Count: {script_outline['target_word_count']} words")
 
-    print("\nScript Sections:")
+print("\nScript Sections:")
     for section in script_outline["script_sections"]:
         print(f"- {section['title']} ({section['duration']})")
 
-    # Demo 5: Landing Page Template
+# Demo 5: Landing Page Template
     print("\n" + "-" * 40)
     print("DEMO 5: LANDING PAGE TEMPLATE")
     print("-" * 40)
 
-    landing_page = LandingPageTemplate(
+landing_page = LandingPageTemplate(
         title="AI Script Assistant",
         target_persona=persona,
         key_points=key_points,
@@ -210,15 +209,15 @@ from content_templates import (
         ],
     )
 
-    landing_outline = landing_page.generate_outline()
+landing_outline = landing_page.generate_outline()
     print(f"Landing Page Title: {landing_outline['title']}")
     print(f"USP: {landing_outline['unique_selling_proposition']}")
 
-    print("\nLanding Page Sections:")
+print("\nLanding Page Sections:")
     for section in landing_outline["sections"]:
         print(f"- {section['title']}")
 
-    # Print conclusion
+# Print conclusion
     print("\n" + "=" * 80)
     print("Demo Complete")
     print("=" * 80)

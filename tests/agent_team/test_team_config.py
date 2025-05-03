@@ -36,7 +36,7 @@ def mock_config_file(temp_dir):
     with open(config_path, "w") as f:
         json.dump(config, f)
 
-    return config_path
+            return config_path
 
 
 def test_agent_team_init():

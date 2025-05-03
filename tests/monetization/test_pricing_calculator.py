@@ -27,7 +27,7 @@ def temp_dir():
 @pytest.fixture
 def pricing_calculator():
     """Create a PricingCalculator instance for testing."""
-    return PricingCalculator(
+            return PricingCalculator(
         name="Test Pricing Calculator",
         description="A test pricing calculator",
         pricing_strategy="value-based",
@@ -68,7 +68,7 @@ def subscription_model():
         features=[feature1["id"], feature2["id"]],
     )
 
-    return model
+            return model
 
 
 def test_pricing_calculator_init(pricing_calculator):

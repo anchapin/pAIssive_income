@@ -70,7 +70,7 @@ def subscription_plans(draw):
 
         tiers.append(tier)
 
-    return plan
+            return plan
 
 
 @st.composite
@@ -125,7 +125,7 @@ def subscriptions(draw):
         key = draw(st.sampled_from(metadata_keys))
         subscription.add_metadata(key, draw(st.text(min_size=1, max_size=20)))
 
-    return subscription
+            return subscription
 
 
 @given(subscription_list=st.lists(subscriptions(), min_size=1, max_size=10))
@@ -743,4 +743,4 @@ def add_subscription(manager, plan):
         billing_cycle="monthly",
     )
     manager.add_subscription(sub)
-    return sub
+            return sub

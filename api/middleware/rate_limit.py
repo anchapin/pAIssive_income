@@ -75,7 +75,7 @@ class RateLimitMiddleware:
             - allowed: True if the request is allowed, False if it should be rate limited
             - limit_info: Dictionary with rate limit information
         """
-        return self.rate_limit_manager.check_rate_limit(client_id, endpoint, api_key)
+                return self.rate_limit_manager.check_rate_limit(client_id, endpoint, api_key)
 
     def get_rate_limit_headers(self, limit_info: Dict[str, Any]) -> Dict[str, str]:
         """
@@ -87,7 +87,7 @@ class RateLimitMiddleware:
         Returns:
             Dictionary of rate limit headers
         """
-        return self.rate_limit_manager.get_rate_limit_headers(limit_info)
+                return self.rate_limit_manager.get_rate_limit_headers(limit_info)
 
 
 def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
@@ -100,14 +100,10 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
     """
     if not FASTAPI_AVAILABLE:
         logger.warning("FastAPI is required for rate limiting middleware")
-        return
-
-    # Skip if rate limiting is disabled
+                return # Skip if rate limiting is disabled
     if not config.enable_rate_limit:
         logger.info("Rate limiting is disabled")
-        return
-
-    # Create middleware
+                return # Create middleware
     rate_limit_middleware = RateLimitMiddleware(config)
 
     @app.middleware("http")
@@ -126,7 +122,7 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
         """
         # Skip rate limiting for certain paths
         if request.url.path in ["/docs", "/redoc", "/openapi.json"]:
-            return await call_next(request)
+                    return await call_next(request)
 
         # Get client ID based on rate limit scope
         client_id = "unknown"
@@ -153,7 +149,7 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
             # Return rate limit exceeded response
             headers = rate_limit_middleware.get_rate_limit_headers(limit_info)
 
-            return Response(
+                    return Response(
                 status_code=429,
                 content='{"detail":"Rate limit exceeded"}',
                 media_type="application/json",
@@ -168,4 +164,4 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
         for header, value in headers.items():
             response.headers[header] = value
 
-        return response
+                return response

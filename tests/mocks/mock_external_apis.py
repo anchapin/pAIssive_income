@@ -58,8 +58,8 @@ class MockExternalAPIBase:
     ) -> List[Dict[str, Any]]:
         """Get the call history, optionally filtered by method name."""
         if method_name:
-            return [call for call in self.call_history if call["method"] == method_name]
-        return self.call_history
+                    return [call for call in self.call_history if call["method"] == method_name]
+                return self.call_history
 
     def clear_call_history(self):
         """Clear the call history."""
@@ -125,7 +125,7 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
         self.record_call("list_models", filter_criteria=filter_criteria)
 
         if not filter_criteria:
-            return self.available_models
+                    return self.available_models
 
         filtered_models = []
         for model in self.available_models:
@@ -142,7 +142,7 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
             if match:
                 filtered_models.append(model)
 
-        return filtered_models
+                return filtered_models
 
     def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -158,9 +158,9 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
 
         for model in self.available_models:
             if model["id"] == model_id:
-                return model
+                        return model
 
-        return None
+                return None
 
     def download_model(self, model_id: str, local_path: str) -> bool:
         """
@@ -187,7 +187,7 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
             raise IOError(self.error_messages["server_error"])
 
         # Simulate successful download
-        return True
+                return True
 
 
 class MockPaymentAPI(MockExternalAPIBase):
@@ -265,7 +265,7 @@ class MockPaymentAPI(MockExternalAPIBase):
         }
 
         self.customers[customer_id] = customer
-        return customer
+                return customer
 
     def get_customer(self, customer_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -278,7 +278,7 @@ class MockPaymentAPI(MockExternalAPIBase):
             Customer object or None if not found
         """
         self.record_call("get_customer", customer_id=customer_id)
-        return self.customers.get(customer_id)
+                return self.customers.get(customer_id)
 
     def create_subscription(
         self, customer_id: str, plan_id: str, trial_period_days: Optional[int] = None
@@ -340,7 +340,7 @@ class MockPaymentAPI(MockExternalAPIBase):
         self.subscriptions[subscription_id] = subscription
         self.customers[customer_id]["subscriptions"].append(subscription_id)
 
-        return subscription
+                return subscription
 
     def update_subscription(
         self,
@@ -388,7 +388,7 @@ class MockPaymentAPI(MockExternalAPIBase):
         if cancel_at_period_end is not None:
             subscription["cancel_at_period_end"] = cancel_at_period_end
 
-        return subscription
+                return subscription
 
     def cancel_subscription(
         self, subscription_id: str, at_period_end: bool = False
@@ -424,7 +424,7 @@ class MockPaymentAPI(MockExternalAPIBase):
             subscription["status"] = "canceled"
             subscription["canceled_at"] = int(datetime.now().timestamp())
 
-        return subscription
+                return subscription
 
     def create_charge(
         self,
@@ -475,7 +475,7 @@ class MockPaymentAPI(MockExternalAPIBase):
         }
 
         self.charges[charge_id] = charge
-        return charge
+                return charge
 
 
 class MockEmailAPI(MockExternalAPIBase):
@@ -559,7 +559,7 @@ class MockEmailAPI(MockExternalAPIBase):
 
         self.sent_emails.append(email)
 
-        return {
+                return {
             "id": email["id"],
             "status": email["status"],
             "message": (
@@ -617,7 +617,7 @@ class MockEmailAPI(MockExternalAPIBase):
         content = f"This is a mock email using the {template['name']} template with data: {json.dumps(template_data)}"
 
         # Send the email
-        return self.send_email(
+                return self.send_email(
             to_email=to_email,
             subject=subject,
             content=content,
@@ -638,7 +638,7 @@ class MockEmailAPI(MockExternalAPIBase):
         self.record_call("get_sent_emails", to_email=to_email)
 
         if to_email:
-            return [
+                    return [
                 email
                 for email in self.sent_emails
                 if (
@@ -650,7 +650,7 @@ class MockEmailAPI(MockExternalAPIBase):
                 )
             ]
 
-        return self.sent_emails
+                return self.sent_emails
 
 
 class MockStorageAPI(MockExternalAPIBase):
@@ -680,7 +680,7 @@ class MockStorageAPI(MockExternalAPIBase):
 
         self.buckets[bucket_name] = {}
 
-        return {"name": bucket_name, "created_at": datetime.now().isoformat()}
+                return {"name": bucket_name, "created_at": datetime.now().isoformat()}
 
     def list_buckets(self) -> List[Dict[str, Any]]:
         """
@@ -691,7 +691,7 @@ class MockStorageAPI(MockExternalAPIBase):
         """
         self.record_call("list_buckets")
 
-        return [
+                return [
             {"name": name, "objects_count": len(objects)}
             for name, objects in self.buckets.items()
         ]
@@ -726,7 +726,7 @@ class MockStorageAPI(MockExternalAPIBase):
             "etag": f"{random.randint(1000000000, 9999999999):x}",
         }
 
-        return {
+                return {
             "bucket": bucket,
             "key": key,
             "etag": self.buckets[bucket][key]["etag"],
@@ -764,7 +764,7 @@ class MockStorageAPI(MockExternalAPIBase):
             random.randint(0, 255) for _ in range(min(size, 1024))
         )  # limit to 1KB
 
-        return {
+                return {
             "bucket": bucket,
             "key": key,
             "data": mock_data,
@@ -806,7 +806,7 @@ class MockStorageAPI(MockExternalAPIBase):
                 }
                 objects.append(obj)
 
-        return objects
+                return objects
 
     def delete_object(self, key: str, bucket_name: Optional[str] = None) -> bool:
         """
@@ -830,9 +830,9 @@ class MockStorageAPI(MockExternalAPIBase):
 
         if key in self.buckets[bucket]:
             del self.buckets[bucket][key]
-            return True
+                    return True
 
-        return False
+                return False
 
 
 # Helper function to create a mock API instance
@@ -858,4 +858,4 @@ def create_mock_api(api_type: str, config: Optional[Dict[str, Any]] = None):
     if not api_class:
         raise ValueError(f"Unknown API type: {api_type}")
 
-    return api_class(config)
+            return api_class(config)

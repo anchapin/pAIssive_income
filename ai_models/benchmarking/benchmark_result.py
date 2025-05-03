@@ -85,7 +85,7 @@ class BenchmarkResult:
         if self.custom_metrics:
             result["custom_metrics"] = self.custom_metrics
 
-        return result
+                return result
 
     @classmethod
     def from_dict(cls, result_dict: Dict[str, Any]) -> "BenchmarkResult":
@@ -143,7 +143,7 @@ class BenchmarkResult:
         # Add remaining data as raw data
         result.raw_data = result_dict
 
-        return result
+                return result
 
     def save(self, output_path: str) -> str:
         """
@@ -162,7 +162,7 @@ class BenchmarkResult:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f, indent=2)
 
-        return output_path
+                return output_path
 
     @classmethod
     def load(cls, input_path: str) -> "BenchmarkResult":
@@ -178,7 +178,7 @@ class BenchmarkResult:
         with open(input_path, "r", encoding="utf-8") as f:
             result_dict = json.load(f)
 
-        return cls.from_dict(result_dict)
+                return cls.from_dict(result_dict)
 
     def get_latency_stats(self) -> Dict[str, float]:
         """
@@ -188,9 +188,9 @@ class BenchmarkResult:
             Dictionary with latency statistics
         """
         if not self.latency_ms:
-            return {}
+                    return {}
 
-        return {
+                return {
             "min": min(self.latency_ms),
             "max": max(self.latency_ms),
             "mean": statistics.mean(self.latency_ms),
@@ -218,10 +218,10 @@ class BenchmarkResult:
         sorted_data = sorted(data)
 
         if not size:
-            return 0
+                    return 0
 
         if size == 1:
-            return sorted_data[0]
+                    return sorted_data[0]
 
         # Calculate the index
         k = (size - 1) * percentile / 100
@@ -229,12 +229,12 @@ class BenchmarkResult:
         c = int(k) + 1 if k > f else f
 
         if f >= size:
-            return sorted_data[-1]
+                    return sorted_data[-1]
 
         if c >= size:
-            return sorted_data[-1]
+                    return sorted_data[-1]
 
         # Interpolate
         d0 = sorted_data[f] * (c - k)
         d1 = sorted_data[c] * (k - f)
-        return d0 + d1
+                return d0 + d1

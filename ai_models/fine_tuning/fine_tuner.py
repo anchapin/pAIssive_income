@@ -195,7 +195,7 @@ class FineTuner:
         # Return metrics
         metrics = train_result.metrics
         logger.info(f"Training metrics: {metrics}")
-        return metrics
+                return metrics
 
     def resume(self, checkpoint_dir: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -228,7 +228,7 @@ class FineTuner:
         # Return metrics
         metrics = train_result.metrics
         logger.info(f"Training metrics: {metrics}")
-        return metrics
+                return metrics
 
     def evaluate(self) -> Dict[str, Any]:
         """
@@ -245,7 +245,7 @@ class FineTuner:
         metrics = self.trainer.evaluate()
 
         logger.info(f"Evaluation metrics: {metrics}")
-        return metrics
+                return metrics
 
     def save(self, output_dir: Optional[str] = None) -> str:
         """
@@ -276,7 +276,7 @@ class FineTuner:
         # Save fine-tuning configuration
         self._save_config(output_dir)
 
-        return output_dir
+                return output_dir
 
     def _load_dataset(self) -> None:
         """
@@ -286,9 +286,7 @@ class FineTuner:
         if self.config.dataset is not None:
             self.dataset = self.config.dataset
             logger.info("Using provided dataset")
-            return
-
-        # Check if dataset path is provided
+                    return # Check if dataset path is provided
         if self.config.dataset_path is None:
             raise ValueError("Either dataset or dataset_path must be provided")
 
@@ -397,7 +395,7 @@ class FineTuner:
                 for key, value in tokenized.items():
                     result[f"{field}_{key}"] = value
 
-            return result
+                    return result
 
         # Apply tokenization
         tokenized_dataset = self.dataset.map(
@@ -663,7 +661,7 @@ def fine_tune_model(config: FineTuningConfig) -> str:
     # Save the model
     output_path = fine_tuner.save()
 
-    return output_path
+            return output_path
 
 
 def resume_fine_tuning(output_dir: str, checkpoint_dir: Optional[str] = None) -> str:
@@ -738,7 +736,7 @@ def resume_fine_tuning(output_dir: str, checkpoint_dir: Optional[str] = None) ->
     # Save the model
     output_path = fine_tuner.save()
 
-    return output_path
+            return output_path
 
 
 def stop_fine_tuning(output_dir: str) -> bool:
@@ -757,7 +755,7 @@ def stop_fine_tuning(output_dir: str) -> bool:
         with open(stop_file, "w") as f:
             f.write(f"Stop requested at {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
-        return True
+                return True
     except Exception as e:
         logger.error(f"Error creating stop file: {e}")
-        return False
+                return False

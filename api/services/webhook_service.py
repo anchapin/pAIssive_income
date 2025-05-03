@@ -99,16 +99,14 @@ class WebhookService:
         # Deliver webhook directly
         await self._deliver_webhook(webhook, delivery)
 
-        return delivery
+                return delivery
 
     async def start(self):
         """
         Start the webhook service.
         """
         if self.running:
-            return
-
-        self.running = True
+                    return self.running = True
         self.worker_task = asyncio.create_task(self._delivery_worker())
         logger.info("Webhook service started")
 
@@ -117,9 +115,7 @@ class WebhookService:
         Stop the webhook service.
         """
         if not self.running:
-            return
-
-        self.running = False
+                    return self.running = False
         if self.worker_task:
             self.worker_task.cancel()
             try:
@@ -182,7 +178,7 @@ class WebhookService:
             user_agent=user_agent,
         )
 
-        return webhook
+                return webhook
 
     async def list_webhooks(self) -> List[Dict[str, Any]]:
         """
@@ -191,7 +187,7 @@ class WebhookService:
         Returns:
             List of webhooks
         """
-        return list(self.webhooks.values())
+                return list(self.webhooks.values())
 
     async def get_webhook(self, webhook_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -203,7 +199,7 @@ class WebhookService:
         Returns:
             Webhook if found, None otherwise
         """
-        return self.webhooks.get(webhook_id)
+                return self.webhooks.get(webhook_id)
 
     async def update_webhook(
         self,
@@ -229,7 +225,7 @@ class WebhookService:
         webhook = self.webhooks.get(webhook_id)
 
         if not webhook:
-            return None
+                    return None
 
         # Store original values for audit
         original_values = {
@@ -282,7 +278,7 @@ class WebhookService:
             user_agent=user_agent,
         )
 
-        return webhook
+                return webhook
 
     async def delete_webhook(
         self,
@@ -304,7 +300,7 @@ class WebhookService:
             True if the webhook was deleted, False otherwise
         """
         if webhook_id not in self.webhooks:
-            return False
+                    return False
 
         # Store webhook data for audit
         webhook_data = self.webhooks[webhook_id].copy()
@@ -332,7 +328,7 @@ class WebhookService:
             user_agent=user_agent,
         )
 
-        return True
+                return True
 
     async def trigger_event(
         self, event_type: str, event_data: Dict[str, Any]
@@ -378,7 +374,7 @@ class WebhookService:
                     f"Event queued for delivery: {event_type} to webhook {webhook['id']}"
                 )
 
-        return delivery_ids
+                return delivery_ids
 
     async def get_deliveries(
         self, webhook_id: Optional[str] = None, status: Optional[str] = None
@@ -403,7 +399,7 @@ class WebhookService:
         if status:
             deliveries = [d for d in deliveries if d["status"] == status]
 
-        return deliveries
+                return deliveries
 
     async def _delivery_worker(self):
         """
@@ -591,7 +587,7 @@ class WebhookService:
                             },
                         )
 
-                        return True
+                                return True
                     else:
                         delivery["status"] = "failed"
                         logger.warning(
@@ -636,7 +632,7 @@ class WebhookService:
                             },
                         )
 
-                        return False
+                                return False
 
         except Exception as e:
             # Update delivery
@@ -683,4 +679,4 @@ class WebhookService:
                 },
             )
 
-            return False
+                    return False

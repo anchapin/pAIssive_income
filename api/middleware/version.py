@@ -95,9 +95,7 @@ def setup_version_middleware(
     """
     if not FASTAPI_AVAILABLE:
         logger.warning("FastAPI is required for version middleware")
-        return
-
-    # Create middleware
+                return # Create middleware
     version_middleware = VersionMiddleware(config, version_manager)
 
     @app.middleware("http")
@@ -135,4 +133,4 @@ def setup_version_middleware(
                     version_middleware.add_version_headers(response, version)
                     break
 
-        return response
+                return response

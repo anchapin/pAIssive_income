@@ -22,7 +22,7 @@ def temp_subscription_dir(temp_dir):
     """Create a temporary directory for subscriptions."""
     subscription_dir = os.path.join(temp_dir, "subscriptions")
     os.makedirs(subscription_dir, exist_ok=True)
-    return subscription_dir
+            return subscription_dir
 
 
 def test_subscription_model_to_manager_integration(temp_subscription_dir):

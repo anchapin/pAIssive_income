@@ -96,7 +96,7 @@ class DownloadCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_id", "output_dir"]):
-            return 1
+                    return 1
 
         try:
             # Import required modules
@@ -144,11 +144,11 @@ class DownloadCommand(BaseCommand):
             # Check if download was successful
             if task.is_completed():
                 logger.info(f"Model downloaded successfully to {task.output_dir}")
-                return 0
+                        return 0
             else:
                 logger.error(f"Failed to download model: {task.error}")
-                return 1
+                        return 1
 
         except Exception as e:
             logger.error(f"Error downloading model: {e}", exc_info=True)
-            return 1
+                    return 1

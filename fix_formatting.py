@@ -16,7 +16,7 @@ def format_file(file_path):
     """Format a file using Black and isort."""
     print(f"\nFormatting {file_path}...")
 
-    # Format with Black
+# Format with Black
     try:
         subprocess.run(
             ["black", file_path],
@@ -29,9 +29,9 @@ def format_file(file_path):
         print(f"❌ Black formatting failed for {file_path}")
         print(e.stdout)
         print(e.stderr, file=sys.stderr)
-        return False
+                    return False
 
-    # Sort imports with isort
+# Sort imports with isort
     try:
         subprocess.run(
             ["isort", "--profile", "black", file_path],
@@ -44,9 +44,9 @@ def format_file(file_path):
         print(f"❌ isort sorting failed for {file_path}")
         print(e.stdout)
         print(e.stderr, file=sys.stderr)
-        return False
+                    return False
 
-    # Fix issues with ruff
+# Fix issues with ruff
     try:
         subprocess.run(
             ["ruf", "check", "--fix", file_path],
@@ -59,9 +59,9 @@ def format_file(file_path):
         print(f"❌ ruff fixes failed for {file_path}")
         print(e.stdout)
         print(e.stderr, file=sys.stderr)
-        return False
+                    return False
 
-    return True
+            return True
 
 
 def process_directory(directory, exclude_dirs=None):
@@ -69,19 +69,19 @@ def process_directory(directory, exclude_dirs=None):
     if exclude_dirs is None:
         exclude_dirs = [".venv", ".git", "__pycache__"]
 
-    all_passed = True
+all_passed = True
 
-    for root, dirs, files in os.walk(directory):
+for root, dirs, files in os.walk(directory):
         # Skip excluded directories
         dirs[:] = [d for d in dirs if d not in exclude_dirs]
 
-        for file in files:
+for file in files:
             if file.endswith(".py"):
                 file_path = os.path.join(root, file)
                 if not format_file(file_path):
                     all_passed = False
 
-    return all_passed
+            return all_passed
 
 
 def main():
@@ -89,14 +89,14 @@ def main():
     directory = "."
     exclude_dirs = [".venv", ".git", "__pycache__"]
 
-    success = process_directory(directory, exclude_dirs)
+success = process_directory(directory, exclude_dirs)
 
-    if success:
+if success:
         print("\n✅ All files formatted successfully!")
-        return 0
+                    return 0
     else:
         print("\n❌ Some files could not be formatted.")
-        return 1
+                    return 1
 
 
 if __name__ == "__main__":

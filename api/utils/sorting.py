@@ -37,7 +37,7 @@ def sort_items(
         Sorted list of items
     """
     if not items:
-        return []
+                return []
 
     # Define a key function that handles None values
     def default_key_func(item: Dict[str, Any]) -> Any:
@@ -45,13 +45,13 @@ def sort_items(
         # None values should be sorted last in ascending order
         # and first in descending order
         if value is None:
-            return (1, None) if sort_dir == SortDirection.ASC else (0, None)
-        return (0, value) if sort_dir == SortDirection.ASC else (1, value)
+                    return (1, None) if sort_dir == SortDirection.ASC else (0, None)
+                return (0, value) if sort_dir == SortDirection.ASC else (1, value)
 
     # Use the provided key function or the default one
     key = key_func or default_key_func
 
-    return sorted(items, key=key)
+            return sorted(items, key=key)
 
 
 def multi_sort_items(
@@ -71,7 +71,7 @@ def multi_sort_items(
         Sorted list of items
     """
     if not items or not sort_fields:
-        return items
+                return items
 
     # Use ASC as default direction if not provided
     if not sort_dirs:
@@ -88,4 +88,4 @@ def multi_sort_items(
         direction = sort_dirs[i]
         items = sort_items(items, field, direction)
 
-    return items
+            return items

@@ -42,12 +42,12 @@ class BaseModelAdapter(IModelAdapter):
     @property
     def name(self) -> str:
         """Get the adapter name."""
-        return self._name
+                return self._name
 
     @property
     def description(self) -> str:
         """Get the adapter description."""
-        return self._description
+                return self._description
 
     def is_available(self) -> bool:
         """
@@ -61,10 +61,10 @@ class BaseModelAdapter(IModelAdapter):
             result = self.connect()
             if result:
                 self.disconnect()
-            return result
+                    return result
         except Exception as e:
             logger.debug(f"Adapter {self.name} is not available: {e}")
-            return False
+                    return False
 
     @abstractmethod
     def connect(self, **kwargs) -> bool:

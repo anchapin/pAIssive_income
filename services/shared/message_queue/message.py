@@ -121,8 +121,8 @@ class Message(BaseModel):
     def set_correlation_id(cls, v, values):
         """Set correlation ID if not provided."""
         if v is None and "id" in values:
-            return values["id"]
-        return v
+                    return values["id"]
+                return v
 
     def is_expired(self) -> bool:
         """
@@ -132,9 +132,9 @@ class Message(BaseModel):
             bool: True if the message has expired, False otherwise
         """
         if self.expires_at is None:
-            return False
+                    return False
 
-        return time.time() > self.expires_at
+                return time.time() > self.expires_at
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -143,7 +143,7 @@ class Message(BaseModel):
         Returns:
             Dict[str, Any]: Dictionary representation of the message
         """
-        return self.dict()
+                return self.dict()
 
     def to_json(self) -> str:
         """
@@ -152,7 +152,7 @@ class Message(BaseModel):
         Returns:
             str: JSON string representation of the message
         """
-        return self.json()
+                return self.json()
 
     def to_msgpack(self) -> bytes:
         """
@@ -161,7 +161,7 @@ class Message(BaseModel):
         Returns:
             bytes: MessagePack binary representation of the message
         """
-        return msgpack.packb(self.dict(), use_bin_type=True)
+                return msgpack.packb(self.dict(), use_bin_type=True)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Message":
@@ -174,7 +174,7 @@ class Message(BaseModel):
         Returns:
             Message: Message instance
         """
-        return cls(**data)
+                return cls(**data)
 
     @classmethod
     def from_json(cls, data: str) -> "Message":
@@ -187,7 +187,7 @@ class Message(BaseModel):
         Returns:
             Message: Message instance
         """
-        return cls(**json.loads(data))
+                return cls(**json.loads(data))
 
     @classmethod
     def from_msgpack(cls, data: bytes) -> "Message":
@@ -200,7 +200,7 @@ class Message(BaseModel):
         Returns:
             Message: Message instance
         """
-        return cls(**msgpack.unpackb(data, raw=False))
+                return cls(**msgpack.unpackb(data, raw=False))
 
 
 # Generic type for message payload
@@ -263,7 +263,7 @@ class MessageSchema(Generic[T]):
             expires_at = time.time() + expires_in
 
         # Create the message
-        return Message(
+                return Message(
             type=message_type,
             source=source,
             destination=destination,
@@ -285,4 +285,4 @@ class MessageSchema(Generic[T]):
         Returns:
             T: Parsed payload
         """
-        return self.payload_model(**message.payload)
+                return self.payload_model(**message.payload

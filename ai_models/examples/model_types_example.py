@@ -296,14 +296,10 @@ def main():
     # If no model type is specified, show help
     if not args.model_type:
         parser.print_help()
-        return
-
-    # Check if model path is provided
+                return # Check if model path is provided
     if not args.model_path:
         print("Error: --model-path is required")
-        return
-
-    # Test the specified model type
+                return # Test the specified model type
     if args.model_type == "onnx":
         test_onnx_model(args.model_path, args.input_text)
     elif args.model_type == "quantized":
@@ -311,13 +307,11 @@ def main():
     elif args.model_type == "vision":
         if not args.image_path:
             print("Error: --image-path is required for vision models")
-            return
-        test_vision_model(args.model_path, args.image_path)
+                    return test_vision_model(args.model_path, args.image_path)
     elif args.model_type == "audio":
         if not args.audio_path:
             print("Error: --audio-path is required for audio models")
-            return
-        test_audio_model(
+                    return test_audio_model(
             args.model_path, args.audio_path, args.output_path, args.input_text
         )
 

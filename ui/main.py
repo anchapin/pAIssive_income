@@ -9,9 +9,9 @@ import logging
     from ui import app, init_app_with_services
 
     
-    from ui.routes import init_services
+from ui.routes import init_services
 
-    init_services
+init_services
 
 # Set up logging
 logging.basicConfig(
@@ -24,16 +24,16 @@ def initialize_application():
     """Initialize the application and services in the correct order."""
     logger.info("Initializing pAIssive Income application")
 
-    # Import the UI module
+# Import the UI module
 # Initialize services
     init_app_with_services()
 
-    # Initialize routes services
+# Initialize routes services
 ()
 
-    logger.info("pAIssive Income application initialized")
+logger.info("pAIssive Income application initialized")
 
-    return app
+            return app
 
 
 # Create the application

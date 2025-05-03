@@ -50,7 +50,7 @@ class LatencyMetric
         # Add value
         self.add_value(latency)
 
-        return latency
+                return latency
 
     def get_percentile(self, percentile: float) -> float:
         """
@@ -63,7 +63,7 @@ class LatencyMetric
             Percentile value
         """
         if not self.values:
-            return 0
+                    return 0
 
         # Sort values
         sorted_values = sorted(self.values)
@@ -75,15 +75,15 @@ class LatencyMetric
         c = int(k) + 1 if k > f else f
 
         if f >= size:
-            return sorted_values[-1]
+                    return sorted_values[-1]
 
         if c >= size:
-            return sorted_values[-1]
+                    return sorted_values[-1]
 
         # Interpolate
         d0 = sorted_values[f] * (c - k)
         d1 = sorted_values[c] * (k - f)
-        return d0 + d1
+                return d0 + d1
 
     def get_stats(self) -> Dict[str, float]:
         """
@@ -101,4 +101,4 @@ class LatencyMetric
             stats["p95"] = self.get_percentile(95)
             stats["p99"] = self.get_percentile(99)
 
-        return stats
+                return stats

@@ -66,7 +66,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("ai_models")
             if not service:
                 logger.warning("AI models service not available")
-                return []
+                        return []
 
             # Get models from service
             try:
@@ -76,7 +76,7 @@ if STRAWBERRY_AVAILABLE:
                     offset=offset,
                 )
 
-                return [
+                        return [
                     ModelType(
                         id=str(model.id),
                         name=model.name,
@@ -95,7 +95,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting models: {str(e)}")
-                return []
+                        return []
 
         @strawberry.field
         async def model(self, info: Info, id: str) -> Optional[ModelType]:
@@ -113,15 +113,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("ai_models")
             if not service:
                 logger.warning("AI models service not available")
-                return None
+                        return None
 
             # Get model from service
             try:
                 model = await service.get_model(id)
                 if not model:
-                    return None
+                            return None
 
-                return ModelType(
+                        return ModelType(
                     id=str(model.id),
                     name=model.name,
                     description=model.description,
@@ -137,7 +137,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error getting model: {str(e)}")
-                return None
+                        return None
 
         @strawberry.field
         async def model_versions(
@@ -157,13 +157,13 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("ai_models")
             if not service:
                 logger.warning("AI models service not available")
-                return []
+                        return []
 
             # Get model versions from service
             try:
                 versions = await service.get_model_versions(model_id)
 
-                return [
+                        return [
                     ModelVersionType(
                         id=str(version.id),
                         model_id=str(version.model_id),
@@ -180,7 +180,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting model versions: {str(e)}")
-                return []
+                        return []
 
         @strawberry.field
         async def model_metrics(
@@ -200,15 +200,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("ai_models")
             if not service:
                 logger.warning("AI models service not available")
-                return None
+                        return None
 
             # Get model metrics from service
             try:
                 metrics = await service.get_model_metrics(model_id)
                 if not metrics:
-                    return None
+                            return None
 
-                return ModelMetricsType(
+                        return ModelMetricsType(
                     model_id=str(metrics.model_id),
                     inference_count=metrics.inference_count,
                     average_latency=metrics.average_latency,
@@ -220,7 +220,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error getting model metrics: {str(e)}")
-                return None
+                        return None
 
     @strawberry.type
     class AIModelsMutation:
@@ -244,7 +244,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("ai_models")
             if not service:
                 logger.warning("AI models service not available")
-                return None
+                        return None
 
             # Create model
             try:
@@ -256,7 +256,7 @@ if STRAWBERRY_AVAILABLE:
                     capabilities=input.capabilities,
                 )
 
-                return ModelType(
+                        return ModelType(
                     id=str(model.id),
                     name=model.name,
                     description=model.description,
@@ -272,7 +272,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating model: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def update_model(
@@ -293,7 +293,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("ai_models")
             if not service:
                 logger.warning("AI models service not available")
-                return None
+                        return None
 
             # Update model
             try:
@@ -307,9 +307,9 @@ if STRAWBERRY_AVAILABLE:
                 )
 
                 if not model:
-                    return None
+                            return None
 
-                return ModelType(
+                        return ModelType(
                     id=str(model.id),
                     name=model.name,
                     description=model.description,
@@ -325,7 +325,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error updating model: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def delete_model(self, info: Info, id: str) -> bool:
@@ -343,15 +343,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("ai_models")
             if not service:
                 logger.warning("AI models service not available")
-                return False
+                        return False
 
             # Delete model
             try:
                 success = await service.delete_model(id)
-                return success
+                        return success
             except Exception as e:
                 logger.error(f"Error deleting model: {str(e)}")
-                return False
+                        return False
 
         @strawberry.mutation
         async def run_inference(
@@ -371,7 +371,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("ai_models")
             if not service:
                 logger.warning("AI models service not available")
-                return None
+                        return None
 
             # Run inference
             try:
@@ -382,9 +382,9 @@ if STRAWBERRY_AVAILABLE:
                 )
 
                 if not response:
-                    return None
+                            return None
 
-                return InferenceResponseType(
+                        return InferenceResponseType(
                     request_id=str(response.request_id),
                     model_id=str(response.model_id),
                     output=response.output,
@@ -396,4 +396,4 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error running inference: {str(e)}")
-                return None
+                        return None

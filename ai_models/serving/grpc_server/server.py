@@ -125,9 +125,7 @@ class GRPCServer(ModelServer):
         """
         if self.is_running():
             logger.warning("Server is already running")
-            return
-
-        # Create gRPC server
+                    return # Create gRPC server
         self.server = grpc.server(
             futures.ThreadPoolExecutor(max_workers=self.config.workers),
             options=[
@@ -179,9 +177,7 @@ class GRPCServer(ModelServer):
         """
         if not self.is_running():
             logger.warning("Server is not running")
-            return
-
-        # Stop server
+                    return # Stop server
         if self.server:
             self.server.stop(grace=5)
             self.server = None
@@ -200,7 +196,7 @@ class GRPCServer(ModelServer):
         Returns:
             True if the server is running, False otherwise
         """
-        return self.server_thread is not None and self.server_thread.is_alive()
+                return self.server_thread is not None and self.server_thread.is_alive()
 
     def get_info(self) -> Dict[str, Any]:
         """
@@ -209,7 +205,7 @@ class GRPCServer(ModelServer):
         Returns:
             Dictionary with server information
         """
-        return {
+                return {
             "version": "1.0.0",
             "model_id": self.config.model_id
             or os.path.basename(self.config.model_path),
@@ -343,7 +339,7 @@ class GRPCServer(ModelServer):
                 }
             )
 
-        return metrics
+                return metrics
 
     def _run_server(self) -> None:
         """
@@ -365,9 +361,7 @@ class GRPCServer(ModelServer):
             logger.warning(
                 "Proto modules not found. Make sure to generate them from .proto files."
             )
-            return
-
-        # Create servicer
+                    return # Create servicer
         servicer = ModelServicer(self)
 
         # Add servicer to server
@@ -410,10 +404,10 @@ class GRPCServer(ModelServer):
         sorted_data = sorted(data)
 
         if not size:
-            return 0
+                    return 0
 
         if size == 1:
-            return sorted_data[0]
+                    return sorted_data[0]
 
         # Calculate the index
         k = (size - 1) * percentile / 100
@@ -421,12 +415,12 @@ class GRPCServer(ModelServer):
         c = int(k) + 1 if k > f else f
 
         if f >= size:
-            return sorted_data[-1]
+                    return sorted_data[-1]
 
         if c >= size:
-            return sorted_data[-1]
+                    return sorted_data[-1]
 
         # Interpolate
         d0 = sorted_data[f] * (c - k)
         d1 = sorted_data[c] * (k - f)
-        return d0 + d1
+                return d0 + d1

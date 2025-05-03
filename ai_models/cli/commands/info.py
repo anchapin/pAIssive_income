@@ -71,14 +71,14 @@ class InfoCommand(BaseCommand):
         """
         # Validate arguments
         if not self._validate_args(["model_path"]):
-            return 1
+                    return 1
 
         try:
             # Import required modules
 # Check if model exists
             if not os.path.exists(self.args.model_path):
                 logger.error(f"Model not found: {self.args.model_path}")
-                return 1
+                        return 1
 
             # Get model information
             manager = ModelManager(os.path.dirname(self.args.model_path))
@@ -88,7 +88,7 @@ class InfoCommand(BaseCommand):
                 logger.error(
                     f"Failed to get information for model: {self.args.model_path}"
                 )
-                return 1
+                        return 1
 
             # Format output
             if self.args.format == "json":
@@ -174,8 +174,8 @@ class InfoCommand(BaseCommand):
             else:
                 print(output)
 
-            return 0
+                    return 0
 
         except Exception as e:
             logger.error(f"Error getting model information: {e}", exc_info=True)
-            return 1
+                    return 1

@@ -33,7 +33,7 @@ def mock_openai_provider(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock OpenAI provider instance
     """
-    return MockOpenAIProvider(config)
+            return MockOpenAIProvider(config)
 
 
 @pytest.fixture
@@ -47,7 +47,7 @@ def mock_ollama_provider(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock Ollama provider instance
     """
-    return MockOllamaProvider(config)
+            return MockOllamaProvider(config)
 
 
 @pytest.fixture
@@ -61,7 +61,7 @@ def mock_lmstudio_provider(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock LM Studio provider instance
     """
-    return MockLMStudioProvider(config)
+            return MockLMStudioProvider(config)
 
 
 @pytest.fixture
@@ -75,7 +75,7 @@ def mock_huggingface_provider(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock Hugging Face provider instance
     """
-    return MockHuggingFaceProvider(config)
+            return MockHuggingFaceProvider(config)
 
 
 @pytest.fixture
@@ -89,7 +89,7 @@ def mock_local_model_provider(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock local model provider instance
     """
-    return MockLocalModelProvider(config)
+            return MockLocalModelProvider(config)
 
 
 @pytest.fixture
@@ -103,7 +103,7 @@ def mock_onnx_provider(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock ONNX provider instance
     """
-    return MockONNXProvider(config)
+            return MockONNXProvider(config)
 
 
 @pytest.fixture
@@ -128,7 +128,7 @@ def patch_model_providers(monkeypatch):
 
     # Define a function to return the appropriate mock provider
     def mock_get_model_provider(provider_type, *args, **kwargs):
-        return mock_providers.get(provider_type.lower(), mock_providers["openai"])
+                return mock_providers.get(provider_type.lower(), mock_providers["openai"])
 
     # Apply the patch to adapters
     try:
@@ -139,7 +139,7 @@ def patch_model_providers(monkeypatch):
     except (ImportError, AttributeError):
         pass
 
-    return mock_providers
+            return mock_providers
 
 
 # HTTP and External API Fixtures
@@ -154,7 +154,7 @@ def mock_http():
         A mock requests interface instance
     """
     mock_requests.reset()
-    return mock_requests
+            return mock_requests
 
 
 @pytest.fixture
@@ -254,7 +254,7 @@ def mock_http_with_common_responses():
         method="POST",
     )
 
-    return mock_requests
+            return mock_requests
 
 
 @pytest.fixture
@@ -282,7 +282,7 @@ def patch_requests(monkeypatch):
     monkeypatch.setattr("requests.request", mock_requests.request)
     monkeypatch.setattr("requests.session", mock_requests.session)
 
-    return mock_requests
+            return mock_requests
 
 
 @pytest.fixture
@@ -294,7 +294,7 @@ def mock_hf_hub():
         A mock Hugging Face Hub instance
     """
     mock_huggingface_hub.reset()
-    return mock_huggingface_hub
+            return mock_huggingface_hub
 
 
 @pytest.fixture
@@ -392,7 +392,7 @@ def mock_hf_hub_with_models():
         ),
     )
 
-    return mock_huggingface_hub
+            return mock_huggingface_hub
 
 
 @pytest.fixture
@@ -422,7 +422,7 @@ def patch_huggingface_hub(monkeypatch):
     # Patch the HfHubHTTPError exception
     monkeypatch.setattr("huggingface_hub.utils.HfHubHTTPError", HfHubHTTPError)
 
-    return mock_huggingface_hub
+            return mock_huggingface_hub
 
 
 @pytest.fixture
@@ -436,7 +436,7 @@ def mock_huggingface_api(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock Hugging Face API instance
     """
-    return MockHuggingFaceAPI(config)
+            return MockHuggingFaceAPI(config)
 
 
 @pytest.fixture
@@ -450,7 +450,7 @@ def mock_payment_api(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock payment API instance
     """
-    return MockPaymentAPI(config)
+            return MockPaymentAPI(config)
 
 
 @pytest.fixture
@@ -464,7 +464,7 @@ def mock_email_api(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock email API instance
     """
-    return MockEmailAPI(config)
+            return MockEmailAPI(config)
 
 
 @pytest.fixture
@@ -478,7 +478,7 @@ def mock_storage_api(config: Optional[Dict[str, Any]] = None):
     Returns:
         A mock storage API instance
     """
-    return MockStorageAPI(config)
+            return MockStorageAPI(config)
 
 
 @pytest.fixture
@@ -528,7 +528,7 @@ def patch_external_apis(monkeypatch):
     except (ImportError, AttributeError):
         pass
 
-    return mock_apis
+            return mock_apis
 
 
 # Common Test Scenario Fixtures
@@ -542,7 +542,7 @@ def mock_model_inference_result():
     Returns:
         A dictionary representing a model inference result
     """
-    return {
+            return {
         "id": f"result_{int(datetime.now().timestamp())}",
         "model": "test-model",
         "choices": [
@@ -565,7 +565,7 @@ def mock_chat_completion_result():
     Returns:
         A dictionary representing a chat completion result
     """
-    return {
+            return {
         "id": f"chatcmpl_{int(datetime.now().timestamp())}",
         "object": "chat.completion",
         "created": int(datetime.now().timestamp()),
@@ -592,7 +592,7 @@ def mock_embedding_result():
     Returns:
         A dictionary representing an embedding result
     """
-    return {
+            return {
         "object": "list",
         "data": [
             {
@@ -617,7 +617,7 @@ def mock_subscription_data():
     now = datetime.now()
     timestamp = int(now.timestamp())
 
-    return {
+            return {
         "customer": {
             "id": f"cus_test_{timestamp}",
             "email": "test@example.com",
@@ -658,7 +658,7 @@ def mock_niche_analysis_data():
     Returns:
         A dictionary representing niche analysis results
     """
-    return {
+            return {
         "niches": [
             {
                 "name": "AI Productivity Tools",
@@ -726,7 +726,7 @@ def mock_marketing_campaign_data():
     Returns:
         A dictionary representing marketing campaign data
     """
-    return {
+            return {
         "campaign_name": "Spring Product Launch",
         "target_audience": [
             {
@@ -862,7 +862,7 @@ def mock_ai_model_testing_setup(
                 lambda text, **kwargs: "This is a mock response generated for: " + text
             )
 
-    return {
+            return {
         "http": patch_requests,
         "huggingface_hub": patch_huggingface_hub,
         "model_providers": patch_model_providers,
@@ -925,7 +925,7 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
         "invoices": [],
     }
 
-    return {
+            return {
         "http": patch_requests,
         "temp_dir": temp_dir,
         "mock_db": mock_db,
@@ -974,7 +974,7 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
     # Create a temporary directory for file operations
     temp_dir = tempfile.mkdtemp(prefix="marketing_test_")
 
-    return {
+            return {
         "http": patch_requests,
         "temp_dir": temp_dir,
         "campaign_data": mock_marketing_campaign_data,
@@ -1027,7 +1027,7 @@ def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis
     # Create a temporary directory for file operations
     temp_dir = tempfile.mkdtemp(prefix="niche_analysis_test_")
 
-    return {
+            return {
         "model_providers": patch_model_providers,
         "temp_dir": temp_dir,
         "niche_data": mock_niche_analysis_data,

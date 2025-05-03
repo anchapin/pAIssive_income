@@ -118,7 +118,7 @@ def quantize_model(
         )
 
     # Quantize the model
-    return quantizer.quantize(model_path, output_path)
+            return quantizer.quantize(model_path, output_path)
 
 
 def analyze_quantization(
@@ -320,7 +320,7 @@ def analyze_quantization(
     except Exception as e:
         logger.warning(f"Error loading quantization config: {e}")
 
-    return results
+            return results
 
 
 def _get_model_size(model) -> float:
@@ -342,7 +342,7 @@ def _get_model_size(model) -> float:
         buffer_size += buffer.nelement() * buffer.element_size()
 
     size_mb = (param_size + buffer_size) / (1024 * 1024)
-    return size_mb
+            return size_mb
 
 
 def _generate_text(model, tokenizer, prompt: str, max_tokens: int, **kwargs) -> str:
@@ -376,7 +376,7 @@ def _generate_text(model, tokenizer, prompt: str, max_tokens: int, **kwargs) -> 
     with torch.no_grad():
         outputs = model.generate(**inputs, **generation_kwargs)
 
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+            return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 
 def _calculate_text_similarity(text1: str, text2: str) -> float:
@@ -398,6 +398,6 @@ def _calculate_text_similarity(text1: str, text2: str) -> float:
     union = len(set1.union(set2))
 
     if union == 0:
-        return 0.0
+                return 0.0
 
-    return intersection / union
+            return intersection / union

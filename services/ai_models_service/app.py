@@ -128,19 +128,19 @@ AVAILABLE_MODELS = {
 @app.get("/")
 async def root():
     """Root endpoint for AI Models Service."""
-    return {"message": "pAIssive Income AI Models Service", "status": "running"}
+            return {"message": "pAIssive Income AI Models Service", "status": "running"}
 
 
 @app.get("/api/status")
 async def api_status():
     """API status endpoint."""
-    return {"status": "ok", "version": "1.0.0", "service": "ai-models-service"}
+            return {"status": "ok", "version": "1.0.0", "service": "ai-models-service"}
 
 
 @app.get("/api/models", response_model=List[ModelInfo])
 async def list_models():
     """Get a list of available AI models."""
-    return list(AVAILABLE_MODELS.values())
+            return list(AVAILABLE_MODELS.values())
 
 
 @app.get("/api/models/{model_name}", response_model=ModelInfo)
@@ -152,7 +152,7 @@ async def get_model(model_name: str):
             detail=f"Model '{model_name}' not found",
         )
 
-    return AVAILABLE_MODELS[model_name]
+            return AVAILABLE_MODELS[model_name]
 
 
 @app.post("/api/generate", response_model=ModelResponse)
@@ -192,7 +192,7 @@ async def generate_text(request: ModelRequest, background_tasks: BackgroundTasks
         log_model_request, request.model_name, len(request.prompt)
     )
 
-    return ModelResponse(
+            return ModelResponse(
         model_name=request.model_name,
         generated_text=generated_text,
         tokens_used=len(generated_text) // 4,  # Approximate token count
@@ -219,7 +219,7 @@ def check_service_health() -> bool:
     """
     # Perform health checks for the AI Models Service
     # In a real implementation, this might check model availability, GPU status, etc.
-    return True
+            return True
 
 
 def register_with_service_registry(port: int):
@@ -285,7 +285,7 @@ if __name__ == "__main__":
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8002, help="Port to listen on")
 
-    args = parser.parse_args()
+    args = parser.parse_args(
 
     # Start the AI Models Service
-    start_ai_models_service(host=args.host, port=args.port)
+    start_ai_models_service(host=args.host, port=args.port

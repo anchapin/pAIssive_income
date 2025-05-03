@@ -142,7 +142,7 @@ class FineTuningWorkflow:
 
         logger.info(f"Workflow completed in {total_time:.2f} seconds")
 
-        return self.results
+                return self.results
 
     def _run_data_collection(self) -> None:
         """
@@ -150,9 +150,7 @@ class FineTuningWorkflow:
         """
         if self.config.data_collection_config is None:
             logger.warning("No data collection configuration provided, skipping step")
-            return
-
-        try:
+                    return try:
             logger.info("Collecting data")
 
             # Create data collector
@@ -187,9 +185,7 @@ class FineTuningWorkflow:
         """
         if self.config.fine_tuning_config is None:
             logger.warning("No fine-tuning configuration provided, skipping step")
-            return
-
-        try:
+                    return try:
             logger.info("Fine-tuning model")
 
             # Update fine-tuning configuration with dataset if available
@@ -229,9 +225,7 @@ class FineTuningWorkflow:
         """
         if self.config.evaluation_config is None:
             logger.warning("No evaluation configuration provided, skipping step")
-            return
-
-        if (
+                    return if (
             self.model_path is None
             and "fine_tuning" in self.results
             and "model_path" in self.results["fine_tuning"]
@@ -240,9 +234,7 @@ class FineTuningWorkflow:
 
         if self.model_path is None:
             logger.warning("No model path available for evaluation, skipping step")
-            return
-
-        try:
+                    return try:
             logger.info(f"Evaluating model: {self.model_path}")
 
             # Update evaluation configuration with model path
@@ -285,9 +277,7 @@ class FineTuningWorkflow:
         """
         if not self.config.comparison_models:
             logger.warning("No comparison models provided, skipping step")
-            return
-
-        if (
+                    return if (
             self.model_path is None
             and "fine_tuning" in self.results
             and "model_path" in self.results["fine_tuning"]
@@ -296,9 +286,7 @@ class FineTuningWorkflow:
 
         if self.model_path is None:
             logger.warning("No model path available for comparison, skipping step")
-            return
-
-        try:
+                    return try:
             logger.info("Comparing models")
 
             # Add the fine-tuned model to the comparison list
@@ -317,9 +305,7 @@ class FineTuningWorkflow:
 
             if dataset_path is None:
                 logger.warning("No dataset available for comparison, skipping step")
-                return
-
-            # Create output directory for comparison results
+                        return # Create output directory for comparison results
             comparison_dir = os.path.join(self.config.output_dir, "comparison")
             os.makedirs(comparison_dir, exist_ok=True)
 
@@ -389,7 +375,7 @@ def create_workflow(config: WorkflowConfig) -> FineTuningWorkflow:
     Returns:
         Fine-tuning workflow
     """
-    return FineTuningWorkflow(config)
+            return FineTuningWorkflow(config)
 
 
 def run_workflow(config: WorkflowConfig) -> Dict[str, Any]:
@@ -403,7 +389,7 @@ def run_workflow(config: WorkflowConfig) -> Dict[str, Any]:
         Dictionary with workflow results
     """
     workflow = create_workflow(config)
-    return workflow.run()
+            return workflow.run()
 
 
 def save_workflow(workflow: FineTuningWorkflow, path: str) -> str:
@@ -433,7 +419,7 @@ def save_workflow(workflow: FineTuningWorkflow, path: str) -> str:
         json.dump(config_dict, f, indent=2)
 
     logger.info(f"Saved workflow configuration to {path}")
-    return path
+            return path
 
 
 def load_workflow(path: str) -> FineTuningWorkflow:
@@ -470,4 +456,4 @@ def load_workflow(path: str) -> FineTuningWorkflow:
     workflow = create_workflow(config)
 
     logger.info(f"Loaded workflow configuration from {path}")
-    return workflow
+            return workflow

@@ -73,7 +73,7 @@ service_discovery_client = None
 async def root(request: Request):
     """Root endpoint for UI Service, serves the main UI page."""
     # For now, return a simple HTML page
-    return """
+            return """
     <!DOCTYPE html>
     <html>
     <head>
@@ -153,14 +153,14 @@ async def root(request: Request):
 @app.get("/api/status")
 async def api_status():
     """API status endpoint."""
-    return {"status": "ok", "version": "1.0.0", "service": "ui-service"}
+            return {"status": "ok", "version": "1.0.0", "service": "ui-service"}
 
 
 @app.get("/api/service-info")
 async def get_services():
     """Get information about available services."""
     if not service_discovery_client:
-        return {"services": {}, "error": "Service discovery not available"}
+                return {"services": {}, "error": "Service discovery not available"}
 
     try:
         services = service_discovery_client.discover_all_services()
@@ -177,10 +177,10 @@ async def get_services():
                 }
                 for instance in instances
             ]
-        return {"services": services_dict}
+                return {"services": services_dict}
     except Exception as e:
         logger.error(f"Error discovering services: {str(e)}")
-        return {"services": {}, "error": str(e)}
+                return {"services": {}, "error": str(e)}
 
 
 def check_service_health() -> bool:
@@ -192,7 +192,7 @@ def check_service_health() -> bool:
     """
     # For now, always return True
     # In a real implementation, check connections to backend services, etc.
-    return True
+            return True
 
 
 def register_with_service_registry(port: int):

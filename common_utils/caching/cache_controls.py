@@ -103,9 +103,7 @@ class CacheControls:
                 category = CacheCategory(category)
             except ValueError:
                 logger.warning(f"Unknown cache category: {category}")
-                return
-
-        self.default_ttls[category] = ttl_seconds
+                        return self.default_ttls[category] = ttl_seconds
         logger.info(f"Set TTL for category {category.value} to {ttl_seconds} seconds")
 
     def apply_policy(self, policy: Union[CachingPolicy, str]) -> None:
@@ -120,9 +118,7 @@ class CacheControls:
                 policy = CachingPolicy(policy)
             except ValueError:
                 logger.warning(f"Unknown caching policy: {policy}")
-                return
-
-        self.current_policy = policy
+                        return self.current_policy = policy
         logger.info(f"Applying caching policy: {policy.value}")
 
         # Clear the disabled namespaces set before reconfiguring
@@ -165,10 +161,10 @@ class CacheControls:
             TTL in seconds, or 0 if caching is disabled for this namespace
         """
         if namespace in self.disabled_namespaces:
-            return 0
+                    return 0
 
         category = self.namespace_categories.get(namespace, CacheCategory.SYSTEM)
-        return self.default_ttls[category]
+                return self.default_ttls[category]
 
     def is_caching_enabled(self, namespace: str) -> bool:
         """
@@ -180,7 +176,7 @@ class CacheControls:
         Returns:
             True if caching is enabled, False otherwise
         """
-        return namespace not in self.disabled_namespaces
+                return namespace not in self.disabled_namespaces
 
     def disable_namespace(self, namespace: str) -> None:
         """
@@ -220,9 +216,7 @@ class CacheControls:
                 category = CacheCategory(category)
             except ValueError:
                 logger.warning(f"Unknown cache category: {category}")
-                return
-
-        namespaces = [
+                        return namespaces = [
             ns for ns, cat in self.namespace_categories.items() if cat == category
         ]
         for namespace in namespaces:
@@ -237,7 +231,7 @@ class CacheControls:
         Returns:
             Dictionary containing cache status information
         """
-        return {
+                return {
             "policy": self.current_policy.value,
             "ttls": {cat.value: ttl for cat, ttl in self.default_ttls.items()},
             "disabled_namespaces": list(self.disabled_namespaces),
@@ -265,9 +259,7 @@ def register_namespace(namespace: str, category: Union[CacheCategory, str]) -> N
             category = CacheCategory(category)
         except ValueError:
             logger.warning(f"Unknown cache category: {category}")
-            return
-
-    cache_controls.namespace_categories[namespace] = category
+                    return cache_controls.namespace_categories[namespace] = category
     logger.info(f"Registered namespace '{namespace}' under category '{category.value}'")
 
 
@@ -281,4 +273,4 @@ def get_ttl_for_namespace(namespace: str) -> int:
     Returns:
         TTL in seconds
     """
-    return cache_controls.get_ttl(namespace)
+            return cache_controls.get_ttl(namespace)

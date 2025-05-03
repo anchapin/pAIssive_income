@@ -102,7 +102,7 @@ class LMStudioAdapter:
             response.raise_for_status()
 
             data = response.json()
-            return data.get("data", [])
+                    return data.get("data", [])
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error listing models: {e}")
@@ -126,7 +126,7 @@ class LMStudioAdapter:
             )
             response.raise_for_status()
 
-            return response.json()
+                    return response.json()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error getting model info for {model_id}: {e}")
@@ -186,9 +186,9 @@ class LMStudioAdapter:
 
         try:
             if stream:
-                return self._generate_completions_stream(request_data)
+                        return self._generate_completions_stream(request_data)
             else:
-                return self._generate_completions_sync(request_data)
+                        return self._generate_completions_sync(request_data)
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error generating completions with {model}: {e}")
@@ -214,7 +214,7 @@ class LMStudioAdapter:
         )
         response.raise_for_status()
 
-        return response.json()
+                return response.json()
 
     def _generate_completions_stream(
         self, request_data: Dict[str, Any]
@@ -314,9 +314,9 @@ class LMStudioAdapter:
 
         try:
             if stream:
-                return self._generate_chat_completions_stream(request_data)
+                        return self._generate_chat_completions_stream(request_data)
             else:
-                return self._generate_chat_completions_sync(request_data)
+                        return self._generate_chat_completions_sync(request_data)
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error generating chat completions with {model}: {e}")
@@ -342,7 +342,7 @@ class LMStudioAdapter:
         )
         response.raise_for_status()
 
-        return response.json()
+                return response.json()
 
     def _generate_chat_completions_stream(
         self, request_data: Dict[str, Any]
@@ -419,7 +419,7 @@ class LMStudioAdapter:
             )
             response.raise_for_status()
 
-            return response.json()
+                    return response.json()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error creating embeddings with {model}: {e}")
@@ -443,7 +443,7 @@ class LMStudioAdapter:
             )
             response.raise_for_status()
 
-            return response.json()
+                    return response.json()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error getting model parameters for {model}: {e}")
@@ -471,7 +471,7 @@ class LMStudioAdapter:
             )
             response.raise_for_status()
 
-            return response.json()
+                    return response.json()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error setting model parameters for {model}: {e}")

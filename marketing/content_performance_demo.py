@@ -16,21 +16,20 @@ from typing import Any, Dict
 from marketing.content_performance import ContentPerformanceAnalyzer
 
 
-def create_demo_storage
-
-():
+def create_demo_storage():
+    ():
     """Create a directory for demo storage if it doesn't exist."""
     storage_dir = Path("./demo_storage")
     if not storage_dir.exists():
         storage_dir.mkdir()
-    return storage_dir
+                return storage_dir
 
 
 def create_demo_content():
     """Create sample content for demonstration."""
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
-    # Create a blog post
+# Create a blog post
     blog_post = analyzer.track_content(
         content_id="blog-001",
         content_type="blog_post",
@@ -43,7 +42,7 @@ def create_demo_content():
         },
     )
 
-    # Create a social media post
+# Create a social media post
     social_post = analyzer.track_content(
         content_id="social-001",
         content_type="social_media",
@@ -56,7 +55,7 @@ def create_demo_content():
         },
     )
 
-    # Create an email newsletter
+# Create an email newsletter
     email_newsletter = analyzer.track_content(
         content_id="email-001",
         content_type="email",
@@ -69,7 +68,7 @@ def create_demo_content():
         },
     )
 
-    # Create a video
+# Create a video
     video = analyzer.track_content(
         content_id="video-001",
         content_type="video",
@@ -82,8 +81,8 @@ def create_demo_content():
         },
     )
 
-    print(f"Created {len(analyzer.content)} content items for tracking")
-    return {
+print(f"Created {len(analyzer.content)} content items for tracking")
+                return {
         "blog_post": blog_post,
         "social_post": social_post,
         "email_newsletter": email_newsletter,
@@ -95,15 +94,15 @@ def generate_demo_engagements(content: Dict[str, Any]):
     """Generate sample engagement data for the demo content."""
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
-    # Get the current date and time
+# Get the current date and time
     now = datetime.now()
 
-    # Generate engagement data for the blog post over the past 7 days
+# Generate engagement data for the blog post over the past 7 days
     blog_id = content["blog_post"]["content_id"]
     for day in range(7):
         date = now - timedelta(days=day)
 
-        # Views
+# Views
         analyzer.record_engagement(
             content_id=blog_id,
             engagement_type="view",
@@ -112,7 +111,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-        # Clicks
+# Clicks
         analyzer.record_engagement(
             content_id=blog_id,
             engagement_type="click",
@@ -121,7 +120,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-        # Comments
+# Comments
         analyzer.record_engagement(
             content_id=blog_id,
             engagement_type="comment",
@@ -130,7 +129,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-        # Shares
+# Shares
         analyzer.record_engagement(
             content_id=blog_id,
             engagement_type="share",
@@ -139,7 +138,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-        # Social media views
+# Social media views
         analyzer.record_engagement(
             content_id=blog_id,
             engagement_type="view",
@@ -148,7 +147,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-        # Conversions
+# Conversions
         analyzer.record_engagement(
             content_id=blog_id,
             engagement_type="lead",
@@ -157,13 +156,13 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-    # Generate engagement data for the social media post
+# Generate engagement data for the social media post
     social_id = content["social_post"]["content_id"]
     for channel in ["twitter", "linkedin", "facebook"]:
         for day in range(5):
             date = now - timedelta(days=day)
 
-            # Impressions
+# Impressions
             analyzer.record_engagement(
                 content_id=social_id,
                 engagement_type="impression",
@@ -172,7 +171,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
                 timestamp=date,
             )
 
-            # Likes
+# Likes
             analyzer.record_engagement(
                 content_id=social_id,
                 engagement_type="like",
@@ -181,7 +180,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
                 timestamp=date,
             )
 
-            # Comments
+# Comments
             analyzer.record_engagement(
                 content_id=social_id,
                 engagement_type="comment",
@@ -190,7 +189,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
                 timestamp=date,
             )
 
-            # Shares
+# Shares
             analyzer.record_engagement(
                 content_id=social_id,
                 engagement_type="share",
@@ -199,7 +198,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
                 timestamp=date,
             )
 
-            # Clicks
+# Clicks
             analyzer.record_engagement(
                 content_id=social_id,
                 engagement_type="click",
@@ -208,10 +207,10 @@ def generate_demo_engagements(content: Dict[str, Any]):
                 timestamp=date,
             )
 
-    # Generate engagement data for the email newsletter
+# Generate engagement data for the email newsletter
     email_id = content["email_newsletter"]["content_id"]
 
-    # Opens
+# Opens
     analyzer.record_engagement(
         content_id=email_id,
         engagement_type="view",
@@ -220,7 +219,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
         timestamp=now - timedelta(days=2),
     )
 
-    # Clicks
+# Clicks
     analyzer.record_engagement(
         content_id=email_id,
         engagement_type="click",
@@ -229,12 +228,12 @@ def generate_demo_engagements(content: Dict[str, Any]):
         timestamp=now - timedelta(days=2),
     )
 
-    # Generate engagement data for the video
+# Generate engagement data for the video
     video_id = content["video"]["content_id"]
     for day in range(5):
         date = now - timedelta(days=day)
 
-        # Views on YouTube
+# Views on YouTube
         analyzer.record_engagement(
             content_id=video_id,
             engagement_type="view",
@@ -243,7 +242,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-        # Likes on YouTube
+# Likes on YouTube
         analyzer.record_engagement(
             content_id=video_id,
             engagement_type="like",
@@ -252,7 +251,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-        # Comments on YouTube
+# Comments on YouTube
         analyzer.record_engagement(
             content_id=video_id,
             engagement_type="comment",
@@ -261,7 +260,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-        # Shares on YouTube
+# Shares on YouTube
         analyzer.record_engagement(
             content_id=video_id,
             engagement_type="share",
@@ -270,7 +269,7 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-        # Views on website
+# Views on website
         analyzer.record_engagement(
             content_id=video_id,
             engagement_type="view",
@@ -279,18 +278,18 @@ def generate_demo_engagements(content: Dict[str, Any]):
             timestamp=date,
         )
 
-    print("Generated engagement data for all content items")
-    return analyzer.engagements
+print("Generated engagement data for all content items")
+                return analyzer.engagements
 
 
 def demo_content_analysis():
     """Demonstrate content performance analysis."""
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
-    # Analyze blog post performance
+# Analyze blog post performance
     blog_analysis = analyzer.analyze_performance("blog-001")
 
-    print("\n=== Blog Post Performance Analysis ===")
+print("\n=== Blog Post Performance Analysis ===")
     print(f"Title: {blog_analysis['title']}")
     print(
         f"Overall Performance Score: {blog_analysis['overall_performance_score']:.2f}"
@@ -303,7 +302,7 @@ def demo_content_analysis():
         f"Conversion Rate: {blog_analysis['engagement_metrics']['conversion_rate']:.2f}%"
     )
 
-    print("\nEngagement Metrics:")
+print("\nEngagement Metrics:")
     for metric, value in blog_analysis["metrics"].items():
         if metric in blog_analysis["performance"]:
             benchmark = blog_analysis["performance"][metric]["benchmark"]
@@ -312,7 +311,7 @@ def demo_content_analysis():
         else:
             print(f"  {metric}: {value}")
 
-    print("\nInsights:")
+print("\nInsights:")
     for insight in blog_analysis["insights"]:
         print(f"  [{insight['type']}] {insight['message']}")
 
@@ -321,26 +320,26 @@ def demo_content_comparison():
     """Demonstrate content comparison."""
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
-    # Compare all content items
+# Compare all content items
     comparison = analyzer.compare_content(
         ["blog-001", "social-001", "email-001", "video-001"]
     )
 
-    print("\n=== Content Performance Comparison ===")
+print("\n=== Content Performance Comparison ===")
     print("Performance Ranking:")
     for i, item in enumerate(comparison["performance_ranking"]):
         print(f"  {i+1}. {item['title']} (Score: {item['performance_score']:.2f})")
 
-    print("\nMetric Comparison (Views):")
+print("\nMetric Comparison (Views):")
     metric_data = comparison["metrics_comparison"].get("view", {})
     if metric_data:
         for content_id, value in metric_data["content_values"].items():
             title = comparison["content_info"][content_id]["title"]
             print(f"  {title}: {value} views")
 
-        print(f"  Average: {metric_data['average_value']:.2f} views")
+print(f"  Average: {metric_data['average_value']:.2f} views")
 
-        if metric_data["highest_value"]["content_id"]:
+if metric_data["highest_value"]["content_id"]:
             best_id = metric_data["highest_value"]["content_id"]
             best_title = comparison["content_info"][best_id]["title"]
             print(
@@ -352,12 +351,12 @@ def demo_identify_top_content():
     """Demonstrate identifying top-performing content."""
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
-    # Identify top performing content by views
+# Identify top performing content by views
     top_content = analyzer.identify_top_performing_content(
         engagement_metric="view", limit=3
     )
 
-    print("\n=== Top Performing Content by Views ===")
+print("\n=== Top Performing Content by Views ===")
     for i, content in enumerate(top_content):
         print(f"{i+1}. {content['title']} ({content['metric_value']} views)")
         print(f"   Content Type: {content['content_type']}")
@@ -372,49 +371,49 @@ def demo_content_reports():
     """Demonstrate generating content reports."""
     analyzer = ContentPerformanceAnalyzer(storage_path="./demo_storage")
 
-    # Generate a summary report for the social post
+# Generate a summary report for the social post
     social_report = analyzer.generate_content_report(
         content_id="social-001", report_type="summary"
     )
 
-    print("\n=== Social Media Post Summary Report ===")
+print("\n=== Social Media Post Summary Report ===")
     print(f"Title: {social_report['title']}")
     print(f"Generated: {social_report['generated_at']}")
     print(
         f"Time Period: {social_report['time_period']['start']} to {social_report['time_period']['end']}"
     )
 
-    summary = social_report["performance_summary"]
+summary = social_report["performance_summary"]
     print(f"Overall Score: {summary['overall_score']:.2f}")
     print(f"Rating: {summary['rating']}")
     print(f"Engagement Rate: {summary['engagement_rate']:.2f}%")
     print(f"Conversion Rate: {summary['conversion_rate']:.2f}%")
 
-    print("\nTop Metrics:")
+print("\nTop Metrics:")
     for metric in summary["top_metrics"]:
         print(
             f"  {metric['name']}: {metric['value']} ({metric['performance']:.2f}% of benchmark)"
         )
 
-    print("\nInsights:")
+print("\nInsights:")
     for insight in summary["insights"]:
         print(f"  [{insight['type']}] {insight['message']}")
 
-    # Generate a channel report for the video
+# Generate a channel report for the video
     video_report = analyzer.generate_content_report(
         content_id="video-001", report_type="channel"
     )
 
-    print("\n=== Video Channel Report ===")
+print("\n=== Video Channel Report ===")
     print(f"Title: {video_report['title']}")
 
-    print("\nChannel Performance:")
+print("\nChannel Performance:")
     for channel, data in video_report["channel_performance"].items():
         print(f"  {channel}: {data['total_engagements']} total engagements")
         for metric, value in data["metrics"].items():
             print(f"    {metric}: {value}")
 
-    print("\nChannel Recommendations:")
+print("\nChannel Recommendations:")
     for rec in video_report["channel_recommendations"]:
         print(f"  [{rec['type']}] {rec['message']}")
 
@@ -422,26 +421,26 @@ def demo_content_reports():
 if __name__ == "__main__":
     print("=== Content Performance Analytics Demo ===")
 
-    # Create demo storage directory
+# Create demo storage directory
     storage_dir = create_demo_storage()
     print(f"Demo storage directory: {storage_dir}")
 
-    # Create demo content
+# Create demo content
     content = create_demo_content()
 
-    # Generate demo engagements
+# Generate demo engagements
     engagements = generate_demo_engagements(content)
 
-    # Demonstrate content analysis
+# Demonstrate content analysis
     demo_content_analysis()
 
-    # Demonstrate content comparison
+# Demonstrate content comparison
     demo_content_comparison()
 
-    # Demonstrate identifying top content
+# Demonstrate identifying top content
     demo_identify_top_content()
 
-    # Demonstrate content reports
+# Demonstrate content reports
     demo_content_reports()
 
-    print("\nDemo completed!")
+print("\nDemo completed!")

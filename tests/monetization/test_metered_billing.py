@@ -355,11 +355,11 @@ class TestMeteredBilling:
             # Return different usage based on date range
             def mock_usage_summary(customer_id, start_time, end_time):
                 if start_time.day == 1 and end_time.day == 15:
-                    return first_half_usage
+                            return first_half_usage
                 elif start_time.day == 16 and end_time.day == 31:
-                    return second_half_usage
+                            return second_half_usage
                 else:
-                    return {"api_calls": 5000, "storage_gb": 5, "compute_hours": 25}
+                            return {"api_calls": 5000, "storage_gb": 5, "compute_hours": 25}
 
             mock_usage.side_effect = mock_usage_summary
 

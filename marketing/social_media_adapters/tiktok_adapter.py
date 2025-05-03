@@ -90,7 +90,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 response.raise_for_status()
                 user_data = response.json().get("data", {})
 
-                return {
+                        return {
                     "authenticated": True,
                     "open_id": user_data.get("open_id"),
                     "union_id": user_data.get("union_id"),
@@ -136,7 +136,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 response.raise_for_status()
                 user_data = response.json().get("data", {})
 
-                return {
+                        return {
                     "authenticated": True,
                     "open_id": user_data.get("open_id"),
                     "union_id": user_data.get("union_id"),
@@ -202,7 +202,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                     f"Too many hashtags (max: 30, current: {len(content['hashtags'])})",
                 )
 
-        return True
+                return True
 
     def post_content(
         self,
@@ -254,7 +254,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             # Map visibility to TikTok privacy setting
             privacy_setting = self._map_visibility(visibility)
 
-            return {
+                    return {
                 "id": video_id,
                 "status": "posted",
                 "posted_at": datetime.now().isoformat(),
@@ -284,11 +284,11 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             TikTok privacy setting
         """
         if visibility == "public":
-            return "PUBLIC_TO_EVERYONE"
+                    return "PUBLIC_TO_EVERYONE"
         elif visibility == "friends":
-            return "MUTUAL_FOLLOW_FRIENDS"
+                    return "MUTUAL_FOLLOW_FRIENDS"
         else:  # private
-            return "SELF_ONLY"
+                    return "SELF_ONLY"
 
     def schedule_post(
         self,
@@ -343,7 +343,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             # Map visibility to TikTok privacy setting
             privacy_setting = self._map_visibility(visibility)
 
-            return {
+                    return {
                 "id": scheduled_id,
                 "scheduled_time": schedule_time.isoformat(),
                 "status": "scheduled",
@@ -388,7 +388,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             if not post_id.startswith("tiktok_video_"):
                 raise PostNotFoundError(self.connection_id, post_id)
 
-            return {
+                    return {
                 "id": post_id,
                 "caption": "This is a test video #AITools #PassiveIncome",
                 "create_time": (datetime.now() - timedelta(days=1)).isoformat(),
@@ -442,7 +442,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             if not post_id.startswith("tiktok_video_"):
                 raise PostNotFoundError(self.connection_id, post_id)
 
-            return True
+                    return True
 
         except PostNotFoundError:
             raise
@@ -502,7 +502,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             if post_id:
                 # In a real implementation, we would use the TikTok API to get video analytics
                 # For demonstration, we'll return mock analytics data
-                return {
+                        return {
                     "video_id": post_id,
                     "period": {"start_date": start_date_str, "end_date": end_date_str},
                     "metrics": {
@@ -520,7 +520,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             else:
                 # In a real implementation, we would use the TikTok API to get account analytics
                 # For demonstration, we'll return mock analytics data
-                return {
+                        return {
                     "open_id": self.open_id,
                     "period": {"start_date": start_date_str, "end_date": end_date_str},
                     "metrics": {
@@ -537,7 +537,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"TikTok analytics error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "video_id": post_id,
                 "open_id": self.open_id,
@@ -576,7 +576,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
 
             # In a real implementation, we would use the TikTok API to get audience insights
             # For demonstration, we'll return mock audience insights data
-            return {
+                    return {
                 "open_id": self.open_id,
                 "segment": segment or "all_followers",
                 "demographics": {
@@ -648,7 +648,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"TikTok audience insights error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "open_id": self.open_id,
                 "segment": segment or "all_followers",

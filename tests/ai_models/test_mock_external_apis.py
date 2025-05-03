@@ -350,7 +350,7 @@ def mock_http():
         method="POST",
     )
 
-    return mock_requests
+            return mock_requests
 
 
 @pytest.fixture
@@ -368,7 +368,7 @@ def mock_hf_hub():
         content=json.dumps({"model_type": "gpt2"}),
     )
 
-    return mock_huggingface_hub
+            return mock_huggingface_hub
 
 
 def test_with_pytest_fixtures(mock_http, mock_hf_hub):

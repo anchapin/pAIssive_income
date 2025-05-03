@@ -204,10 +204,10 @@ class TestMockProviders(unittest.TestCase):
                 self.models = {}
 
             def list_models(self):
-                return list(self.models.values())
+                        return list(self.models.values())
 
             def get_all_models(self):
-                return list(self.models.values())
+                        return list(self.models.values())
 
             def register_model(self, model_info):
                 self.models[model_info.id] = model_info
@@ -259,28 +259,28 @@ class TestMockProviders(unittest.TestCase):
 def mock_openai_provider():
     """Fixture to create a mock OpenAI provider."""
     provider = MockOpenAIProvider()
-    return provider
+            return provider
 
 
 @pytest.fixture
 def mock_huggingface_provider():
     """Fixture to create a mock Hugging Face provider."""
     provider = MockHuggingFaceProvider()
-    return provider
+            return provider
 
 
 @pytest.fixture
 def mock_local_provider():
     """Fixture to create a mock local model provider."""
     provider = MockLocalModelProvider()
-    return provider
+            return provider
 
 
 @pytest.fixture
 def mock_onnx_provider():
     """Fixture to create a mock ONNX provider."""
     provider = MockONNXProvider()
-    return provider
+            return provider
 
 
 @pytest.fixture
@@ -294,7 +294,7 @@ def mock_providers():
         "ollama": MockOllamaProvider(),
         "lmstudio": MockLMStudioProvider(),
     }
-    return providers
+            return providers
 
 
 def test_usage_with_pytest(mock_openai_provider, mock_providers):

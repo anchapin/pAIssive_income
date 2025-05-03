@@ -80,7 +80,7 @@ class CacheVersionManager:
             f"Registered cache namespace '{namespace}' with version: {version[:8]}..."
         )
 
-        return version
+                return version
 
     def get_namespace_version(self, namespace: str) -> str:
         """
@@ -94,9 +94,9 @@ class CacheVersionManager:
         """
         # Return existing version or register a new one
         if namespace not in self._namespace_versions:
-            return self.register_namespace(namespace)
+                    return self.register_namespace(namespace)
 
-        return self._namespace_versions[namespace]
+                return self._namespace_versions[namespace]
 
     def update_namespace_version(
         self, namespace: str, version: Optional[str] = None
@@ -121,7 +121,7 @@ class CacheVersionManager:
             f"Updated cache namespace '{namespace}' to version: {version[:8]}..."
         )
 
-        return version
+                return version
 
     def version_cache_key(self, key: str, namespace: str) -> str:
         """
@@ -135,7 +135,7 @@ class CacheVersionManager:
             Versioned cache key
         """
         version = self.get_namespace_version(namespace)
-        return f"v:{version}:{key}"
+                return f"v:{version}:{key}"
 
     def get_function_version_hash(self, func: Callable) -> str:
         """
@@ -150,7 +150,7 @@ class CacheVersionManager:
         # Use cached version if available
         func_id = f"{func.__module__}.{func.__qualname__}"
         if func_id in self._code_versions:
-            return self._code_versions[func_id]
+                    return self._code_versions[func_id]
 
         # Get source code and hash it
         try:
@@ -160,11 +160,11 @@ class CacheVersionManager:
             # Cache the result
             self._code_versions[func_id] = version_hash
 
-            return version_hash
+                    return version_hash
         except (IOError, TypeError) as e:
             logger.warning(f"Could not get source for function {func_id}: {e}")
             # Fall back to function name and module as version
-            return hashlib.md5(func_id.encode()).hexdigest()
+                    return hashlib.md5(func_id.encode()).hexdigest()
 
     def get_class_version_hash(self, cls: Type) -> str:
         """
@@ -179,7 +179,7 @@ class CacheVersionManager:
         # Use cached version if available
         cls_id = f"{cls.__module__}.{cls.__qualname__}"
         if cls_id in self._code_versions:
-            return self._code_versions[cls_id]
+                    return self._code_versions[cls_id]
 
         # Get source code and hash it
         try:
@@ -189,11 +189,11 @@ class CacheVersionManager:
             # Cache the result
             self._code_versions[cls_id] = version_hash
 
-            return version_hash
+                    return version_hash
         except (IOError, TypeError) as e:
             logger.warning(f"Could not get source for class {cls_id}: {e}")
             # Fall back to class name and module as version
-            return hashlib.md5(cls_id.encode()).hexdigest()
+                    return hashlib.md5(cls_id.encode()).hexdigest()
 
     def get_data_model_version_hash(self, model_class: Type) -> str:
         """
@@ -223,7 +223,7 @@ class CacheVersionManager:
 
         # Hash the combined information
         combined = f"{cls_hash}:{str(attrs)}"
-        return hashlib.md5(combined.encode()).hexdigest()
+                return hashlib.md5(combined.encode()).hexdigest()
 
     def _generate_app_version_hash(self) -> str:
         """
@@ -248,7 +248,7 @@ class CacheVersionManager:
             pass
 
         # Hash the combined information
-        return hashlib.md5(app_info.encode()).hexdigest()
+                return hashlib.md5(app_info.encode()).hexdigest()
 
 
 # Create a default instance for use throughout the application
@@ -292,7 +292,7 @@ def generate_versioned_key(
         versioned_namespace = namespace
 
     # Version the key
-    return version_manager.version_cache_key(base_key, versioned_namespace)
+            return version_manager.version_cache_key(base_key, versioned_namespace)
 
 
 def clear_namespace_on_code_change(namespace: str, func_or_class: Any = None) -> None:
@@ -315,9 +315,7 @@ def clear_namespace_on_code_change(namespace: str, func_or_class: Any = None) ->
             logger.warning(
                 f"Could not automatically determine caller for namespace {namespace}"
             )
-            return
-
-    # Generate new version based on function/class source
+                    return # Generate new version based on function/class source
     if inspect.isfunction(func_or_class) or inspect.ismethod(func_or_class):
         new_version = version_manager.get_function_version_hash(func_or_class)
     elif inspect.isclass(func_or_class):
@@ -326,7 +324,5 @@ def clear_namespace_on_code_change(namespace: str, func_or_class: Any = None) ->
         logger.warning(
             f"Unsupported object type for code change monitoring: {type(func_or_class)}"
         )
-        return
-
-    # Update the namespace version
+                return # Update the namespace version
     version_manager.update_namespace_version(namespace, f"code-{new_version}")

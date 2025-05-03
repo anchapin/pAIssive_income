@@ -44,7 +44,7 @@ def api_config() -> APIConfig:
     Returns:
         Test API configuration
     """
-    return APIConfig(
+            return APIConfig(
         host="127.0.0.1",
         port=8000,
         debug=True,
@@ -109,17 +109,17 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Check if the request body is empty (for invalid request test)
         if not data:
             response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-            return {"error": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
+                    return {"error": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
 
         response.status_code = status.HTTP_202_ACCEPTED
-        return {
+                return {
             "task_id": "test-task-id",
             "status_url": "/api/v1/niche-analysis/tasks/test-task-id",
         }
 
     @niche_analysis_router.get("/analyses")
     async def get_analyses():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @niche_analysis_router.get("/analyses/{analysis_id}")
     async def get_analysis(analysis_id: str):
@@ -128,20 +128,20 @@ def api_server(api_config: APIConfig) -> APIServer:
                 status_code=404,
                 detail={"error": "Analysis not found", "code": "NOT_FOUND"},
             )
-        return {"id": analysis_id, "market_segments": []}
+                return {"id": analysis_id, "market_segments": []}
 
     @niche_analysis_router.get("/niches")
     async def get_niches():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @niche_analysis_router.get("/niches/{niche_id}")
     async def get_niche(niche_id: str):
         if niche_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Niche not found", "code": "NOT_FOUND"}},
             )
-        return {
+                return {
             "id": niche_id,
             "name": "Test Niche",
             "description": "Test Description",
@@ -151,7 +151,7 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @niche_analysis_router.get("/segments")
     async def get_segments():
-        return {"segments": []}
+                return {"segments": []}
 
     @niche_analysis_router.post("/niches/bulk")
     async def bulk_create_niches(response: Response, data: dict = Body(...)):
@@ -159,7 +159,7 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Extract items from the request data
         items = data.get("items", [])
         total = len(items)
-        return {
+                return {
             "items": [],
             "errors": [],
             "stats": {"total": total, "success": total, "failure": 0},
@@ -169,7 +169,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @niche_analysis_router.get("/results/{analysis_id}")
     async def get_analysis_results_by_id(analysis_id: str):
         if analysis_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {
@@ -178,11 +178,11 @@ def api_server(api_config: APIConfig) -> APIServer:
                     }
                 },
             )
-        return {"id": analysis_id, "status": "completed", "results": []}
+                return {"id": analysis_id, "status": "completed", "results": []}
 
     @niche_analysis_router.get("/results")
     async def get_analysis_results():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     # Include the niche analysis router in the app
     server.app.include_router(
@@ -198,10 +198,10 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Check if the request is empty for the invalid request test
         if not data:
             response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-            return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
+                    return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
 
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "test-team-id",
             "name": data.get("name", "Test Team"),
             "description": data.get("description", "Test Description"),
@@ -213,16 +213,16 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @agent_team_router.get("/teams")
     async def get_teams():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @agent_team_router.get("/teams/{team_id}")
     async def get_team(team_id: str):
         if team_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Team not found", "code": "NOT_FOUND"}},
             )
-        return {
+                return {
             "id": team_id,
             "name": "Test Team",
             "description": "Test Description",
@@ -235,11 +235,11 @@ def api_server(api_config: APIConfig) -> APIServer:
     @agent_team_router.put("/teams/{team_id}")
     async def update_team(team_id: str, data: dict = Body(...)):
         if team_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Team not found", "code": "NOT_FOUND"}},
             )
-        return {
+                return {
             "id": team_id,
             "name": data.get("name", "Updated Team"),
             "description": data.get("description", "Updated Description"),
@@ -252,25 +252,25 @@ def api_server(api_config: APIConfig) -> APIServer:
     @agent_team_router.delete("/teams/{team_id}")
     async def delete_team(team_id: str, response: Response):
         if team_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Team not found", "code": "NOT_FOUND"}},
             )
         response.status_code = status.HTTP_204_NO_CONTENT
-        return {}
+                return {}
 
     @agent_team_router.get("/agents")
     async def get_agents():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @agent_team_router.get("/agents/{agent_id}")
     async def get_agent(agent_id: str):
         if agent_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Agent not found", "code": "NOT_FOUND"}},
             )
-        return {
+                return {
             "id": agent_id,
             "name": "Test Agent",
             "type": "researcher",
@@ -283,18 +283,18 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @agent_team_router.get("/workflows")
     async def get_workflows():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @agent_team_router.get("/workflows/{workflow_id}")
     async def get_workflow(workflow_id: str):
         if workflow_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Workflow not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": workflow_id,
             "name": "Test Workflow",
             "description": "Test Description",
@@ -305,13 +305,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     @agent_team_router.post("/workflows/{workflow_id}/run")
     async def run_workflow(workflow_id: str, data: dict = Body(...)):
         if workflow_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Workflow not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "task_id": "test-task-id",
             "workflow_id": workflow_id,
             "status": "running",
@@ -324,7 +324,7 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Extract items from the request data
         items = data.get("items", [])
         total = len(items)
-        return {
+                return {
             "items": [],
             "errors": [],
             "stats": {"total": total, "success": total, "failure": 0},
@@ -342,16 +342,16 @@ def api_server(api_config: APIConfig) -> APIServer:
     # Add routes to the mock AI models router
     @ai_models_router.get("/models")
     async def get_models():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @ai_models_router.get("/models/{model_id}")
     async def get_model(model_id: str):
         if model_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Model not found", "code": "NOT_FOUND"}},
             )
-        return {
+                return {
             "id": model_id,
             "name": "Test Model",
             "type": "text-generation",
@@ -367,13 +367,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     async def run_inference(data: dict = Body(...)):
         # Check if the request is empty for the invalid request test
         if not data:
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=422,
                 content={
                     "error": {"message": "Invalid request", "code": "INVALID_REQUEST"}
                 },
             )
-        return {
+                return {
             "id": "test-inference-id",
             "model_id": data.get("model_id", ""),
             "input": data.get("input", ""),
@@ -385,11 +385,11 @@ def api_server(api_config: APIConfig) -> APIServer:
     @ai_models_router.get("/models/{model_id}/metrics")
     async def get_model_metrics(model_id: str):
         if model_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Model not found", "code": "NOT_FOUND"}},
             )
-        return {
+                return {
             "model_id": model_id,
             "inference_count": 100,
             "request_count": 120,
@@ -406,16 +406,16 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @ai_models_router.get("/providers")
     async def get_model_providers():
-        return {"providers": [], "items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"providers": [], "items": [], "total": 0, "page": 1, "page_size": 10}
 
     @ai_models_router.get("/types")
     async def get_model_types():
-        return {"types": [], "items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"types": [], "items": [], "total": 0, "page": 1, "page_size": 10}
 
     @ai_models_router.post("/batch-inference")
     async def batch_inference(response: Response, data: dict = Body(...)):
         response.status_code = status.HTTP_202_ACCEPTED
-        return {
+                return {
             "id": "test-batch-id",
             "task_id": "test-task-id",
             "status_url": "/api/v1/ai-models/batch-inference/test-batch-id/status",
@@ -439,10 +439,10 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Check if the request is empty for the invalid request test
         if not data:
             response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-            return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
+                    return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
 
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "test-strategy-id",
             "name": data.get("name", "Test Strategy"),
             "description": data.get("description", "Test Description"),
@@ -468,12 +468,12 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @marketing_router.get("/strategies")
     async def get_marketing_strategies():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @marketing_router.get("/strategies/{strategy_id}")
     async def get_marketing_strategy(strategy_id: str):
         if strategy_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {
@@ -482,7 +482,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                     }
                 },
             )
-        return {
+                return {
             "id": strategy_id,
             "name": "Test Strategy",
             "description": "Test Description",
@@ -508,7 +508,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @marketing_router.put("/strategies/{strategy_id}")
     async def update_marketing_strategy(strategy_id: str, data: dict = Body(...)):
         if strategy_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {
@@ -517,7 +517,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                     }
                 },
             )
-        return {
+                return {
             "id": strategy_id,
             "name": data.get("name", "Updated Strategy"),
             "description": data.get("description", "Updated Description"),
@@ -544,7 +544,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @marketing_router.delete("/strategies/{strategy_id}")
     async def delete_marketing_strategy(strategy_id: str, response: Response):
         if strategy_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {
@@ -554,19 +554,19 @@ def api_server(api_config: APIConfig) -> APIServer:
                 },
             )
         response.status_code = status.HTTP_204_NO_CONTENT
-        return {}
+                return {}
 
     @marketing_router.get("/personas")
     async def get_personas():
-        return {"personas": [], "items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"personas": [], "items": [], "total": 0, "page": 1, "page_size": 10}
 
     @marketing_router.get("/channels")
     async def get_channels():
-        return {"channels": [], "items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"channels": [], "items": [], "total": 0, "page": 1, "page_size": 10}
 
     @marketing_router.post("/content/generate")
     async def generate_content(data: dict = Body(...)):
-        return {
+                return {
             "id": "test-content-id",
             "content": "Test content",
             "channel": data.get("channel", ""),
@@ -577,7 +577,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @marketing_router.post("/campaigns")
     async def create_campaign(response: Response, data: dict = Body(...)):
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "test-campaign-id",
             "name": data.get("name", "Test Campaign"),
             "description": data.get("description", "Test Description"),
@@ -595,13 +595,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     @marketing_router.get("/campaigns/{campaign_id}")
     async def get_campaign(campaign_id: str):
         if campaign_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Campaign not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": campaign_id,
             "name": "Test Campaign",
             "description": "Test Description",
@@ -627,13 +627,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     @marketing_router.patch("/campaigns/{campaign_id}/status")
     async def update_campaign_status(campaign_id: str, data: dict = Body(...)):
         if campaign_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Campaign not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": campaign_id,
             "status": data.get("status", "active"),
             "activation_date": data.get("activation_date", "2025-05-01T00:00:00Z"),
@@ -644,18 +644,18 @@ def api_server(api_config: APIConfig) -> APIServer:
     @marketing_router.put("/campaigns/{campaign_id}/status")
     async def update_campaign_status_put(campaign_id: str, data: dict = Body(...)):
         # Redirect to the PATCH method
-        return await update_campaign_status(campaign_id, data)
+                return await update_campaign_status(campaign_id, data)
 
     @marketing_router.get("/campaigns/{campaign_id}/metrics")
     async def get_campaign_metrics(campaign_id: str):
         if campaign_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Campaign not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "campaign_id": campaign_id,
             "period": {"start_date": "2025-05-01", "end_date": "2025-05-31"},
             "metrics": {
@@ -690,7 +690,7 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Extract items from the request data
         items = data.get("items", [])
         total = len(items)
-        return {
+                return {
             "items": [],
             "errors": [],
             "stats": {"total": total, "success": total, "failure": 0},
@@ -711,10 +711,10 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Check if the request is empty for the invalid request test
         if not data:
             response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-            return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
+                    return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
 
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "test-webhook-id",
             "url": data.get("url", "https://example.com/webhook"),
             "events": data.get("events", []),
@@ -733,22 +733,22 @@ def api_server(api_config: APIConfig) -> APIServer:
             "Authorization" not in request.headers
             and "X-API-Key" not in request.headers
         ):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Unauthorized"},
             )
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @webhook_router.get("/{webhook_id}")
     async def get_webhook(webhook_id: str):
         if webhook_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Webhook not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": webhook_id,
             "url": "https://example.com/webhook",
             "events": [],
@@ -763,13 +763,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     @webhook_router.put("/{webhook_id}")
     async def update_webhook(webhook_id: str, data: dict = Body(...)):
         if webhook_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Webhook not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": webhook_id,
             "url": data.get("url", "https://example.com/webhook"),
             "events": data.get("events", []),
@@ -784,32 +784,32 @@ def api_server(api_config: APIConfig) -> APIServer:
     @webhook_router.delete("/{webhook_id}")
     async def delete_webhook(webhook_id: str, response: Response):
         if webhook_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Webhook not found", "code": "NOT_FOUND"}
                 },
             )
         response.status_code = status.HTTP_204_NO_CONTENT
-        return {}
+                return {}
 
     @webhook_router.get("/{webhook_id}/deliveries")
     async def get_webhook_deliveries(webhook_id: str):
         if webhook_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Webhook not found", "code": "NOT_FOUND"}
                 },
             )
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @webhook_router.get("/{webhook_id}/deliveries/{delivery_id}")
     async def get_webhook_delivery(webhook_id: str, delivery_id: str):
         if webhook_id.startswith("nonexistent-") or delivery_id.startswith(
             "nonexistent-"
         ):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {
@@ -818,7 +818,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                     }
                 },
             )
-        return {
+                return {
             "id": delivery_id,
             "webhook_id": webhook_id,
             "event": "test.event",
@@ -839,7 +839,7 @@ def api_server(api_config: APIConfig) -> APIServer:
         if webhook_id.startswith("nonexistent-") or delivery_id.startswith(
             "nonexistent-"
         ):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {
@@ -849,7 +849,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                 },
             )
         response.status_code = status.HTTP_202_ACCEPTED
-        return {
+                return {
             "id": "new-delivery-id",
             "webhook_id": webhook_id,
             "original_delivery_id": delivery_id,
@@ -862,13 +862,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     @webhook_router.post("/{webhook_id}/regenerate-secret")
     async def regenerate_webhook_secret(webhook_id: str):
         if webhook_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Webhook not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": webhook_id,
             "secret": "new-webhook-secret",
             "updated_at": "2025-04-29T21:35:00Z",
@@ -876,7 +876,7 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @webhook_router.get("/event-types")
     async def get_event_types():
-        return {
+                return {
             "event_types": [
                 "niche.created",
                 "solution.created",
@@ -899,10 +899,10 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Check if the request is empty for the invalid request test
         if not data:
             response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-            return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
+                    return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
 
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "test-api-key-id",
             "name": data.get("name", "Test API Key"),
             "description": data.get("description", "API key for testing"),
@@ -920,22 +920,22 @@ def api_server(api_config: APIConfig) -> APIServer:
             "Authorization" not in request.headers
             and "X-API-Key" not in request.headers
         ):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Unauthorized"},
             )
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @api_key_router.get("/{api_key_id}")
     async def get_api_key(api_key_id: str):
         if api_key_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "API key not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": api_key_id,
             "name": "Test API Key",
             "description": "API key for testing",
@@ -948,13 +948,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     @api_key_router.put("/{api_key_id}")
     async def update_api_key(api_key_id: str, data: dict = Body(...)):
         if api_key_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "API key not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": api_key_id,
             "name": data.get("name", "Updated API Key"),
             "description": data.get("description", "Updated description"),
@@ -967,36 +967,36 @@ def api_server(api_config: APIConfig) -> APIServer:
     @api_key_router.delete("/{api_key_id}")
     async def delete_api_key(api_key_id: str, response: Response):
         if api_key_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "API key not found", "code": "NOT_FOUND"}
                 },
             )
         response.status_code = status.HTTP_204_NO_CONTENT
-        return {}
+                return {}
 
     @api_key_router.post("/{api_key_id}/revoke")
     async def revoke_api_key(api_key_id: str):
         if api_key_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "API key not found", "code": "NOT_FOUND"}
                 },
             )
-        return {"id": api_key_id, "revoked": True, "revoked_at": "2025-04-29T21:35:00Z"}
+                return {"id": api_key_id, "revoked": True, "revoked_at": "2025-04-29T21:35:00Z"}
 
     @api_key_router.post("/{api_key_id}/regenerate")
     async def regenerate_api_key(api_key_id: str):
         if api_key_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "API key not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": api_key_id,
             "key": "new-api-key-value",
             "updated_at": "2025-04-29T21:35:00Z",
@@ -1005,13 +1005,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     @api_key_router.get("/{api_key_id}/usage")
     async def get_api_key_usage(api_key_id: str):
         if api_key_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "API key not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": api_key_id,
             "request_count": 100,
             "last_used_at": "2025-04-29T21:00:00Z",
@@ -1039,7 +1039,7 @@ def api_server(api_config: APIConfig) -> APIServer:
 
         # Handle different query types
         if "nicheAnalysis" in query:
-            return {
+                    return {
                 "data": {
                     "nicheAnalysis": {
                         "id": variables.get("id", "test-id"),
@@ -1063,7 +1063,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                 }
             }
         elif "marketingStrategy" in query:
-            return {
+                    return {
                 "data": {
                     "marketingStrategy": {
                         "id": variables.get("id", "test-id"),
@@ -1097,7 +1097,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             }
         elif "createCampaign" in query:
             input_data = variables.get("input", {})
-            return {
+                    return {
                 "data": {
                     "createCampaign": {
                         "campaign": {
@@ -1113,7 +1113,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                 }
             }
         elif "campaignMetricsUpdate" in query:
-            return {
+                    return {
                 "data": {
                     "campaignMetricsUpdate": {
                         "timestamp": "2025-04-29T21:30:00Z",
@@ -1127,7 +1127,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                 }
             }
         elif "nonexistentField" in query:
-            return {
+                    return {
                 "errors": [
                     {
                         "message": "Cannot query field 'nonexistentField' on type 'Query'",
@@ -1136,7 +1136,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                 ]
             }
         elif is_introspection:
-            return {
+                    return {
                 "data": {
                     "__schema": {
                         "types": [
@@ -1176,7 +1176,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                 }
             }
         else:
-            return {
+                    return {
                 "data": None,
                 "errors": [
                     {
@@ -1200,11 +1200,11 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Check if the request is empty for the invalid request test
         if not data:
             response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-            return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
+                    return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
 
         response.status_code = status.HTTP_201_CREATED
         # Return a response that matches what the test expects
-        return {
+                return {
             "id": "test-model-id",
             "subscription_type": data.get("subscription_type", "freemium"),
             "billing_period": data.get("billing_period", "monthly"),
@@ -1217,13 +1217,13 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @monetization_router.get("/subscription-models")
     async def get_subscription_models():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @monetization_router.get("/subscription-models/{model_id}")
     async def get_subscription_model(model_id: str):
         if model_id.startswith("nonexistent-"):
             # Return the error in the format expected by the test
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {
@@ -1232,7 +1232,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                     }
                 },
             )
-        return {
+                return {
             "id": model_id,
             "name": "Test Subscription Model",
             "description": "Test Description",
@@ -1252,7 +1252,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                 status_code=404,
                 detail={"error": "Subscription model not found", "code": "NOT_FOUND"},
             )
-        return {
+                return {
             "id": model_id,
             "name": data.get("name", "Updated Subscription Model"),
             "description": data.get("description", "Updated Description"),
@@ -1274,12 +1274,12 @@ def api_server(api_config: APIConfig) -> APIServer:
             )
         # Return an empty JSON object with 204 status code
         response.status_code = status.HTTP_204_NO_CONTENT
-        return {}
+                return {}
 
     @monetization_router.post("/revenue-projections")
     async def create_revenue_projection(response: Response, data: dict = Body(...)):
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "test-projection-id",
             "subscription_model_id": data.get("subscription_model_id", ""),
             "initial_users": data.get("initial_users", 0),
@@ -1294,13 +1294,13 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @monetization_router.get("/revenue-projections")
     async def get_revenue_projections():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @monetization_router.get("/revenue-projections/{projection_id}")
     async def get_revenue_projection(projection_id: str):
         if projection_id.startswith("nonexistent-"):
             # Return the error in the format expected by the test
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {
@@ -1309,7 +1309,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                     }
                 },
             )
-        return {
+                return {
             "id": projection_id,
             "subscription_model_id": "test-model-id",
             "initial_users": 100,
@@ -1330,7 +1330,7 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Extract items from the request data
         items = data.get("items", [])
         total = len(items)
-        return {
+                return {
             "items": [],
             "errors": [],
             "stats": {"total": total, "success": total, "failure": 0},
@@ -1340,7 +1340,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @monetization_router.post("/usage/track")
     async def track_metered_usage(response: Response, data: dict = Body(...)):
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "usage-record-id",
             "subscription_id": data.get("subscription_id", ""),
             "metric": data.get("metric", ""),
@@ -1351,7 +1351,7 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @monetization_router.get("/usage/{subscription_id}")
     async def get_metered_usage(subscription_id: str):
-        return {
+                return {
             "subscription_id": subscription_id,
             "metric": "api_calls",
             "usage_periods": [],  # For test_get_metered_usage
@@ -1364,7 +1364,7 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @monetization_router.get("/billing/{subscription_id}/calculate")
     async def calculate_metered_billing(subscription_id: str):
-        return {
+                return {
             "subscription_id": subscription_id,
             "billing_period": "2025-04",
             "total_amount": 0,
@@ -1376,7 +1376,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @monetization_router.post("/billing/alerts")
     async def test_billing_threshold_alerts(response: Response, data: dict = Body(...)):
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "alert-id",
             "subscription_id": data.get("subscription_id", ""),
             "metric": data.get("metric", ""),
@@ -1389,7 +1389,7 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @monetization_router.get("/billing/{subscription_id}/alerts")
     async def get_billing_alerts(subscription_id: str):
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     # Include the monetization router in the app
     server.app.include_router(
@@ -1462,9 +1462,9 @@ def api_server(api_config: APIConfig) -> APIServer:
         if remaining <= 0:
             response.headers["Retry-After"] = str(reset_time - int(current_time))
             response.status_code = 429
-            return {"detail": "Rate limit exceeded"}
+                    return {"detail": "Rate limit exceeded"}
 
-        return {
+                return {
             "id": "test-user-id",
             "username": "testuser",
             "email": "test@example.com",
@@ -1534,16 +1534,16 @@ def api_server(api_config: APIConfig) -> APIServer:
         if remaining <= 0:
             response.headers["Retry-After"] = str(reset_time - int(current_time))
             response.status_code = 429
-            return {"detail": "Rate limit exceeded"}
+                    return {"detail": "Rate limit exceeded"}
 
-        return {"status": "ok", "reset_in": 60}
+                return {"status": "ok", "reset_in": 60}
 
     @user_router.post("/test-reset/force-reset")
     async def force_reset_rate_limit(request: Request):
         """Force reset the rate limit counters for testing."""
         app = request.app
         app.rate_limit_reset_test_force_reset = True
-        return {
+                return {
             "status": "ok",
             "message": "Rate limit counters will be reset on next request",
         }
@@ -1563,7 +1563,7 @@ def api_server(api_config: APIConfig) -> APIServer:
         response.headers["X-RateLimit-Remaining"] = "199"
         response.headers["X-RateLimit-Reset"] = str(int(time.time()) + 60)
 
-        return {"status": "ok", "version": "1.0.0"}
+                return {"status": "ok", "version": "1.0.0"}
 
     # Include the public router in the app
     server.app.include_router(public_router, prefix="/api/v1/public", tags=["Public"])
@@ -1574,7 +1574,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     # Add routes to the mock analytics router
     @analytics_router.get("/summary")
     async def get_analytics_summary():
-        return {
+                return {
             "total_requests": 100,
             "unique_users": 25,
             "average_response_time_ms": 150.0,
@@ -1585,7 +1585,7 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @analytics_router.get("/requests")
     async def get_request_stats():
-        return {
+                return {
             "items": [],
             "total": 0,
             "page": 1,
@@ -1598,19 +1598,19 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @analytics_router.get("/endpoints")
     async def get_endpoint_stats():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @analytics_router.get("/users")
     async def get_user_stats():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @analytics_router.get("/api-keys")
     async def get_api_key_stats():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @analytics_router.get("/real-time")
     async def get_real_time_metrics():
-        return {
+                return {
             "active_users": 5,
             "requests_per_minute": 10,
             "errors_per_minute": 1,
@@ -1621,12 +1621,12 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @analytics_router.get("/alerts")
     async def get_alerts():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @analytics_router.post("/alert-thresholds")
     async def create_alert_threshold(response: Response, data: dict = Body(...)):
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "test-alert-threshold-id",
             "metric": data.get("metric", "error_rate"),
             "threshold": data.get("threshold", 0.05),
@@ -1639,11 +1639,11 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @analytics_router.get("/alert-thresholds")
     async def get_alert_thresholds():
-        return {"items": [], "total": 0, "page": 1, "page_size": 10}
+                return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @analytics_router.get("/dashboard")
     async def get_dashboard_metrics():
-        return {
+                return {
             "overview": {
                 "total_requests": 1000,
                 "unique_users": 50,
@@ -1656,7 +1656,7 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @analytics_router.post("/custom-report")
     async def create_custom_report(data: dict = Body(...)):
-        return {
+                return {
             "report_id": "test-report-id",
             "status": "processing",
             "metrics": data.get("metrics", []),
@@ -1670,7 +1670,7 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @analytics_router.get("/metrics")
     async def get_metric_trends():
-        return {
+                return {
             "metrics": ["requests", "errors", "response_time"],
             "interval": "day",
             "start_date": "2025-04-01",
@@ -1688,23 +1688,23 @@ def api_server(api_config: APIConfig) -> APIServer:
     @analytics_router.get("/export")
     async def export_analytics_data(response: Response):
         response.status_code = status.HTTP_501_NOT_IMPLEMENTED
-        return {"detail": "Export functionality not implemented yet"}
+                return {"detail": "Export functionality not implemented yet"}
 
     # Add reports endpoint
     @analytics_router.get("/reports/{report_id}")
     async def get_report(report_id: str):
-        return {"report_id": report_id, "status": "completed", "data": []}
+                return {"report_id": report_id, "status": "completed", "data": []}
 
     # Add a special endpoint for the unauthorized access test
     @analytics_router.get("/unauthorized-test")
     async def unauthorized_test(request: Request):
         # For the test_unauthorized_access test, always return 401
         if "test_unauthorized_access" in str(request.url):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Unauthorized"},
             )
-        return {"status": "authorized"}
+                return {"status": "authorized"}
 
     # Include the analytics router in the app
     server.app.include_router(
@@ -1727,12 +1727,12 @@ def api_server(api_config: APIConfig) -> APIServer:
             "Authorization" not in request.headers
             and "X-API-Key" not in request.headers
         ):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Unauthorized"},
             )
 
-        return {
+                return {
             "niches_count": 10,
             "solutions_count": 5,
             "subscription_models_count": 3,
@@ -1759,7 +1759,7 @@ def api_server(api_config: APIConfig) -> APIServer:
         model_id: Optional[str] = None, period: Optional[str] = None
     ):
         """Get revenue statistics."""
-        return {
+                return {
             "total_revenue": 5000.0,
             "monthly_revenue": 1200.0,
             "revenue_growth": 0.15,
@@ -1778,7 +1778,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @dashboard_router.get("/subscribers")
     async def get_subscriber_statistics():
         """Get subscriber statistics."""
-        return {
+                return {
             "total_subscribers": 100,
             "new_subscribers": 15,
             "churn_rate": 0.05,
@@ -1797,7 +1797,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @dashboard_router.get("/marketing")
     async def get_marketing_statistics():
         """Get marketing statistics."""
-        return {
+                return {
             "website_traffic": 5000,
             "conversion_rate": 0.02,
             "customer_acquisition_cost": 25.0,
@@ -1818,7 +1818,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @dashboard_router.get("/model-usage")
     async def get_model_usage_statistics():
         """Get model usage statistics."""
-        return {
+                return {
             "total_requests": 10000,
             "total_tokens": 500000,
             "average_latency_ms": 250.0,
@@ -1838,7 +1838,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     async def export_dashboard_data(format: str = "json", sections: str = "all"):
         """Export dashboard data."""
         # Return 501 Not Implemented
-        return JSONResponse(
+                return JSONResponse(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             content={"detail": "Export functionality not implemented yet"},
         )
@@ -1863,7 +1863,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @developer_router.get("/niches")
     async def get_developer_niches():
         """Get all development niches."""
-        return {
+                return {
             "items": [
                 {
                     "id": "niche-1",
@@ -1894,7 +1894,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     @developer_router.get("/templates")
     async def get_developer_templates():
         """Get all development templates."""
-        return {
+                return {
             "items": [
                 {
                     "id": "template-1",
@@ -1930,10 +1930,10 @@ def api_server(api_config: APIConfig) -> APIServer:
         # Check if the request is empty for the invalid request test
         if not data:
             response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-            return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
+                    return {"detail": {"message": "Invalid request", "code": "INVALID_REQUEST"}}
 
         response.status_code = status.HTTP_201_CREATED
-        return {
+                return {
             "id": "solution-1",
             "name": data.get("name", "Test Solution"),
             "description": data.get("description", "Test Description"),
@@ -2043,7 +2043,7 @@ def api_server(api_config: APIConfig) -> APIServer:
         end_idx = start_idx + page_size
         paginated_solutions = filtered_solutions[start_idx:end_idx]
 
-        return {
+                return {
             "items": paginated_solutions,
             "total": total,
             "page": page,
@@ -2054,13 +2054,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     async def get_developer_solution(solution_id: str):
         """Get a specific development solution."""
         if solution_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Solution not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": solution_id,
             "name": "Test Solution",
             "description": "Test Description",
@@ -2081,13 +2081,13 @@ def api_server(api_config: APIConfig) -> APIServer:
     async def update_developer_solution(solution_id: str, data: dict = Body(...)):
         """Update a development solution."""
         if solution_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Solution not found", "code": "NOT_FOUND"}
                 },
             )
-        return {
+                return {
             "id": solution_id,
             "name": data.get("name", "Updated Solution"),
             "description": data.get("description", "Updated Description"),
@@ -2109,21 +2109,21 @@ def api_server(api_config: APIConfig) -> APIServer:
     async def delete_developer_solution(solution_id: str, response: Response):
         """Delete a development solution."""
         if solution_id.startswith("nonexistent-"):
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=404,
                 content={
                     "error": {"message": "Solution not found", "code": "NOT_FOUND"}
                 },
             )
         response.status_code = status.HTTP_204_NO_CONTENT
-        return {}
+                return {}
 
     # Include the developer router in the app
     server.app.include_router(
         developer_router, prefix="/api/v1/developer", tags=["Developer"]
     )
 
-    return server
+            return server
 
 
 @pytest.fixture
@@ -2137,7 +2137,7 @@ def api_client(api_server: APIServer) -> TestClient:
     Returns:
         Test client
     """
-    return TestClient(api_server.app)
+            return TestClient(api_server.app)
 
 
 @pytest.fixture
@@ -2148,7 +2148,7 @@ def api_headers() -> Dict[str, str]:
     Returns:
         Headers for API requests
     """
-    return {
+            return {
         "Content-Type": "application/json",
         "Accept": "application/json",
         "X-API-Key": "test-api-key",
@@ -2163,7 +2163,7 @@ def api_unauth_headers() -> Dict[str, str]:
     Returns:
         Headers for unauthenticated API requests
     """
-    return {"Content-Type": "application/json", "Accept": "application/json"}
+            return {"Content-Type": "application/json", "Accept": "application/json"}
 
 
 @pytest.fixture
@@ -2180,7 +2180,7 @@ def api_auth_headers(api_headers: Dict[str, str]) -> Dict[str, str]:
     # In a real implementation, this would generate a JWT token
     headers = api_headers.copy()
     headers["Authorization"] = "Bearer test-jwt-token"
-    return headers
+            return headers
 
 
 @pytest.fixture

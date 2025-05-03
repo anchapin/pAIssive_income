@@ -122,5 +122,5 @@ class RevenueProjectionResponse(BaseModel):
         ..., description="Monthly revenue projections"
     )
     total_revenue: float = Field(..., description="Total projected revenue")
-    total_users: int = Field(..., description="Total projected users")
-    created_at: datetime = Field(..., description="Creation timestamp")
+    total_users: int = Field(..., description="Total projected users"
+    created_at: datetime = Field(..., description="Creation timestamp"

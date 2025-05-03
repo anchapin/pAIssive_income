@@ -65,9 +65,9 @@ class MonitoringAPI:
                 else:
                     prometheus_output.append(f"{name} {value}")
 
-            return {"prometheus_format": "\n".join(prometheus_output)}
+                    return {"prometheus_format": "\n".join(prometheus_output)}
 
-        return {"metrics": metrics_data}
+                return {"metrics": metrics_data}
 
     @staticmethod
     def get_health() -> Dict[str, Any]:
@@ -77,7 +77,7 @@ class MonitoringAPI:
         Returns:
             Dictionary with health status information
         """
-        return get_health_status()
+                return get_health_status()
 
     @staticmethod
     def get_system() -> Dict[str, Any]:
@@ -87,7 +87,7 @@ class MonitoringAPI:
         Returns:
             Dictionary with system resource metrics
         """
-        return {"system": get_system_metrics()}
+                return {"system": get_system_metrics()}
 
     @staticmethod
     def get_logs(
@@ -115,7 +115,7 @@ class MonitoringAPI:
         # Find log files
         log_dir = Path("logs")
         if not log_dir.exists():
-            return {
+                    return {
                 "logs": [],
                 "total": 0,
                 "metadata": {
@@ -191,7 +191,7 @@ class MonitoringAPI:
             except Exception as e:
                 logger.error(f"Error reading log file {log_file}: {e}")
 
-        return {
+                return {
             "logs": logs,
             "total": total_matching,
             "metadata": {
@@ -219,7 +219,7 @@ class MonitoringAPI:
         export_metrics()
 
         # Combine all monitoring data
-        return {
+                return {
             "metrics": get_metrics(),
             "health": get_health_status(),
             "system": get_system_metrics(),
@@ -240,15 +240,15 @@ def register_monitoring_api(app):
     @app.route("/api/metrics", methods=["GET"])
     def api_metrics():
         format = app.request.args.get("format", "json")
-        return monitoring_api.get_metrics(format)
+                return monitoring_api.get_metrics(format)
 
     @app.route("/api/health", methods=["GET"])
     def api_health():
-        return monitoring_api.get_health()
+                return monitoring_api.get_health()
 
     @app.route("/api/system", methods=["GET"])
     def api_system():
-        return monitoring_api.get_system()
+                return monitoring_api.get_system()
 
     @app.route("/api/logs", methods=["GET"])
     def api_logs():
@@ -267,13 +267,13 @@ def register_monitoring_api(app):
         if end_time:
             end_time = datetime.fromisoformat(end_time)
 
-        return monitoring_api.get_logs(
+                return monitoring_api.get_logs(
             start_time, end_time, level, limit, offset, search_term
         )
 
     @app.route("/api/dashboard", methods=["GET"])
     def api_dashboard():
-        return monitoring_api.export_dashboard_data()
+                return monitoring_api.export_dashboard_data()
 
 
 # Register API routes with FastAPI
@@ -288,15 +288,15 @@ def register_fastapi_monitoring_api(app):
 
     @app.get("/api/metrics")
     def api_metrics(format: str = "json"):
-        return monitoring_api.get_metrics(format)
+                return monitoring_api.get_metrics(format)
 
     @app.get("/api/health")
     def api_health():
-        return monitoring_api.get_health()
+                return monitoring_api.get_health()
 
     @app.get("/api/system")
     def api_system():
-        return monitoring_api.get_system()
+                return monitoring_api.get_system()
 
     @app.get("/api/logs")
     def api_logs(
@@ -316,8 +316,8 @@ def register_fastapi_monitoring_api(app):
         if end_time:
             end_dt = datetime.fromisoformat(end_time)
 
-        return monitoring_api.get_logs(start_dt, end_dt, level, limit, offset, search)
+                return monitoring_api.get_logs(start_dt, end_dt, level, limit, offset, search)
 
     @app.get("/api/dashboard")
     def api_dashboard():
-        return monitoring_api.export_dashboard_data()
+                return monitoring_api.export_dashboard_data()

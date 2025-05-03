@@ -46,7 +46,7 @@ class AnalyticsService:
         """
         if cls._instance is None:
             cls._instance = cls(db_path)
-        return cls._instance
+                return cls._instance
 
     def __init__(self, db_path: str = None):
         """
@@ -169,7 +169,7 @@ class AnalyticsService:
         except Exception as e:
             logger.error(f"Error saving request data: {e}")
 
-        return request_id
+                return request_id
 
     def get_requests(
         self,
@@ -203,7 +203,7 @@ class AnalyticsService:
         start_time = end_time - timedelta(days=days)
         time_range = (start_time, end_time)
 
-        return self.db.get_requests(
+                return self.db.get_requests(
             endpoint=endpoint,
             version=version,
             user_id=user_id,
@@ -232,7 +232,7 @@ class AnalyticsService:
         end_date = datetime.now().strftime("%Y-%m-%d")
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
-        return self.db.get_daily_metrics(
+                return self.db.get_daily_metrics(
             start_date=start_date, end_date=end_date, endpoint=endpoint, version=version
         )
 
@@ -253,7 +253,7 @@ class AnalyticsService:
         end_date = datetime.now().strftime("%Y-%m-%d")
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
-        return self.db.get_user_metrics(
+                return self.db.get_user_metrics(
             start_date=start_date, end_date=end_date, user_id=user_id
         )
 
@@ -274,7 +274,7 @@ class AnalyticsService:
         end_date = datetime.now().strftime("%Y-%m-%d")
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
-        return self.db.get_api_key_metrics(
+                return self.db.get_api_key_metrics(
             start_date=start_date, end_date=end_date, api_key_id=api_key_id
         )
 
@@ -292,7 +292,7 @@ class AnalyticsService:
         end_date = datetime.now().strftime("%Y-%m-%d")
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
-        return self.db.get_endpoint_stats(start_date=start_date, end_date=end_date)
+                return self.db.get_endpoint_stats(start_date=start_date, end_date=end_date)
 
     def get_usage_summary(self, days: int = 30) -> Dict[str, Any]:
         """
@@ -340,7 +340,7 @@ class AnalyticsService:
             set(metric.get("api_key_id") for metric in api_key_metrics)
         )
 
-        return {
+                return {
             "total_requests": total_requests,
             "total_errors": total_errors,
             "error_rate": error_rate,
@@ -382,7 +382,7 @@ class AnalyticsService:
         )
 
         if not requests:
-            return "No data to export"
+                    return "No data to export"
 
         # Create CSV
         output = io.StringIO()
@@ -429,7 +429,7 @@ class AnalyticsService:
 
             writer.writerow(row)
 
-        return output.getvalue()
+                return output.getvalue()
 
     def export_metrics_csv(self, days: int = 30) -> str:
         """
@@ -445,7 +445,7 @@ class AnalyticsService:
         metrics = self.get_daily_metrics(days)
 
         if not metrics:
-            return "No data to export"
+                    return "No data to export"
 
         # Create CSV
         output = io.StringIO()
@@ -473,7 +473,7 @@ class AnalyticsService:
         for metric in metrics:
             writer.writerow(metric)
 
-        return output.getvalue()
+                return output.getvalue()
 
     def cleanup_old_data(self, days: int = 365) -> int:
         """
@@ -485,7 +485,7 @@ class AnalyticsService:
         Returns:
             Number of records deleted
         """
-        return self.db.cleanup_old_data(days)
+                return self.db.cleanup_old_data(days)
 
     def _daily_aggregation_task(self) -> None:
         """
@@ -557,7 +557,7 @@ class AnalyticsService:
             ]
 
             if not recent_requests:
-                return {
+                        return {
                     "request_count": 0,
                     "error_count": 0,
                     "error_rate": 0,
@@ -623,7 +623,7 @@ class AnalyticsService:
                 # Remove raw response times from result
                 del data["response_times"]
 
-            return {
+                    return {
                 "request_count": request_count,
                 "error_count": error_count,
                 "error_rate": error_rate,

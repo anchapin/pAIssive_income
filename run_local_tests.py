@@ -23,26 +23,26 @@ def main():
     )
     args = parser.parse_args()
 
-    # Get the current directory
+# Get the current directory
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Add the current directory to the Python path
+# Add the current directory to the Python path
     sys.path.insert(0, current_dir)
 
-    # Set environment variables
+# Set environment variables
     env = os.environ.copy()
     env["PYTHONPATH"] = current_dir
 
-    # Build the command
+# Build the command
     cmd = ["python", "-m", "pytest", args.test_path, "--import-mode=importlib"]
 
-    if args.verbose:
+if args.verbose:
         cmd.append("-v")
 
-    if args.coverage:
+if args.coverage:
         cmd.extend(["--cov=.", "--cov-report=term-missing"])
 
-    # Run the tests
+# Run the tests
     print(f"Running tests: {' '.join(cmd)}")
     result = subprocess.run(
         cmd,
@@ -50,8 +50,8 @@ def main():
         check=False,
     )
 
-    # Return the exit code
-    return result.returncode
+# Return the exit code
+                return result.returncode
 
 
 if __name__ == "__main__":

@@ -65,9 +65,7 @@ def test_ollama_adapter(base_url: str, model_name: str, prompt: str) -> None:
             print(
                 f"\nModel {model_name} not found. Please pull it with: ollama pull {model_name}"
             )
-            return
-
-        # Get model info
+                    return # Get model info
         model_info = adapter.get_model_info(model_name)
         print(f"\nModel info for {model_name}:")
         print(f"- Size: {model_info.get('size', 'Unknown')}")
@@ -234,9 +232,7 @@ def test_tensorrt_adapter(engine_path: str, tokenizer_path: str, prompt: str) ->
         print(
             "TensorRT or PyCUDA not available. Please install them to use the TensorRT adapter."
         )
-        return
-
-    print("\n" + "=" * 80)
+                return print("\n" + "=" * 80)
     print("Testing TensorRT Adapter")
     print("=" * 80)
 
@@ -244,9 +240,7 @@ def test_tensorrt_adapter(engine_path: str, tokenizer_path: str, prompt: str) ->
         # Check if engine file exists
         if not os.path.exists(engine_path):
             print(f"Engine file not found: {engine_path}")
-            return
-
-        # Create TensorRT adapter
+                    return # Create TensorRT adapter
         adapter = TensorRTAdapter(
             engine_path=engine_path,
             model_type="text-generation",
@@ -301,9 +295,7 @@ def main():
     # If no adapter is specified, show help
     if not args.adapter:
         parser.print_help()
-        return
-
-    # Test the specified adapter
+                return # Test the specified adapter
     if args.adapter == "ollama":
         base_url = args.base_url or "http://localhost:11434"
         model_name = args.model or "llama2"
@@ -321,13 +313,9 @@ def main():
     elif args.adapter == "tensorrt":
         if not args.engine_path:
             print("Error: --engine-path is required for TensorRT adapter")
-            return
-
-        if not args.tokenizer_path:
+                    return if not args.tokenizer_path:
             print("Error: --tokenizer-path is required for TensorRT adapter")
-            return
-
-        test_tensorrt_adapter(args.engine_path, args.tokenizer_path, args.prompt)
+                    return test_tensorrt_adapter(args.engine_path, args.tokenizer_path, args.prompt)
 
 
 if __name__ == "__main__":

@@ -39,7 +39,7 @@ def mock_team():
         },
     }
     mock_team.project_state = {}
-    return mock_team
+            return mock_team
 
 
 def test_agent_profile_init():

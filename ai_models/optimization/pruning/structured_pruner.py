@@ -49,7 +49,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
- as torch_prune
+as torch_prune
 
     TORCH_PRUNE_AVAILABLE = True
 except ImportError:
@@ -164,7 +164,7 @@ class StructuredPruner(Pruner):
         # Save pruning configuration
         self._save_pruning_config(output_path)
 
-        return output_path
+                return output_path
 
     def _get_layers_to_prune(self, model) -> List[Tuple[torch.nn.Module, str]]:
         """
@@ -202,7 +202,7 @@ class StructuredPruner(Pruner):
             # Add to layers to prune
             layers_to_prune.append((module, "weight"))
 
-        return layers_to_prune
+                return layers_to_prune
 
     def _apply_structured_pruning(
         self, model, layers_to_prune: List[Tuple[torch.nn.Module, str]]
@@ -373,7 +373,7 @@ class StructuredPruner(Pruner):
             "object-detection",
         ]
 
-        return model_type in supported_types
+                return model_type in supported_types
 
     def get_supported_methods(self) -> List[PruningMethod]:
         """
@@ -382,7 +382,7 @@ class StructuredPruner(Pruner):
         Returns:
             List of supported pruning methods
         """
-        return [PruningMethod.STRUCTURED]
+                return [PruningMethod.STRUCTURED]
 
     def get_pruning_info(self) -> Dict[str, Any]:
         """
@@ -391,7 +391,7 @@ class StructuredPruner(Pruner):
         Returns:
             Dictionary with pruning information
         """
-        return {
+                return {
             "pruner": "StructuredPruner",
             "method": self.config.method.value,
             "sparsity": self.config.sparsity,

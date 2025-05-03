@@ -92,7 +92,7 @@ class RougeMetric(BaseMetric):
         # Add value
         self.add_value(avg_scores)
 
-        return avg_scores
+                return avg_scores
 
     def measure_single(self, output: str, reference: str) -> Dict[str, float]:
         """
@@ -117,7 +117,7 @@ class RougeMetric(BaseMetric):
         # Add value
         self.add_value(rouge_scores)
 
-        return rouge_scores
+                return rouge_scores
 
     def get_overall_scores(self) -> Dict[str, float]:
         """
@@ -134,7 +134,7 @@ class RougeMetric(BaseMetric):
                 else 0
             )
 
-        return overall_scores
+                return overall_scores
 
     def reset(self) -> None:
         """
@@ -172,4 +172,4 @@ class RougeMetric(BaseMetric):
                     ),
                 }
 
-        return stats
+                return stats

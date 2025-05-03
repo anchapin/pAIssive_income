@@ -23,7 +23,7 @@ except ImportError:
         pass
 
     def Field(*args, **kwargs):
-        return None
+                return None
 
 
 # Create router
@@ -68,7 +68,7 @@ if FASTAPI_AVAILABLE:
         info = server.get_info()
 
         # Create response
-        return {
+                return {
             "status": "ok",
             "version": info.get("version", "unknown"),
             "model_id": info.get("model_id", "unknown"),

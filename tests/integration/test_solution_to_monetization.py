@@ -18,7 +18,7 @@ from monetization import PricingCalculator, RevenueProjector, SubscriptionModel
 @pytest.fixture
 def mock_solution():
     """Create a mock solution for testing."""
-    return {
+            return {
         "id": "solution1",
         "name": "AI Inventory Manager",
         "description": "An AI-powered solution for inventory management",
@@ -102,7 +102,7 @@ def mock_agents():
         },
     }
 
-    return {
+            return {
         "developer": mock_developer,
         "monetization": mock_monetization,
     }

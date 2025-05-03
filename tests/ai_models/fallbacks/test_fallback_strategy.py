@@ -81,7 +81,7 @@ class FallbackEvent:
         self.details = details or {}
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
+                return {
             "original_model_id": self.original_model_id,
             "fallback_model_id": self.fallback_model_id,
             "reason": self.reason,
@@ -128,16 +128,16 @@ class ModelManagerMock:
         """Get information about a model by ID."""
         if model_id not in self.model_dict:
             # Return None instead of raising an error to avoid the code parameter conflict
-            return None
-        return self.model_dict[model_id]
+                    return None
+                return self.model_dict[model_id]
 
     def get_all_models(self) -> List[ModelInfoMock]:
         """Get all available models."""
-        return self.models
+                return self.models
 
     def get_models_by_type(self, model_type: str) -> List[ModelInfoMock]:
         """Get models of a specific type."""
-        return [model for model in self.models if model.type == model_type]
+                return [model for model in self.models if model.type == model_type]
 
     def load_model(self, model_id: str) -> bool:
         """Simulate loading a model."""
@@ -146,7 +146,7 @@ class ModelManagerMock:
         model = self.model_dict[model_id]
         if not model.is_available:
             raise ModelLoadError(f"Failed to load model: {model_id}")
-        return True
+                return True
 
 
 class TestFallbackEvent(unittest.TestCase):

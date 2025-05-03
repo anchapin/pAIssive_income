@@ -150,7 +150,7 @@ class TestModelVersionCompatibility
                 path=model_info.path,
                 capabilities=model_info.capabilities
             )
-            return new_info
+                    return new_info
 
         def migrate_1_1_0_to_2_0_0(model_info, **kwargs):
             """Migrate from 1.1.0 to 2.0.0 by changing input/output fields."""
@@ -164,7 +164,7 @@ class TestModelVersionCompatibility
                 path=model_info.path,
                 capabilities=model_info.capabilities
             )
-            return new_info
+                    return new_info
 
         # Register migration functions
         self.migration_tool.register_migration_function(
@@ -229,12 +229,12 @@ class TestModelVersionCompatibility
         def get_model_with_version(model_id, version):
             if model_id == "feature-model":
                 if version == "1.0.0":
-                    return MagicMock(features=["text-generation"])
+                            return MagicMock(features=["text-generation"])
                 elif version == "1.1.0":
-                    return MagicMock(features=["text-generation", "summarization"])
+                            return MagicMock(features=["text-generation", "summarization"])
                 elif version == "2.0.0":
-                    return MagicMock(features=["text-generation", "summarization", "translation"])
-            return None
+                            return MagicMock(features=["text-generation", "summarization", "translation"])
+                    return None
 
         self.model_manager.get_model_with_version.side_effect = get_model_with_version
 

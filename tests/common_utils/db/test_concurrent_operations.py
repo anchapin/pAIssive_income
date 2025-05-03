@@ -52,7 +52,7 @@ def sqlite_db():
 @pytest.fixture
 def sqlite_uow(sqlite_db):
     """Fixture for SQLite Unit of Work."""
-    return DatabaseFactory.create_unit_of_work(sqlite_db)
+            return DatabaseFactory.create_unit_of_work(sqlite_db)
 
 
 def test_parallel_updates_consistency(sqlite_db):
@@ -275,14 +275,14 @@ def test_deadlock_prevention(sqlite_db):
             
             # Commit transaction
             sqlite_db.connection.commit()
-            return True
+                    return True
         except Exception as e:
             # Rollback on error
             sqlite_db.connection.rollback()
             nonlocal deadlock_detected
             deadlock_detected = True
             print(f"Transaction 1 error: {e}")
-            return False
+                    return False
     
     def transaction_2():
         """Second transaction that updates table 2 then table 1."""
@@ -307,14 +307,14 @@ def test_deadlock_prevention(sqlite_db):
             
             # Commit transaction
             sqlite_db.connection.commit()
-            return True
+                    return True
         except Exception as e:
             # Rollback on error
             sqlite_db.connection.rollback()
             nonlocal deadlock_detected
             deadlock_detected = True
             print(f"Transaction 2 error: {e}")
-            return False
+                    return False
     
     # Run transactions in separate threads
     thread1 = threading.Thread(target=transaction_1)

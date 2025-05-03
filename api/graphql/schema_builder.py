@@ -61,7 +61,7 @@ def build_schema():
     """
     if not STRAWBERRY_AVAILABLE:
         logger.error("Cannot build schema: Strawberry GraphQL is not installed")
-        return None
+                return None
 
     # Create root query type by combining all module queries
     @strawberry.type
@@ -98,7 +98,7 @@ def build_schema():
         ),
     )
 
-    return schema
+            return schema
 
 
 def create_graphql_router(path: str = "/graphql", graphiql: bool = True):
@@ -116,12 +116,12 @@ def create_graphql_router(path: str = "/graphql", graphiql: bool = True):
         logger.error(
             "Cannot create GraphQL router: Strawberry GraphQL is not installed"
         )
-        return None
+                return None
 
     # Build schema
     schema = build_schema()
     if not schema:
-        return None
+                return None
 
     # Create context getter
 # Create router
@@ -129,4 +129,4 @@ def create_graphql_router(path: str = "/graphql", graphiql: bool = True):
         schema=schema, graphiql=graphiql, path=path, context_getter=get_context
     )
 
-    return router
+            return router

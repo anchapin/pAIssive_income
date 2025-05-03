@@ -118,7 +118,7 @@ class MockServer:
                 request=request,
             )
 
-        return response
+                return response
 
 
 class LoadTestEnvironment:
@@ -236,7 +236,7 @@ class LoadTestEnvironment:
 
                 # Patch httpx.AsyncClient.post to use our mock server
                 async def mock_post(*args, **kwargs):
-                    return await server.handle_request(
+                            return await server.handle_request(
                         httpx.Request("POST", server.url)
                     )
 
@@ -280,9 +280,7 @@ class LoadTestEnvironment:
     def calculate_latency_percentiles(self):
         """Calculate latency percentiles."""
         if not self.latencies:
-            return
-
-        sorted_latencies = sorted(self.latencies)
+                    return sorted_latencies = sorted(self.latencies)
         self.results["latency_stats"]["min"] = sorted_latencies[0]
         self.results["latency_stats"]["max"] = sorted_latencies[-1]
         self.results["latency_stats"]["avg"] = sum(sorted_latencies) / len(

@@ -31,7 +31,7 @@ class ModelInfo(IModelInfo):
     Information about an AI model.
     """
 
-    _id: str
+_id: str
     _name: str
     _type: str  # huggingface, llama, embedding, etc.
     _path: str
@@ -48,7 +48,7 @@ class ModelInfo(IModelInfo):
     # Added version field for model versioning
     version: str = "0.0.0"
 
-    def __init__(
+def __init__(
         self,
         id: str,
         name: str,
@@ -83,84 +83,84 @@ class ModelInfo(IModelInfo):
         self.updated_at = updated_at
         self.version = version
 
-        # Run post-initialization logic
+# Run post-initialization logic
         self.__post_init__()
 
-    @property
+@property
     def id(self) -> str:
         """Get the model ID."""
-        return self._id
+                    return self._id
 
-    @property
+@property
     def name(self) -> str:
         """Get the model name."""
-        return self._name
+                    return self._name
 
-    @property
+@property
     def description(self) -> str:
         """Get the model description."""
-        return self._description
+                    return self._description
 
-    @property
+@property
     def type(self) -> str:
         """Get the model type."""
-        return self._type
+                    return self._type
 
-    @property
+@property
     def path(self) -> str:
         """Get the model path."""
-        return self._path
+                    return self._path
 
-    @property
+@property
     def metadata(self) -> Dict[str, Any]:
         """Get the model metadata."""
-        return self._metadata if self._metadata is not None else {}
+                    return self._metadata if self._metadata is not None else {}
 
-    @property
+@property
     def model_version(self) -> str:
         """Get the model version."""
-        return self.version
+                    return self.version
 
-    def __post_init__(self):
+def __post_init__(self):
         """
         Initialize default values after creation.
         """
         if self.capabilities is None:
             self.capabilities = []
 
-        if self._metadata is None:
+if self._metadata is None:
             self._metadata = {}
 
-        if self.performance is None:
+if self.performance is None:
             self.performance = {}
 
-        # Set timestamps if not provided
+# Set timestamps if not provided
         current_time = time.strftime("%Y-%m-%dT%H:%M:%S")
 
-        if not self.created_at:
+if not self.created_at:
             self.created_at = current_time
 
-        if not self.updated_at:
+if not self.updated_at:
             self.updated_at = current_time
 
-        if not self.last_updated:
+if not self.last_updated:
             self.last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
 
-        # Calculate size if path exists and size is not provided
+# Calculate size if path exists and size is not provided
         if self.size_mb == 0.0 and os.path.exists(self._path):
             try:
                 self.size_mb = os.path.getsize(self._path) / (1024 * 1024)
             except (OSError, IOError):
                 pass
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the model info to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the model info
         """
-        return {
+                    return {
             "id": self.id,
             "name": self.name,
             "type": self.type,
@@ -178,73 +178,73 @@ class ModelInfo(IModelInfo):
             "version": self.version,
         }
 
-    def to_json(self, indent: int = 2) -> str:
+def to_json(self, indent: int = 2) -> str:
         """
         Convert the model info to a JSON string.
 
-        Args:
+Args:
             indent: Number of spaces for indentation
 
-        Returns:
+Returns:
             JSON string representation of the model info
         """
-        return json.dumps(self.to_dict(), indent=indent)
+                    return json.dumps(self.to_dict(), indent=indent)
 
-    def update_performance(self, metrics: Dict[str, Any]) -> None:
+def update_performance(self, metrics: Dict[str, Any]) -> None:
         """
         Update performance metrics for the model.
 
-        Args:
+Args:
             metrics: Dictionary of performance metrics
         """
         if self.performance is None:
             self.performance = {}
 
-        self.performance.update(metrics)
+self.performance.update(metrics)
         self.update_timestamp()
 
-    def update_timestamp(self) -> None:
+def update_timestamp(self) -> None:
         """
         Update the last_updated and updated_at timestamps.
         """
         self.last_updated = time.strftime("%Y-%m-%d %H:%M:%S")
         self.updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
 
-        # For compatibility with datetime.now().isoformat() in tests
+# For compatibility with datetime.now().isoformat() in tests
         if hasattr(datetime, "now"):
             self.updated_at = datetime.now().isoformat()
 
-    def has_capability(self, capability: str) -> bool:
+def has_capability(self, capability: str) -> bool:
         """
         Check if the model has a specific capability.
 
-        Args:
+Args:
             capability: Capability to check
 
-        Returns:
+Returns:
             True if the model has the capability, False otherwise
         """
-        return capability in self.capabilities
+                    return capability in self.capabilities
 
-    def set_version(self, version: str) -> None:
+def set_version(self, version: str) -> None:
         """
         Set the model version.
 
-        Args:
+Args:
             version: Version string in semver format (e.g., "1.0.0")
         """
         self.version = version
         self.update_timestamp()
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ModelInfo":
         """
         Create a ModelInfo instance from a dictionary.
 
-        Args:
+Args:
             data: Dictionary containing model information
 
-        Returns:
+Returns:
             ModelInfo instance
         """
-        return cls(**data)
+                    return cls(**data)

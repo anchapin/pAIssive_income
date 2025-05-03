@@ -92,7 +92,7 @@ async def register_webhook(
             ip_address=client_host,
             user_agent=user_agent,
         )
-        return webhook
+                return webhook
     except Exception as e:
         logger.error(f"Error registering webhook: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -118,7 +118,7 @@ async def list_webhooks(
         pages = (total + page_size - 1) // page_size
         start = (page - 1) * page_size
         end = start + page_size
-        return {
+                return {
             "webhooks": webhooks[start:end],
             "total": total,
             "page": page,
@@ -146,7 +146,7 @@ async def get_webhook(
         webhook = await webhook_service.get_webhook(webhook_id)
         if webhook is None:
             raise HTTPException(status_code=404, detail="Webhook not found")
-        return webhook
+                return webhook
     except HTTPException:
         raise
     except Exception as e:
@@ -183,7 +183,7 @@ async def update_webhook(
         )
         if webhook is None:
             raise HTTPException(status_code=404, detail="Webhook not found")
-        return webhook
+                return webhook
     except HTTPException:
         raise
     except Exception as e:
@@ -216,7 +216,7 @@ async def delete_webhook(
             ip_address=client_host,
             user_agent=user_agent,
         ):
-            return {"message": "Webhook deleted successfully"}
+                    return {"message": "Webhook deleted successfully"}
         raise HTTPException(status_code=404, detail="Webhook not found")
     except HTTPException:
         raise
@@ -254,7 +254,7 @@ async def list_webhook_deliveries(
         start = (page - 1) * page_size
         end = start + page_size
 
-        return {
+                return {
             "deliveries": deliveries[start:end],
             "total": total,
             "page": page,
@@ -318,7 +318,7 @@ async def test_webhook(
         success = await webhook_service._deliver_webhook(webhook, delivery)
 
         if success:
-            return {
+                    return {
                 "message": "Test webhook sent successfully",
                 "data": {
                     "delivery_id": delivery["id"],
@@ -327,7 +327,7 @@ async def test_webhook(
                 },
             }
         else:
-            return {
+                    return {
                 "message": "Test webhook failed",
                 "data": {
                     "delivery_id": delivery["id"],

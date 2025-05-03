@@ -95,7 +95,7 @@ class TestEventFiltering
                 elif "webhook3" in url:
                     received_events[webhook3["id"]].append(payload["type"])
                 
-                return success_response
+                        return success_response
             
             # Patch the httpx.AsyncClient.post method to track events
             with patch("httpx.AsyncClient.post", mock_post):
@@ -269,7 +269,7 @@ class TestEventCorrelation:
                 # Extract the payload from kwargs
                 payload = json.loads(kwargs.get("data", "{}"))
                 delivered_events.append(payload)
-                return success_response
+                        return success_response
             
             # Patch the httpx.AsyncClient.post method to track events
             with patch("httpx.AsyncClient.post", mock_post):
@@ -354,7 +354,7 @@ class TestEventBatching:
                 # Extract the payload from kwargs
                 payload = json.loads(kwargs.get("data", "{}"))
                 batched_deliveries.append(payload)
-                return success_response
+                        return success_response
             
             # Patch the httpx.AsyncClient.post method to track batched deliveries
             with patch("httpx.AsyncClient.post", mock_post):
@@ -416,7 +416,7 @@ class TestEventBatching:
                 # Extract the payload from kwargs
                 payload = json.loads(kwargs.get("data", "{}"))
                 delivered_events.append(payload)
-                return success_response
+                        return success_response
             
             # Patch the httpx.AsyncClient.post method to track events
             with patch("httpx.AsyncClient.post", mock_post):
@@ -465,7 +465,7 @@ class TestEventTransformation:
             if "email" in transformed_data:
                 transformed_data["email"] = "***@***.com"
             
-            return transformed_data
+                    return transformed_data
         
         # Create a webhook service with transformation
         service = WebhookService(transform_function=transform_event)
@@ -493,7 +493,7 @@ class TestEventTransformation:
                 # Extract the payload from kwargs
                 payload = json.loads(kwargs.get("data", "{}"))
                 delivered_events.append(payload)
-                return success_response
+                        return success_response
             
             # Patch the httpx.AsyncClient.post method to track events
             with patch("httpx.AsyncClient.post", mock_post):
@@ -558,7 +558,7 @@ class TestCustomHeaders:
                 # Extract the headers from kwargs
                 headers = kwargs.get("headers", {})
                 request_headers.append(headers)
-                return success_response
+                        return success_response
             
             # Patch the httpx.AsyncClient.post method to track headers
             with patch("httpx.AsyncClient.post", mock_post):

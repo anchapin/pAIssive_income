@@ -111,10 +111,10 @@ class ServiceRegistration:
                 is_secure=self.is_secure,
             )
 
-            return True
+                    return True
         except Exception as e:
             logger.error(f"Failed to register service {self.service_name}: {str(e)}")
-            return False
+                    return False
 
     def _deregister(self) -> None:
         """Deregister this service from the registry."""
@@ -207,7 +207,7 @@ def register_service(
     if success:
         registration.setup_health_check(app, check_functions)
 
-    return registration
+            return registration
 
 
 def get_service_metadata() -> Dict[str, Any]:
@@ -221,7 +221,7 @@ def get_service_metadata() -> Dict[str, Any]:
     host_ip = socket.gethostbyname(hostname)
     pid = os.getpid()
 
-    return {
+            return {
         "hostname": hostname,
         "host_ip": host_ip,
         "pid": str(pid),
@@ -238,4 +238,4 @@ def get_default_tags() -> List[str]:
         List[str]: Default tags
     """
     env = os.environ.get("ENVIRONMENT", "development")
-    return [f"env:{env}", f"platform:{sys.platform}"]
+            return [f"env:{env}", f"platform:{sys.platform}"]

@@ -203,9 +203,7 @@ class ModelEvaluator:
         if self.config.dataset is not None:
             self.dataset = self.config.dataset
             logger.info("Using provided dataset")
-            return
-
-        # If dataset path is provided, load it
+                    return # If dataset path is provided, load it
         if self.config.dataset_path is not None:
             try:
                 logger.info(f"Loading dataset from {self.config.dataset_path}")
@@ -289,7 +287,7 @@ class ModelEvaluator:
         if self.config.save_results and self.config.output_dir:
             self._save_results()
 
-        return results
+                return results
 
     def _evaluate_perplexity(self, dataset: Dataset) -> Dict[str, float]:
         """
@@ -317,7 +315,7 @@ class ModelEvaluator:
                 loss = outputs.loss.item()
 
             # Return loss and number of tokens
-            return loss, inputs["input_ids"].numel()
+                    return loss, inputs["input_ids"].numel()
 
         # Find the text field in the dataset
         text_field = None
@@ -338,12 +336,12 @@ class ModelEvaluator:
             # Get overall perplexity
             overall_perplexity = perplexity_metric.get_overall_perplexity()
 
-            return {"perplexity": perplexity, "overall_perplexity": overall_perplexity}
+                    return {"perplexity": perplexity, "overall_perplexity": overall_perplexity}
         else:
             logger.warning(
                 f"Text field {text_field} is not a list, skipping perplexity evaluation"
             )
-            return {"perplexity": float("in")}
+                    return {"perplexity": float("in")}
 
     def _evaluate_accuracy(self, dataset: Dataset) -> Dict[str, float]:
         """
@@ -394,7 +392,7 @@ class ModelEvaluator:
 
             # Decode prediction
             prediction = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            return prediction
+                    return prediction
 
         # Calculate accuracy on the dataset
         inputs = dataset[input_field]
@@ -407,12 +405,12 @@ class ModelEvaluator:
             # Get overall accuracy
             overall_accuracy = accuracy_metric.get_overall_accuracy()
 
-            return {"accuracy": accuracy, "overall_accuracy": overall_accuracy}
+                    return {"accuracy": accuracy, "overall_accuracy": overall_accuracy}
         else:
             logger.warning(
                 "Input or label fields are not lists, skipping accuracy evaluation"
             )
-            return {"accuracy": 0.0}
+                    return {"accuracy": 0.0}
 
     def _evaluate_rouge(self, dataset: Dataset) -> Dict[str, float]:
         """
@@ -470,7 +468,7 @@ class ModelEvaluator:
 
             # Decode prediction
             prediction = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            return prediction
+                    return prediction
 
         # Calculate ROUGE on the dataset
         inputs = dataset[input_field]
@@ -486,12 +484,12 @@ class ModelEvaluator:
             # Measure ROUGE scores
             rouge_scores = rouge_metric.measure_batch(predictions, references)
 
-            return rouge_scores
+                    return rouge_scores
         else:
             logger.warning(
                 "Input or reference fields are not lists, skipping ROUGE evaluation"
             )
-            return {"rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0}
+                    return {"rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0}
 
     def _evaluate_bleu(self, dataset: Dataset) -> Dict[str, float]:
         """
@@ -505,7 +503,7 @@ class ModelEvaluator:
         """
         # BLEU evaluation to be implemented
         logger.warning("BLEU evaluation not yet implemented")
-        return {"bleu": 0.0}
+                return {"bleu": 0.0}
 
     def _evaluate_f1(self, dataset: Dataset) -> Dict[str, float]:
         """
@@ -519,7 +517,7 @@ class ModelEvaluator:
         """
         # F1 evaluation to be implemented
         logger.warning("F1 evaluation not yet implemented")
-        return {"f1": 0.0}
+                return {"f1": 0.0}
 
     def _evaluate_exact_match(self, dataset: Dataset) -> Dict[str, float]:
         """
@@ -533,7 +531,7 @@ class ModelEvaluator:
         """
         # Exact match evaluation to be implemented
         logger.warning("Exact match evaluation not yet implemented")
-        return {"exact_match": 0.0}
+                return {"exact_match": 0.0}
 
     def _evaluate_custom(self, dataset: Dataset) -> Dict[str, float]:
         """
@@ -547,7 +545,7 @@ class ModelEvaluator:
         """
         if self.config.custom_evaluation_function is None:
             logger.warning("No custom evaluation function provided")
-            return {"custom": 0.0}
+                    return {"custom": 0.0}
 
         try:
             # Call the custom evaluation function
@@ -558,19 +556,17 @@ class ModelEvaluator:
                 device=self.config.device,
             )
 
-            return custom_results
+                    return custom_results
         except Exception as e:
             logger.error(f"Error in custom evaluation function: {e}")
-            return {"custom": 0.0, "error": str(e)}
+                    return {"custom": 0.0, "error": str(e)}
 
     def _save_results(self) -> None:
         """
         Save evaluation results to disk.
         """
         if not self.config.output_dir:
-            return
-
-        # Create results directory
+                    return # Create results directory
         results_dir = os.path.join(self.config.output_dir, "evaluation_results")
         os.makedirs(results_dir, exist_ok=True)
 
@@ -605,10 +601,10 @@ class ModelEvaluator:
         """
         if not self.results:
             logger.warning("No results to visualize")
-            return ""
+                    return ""
 
         try:
- as plt
+as plt
  as pd
  as sns
 
@@ -623,7 +619,7 @@ class ModelEvaluator:
 
             if output_path is None:
                 logger.warning("No output path provided for visualization")
-                return ""
+                        return ""
 
             # Prepare data for visualization
             viz_data = []
@@ -643,7 +639,7 @@ class ModelEvaluator:
 
             if not viz_data:
                 logger.warning("No numeric results to visualize")
-                return ""
+                        return ""
 
             # Create dataframe
             df = pd.DataFrame(viz_data)
@@ -673,17 +669,17 @@ class ModelEvaluator:
             plt.close()
 
             logger.info(f"Saved visualization to {output_path}")
-            return output_path
+                    return output_path
 
         except ImportError as e:
             logger.warning(f"Could not create visualization: {e}")
             logger.warning(
                 "Install matplotlib, pandas, and seaborn for visualization support"
             )
-            return ""
+                    return ""
         except Exception as e:
             logger.error(f"Error creating visualization: {e}")
-            return ""
+                    return ""
 
     @staticmethod
     def compare_models(
@@ -755,7 +751,7 @@ class ModelEvaluator:
             except Exception as e:
                 logger.error(f"Error creating comparison visualization: {e}")
 
-        return results
+                return results
 
     @staticmethod
     def visualize_comparison(
@@ -772,7 +768,7 @@ class ModelEvaluator:
             Path to the saved visualization
         """
         try:
- as plt
+as plt
  as pd
  as sns
 
@@ -801,7 +797,7 @@ class ModelEvaluator:
 
             if not viz_data:
                 logger.warning("No numeric results to visualize")
-                return ""
+                        return ""
 
             # Create dataframe
             df = pd.DataFrame(viz_data)
@@ -839,17 +835,17 @@ class ModelEvaluator:
             plt.close()
 
             logger.info(f"Saved comparison visualization to {output_path}")
-            return output_path
+                    return output_path
 
         except ImportError as e:
             logger.warning(f"Could not create visualization: {e}")
             logger.warning(
                 "Install matplotlib, pandas, and seaborn for visualization support"
             )
-            return ""
+                    return ""
         except Exception as e:
             logger.error(f"Error creating visualization: {e}")
-            return ""
+                    return ""
 
     @staticmethod
     def generate_evaluation_report(
@@ -869,7 +865,7 @@ class ModelEvaluator:
             Path to the saved report
         """
         try:
- as pd
+as pd
 # Create output directory if it doesn't exist
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
@@ -985,15 +981,15 @@ class ModelEvaluator:
                 f.write("\n".join(report_content))
 
             logger.info(f"Saved evaluation report to {output_path}")
-            return output_path
+                    return output_path
 
         except ImportError as e:
             logger.warning(f"Could not generate report: {e}")
             logger.warning("Install pandas and tabulate for report generation support")
-            return ""
+                    return ""
         except Exception as e:
             logger.error(f"Error generating report: {e}")
-            return ""
+                    return ""
 
 
 # Helper functions
@@ -1038,7 +1034,7 @@ def evaluate_model(
     if output_dir:
         evaluator.visualize_results()
 
-    return results
+            return results
 
 
 def compare_models(
@@ -1061,7 +1057,7 @@ def compare_models(
     Returns:
         Dictionary with evaluation results for each model
     """
-    return ModelEvaluator.compare_models(
+            return ModelEvaluator.compare_models(
         model_paths=model_paths,
         dataset_path=dataset_path,
         metrics=metrics,
@@ -1086,7 +1082,7 @@ def generate_evaluation_report(
     Returns:
         Path to the saved report
     """
-    return ModelEvaluator.generate_evaluation_report(
+            return ModelEvaluator.generate_evaluation_report(
         results=results,
         output_path=output_path,
         include_visualizations=include_visualizations,

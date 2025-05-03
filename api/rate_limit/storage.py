@@ -113,11 +113,11 @@ class InMemoryStorage(RateLimitStorage):
                 # Key is expired
                 del self.data[key]
                 del self.expiry[key]
+                        return None
+
+                    return self.data[key]
+
                 return None
-
-            return self.data[key]
-
-        return None
 
     def set(self, key: str, data: Dict[str, Any], expiry: Optional[int] = None) -> None:
         """
@@ -161,7 +161,7 @@ class InMemoryStorage(RateLimitStorage):
         if expiry is not None:
             self.expiry[key] = time.time() + expiry
 
-        return self.data[key]["count"]
+                return self.data[key]["count"]
 
     def delete(self, key: str) -> None:
         """
@@ -226,7 +226,7 @@ class RedisStorage(RateLimitStorage):
         Returns:
             Redis key with prefix
         """
-        return f"{self.prefix}{key}"
+                return f"{self.prefix}{key}"
 
     def get(self, key: str) -> Optional[Dict[str, Any]]:
         """
@@ -239,13 +239,13 @@ class RedisStorage(RateLimitStorage):
             Rate limit data or None if not found
         """
         if self.redis is None:
-            return self.fallback.get(key)
+                    return self.fallback.get(key)
 
         redis_key = self._get_redis_key(key)
         data = self.redis.hgetall(redis_key)
 
         if not data:
-            return None
+                    return None
 
         # Convert Redis hash to dictionary
         result = {}
@@ -258,7 +258,7 @@ class RedisStorage(RateLimitStorage):
                 # If not a number, keep as string
                 result[k_str] = v.decode("utf-8") if isinstance(v, bytes) else v
 
-        return result
+                return result
 
     def set(self, key: str, data: Dict[str, Any], expiry: Optional[int] = None) -> None:
         """
@@ -271,9 +271,7 @@ class RedisStorage(RateLimitStorage):
         """
         if self.redis is None:
             self.fallback.set(key, data, expiry)
-            return
-
-        redis_key = self._get_redis_key(key)
+                    return redis_key = self._get_redis_key(key)
 
         # Convert dictionary to Redis hash
         hash_data = {}
@@ -302,7 +300,7 @@ class RedisStorage(RateLimitStorage):
             New counter value
         """
         if self.redis is None:
-            return self.fallback.increment(key, amount, expiry)
+                    return self.fallback.increment(key, amount, expiry)
 
         redis_key = self._get_redis_key(key)
 
@@ -313,7 +311,7 @@ class RedisStorage(RateLimitStorage):
         if expiry is not None:
             self.redis.expire(redis_key, expiry)
 
-        return float(new_value)
+                return float(new_value)
 
     def delete(self, key: str) -> None:
         """
@@ -324,9 +322,7 @@ class RedisStorage(RateLimitStorage):
         """
         if self.redis is None:
             self.fallback.delete(key)
-            return
-
-        redis_key = self._get_redis_key(key)
+                    return redis_key = self._get_redis_key(key)
         self.redis.delete(redis_key)
 
     def clear(self) -> None:
@@ -335,9 +331,7 @@ class RedisStorage(RateLimitStorage):
         """
         if self.redis is None:
             self.fallback.clear()
-            return
-
-        # Find all keys with the prefix
+                    return # Find all keys with the prefix
         keys = self.redis.keys(f"{self.prefix}*")
 
         # Delete all keys
@@ -357,10 +351,10 @@ def create_storage(storage_type: str, **kwargs) -> RateLimitStorage:
         Storage backend instance
     """
     if storage_type == "memory":
-        return InMemoryStorage()
+                return InMemoryStorage()
     elif storage_type == "redis":
         redis_url = kwargs.get("redis_url", "redis://localhost:6379/0")
         prefix = kwargs.get("prefix", "rate_limit:")
-        return RedisStorage(redis_url, prefix)
+                return RedisStorage(redis_url, prefix)
     else:
         raise ValueError(f"Unknown storage type: {storage_type}")

@@ -64,7 +64,7 @@ class GRPCConfig(ServerConfig):
             "enable_audio": self.enable_audio,
         }
 
-        return {**base_dict, **grpc_dict}
+                return {**base_dict, **grpc_dict}
 
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> "GRPCConfig":
@@ -81,4 +81,4 @@ class GRPCConfig(ServerConfig):
         config_dict["protocol"] = ServerProtocol.GRPC.value
 
         # Create configuration using parent method
-        return super().from_dict(config_dict)
+                return super().from_dict(config_dict)

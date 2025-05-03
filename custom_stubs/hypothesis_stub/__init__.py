@@ -18,9 +18,9 @@ class Verbosity
 
 def given(*args, **kwargs):
     def decorator(func):
-        return func
+                return func
 
-    return decorator
+            return decorator
 
 
 class strategies:
@@ -39,11 +39,11 @@ class settings:
         pass
 
     def __call__(self, func):
-        return func
+                return func
 
     @classmethod
     def show_changed(cls):
-        return ""
+                return ""
 
 
 # Initialize default settings
@@ -52,6 +52,6 @@ settings.default = settings()
 
 def example(*args, **kwargs):
     def decorator(func):
-        return func
+                return func
 
-    return decorator
+            return decorator

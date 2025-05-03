@@ -111,14 +111,14 @@ class OllamaAdapter(BaseModelAdapter):
             if response.status_code != 200:
                 logger.warning(f"Ollama returned status code {response.status_code}")
                 self._connected = False
-                return False
+                        return False
 
             self._connected = True
-            return True
+                    return True
         except Exception as e:
             logger.error(f"Failed to connect to Ollama: {e}")
             self._connected = False
-            return False
+                    return False
 
     def disconnect(self) -> bool:
         """
@@ -130,10 +130,10 @@ class OllamaAdapter(BaseModelAdapter):
         try:
             self.session.close()
             self._connected = False
-            return True
+                    return True
         except Exception as e:
             logger.error(f"Error disconnecting from Ollama: {e}")
-            return False
+                    return False
 
     def list_models(self) -> List[Dict[str, Any]]:
         """
@@ -149,7 +149,7 @@ class OllamaAdapter(BaseModelAdapter):
             response.raise_for_status()
 
             data = response.json()
-            return data.get("models", [])
+                    return data.get("models", [])
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error listing models: {e}")
@@ -180,13 +180,13 @@ class OllamaAdapter(BaseModelAdapter):
                     }
                 )
 
-            return standardized_models
+                    return standardized_models
 
         except Exception as e:
             self._handle_error(
                 e, "Failed to get models from Ollama", operation="get_models"
             )
-            return []
+                    return []
 
     def get_model_info(self, model_name: str) -> Dict[str, Any]:
         """
@@ -206,7 +206,7 @@ class OllamaAdapter(BaseModelAdapter):
             )
             response.raise_for_status()
 
-            return response.json()
+                    return response.json()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error getting model info for {model_name}: {e}")
@@ -269,9 +269,9 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             if stream:
-                return self._generate_text_stream(request_data)
+                        return self._generate_text_stream(request_data)
             else:
-                return self._generate_text_sync(request_data)
+                        return self._generate_text_sync(request_data)
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error generating text with {model_name}: {e}")
@@ -293,7 +293,7 @@ class OllamaAdapter(BaseModelAdapter):
         response.raise_for_status()
 
         data = response.json()
-        return data.get("response", "")
+                return data.get("response", "")
 
     def _generate_text_stream(
         self, request_data: Dict[str, Any]
@@ -380,9 +380,9 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             if stream:
-                return self._chat_stream(request_data)
+                        return self._chat_stream(request_data)
             else:
-                return self._chat_sync(request_data)
+                        return self._chat_sync(request_data)
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error chatting with {model_name}: {e}")
@@ -403,7 +403,7 @@ class OllamaAdapter(BaseModelAdapter):
         )
         response.raise_for_status()
 
-        return response.json()
+                return response.json()
 
     def _chat_stream(
         self, request_data: Dict[str, Any]
@@ -467,7 +467,7 @@ class OllamaAdapter(BaseModelAdapter):
             response.raise_for_status()
 
             data = response.json()
-            return data.get("embedding", [])
+                    return data.get("embedding", [])
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error creating embedding with {model_name}: {e}")
@@ -495,7 +495,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             if callback:
-                return self._pull_model_with_callback(request_data, callback)
+                        return self._pull_model_with_callback(request_data, callback)
             else:
                 response = self.session.post(
                     f"{self.base_url}/api/pull",
@@ -504,7 +504,7 @@ class OllamaAdapter(BaseModelAdapter):
                 )
                 response.raise_for_status()
 
-                return {"status": "success", "model": model_name}
+                        return {"status": "success", "model": model_name}
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error pulling model {model_name}: {e}")
@@ -539,12 +539,12 @@ class OllamaAdapter(BaseModelAdapter):
 
                     # Check if this is the last chunk
                     if "status" in data and data["status"] == "success":
-                        return data
+                                return data
 
                 except json.JSONDecodeError:
                     logger.warning(f"Could not decode JSON: {line}")
 
-        return {"status": "success", "model": request_data["name"]}
+                return {"status": "success", "model": request_data["name"]}
 
     def push_model(
         self,
@@ -568,7 +568,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             if callback:
-                return self._push_model_with_callback(request_data, callback)
+                        return self._push_model_with_callback(request_data, callback)
             else:
                 response = self.session.post(
                     f"{self.base_url}/api/push",
@@ -577,7 +577,7 @@ class OllamaAdapter(BaseModelAdapter):
                 )
                 response.raise_for_status()
 
-                return {"status": "success", "model": model_name}
+                        return {"status": "success", "model": model_name}
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error pushing model {model_name}: {e}")
@@ -612,12 +612,12 @@ class OllamaAdapter(BaseModelAdapter):
 
                     # Check if this is the last chunk
                     if "status" in data and data["status"] == "success":
-                        return data
+                                return data
 
                 except json.JSONDecodeError:
                     logger.warning(f"Could not decode JSON: {line}")
 
-        return {"status": "success", "model": request_data["name"]}
+                return {"status": "success", "model": request_data["name"]}
 
     def create_model(
         self, model_name: str, modelfile: str, callback: Optional[callable] = None
@@ -638,7 +638,7 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             if callback:
-                return self._create_model_with_callback(request_data, callback)
+                        return self._create_model_with_callback(request_data, callback)
             else:
                 response = self.session.post(
                     f"{self.base_url}/api/create",
@@ -647,7 +647,7 @@ class OllamaAdapter(BaseModelAdapter):
                 )
                 response.raise_for_status()
 
-                return {"status": "success", "model": model_name}
+                        return {"status": "success", "model": model_name}
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error creating model {model_name}: {e}")
@@ -682,12 +682,12 @@ class OllamaAdapter(BaseModelAdapter):
 
                     # Check if this is the last chunk
                     if "status" in data and data["status"] == "success":
-                        return data
+                                return data
 
                 except json.JSONDecodeError:
                     logger.warning(f"Could not decode JSON: {line}")
 
-        return {"status": "success", "model": request_data["name"]}
+                return {"status": "success", "model": request_data["name"]}
 
     def delete_model(self, model_name: str) -> Dict[str, Any]:
         """
@@ -708,7 +708,7 @@ class OllamaAdapter(BaseModelAdapter):
             )
             response.raise_for_status()
 
-            return {"status": "success", "model": model_name}
+                    return {"status": "success", "model": model_name}
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error deleting model {model_name}: {e}")
@@ -734,7 +734,7 @@ class OllamaAdapter(BaseModelAdapter):
             )
             response.raise_for_status()
 
-            return {"status": "success", "source": source_model, "target": target_model}
+                    return {"status": "success", "source": source_model, "target": target_model}
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error copying model {source_model} to {target_model}: {e}")
@@ -767,14 +767,14 @@ class OllamaAdapter(BaseModelAdapter):
                 if response.status != 200:
                     logger.warning(f"Ollama returned status code {response.status}")
                     self._connected = False
-                    return False
+                            return False
 
             self._connected = True
-            return True
+                    return True
         except Exception as e:
             logger.error(f"Failed to connect to Ollama asynchronously: {e}")
             self._connected = False
-            return False
+                    return False
 
     async def disconnect_async(self) -> bool:
         """
@@ -788,10 +788,10 @@ class OllamaAdapter(BaseModelAdapter):
                 await self._async_session.close()
                 self._async_session = None
             self._connected = False
-            return True
+                    return True
         except Exception as e:
             logger.error(f"Error disconnecting from Ollama asynchronously: {e}")
-            return False
+                    return False
 
     async def list_models_async(self) -> List[Dict[str, Any]]:
         """
@@ -815,7 +815,7 @@ class OllamaAdapter(BaseModelAdapter):
             ) as response:
                 response.raise_for_status()
                 data = await response.json()
-                return data.get("models", [])
+                        return data.get("models", [])
 
         except aiohttp.ClientError as e:
             logger.error(f"Error listing models asynchronously: {e}")
@@ -846,11 +846,11 @@ class OllamaAdapter(BaseModelAdapter):
                     }
                 )
 
-            return standardized_models
+                    return standardized_models
 
         except Exception as e:
             logger.error(f"Failed to get models from Ollama asynchronously: {e}")
-            return []
+                    return []
 
     async def get_model_info_async(self, model_name: str) -> Dict[str, Any]:
         """
@@ -878,7 +878,7 @@ class OllamaAdapter(BaseModelAdapter):
                 timeout=self.timeout,
             ) as response:
                 response.raise_for_status()
-                return await response.json()
+                        return await response.json()
 
         except aiohttp.ClientError as e:
             logger.error(
@@ -952,9 +952,9 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             if stream:
-                return self._generate_text_stream_async(request_data)
+                        return self._generate_text_stream_async(request_data)
             else:
-                return await self._generate_text_sync_async(request_data)
+                        return await self._generate_text_sync_async(request_data)
 
         except aiohttp.ClientError as e:
             logger.error(f"Error generating text with {model_name} asynchronously: {e}")
@@ -979,7 +979,7 @@ class OllamaAdapter(BaseModelAdapter):
         ) as response:
             response.raise_for_status()
             data = await response.json()
-            return data.get("response", "")
+                    return data.get("response", "")
 
     async def _generate_text_stream_async(
         self, request_data: Dict[str, Any]
@@ -1068,9 +1068,9 @@ class OllamaAdapter(BaseModelAdapter):
 
         try:
             if stream:
-                return self._chat_stream_async(request_data)
+                        return self._chat_stream_async(request_data)
             else:
-                return await self._chat_sync_async(request_data)
+                        return await self._chat_sync_async(request_data)
 
         except aiohttp.ClientError as e:
             logger.error(f"Error chatting with {model_name} asynchronously: {e}")
@@ -1094,7 +1094,7 @@ class OllamaAdapter(BaseModelAdapter):
             f"{self.base_url}/api/chat", json=request_data, timeout=self.timeout
         ) as response:
             response.raise_for_status()
-            return await response.json()
+                    return await response.json()
 
     async def _chat_stream_async(
         self, request_data: Dict[str, Any]
@@ -1161,7 +1161,7 @@ class OllamaAdapter(BaseModelAdapter):
             ) as response:
                 response.raise_for_status()
                 data = await response.json()
-                return data.get("embedding", [])
+                        return data.get("embedding", [])
 
         except aiohttp.ClientError as e:
             logger.error(
@@ -1195,7 +1195,7 @@ class OllamaAdapter(BaseModelAdapter):
             ) as response:
                 response.raise_for_status()
 
-                return {"status": "success", "model": model_name}
+                        return {"status": "success", "model": model_name}
 
         except aiohttp.ClientError as e:
             logger.error(f"Error pulling model {model_name} asynchronously: {e}")

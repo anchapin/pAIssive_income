@@ -137,7 +137,7 @@ class ScalabilityTest:
 
                 async def deliver_with_semaphore(webhook, event):
                     async with semaphore:
-                        return await self.service.deliver_event(
+                                return await self.service.deliver_event(
                             webhook_id=webhook["id"],
                             event_type=WebhookEventType.USER_CREATED,
                             event_data=event,
@@ -216,7 +216,7 @@ class ScalabilityTest:
                     print(f"  Avg memory usage: {self.results['avg_memory_mb']:.2f} MB")
                     print(f"  Max memory usage: {self.results['max_memory_mb']:.2f} MB")
 
-                return self.results
+                        return self.results
 
         finally:
             # Clean up

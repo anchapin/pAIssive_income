@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 class CollaborationError(Exception):
     """Base exception class for all collaboration module errors."""
 
-    def __init__(self, message: str, original_exception: Optional[Exception] = None):
+def __init__(self, message: str, original_exception: Optional[Exception] = None):
         """
         Initialize a collaboration error.
 
-        Args:
+Args:
             message: Error message
             original_exception: Optional original exception that caused this error
         """
@@ -35,68 +35,68 @@ class CollaborationError(Exception):
 class WorkspaceError(CollaborationError):
     """Exception raised for errors related to workspace operations."""
 
-    pass
+pass
 
 
 class PermissionError(CollaborationError):
     """Exception raised for errors related to permissions and access control."""
 
-    pass
+pass
 
 
 class SharingError(CollaborationError):
     """Exception raised for errors related to project sharing."""
 
-    pass
+pass
 
 
 class VersionControlError(CollaborationError):
     """Exception raised for errors related to version control."""
 
-    pass
+pass
 
 
 class CommentError(CollaborationError):
     """Exception raised for errors related to comments and reactions."""
 
-    pass
+pass
 
 
 class IntegrationError(CollaborationError):
     """Exception raised for errors related to external integrations."""
 
-    pass
+pass
 
 
 class ActivityError(CollaborationError):
     """Exception raised for errors related to activity tracking."""
 
-    pass
+pass
 
 
 class NotificationError(CollaborationError):
     """Exception raised for errors related to notifications."""
 
-    pass
+pass
 
 
 def handle_exception(func: Callable) -> Callable:
     """
     Decorator to handle exceptions in collaboration module functions.
 
-    This decorator catches exceptions, logs them, and re-raises them as
+This decorator catches exceptions, logs them, and re-raises them as
     appropriate collaboration module exceptions.
 
-    Args:
+Args:
         func: Function to decorate
 
-    Returns:
+Returns:
         Decorated function
     """
 
-    def wrapper(*args, **kwargs):
+def wrapper(*args, **kwargs):
         try:
-            return func(*args, **kwargs)
+                        return func(*args, **kwargs)
         except CollaborationError:
             # Re-raise collaboration module exceptions
             raise
@@ -105,7 +105,7 @@ def handle_exception(func: Callable) -> Callable:
             logger.error(f"Error in {func.__name__}: {str(e)}")
             logger.debug(traceback.format_exc())
 
-            # Determine the appropriate exception type based on the function name
+# Determine the appropriate exception type based on the function name
             if "workspace" in func.__name__.lower():
                 raise WorkspaceError(f"Workspace operation failed: {str(e)}", e)
             elif (
@@ -132,23 +132,23 @@ def handle_exception(func: Callable) -> Callable:
             else:
                 raise CollaborationError(f"Operation failed: {str(e)}", e)
 
-    return wrapper
+            return wrapper
 
 
 def format_error(error: Exception) -> Dict[str, Any]:
     """
     Format an exception as a dictionary.
 
-    Args:
+Args:
         error: Exception to format
 
-    Returns:
+Returns:
         Dictionary with error information
     """
     result = {"error": error.__class__.__name__, "message": str(error)}
 
-    if isinstance(error, CollaborationError) and error.original_exception:
+if isinstance(error, CollaborationError) and error.original_exception:
         result["original_error"] = error.original_exception.__class__.__name__
         result["original_message"] = str(error.original_exception)
 
-    return result
+            return result

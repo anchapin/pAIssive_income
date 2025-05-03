@@ -106,7 +106,7 @@ async def list_audit_events(
     total_pages = (total_events + page_size - 1) // page_size if total_events > 0 else 1
 
     # Create response
-    return {
+            return {
         "items": events,
         "total": total_events,
         "page": page,
@@ -144,4 +144,4 @@ async def get_audit_event(
             status_code=status.HTTP_404_NOT_FOUND, detail="Audit event not found"
         )
 
-    return event
+            return event

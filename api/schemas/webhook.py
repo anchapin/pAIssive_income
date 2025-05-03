@@ -60,7 +60,7 @@ class WebhookRequest(BaseModel):
             raise ValueError(
                 "events list cannot be empty, at least one event type must be specified"
             )
-        return v
+                return v
 
 
 class WebhookUpdate(BaseModel):
@@ -82,7 +82,7 @@ class WebhookUpdate(BaseModel):
             raise ValueError(
                 "events list cannot be empty, at least one event type must be specified"
             )
-        return v
+                return v
 
 
 class WebhookResponse(BaseModel):
@@ -108,7 +108,7 @@ class WebhookResponse(BaseModel):
             raise ValueError(
                 "events list cannot be empty, at least one event type must be specified"
             )
-        return v
+                return v
 
 
 class WebhookList(BaseModel):
@@ -180,7 +180,7 @@ class IPAllowlistConfig(BaseModel):
                 ip_network(ip)
             except ValueError:
                 raise ValueError(f"Invalid IP address or CIDR range: {ip}")
-        return v
+                return v
 
 
 class IPAllowlistResponse(BaseModel):
@@ -220,7 +220,7 @@ class RateLimitConfig(BaseModel):
         """Validate that hourly limit is greater than per-minute limit * 60."""
         if "per_minute" in values and v < values["per_minute"] * 60:
             raise ValueError("Hourly limit must be greater than per-minute limit * 60")
-        return v
+                return v
 
 
 class RateLimitResponse(BaseModel):

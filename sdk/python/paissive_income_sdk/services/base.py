@@ -37,7 +37,7 @@ class BaseService
         Returns:
             Response data
         """
-        return self.client.get(endpoint, params=params)
+                return self.client.get(endpoint, params=params)
 
     def _post(self, endpoint: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -50,7 +50,7 @@ class BaseService
         Returns:
             Response data
         """
-        return self.client.post(endpoint, data=data)
+                return self.client.post(endpoint, data=data)
 
     def _put(self, endpoint: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -63,7 +63,7 @@ class BaseService
         Returns:
             Response data
         """
-        return self.client.put(endpoint, data=data)
+                return self.client.put(endpoint, data=data)
 
     def _delete(self, endpoint: str) -> Dict[str, Any]:
         """
@@ -75,4 +75,4 @@ class BaseService
         Returns:
             Response data
         """
-        return self.client.delete(endpoint)
+                return self.client.delete(endpoint)

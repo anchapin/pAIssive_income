@@ -134,7 +134,7 @@ class ModelBenchmark:
             except Exception as e:
                 logger.error(f"Error saving benchmark results: {e}")
 
-        return results
+                return results
 
     def _benchmark_model(
         self,
@@ -224,7 +224,7 @@ class ModelBenchmark:
                 }
                 results["runs"].append(run_data)
 
-        return results
+                return results
 
     def _generate_text_huggingface(
         self, model: Any, prompt: str, max_tokens: int, temperature: float, tracker: Any
@@ -264,7 +264,7 @@ class ModelBenchmark:
         output_tokens = len(output_text.split())
         tracker.update_output_tokens(output_tokens)
 
-        return output
+                return output
 
     def _generate_text_llama(
         self, model: Any, prompt: str, max_tokens: int, temperature: float, tracker: Any
@@ -298,7 +298,7 @@ class ModelBenchmark:
         output_tokens = len(text.split())
         tracker.update_output_tokens(output_tokens)
 
-        return text
+                return text
 
     def _generate_comparison(self, model_results: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -416,7 +416,7 @@ class ModelBenchmark:
         models.sort(key=lambda x: x["score"])
         comparison["ranking"] = models
 
-        return comparison
+                return comparison
 
 
 def main():
@@ -453,9 +453,7 @@ def main():
         all_models = benchmark.manager.get_all_models()
         if not all_models:
             print("No models found. Please specify model IDs or discover models first.")
-            return
-
-        print("Available models:")
+                    return print("Available models:")
         for i, model in enumerate(all_models):
             print(f"{i+1}. {model.name} (ID: {model.id}, Type: {model.type})")
 
@@ -469,9 +467,7 @@ def main():
 
     if not args.models:
         print("No models selected for benchmarking.")
-        return
-
-    # Run the benchmark
+                return # Run the benchmark
     results = benchmark.run_benchmark(
         model_ids=args.models,
         prompt=args.prompt,

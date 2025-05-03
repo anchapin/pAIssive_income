@@ -82,7 +82,7 @@ def evaluate_single_model(
         else:
             print(f"  {metric_results}")
 
-    return results
+            return results
 
 
 def compare_multiple_models(
@@ -131,7 +131,7 @@ def compare_multiple_models(
 
     print(f"\nComparison report saved to: {report_path}")
 
-    return results
+            return results
 
 
 def main():

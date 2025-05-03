@@ -75,7 +75,7 @@ def create_server() -> APIServer:
     # Create API server
     server = APIServer(config)
 
-    return server
+            return server
 
 
 def main() -> None:

@@ -228,7 +228,7 @@ class TestQueuePrioritization:
                 result = await original_deliver(webhook_obj, delivery)
                 # Record the event type
                 processed_events.append(delivery["event_type"])
-                return result
+                        return result
             
             with patch.object(service, "_deliver_webhook", mock_deliver_webhook):
                 with patch("httpx.AsyncClient.post", return_value=mock_response):
@@ -306,7 +306,7 @@ class TestExponentialBackoff:
             def mock_time():
                 current_time = original_time()
                 retry_times.append(current_time)
-                return current_time
+                        return current_time
             
             with patch("time.time", mock_time):
                 with patch("httpx.AsyncClient.post", return_value=fail_response):
@@ -371,7 +371,7 @@ class TestDeliveryTimeout:
                 await asyncio.sleep(11)  # Sleep longer than the timeout
                 mock_response = AsyncMock()
                 mock_response.status = 200
-                return mock_response
+                        return mock_response
             
             # Patch the httpx.AsyncClient.post method to simulate a timeout
             with patch("httpx.AsyncClient.post", side_effect=asyncio.TimeoutError):

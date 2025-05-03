@@ -402,8 +402,8 @@ class TestAdvancedFiltering(unittest.TestCase):
         def nested_field_getter(item, field):
             if "." in field:
                 main_field, sub_field = field.split(".")
-                return item.get(main_field, {}).get(sub_field)
-            return item.get(field)
+                        return item.get(main_field, {}).get(sub_field)
+                    return item.get(field)
 
         filtered = apply_filtering(self.items, params, nested_field_getter)
         self.assertEqual(len(filtered), 2)
@@ -442,7 +442,7 @@ class TestAdvancedFiltering(unittest.TestCase):
                 value = item.get(main_field, {}).get(sub_field)
             else:
                 value = item.get(field)
-            return value.lower() if isinstance(value, str) else value
+                    return value.lower() if isinstance(value, str) else value
 
         filtered = apply_filtering(self.items, params, case_insensitive_getter)
         self.assertEqual(len(filtered), 2)
@@ -484,10 +484,10 @@ class TestAdvancedSorting(unittest.TestCase):
 
         def multi_field_getter(item, field):
             if field == "priority":
-                return item["priority"]
+                        return item["priority"]
             elif field == "stats.score":
-                return item["stats"]["score"]
-            return item.get(field)
+                        return item["stats"]["score"]
+                    return item.get(field)
 
         # Sort by priority (desc)
         params1 = QueryParams(sort_by="priority", sort_dir=SortDirection.DESC)
@@ -514,7 +514,7 @@ class TestAdvancedSorting(unittest.TestCase):
 
         def case_insensitive_getter(item, field):
             value = item.get(field)
-            return value.lower() if isinstance(value, str) else value
+                    return value.lower() if isinstance(value, str) else value
 
         params = QueryParams(sort_by="name", sort_dir=SortDirection.ASC)
         sorted_items = apply_sorting(items, params, case_insensitive_getter)
@@ -526,8 +526,8 @@ class TestAdvancedSorting(unittest.TestCase):
         def nested_field_getter(item, field):
             if "." in field:
                 main_field, sub_field = field.split(".")
-                return item.get(main_field, {}).get(sub_field)
-            return item.get(field)
+                        return item.get(main_field, {}).get(sub_field)
+                    return item.get(field)
 
         params = QueryParams(sort_by="stats.score", sort_dir=SortDirection.DESC)
         sorted_items = apply_sorting(self.items, params, nested_field_getter)

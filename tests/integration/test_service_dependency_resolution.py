@@ -77,14 +77,14 @@ def in_memory_registry():
         registry.register(instance)
         service_instances[name] = instance
     
-    return registry
+            return registry
 
 
 @pytest.fixture
 def dependency_resolver(in_memory_registry):
     """Create a dependency resolver."""
     resolver = DependencyResolver(registry=in_memory_registry)
-    return resolver
+            return resolver
 
 
 class TestServiceDependencyResolution:

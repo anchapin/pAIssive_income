@@ -66,7 +66,7 @@ async def get_summary(days: int = Query(30, description="Number of days to inclu
     """
     try:
         summary = analytics_service.get_usage_summary(days)
-        return summary
+                return summary
     except Exception as e:
         logger.error(f"Error getting usage summary: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -115,7 +115,7 @@ async def get_requests(
             limit=limit,
             offset=offset,
         )
-        return requests
+                return requests
     except Exception as e:
         logger.error(f"Error getting request statistics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -141,7 +141,7 @@ async def get_endpoint_stats(
     """
     try:
         stats = analytics_service.get_endpoint_stats(days)
-        return stats
+                return stats
     except Exception as e:
         logger.error(f"Error getting endpoint statistics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -169,7 +169,7 @@ async def get_user_stats(
     """
     try:
         stats = analytics_service.get_user_metrics(days=days, user_id=user_id)
-        return stats
+                return stats
     except Exception as e:
         logger.error(f"Error getting user statistics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -197,7 +197,7 @@ async def get_api_key_stats(
     """
     try:
         stats = analytics_service.get_api_key_metrics(days=days, api_key_id=api_key_id)
-        return stats
+                return stats
     except Exception as e:
         logger.error(f"Error getting API key statistics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -242,7 +242,7 @@ async def export_requests_csv(
         filename = f"api_requests_{date_str}.csv"
 
         # Return CSV file
-        return StreamingResponse(
+                return StreamingResponse(
             iter([csv_data]),
             media_type="text/csv",
             headers={"Content-Disposition": f"attachment; filename={filename}"},
@@ -277,7 +277,7 @@ async def export_metrics_csv(
         filename = f"api_metrics_{date_str}.csv"
 
         # Return CSV file
-        return StreamingResponse(
+                return StreamingResponse(
             iter([csv_data]),
             media_type="text/csv",
             headers={"Content-Disposition": f"attachment; filename={filename}"},
@@ -309,7 +309,7 @@ async def get_real_time_metrics(
         metrics = analytics_service.get_real_time_metrics(minutes)
         # Add timestamp to metrics
         metrics["timestamp"] = datetime.now().isoformat()
-        return metrics
+                return metrics
     except Exception as e:
         logger.error(f"Error getting real-time metrics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -333,7 +333,7 @@ async def set_alert_threshold(threshold: AlertThresholdRequest):
     """
     try:
         analytics_service.set_alert_threshold(threshold.metric, threshold.threshold)
-        return {
+                return {
             "metric": threshold.metric,
             "threshold": threshold.threshold,
             "message": f"Alert threshold for {threshold.metric} set to {threshold.threshold}",
@@ -361,7 +361,7 @@ async def cleanup_data(days: int = Query(365, description="Number of days to kee
     """
     try:
         count = analytics_service.cleanup_old_data(days)
-        return {
+                return {
             "success": True,
             "message": f"Removed {count} records older than {days} days",
         }

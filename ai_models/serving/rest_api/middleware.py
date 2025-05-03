@@ -71,21 +71,21 @@ class AuthMiddleware(BaseHTTPMiddleware):
         """
         # Skip authentication for docs and OpenAPI
         if request.url.path in ["/docs", "/redoc", "/openapi.json"]:
-            return await call_next(request)
+                    return await call_next(request)
 
         # Get API key from header
         api_key = request.headers.get("X-API-Key")
 
         # Check if API key is valid
         if not api_key or api_key not in self.api_keys:
-            return Response(
+                    return Response(
                 content='{"detail":"Invalid or missing API key"}',
                 status_code=401,
                 media_type="application/json",
             )
 
         # Continue processing the request
-        return await call_next(request)
+                return await call_next(request)
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
@@ -122,7 +122,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         """
         # Skip rate limiting for docs and OpenAPI
         if request.url.path in ["/docs", "/redoc", "/openapi.json"]:
-            return await call_next(request)
+                    return await call_next(request)
 
         # Get client ID (IP address or API key)
         client_id = request.headers.get("X-API-Key", request.client.host)
@@ -143,7 +143,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Check if rate limit is exceeded
         if len(self.requests[client_id]) >= self.rate_limit:
-            return Response(
+                    return Response(
                 content='{"detail":"Rate limit exceeded"}',
                 status_code=429,
                 media_type="application/json",
@@ -153,7 +153,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.requests[client_id].append(current_time)
 
         # Continue processing the request
-        return await call_next(request)
+                return await call_next(request)
 
 
 def setup_middleware(app, config):

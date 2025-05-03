@@ -80,7 +80,7 @@ async def get_api_logs(
         filters=filters,
     )
 
-    return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}
+            return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}
 
 
 @router.get(
@@ -146,7 +146,7 @@ async def get_security_logs(
         filters=filters,
     )
 
-    return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}
+            return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}
 
 
 @router.get(
@@ -199,4 +199,4 @@ async def get_webhook_logs(
         filters=filters,
     )
 
-    return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}
+            return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}

@@ -59,16 +59,16 @@ class TestAdvancedAuthentication
         for user_id, sessions in self.active_sessions.items():
             if session_id in sessions:
                 del sessions[session_id]
-                return True
-        return False
+                        return True
+                return False
         
     def _mock_invalidate_all_user_sessions(self, user_id: str) -> int:
         """Mock invalidating all sessions for a user."""
         if user_id in self.active_sessions:
             count = len(self.active_sessions[user_id])
             self.active_sessions[user_id] = {}
-            return count
-        return 0
+                    return count
+                return 0
 
     def test_token_refresh_basic(self):
         """Test basic token refresh scenario."""
@@ -193,8 +193,8 @@ class TestAdvancedAuthentication
         def mock_authenticate(username, password):
             time.sleep(0.1)  # Simulate some processing time
             if username == "testuser" and password == "password123":
-                return {"user_id": "123", "username": username, "role": "user"}
-            return None
+                        return {"user_id": "123", "username": username, "role": "user"}
+                    return None
         
         self.auth_middleware.authenticate_user = MagicMock(side_effect=mock_authenticate)
         
@@ -259,11 +259,11 @@ class TestAdvancedAuthentication
             
             # Check if rate limited
             if len(ip_attempts[ip_address]) >= rate_limit:
-                return False
+                        return False
             
             # Record attempt
             ip_attempts[ip_address].append(current_time)
-            return True
+                    return True
         
         self.auth_middleware.check_auth_rate_limit = MagicMock(side_effect=mock_check_rate_limit)
         
@@ -401,7 +401,7 @@ class TestAdvancedAuthentication
                 if session_id != current_session_id:
                     self.session_store.invalidate_session(session_id)
             
-            return True
+                    return True
         
         # Change password
         result = handle_password_change(user_id, "new_password123")

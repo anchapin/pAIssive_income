@@ -61,7 +61,7 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
         # Skip authentication for excluded paths
         path = request.url.path
         if any(path.startswith(excluded) for excluded in self.exclude_paths):
-            return await call_next(request)
+                    return await call_next(request)
 
         # Get service token from header
         service_token = request.headers.get("X-Service-Token")
@@ -69,13 +69,13 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
         # If token is not provided
         if not service_token:
             if self.require_auth:
-                return JSONResponse(
+                        return JSONResponse(
                     content={"detail": "Service token is required"},
                     status_code=status.HTTP_401_UNAUTHORIZED,
                 )
             else:
                 # If authentication is not required, continue
-                return await call_next(request)
+                        return await call_next(request)
 
         try:
             # Validate the service token
@@ -91,17 +91,17 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
             logger.info(f"Authenticated service: {token_payload.iss}")
 
             # Continue processing the request
-            return await call_next(request)
+                    return await call_next(request)
 
         except ServiceTokenError as e:
             # Return authentication error
-            return JSONResponse(
+                    return JSONResponse(
                 content={"detail": str(e)}, status_code=status.HTTP_401_UNAUTHORIZED
             )
         except Exception as e:
             # Log and return server error
             logger.error(f"Error in service authentication: {str(e)}")
-            return JSONResponse(
+                    return JSONResponse(
                 content={"detail": "Internal server error during authentication"},
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
@@ -150,7 +150,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Skip rate limiting for excluded paths
         path = request.url.path
         if any(path.startswith(excluded) for excluded in self.exclude_paths):
-            return await call_next(request)
+                    return await call_next(request)
 
         # Get client ID (IP address or API key or service name)
         client_id = None
@@ -178,7 +178,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Check if rate limit is exceeded
         if len(self.requests[client_id]) >= self.rate_limit:
-            return JSONResponse(
+                    return JSONResponse(
                 content={"detail": "Rate limit exceeded"},
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             )
@@ -187,4 +187,4 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.requests[client_id].append(current_time)
 
         # Continue processing the request
-        return await call_next(request)
+                return await call_next(request)

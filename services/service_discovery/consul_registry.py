@@ -112,12 +112,12 @@ class ConsulServiceRegistry(ServiceRegistry):
                 logger.info(
                     f"Service {service_instance.service_name} registered successfully with ID {service_instance.service_id}"
                 )
-                return True
+                        return True
             else:
                 logger.error(
                     f"Failed to register service {service_instance.service_name}"
                 )
-                return False
+                        return False
 
         except Exception as e:
             logger.error(
@@ -142,10 +142,10 @@ class ConsulServiceRegistry(ServiceRegistry):
             result = self.consul.agent.service.deregister(service_id)
             if result:
                 logger.info(f"Service {service_id} deregistered successfully")
-                return True
+                        return True
             else:
                 logger.error(f"Failed to deregister service {service_id}")
-                return False
+                        return False
         except Exception as e:
             logger.error(f"Error deregistering service {service_id}: {str(e)}")
             raise ServiceDeregistrationError(f"Failed to deregister service: {str(e)}")
@@ -167,10 +167,10 @@ class ConsulServiceRegistry(ServiceRegistry):
             logger.debug(
                 f"TTL renewal not necessary for service {service_id} as we use HTTP checks"
             )
-            return True
+                    return True
         except Exception as e:
             logger.error(f"Error renewing service {service_id}: {str(e)}")
-            return False
+                    return False
 
     def get_service(self, service_name: str) -> List[ServiceInstance]:
         """
@@ -191,7 +191,7 @@ class ConsulServiceRegistry(ServiceRegistry):
 
             if not service_nodes:
                 logger.warning(f"No instances found for service: {service_name}")
-                return []
+                        return []
 
             # Convert to ServiceInstance objects
             instances = []
@@ -227,7 +227,7 @@ class ConsulServiceRegistry(ServiceRegistry):
                 )
                 instances.append(instance)
 
-            return instances
+                    return instances
         except Exception as e:
             logger.error(f"Error looking up service {service_name}: {str(e)}")
             raise ServiceLookupError(f"Failed to look up service: {str(e)}")
@@ -253,7 +253,7 @@ class ConsulServiceRegistry(ServiceRegistry):
                     continue
                 result[service_name] = self.get_service(service_name)
 
-            return result
+                    return result
         except Exception as e:
             logger.error(f"Error getting all services: {str(e)}")
             raise ServiceLookupError(f"Failed to get all services: {str(e)}")
@@ -281,10 +281,10 @@ class ConsulServiceRegistry(ServiceRegistry):
                     logger.warning(
                         f"Service {service_id} has non-passing check: {check['Name']} - {check['Status']}"
                     )
-                    return False
+                            return False
 
             # If we got here, all checks are passing (or there are no checks)
-            return True
+                    return True
         except Exception as e:
             logger.error(f"Error checking service health for {service_id}: {str(e)}")
             raise ServiceHealthCheckError(f"Failed to check service health: {str(e)}")

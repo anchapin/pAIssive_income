@@ -74,7 +74,7 @@ class QueryParamsMiddleware(BaseHTTPMiddleware):
         """
         # Skip processing for non-GET requests
         if request.method != "GET":
-            return await call_next(request)
+                    return await call_next(request)
 
         # Get request path
         path = request.url.path
@@ -117,7 +117,7 @@ class QueryParamsMiddleware(BaseHTTPMiddleware):
         request.state.query_params = query_params
 
         # Continue processing the request
-        return await call_next(request)
+                return await call_next(request)
 
 
 def setup_query_params_middleware(
@@ -139,9 +139,7 @@ def setup_query_params_middleware(
         logger.warning(
             "FastAPI is not available. QueryParamsMiddleware will not be added."
         )
-        return
-
-    app.add_middleware(
+                return app.add_middleware(
         QueryParamsMiddleware,
         allowed_sort_fields=allowed_sort_fields,
         allowed_filter_fields=allowed_filter_fields,

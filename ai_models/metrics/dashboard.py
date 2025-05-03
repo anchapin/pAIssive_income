@@ -133,7 +133,7 @@ logger = logging.getLogger(__name__)
         """
         try:
 
- as pd
+as pd
  as px
  as go
 :
@@ -141,7 +141,7 @@ logger = logging.getLogger(__name__)
                 "Dashboard generation requires additional packages. Install with: "
                 "pip install pandas plotly jinja2"
             )
-            return ""
+                    return ""
 
         # Get time range
         end_time = datetime.now()
@@ -157,7 +157,7 @@ logger = logging.getLogger(__name__)
             logger.warning(
                 f"No metrics found for model {model_id} in the last {days} days"
             )
-            return ""
+                    return ""
 
         # Generate report
         report = self.performance_monitor.generate_enhanced_report(
@@ -549,7 +549,7 @@ logger = logging.getLogger(__name__)
             f.write(html_content)
 
         logger.info(f"Dashboard generated at: {filepath}")
-        return filepath
+                return filepath
 
     def generate_model_comparison_dashboard(
         self,
@@ -570,7 +570,7 @@ logger = logging.getLogger(__name__)
         """
         try:
 
- as pd
+as pd
  as px
  as go
         except ImportError:
@@ -578,7 +578,7 @@ logger = logging.getLogger(__name__)
                 "Dashboard generation requires additional packages. Install with: "
                 "pip install pandas plotly jinja2"
             )
-            return ""
+                    return ""
 
         # Get time range
         end_time = datetime.now()
@@ -928,7 +928,7 @@ logger = logging.getLogger(__name__)
             f.write(html_content)
 
         logger.info(f"Comparison dashboard generated at: {filepath}")
-        return filepath
+                return filepath
 
     def export_metrics_to_json(
         self, model_id: str, days: int = 30, output_file: Optional[str] = None
@@ -988,4 +988,4 @@ logger = logging.getLogger(__name__)
             json.dump(export_data, f, indent=2)
 
         logger.info(f"Metrics exported to JSON: {output_file}")
-        return output_file
+                return output_file

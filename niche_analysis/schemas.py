@@ -16,7 +16,7 @@ class CurrentSolutionSchema
     model_config = ConfigDict(protected_namespaces=())
     """Pydantic model for current solutions to a problem."""
 
-    manual_processes: str = Field(
+manual_processes: str = Field(
         ..., description="Description of manual processes used to solve the problem"
     )
     general_tools: str = Field(
@@ -32,7 +32,7 @@ class SolutionGapSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for gaps in current solutions to a problem."""
 
-    automation: str = Field(..., description="Description of automation gap")
+automation: str = Field(..., description="Description of automation gap")
     specialization: str = Field(..., description="Description of specialization gap")
     integration: str = Field(..., description="Description of integration gap")
 
@@ -41,7 +41,7 @@ class ProblemSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for a problem identified in a niche."""
 
-    id: str = Field(..., description="Unique identifier for the problem")
+id: str = Field(..., description="Unique identifier for the problem")
     name: str = Field(..., description="Name of the problem")
     description: str = Field(..., description="Description of the problem")
     consequences: List[str] = Field(
@@ -65,7 +65,7 @@ class SeverityAnalysisSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for severity analysis of a problem."""
 
-    impact_on_users: str = Field(..., description="Impact on users")
+impact_on_users: str = Field(..., description="Impact on users")
     frequency: str = Field(..., description="Frequency of occurrence")
     emotional_response: str = Field(
         ..., description="Emotional response to the problem"
@@ -78,7 +78,7 @@ class ProblemSeverityAnalysisSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for problem severity analysis."""
 
-    id: str = Field(..., description="Unique identifier for the analysis")
+id: str = Field(..., description="Unique identifier for the analysis")
     problem_id: str = Field(..., description="ID of the problem being analyzed")
     severity: str = Field(..., description="Severity level (high, medium, low)")
     analysis: SeverityAnalysisSchema = Field(
@@ -97,7 +97,7 @@ class CompetitorSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for a competitor in a niche."""
 
-    name: str = Field(..., description="Name of the competitor")
+name: str = Field(..., description="Name of the competitor")
     description: str = Field(..., description="Description of the competitor")
     market_share: str = Field(..., description="Market share of the competitor")
     strengths: List[str] = Field(..., description="Strengths of the competitor")
@@ -109,7 +109,7 @@ class CompetitionAnalysisSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for competition analysis of a niche."""
 
-    id: str = Field(..., description="Unique identifier for the analysis")
+id: str = Field(..., description="Unique identifier for the analysis")
     niche: str = Field(..., description="Niche being analyzed")
     competitor_count: int = Field(..., description="Number of competitors")
     top_competitors: List[CompetitorSchema] = Field(
@@ -127,7 +127,7 @@ class UserSegmentSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for a user segment in a niche."""
 
-    name: str = Field(..., description="Name of the user segment")
+name: str = Field(..., description="Name of the user segment")
     description: str = Field(..., description="Description of the user segment")
     size: str = Field(..., description="Size of the user segment")
     priority: str = Field(..., description="Priority of the user segment")
@@ -137,7 +137,7 @@ class DemographicsSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for demographics of target users."""
 
-    age_range: str = Field(..., description="Age range of target users")
+age_range: str = Field(..., description="Age range of target users")
     gender: str = Field(..., description="Gender distribution of target users")
     location: str = Field(..., description="Geographic location of target users")
     education: str = Field(..., description="Education level of target users")
@@ -148,7 +148,7 @@ class PsychographicsSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for psychographics of target users."""
 
-    goals: List[str] = Field(..., description="Goals of target users")
+goals: List[str] = Field(..., description="Goals of target users")
     values: List[str] = Field(..., description="Values of target users")
     challenges: List[str] = Field(..., description="Challenges of target users")
 
@@ -157,7 +157,7 @@ class BuyingBehaviorSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for buying behavior of target users."""
 
-    decision_factors: List[str] = Field(
+decision_factors: List[str] = Field(
         ..., description="Decision factors in purchasing"
     )
     purchase_process: str = Field(
@@ -170,7 +170,7 @@ class TargetUserAnalysisSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for target user analysis."""
 
-    id: str = Field(..., description="Unique identifier for the analysis")
+id: str = Field(..., description="Unique identifier for the analysis")
     niche: str = Field(..., description="Niche being analyzed")
     user_segments: List[UserSegmentSchema] = Field(
         ..., description="User segments in the niche"
@@ -193,7 +193,7 @@ class TrendSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for a market trend."""
 
-    name: str = Field(..., description="Name of the trend")
+name: str = Field(..., description="Name of the trend")
     description: str = Field(..., description="Description of the trend")
     impact: str = Field(..., description="Impact of the trend")
     maturity: str = Field(..., description="Maturity level of the trend")
@@ -203,7 +203,7 @@ class PredictionSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for a market prediction."""
 
-    name: str = Field(..., description="Name of the prediction")
+name: str = Field(..., description="Name of the prediction")
     description: str = Field(..., description="Description of the prediction")
     likelihood: str = Field(..., description="Likelihood of the prediction")
     timeframe: str = Field(..., description="Timeframe for the prediction")
@@ -213,7 +213,7 @@ class TrendAnalysisSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for market trend analysis."""
 
-    id: str = Field(..., description="Unique identifier for the analysis")
+id: str = Field(..., description="Unique identifier for the analysis")
     segment: str = Field(..., description="Market segment being analyzed")
     current_trends: List[TrendSchema] = Field(
         ..., description="Current trends in the segment"
@@ -230,7 +230,7 @@ class MarketSegmentSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for a market segment."""
 
-    id: str = Field(..., description="Unique identifier for the segment")
+id: str = Field(..., description="Unique identifier for the segment")
     name: str = Field(..., description="Name of the segment")
     description: str = Field(..., description="Description of the segment")
     market_size: str = Field(..., description="Size of the market")
@@ -250,7 +250,7 @@ class FactorScoreSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for a scoring factor in opportunity scoring."""
 
-    score: float = Field(..., description="Score for the factor", ge=0.0, le=1.0)
+score: float = Field(..., description="Score for the factor", ge=0.0, le=1.0)
     weight: float = Field(..., description="Weight of the factor", ge=0.0, le=1.0)
     weighted_score: float = Field(
         ..., description="Weighted score for the factor", ge=0.0, le=1.0
@@ -262,7 +262,7 @@ class FactorScoresSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for all factor scores in opportunity scoring."""
 
-    market_size: FactorScoreSchema = Field(..., description="Market size factor score")
+market_size: FactorScoreSchema = Field(..., description="Market size factor score")
     growth_rate: FactorScoreSchema = Field(..., description="Growth rate factor score")
     competition: FactorScoreSchema = Field(..., description="Competition factor score")
     problem_severity: FactorScoreSchema = Field(
@@ -280,7 +280,7 @@ class FactorsSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for raw factor scores in opportunity scoring."""
 
-    market_size: float = Field(
+market_size: float = Field(
         ..., description="Market size factor score", ge=0.0, le=1.0
     )
     growth_rate: float = Field(
@@ -304,7 +304,7 @@ class OpportunityScoreSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for opportunity scoring results."""
 
-    id: str = Field(..., description="Unique identifier for the opportunity score")
+id: str = Field(..., description="Unique identifier for the opportunity score")
     niche: str = Field(..., description="Niche being scored")
     score: float = Field(..., description="Overall opportunity score", ge=0.0, le=1.0)
     overall_score: float = Field(
@@ -323,7 +323,7 @@ class RankedOpportunitySchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for a ranked opportunity in opportunity comparison."""
 
-    id: str = Field(..., description="Unique identifier for the opportunity")
+id: str = Field(..., description="Unique identifier for the opportunity")
     niche: str = Field(..., description="Niche of the opportunity")
     overall_score: float = Field(
         ..., description="Overall score of the opportunity", ge=0.0, le=1.0
@@ -335,7 +335,7 @@ class TopRecommendationSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for a top recommendation in opportunity comparison."""
 
-    id: str = Field(..., description="Unique identifier for the recommendation")
+id: str = Field(..., description="Unique identifier for the recommendation")
     niche: str = Field(..., description="Niche of the recommendation")
     overall_score: float = Field(
         ..., description="Overall score of the recommendation", ge=0.0, le=1.0
@@ -348,52 +348,54 @@ class ScoreDistributionSchema(BaseModel):
     model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for score distribution in opportunity comparison."""
 
-    excellent: int = Field(
+excellent: int = Field(
         ..., description="Number of opportunities with excellent scores"
     )
     very_good: int = Field(
         ..., description="Number of opportunities with very good scores"
-    )
-    good: int = Field(..., description="Number of opportunities with good scores")
-    fair: int = Field(..., description="Number of opportunities with fair scores")
-    limited: int = Field(..., description="Number of opportunities with limited scores")
+    
+    good: int = Field(..., description="Number of opportunities with good scores"
+    fair: int = Field(..., description="Number of opportunities with fair scores"
+    limited: int = Field(..., description="Number of opportunities with limited scores"
 
 
-class ComparativeAnalysisSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=()))
+class ComparativeAnalysisSchema(BaseModel:
+    model_config = ConfigDict(protected_namespaces=(
     """Pydantic model for comparative analysis in opportunity comparison."""
 
-    highest_score: Optional[float] = Field(
+highest_score: Optional[float] = Field(
         None, description="Highest opportunity score"
-    )
-    lowest_score: Optional[float] = Field(None, description="Lowest opportunity score")
+    
+    lowest_score: Optional[float] = Field(None, description="Lowest opportunity score"
     average_score: Optional[float] = Field(
         None, description="Average opportunity score"
-    )
+    
     score_distribution: ScoreDistributionSchema = Field(
         ..., description="Distribution of scores"
-    )
+    
 
 
-class OpportunityComparisonSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=()))
+class OpportunityComparisonSchema(BaseModel:
+    model_config = ConfigDict(protected_namespaces=(
     """Pydantic model for opportunity comparison results."""
 
-    id: str = Field(..., description="Unique identifier for the comparison")
+id: str = Field(..., description="Unique identifier for the comparison"
     opportunities_count: int = Field(
         ..., description="Number of opportunities compared"
-    )
+    
     ranked_opportunities: List[RankedOpportunitySchema] = Field(
         ..., description="Ranked list of opportunities"
-    )
+    
     top_recommendation: Optional[TopRecommendationSchema] = Field(
         None, description="Top recommendation"
-    )
+    
     comparison_factors: Dict[str, str] = Field(
         ..., description="Factors used for comparison"
-    )
+    
     comparative_analysis: ComparativeAnalysisSchema = Field(
         ..., description="Comparative analysis of opportunities"
-    )
-    recommendations: List[str] = Field(..., description="Overall recommendations")
-    timestamp: str = Field(..., description="Timestamp of the comparison")
+    
+    recommendations: List[str] = Field(..., description="Overall recommendations"
+    timestamp: str = Field(..., description="Timestamp of the comparison"
+except Exception as e:
+    pass

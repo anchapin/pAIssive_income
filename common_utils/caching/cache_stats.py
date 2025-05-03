@@ -37,7 +37,7 @@ class CacheEvent:
         """Convert event to dictionary for serialization."""
         data = asdict(self)
         data["timestamp"] = data["timestamp"].isoformat()
-        return data
+                return data
 
 
 @dataclass
@@ -57,17 +57,17 @@ class CacheNamespaceStats:
     def hit_rate(self) -> float:
         """Calculate the hit rate for this namespace."""
         total_gets = self.hits + self.misses
-        return self.hits / total_gets if total_gets > 0 else 0
+                return self.hits / total_gets if total_gets > 0 else 0
 
     @property
     def average_duration_ms(self) -> float:
         """Calculate the average operation duration."""
         total_ops = self.hits + self.misses + self.sets + self.deletes + self.clears
-        return self.total_duration_ms / total_ops if total_ops > 0 else 0
+                return self.total_duration_ms / total_ops if total_ops > 0 else 0
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert stats to dictionary with calculated properties."""
-        return {
+                return {
             "namespace": self.namespace,
             "hits": self.hits,
             "misses": self.misses,
@@ -167,10 +167,10 @@ class CacheStatsDashboard:
         with self._lock:
             if namespace:
                 if namespace in self._namespace_stats:
-                    return self._namespace_stats[namespace].to_dict()
-                return {}
+                            return self._namespace_stats[namespace].to_dict()
+                        return {}
 
-            return {ns: stats.to_dict() for ns, stats in self._namespace_stats.items()}
+                    return {ns: stats.to_dict() for ns, stats in self._namespace_stats.items()}
 
     def get_stats_summary(self) -> Dict[str, Any]:
         """
@@ -194,7 +194,7 @@ class CacheStatsDashboard:
             total_gets = total_hits + total_misses
             hit_rate = total_hits / total_gets if total_gets > 0 else 0
 
-            return {
+                    return {
                 "total_namespaces": len(self._namespace_stats),
                 "total_hits": total_hits,
                 "total_misses": total_misses,
@@ -253,7 +253,7 @@ class CacheStatsDashboard:
                             }
                         )
 
-            return {
+                    return {
                 "timestamp": datetime.now().isoformat(),
                 "recommendations": recommendations,
             }
@@ -265,7 +265,7 @@ class CacheStatsDashboard:
         Returns:
             Dictionary with full cache performance report
         """
-        return {
+                return {
             "timestamp": datetime.now().isoformat(),
             "summary": self.get_stats_summary(),
             "namespaces": self.get_namespace_stats(),
@@ -315,10 +315,10 @@ class CacheStatsDashboard:
             report = self.generate_report()
             with open(filepath, "w") as f:
                 json.dump(report, f, indent=2)
-            return True
+                    return True
         except Exception as e:
             logger.error(f"Error exporting cache stats report: {e}")
-            return False
+                    return False
 
 
 # Create a default instance for use throughout the application

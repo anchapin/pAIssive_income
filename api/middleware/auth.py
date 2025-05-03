@@ -54,7 +54,7 @@ async def verify_token(token: str) -> Dict[str, Any]:
             token = token[7:]
 
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        return payload
+                return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
@@ -108,14 +108,14 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # Skip authentication for public paths
         for path in self.public_paths:
             if request.url.path.startswith(path):
-                return await call_next(request)
+                        return await call_next(request)
 
         # Get API key from header
         auth_header = request.headers.get(self.auth_header)
 
         if not auth_header:
             logger.warning("Missing authentication header")
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Authentication required"},
             )
@@ -131,7 +131,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         if not api_key_obj:
             logger.warning("Invalid API key")
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Invalid API key"},
             )
@@ -139,7 +139,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # Check if API key is active
         if not api_key_obj.is_active:
             logger.warning(f"Inactive API key: {api_key_obj.id}")
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "API key is inactive"},
             )
@@ -147,7 +147,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # Check if API key is expired
         if not api_key_obj.is_valid():
             logger.warning(f"Expired API key: {api_key_obj.id}")
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "API key has expired"},
             )
@@ -156,7 +156,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         request.state.api_key = api_key_obj
 
         # Continue processing
-        return await call_next(request)
+                return await call_next(request)
 
 
 async def get_api_key(api_key_header: str = Security(API_KEY_HEADER)) -> APIKey:
@@ -203,7 +203,7 @@ async def get_api_key(api_key_header: str = Security(API_KEY_HEADER)) -> APIKey:
             status_code=status.HTTP_401_UNAUTHORIZED, detail="API key has expired"
         )
 
-    return api_key_obj
+            return api_key_obj
 
 
 async def get_current_user(api_key: APIKey = Depends(get_api_key)) -> User:
@@ -238,7 +238,7 @@ async def get_current_user(api_key: APIKey = Depends(get_api_key)) -> User:
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
 
-    return user
+            return user
 
 
 def require_scopes(required_scopes: List[str]):
@@ -260,6 +260,6 @@ def require_scopes(required_scopes: List[str]):
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail=f"API key missing required scope: {scope}",
                 )
-        return api_key
+                return api_key
 
-    return check_scopes
+            return check_scopes

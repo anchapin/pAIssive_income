@@ -83,7 +83,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                 response.raise_for_status()
                 account_data = response.json()
 
-                return {
+                        return {
                     "authenticated": True,
                     "account_id": account_data.get("id"),
                     "username": account_data.get("username"),
@@ -214,7 +214,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                     "instagram", "Story video must have either a URL or source"
                 )
 
-        return True
+                return True
 
     def post_content(
         self,
@@ -256,13 +256,13 @@ class InstagramAdapter(BaseSocialMediaAdapter):
 
             # Determine the endpoint and method based on content type
             if "story" in content:
-                return self._post_story(content["story"])
+                        return self._post_story(content["story"])
             elif "carousel" in content:
-                return self._post_carousel(content["carousel"], post_data)
+                        return self._post_carousel(content["carousel"], post_data)
             elif "image" in content:
-                return self._post_image(content["image"], post_data)
+                        return self._post_image(content["image"], post_data)
             elif "video" in content:
-                return self._post_video(content["video"], post_data)
+                        return self._post_video(content["video"], post_data)
             else:
                 raise ContentValidationError("instagram", "No valid content type found")
 
@@ -297,7 +297,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # For demonstration, we'll simulate a successful post
             post_id = f"instagram_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-            return {
+                    return {
                 "id": post_id,
                 "type": "image",
                 "status": "posted",
@@ -337,7 +337,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # For demonstration, we'll simulate a successful post
             post_id = f"instagram_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-            return {
+                    return {
                 "id": post_id,
                 "type": "video",
                 "status": "posted",
@@ -378,7 +378,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # For demonstration, we'll simulate a successful post
             post_id = f"instagram_post_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-            return {
+                    return {
                 "id": post_id,
                 "type": "carousel",
                 "status": "posted",
@@ -416,7 +416,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # For demonstration, we'll simulate a successful post
             story_id = f"instagram_story_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-            return {
+                    return {
                 "id": story_id,
                 "type": "story",
                 "status": "posted",
@@ -473,7 +473,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                 f"instagram_scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
             )
 
-            return {
+                    return {
                 "id": scheduled_id,
                 "scheduled_time": schedule_time.isoformat(),
                 "status": "scheduled",
@@ -535,7 +535,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             if "children" in result:
                 post_data["children"] = result["children"]["data"]
 
-            return post_data
+                    return post_data
 
         except requests.exceptions.RequestException as e:
             if e.response and e.response.status_code == 404:
@@ -565,7 +565,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
 
             # Check if deletion was successful
             if result.get("success", False):
-                return True
+                        return True
             else:
                 raise DeletionError("instagram", "Failed to delete post")
 
@@ -633,7 +633,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                     "metrics": self._extract_insights(result),
                 }
 
-                return analytics
+                        return analytics
 
             # Otherwise, get account-level analytics
             else:
@@ -657,11 +657,11 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                     "metrics": self._extract_insights(result),
                 }
 
-                return analytics
+                        return analytics
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Instagram analytics error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "post_id": post_id,
                 "account_id": self.instagram_account_id,
@@ -697,7 +697,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
 
             # Check if we have an Instagram account ID
             if not self.instagram_account_id:
-                return {
+                        return {
                     "error": "Instagram account ID is required for audience insights"
                 }
 
@@ -705,7 +705,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # Note: Instagram's Audience Insights API is limited and requires special permissions
             # For demonstration, we'll return mock audience insights data
 
-            return {
+                    return {
                 "account_id": self.instagram_account_id,
                 "segment": segment or "all_followers",
                 "demographics": {
@@ -763,7 +763,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"Instagram audience insights error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "account_id": self.instagram_account_id,
                 "segment": segment or "all_followers",
@@ -800,4 +800,4 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                     # For simple numeric metrics
                     metrics[name] = latest_value
 
-        return metrics
+                return metrics

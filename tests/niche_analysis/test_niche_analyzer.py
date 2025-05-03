@@ -54,13 +54,13 @@ def mock_agent_team():
     # Set up the mock team to return the mock researcher
     mock_team.get_agent.return_value = mock_researcher
 
-    return mock_team
+            return mock_team
 
 
 @pytest.fixture
 def niche_analyzer(mock_agent_team):
     """Create a NicheAnalyzer instance for testing."""
-    return NicheAnalyzer(agent_team=mock_agent_team)
+            return NicheAnalyzer(agent_team=mock_agent_team)
 
 
 def test_niche_analyzer_init():

@@ -20,7 +20,7 @@ from niche_analysis.market_trends import
 @pytest.fixture
 def market_analyzer():
     """Create a MarketAnalyzer instance for testing."""
-    return MarketAnalyzer()
+            return MarketAnalyzer()
 
 
 class TestMarketTrendAnalysis:

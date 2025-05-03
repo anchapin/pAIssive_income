@@ -67,7 +67,7 @@ class BaseCommand(abc.ABC):
         Returns:
             Argument value
         """
-        return getattr(self.args, name, default)
+                return getattr(self.args, name, default)
 
     def _validate_args(self, required_args: List[str]) -> bool:
         """
@@ -82,6 +82,6 @@ class BaseCommand(abc.ABC):
         for arg in required_args:
             if not hasattr(self.args, arg) or getattr(self.args, arg) is None:
                 logger.error(f"Missing required argument: {arg}")
-                return False
+                        return False
 
-        return True
+                return True

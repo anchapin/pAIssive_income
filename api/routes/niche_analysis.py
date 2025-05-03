@@ -114,7 +114,7 @@ async def get_niches(
             total_pages=(total + page_size - 1) // page_size,
         )
 
-        return response
+                return response
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -153,7 +153,7 @@ async def get_niche(
         if not niche:
             raise HTTPException(status_code=404, detail=f"Niche {niche_id} not found")
 
-        return niche
+                return niche
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -191,7 +191,7 @@ async def create_niche(
         # Create niche
         created_niche = await niche_service.create_niche(niche)
 
-        return created_niche
+                return created_niche
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -233,7 +233,7 @@ async def update_niche(
         # Update niche
         updated_niche = await niche_service.update_niche(niche_id, niche)
 
-        return updated_niche
+                return updated_niche
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -275,7 +275,7 @@ async def delete_niche(
         # Delete niche
         success = await niche_service.delete_niche(niche_id)
 
-        return SuccessResponse(success=success)
+                return SuccessResponse(success=success)
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -314,7 +314,7 @@ async def analyze_niches(
             request.segments, request.force_refresh, request.max_results
         )
 
-        return analysis
+                return analysis
 
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
@@ -347,7 +347,7 @@ async def get_market_segments(
         # Get market segments
         segments = await market_segment_service.get_market_segments()
 
-        return segments
+                return segments
 
     except BaseError as e:
         logger.error(f"Error getting market segments: {str(e)}")
@@ -420,7 +420,7 @@ async def get_market_segments(
                 "operation_id": operation_id,
             }
 
-            return response
+                    return response
 
         except ValidationError as e:
             logger.error(f"Validation error: {str(e)}")
@@ -505,7 +505,7 @@ async def get_market_segments(
                 "operation_id": operation_id,
             }
 
-            return response
+                    return response
 
         except ValidationError as e:
             logger.error(f"Validation error: {str(e)}")
@@ -593,7 +593,7 @@ async def get_market_segments(
                 "operation_id": operation_id,
             }
 
-            return response
+                    return response
 
         except ValidationError as e:
             logger.error(f"Validation error: {str(e)}")

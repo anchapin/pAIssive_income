@@ -115,10 +115,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("agent_team")
             if not service:
-                return []
+                        return []
 
             profiles = service.get_all_profiles()
-            return [
+                    return [
                 AgentProfile(
                     id=str(profile.id),
                     name=profile.name,
@@ -143,10 +143,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("agent_team")
             if not service:
-                return []
+                        return []
 
             teams = service.get_all_teams()
-            return [
+                    return [
                 AgentTeam(
                     id=str(team.id),
                     name=team.name,
@@ -184,13 +184,13 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("agent_team")
             if not service:
-                return None
+                        return None
 
             team = service.get_team(id)
             if not team:
-                return None
+                        return None
 
-            return AgentTeam(
+                    return AgentTeam(
                 id=str(team.id),
                 name=team.name,
                 description=team.description,
@@ -227,10 +227,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("agent_team")
             if not service:
-                return []
+                        return []
 
             conversations = service.get_conversations(team_id=team_id)
-            return [
+                    return [
                 AgentConversation(
                     id=str(conversation.id),
                     team_id=str(conversation.team_id),
@@ -266,13 +266,13 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("agent_team")
             if not service:
-                return None
+                        return None
 
             conversation = service.get_conversation(id)
             if not conversation:
-                return None
+                        return None
 
-            return AgentConversation(
+                    return AgentConversation(
                 id=str(conversation.id),
                 team_id=str(conversation.team_id),
                 topic=conversation.topic,
@@ -331,7 +331,7 @@ if STRAWBERRY_AVAILABLE:
                 agent_profiles=agent_profiles,
             )
 
-            return AgentTeam(
+                    return AgentTeam(
                 id=str(team.id),
                 name=team.name,
                 description=team.description,
@@ -378,7 +378,7 @@ if STRAWBERRY_AVAILABLE:
                 topic=input.topic,
             )
 
-            return AgentConversation(
+                    return AgentConversation(
                 id=str(conversation.id),
                 team_id=str(conversation.team_id),
                 topic=conversation.topic,

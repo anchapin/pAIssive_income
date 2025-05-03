@@ -369,7 +369,7 @@ if __name__ == "__main__":
     # asyncio.run(ai_models_service_example())
 
     # Example 3: API Gateway - Request-Response Pattern
-    # asyncio.run(api_gateway_example())
+    # asyncio.run(api_gateway_example()
 
     # Example 4: Event-Driven Communication
-    event_driven_example()
+    event_driven_example(

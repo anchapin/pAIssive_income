@@ -41,7 +41,7 @@ def temp_db_path():
 def metrics_api(temp_db_path):
     """Create a metrics API instance with a temporary database."""
     api = MetricsAPI(db_path=temp_db_path)
-    return api
+            return api
 
 
 def test_metric_accuracy(metrics_api):
@@ -151,11 +151,11 @@ def test_custom_metric_definition(metrics_api):
                 'custom_metric2': self.custom_metric2,
                 'timestamp': self.custom_timestamp
             })
-            return base_dict
+                    return base_dict
 
         @classmethod
         def from_dict(cls, data):
-            return cls(**data)
+                    return cls(**data)
 
     # Create and save custom metrics with timestamps over a time period
     base_time = datetime.now()
@@ -354,7 +354,7 @@ def test_custom_metric_validation(metrics_api):
                 raise ValueError("custom_metric1 must be an integer")
             if not 0 <= value <= 100:
                 raise ValueError("custom_metric1 must be between 0 and 100")
-            return value
+                    return value
 
         def _validate_metric2(self, value):
             """Validate custom_metric2 is within acceptable range."""
@@ -362,7 +362,7 @@ def test_custom_metric_validation(metrics_api):
                 raise ValueError("custom_metric2 must be an integer")
             if not 0 <= value <= 1000:
                 raise ValueError("custom_metric2 must be between 0 and 1000")
-            return value
+                    return value
 
         @classmethod
         def get_metric_config(cls):
@@ -380,7 +380,7 @@ def test_custom_metric_validation(metrics_api):
                     'description': 'Custom metric 2 with range 0-1000'
                 }
             })
-            return base_config
+                    return base_config
 
     # Test valid metric creation
     valid_metrics = ValidatedMetrics(

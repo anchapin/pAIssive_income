@@ -18,7 +18,7 @@ from marketing import ChannelStrategy, ConcreteContentGenerator, MarketingPlan
 @pytest.fixture
 def mock_monetization_strategy():
     """Create a mock monetization strategy for testing."""
-    return {
+            return {
         "id": "strategy1",
         "name": "Freemium Strategy",
         "description": "A freemium monetization strategy",
@@ -86,7 +86,7 @@ def mock_monetization_strategy():
 @pytest.fixture
 def mock_solution():
     """Create a mock solution for testing."""
-    return {
+            return {
         "id": "solution1",
         "name": "AI Inventory Manager",
         "description": "An AI-powered solution for inventory management",
@@ -131,7 +131,7 @@ def mock_solution():
 @pytest.fixture
 def mock_niche():
     """Create a mock niche for testing."""
-    return {
+            return {
         "id": "niche1",
         "name": "Inventory Management",
         "market_segment": "e-commerce",
@@ -175,7 +175,7 @@ def mock_agents():
         },
     }
 
-    return {"marketing": mock_marketing}
+            return {"marketing": mock_marketing}
 
 
 @patch("agent_team.team_config.MarketingAgent")

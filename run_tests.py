@@ -32,12 +32,12 @@ else:
     HAS_COVERAGE = True
 
 
-def run_tests(test_type=None, pattern=None, verbose=False, coverage=False, 
+def run_tests(test_type=None, pattern=None, verbose=False, coverage=False,
               html_report=False, parallel=False, failed_only=False) -> int:
     """
     Run tests with specified options.
-    
-    Args:
+
+Args:
         test_type: Type of tests to run (unit, integration, etc.)
         pattern: Pattern to match test files
         verbose: Whether to run with verbose output
@@ -45,15 +45,15 @@ def run_tests(test_type=None, pattern=None, verbose=False, coverage=False,
         html_report: Whether to generate HTML report
         parallel: Whether to run tests in parallel
         failed_only: Whether to run only failed tests
-        
-    Returns:
+
+Returns:
         Exit code (0 for success, non-zero for failures)
     """
     start_time = time.time()
     print(f"🚀 Starting test run at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
+
     args = ["-v"] if verbose else []
-    
+
     # Add marker filtering
     if test_type == "unit":
         args.extend(["-m", "unit"])
@@ -75,7 +75,7 @@ def run_tests(test_type=None, pattern=None, verbose=False, coverage=False,
         print("🔥 Running smoke tests")
     else:
         print("🔍 Running all tests")
-    
+
     # Run tests in parallel
     if parallel:
         try:
@@ -85,17 +85,17 @@ def run_tests(test_type=None, pattern=None, verbose=False, coverage=False,
         except ImportError:
             print("Warning: pytest-xdist not found. Tests will run sequentially.")
             print("Install it with 'pip install pytest-xdist'")
-    
+
     # Add pattern matching
     if pattern:
         args.append(pattern)
         print(f"🔍 Filtering tests with pattern: {pattern}")
-    
+
     # Run only failed tests
     if failed_only:
         args.append("--last-failed")
         print("❌ Running only previously failed tests")
-    
+
     # Coverage reporting
     if coverage and HAS_COVERAGE:
         cover_args = [
@@ -107,7 +107,7 @@ def run_tests(test_type=None, pattern=None, verbose=False, coverage=False,
         ]
         args.extend(cover_args)
         print("📊 Generating coverage report")
-    
+
     # HTML report
     if html_report:
         try:
@@ -119,24 +119,24 @@ def run_tests(test_type=None, pattern=None, verbose=False, coverage=False,
         except ImportError:
             print("Warning: pytest-html not found. HTML report will not be generated.")
             print("Install it with 'pip install pytest-html'")
-    
+
     # Run the tests
     exit_code = pytest.main(args)
-    
+
     # Display results
     duration = time.time() - start_time
     if exit_code == 0:
         print(f"✅ All tests passed in {duration:.2f} seconds!")
     else:
         print(f"❌ Tests failed in {duration:.2f} seconds.")
-    
+
     # Open HTML report in browser if generated
     if html_report and exit_code == 0 and "report_path" in locals():
         try:
             webbrowser.open(f"file://{os.path.abspath(report_path)}")
         except Exception as e:
             print(f"Could not open report in browser: {e}")
-    
+
     # Open coverage report in browser if generated
     if coverage and HAS_COVERAGE and exit_code == 0:
         try:
@@ -145,14 +145,14 @@ def run_tests(test_type=None, pattern=None, verbose=False, coverage=False,
                 webbrowser.open(f"file://{coverage_path}")
         except Exception as e:
             print(f"Could not open coverage report in browser: {e}")
-    
-    return exit_code
+
+                return exit_code
 
 
 def main():
     """Parse command line arguments and run tests."""
     parser = argparse.ArgumentParser(description="Run tests for pAIssive_income")
-    
+
     test_type_group = parser.add_argument_group("Test Type")
     test_type = test_type_group.add_mutually_exclusive_group()
     test_type.add_argument("--unit", action="store_const", const="unit", dest="test_type",
@@ -167,7 +167,7 @@ def main():
                          help="Run smoke tests only")
     test_type.add_argument("--slow", action="store_const", const="slow", dest="test_type",
                          help="Run slow tests only")
-    
+
     parser.add_argument("-k", "--pattern", type=str,
                       help="Only run tests matching the given substring expression")
     parser.add_argument("-v", "--verbose", action="store_true",
@@ -180,9 +180,9 @@ def main():
                       help="Run tests in parallel")
     parser.add_argument("-f", "--failed-only", action="store_true",
                       help="Run only failed tests from last run")
-    
+
     args = parser.parse_args()
-    
+
     sys.exit(
         run_tests(
             test_type=args.test_type,

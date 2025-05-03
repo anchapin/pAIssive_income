@@ -41,11 +41,11 @@ __all__ = [
 class AgentInitializationError(AgentError):
     """Error raised when an agent fails to initialize."""
 
-    def __init__(self, message: str, agent_name: Optional[str] = None, **kwargs):
+def __init__(self, message: str, agent_name: Optional[str] = None, **kwargs):
         """
         Initialize the agent initialization error.
 
-        Args:
+Args:
             message: Human-readable error message
             agent_name: Name of the agent that failed to initialize
             **kwargs: Additional arguments to pass to the base class
@@ -61,7 +61,7 @@ class AgentInitializationError(AgentError):
 class AgentCommunicationError(AgentError):
     """Error raised when communication between agents fails."""
 
-    def __init__(
+def __init__(
         self,
         message: str,
         source_agent: Optional[str] = None,
@@ -71,7 +71,7 @@ class AgentCommunicationError(AgentError):
         """
         Initialize the agent communication error.
 
-        Args:
+Args:
             message: Human-readable error message
             source_agent: Name of the source agent
             target_agent: Name of the target agent
@@ -83,7 +83,7 @@ class AgentCommunicationError(AgentError):
         if target_agent:
             details["target_agent"] = target_agent
 
-        super().__init__(
+super().__init__(
             message=message,
             agent_name=source_agent,
             code="agent_communication_error",
@@ -95,11 +95,11 @@ class AgentCommunicationError(AgentError):
 class WorkflowError(AgentTeamError):
     """Error raised when a workflow operation fails."""
 
-    def __init__(self, message: str, workflow_step: Optional[str] = None, **kwargs):
+def __init__(self, message: str, workflow_step: Optional[str] = None, **kwargs):
         """
         Initialize the workflow error.
 
-        Args:
+Args:
             message: Human-readable error message
             workflow_step: Name of the workflow step that failed
             **kwargs: Additional arguments to pass to the base class
@@ -108,7 +108,7 @@ class WorkflowError(AgentTeamError):
         if workflow_step:
             details["workflow_step"] = workflow_step
 
-        super().__init__(
+super().__init__(
             message=message, code="workflow_error", details=details, **kwargs
         )
 
@@ -116,11 +116,11 @@ class WorkflowError(AgentTeamError):
 class ResearchAgentError(AgentError):
     """Error raised when the Research Agent encounters an issue."""
 
-    def __init__(self, message: str, **kwargs):
+def __init__(self, message: str, **kwargs):
         """
         Initialize the Research Agent error.
 
-        Args:
+Args:
             message: Human-readable error message
             **kwargs: Additional arguments to pass to the base class
         """
@@ -135,11 +135,11 @@ class ResearchAgentError(AgentError):
 class DeveloperAgentError(AgentError):
     """Error raised when the Developer Agent encounters an issue."""
 
-    def __init__(self, message: str, **kwargs):
+def __init__(self, message: str, **kwargs):
         """
         Initialize the Developer Agent error.
 
-        Args:
+Args:
             message: Human-readable error message
             **kwargs: Additional arguments to pass to the base class
         """
@@ -154,11 +154,11 @@ class DeveloperAgentError(AgentError):
 class MonetizationAgentError(AgentError):
     """Error raised when the Monetization Agent encounters an issue."""
 
-    def __init__(self, message: str, **kwargs):
+def __init__(self, message: str, **kwargs):
         """
         Initialize the Monetization Agent error.
 
-        Args:
+Args:
             message: Human-readable error message
             **kwargs: Additional arguments to pass to the base class
         """
@@ -173,11 +173,11 @@ class MonetizationAgentError(AgentError):
 class MarketingAgentError(AgentError):
     """Error raised when the Marketing Agent encounters an issue."""
 
-    def __init__(self, message: str, **kwargs):
+def __init__(self, message: str, **kwargs):
         """
         Initialize the Marketing Agent error.
 
-        Args:
+Args:
             message: Human-readable error message
             **kwargs: Additional arguments to pass to the base class
         """
@@ -192,11 +192,11 @@ class MarketingAgentError(AgentError):
 class FeedbackAgentError(AgentError):
     """Error raised when the Feedback Agent encounters an issue."""
 
-    def __init__(self, message: str, **kwargs):
+def __init__(self, message: str, **kwargs):
         """
         Initialize the Feedback Agent error.
 
-        Args:
+Args:
             message: Human-readable error message
             **kwargs: Additional arguments to pass to the base class
         """

@@ -39,9 +39,9 @@ class ServiceDiscoverySetup:
         """
         try:
             response = requests.get(f"http://{host}:{port}/v1/status/leader", timeout=2)
-            return response.status_code == 200
+                    return response.status_code == 200
         except requests.exceptions.RequestException:
-            return False
+                    return False
 
     @staticmethod
     def start_consul_dev(
@@ -108,7 +108,7 @@ class ServiceDiscoverySetup:
             if attempt == max_attempts:
                 logger.warning("Consul may not have started properly")
 
-        return process
+                return process
 
     @staticmethod
     def generate_consul_config(

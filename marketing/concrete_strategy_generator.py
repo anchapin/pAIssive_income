@@ -23,10 +23,10 @@ class DefaultStrategyGenerator
     """
     Concrete implementation of the StrategyGenerator class.
 
-    This class implements all the required abstract methods from IMarketingStrategy.
+This class implements all the required abstract methods from IMarketingStrategy.
     """
 
-    # Valid business types
+# Valid business types
     BUSINESS_TYPES = {
         "saas": {
             "name": "SaaS",
@@ -114,7 +114,7 @@ class DefaultStrategyGenerator
         },
     }
 
-    # Valid marketing goals
+# Valid marketing goals
     MARKETING_GOALS = {
         "brand_awareness": {
             "name": "Brand Awareness",
@@ -260,7 +260,7 @@ class DefaultStrategyGenerator
         },
     }
 
-    # Marketing channels data
+# Marketing channels data
     MARKETING_CHANNELS = {
         "content_marketing": {
             "name": "Content Marketing",
@@ -432,7 +432,7 @@ class DefaultStrategyGenerator
         },
     }
 
-    def __init__(
+def __init__(
         self,
         business_type: Optional[str] = None,
         business_size: Optional[str] = None,
@@ -449,7 +449,7 @@ class DefaultStrategyGenerator
         """
         Initialize a DefaultStrategyGenerator.
 
-        Args:
+Args:
             business_type: Type of business (e.g., "SaaS", "E-commerce")
             business_size: Size of business (e.g., "Startup", "Small", "Medium", "Enterprise")
             goals: List of marketing goals
@@ -475,133 +475,133 @@ class DefaultStrategyGenerator
         self._description = description
         self._channel_type = channel_type
 
-    @property
+@property
     def name(self) -> str:
         """Get the strategy name."""
-        return self._name
+                    return self._name
 
-    @property
+@property
     def description(self) -> str:
         """Get the strategy description."""
-        return self._description
+                    return self._description
 
-    @property
+@property
     def channel_type(self) -> str:
         """Get the channel type."""
-        return self._channel_type
+                    return self._channel_type
 
-    def create_strategy(
+def create_strategy(
         self, target_persona: Dict[str, Any], goals: List[str]
     ) -> Dict[str, Any]:
         """
         Create a marketing strategy.
 
-        Args:
+Args:
             target_persona: Target user persona
             goals: List of marketing goals
 
-        Returns:
+Returns:
             Marketing strategy dictionary
         """
         # Update the target audience and goals
         if target_persona:
             self.target_audience = TargetAudienceSchema(**target_persona)
 
-        if goals:
+if goals:
             self.goals = goals
 
-        # Generate the strategy
+# Generate the strategy
         strategy = self.generate_strategy()
 
-        # Convert to dictionary
-        return strategy.model_dump()
+# Convert to dictionary
+                    return strategy.model_dump()
 
-    def get_tactics(self) -> List[Dict[str, Any]]:
+def get_tactics(self) -> List[Dict[str, Any]]:
         """
         Get marketing tactics.
 
-        Returns:
+Returns:
             List of marketing tactic dictionaries
         """
         # If we have strategies, return tactics from the most recent one
         if self.strategies:
             latest_strategy = self.strategies[-1]
-            return [tactic.model_dump() for tactic in latest_strategy.tactics]
+                        return [tactic.model_dump() for tactic in latest_strategy.tactics]
 
-        # Otherwise, generate a new strategy and return its tactics
+# Otherwise, generate a new strategy and return its tactics
         strategy = self.generate_strategy()
-        return [tactic.model_dump() for tactic in strategy.tactics]
+                    return [tactic.model_dump() for tactic in strategy.tactics]
 
-    def get_metrics(self) -> List[Dict[str, Any]]:
+def get_metrics(self) -> List[Dict[str, Any]]:
         """
         Get marketing metrics.
 
-        Returns:
+Returns:
             List of marketing metric dictionaries
         """
         # If we have strategies, return metrics from the most recent one
         if self.strategies:
             latest_strategy = self.strategies[-1]
-            return [metric.model_dump() for metric in latest_strategy.metrics]
+                        return [metric.model_dump() for metric in latest_strategy.metrics]
 
-        # Otherwise, generate a new strategy and return its metrics
+# Otherwise, generate a new strategy and return its metrics
         strategy = self.generate_strategy()
-        return [metric.model_dump() for metric in strategy.metrics]
+                    return [metric.model_dump() for metric in strategy.metrics]
 
-    def get_full_strategy(self) -> Dict[str, Any]:
+def get_full_strategy(self) -> Dict[str, Any]:
         """
         Get the full marketing strategy.
 
-        Returns:
+Returns:
             Dictionary with complete strategy details
         """
         # If we have strategies, return the most recent one
         if self.strategies:
             latest_strategy = self.strategies[-1]
-            return latest_strategy.model_dump()
+                        return latest_strategy.model_dump()
 
-        # Otherwise, generate a new strategy and return it
+# Otherwise, generate a new strategy and return it
         strategy = self.generate_strategy()
-        return strategy.model_dump()
+                    return strategy.model_dump()
 
-    def validate_business_type(self) -> Tuple[bool, List[str]]:
+def validate_business_type(self) -> Tuple[bool, List[str]]:
         """
         Validate the business type.
 
-        Returns:
+Returns:
             Tuple of (is_valid, error_messages)
         """
         errors = []
 
-        # Check if business type is set
+# Check if business type is set
         if not self.business_type:
             errors.append("Business type is required")
-            return False, errors
+                        return False, errors
 
-        # Check if business type is valid
+# Check if business type is valid
         if self.business_type.lower() not in self.BUSINESS_TYPES:
             errors.append(
                 f"Invalid business type: {self.business_type}. Must be one of: {', '.join(self.BUSINESS_TYPES.keys())}"
             )
-            return False, errors
+                        return False, errors
 
-        return True, errors
+            return True, errors
 
-    def validate_goals(self) -> Tuple[bool, List[str]]:
+def validate_goals(self) -> Tuple[bool, List[str]]:
         """
         Validate the marketing goals.
 
-        Returns:
+Returns:
             Tuple of (is_valid, error_messages)
         """
         errors = []
 
-        # Check if goals are set
+# Check if goals are set
         if not self.goals:
             errors.append("At least one marketing goal is required")
-            return False, errors
+                        return False, errors
 
-        # Check if each goal is valid
+# Check if each goal is valid
         invalid_goals = [
             goal for goal in self.goals if goal.lower() not in self.MARKETING_GOALS
         ]
@@ -609,33 +609,33 @@ class DefaultStrategyGenerator
             errors.append(
                 f"Invalid goals: {', '.join(invalid_goals)}. Valid goals are: {', '.join(self.MARKETING_GOALS.keys())}"
             )
-            return False, errors
+                        return False, errors
 
-        return True, errors
+            return True, errors
 
-    def analyze_channels(self) -> Dict[str, Any]:
+def analyze_channels(self) -> Dict[str, Any]:
         """
         Analyze marketing channels for the business.
 
-        Returns:
+Returns:
             Dictionary with channel analysis results
         """
         # Get channel effectiveness analysis
         channel_effectiveness = self._analyze_channel_effectiveness()
 
-        # Get audience fit analysis
+# Get audience fit analysis
         audience_fit = self._analyze_channel_audience_fit()
 
-        # Get goal alignment analysis
+# Get goal alignment analysis
         goal_alignment = self._analyze_channel_goal_alignment()
 
-        # Get budget fit analysis
+# Get budget fit analysis
         budget_fit = self._analyze_channel_budget_fit()
 
-        # Get ROI analysis
+# Get ROI analysis
         roi_analysis = self._analyze_channel_roi()
 
-        # Prioritize channels
+# Prioritize channels
         prioritized_channels = self._prioritize_channels(
             channel_effectiveness,
             audience_fit,
@@ -644,13 +644,13 @@ class DefaultStrategyGenerator
             roi_analysis,
         )
 
-        # Generate channel recommendations
+# Generate channel recommendations
         channel_recommendations = self._generate_channel_recommendations(
             prioritized_channels
         )
 
-        # Return the complete analysis
-        return {
+# Return the complete analysis
+                    return {
             "id": str(uuid.uuid4()),
             "timestamp": datetime.now().isoformat(),
             "channel_effectiveness": channel_effectiveness,
@@ -662,39 +662,39 @@ class DefaultStrategyGenerator
             "channel_recommendations": channel_recommendations,
         }
 
-    def _analyze_channel_effectiveness(self) -> Dict[str, Any]:
+def _analyze_channel_effectiveness(self) -> Dict[str, Any]:
         """
         Analyze the effectiveness of marketing channels for the business.
 
-        Returns:
+Returns:
             Dictionary with channel effectiveness analysis
         """
         effectiveness_scores = {}
 
-        for channel, channel_data in self.MARKETING_CHANNELS.items():
+for channel, channel_data in self.MARKETING_CHANNELS.items():
             # Calculate base score
             base_score = self._calculate_channel_base_score(channel)
 
-            # Calculate business alignment
+# Calculate business alignment
             business_alignment = self._calculate_channel_business_alignment(channel)
 
-            # Calculate goal alignment
+# Calculate goal alignment
             goal_alignment = self._calculate_channel_goal_alignment_score(channel)
 
-            # Calculate difficulty adjustment
+# Calculate difficulty adjustment
             difficulty_adjustment = self._calculate_difficulty_adjustment(
                 channel_data.get("difficulty", "medium")
             )
 
-            # Calculate time adjustment
+# Calculate time adjustment
             time_adjustment = self._calculate_time_adjustment(
                 channel_data.get("time_investment", "medium")
             )
 
-            # Calculate metrics effectiveness
+# Calculate metrics effectiveness
             metrics_effectiveness = self._analyze_channel_metrics_effectiveness(channel)
 
-            # Calculate overall score
+# Calculate overall score
             overall_score = (
                 base_score * 0.2
                 + business_alignment * 0.3
@@ -703,7 +703,7 @@ class DefaultStrategyGenerator
                 + time_adjustment * 0.1
             ) * metrics_effectiveness["avg_effectiveness"]
 
-            # Determine effectiveness level
+# Determine effectiveness level
             if overall_score >= 0.7:
                 effectiveness_level = "high"
             elif overall_score >= 0.4:
@@ -711,7 +711,7 @@ class DefaultStrategyGenerator
             else:
                 effectiveness_level = "low"
 
-            # Store the results
+# Store the results
             effectiveness_scores[channel] = {
                 "channel": channel_data["name"],
                 "description": channel_data["description"],
@@ -728,31 +728,31 @@ class DefaultStrategyGenerator
                 "metrics": channel_data.get("metrics", []),
             }
 
-        # Sort channels by overall score
+# Sort channels by overall score
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in effectiveness_scores.items()],
             key=lambda x: x["overall_score"],
             reverse=True,
         )
 
-        # Get top channels
+# Get top channels
         top_channels = [channel["channel"] for channel in sorted_channels[:5]]
 
-        # Get highly effective channels
+# Get highly effective channels
         highly_effective = [
             channel
             for channel, data in effectiveness_scores.items()
             if data["effectiveness_level"] == "high"
         ]
 
-        # Get moderately effective channels
+# Get moderately effective channels
         moderately_effective = [
             channel
             for channel, data in effectiveness_scores.items()
             if data["effectiveness_level"] == "medium"
         ]
 
-        return {
+            return {
             "effectiveness_scores": effectiveness_scores,
             "sorted_channels": sorted_channels,
             "top_channels": top_channels,
@@ -760,14 +760,14 @@ class DefaultStrategyGenerator
             "moderately_effective": moderately_effective,
         }
 
-    def _analyze_channel_metrics_effectiveness(self, channel: str) -> Dict[str, Any]:
+def _analyze_channel_metrics_effectiveness(self, channel: str) -> Dict[str, Any]:
         """
         Analyze the effectiveness of a channel for different metrics.
 
-        Args:
+Args:
             channel: The channel to analyze
 
-        Returns:
+Returns:
             Dictionary with metrics effectiveness analysis
         """
         # Define base metrics
@@ -780,150 +780,150 @@ class DefaultStrategyGenerator
             "cost_efficiency": 0.6,
         }
 
-        # Adjust metrics based on business type
+# Adjust metrics based on business type
         metrics = self._adjust_metrics_for_business_type(metrics, channel)
 
-        # Adjust metrics based on goals
+# Adjust metrics based on goals
         metrics = self._adjust_metrics_for_goals(metrics, channel)
 
-        # Calculate average effectiveness
+# Calculate average effectiveness
         avg_effectiveness = sum(metrics.values()) / len(metrics)
 
-        # Identify top metrics
+# Identify top metrics
         top_metrics = [metric for metric, value in metrics.items() if value >= 0.7]
 
-        # Identify weak metrics
+# Identify weak metrics
         weak_metrics = [metric for metric, value in metrics.items() if value < 0.5]
 
-        return {
+            return {
             "metrics": metrics,
             "avg_effectiveness": avg_effectiveness,
             "top_metrics": top_metrics,
             "weak_metrics": weak_metrics,
         }
 
-    def _calculate_channel_base_score(self, channel: str) -> float:
+def _calculate_channel_base_score(self, channel: str) -> float:
         """
         Calculate the base score for a channel.
 
-        Args:
+Args:
             channel: The channel to calculate the base score for
 
-        Returns:
+Returns:
             Base score between 0 and 1
         """
         # For simplicity, return a default score
         # In a real implementation, this would be more sophisticated
-        return 0.7
+                    return 0.7
 
-    def _calculate_channel_business_alignment(self, channel: str) -> float:
+def _calculate_channel_business_alignment(self, channel: str) -> float:
         """
         Calculate how well a channel aligns with the business type.
 
-        Args:
+Args:
             channel: The channel to calculate alignment for
 
-        Returns:
+Returns:
             Alignment score between 0 and 1
         """
         if not self.business_type:
-            return 0.5
+                        return 0.5
 
-        business_type_data = self.BUSINESS_TYPES.get(self.business_type.lower(), {})
+business_type_data = self.BUSINESS_TYPES.get(self.business_type.lower(), {})
         typical_channels = business_type_data.get("typical_channels", [])
 
-        if channel in typical_channels:
-            return 1.0
+if channel in typical_channels:
+                        return 1.0
 
-        # If not a typical channel, return a lower score
-        return 0.5
+# If not a typical channel, return a lower score
+                    return 0.5
 
-    def _calculate_channel_goal_alignment_score(self, channel: str) -> float:
+def _calculate_channel_goal_alignment_score(self, channel: str) -> float:
         """
         Calculate how well a channel aligns with the marketing goals.
 
-        Args:
+Args:
             channel: The channel to calculate alignment for
 
-        Returns:
+Returns:
             Alignment score between 0 and 1
         """
         if not self.goals:
-            return 0.5
+                        return 0.5
 
-        alignment_scores = []
+alignment_scores = []
 
-        for goal in self.goals:
+for goal in self.goals:
             goal_data = self.MARKETING_GOALS.get(goal.lower(), {})
             recommended_channels = goal_data.get("recommended_channels", [])
 
-            if channel in recommended_channels:
+if channel in recommended_channels:
                 alignment_scores.append(1.0)
             else:
                 alignment_scores.append(0.3)
 
-        # Average the alignment scores
-        return (
+# Average the alignment scores
+                    return (
             sum(alignment_scores) / len(alignment_scores) if alignment_scores else 0.5
         )
 
-    def _calculate_difficulty_adjustment(self, difficulty: str) -> float:
+def _calculate_difficulty_adjustment(self, difficulty: str) -> float:
         """
         Calculate an adjustment factor based on channel difficulty.
 
-        Args:
+Args:
             difficulty: The difficulty level of the channel
 
-        Returns:
+Returns:
             Adjustment factor between 0 and 1
         """
         if difficulty == "low":
-            return 1.0
+                        return 1.0
         elif difficulty == "medium":
-            return 0.8
+                        return 0.8
         elif difficulty == "high":
-            return 0.6
+                        return 0.6
         else:
-            return 0.8  # Default to medium
+                        return 0.8  # Default to medium
 
-    def _calculate_time_adjustment(self, time_investment: str) -> float:
+def _calculate_time_adjustment(self, time_investment: str) -> float:
         """
         Calculate an adjustment factor based on channel time investment.
 
-        Args:
+Args:
             time_investment: The time investment level of the channel
 
-        Returns:
+Returns:
             Adjustment factor between 0 and 1
         """
         if time_investment == "low":
-            return 1.0
+                        return 1.0
         elif time_investment == "medium":
-            return 0.8
+                        return 0.8
         elif time_investment == "high":
-            return 0.6
+                        return 0.6
         else:
-            return 0.8  # Default to medium
+                        return 0.8  # Default to medium
 
-    def _adjust_metrics_for_business_type(
+def _adjust_metrics_for_business_type(
         self, metrics: Dict[str, float], channel: str
     ) -> Dict[str, float]:
         """
         Adjust metrics based on business type.
 
-        Args:
+Args:
             metrics: The metrics to adjust
             channel: The channel the metrics are for
 
-        Returns:
+Returns:
             Adjusted metrics
         """
         if not self.business_type:
-            return metrics
+                        return metrics
 
-        adjusted_metrics = metrics.copy()
+adjusted_metrics = metrics.copy()
 
-        # Adjust metrics based on business type
+# Adjust metrics based on business type
         if self.business_type.lower() == "saas":
             if channel == "content_marketing":
                 adjusted_metrics["conversion"] *= 1.2
@@ -939,31 +939,31 @@ class DefaultStrategyGenerator
                 adjusted_metrics["conversion"] *= 1.3
                 adjusted_metrics["cost_efficiency"] *= 1.1
 
-        # Ensure no metric exceeds 1.0
+# Ensure no metric exceeds 1.0
         for metric in adjusted_metrics:
             adjusted_metrics[metric] = min(adjusted_metrics[metric], 1.0)
 
-        return adjusted_metrics
+            return adjusted_metrics
 
-    def _adjust_metrics_for_goals(
+def _adjust_metrics_for_goals(
         self, metrics: Dict[str, float], channel: str
     ) -> Dict[str, float]:
         """
         Adjust metrics based on marketing goals.
 
-        Args:
+Args:
             metrics: The metrics to adjust
             channel: The channel the metrics are for
 
-        Returns:
+Returns:
             Adjusted metrics
         """
         if not self.goals:
-            return metrics
+                        return metrics
 
-        adjusted_metrics = metrics.copy()
+adjusted_metrics = metrics.copy()
 
-        # Adjust metrics based on goals
+# Adjust metrics based on goals
         for goal in self.goals:
             if goal.lower() == "brand_awareness":
                 adjusted_metrics["awareness"] *= 1.2
@@ -978,35 +978,35 @@ class DefaultStrategyGenerator
                 adjusted_metrics["retention"] *= 1.3
                 adjusted_metrics["engagement"] *= 1.2
 
-        # Ensure no metric exceeds 1.0
+# Ensure no metric exceeds 1.0
         for metric in adjusted_metrics:
             adjusted_metrics[metric] = min(adjusted_metrics[metric], 1.0)
 
-        return adjusted_metrics
+            return adjusted_metrics
 
-    def _analyze_channel_audience_fit(self) -> Dict[str, Any]:
+def _analyze_channel_audience_fit(self) -> Dict[str, Any]:
         """
         Analyze how well each channel fits the target audience.
 
-        Returns:
+Returns:
             Dictionary with audience fit analysis
         """
         audience_fit_scores = {}
 
-        for channel, channel_data in self.MARKETING_CHANNELS.items():
+for channel, channel_data in self.MARKETING_CHANNELS.items():
             # Calculate demographic fit
             demographic_fit = 0.7  # Default value
 
-            # Calculate interest fit
+# Calculate interest fit
             interest_fit = 0.7  # Default value
 
-            # Calculate behavior fit
+# Calculate behavior fit
             behavior_fit = 0.7  # Default value
 
-            # Calculate overall fit
+# Calculate overall fit
             overall_fit = (demographic_fit + interest_fit + behavior_fit) / 3
 
-            # Determine fit level
+# Determine fit level
             if overall_fit >= 0.7:
                 fit_level = "high"
             elif overall_fit >= 0.4:
@@ -1014,7 +1014,7 @@ class DefaultStrategyGenerator
             else:
                 fit_level = "low"
 
-            # Store the results
+# Store the results
             audience_fit_scores[channel] = {
                 "channel": channel_data["name"],
                 "demographic_fit": demographic_fit,
@@ -1024,31 +1024,31 @@ class DefaultStrategyGenerator
                 "fit_level": fit_level,
             }
 
-        # Sort channels by overall fit
+# Sort channels by overall fit
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in audience_fit_scores.items()],
             key=lambda x: x["overall_fit"],
             reverse=True,
         )
 
-        # Get top channels
+# Get top channels
         top_channels = [channel["channel"] for channel in sorted_channels[:5]]
 
-        # Get high fit channels
+# Get high fit channels
         high_fit_channels = [
             channel
             for channel, data in audience_fit_scores.items()
             if data["fit_level"] == "high"
         ]
 
-        # Get medium fit channels
+# Get medium fit channels
         medium_fit_channels = [
             channel
             for channel, data in audience_fit_scores.items()
             if data["fit_level"] == "medium"
         ]
 
-        return {
+            return {
             "audience_fit_scores": audience_fit_scores,
             "sorted_channels": sorted_channels,
             "top_channels": top_channels,
@@ -1056,29 +1056,29 @@ class DefaultStrategyGenerator
             "medium_fit_channels": medium_fit_channels,
         }
 
-    def _analyze_channel_goal_alignment(self) -> Dict[str, Any]:
+def _analyze_channel_goal_alignment(self) -> Dict[str, Any]:
         """
         Analyze how well each channel aligns with the marketing goals.
 
-        Returns:
+Returns:
             Dictionary with goal alignment analysis
         """
         goal_alignment_scores = {}
 
-        for goal in self.goals:
+for goal in self.goals:
             goal_data = self.MARKETING_GOALS.get(goal.lower(), {})
             recommended_channels = goal_data.get("recommended_channels", [])
 
-            channel_scores = {}
+channel_scores = {}
 
-            for channel, channel_data in self.MARKETING_CHANNELS.items():
+for channel, channel_data in self.MARKETING_CHANNELS.items():
                 # Calculate alignment score
                 if channel in recommended_channels:
                     alignment_score = 1.0
                 else:
                     alignment_score = 0.3
 
-                # Determine alignment level
+# Determine alignment level
                 if alignment_score >= 0.7:
                     alignment_level = "high"
                 elif alignment_score >= 0.4:
@@ -1086,24 +1086,24 @@ class DefaultStrategyGenerator
                 else:
                     alignment_level = "low"
 
-                # Store the results
+# Store the results
                 channel_scores[channel] = {
                     "channel": channel_data["name"],
                     "alignment_score": alignment_score,
                     "alignment_level": alignment_level,
                 }
 
-            # Sort channels by alignment score
+# Sort channels by alignment score
             sorted_channels = sorted(
                 [{"channel": k, **v} for k, v in channel_scores.items()],
                 key=lambda x: x["alignment_score"],
                 reverse=True,
             )
 
-            # Get top channels
+# Get top channels
             top_channels = [channel["channel"] for channel in sorted_channels[:5]]
 
-            # Store the results for this goal
+# Store the results for this goal
             goal_alignment_scores[goal] = {
                 "goal": goal_data.get("name", goal),
                 "description": goal_data.get("description", ""),
@@ -1111,23 +1111,23 @@ class DefaultStrategyGenerator
                 "top_channels": top_channels,
             }
 
-        # Calculate overall alignment for each channel
+# Calculate overall alignment for each channel
         overall_alignment = {}
 
-        for channel, channel_data in self.MARKETING_CHANNELS.items():
+for channel, channel_data in self.MARKETING_CHANNELS.items():
             goal_scores = {}
 
-            for goal, goal_score in goal_alignment_scores.items():
+for goal, goal_score in goal_alignment_scores.items():
                 goal_scores[goal] = goal_score["channel_scores"][channel][
                     "alignment_score"
                 ]
 
-            # Calculate average alignment
+# Calculate average alignment
             avg_alignment = (
                 sum(goal_scores.values()) / len(goal_scores) if goal_scores else 0
             )
 
-            # Determine alignment level
+# Determine alignment level
             if avg_alignment >= 0.7:
                 alignment_level = "high"
             elif avg_alignment >= 0.4:
@@ -1135,7 +1135,7 @@ class DefaultStrategyGenerator
             else:
                 alignment_level = "low"
 
-            # Store the results
+# Store the results
             overall_alignment[channel] = {
                 "channel": channel_data["name"],
                 "avg_alignment": avg_alignment,
@@ -1143,32 +1143,32 @@ class DefaultStrategyGenerator
                 "alignment_level": alignment_level,
             }
 
-        # Sort channels by average alignment
+# Sort channels by average alignment
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in overall_alignment.items()],
             key=lambda x: x["avg_alignment"],
             reverse=True,
         )
 
-        # Get top channels
+# Get top channels
         top_channels = [channel["channel"] for channel in sorted_channels[:5]]
 
-        return {
+            return {
             "goal_alignment_scores": goal_alignment_scores,
             "overall_alignment": overall_alignment,
             "top_channels_overall": top_channels,
         }
 
-    def _analyze_channel_budget_fit(self) -> Dict[str, Any]:
+def _analyze_channel_budget_fit(self) -> Dict[str, Any]:
         """
         Analyze how well each channel fits the budget.
 
-        Returns:
+Returns:
             Dictionary with budget fit analysis
         """
         budget_fit_scores = {}
 
-        # Get total budget
+# Get total budget
         if self.budget:
             if isinstance(self.budget, dict):
                 total_budget = self.budget.get("amount", 5000)
@@ -1177,11 +1177,11 @@ class DefaultStrategyGenerator
         else:
             total_budget = 5000
 
-        for channel, channel_data in self.MARKETING_CHANNELS.items():
+for channel, channel_data in self.MARKETING_CHANNELS.items():
             # Estimate channel cost
             cost_range = channel_data.get("cost_range", "medium")
 
-            if cost_range == "low":
+if cost_range == "low":
                 estimated_cost = total_budget * 0.1
             elif cost_range == "low_to_medium":
                 estimated_cost = total_budget * 0.2
@@ -1194,10 +1194,10 @@ class DefaultStrategyGenerator
             else:
                 estimated_cost = total_budget * 0.3  # Default to medium
 
-            # Calculate budget percentage
+# Calculate budget percentage
             budget_percentage = estimated_cost / total_budget
 
-            # Calculate budget fit
+# Calculate budget fit
             if budget_percentage <= 0.2:
                 budget_fit = 1.0
                 affordability = "affordable"
@@ -1208,7 +1208,7 @@ class DefaultStrategyGenerator
                 budget_fit = 0.4
                 affordability = "expensive"
 
-            # Store the results
+# Store the results
             budget_fit_scores[channel] = {
                 "channel": channel_data["name"],
                 "estimated_cost": estimated_cost,
@@ -1217,38 +1217,38 @@ class DefaultStrategyGenerator
                 "affordability": affordability,
             }
 
-        # Sort channels by budget fit
+# Sort channels by budget fit
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in budget_fit_scores.items()],
             key=lambda x: x["budget_fit"],
             reverse=True,
         )
 
-        # Get top channels
+# Get top channels
         top_channels = [channel["channel"] for channel in sorted_channels[:5]]
 
-        # Get affordable channels
+# Get affordable channels
         affordable_channels = [
             channel
             for channel, data in budget_fit_scores.items()
             if data["affordability"] == "affordable"
         ]
 
-        # Get moderate channels
+# Get moderate channels
         moderate_channels = [
             channel
             for channel, data in budget_fit_scores.items()
             if data["affordability"] == "moderate"
         ]
 
-        # Get expensive channels
+# Get expensive channels
         expensive_channels = [
             channel
             for channel, data in budget_fit_scores.items()
             if data["affordability"] == "expensive"
         ]
 
-        return {
+            return {
             "budget_fit_scores": budget_fit_scores,
             "sorted_channels": sorted_channels,
             "top_channels": top_channels,
@@ -1257,21 +1257,21 @@ class DefaultStrategyGenerator
             "expensive_channels": expensive_channels,
         }
 
-    def _analyze_channel_roi(self) -> Dict[str, Any]:
+def _analyze_channel_roi(self) -> Dict[str, Any]:
         """
         Analyze the potential ROI of each channel.
 
-        Returns:
+Returns:
             Dictionary with ROI analysis
         """
         # For simplicity, create a basic implementation
         roi_scores = {}
 
-        for channel, channel_data in self.MARKETING_CHANNELS.items():
+for channel, channel_data in self.MARKETING_CHANNELS.items():
             # Calculate a simple ROI score
             roi_score = 0.7  # Default value
 
-            # Determine ROI level
+# Determine ROI level
             if roi_score >= 0.7:
                 roi_level = "high"
             elif roi_score >= 0.4:
@@ -1279,7 +1279,7 @@ class DefaultStrategyGenerator
             else:
                 roi_level = "low"
 
-            # Store the results
+# Store the results
             roi_scores[channel] = {
                 "channel": channel_data["name"],
                 "roi_score": roi_score,
@@ -1291,31 +1291,31 @@ class DefaultStrategyGenerator
                 "confidence": 0.6,  # Placeholder value
             }
 
-        # Sort channels by ROI score
+# Sort channels by ROI score
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in roi_scores.items()],
             key=lambda x: x["roi_score"],
             reverse=True,
         )
 
-        # Get top channels
+# Get top channels
         top_channels = [channel["channel"] for channel in sorted_channels[:5]]
 
-        # Get high ROI channels
+# Get high ROI channels
         high_roi_channels = [
             channel
             for channel, data in roi_scores.items()
             if data["roi_level"] == "high"
         ]
 
-        # Get medium ROI channels
+# Get medium ROI channels
         medium_roi_channels = [
             channel
             for channel, data in roi_scores.items()
             if data["roi_level"] == "medium"
         ]
 
-        return {
+            return {
             "roi_scores": roi_scores,
             "sorted_channels": sorted_channels,
             "top_channels": top_channels,
@@ -1323,7 +1323,7 @@ class DefaultStrategyGenerator
             "medium_roi_channels": medium_roi_channels,
         }
 
-    def _prioritize_channels(
+def _prioritize_channels(
         self,
         channel_effectiveness: Dict[str, Any],
         audience_fit: Dict[str, Any],
@@ -1334,20 +1334,20 @@ class DefaultStrategyGenerator
         """
         Prioritize channels based on multiple factors.
 
-        Args:
+Args:
             channel_effectiveness: Channel effectiveness analysis
             audience_fit: Audience fit analysis
             goal_alignment: Goal alignment analysis
             budget_fit: Budget fit analysis
             roi_analysis: ROI analysis
 
-        Returns:
+Returns:
             Dictionary with prioritized channels
         """
         # Calculate priority scores
         priority_scores = {}
 
-        for channel, channel_data in self.MARKETING_CHANNELS.items():
+for channel, channel_data in self.MARKETING_CHANNELS.items():
             # Get scores from each analysis
             effectiveness_score = channel_effectiveness["effectiveness_scores"][
                 channel
@@ -1361,7 +1361,7 @@ class DefaultStrategyGenerator
             budget_fit_score = budget_fit["budget_fit_scores"][channel]["budget_fit"]
             roi_score = roi_analysis["roi_scores"][channel]["roi_score"]
 
-            # Calculate weighted priority score
+# Calculate weighted priority score
             priority_score = (
                 effectiveness_score * 0.3
                 + audience_fit_score * 0.2
@@ -1369,7 +1369,7 @@ class DefaultStrategyGenerator
                 + budget_fit_score * 0.2
             )
 
-            # Determine priority level
+# Determine priority level
             if priority_score >= 0.7:
                 priority_level = "high"
             elif priority_score >= 0.4:
@@ -1377,7 +1377,7 @@ class DefaultStrategyGenerator
             else:
                 priority_level = "low"
 
-            # Store the results
+# Store the results
             priority_scores[channel] = {
                 "channel": channel_data["name"],
                 "overall_score": priority_score,
@@ -1389,33 +1389,33 @@ class DefaultStrategyGenerator
                 "priority_level": priority_level,
             }
 
-        # Sort channels by priority score
+# Sort channels by priority score
         sorted_channels = sorted(
             [{"channel": k, **v} for k, v in priority_scores.items()],
             key=lambda x: x["overall_score"],
             reverse=True,
         )
 
-        # Categorize channels
+# Categorize channels
         high_priority_channels = [
             channel["channel"]
             for channel in sorted_channels
             if channel["overall_score"] >= 0.7
         ]
 
-        medium_priority_channels = [
+medium_priority_channels = [
             channel["channel"]
             for channel in sorted_channels
             if 0.4 <= channel["overall_score"] < 0.7
         ]
 
-        low_priority_channels = [
+low_priority_channels = [
             channel["channel"]
             for channel in sorted_channels
             if channel["overall_score"] < 0.4
         ]
 
-        return {
+            return {
             "priority_scores": priority_scores,
             "sorted_channels": sorted_channels,
             "high_priority_channels": high_priority_channels,
@@ -1424,27 +1424,27 @@ class DefaultStrategyGenerator
             "prioritization_method": "weighted_score",
         }
 
-    def _generate_channel_recommendations(
+def _generate_channel_recommendations(
         self, prioritized_channels: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Generate recommendations for channel selection and implementation.
 
-        Args:
+Args:
             prioritized_channels: Prioritized channels analysis
 
-        Returns:
+Returns:
             Dictionary with channel recommendations
         """
         recommendations = {}
 
-        # Get high priority channels
+# Get high priority channels
         high_priority_channels = prioritized_channels["high_priority_channels"]
 
-        # Get medium priority channels
+# Get medium priority channels
         medium_priority_channels = prioritized_channels["medium_priority_channels"]
 
-        # Generate recommendations for each high priority channel
+# Generate recommendations for each high priority channel
         for channel in high_priority_channels:
             # Find the channel in MARKETING_CHANNELS
             # First try direct match
@@ -1458,7 +1458,7 @@ class DefaultStrategyGenerator
                         channel_key = key
                         break
 
-                # If we found a matching channel, use it
+# If we found a matching channel, use it
                 if channel_key:
                     channel_data = self.MARKETING_CHANNELS[channel_key]
                 else:
@@ -1471,7 +1471,7 @@ class DefaultStrategyGenerator
                         "best_for": ["brand_awareness", "lead_generation"],
                     }
 
-            # Generate recommendation
+# Generate recommendation
             recommendation = {
                 "channel": channel_data["name"],
                 "description": channel_data["description"],
@@ -1485,7 +1485,7 @@ class DefaultStrategyGenerator
                 ],
             }
 
-            # Add business-specific recommendations
+# Add business-specific recommendations
             if self.business_type and self.business_type.lower() in self.BUSINESS_TYPES:
                 business_type_data = self.BUSINESS_TYPES[self.business_type.lower()]
                 if channel in business_type_data.get("typical_channels", []):
@@ -1493,7 +1493,7 @@ class DefaultStrategyGenerator
                         f"This channel is particularly effective for {business_type_data['name']} businesses"
                     )
 
-            # Add goal-specific recommendations
+# Add goal-specific recommendations
             for goal in self.goals:
                 if goal.lower() in self.MARKETING_GOALS:
                     goal_data = self.MARKETING_GOALS[goal.lower()]
@@ -1502,10 +1502,10 @@ class DefaultStrategyGenerator
                             f"This channel is highly effective for {goal_data['name']}"
                         )
 
-            # Store the recommendation
+# Store the recommendation
             recommendations[channel] = recommendation
 
-        # Generate recommendations for each medium priority channel
+# Generate recommendations for each medium priority channel
         for channel in medium_priority_channels[
             :3
         ]:  # Limit to top 3 medium priority channels
@@ -1521,7 +1521,7 @@ class DefaultStrategyGenerator
                         channel_key = key
                         break
 
-                # If we found a matching channel, use it
+# If we found a matching channel, use it
                 if channel_key:
                     channel_data = self.MARKETING_CHANNELS[channel_key]
                 else:
@@ -1534,7 +1534,7 @@ class DefaultStrategyGenerator
                         "best_for": ["brand_awareness", "lead_generation"],
                     }
 
-            # Generate recommendation
+# Generate recommendation
             recommendation = {
                 "channel": channel_data["name"],
                 "description": channel_data["description"],
@@ -1548,10 +1548,10 @@ class DefaultStrategyGenerator
                 ],
             }
 
-            # Store the recommendation
+# Store the recommendation
             recommendations[channel] = recommendation
 
-        return recommendations
+            return recommendations
 
 
 class ContentMarketingStrategyGenerator(DefaultStrategyGenerator):
@@ -1559,7 +1559,7 @@ class ContentMarketingStrategyGenerator(DefaultStrategyGenerator):
     Strategy generator for content marketing.
     """
 
-    def __init__(
+def __init__(
         self,
         business_type: Optional[str] = None,
         business_size: Optional[str] = None,
@@ -1576,7 +1576,7 @@ class ContentMarketingStrategyGenerator(DefaultStrategyGenerator):
         """
         Initialize a ContentMarketingStrategyGenerator.
 
-        Args:
+Args:
             business_type: Type of business (e.g., "SaaS", "E-commerce")
             business_size: Size of business (e.g., "Startup", "Small", "Medium", "Enterprise")
             goals: List of marketing goals
@@ -1610,7 +1610,7 @@ class SocialMediaStrategyGenerator(DefaultStrategyGenerator):
     Strategy generator for social media marketing.
     """
 
-    def __init__(
+def __init__(
         self,
         business_type: Optional[str] = None,
         business_size: Optional[str] = None,
@@ -1627,7 +1627,7 @@ class SocialMediaStrategyGenerator(DefaultStrategyGenerator):
         """
         Initialize a SocialMediaStrategyGenerator.
 
-        Args:
+Args:
             business_type: Type of business (e.g., "SaaS", "E-commerce")
             business_size: Size of business (e.g., "Startup", "Small", "Medium", "Enterprise")
             goals: List of marketing goals
@@ -1665,7 +1665,7 @@ class EmailMarketingStrategyGenerator(DefaultStrategyGenerator):
     Strategy generator for email marketing.
     """
 
-    def __init__(
+def __init__(
         self,
         business_type: Optional[str] = None,
         business_size: Optional[str] = None,
@@ -1682,7 +1682,7 @@ class EmailMarketingStrategyGenerator(DefaultStrategyGenerator):
         """
         Initialize an EmailMarketingStrategyGenerator.
 
-        Args:
+Args:
             business_type: Type of business (e.g., "SaaS", "E-commerce")
             business_size: Size of business (e.g., "Startup", "Small", "Medium", "Enterprise")
             goals: List of marketing goals

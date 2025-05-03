@@ -9,7 +9,7 @@ from api.schemas.webhook import WebhookRequest, WebhookUpdate
 def test_webhook_request_empty_events():
     data = {"url": "https://example.com/webhook", "events": [], "is_active": True}
 
-    try:
+try:
         WebhookRequest(**data)
         print("Test failed - empty events list should be rejected")
     except ValidationError as e:
@@ -21,7 +21,7 @@ def test_webhook_request_empty_events():
 def test_webhook_update_empty_events():
     data = {"events": []}
 
-    try:
+try:
         WebhookUpdate(**data)
         print("Test failed - empty events list should be rejected")
     except ValidationError as e:
@@ -33,7 +33,7 @@ def test_webhook_update_empty_events():
 def test_webhook_update_null_events():
     data = {"url": "https://example.com/webhook", "events": None}
 
-    try:
+try:
         update = WebhookUpdate(**data)
         print("Test passed - null events list accepted as expected")
         print(f"Events: {update.events}")
@@ -47,8 +47,8 @@ if __name__ == "__main__":
     print("Testing WebhookRequest with empty events list:")
     test_webhook_request_empty_events()
 
-    print("\nTesting WebhookUpdate with empty events list:")
+print("\nTesting WebhookUpdate with empty events list:")
     test_webhook_update_empty_events()
 
-    print("\nTesting WebhookUpdate with null events list:")
+print("\nTesting WebhookUpdate with null events list:")
     test_webhook_update_null_events()

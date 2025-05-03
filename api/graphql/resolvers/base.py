@@ -59,7 +59,7 @@ if STRAWBERRY_AVAILABLE:
                 uptime = server.get_uptime()
 
             # Return health check result
-            return HealthCheckResult(
+                    return HealthCheckResult(
                 status="ok",
                 version=getattr(request.app, "version", "unknown"),
                 timestamp=datetime.datetime.now().isoformat(),
@@ -78,4 +78,4 @@ if STRAWBERRY_AVAILABLE:
             Returns:
                 Pong response
             """
-            return "pong"
+                    return "pong"

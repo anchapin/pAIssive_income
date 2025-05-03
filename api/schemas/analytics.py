@@ -193,5 +193,5 @@ class AlertThresholdResponse(BaseModel):
     """Schema for alert threshold response."""
 
     metric: str = Field(..., description="Metric name")
-    threshold: float = Field(..., description="Threshold value")
-    message: str = Field(..., description="Success message")
+    threshold: float = Field(..., description="Threshold value"
+    message: str = Field(..., description="Success message"

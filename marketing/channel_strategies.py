@@ -23,7 +23,7 @@ class ChannelStrategy:
     This class provides a common interface for all channel-specific strategies.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "",
         description: str = "",
@@ -36,7 +36,7 @@ class ChannelStrategy:
         """
         Initialize a channel strategy.
 
-        Args:
+Args:
             name: Name of the channel strategy
             description: Description of the channel strategy
             channel_type: Type of channel (e.g., "social_media", "content", "email")
@@ -59,11 +59,11 @@ class ChannelStrategy:
         self.resources = []
         self.channels = []
 
-    def add_tactic(self, name: str, description: str, priority: str = "medium") -> None:
+def add_tactic(self, name: str, description: str, priority: str = "medium") -> None:
         """
         Add a tactic to the channel strategy.
 
-        Args:
+Args:
             name: Name of the tactic
             description: Description of the tactic
             priority: Priority level ("high", "medium", "low")
@@ -77,13 +77,13 @@ class ChannelStrategy:
             }
         )
 
-    def add_metric(
+def add_metric(
         self, name: str, description: str, target: Optional[str] = None
     ) -> None:
         """
         Add a metric to track for this channel strategy.
 
-        Args:
+Args:
             name: Name of the metric
             description: Description of the metric
             target: Optional target value for this metric
@@ -97,13 +97,13 @@ class ChannelStrategy:
             }
         )
 
-    def add_resource(
+def add_resource(
         self, name: str, description: str, cost: Optional[float] = None
     ) -> None:
         """
         Add a resource required for this channel strategy.
 
-        Args:
+Args:
             name: Name of the resource
             description: Description of the resource
             cost: Optional cost of the resource
@@ -117,14 +117,14 @@ class ChannelStrategy:
             }
         )
 
-    def get_summary(self) -> Dict[str, Any]:
+def get_summary(self) -> Dict[str, Any]:
         """
         Get a summary of the channel strategy.
 
-        Returns:
+Returns:
             Dictionary with strategy summary
         """
-        return {
+                    return {
             "id": self.id,
             "name": self.name,
             "channel_type": self.channel_type,
@@ -137,7 +137,7 @@ class ChannelStrategy:
             "created_at": self.created_at,
         }
 
-    def add_channel(
+def add_channel(
         self,
         name: str,
         audience: List[str],
@@ -149,7 +149,7 @@ class ChannelStrategy:
         """
         Add a channel to the strategy.
 
-        Args:
+Args:
             name: Name of the channel
             audience: Target audience for this channel
             description: Description of the channel
@@ -169,24 +169,24 @@ class ChannelStrategy:
             }
         )
 
-    def calculate_budget_allocation(self, total_budget: float) -> Dict[str, float]:
+def calculate_budget_allocation(self, total_budget: float) -> Dict[str, float]:
         """
         Calculate budget allocation across channels based on cost efficiency.
 
-        Args:
+Args:
             total_budget: Total budget to allocate
 
-        Returns:
+Returns:
             Dictionary mapping channel names to budget amounts
         """
         if not self.channels:
-            return {}
+                        return {}
 
-        # Calculate allocation based on cost efficiency
+# Calculate allocation based on cost efficiency
         total_efficiency = sum(channel["cost_efficiency"] for channel in self.channels)
         allocations = {}
 
-        for channel in self.channels:
+for channel in self.channels:
             if total_efficiency > 0:
                 allocation = (
                     channel["cost_efficiency"] / total_efficiency
@@ -195,16 +195,16 @@ class ChannelStrategy:
                 allocation = total_budget / len(self.channels)
             allocations[channel["name"]] = allocation
 
-        return allocations
+            return allocations
 
-    def get_full_strategy(self) -> Dict[str, Any]:
+def get_full_strategy(self) -> Dict[str, Any]:
         """
         Get the full channel strategy.
 
-        Returns:
+Returns:
             Dictionary with complete strategy details
         """
-        return {
+                    return {
             "id": self.id,
             "name": self.name,
             "description": self.description,
@@ -226,7 +226,7 @@ class MarketingStrategy:
     Base class for all marketing channel strategies.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "",
         description: str = "",
@@ -238,7 +238,7 @@ class MarketingStrategy:
         """
         Initialize a marketing strategy.
 
-        Args:
+Args:
             name: Name of the marketing strategy
             description: Description of the marketing strategy
             target_persona: The target user persona for this strategy
@@ -261,13 +261,13 @@ class MarketingStrategy:
         self.metrics = []
         self.budget_allocation = {}
 
-    def add_tactic(
+def add_tactic(
         self, tactic: str, description: str, priority: str = "medium"
     ) -> None:
         """
         Add a tactic to the marketing strategy.
 
-        Args:
+Args:
             tactic: Name of the tactic
             description: Description of the tactic
             priority: Priority level ("high", "medium", "low")
@@ -281,13 +281,13 @@ class MarketingStrategy:
             }
         )
 
-    def add_content_recommendation(
+def add_content_recommendation(
         self, content_type: str, description: str, frequency: str
     ) -> None:
         """
         Add a content recommendation to the marketing strategy.
 
-        Args:
+Args:
             content_type: Type of content (e.g., "blog post", "video")
             description: Description of the content
             frequency: How often to publish this content
@@ -301,11 +301,11 @@ class MarketingStrategy:
             }
         )
 
-    def add_engagement_strategy(self, name: str, description: str) -> None:
+def add_engagement_strategy(self, name: str, description: str) -> None:
         """
         Add an engagement strategy to the marketing strategy.
 
-        Args:
+Args:
             name: Name of the engagement strategy
             description: Description of the engagement strategy
         """
@@ -313,13 +313,13 @@ class MarketingStrategy:
             {"id": str(uuid.uuid4()), "name": name, "description": description}
         )
 
-    def add_metric(
+def add_metric(
         self, name: str, description: str, target: Optional[str] = None
     ) -> None:
         """
         Add a metric to track for this marketing strategy.
 
-        Args:
+Args:
             name: Name of the metric
             description: Description of the metric
             target: Optional target value for this metric
@@ -333,23 +333,23 @@ class MarketingStrategy:
             }
         )
 
-    def set_budget_allocation(self, allocations: Dict[str, str]) -> None:
+def set_budget_allocation(self, allocations: Dict[str, str]) -> None:
         """
         Set budget allocations for different aspects of the strategy.
 
-        Args:
+Args:
             allocations: Dictionary mapping categories to percentage allocations
         """
         self.budget_allocation = allocations
 
-    def get_summary(self) -> Dict[str, Any]:
+def get_summary(self) -> Dict[str, Any]:
         """
         Get a summary of the marketing strategy.
 
-        Returns:
+Returns:
             Dictionary with strategy summary
         """
-        return {
+                    return {
             "id": self.id,
             "channel_type": self.channel_type,
             "target_persona": self.target_persona["name"],
@@ -363,7 +363,7 @@ class MarketingStrategy:
             "created_at": self.created_at,
         }
 
-    def create_plan(
+def create_plan(
         self,
         niche: str,
         target_audience: Any,
@@ -374,35 +374,35 @@ class MarketingStrategy:
         """
         Create a marketing plan for a specific niche and target audience.
 
-        Args:
+Args:
             niche: The niche market to target
             target_audience: Description of the target audience (string or dict)
             budget: Budget for the marketing plan
             timeline: Timeline for the marketing plan
             goals: Optional dictionary of primary and secondary goals
 
-        Returns:
+Returns:
             Marketing plan dictionary
         """
         # Create a unique ID for the plan
         plan_id = str(uuid.uuid4())
 
-        # Use target_audience as is if it's a string, otherwise keep dict structure
+# Use target_audience as is if it's a string, otherwise keep dict structure
         target_audience_info = target_audience
 
-        # Convert goals dict to list if provided, or use default goals
+# Convert goals dict to list if provided, or use default goals
         if goals and isinstance(goals, dict):
             plan_goals = [goals["primary"]] + goals["secondary"]
         else:
             plan_goals = ["lead_generation", "brand_awareness", "customer_retention"]
 
-        # Calculate audience characteristics for fit scoring
+# Calculate audience characteristics for fit scoring
         audience_characteristics = {}
         if isinstance(target_audience, dict):
             if "demographics" in target_audience:
                 audience_characteristics = target_audience["demographics"]
 
-        # Generate default channels based on the budget and calculate priority scores
+# Generate default channels based on the budget and calculate priority scores
         channels = []
         if budget <= 1000:
             channels.extend(
@@ -503,10 +503,10 @@ class MarketingStrategy:
                 ]
             )
 
-        # Sort channels by priority score
+# Sort channels by priority score
         channels.sort(key=lambda x: x["priority_score"], reverse=True)
 
-        # Generate default metrics
+# Generate default metrics
         metrics = [
             {
                 "name": "Website Traffic",
@@ -530,7 +530,7 @@ class MarketingStrategy:
             },
         ]
 
-        # Create the plan
+# Create the plan
         plan = {
             "id": plan_id,
             "name": f"Marketing Plan for {niche}",
@@ -545,27 +545,27 @@ class MarketingStrategy:
             "created_at": datetime.now().isoformat(),
         }
 
-        return plan
+            return plan
 
-    def _calculate_audience_fit(
+def _calculate_audience_fit(
         self, channel_type: str, audience_characteristics: Dict[str, Any]
     ) -> float:
         """
         Calculate how well a channel fits with the target audience characteristics.
 
-        Args:
+Args:
             channel_type: The type of marketing channel
             audience_characteristics: Dictionary of audience characteristics
 
-        Returns:
+Returns:
             Fit score between 0 and 1
         """
         base_score = 0.5  # Default medium fit
 
-        if not audience_characteristics:
-            return base_score
+if not audience_characteristics:
+                        return base_score
 
-        # Channel-specific scoring logic
+# Channel-specific scoring logic
         if channel_type == "content_marketing":
             # Content marketing works well for educated, professional audiences
             if audience_characteristics.get("industry") in [
@@ -580,7 +580,7 @@ class MarketingStrategy:
             ]:
                 base_score += 0.1
 
-        elif channel_type in ["social_media_organic", "social_media_paid"]:
+elif channel_type in ["social_media_organic", "social_media_paid"]:
             # Social media works well for younger audiences and B2C
             if audience_characteristics.get("age", "").startswith(("20", "30", "40")):
                 base_score += 0.2
@@ -591,7 +591,7 @@ class MarketingStrategy:
             ]:
                 base_score += 0.2
 
-        elif channel_type == "email_marketing":
+elif channel_type == "email_marketing":
             # Email marketing works well for B2B and professional audiences
             if audience_characteristics.get(
                 "business_size"
@@ -604,12 +604,12 @@ class MarketingStrategy:
             ]:
                 base_score += 0.2
 
-        elif channel_type == "paid_advertising":
+elif channel_type == "paid_advertising":
             # Paid advertising works well when targeting specific demographics
             if len(audience_characteristics) >= 3:  # More targeting options available
                 base_score += 0.3
 
-        elif channel_type == "influencer_marketing":
+elif channel_type == "influencer_marketing":
             # Influencer marketing works well for consumer brands and younger audiences
             if audience_characteristics.get("age", "").startswith(("20", "30")):
                 base_score += 0.2
@@ -620,10 +620,10 @@ class MarketingStrategy:
             ]:
                 base_score += 0.2
 
-        # Ensure score stays between 0 and 1
-        return min(max(base_score, 0.0), 1.0)
+# Ensure score stays between 0 and 1
+                    return min(max(base_score, 0.0), 1.0)
 
-    def create_integrated_campaign(
+def create_integrated_campaign(
         self,
         name: str,
         channels: List[str],
@@ -634,23 +634,23 @@ class MarketingStrategy:
         """
         Create an integrated marketing campaign across multiple channels.
 
-        Args:
+Args:
             name: Name of the campaign
             channels: List of channels to use
             timeline: Dictionary with campaign phases and durations
             budget: Budget for the campaign
             main_goal: Primary goal of the campaign
 
-        Returns:
+Returns:
             Campaign dictionary
         """
         campaign_id = str(uuid.uuid4())
 
-        # Initialize phases
+# Initialize phases
         phases = []
         current_date = datetime.now()
 
-        for phase_name, duration in timeline.items():
+for phase_name, duration in timeline.items():
             # Calculate phase dates
             if duration.endswith("weeks"):
                 weeks = int(duration.split()[0])
@@ -660,18 +660,18 @@ class MarketingStrategy:
                 days = int(duration.split()[0])
                 phase_end = current_date + timedelta(days=days)
 
-            # Create channel actions for each phase
+# Create channel actions for each phase
             channel_actions = []
             message_theme = f"{main_goal.replace('_', ' ').title()} - {phase_name.replace('_', ' ').title()}"
 
-            phase_budget = budget / len(timeline)  # Split budget evenly across phases
+phase_budget = budget / len(timeline)  # Split budget evenly across phases
 
-            for channel in channels:
+for channel in channels:
                 channel_budget = phase_budget / len(
                     channels
                 )  # Split phase budget evenly across channels
 
-                action = {
+action = {
                     "channel": channel,
                     "timing": duration,
                     "message_theme": message_theme,
@@ -687,7 +687,7 @@ class MarketingStrategy:
                 }
                 channel_actions.append(action)
 
-            phases.append(
+phases.append(
                 {
                     "name": phase_name,
                     "duration": duration,
@@ -703,10 +703,10 @@ class MarketingStrategy:
                 }
             )
 
-            # Update current_date for next phase
+# Update current_date for next phase
             current_date = phase_end
 
-        campaign = {
+campaign = {
             "id": campaign_id,
             "name": name,
             "channels": channels,
@@ -722,13 +722,13 @@ class MarketingStrategy:
             },
         }
 
-        return campaign
+            return campaign
 
-    def _get_channel_metrics(self, channel: str) -> List[str]:
+def _get_channel_metrics(self, channel: str) -> List[str]:
         """Get relevant metrics for a specific channel."""
         common_metrics = ["ROI", "Conversion Rate"]
 
-        channel_specific_metrics = {
+channel_specific_metrics = {
             "social_media": ["Engagement Rate", "Reach", "Share of Voice"],
             "email": ["Open Rate", "Click-through Rate", "List Growth Rate"],
             "content": ["Page Views", "Time on Page", "Bounce Rate"],
@@ -739,70 +739,70 @@ class MarketingStrategy:
             ],
         }
 
-        # Clean channel name to match keys
+# Clean channel name to match keys
         channel_key = channel.replace("_marketing", "")
         if channel_key in channel_specific_metrics:
-            return common_metrics + channel_specific_metrics[channel_key]
-        return common_metrics
+                        return common_metrics + channel_specific_metrics[channel_key]
+                    return common_metrics
 
-    def calculate_channel_metrics(
+def calculate_channel_metrics(
         self, performance_data: Dict[str, Dict[str, Any]]
     ) -> Dict[str, Any]:
         """
         Calculate metrics for each marketing channel based on performance data.
 
-        Args:
+Args:
             performance_data: Dictionary containing performance data for each channel
 
-        Returns:
+Returns:
             Dictionary with calculated metrics
         """
         metrics = {}
         channel_rankings = []
 
-        for channel, data in performance_data.items():
+for channel, data in performance_data.items():
             channel_metrics = {}
 
-            # Calculate ROI
+# Calculate ROI
             if "spend" in data and "revenue" in data:
                 roi = (data["revenue"] - data["spend"]) / data["spend"]
                 channel_metrics["roi"] = roi
 
-            # Calculate CPA (Cost per Acquisition)
+# Calculate CPA (Cost per Acquisition)
             if "spend" in data and "conversions" in data:
                 cpa = data["spend"] / data["conversions"]
                 channel_metrics["cpa"] = cpa
 
-            # Calculate CPC (Cost per Click)
+# Calculate CPC (Cost per Click)
             if "spend" in data and "clicks" in data:
                 cpc = data["spend"] / data["clicks"]
                 channel_metrics["cpc"] = cpc
 
-            # Calculate CTR (Click-through Rate)
+# Calculate CTR (Click-through Rate)
             if "clicks" in data and "impressions" in data:
                 ctr = data["clicks"] / data["impressions"]
                 channel_metrics["ctr"] = ctr
 
-            # Calculate Conversion Rate
+# Calculate Conversion Rate
             if "clicks" in data and "conversions" in data:
                 conversion_rate = data["conversions"] / data["clicks"]
                 channel_metrics["conversion_rate"] = conversion_rate
 
-            # Calculate channel-specific metrics
+# Calculate channel-specific metrics
             if channel == "email_marketing" and "opens" in data and "sends" in data:
                 open_rate = data["opens"] / data["sends"]
                 channel_metrics["open_rate"] = open_rate
 
-            metrics[channel] = channel_metrics
+metrics[channel] = channel_metrics
 
-            # Calculate efficiency score for ranking
+# Calculate efficiency score for ranking
             efficiency_score = (
                 channel_metrics.get("roi", 0) * 0.4
                 + (1 / channel_metrics.get("cpa", float("in"))) * 0.3
                 + channel_metrics.get("conversion_rate", 0) * 0.3
             )
 
-            channel_rankings.append(
+channel_rankings.append(
                 {
                     "channel": channel,
                     "roi": channel_metrics.get("roi"),
@@ -810,24 +810,24 @@ class MarketingStrategy:
                 }
             )
 
-        # Sort rankings by efficiency score
+# Sort rankings by efficiency score
         channel_rankings.sort(key=lambda x: x["efficiency_score"], reverse=True)
         metrics["channel_rankings"] = channel_rankings
 
-        # Add cross-channel impact analysis
+# Add cross-channel impact analysis
         metrics["cross_channel_impact"] = self._analyze_cross_channel_impact(
             performance_data
         )
 
-        return metrics
+            return metrics
 
-    def _analyze_cross_channel_impact(
+def _analyze_cross_channel_impact(
         self, performance_data: Dict[str, Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Analyze the impact of channels on each other."""
         impact_analysis = {}
 
-        # Calculate total conversions and revenue
+# Calculate total conversions and revenue
         total_conversions = sum(
             data.get("conversions", 0) for data in performance_data.values()
         )
@@ -835,19 +835,19 @@ class MarketingStrategy:
             data.get("revenue", 0) for data in performance_data.values()
         )
 
-        # Calculate contribution percentages
+# Calculate contribution percentages
         for channel, data in performance_data.items():
             if total_conversions > 0 and "conversions" in data:
                 conversion_share = data["conversions"] / total_conversions
             else:
                 conversion_share = 0
 
-            if total_revenue > 0 and "revenue" in data:
+if total_revenue > 0 and "revenue" in data:
                 revenue_share = data["revenue"] / total_revenue
             else:
                 revenue_share = 0
 
-            impact_analysis[channel] = {
+impact_analysis[channel] = {
                 "conversion_share": conversion_share,
                 "revenue_share": revenue_share,
                 "efficiency_ratio": (
@@ -855,7 +855,7 @@ class MarketingStrategy:
                 ),
             }
 
-        return impact_analysis
+            return impact_analysis
 
 
 class ContentMarketingStrategy(MarketingStrategy):
@@ -863,7 +863,7 @@ class ContentMarketingStrategy(MarketingStrategy):
     Strategy for content marketing across different platforms.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "",
         description: str = "",
@@ -878,7 +878,7 @@ class ContentMarketingStrategy(MarketingStrategy):
         """
         Initialize a content marketing strategy.
 
-        Args:
+Args:
             name: Name of the content marketing strategy
             description: Description of the content marketing strategy
             target_persona: The target user persona for this strategy
@@ -895,22 +895,22 @@ class ContentMarketingStrategy(MarketingStrategy):
         self.content_types = content_types or ["blog_posts", "videos", "infographics"]
         self.frequency = frequency
 
-        # Add default tactics based on platforms
+# Add default tactics based on platforms
         self._add_default_tactics()
 
-        # Add default content recommendations based on content types
+# Add default content recommendations based on content types
         self._add_default_content_recommendations()
 
-        # Add default engagement strategies
+# Add default engagement strategies
         self._add_default_engagement_strategies()
 
-        # Add default metrics
+# Add default metrics
         self._add_default_metrics()
 
-        # Set default budget allocation
+# Set default budget allocation
         self._set_default_budget_allocation()
 
-    def _add_default_tactics(self) -> None:
+def _add_default_tactics(self) -> None:
         """Add default tactics based on selected platforms."""
         platform_tactics = {
             "blog": {
@@ -940,14 +940,14 @@ class ContentMarketingStrategy(MarketingStrategy):
             },
         }
 
-        for platform in self.platforms:
+for platform in self.platforms:
             if platform in platform_tactics:
                 tactic = platform_tactics[platform]
                 self.add_tactic(
                     tactic["name"], tactic["description"], tactic["priority"]
                 )
 
-    def _add_default_content_recommendations(self) -> None:
+def _add_default_content_recommendations(self) -> None:
         """Add default content recommendations based on selected content types."""
         content_recommendations = {
             "tutorials": {
@@ -972,14 +972,14 @@ class ContentMarketingStrategy(MarketingStrategy):
             },
         }
 
-        for content_type in self.content_types:
+for content_type in self.content_types:
             if content_type in content_recommendations:
                 rec = content_recommendations[content_type]
                 self.add_content_recommendation(
                     content_type, rec["description"], rec["frequency"]
                 )
 
-    def _add_default_engagement_strategies(self) -> None:
+def _add_default_engagement_strategies(self) -> None:
         """Add default engagement strategies."""
         self.add_engagement_strategy(
             "Comment Engagement",
@@ -994,7 +994,7 @@ class ContentMarketingStrategy(MarketingStrategy):
             "Send new content to email subscribers with personalized notes",
         )
 
-    def _add_default_metrics(self) -> None:
+def _add_default_metrics(self) -> None:
         """Add default metrics to track."""
         self.add_metric(
             "Traffic",
@@ -1017,7 +1017,7 @@ class ContentMarketingStrategy(MarketingStrategy):
             "2-5% conversion rate",
         )
 
-    def _set_default_budget_allocation(self) -> None:
+def _set_default_budget_allocation(self) -> None:
         """Set default budget allocation."""
         self.set_budget_allocation(
             {
@@ -1028,7 +1028,7 @@ class ContentMarketingStrategy(MarketingStrategy):
             }
         )
 
-    def create_content_plan(
+def create_content_plan(
         self,
         niche: str,
         target_audience: str,
@@ -1039,23 +1039,23 @@ class ContentMarketingStrategy(MarketingStrategy):
         """
         Create a content marketing plan for a specific niche and target audience.
 
-        Args:
+Args:
             niche: The niche market to target
             target_audience: Description of the target audience
             content_types: Types of content to create
             frequency: How often to publish content
             distribution_channels: Channels to distribute content
 
-        Returns:
+Returns:
             Content marketing plan dictionary
         """
         # Create a unique ID for the plan
         plan_id = str(uuid.uuid4())
 
-        # Generate a content calendar
+# Generate a content calendar
         content_calendar = []
 
-        # Add sample content ideas based on content types
+# Add sample content ideas based on content types
         for content_type in content_types:
             if content_type == "blog_posts":
                 content_calendar.append(
@@ -1093,7 +1093,7 @@ class ContentMarketingStrategy(MarketingStrategy):
                     }
                 )
 
-        # Create the plan
+# Create the plan
         plan = {
             "id": plan_id,
             "name": f"Content Marketing Plan for {niche}",
@@ -1106,21 +1106,21 @@ class ContentMarketingStrategy(MarketingStrategy):
             "created_at": datetime.now().isoformat(),
         }
 
-        return plan
+            return plan
 
-    def get_content_calendar(self, months: int = 3) -> List[Dict[str, Any]]:
+def get_content_calendar(self, months: int = 3) -> List[Dict[str, Any]]:
         """
         Generate a content calendar for the specified number of months.
 
-        Args:
+Args:
             months: Number of months to generate calendar for
 
-        Returns:
+Returns:
             List of content calendar items
         """
         calendar = []
 
-        # Determine publishing frequency
+# Determine publishing frequency
         if self.frequency == "weekly":
             items_per_month = 4
         elif self.frequency == "bi-weekly":
@@ -1132,18 +1132,18 @@ class ContentMarketingStrategy(MarketingStrategy):
         else:
             items_per_month = 2  # Default to bi-weekly
 
-        # Generate calendar items
+# Generate calendar items
         for month in range(1, months + 1):
             for item in range(1, items_per_month + 1):
                 # Rotate through content types
                 content_type_index = (month * item - 1) % len(self.content_types)
                 content_type = self.content_types[content_type_index]
 
-                # Rotate through platforms
+# Rotate through platforms
                 platform_index = (month * item - 1) % len(self.platforms)
                 platform = self.platforms[platform_index]
 
-                calendar.append(
+calendar.append(
                     {
                         "id": str(uuid.uuid4()),
                         "month": month,
@@ -1156,7 +1156,7 @@ class ContentMarketingStrategy(MarketingStrategy):
                     }
                 )
 
-        return calendar
+            return calendar
 
 
 class SocialMediaStrategy(MarketingStrategy):
@@ -1164,7 +1164,7 @@ class SocialMediaStrategy(MarketingStrategy):
     Strategy for social media marketing across different platforms.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "",
         description: str = "",
@@ -1179,7 +1179,7 @@ class SocialMediaStrategy(MarketingStrategy):
         """
         Initialize a social media marketing strategy.
 
-        Args:
+Args:
             name: Name of the social media strategy
             description: Description of the social media strategy
             target_persona: The target user persona for this strategy
@@ -1200,22 +1200,22 @@ class SocialMediaStrategy(MarketingStrategy):
             "entertaining": 40,
         }
 
-        # Add default tactics based on platforms
+# Add default tactics based on platforms
         self._add_default_tactics()
 
-        # Add default content recommendations
+# Add default content recommendations
         self._add_default_content_recommendations()
 
-        # Add default engagement strategies
+# Add default engagement strategies
         self._add_default_engagement_strategies()
 
-        # Add default metrics
+# Add default metrics
         self._add_default_metrics()
 
-        # Set default budget allocation
+# Set default budget allocation
         self._set_default_budget_allocation()
 
-    def _add_default_tactics(self) -> None:
+def _add_default_tactics(self) -> None:
         """Add default tactics based on selected platforms."""
         platform_tactics = {
             "twitter": {
@@ -1255,14 +1255,14 @@ class SocialMediaStrategy(MarketingStrategy):
             },
         }
 
-        for platform in self.platforms:
+for platform in self.platforms:
             if platform in platform_tactics:
                 tactic = platform_tactics[platform]
                 self.add_tactic(
                     tactic["name"], tactic["description"], tactic["priority"]
                 )
 
-    def _add_default_content_recommendations(self) -> None:
+def _add_default_content_recommendations(self) -> None:
         """Add default content recommendations based on content mix."""
         for content_type, percentage in self.content_mix.items():
             if content_type == "educational":
@@ -1296,7 +1296,7 @@ class SocialMediaStrategy(MarketingStrategy):
                     self.post_frequency,
                 )
 
-    def _add_default_engagement_strategies(self) -> None:
+def _add_default_engagement_strategies(self) -> None:
         """Add default engagement strategies."""
         self.add_engagement_strategy(
             "Consistent Posting",
@@ -1313,7 +1313,7 @@ class SocialMediaStrategy(MarketingStrategy):
             "Cross-promote content across different social media platforms",
         )
 
-    def _add_default_metrics(self) -> None:
+def _add_default_metrics(self) -> None:
         """Add default metrics to track."""
         self.add_metric(
             "Follower Growth",
@@ -1336,7 +1336,7 @@ class SocialMediaStrategy(MarketingStrategy):
             "1-2% conversion rate",
         )
 
-    def _set_default_budget_allocation(self) -> None:
+def _set_default_budget_allocation(self) -> None:
         """Set default budget allocation."""
         self.set_budget_allocation(
             {
@@ -1347,7 +1347,7 @@ class SocialMediaStrategy(MarketingStrategy):
             }
         )
 
-    def create_platform_plan(
+def create_platform_plan(
         self,
         platform: str,
         target_audience: str,
@@ -1358,23 +1358,23 @@ class SocialMediaStrategy(MarketingStrategy):
         """
         Create a social media platform plan.
 
-        Args:
+Args:
             platform: The social media platform
             target_audience: Description of the target audience
             content_types: Types of content to create
             posting_frequency: How often to post
             engagement_tactics: Tactics for engaging with the audience
 
-        Returns:
+Returns:
             Platform plan dictionary
         """
         # Create a unique ID for the plan
         plan_id = str(uuid.uuid4())
 
-        # Generate content ideas based on platform and content types
+# Generate content ideas based on platform and content types
         content_ideas = []
 
-        if platform == "instagram":
+if platform == "instagram":
             content_ideas.extend(
                 [
                     "Behind-the-scenes photos",
@@ -1425,10 +1425,10 @@ class SocialMediaStrategy(MarketingStrategy):
                 ]
             )
 
-        # Generate metrics based on platform
+# Generate metrics based on platform
         metrics = []
 
-        if platform == "instagram":
+if platform == "instagram":
             metrics.extend(
                 [
                     {
@@ -1489,7 +1489,7 @@ class SocialMediaStrategy(MarketingStrategy):
                 ]
             )
 
-        # Create the plan
+# Create the plan
         plan = {
             "id": plan_id,
             "platform": platform,
@@ -1502,21 +1502,21 @@ class SocialMediaStrategy(MarketingStrategy):
             "created_at": datetime.now().isoformat(),
         }
 
-        return plan
+            return plan
 
-    def get_posting_schedule(self, weeks: int = 4) -> Dict[str, List[Dict[str, Any]]]:
+def get_posting_schedule(self, weeks: int = 4) -> Dict[str, List[Dict[str, Any]]]:
         """
         Generate a posting schedule for the specified number of weeks.
 
-        Args:
+Args:
             weeks: Number of weeks to generate schedule for
 
-        Returns:
+Returns:
             Dictionary mapping platforms to lists of post ideas
         """
         schedule = {platform: [] for platform in self.platforms}
 
-        # Determine posts per week based on frequency
+# Determine posts per week based on frequency
         if self.post_frequency == "daily":
             posts_per_week = 7
         elif self.post_frequency == "weekdays":
@@ -1530,7 +1530,7 @@ class SocialMediaStrategy(MarketingStrategy):
         else:
             posts_per_week = 3  # Default to 3x per week
 
-        # Generate post ideas for each platform
+# Generate post ideas for each platform
         for platform in self.platforms:
             for week in range(1, weeks + 1):
                 for post in range(1, posts_per_week + 1):
@@ -1539,15 +1539,15 @@ class SocialMediaStrategy(MarketingStrategy):
                     for content_type, percentage in self.content_mix.items():
                         content_types.extend([content_type] * percentage)
 
-                    content_type_index = (week * post - 1) % len(content_types)
+content_type_index = (week * post - 1) % len(content_types)
                     content_type = content_types[content_type_index]
 
-                    # Generate post idea based on content type and platform
+# Generate post idea based on content type and platform
                     post_idea = self._generate_post_idea(
                         platform, content_type, week, post
                     )
 
-                    schedule[platform].append(
+schedule[platform].append(
                         {
                             "id": str(uuid.uuid4()),
                             "week": week,
@@ -1560,60 +1560,60 @@ class SocialMediaStrategy(MarketingStrategy):
                         }
                     )
 
-        return schedule
+            return schedule
 
-    def _generate_post_idea(
+def _generate_post_idea(
         self, platform: str, content_type: str, week: int, post: int
     ) -> Dict[str, Any]:
         """
         Generate a post idea based on platform and content type.
 
-        Args:
+Args:
             platform: Social media platform
             content_type: Type of content
             week: Week number
             post: Post number within the week
 
-        Returns:
+Returns:
             Dictionary with post idea details
         """
         # Get a pain point to focus on
         pain_point_index = (week * post - 1) % len(self.target_persona["pain_points"])
         pain_point = self.target_persona["pain_points"][pain_point_index]
 
-        # Generate post idea based on content type
+# Generate post idea based on content type
         if content_type == "educational":
-            return {
+                        return {
                 "title": f"How to solve {pain_point}",
                 "description": f"Educational post about solving {pain_point} for {self.target_persona['name']}s",
                 "hashtags": ["#tips", "#howto", f"#{platform}tips"],
             }
         elif content_type == "promotional":
-            return {
+                        return {
                 "title": f"Introducing our solution for {pain_point}",
                 "description": f"Promotional post highlighting how our product solves {pain_point}",
                 "hashtags": ["#product", "#solution", "#productivity"],
             }
         elif content_type == "entertaining":
-            return {
+                        return {
                 "title": f"The struggle with {pain_point} is real",
                 "description": f"Entertaining post about the challenges of {pain_point}",
                 "hashtags": ["#relatable", "#thestruggleisreal", "#funny"],
             }
         elif content_type == "inspirational":
-            return {
+                        return {
                 "title": f"Overcoming {pain_point} - Success Story",
                 "description": f"Inspirational post about overcoming {pain_point}",
                 "hashtags": ["#success", "#motivation", "#overcome"],
             }
         elif content_type == "user-generated":
-            return {
+                        return {
                 "title": f"How our users are solving {pain_point}",
                 "description": f"Sharing user-generated content about solving {pain_point}",
                 "hashtags": ["#userstories", "#community", "#testimonial"],
             }
         else:
-            return {
+                        return {
                 "title": f"Tips for {pain_point}",
                 "description": f"General post about {pain_point}",
                 "hashtags": ["#tips", "#advice", f"#{platform}"],
@@ -1625,7 +1625,7 @@ class EmailMarketingStrategy(MarketingStrategy):
     Strategy for email marketing campaigns.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str = "",
         description: str = "",
@@ -1640,7 +1640,7 @@ class EmailMarketingStrategy(MarketingStrategy):
         """
         Initialize an email marketing strategy.
 
-        Args:
+Args:
             name: Name of the email marketing strategy
             description: Description of the email marketing strategy
             target_persona: The target user persona for this strategy
@@ -1668,25 +1668,25 @@ class EmailMarketingStrategy(MarketingStrategy):
             "Website opt-in forms",
         ]
 
-        # Add default tactics
+# Add default tactics
         self._add_default_tactics()
 
-        # Add default content recommendations
+# Add default content recommendations
         self._add_default_content_recommendations()
 
-        # Add default engagement strategies
+# Add default engagement strategies
         self._add_default_engagement_strategies()
 
-        # Add default metrics
+# Add default metrics
         self._add_default_metrics()
 
-        # Set default budget allocation
+# Set default budget allocation
         self._set_default_budget_allocation()
 
-        # Add email sequences
+# Add email sequences
         self.email_sequences = self._create_default_email_sequences()
 
-    def _add_default_tactics(self) -> None:
+def _add_default_tactics(self) -> None:
         """Add default tactics."""
         for tactic in self.list_building_tactics:
             if tactic == "lead_magnet":
@@ -1720,7 +1720,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                     "medium",
                 )
 
-    def _add_default_content_recommendations(self) -> None:
+def _add_default_content_recommendations(self) -> None:
         """Add default content recommendations based on email types."""
         for email_type in self.email_types:
             if email_type == "newsletter":
@@ -1754,7 +1754,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                     "quarterly",
                 )
 
-    def _add_default_engagement_strategies(self) -> None:
+def _add_default_engagement_strategies(self) -> None:
         """Add default engagement strategies."""
         self.add_engagement_strategy(
             "Personalization",
@@ -1772,7 +1772,7 @@ class EmailMarketingStrategy(MarketingStrategy):
             "Clear CTAs", "Include clear and compelling calls-to-action in every email"
         )
 
-    def _add_default_metrics(self) -> None:
+def _add_default_metrics(self) -> None:
         """Add default metrics to track."""
         self.add_metric(
             "Open Rate",
@@ -1800,7 +1800,7 @@ class EmailMarketingStrategy(MarketingStrategy):
             "Less than 1% unsubscribe rate",
         )
 
-    def _set_default_budget_allocation(self) -> None:
+def _set_default_budget_allocation(self) -> None:
         """Set default budget allocation."""
         self.set_budget_allocation(
             {
@@ -1811,16 +1811,16 @@ class EmailMarketingStrategy(MarketingStrategy):
             }
         )
 
-    def _create_default_email_sequences(self) -> Dict[str, List[Dict[str, Any]]]:
+def _create_default_email_sequences(self) -> Dict[str, List[Dict[str, Any]]]:
         """
         Create default email sequences.
 
-        Returns:
+Returns:
             Dictionary mapping sequence types to lists of emails
         """
         sequences = {}
 
-        # Welcome sequence
+# Welcome sequence
         welcome_sequence = []
         welcome_sequence.append(
             {
@@ -1864,7 +1864,7 @@ class EmailMarketingStrategy(MarketingStrategy):
         )
         sequences["welcome"] = welcome_sequence
 
-        # Onboarding sequence
+# Onboarding sequence
         if "onboarding" in self.email_types:
             onboarding_sequence = []
             onboarding_sequence.append(
@@ -1909,7 +1909,7 @@ class EmailMarketingStrategy(MarketingStrategy):
             )
             sequences["onboarding"] = onboarding_sequence
 
-        # Promotional sequence
+# Promotional sequence
         if "promotional" in self.email_types:
             promotional_sequence = []
             promotional_sequence.append(
@@ -1964,9 +1964,9 @@ class EmailMarketingStrategy(MarketingStrategy):
             )
             sequences["promotional"] = promotional_sequence
 
-        return sequences
+            return sequences
 
-    def create_campaign(
+def create_campaign(
         self,
         name: str,
         target_audience: str,
@@ -1977,23 +1977,23 @@ class EmailMarketingStrategy(MarketingStrategy):
         """
         Create an email marketing campaign.
 
-        Args:
+Args:
             name: Name of the campaign
             target_audience: Description of the target audience
             email_sequence: Sequence of email types to send
             frequency: How often to send emails
             goals: Goals of the campaign
 
-        Returns:
+Returns:
             Campaign dictionary
         """
         # Create a unique ID for the campaign
         campaign_id = str(uuid.uuid4())
 
-        # Generate metrics based on goals
+# Generate metrics based on goals
         metrics = []
 
-        if "build_relationship" in goals:
+if "build_relationship" in goals:
             metrics.append(
                 {
                     "name": "Open Rate",
@@ -2009,7 +2009,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                 }
             )
 
-        if "introduce_product" in goals:
+if "introduce_product" in goals:
             metrics.append(
                 {
                     "name": "Click-Through Rate",
@@ -2025,7 +2025,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                 }
             )
 
-        if "convert" in goals:
+if "convert" in goals:
             metrics.append(
                 {
                     "name": "Conversion Rate",
@@ -2041,7 +2041,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                 }
             )
 
-        # Add default metrics if none were added
+# Add default metrics if none were added
         if not metrics:
             metrics.extend(
                 [
@@ -2063,7 +2063,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                 ]
             )
 
-        # Create the campaign
+# Create the campaign
         campaign = {
             "id": campaign_id,
             "name": name,
@@ -2075,21 +2075,21 @@ class EmailMarketingStrategy(MarketingStrategy):
             "created_at": datetime.now().isoformat(),
         }
 
-        return campaign
+            return campaign
 
-    def get_email_calendar(self, months: int = 3) -> List[Dict[str, Any]]:
+def get_email_calendar(self, months: int = 3) -> List[Dict[str, Any]]:
         """
         Generate an email calendar for the specified number of months.
 
-        Args:
+Args:
             months: Number of months to generate calendar for
 
-        Returns:
+Returns:
             List of email calendar items
         """
         calendar = []
 
-        # Determine emails per month based on frequency
+# Determine emails per month based on frequency
         if self.frequency == "weekly":
             emails_per_month = 4
         elif self.frequency == "bi-weekly":
@@ -2101,14 +2101,14 @@ class EmailMarketingStrategy(MarketingStrategy):
         else:
             emails_per_month = 2  # Default to bi-weekly
 
-        # Generate calendar items
+# Generate calendar items
         for month in range(1, months + 1):
             for email in range(1, emails_per_month + 1):
                 # Rotate through email types
                 email_type_index = (month * email - 1) % len(self.email_types)
                 email_type = self.email_types[email_type_index]
 
-                # Generate email idea based on type
+# Generate email idea based on type
                 if email_type == "newsletter":
                     subject = f"Newsletter #{month * email}: Tips and Updates"
                     content = "Monthly newsletter with tips, news, and resources"
@@ -2122,7 +2122,7 @@ class EmailMarketingStrategy(MarketingStrategy):
                     subject = "Updates from our team"
                     content = "General update email"
 
-                calendar.append(
+calendar.append(
                     {
                         "id": str(uuid.uuid4()),
                         "month": month,
@@ -2134,4 +2134,4 @@ class EmailMarketingStrategy(MarketingStrategy):
                     }
                 )
 
-        return calendar
+            return calendar

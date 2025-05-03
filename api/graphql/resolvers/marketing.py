@@ -59,14 +59,14 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("marketing")
             if not service:
                 logger.warning("Marketing service not available")
-                return []
+                        return []
 
             # Get marketing strategies from service
             try:
                 strategies = await service.get_marketing_strategies(
                     limit=limit, offset=offset
                 )
-                return [
+                        return [
                     MarketingStrategyType(
                         id=str(strategy.id),
                         name=strategy.name,
@@ -89,7 +89,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting marketing strategies: {str(e)}")
-                return []
+                        return []
 
         @strawberry.field
         async def marketing_strategy(
@@ -109,15 +109,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("marketing")
             if not service:
                 logger.warning("Marketing service not available")
-                return None
+                        return None
 
             # Get marketing strategy from service
             try:
                 strategy = await service.get_marketing_strategy(id)
                 if not strategy:
-                    return None
+                            return None
 
-                return MarketingStrategyType(
+                        return MarketingStrategyType(
                     id=str(strategy.id),
                     name=strategy.name,
                     description=strategy.description,
@@ -133,7 +133,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error getting marketing strategy: {str(e)}")
-                return None
+                        return None
 
         @strawberry.field
         async def content_templates(
@@ -159,7 +159,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("marketing")
             if not service:
                 logger.warning("Marketing service not available")
-                return []
+                        return []
 
             # Get content templates from service
             try:
@@ -167,7 +167,7 @@ if STRAWBERRY_AVAILABLE:
                     strategy_id=strategy_id, limit=limit, offset=offset
                 )
 
-                return [
+                        return [
                     ContentTemplateType(
                         id=str(template.id),
                         strategy_id=(
@@ -193,7 +193,7 @@ if STRAWBERRY_AVAILABLE:
                 ]
             except Exception as e:
                 logger.error(f"Error getting content templates: {str(e)}")
-                return []
+                        return []
 
         @strawberry.field
         async def channel_analysis(
@@ -213,15 +213,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("marketing")
             if not service:
                 logger.warning("Marketing service not available")
-                return None
+                        return None
 
             # Get channel analysis from service
             try:
                 analysis = await service.get_channel_analysis(strategy_id)
                 if not analysis:
-                    return None
+                            return None
 
-                return ChannelAnalysisType(
+                        return ChannelAnalysisType(
                     strategy_id=str(analysis.strategy_id),
                     channels=analysis.channels,
                     effectiveness_scores=analysis.effectiveness_scores,
@@ -231,7 +231,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error getting channel analysis: {str(e)}")
-                return None
+                        return None
 
     @strawberry.type
     class MarketingMutation:
@@ -255,7 +255,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("marketing")
             if not service:
                 logger.warning("Marketing service not available")
-                return None
+                        return None
 
             # Create marketing strategy
             try:
@@ -267,7 +267,7 @@ if STRAWBERRY_AVAILABLE:
                     goals=input.goals,
                 )
 
-                return MarketingStrategyType(
+                        return MarketingStrategyType(
                     id=str(strategy.id),
                     name=strategy.name,
                     description=strategy.description,
@@ -283,7 +283,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating marketing strategy: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def update_marketing_strategy(
@@ -304,7 +304,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("marketing")
             if not service:
                 logger.warning("Marketing service not available")
-                return None
+                        return None
 
             # Update marketing strategy
             try:
@@ -318,9 +318,9 @@ if STRAWBERRY_AVAILABLE:
                 )
 
                 if not strategy:
-                    return None
+                            return None
 
-                return MarketingStrategyType(
+                        return MarketingStrategyType(
                     id=str(strategy.id),
                     name=strategy.name,
                     description=strategy.description,
@@ -336,7 +336,7 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error updating marketing strategy: {str(e)}")
-                return None
+                        return None
 
         @strawberry.mutation
         async def delete_marketing_strategy(self, info: Info, id: str) -> bool:
@@ -354,15 +354,15 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("marketing")
             if not service:
                 logger.warning("Marketing service not available")
-                return False
+                        return False
 
             # Delete marketing strategy
             try:
                 success = await service.delete_marketing_strategy(id)
-                return success
+                        return success
             except Exception as e:
                 logger.error(f"Error deleting marketing strategy: {str(e)}")
-                return False
+                        return False
 
         @strawberry.mutation
         async def create_content_template(
@@ -382,7 +382,7 @@ if STRAWBERRY_AVAILABLE:
             service = info.context["services"].get("marketing")
             if not service:
                 logger.warning("Marketing service not available")
-                return None
+                        return None
 
             # Create content template
             try:
@@ -395,7 +395,7 @@ if STRAWBERRY_AVAILABLE:
                     variables=input.variables,
                 )
 
-                return ContentTemplateType(
+                        return ContentTemplateType(
                     id=str(template.id),
                     strategy_id=(
                         str(template.strategy_id) if template.strategy_id else None
@@ -414,4 +414,4 @@ if STRAWBERRY_AVAILABLE:
                 )
             except Exception as e:
                 logger.error(f"Error creating content template: {str(e)}")
-                return None
+                        return None

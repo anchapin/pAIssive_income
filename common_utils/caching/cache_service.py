@@ -123,7 +123,7 @@ class CacheService:
         if self.is_namespace_enabled_hook and not self.is_namespace_enabled_hook(
             namespace
         ):
-            return False
+                    return False
 
         # Initialize stats for this namespace if not exists
         if namespace not in self.stats:
@@ -145,7 +145,7 @@ class CacheService:
         if success:
             self.stats[namespace]["sets"] += 1
 
-        return success
+                return success
 
     def get(self, key: str, namespace: str = "default") -> Any:
         """
@@ -162,7 +162,7 @@ class CacheService:
         if self.is_namespace_enabled_hook and not self.is_namespace_enabled_hook(
             namespace
         ):
-            return None
+                    return None
 
         # Initialize stats for this namespace if not exists
         if namespace not in self.stats:
@@ -181,7 +181,7 @@ class CacheService:
         else:
             self.stats[namespace]["misses"] += 1
 
-        return value
+                return value
 
     def delete(self, key: str, namespace: str = "default") -> bool:
         """
@@ -195,7 +195,7 @@ class CacheService:
             True if the value was deleted, False otherwise
         """
         # Use the same operation ('set') as in the set method to ensure we're deleting the correct key
-        return self.cache_manager.delete(
+                return self.cache_manager.delete(
             model_id=namespace, operation="set", inputs=key
         )
 
@@ -221,7 +221,7 @@ class CacheService:
         if success:
             self.stats[namespace]["clears"] += 1
 
-        return success
+                return success
 
     def clear_all(self) -> bool:
         """
@@ -236,7 +236,7 @@ class CacheService:
         if success:
             self.stats = {}
 
-        return success
+                return success
 
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -257,7 +257,7 @@ class CacheService:
                 "total_gets": total_gets,
             }
 
-        return result
+                return result
 
     def register_namespace_hook(self, hook: Callable[[str], bool]) -> None:
         """
@@ -301,7 +301,7 @@ def _generate_cache_key(func: Callable, args: Tuple, kwargs: Dict[str, Any]) -> 
     arg_str = json.dumps(arg_dict, sort_keys=True, default=str)
     key = f"{module}.{name}:{hashlib.md5(arg_str.encode()).hexdigest()}"
 
-    return key
+            return key
 
 
 def cached(
@@ -342,7 +342,7 @@ def cached(
             if not force_refresh:
                 cached_result = default_cache.get(cache_key, namespace=cache_ns)
                 if cached_result is not None:
-                    return cached_result
+                            return cached_result
 
             # Call the original function
             result = func(*args, **kwargs)
@@ -350,11 +350,11 @@ def cached(
             # Cache the result
             default_cache.set(cache_key, result, ttl=ttl, namespace=cache_ns)
 
-            return result
+                    return result
 
-        return wrapper
+                return wrapper
 
-    return decorator
+            return decorator
 
 
 # Create a default instance for use throughout the application

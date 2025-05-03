@@ -106,7 +106,7 @@ if FASTAPI_AVAILABLE:
             # Here we would create the actual subscription model
             # For now, just return the model ID
 
-            return IdResponse(id=model_id, message="Subscription model created")
+                    return IdResponse(id=model_id, message="Subscription model created")
 
         except Exception as e:
             logger.error(f"Error creating subscription model: {str(e)}")
@@ -237,7 +237,7 @@ if FASTAPI_AVAILABLE:
             if solution_id:
                 models = [model for model in models if model.solution_id == solution_id]
 
-            return PaginatedResponse(
+                    return PaginatedResponse(
                 items=models,
                 total=len(models),
                 page=page,
@@ -373,7 +373,7 @@ if FASTAPI_AVAILABLE:
                 updated_at=None,
             )
 
-            return model
+                    return model
 
         except HTTPException:
             raise
@@ -463,7 +463,7 @@ if FASTAPI_AVAILABLE:
                 created_at=datetime.now(),
             )
 
-            return projection
+                    return projection
 
         except Exception as e:
             logger.error(f"Error creating revenue projection: {str(e)}")

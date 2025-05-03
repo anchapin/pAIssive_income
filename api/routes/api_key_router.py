@@ -38,7 +38,7 @@ async def create_api_key(
     """Create a new API key."""
     try:
         # TODO: Implement API key creation
-        return {
+                return {
             "id": "test_key_id",
             "name": data.name,
             "key": "test_api_key",
@@ -66,7 +66,7 @@ async def list_api_keys(
 ):
     """List all API keys for the current user."""
     try:
-        return {
+                return {
             "items": [],
             "total": 0,
             "page": page,
@@ -94,7 +94,7 @@ async def update_api_key(
 ):
     """Update an API key."""
     try:
-        return {
+                return {
             "id": api_key_id,
             "name": data.name,
             "key": "test_api_key",
@@ -119,7 +119,7 @@ async def update_api_key(
 async def delete_api_key(api_key_id: str, user: dict = Depends(get_current_user)):
     """Delete an API key."""
     try:
-        return {"detail": "API key deleted successfully"}
+                return {"detail": "API key deleted successfully"}
     except Exception as e:
         logger.error(f"Error deleting API key: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -15,9 +15,8 @@ from .custom_pricing import
 from .usage_tracking import UsageCategory, UsageMetric
 
 
-def print_section
-
-(
+def print_section():
+    (
     ConditionalPricingRule,
     CustomerSegmentPricingRule,
     CustomPricingCalculator,
@@ -41,7 +40,7 @@ def demonstrate_time_based_pricing() -> None:
     """Demonstrate time-based pricing."""
     print_section("Time-Based Pricing")
 
-    # Create a time-based pricing rule
+# Create a time-based pricing rule
     rule = TimeBasedPricingRule(
         metric=UsageMetric.API_CALL,
         time_rates={
@@ -54,11 +53,11 @@ def demonstrate_time_based_pricing() -> None:
         category=UsageCategory.INFERENCE,
     )
 
-    # Create a calculator
+# Create a calculator
     calculator = CustomPricingCalculator()
     calculator.add_custom_rule(rule)
 
-    # Test different times
+# Test different times
     test_times = [
         # Weekday during business hours
         datetime(2023, 5, 15, 14, 0, 0),  # Monday at 2 PM
@@ -70,11 +69,11 @@ def demonstrate_time_based_pricing() -> None:
         datetime.now(),
     ]
 
-    quantity = 100  # 100 API calls
+quantity = 100  # 100 API calls
 
-    print(f"Pricing for {quantity} API calls at different times:")
+print(f"Pricing for {quantity} API calls at different times:")
 
-    for test_time in test_times:
+for test_time in test_times:
         # Override the current time for testing
         rule.get_rate_for_time = (
             lambda timestamp=None, test_time=test_time: rule._get_rate_for_time_impl(
@@ -82,27 +81,27 @@ def demonstrate_time_based_pricing() -> None:
             )
         )
 
-        # Calculate cost
+# Calculate cost
         cost = calculator.calculate_cost(
             metric=UsageMetric.API_CALL,
             quantity=quantity,
             category=UsageCategory.INFERENCE,
         )
 
-        # Determine the applicable rate
+# Determine the applicable rate
         rate = rule.get_rate_for_time()
 
-        # Format the time
+# Format the time
         time_str = test_time.strftime("%A at %I:%M %p")
 
-        print(f"- {time_str}: ${cost:.2f} (rate: ${rate:.3f} per call)")
+print(f"- {time_str}: ${cost:.2f} (rate: ${rate:.3f} per call)")
 
 
 def demonstrate_seasonal_pricing() -> None:
     """Demonstrate seasonal pricing."""
     print_section("Seasonal Pricing")
 
-    # Create a seasonal pricing rule
+# Create a seasonal pricing rule
     rule = SeasonalPricingRule(
         metric=UsageMetric.STORAGE,
         seasonal_rates={
@@ -117,11 +116,11 @@ def demonstrate_seasonal_pricing() -> None:
         category=UsageCategory.STORAGE,
     )
 
-    # Create a calculator
+# Create a calculator
     calculator = CustomPricingCalculator()
     calculator.add_custom_rule(rule)
 
-    # Test different dates
+# Test different dates
     test_dates = [
         # Winter
         datetime(2023, 1, 15),  # January
@@ -137,11 +136,11 @@ def demonstrate_seasonal_pricing() -> None:
         datetime(2023, 1, 1),  # January 1
     ]
 
-    quantity = 10  # 10 GB of storage
+quantity = 10  # 10 GB of storage
 
-    print(f"Pricing for {quantity} GB of storage at different times of year:")
+print(f"Pricing for {quantity} GB of storage at different times of year:")
 
-    for test_date in test_dates:
+for test_date in test_dates:
         # Override the current time for testing
         rule.get_rate_for_season = (
             lambda timestamp=None, test_date=test_date: rule._get_rate_for_season_impl(
@@ -149,20 +148,20 @@ def demonstrate_seasonal_pricing() -> None:
             )
         )
 
-        # Calculate cost
+# Calculate cost
         cost = calculator.calculate_cost(
             metric=UsageMetric.STORAGE,
             quantity=quantity,
             category=UsageCategory.STORAGE,
         )
 
-        # Determine the applicable rate
+# Determine the applicable rate
         rate = rule.get_rate_for_season()
 
-        # Format the date
+# Format the date
         date_str = test_date.strftime("%B %d")
 
-        # Determine the season
+# Determine the season
         month = test_date.month
         season = "Winter"
         if month in [3, 4, 5]:
@@ -172,14 +171,14 @@ def demonstrate_seasonal_pricing() -> None:
         elif month in [9, 10, 11]:
             season = "Fall"
 
-        # Check for holidays
+# Check for holidays
         holiday = ""
         if month == 12 and test_date.day == 25:
             holiday = " (Christmas)"
         elif month == 1 and test_date.day == 1:
             holiday = " (New Year)"
 
-        print(
+print(
             f"- {date_str} ({season}{holiday}): ${cost:.2f} (rate: ${rate:.3f} per GB)"
         )
 
@@ -188,7 +187,7 @@ def demonstrate_customer_segment_pricing() -> None:
     """Demonstrate customer segment pricing."""
     print_section("Customer Segment Pricing")
 
-    # Create a customer segment pricing rule
+# Create a customer segment pricing rule
     rule = CustomerSegmentPricingRule(
         metric=UsageMetric.TOKEN,
         segment_rates={
@@ -206,11 +205,11 @@ def demonstrate_customer_segment_pricing() -> None:
         category=UsageCategory.INFERENCE,
     )
 
-    # Create a calculator
+# Create a calculator
     calculator = CustomPricingCalculator()
     calculator.add_custom_rule(rule)
 
-    # Test different customer segments
+# Test different customer segments
     test_customers = [
         {
             "name": "Free Tier Customer",
@@ -295,27 +294,27 @@ def demonstrate_customer_segment_pricing() -> None:
         },
     ]
 
-    quantity = 1000  # 1000 tokens
+quantity = 1000  # 1000 tokens
 
-    print(f"Pricing for {quantity} tokens for different customer segments:")
+print(f"Pricing for {quantity} tokens for different customer segments:")
 
-    for customer in test_customers:
+for customer in test_customers:
         # Calculate cost
         cost = rule.calculate_custom_cost(
             quantity=quantity, customer_data=customer["data"]
         )
 
-        # Determine the applicable rate
+# Determine the applicable rate
         rate = rule.get_rate_for_segment(customer["data"])
 
-        print(f"- {customer['name']}: ${cost:.2f} (rate: ${rate:.4f} per token)")
+print(f"- {customer['name']}: ${cost:.2f} (rate: ${rate:.4f} per token)")
 
 
 def demonstrate_conditional_pricing() -> None:
     """Demonstrate conditional pricing."""
     print_section("Conditional Pricing")
 
-    # Create a conditional pricing rule
+# Create a conditional pricing rule
     rule = ConditionalPricingRule(
         metric=UsageMetric.COMPUTE_TIME,
         conditions=[
@@ -344,11 +343,11 @@ def demonstrate_conditional_pricing() -> None:
         category=UsageCategory.COMPUTE,
     )
 
-    # Create a calculator
+# Create a calculator
     calculator = CustomPricingCalculator()
     calculator.add_custom_rule(rule)
 
-    # Test different conditions
+# Test different conditions
     test_scenarios = [
         {
             "name": "Premium customer with high usage",
@@ -406,18 +405,18 @@ def demonstrate_conditional_pricing() -> None:
         },
     ]
 
-    print("Pricing for compute time under different conditions:")
+print("Pricing for compute time under different conditions:")
 
-    for scenario in test_scenarios:
+for scenario in test_scenarios:
         # Calculate cost
         cost = rule.calculate_custom_cost(
             quantity=scenario["quantity"], context=scenario["context"]
         )
 
-        # Determine the applicable rate
+# Determine the applicable rate
         rate = rule.get_rate_for_conditions(scenario["quantity"], scenario["context"])
 
-        print(
+print(
             f"- {scenario['name']} ({scenario['quantity']} hours): ${cost:.2f} (rate: ${rate:.2f} per hour)"
         )
 
@@ -426,7 +425,7 @@ def demonstrate_formula_based_pricing() -> None:
     """Demonstrate formula-based pricing."""
     print_section("Formula-Based Pricing")
 
-    # Create a formula-based pricing rule
+# Create a formula-based pricing rule
     rule = FormulaBasedPricingRule(
         metric=UsageMetric.BANDWIDTH,
         formula="base_fee + q * rate * (1 - volume_discount * min(1, q / discount_threshold))",
@@ -439,19 +438,19 @@ def demonstrate_formula_based_pricing() -> None:
         category=UsageCategory.NETWORK,
     )
 
-    # Create a calculator
+# Create a calculator
     calculator = CustomPricingCalculator()
     calculator.add_custom_rule(rule)
 
-    # Test different quantities
+# Test different quantities
     test_quantities = [10, 50, 100, 200, 500, 1000]
 
-    print("Pricing for bandwidth usage with volume discount formula:")
+print("Pricing for bandwidth usage with volume discount formula:")
     print(f"Formula: {rule.formula}")
     print(f"Variables: {rule.variables}")
     print()
 
-    for quantity in test_quantities:
+for quantity in test_quantities:
         # Calculate cost
         cost = calculator.calculate_cost(
             metric=UsageMetric.BANDWIDTH,
@@ -459,21 +458,21 @@ def demonstrate_formula_based_pricing() -> None:
             category=UsageCategory.NETWORK,
         )
 
-        # Calculate effective rate
+# Calculate effective rate
         effective_rate = cost / quantity if quantity > 0 else 0
 
-        # Calculate discount percentage
+# Calculate discount percentage
         discount_percentage = (
             rule.variables["volume_discount"]
             * min(1, quantity / rule.variables["discount_threshold"])
             * 100
         )
 
-        print(
+print(
             f"- {quantity} GB: ${cost:.2f} (effective rate: ${effective_rate:.3f} per GB, discount: {discount_percentage:.1f}%)"
         )
 
-    # Create another formula-based pricing rule with a more complex formula
+# Create another formula-based pricing rule with a more complex formula
     complex_rule = FormulaBasedPricingRule(
         metric=UsageMetric.TOKEN,
         formula="base_rate * q * (1 - tier_discount) * (1 - seasonal_discount if time_month in [6, 7, 8] else 0) * (1 - loyalty_discount * min(1, customer_age / 365))",
@@ -488,25 +487,25 @@ def demonstrate_formula_based_pricing() -> None:
         category=UsageCategory.INFERENCE,
     )
 
-    # Add to calculator
+# Add to calculator
     calculator.add_custom_rule(complex_rule)
 
-    print("\nPricing for tokens with complex formula:")
+print("\nPricing for tokens with complex formula:")
     print(f"Formula: {complex_rule.formula}")
     print(f"Variables: {complex_rule.variables}")
     print()
 
-    quantity = 1000  # 1000 tokens
+quantity = 1000  # 1000 tokens
 
-    # Calculate cost
+# Calculate cost
     cost = calculator.calculate_cost(
         metric=UsageMetric.TOKEN, quantity=quantity, category=UsageCategory.INFERENCE
     )
 
-    # Calculate effective rate
+# Calculate effective rate
     effective_rate = cost / quantity if quantity > 0 else 0
 
-    # Calculate discount breakdown
+# Calculate discount breakdown
     tier_discount = complex_rule.variables["tier_discount"] * 100
     seasonal_discount = (
         complex_rule.variables["seasonal_discount"] * 100
@@ -519,7 +518,7 @@ def demonstrate_formula_based_pricing() -> None:
         * 100
     )
 
-    print(
+print(
         f"- {quantity} tokens: ${cost:.2f} (effective rate: ${effective_rate:.5f} per token)"
     )
     print(
@@ -531,10 +530,10 @@ def demonstrate_combined_pricing() -> None:
     """Demonstrate combined pricing strategies."""
     print_section("Combined Pricing Strategies")
 
-    # Create a calculator with multiple rules
+# Create a calculator with multiple rules
     calculator = CustomPricingCalculator()
 
-    # Add time-based pricing for API calls
+# Add time-based pricing for API calls
     calculator.add_custom_rule(
         TimeBasedPricingRule(
             metric=UsageMetric.API_CALL,
@@ -544,7 +543,7 @@ def demonstrate_combined_pricing() -> None:
         )
     )
 
-    # Add seasonal pricing for storage
+# Add seasonal pricing for storage
     calculator.add_custom_rule(
         SeasonalPricingRule(
             metric=UsageMetric.STORAGE,
@@ -554,7 +553,7 @@ def demonstrate_combined_pricing() -> None:
         )
     )
 
-    # Add customer segment pricing for tokens
+# Add customer segment pricing for tokens
     calculator.add_custom_rule(
         CustomerSegmentPricingRule(
             metric=UsageMetric.TOKEN,
@@ -564,7 +563,7 @@ def demonstrate_combined_pricing() -> None:
         )
     )
 
-    # Add conditional pricing for compute time
+# Add conditional pricing for compute time
     calculator.add_custom_rule(
         ConditionalPricingRule(
             metric=UsageMetric.COMPUTE_TIME,
@@ -579,7 +578,7 @@ def demonstrate_combined_pricing() -> None:
         )
     )
 
-    # Add formula-based pricing for bandwidth
+# Add formula-based pricing for bandwidth
     calculator.add_custom_rule(
         FormulaBasedPricingRule(
             metric=UsageMetric.BANDWIDTH,
@@ -594,7 +593,7 @@ def demonstrate_combined_pricing() -> None:
         )
     )
 
-    # Create a customer context
+# Create a customer context
     customer_context = {
         "customer": {
             "tier": "premium",
@@ -609,7 +608,7 @@ def demonstrate_combined_pricing() -> None:
         "usage": {"total": 1000, "average": 50},
     }
 
-    # Calculate costs for different metrics
+# Calculate costs for different metrics
     api_cost = calculator.calculate_cost(
         metric=UsageMetric.API_CALL,
         quantity=100,
@@ -617,38 +616,38 @@ def demonstrate_combined_pricing() -> None:
         context=customer_context,
     )
 
-    storage_cost = calculator.calculate_cost(
+storage_cost = calculator.calculate_cost(
         metric=UsageMetric.STORAGE,
         quantity=10,
         category=UsageCategory.STORAGE,
         context=customer_context,
     )
 
-    token_cost = calculator.calculate_cost(
+token_cost = calculator.calculate_cost(
         metric=UsageMetric.TOKEN,
         quantity=1000,
         category=UsageCategory.INFERENCE,
         context=customer_context,
     )
 
-    compute_cost = calculator.calculate_cost(
+compute_cost = calculator.calculate_cost(
         metric=UsageMetric.COMPUTE_TIME,
         quantity=10,
         category=UsageCategory.COMPUTE,
         context=customer_context,
     )
 
-    bandwidth_cost = calculator.calculate_cost(
+bandwidth_cost = calculator.calculate_cost(
         metric=UsageMetric.BANDWIDTH,
         quantity=50,
         category=UsageCategory.NETWORK,
         context=customer_context,
     )
 
-    # Calculate total cost
+# Calculate total cost
     total_cost = api_cost + storage_cost + token_cost + compute_cost + bandwidth_cost
 
-    print("Combined pricing for a premium customer:")
+print("Combined pricing for a premium customer:")
     print(f"- API calls (100): ${api_cost:.2f}")
     print(f"- Storage (10 GB): ${storage_cost:.2f}")
     print(f"- Tokens (1000): ${token_cost:.2f}")
@@ -656,7 +655,7 @@ def demonstrate_combined_pricing() -> None:
     print(f"- Bandwidth (50 GB): ${bandwidth_cost:.2f}")
     print(f"- Total: ${total_cost:.2f}")
 
-    # Generate a sample invoice
+# Generate a sample invoice
     print("\nSample Invoice:")
     print("=" * 40)
     print("INVOICE")
@@ -681,7 +680,7 @@ def main() -> None:
     """Run the custom pricing demo."""
     print_section("Custom Pricing Demo")
 
-    # Demonstrate different pricing strategies
+# Demonstrate different pricing strategies
     demonstrate_time_based_pricing()
     demonstrate_seasonal_pricing()
     demonstrate_customer_segment_pricing()
@@ -689,8 +688,10 @@ def main() -> None:
     demonstrate_formula_based_pricing()
     demonstrate_combined_pricing()
 
-    print_section("Demo Complete")
+print_section("Demo Complete")
 
 
 if __name__ == "__main__":
     main()
+except Exception as e:
+    pass

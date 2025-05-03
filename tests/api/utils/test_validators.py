@@ -45,7 +45,7 @@ def validate_json_response(response: Response) -> Dict[str, Any]:
         assert isinstance(
             data, (dict, list)
         ), f"Response is not a valid JSON object or array: {data}"
-        return data
+                return data
     except Exception as e:
         assert False, f"Response is not valid JSON: {response.text}. Error: {str(e)}"
 
@@ -109,7 +109,7 @@ def validate_error_response(
             False
         ), f"Error response does not contain 'error' or 'detail' field: {data}"
 
-    return data
+            return data
 
 
 def validate_success_response(
@@ -129,7 +129,7 @@ def validate_success_response(
         AssertionError: If the response is not a valid success response
     """
     validate_status_code(response, expected_status_code)
-    return validate_json_response(response)
+            return validate_json_response(response)
 
 
 def validate_paginated_response(
@@ -162,7 +162,7 @@ def validate_paginated_response(
     ), f"Paginated response does not contain 'page_size' field: {data}"
     assert "pages" in data, f"Paginated response does not contain 'pages' field: {data}"
 
-    return data
+            return data
 
 
 def validate_bulk_response(
@@ -204,7 +204,7 @@ def validate_bulk_response(
             data["errors"], list
         ), f"'errors' field is not a list: {data['errors']}"
 
-    return data
+            return data
 
 
 def validate_field_exists(data: Dict[str, Any], field_path: str) -> Any:
@@ -231,7 +231,7 @@ def validate_field_exists(data: Dict[str, Any], field_path: str) -> Any:
         assert part in current, f"Field '{part}' not found in: {current}"
         current = current[part]
 
-    return current
+            return current
 
 
 def validate_field_equals(
@@ -275,7 +275,7 @@ def validate_field_type(
     assert isinstance(
         actual_value, expected_type
     ), f"Field '{field_path}' expected to be of type {expected_type.__name__}, got {type(actual_value).__name__}"
-    return actual_value
+            return actual_value
 
 
 def validate_field_not_empty(data: Dict[str, Any], field_path: str) -> Any:
@@ -304,7 +304,7 @@ def validate_field_not_empty(data: Dict[str, Any], field_path: str) -> Any:
         # For numbers, booleans, etc. just check if truthy
         assert actual_value, f"Field '{field_path}' is falsy"
 
-    return actual_value
+            return actual_value
 
 
 def validate_list_not_empty(data: Dict[str, Any], field_path: str) -> List[Any]:
@@ -326,7 +326,7 @@ def validate_list_not_empty(data: Dict[str, Any], field_path: str) -> List[Any]:
         actual_value, list
     ), f"Field '{field_path}' is not a list: {type(actual_value).__name__}"
     assert actual_value, f"Field '{field_path}' is an empty list"
-    return actual_value
+            return actual_value
 
 
 def validate_list_length(
@@ -353,7 +353,7 @@ def validate_list_length(
     assert (
         len(actual_value) == expected_length
     ), f"Field '{field_path}' expected to have length {expected_length}, got {len(actual_value)}"
-    return actual_value
+            return actual_value
 
 
 def validate_list_min_length(
@@ -380,7 +380,7 @@ def validate_list_min_length(
     assert (
         len(actual_value) >= min_length
     ), f"Field '{field_path}' expected to have at least {min_length} items, got {len(actual_value)}"
-    return actual_value
+            return actual_value
 
 
 def validate_list_max_length(
@@ -407,7 +407,7 @@ def validate_list_max_length(
     assert (
         len(actual_value) <= max_length
     ), f"Field '{field_path}' expected to have at most {max_length} items, got {len(actual_value)}"
-    return actual_value
+            return actual_value
 
 
 def validate_list_contains(
@@ -434,7 +434,7 @@ def validate_list_contains(
     assert (
         expected_item in actual_value
     ), f"Field '{field_path}' does not contain item: {expected_item}"
-    return actual_value
+            return actual_value
 
 
 def validate_list_contains_dict_with_field(
@@ -465,12 +465,12 @@ def validate_list_contains_dict_with_field(
             item, dict
         ), f"Item in list '{field_path}' is not a dictionary: {type(item).__name__}"
         if dict_field in item and item[dict_field] == expected_value:
-            return actual_value
+                    return actual_value
 
     assert (
         False
     ), f"No dictionary in list '{field_path}' has field '{dict_field}' with value: {expected_value}"
-    return actual_value
+            return actual_value
 
 
 def generate_id() -> str:
@@ -482,4 +482,4 @@ def generate_id() -> str:
     """
 
 
-    return str(uuid.uuid4())
+            return str(uuid.uuid4())

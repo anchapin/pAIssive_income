@@ -133,7 +133,7 @@ class OpenAICompatibleAdapter:
         try:
             if self.use_client_library:
                 models = self.client.models.list()
-                return [model.model_dump() for model in models.data]
+                        return [model.model_dump() for model in models.data]
             else:
                 response = self.session.get(
                     f"{self.base_url}/models",
@@ -143,7 +143,7 @@ class OpenAICompatibleAdapter:
                 response.raise_for_status()
 
                 data = response.json()
-                return data.get("data", [])
+                        return data.get("data", [])
 
         except Exception as e:
             logger.error(f"Error listing models: {e}")
@@ -162,7 +162,7 @@ class OpenAICompatibleAdapter:
         try:
             if self.use_client_library:
                 model = self.client.models.retrieve(model_id)
-                return model.model_dump()
+                        return model.model_dump()
             else:
                 response = self.session.get(
                     f"{self.base_url}/models/{model_id}",
@@ -171,7 +171,7 @@ class OpenAICompatibleAdapter:
                 )
                 response.raise_for_status()
 
-                return response.json()
+                        return response.json()
 
         except Exception as e:
             logger.error(f"Error getting model info for {model_id}: {e}")
@@ -207,7 +207,7 @@ class OpenAICompatibleAdapter:
         try:
             if self.use_client_library:
                 if stream:
-                    return self._create_completion_stream_client(
+                            return self._create_completion_stream_client(
                         model=model,
                         prompt=prompt,
                         temperature=temperature,
@@ -217,7 +217,7 @@ class OpenAICompatibleAdapter:
                         **kwargs,
                     )
                 else:
-                    return self._create_completion_sync_client(
+                            return self._create_completion_sync_client(
                         model=model,
                         prompt=prompt,
                         temperature=temperature,
@@ -247,9 +247,9 @@ class OpenAICompatibleAdapter:
                         request_data[key] = value
 
                 if stream:
-                    return self._create_completion_stream_requests(request_data)
+                            return self._create_completion_stream_requests(request_data)
                 else:
-                    return self._create_completion_sync_requests(request_data)
+                            return self._create_completion_sync_requests(request_data)
 
         except Exception as e:
             logger.error(f"Error creating completion with {model}: {e}")
@@ -290,7 +290,7 @@ class OpenAICompatibleAdapter:
             **kwargs,
         )
 
-        return completion.model_dump()
+                return completion.model_dump()
 
     def _create_completion_stream_client(
         self,
@@ -351,7 +351,7 @@ class OpenAICompatibleAdapter:
         )
         response.raise_for_status()
 
-        return response.json()
+                return response.json()
 
     def _create_completion_stream_requests(
         self, request_data: Dict[str, Any]
@@ -427,7 +427,7 @@ class OpenAICompatibleAdapter:
         try:
             if self.use_client_library:
                 if stream:
-                    return self._create_chat_completion_stream_client(
+                            return self._create_chat_completion_stream_client(
                         model=model,
                         messages=messages,
                         temperature=temperature,
@@ -437,7 +437,7 @@ class OpenAICompatibleAdapter:
                         **kwargs,
                     )
                 else:
-                    return self._create_chat_completion_sync_client(
+                            return self._create_chat_completion_sync_client(
                         model=model,
                         messages=messages,
                         temperature=temperature,
@@ -467,9 +467,9 @@ class OpenAICompatibleAdapter:
                         request_data[key] = value
 
                 if stream:
-                    return self._create_chat_completion_stream_requests(request_data)
+                            return self._create_chat_completion_stream_requests(request_data)
                 else:
-                    return self._create_chat_completion_sync_requests(request_data)
+                            return self._create_chat_completion_sync_requests(request_data)
 
         except Exception as e:
             logger.error(f"Error creating chat completion with {model}: {e}")
@@ -510,7 +510,7 @@ class OpenAICompatibleAdapter:
             **kwargs,
         )
 
-        return completion.model_dump()
+                return completion.model_dump()
 
     def _create_chat_completion_stream_client(
         self,
@@ -571,7 +571,7 @@ class OpenAICompatibleAdapter:
         )
         response.raise_for_status()
 
-        return response.json()
+                return response.json()
 
     def _create_chat_completion_stream_requests(
         self, request_data: Dict[str, Any]
@@ -637,7 +637,7 @@ class OpenAICompatibleAdapter:
                     model=model, input=input, **kwargs
                 )
 
-                return embedding.model_dump()
+                        return embedding.model_dump()
             else:
                 # Prepare request data
                 request_data = {"model": model, "input": input}
@@ -655,7 +655,7 @@ class OpenAICompatibleAdapter:
                 )
                 response.raise_for_status()
 
-                return response.json()
+                        return response.json()
 
         except Exception as e:
             logger.error(f"Error creating embeddings with {model}: {e}")
@@ -705,7 +705,7 @@ class OpenAICompatibleAdapter:
 
                 image = self.client.images.generate(**params)
 
-                return image.model_dump()
+                        return image.model_dump()
             else:
                 # Prepare request data
                 request_data = {
@@ -732,7 +732,7 @@ class OpenAICompatibleAdapter:
                 )
                 response.raise_for_status()
 
-                return response.json()
+                        return response.json()
 
         except Exception as e:
             logger.error(f"Error creating images: {e}")
@@ -784,9 +784,9 @@ class OpenAICompatibleAdapter:
 
                 # Return as dictionary
                 if isinstance(transcription, str):
-                    return {"text": transcription}
+                            return {"text": transcription}
                 else:
-                    return transcription.model_dump()
+                            return transcription.model_dump()
             else:
                 # Prepare files and data
                 files = {"file": open(file, "rb")}
@@ -822,9 +822,9 @@ class OpenAICompatibleAdapter:
 
                 # Parse response based on format
                 if response_format == "json":
-                    return response.json()
+                            return response.json()
                 else:
-                    return {"text": response.text}
+                            return {"text": response.text}
 
         except Exception as e:
             logger.error(f"Error creating audio transcription: {e}")

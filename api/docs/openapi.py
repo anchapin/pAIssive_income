@@ -45,7 +45,7 @@ def get_openapi_schema(
     """
     if not FASTAPI_AVAILABLE:
         logger.warning("FastAPI is required for OpenAPI documentation")
-        return {}
+                return {}
 
     # Create OpenAPI schema
     openapi_schema = fastapi_get_openapi(
@@ -164,7 +164,7 @@ def get_openapi_schema(
         "url": "https://example.com/docs/",
     }
 
-    return openapi_schema
+            return openapi_schema
 
 
 def setup_openapi(app: Any, title: str, version: str, description: str) -> None:
@@ -179,9 +179,7 @@ def setup_openapi(app: Any, title: str, version: str, description: str) -> None:
     """
     if not FASTAPI_AVAILABLE:
         logger.warning("FastAPI is required for OpenAPI documentation")
-        return
-
-    # Create OpenAPI schema
+                return # Create OpenAPI schema
     openapi_schema = get_openapi_schema(app, title, version, description)
 
     # Set OpenAPI schema
@@ -189,6 +187,6 @@ def setup_openapi(app: Any, title: str, version: str, description: str) -> None:
 
     # Override the openapi function
     def custom_openapi() -> Dict[str, Any]:
-        return app.openapi_schema
+                return app.openapi_schema
 
     app.openapi = custom_openapi

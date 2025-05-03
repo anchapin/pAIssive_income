@@ -80,7 +80,7 @@ class FallbackEvent:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the fallback event to a dictionary."""
-        return {
+                return {
             "original_model_id": self.original_model_id,
             "fallback_model_id": self.fallback_model_id,
             "reason": self.reason,
@@ -123,15 +123,15 @@ class ModelManagerMock:
         """Get information about a model by ID."""
         if model_id not in self.model_dict:
             raise ModelNotFoundError(f"Model not found: {model_id}")
-        return self.model_dict[model_id]
+                return self.model_dict[model_id]
 
     def get_all_models(self) -> List[ModelInfoMock]:
         """Get all available models."""
-        return self.models
+                return self.models
 
     def get_models_by_type(self, model_type: str) -> List[ModelInfoMock]:
         """Get models of a specific type."""
-        return [model for model in self.models if model.type == model_type]
+                return [model for model in self.models if model.type == model_type]
 
     def load_model(self, model_id: str) -> bool:
         """Simulate loading a model."""
@@ -140,7 +140,7 @@ class ModelManagerMock:
         model = self.model_dict[model_id]
         if not model.is_available:
             raise ModelLoadError(f"Failed to load model: {model_id}")
-        return True
+                return True
 
 
 class FallbackManagerMock:
@@ -211,11 +211,11 @@ class FallbackManagerMock:
 
         Returns:
             Tuple containing:
-              - ModelInfo of the fallback model or None if no fallback found
+            - ModelInfo of the fallback model or None if no fallback found
               - FallbackEvent describing the fallback or None if no fallback found
         """
         if not self.fallback_enabled:
-            return None, None
+                    return None, None
 
         # Select strategy to use
         strategy = strategy_override or self.default_strategy
@@ -242,15 +242,15 @@ class FallbackManagerMock:
                             task_type,
                         )
                         self.track_fallback_event(event)
-                        return fallback_model, event
+                                return fallback_model, event
                     except ModelNotFoundError:
                         pass
-                return None, None
+                        return None, None
 
         # Execute the selected fallback strategy
         if strategy == FallbackStrategy.NONE:
             # No fallback, just return None
-            return None, None
+                    return None, None
 
         elif strategy == FallbackStrategy.DEFAULT:
             # Use the default model if specified
@@ -268,7 +268,7 @@ class FallbackManagerMock:
                             task_type,
                         )
                         self.track_fallback_event(event)
-                        return fallback_model, event
+                                return fallback_model, event
                 except ModelNotFoundError:
                     pass
 
@@ -297,7 +297,7 @@ class FallbackManagerMock:
                                 task_type,
                             )
                             self.track_fallback_event(event)
-                            return model, event
+                                    return model, event
 
                 # If no model with similar capabilities, try same type
                 same_type_models = [
@@ -309,7 +309,7 @@ class FallbackManagerMock:
                         original_model_id, model, strategy, agent_type, task_type
                     )
                     self.track_fallback_event(event)
-                    return model, event
+                            return model, event
 
         elif strategy == FallbackStrategy.MODEL_TYPE:
             # Try other models of the same type
@@ -326,7 +326,7 @@ class FallbackManagerMock:
                         original_model_id, model, strategy, agent_type, task_type
                     )
                     self.track_fallback_event(event)
-                    return model, event
+                            return model, event
 
             # Try using agent preferences
             if agent_type and agent_type in self.fallback_preferences:
@@ -341,7 +341,7 @@ class FallbackManagerMock:
                             task_type,
                         )
                         self.track_fallback_event(event)
-                        return models[0], event
+                                return models[0], event
 
             # Try default preferences
             if "default" in self.fallback_preferences:
@@ -356,7 +356,7 @@ class FallbackManagerMock:
                             task_type,
                         )
                         self.track_fallback_event(event)
-                        return models[0], event
+                                return models[0], event
 
         elif strategy == FallbackStrategy.ANY_AVAILABLE:
             # Use any available model as a fallback
@@ -366,7 +366,7 @@ class FallbackManagerMock:
                     original_model_id, all_models[0], strategy, agent_type, task_type
                 )
                 self.track_fallback_event(event)
-                return all_models[0], event
+                        return all_models[0], event
 
         elif strategy == FallbackStrategy.SPECIFIED_LIST:
             # Try models in a specified order based on agent type
@@ -381,13 +381,13 @@ class FallbackManagerMock:
                         original_model_id, models[0], strategy, agent_type, task_type
                     )
                     self.track_fallback_event(event)
-                    return models[0], event
+                            return models[0], event
 
         elif strategy == FallbackStrategy.SIZE_TIER:
             # Try models of different size tiers
             all_models = self.model_manager.get_all_models()
             if not all_models:
-                return None, None
+                        return None, None
 
             if original_model_info:
                 original_size = getattr(original_model_info, "size_mb", 0)
@@ -395,7 +395,7 @@ class FallbackManagerMock:
                 # Filter out the original model
                 candidates = [m for m in all_models if m.id != original_model_id]
                 if not candidates:
-                    return None, None
+                            return None, None
 
                 # If size is available, prefer smaller models
                 if original_size > 0:
@@ -423,7 +423,7 @@ class FallbackManagerMock:
                             task_type,
                         )
                         self.track_fallback_event(event)
-                        return smaller_models[-1], event
+                                return smaller_models[-1], event
 
                 # If no size info or no smaller models, fall back to same type
                 same_type_models = [
@@ -438,14 +438,14 @@ class FallbackManagerMock:
                         task_type,
                     )
                     self.track_fallback_event(event)
-                    return same_type_models[0], event
+                            return same_type_models[0], event
 
             # If no match by size or type, return any model
             event = self._create_event(
                 original_model_id, all_models[0], strategy, agent_type, task_type
             )
             self.track_fallback_event(event)
-            return all_models[0], event
+                    return all_models[0], event
 
         elif strategy == FallbackStrategy.CAPABILITY_BASED:
             # Find a model that has all the required capabilities
@@ -470,10 +470,10 @@ class FallbackManagerMock:
                         task_type,
                     )
                     self.track_fallback_event(event)
-                    return capable_models[0], event
+                            return capable_models[0], event
 
         # No fallback model found
-        return None, None
+                return None, None
 
     def _create_event(
         self,
@@ -493,7 +493,7 @@ class FallbackManagerMock:
             except ModelNotFoundError:
                 pass
 
-        return FallbackEvent(
+                return FallbackEvent(
             original_model_id=original_model_id,
             fallback_model_id=fallback_model.id,
             reason="Primary model selection failed",
@@ -548,7 +548,7 @@ class FallbackManagerMock:
                 "success_rate": success_rate,
             }
 
-        return metrics
+                return metrics
 
     def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
         """
@@ -560,7 +560,7 @@ class FallbackManagerMock:
         Returns:
             List of fallback events as dictionaries
         """
-        return [event.to_dict() for event in self.fallback_history[-limit:]]
+                return [event.to_dict() for event in self.fallback_history[-limit:]]
 
     def configure(self, **kwargs) -> None:
         """Configure the fallback manager."""

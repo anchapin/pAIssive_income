@@ -122,7 +122,7 @@ class ModelServicer:
                 finish_reason=result.get("finish_reason", "stop"),
             )
 
-            return response
+                    return response
 
         except Exception as e:
             # Track error
@@ -271,7 +271,7 @@ class ModelServicer:
                 finish_reason=result.get("finish_reason", "stop"),
             )
 
-            return response
+                    return response
 
         except Exception as e:
             # Track error
@@ -408,7 +408,7 @@ class ModelServicer:
                 labels=response_labels, top_label=result["top_label"], tokens=tokens
             )
 
-            return response
+                    return response
 
         except Exception as e:
             # Track error
@@ -479,7 +479,7 @@ class ModelServicer:
                 usage=usage,
             )
 
-            return response
+                    return response
 
         except Exception as e:
             # Track error
@@ -520,7 +520,7 @@ class ModelServicer:
                 token_count=info.get("token_count", 0),
             )
 
-            return response
+                    return response
 
         except Exception as e:
             # Log error
@@ -547,4 +547,4 @@ class ModelServicer:
             text += f"{message['role']}: {message['content']}\n"
 
         # Count tokens
-        return self.tokenizer(text, return_tensors="pt").input_ids.shape[1]
+                return self.tokenizer(text, return_tensors="pt").input_ids.shape[1]

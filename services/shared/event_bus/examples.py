@@ -478,7 +478,7 @@ if __name__ == "__main__":
     # marketing_service_example()
 
     # Example 3: Asynchronous Event Handling
-    # asyncio.run(async_event_handling_example())
+    # asyncio.run(async_event_handling_example()
 
     # Example 4: Event-Driven Workflow
-    event_driven_workflow_example()
+    event_driven_workflow_example(

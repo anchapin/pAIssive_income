@@ -99,11 +99,11 @@ class ServiceDiscoveryClient:
             s.connect(("8.8.8.8", 80))  # Connect to Google DNS
             ip = s.getsockname()[0]
             s.close()
-            return ip
+                    return ip
         except Exception as e:
             logger.warning(f"Failed to get local IP: {str(e)}")
             # Fallback to localhost
-            return "127.0.0.1"
+                    return "127.0.0.1"
 
     def register_self(self) -> bool:
         """Register this service with the registry."""
@@ -118,11 +118,11 @@ class ServiceDiscoveryClient:
             is_secure=self.is_secure,
             tags=self.tags,
         )
-        return self.registry.register(instance)
+                return self.registry.register(instance)
 
     def deregister_self(self) -> bool:
         """Deregister this service from the registry."""
-        return self.registry.deregister(self.service_id)
+                return self.registry.deregister(self.service_id)
 
     def discover_service(self, service_name: str) -> List[ServiceInstance]:
         """Discover instances of a service by name."""
@@ -131,21 +131,21 @@ class ServiceDiscoveryClient:
         if service_name in self._service_cache:
             timestamp, instances = self._service_cache[service_name]
             if now - timestamp < self._cache_ttl:
-                return instances
+                        return instances
 
         # Not in cache or cache expired, get from registry
         try:
             instances = self.registry.get_service(service_name)
             # Update cache
             self._service_cache[service_name] = (now, instances)
-            return instances
+                    return instances
         except ServiceLookupError as e:
             # If lookup fails but we have a cached version, use it
             if service_name in self._service_cache:
                 logger.warning(
                     f"Service lookup failed for {service_name}, using cached data: {str(e)}"
                 )
-                return self._service_cache[service_name][1]
+                        return self._service_cache[service_name][1]
             raise
 
     def get_service_instance(self, service_name: str) -> Optional[ServiceInstance]:
@@ -153,36 +153,36 @@ class ServiceDiscoveryClient:
         instances = self.discover_service(service_name)
         if not instances:
             logger.warning(f"No instances found for service: {service_name}")
-            return None
+                    return None
 
         # Use load balancer to select an instance
-        return self.load_balancer.select(instances)
+                return self.load_balancer.select(instances)
 
     def get_service_url(self, service_name: str, path: str = "/") -> Optional[str]:
         """Get the URL for a service, automatically selecting an instance."""
         instance = self.get_service_instance(service_name)
         if not instance:
-            return None
+                    return None
 
         # Build the URL
         protocol = "https" if instance.is_secure else "http"
-        return f"{protocol}://{instance.host}:{instance.port}{path}"
+                return f"{protocol}://{instance.host}:{instance.port}{path}"
 
     def discover_all_services(self) -> Dict[str, List[ServiceInstance]]:
         """Discover all registered services."""
-        return self.registry.get_all_services()
+                return self.registry.get_all_services()
 
     def is_service_healthy(self, service_name: str) -> bool:
         """Check if at least one instance of a service is healthy."""
         instances = self.discover_service(service_name)
         if not instances:
-            return False
+                    return False
 
         for instance in instances:
             if self.registry.get_service_health(instance.service_id):
-                return True
+                        return True
 
-        return False
+                return False
 
     def set_cache_ttl(self, ttl_seconds: float) -> None:
         """Set the time-to-live for the service instance cache."""
@@ -200,7 +200,7 @@ class ServiceDiscoveryClient:
         def url_builder(path: str = "/") -> Optional[str]:
             url = self.get_service_url(service_name, path)
             if url is None and fallback_url:
-                return f"{fallback_url.rstrip('/')}{path}"
-            return url
+                        return f"{fallback_url.rstrip('/')}{path}"
+                    return url
 
-        return url_builder
+                return url_builder

@@ -199,7 +199,7 @@ class WebhookRepository:
         self._save_webhook(webhook_id, webhook)
 
         logger.info(f"Created webhook {webhook_id} for URL {url}")
-        return webhook
+                return webhook
 
     def update_webhook(
         self,
@@ -270,7 +270,7 @@ class WebhookRepository:
         self._save_webhook(webhook_id, webhook)
 
         logger.info(f"Updated webhook {webhook_id}")
-        return webhook
+                return webhook
 
     def delete_webhook(self, webhook_id: str) -> bool:
         """
@@ -283,7 +283,7 @@ class WebhookRepository:
             True if webhook was deleted, False otherwise
         """
         if webhook_id not in self.webhooks:
-            return False
+                    return False
 
         webhook = self.webhooks[webhook_id]
 
@@ -301,7 +301,7 @@ class WebhookRepository:
             os.remove(webhook_file)
 
         logger.info(f"Deleted webhook {webhook_id}")
-        return True
+                return True
 
     def get_webhook(self, webhook_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -313,7 +313,7 @@ class WebhookRepository:
         Returns:
             Webhook data or None if not found
         """
-        return self.webhooks.get(webhook_id)
+                return self.webhooks.get(webhook_id)
 
     def get_webhooks(self) -> List[Dict[str, Any]]:
         """
@@ -322,7 +322,7 @@ class WebhookRepository:
         Returns:
             List of webhooks
         """
-        return list(self.webhooks.values())
+                return list(self.webhooks.values())
 
     def get_webhooks_for_event(self, event: str) -> List[Dict[str, Any]]:
         """
@@ -335,7 +335,7 @@ class WebhookRepository:
             List of webhooks subscribed to the event
         """
         webhook_ids = self.event_to_webhooks.get(event, set())
-        return [
+                return [
             self.webhooks[wid]
             for wid in webhook_ids
             if wid in self.webhooks and self.webhooks[wid]["active"]
@@ -381,7 +381,7 @@ class WebhookRepository:
         logger.info(
             f"Created delivery {delivery_id} for webhook {webhook_id} and event {event_type}"
         )
-        return delivery
+                return delivery
 
     def create_delivery_attempt(
         self, delivery_id: str, request_data: Dict[str, Any]
@@ -429,7 +429,7 @@ class WebhookRepository:
         self._save_attempt(attempt_id, attempt)
 
         logger.info(f"Created delivery attempt {attempt_id} for delivery {delivery_id}")
-        return attempt
+                return attempt
 
     def update_delivery_attempt(
         self,
@@ -487,7 +487,7 @@ class WebhookRepository:
             self._save_delivery(delivery_id, delivery)
 
         logger.info(f"Updated delivery attempt {attempt_id} with status {status}")
-        return attempt
+                return attempt
 
     def get_delivery(self, delivery_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -500,7 +500,7 @@ class WebhookRepository:
             Delivery data or None if not found
         """
         if delivery_id not in self.deliveries:
-            return None
+                    return None
 
         delivery = self.deliveries[delivery_id].copy()
 
@@ -511,7 +511,7 @@ class WebhookRepository:
                 expanded_attempts.append(self.attempts[attempt_id])
 
         delivery["attempts"] = expanded_attempts
-        return delivery
+                return delivery
 
     def get_deliveries(
         self,
@@ -550,7 +550,7 @@ class WebhookRepository:
         deliveries.sort(key=lambda d: d["timestamp"], reverse=True)
 
         # Apply pagination
-        return deliveries[offset : offset + limit]
+                return deliveries[offset : offset + limit]
 
     def count_deliveries(
         self,
@@ -581,7 +581,7 @@ class WebhookRepository:
 
             count += 1
 
-        return count
+                return count
 
     def sign_payload(self, webhook_id: str, payload: Dict[str, Any]) -> Optional[str]:
         """
@@ -596,7 +596,7 @@ class WebhookRepository:
         """
         webhook = self.get_webhook(webhook_id)
         if not webhook or not webhook.get("secret_hash"):
-            return None
+                    return None
 
         # The actual secret is never stored, but we can verify signatures
         # using the hashed secret
@@ -610,7 +610,7 @@ class WebhookRepository:
             secret_hash.encode(), payload_str.encode(), hashlib.sha256
         ).hexdigest()
 
-        return signature
+                return signature
 
     def _hash_secret(self, secret: str) -> str:
         """
@@ -624,4 +624,4 @@ class WebhookRepository:
         """
         # In a real implementation, use a proper key derivation function
         # For simplicity, we're using a simple hash here
-        return hashlib.sha256(secret.encode()).hexdigest()
+                return hashlib.sha256(secret.encode()).hexdigest()

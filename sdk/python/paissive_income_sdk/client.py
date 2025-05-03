@@ -135,9 +135,9 @@ class Client:
 
         # Parse response
         if response.headers.get("Content-Type", "").startswith("application/json"):
-            return response.json()
+                    return response.json()
         else:
-            return {"data": response.text}
+                    return {"data": response.text}
 
     def get(
         self, endpoint: str, params: Optional[Dict[str, Any]] = None
@@ -152,7 +152,7 @@ class Client:
         Returns:
             Response data
         """
-        return self.request("GET", endpoint, params=params)
+                return self.request("GET", endpoint, params=params)
 
     def post(self, endpoint: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -165,7 +165,7 @@ class Client:
         Returns:
             Response data
         """
-        return self.request("POST", endpoint, data=data)
+                return self.request("POST", endpoint, data=data)
 
     def put(self, endpoint: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -178,7 +178,7 @@ class Client:
         Returns:
             Response data
         """
-        return self.request("PUT", endpoint, data=data)
+                return self.request("PUT", endpoint, data=data)
 
     def delete(self, endpoint: str) -> Dict[str, Any]:
         """
@@ -190,4 +190,4 @@ class Client:
         Returns:
             Response data
         """
-        return self.request("DELETE", endpoint)
+                return self.request("DELETE", endpoint)

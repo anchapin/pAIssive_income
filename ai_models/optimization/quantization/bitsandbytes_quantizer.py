@@ -44,7 +44,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
- as bnb
+as bnb
 = True
 except ImportError:
     logger.warning(
@@ -153,7 +153,7 @@ class BitsAndBytesQuantizer(Quantizer):
         # Save quantization configuration
         self._save_quantization_config(output_path)
 
-        return output_path
+                return output_path
 
     def _create_bnb_config(self) -> BitsAndBytesConfig:
         """
@@ -163,7 +163,7 @@ class BitsAndBytesQuantizer(Quantizer):
             BitsAndBytes configuration
         """
         if self.config.method == QuantizationMethod.BITS_AND_BYTES_4BIT:
-            return BitsAndBytesConfig(
+                    return BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_quant_type=self.config.bnb_4bit_quant_type,
                 bnb_4bit_use_double_quant=self.config.bnb_4bit_use_double_quant,
@@ -172,7 +172,7 @@ class BitsAndBytesQuantizer(Quantizer):
                 ),
             )
         elif self.config.method == QuantizationMethod.BITS_AND_BYTES_8BIT:
-            return BitsAndBytesConfig(
+                    return BitsAndBytesConfig(
                 load_in_8bit=True, llm_int8_enable_fp32_cpu_offload=True
             )
         else:
@@ -211,7 +211,7 @@ class BitsAndBytesQuantizer(Quantizer):
             "seq2seq-lm",
         ]
 
-        return model_type in supported_types
+                return model_type in supported_types
 
     def get_supported_methods(self) -> List[QuantizationMethod]:
         """
@@ -220,7 +220,7 @@ class BitsAndBytesQuantizer(Quantizer):
         Returns:
             List of supported quantization methods
         """
-        return [
+                return [
             QuantizationMethod.BITS_AND_BYTES_4BIT,
             QuantizationMethod.BITS_AND_BYTES_8BIT,
         ]
@@ -249,4 +249,4 @@ class BitsAndBytesQuantizer(Quantizer):
                 }
             )
 
-        return info
+                return info

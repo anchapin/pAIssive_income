@@ -90,7 +90,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                     if page_response.status_code == 200:
                         page_data = page_response.json()
 
-                return {
+                        return {
                     "authenticated": True,
                     "user_id": user_data.get("id"),
                     "name": user_data.get("name"),
@@ -117,7 +117,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 self.session.params = {"access_token": self.access_token}
                 self._connected = True
 
-                return {
+                        return {
                     "authenticated": True,
                     "access_token": self.access_token,
                     "token_type": "app_token",
@@ -181,7 +181,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                     "facebook", "Video must have either a URL or source (file path)"
                 )
 
-        return True
+                return True
 
     def post_content(
         self,
@@ -269,7 +269,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
             # Get the post URL
             post_url = f"https://facebook.com/{post_id}"
 
-            return {"id": post_id, "platform_data": result, "url": post_url}
+                    return {"id": post_id, "platform_data": result, "url": post_url}
 
         except ContentValidationError:
             raise
@@ -368,7 +368,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
             # Extract post ID
             post_id = result.get("id")
 
-            return {
+                    return {
                 "id": post_id,
                 "scheduled_time": schedule_time.isoformat(),
                 "status": "scheduled",
@@ -406,7 +406,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
             result = response.json()
 
             # Format the response
-            return {
+                    return {
                 "id": result.get("id"),
                 "text": result.get("message"),
                 "created_at": result.get("created_time"),
@@ -445,7 +445,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
 
             # Check if deletion was successful
             if result.get("success", False):
-                return True
+                        return True
             else:
                 raise DeletionError("facebook", "Failed to delete post")
 
@@ -514,7 +514,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                     "metrics": self._extract_insights(result),
                 }
 
-                return analytics
+                        return analytics
 
             # Otherwise, get page-level analytics
             elif self.page_id:
@@ -538,14 +538,14 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                     "metrics": self._extract_insights(result),
                 }
 
-                return analytics
+                        return analytics
 
             else:
-                return {"error": "No page ID or post ID provided for analytics"}
+                        return {"error": "No page ID or post ID provided for analytics"}
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Facebook analytics error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "post_id": post_id,
                 "page_id": self.page_id,
@@ -577,13 +577,13 @@ class FacebookAdapter(BaseSocialMediaAdapter):
 
             # Check if we have a page ID
             if not self.page_id:
-                return {"error": "Page ID is required for audience insights"}
+                        return {"error": "Page ID is required for audience insights"}
 
             # Get audience insights
             # Note: Facebook's Audience Insights API is limited and requires special permissions
             # For demonstration, we'll return mock audience insights data
 
-            return {
+                    return {
                 "page_id": self.page_id,
                 "segment": segment or "all_fans",
                 "demographics": {
@@ -660,7 +660,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"Facebook audience insights error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "page_id": self.page_id,
                 "segment": segment or "all_fans",
@@ -697,4 +697,4 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                     # For simple numeric metrics
                     metrics[name] = latest_value
 
-        return metrics
+                return metrics

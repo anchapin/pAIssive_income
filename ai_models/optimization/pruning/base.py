@@ -64,7 +64,7 @@ class PruningConfig:
         Returns:
             Dictionary representation of the configuration
         """
-        return {
+                return {
             "method": self.method.value,
             "sparsity": self.sparsity,
             "structured_block_size": self.structured_block_size,
@@ -109,7 +109,7 @@ class PruningConfig:
         config = cls(method=method, **config_dict)
 
         config.additional_params = additional_params
-        return config
+                return config
 
 
 class Pruner(abc.ABC):

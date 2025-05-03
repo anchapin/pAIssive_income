@@ -27,7 +27,7 @@ except ImportError:
         pass
 
     def Field(*args, **kwargs):
-        return None
+                return None
 
 
 # Create router
@@ -92,7 +92,7 @@ if FASTAPI_AVAILABLE:
         try:
             # Get embeddings
             result = await _get_embeddings(model, request)
-            return result
+                    return result
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -121,10 +121,10 @@ async def _get_embeddings(model, request):
 
     # Create response
     data = []
-    for i, embedding in enumerate(embeddings):
-        data.append({"embedding": embedding, "index": i})
+    for i, embedding in enumerate(embeddings:
+        data.append({"embedding": embedding, "index": i}
 
-    return {
+            return {
         "data": data,
         "model": request.model or model.model_id,
         "usage": {"prompt_tokens": total_tokens, "total_tokens": total_tokens},

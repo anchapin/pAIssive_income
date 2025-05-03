@@ -82,7 +82,7 @@ class InMemoryServiceRegistry
 
             self._services[service.instance_id] = service
             self._last_renewal[service.instance_id] = time.time()
-            return True
+                    return True
 
     def deregister(self, instance_id: str) -> bool:
         """
@@ -98,8 +98,8 @@ class InMemoryServiceRegistry
             if instance_id in self._services:
                 del self._services[instance_id]
                 self._last_renewal.pop(instance_id, None)
-                return True
-            return False
+                        return True
+                    return False
 
     def renew(self, instance_id: str) -> bool:
         """
@@ -114,8 +114,8 @@ class InMemoryServiceRegistry
         with self._lock:
             if instance_id in self._services:
                 self._last_renewal[instance_id] = time.time()
-                return True
-            return False
+                        return True
+                    return False
 
     def get_instance(self, instance_id: str) -> Optional[ServiceInstance]:
         """
@@ -128,7 +128,7 @@ class InMemoryServiceRegistry
             The service instance, or None if not found
         """
         with self._lock:
-            return self._services.get(instance_id)
+                    return self._services.get(instance_id)
 
     def get_instances(self, service_id: str) -> List[ServiceInstance]:
         """
@@ -141,7 +141,7 @@ class InMemoryServiceRegistry
             List of service instances for the specified service
         """
         with self._lock:
-            return [
+                    return [
                 service
                 for service in self._services.values()
                 if service.service_id == service_id
@@ -162,7 +162,7 @@ class InMemoryServiceRegistry
                     result[service.service_id] = []
                 result[service.service_id].append(service)
 
-        return result
+                return result
 
     def update_status(self, instance_id: str, status: ServiceStatus) -> bool:
         """
@@ -179,5 +179,5 @@ class InMemoryServiceRegistry
             if instance_id in self._services:
                 service = self._services[instance_id]
                 service.status = status
-                return True
-            return False
+                        return True
+                    return False

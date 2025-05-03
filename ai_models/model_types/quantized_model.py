@@ -53,7 +53,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
- as bnb
+as bnb
 
     BITSANDBYTES_AVAILABLE = True
 except ImportError:
@@ -127,19 +127,19 @@ class QuantizedModel:
         if os.path.isdir(self.model_path):
             # Check if it's a Hugging Face model
             if os.path.exists(os.path.join(self.model_path, "config.json")):
-                return "huggingface"
+                        return "huggingface"
         else:
             # Check file extension
             file_ext = os.path.splitext(self.model_path)[1].lower()
             if file_ext == ".ggu":
-                return "ggu"
+                        return "ggu"
             elif file_ext == ".bin" and os.path.exists(
                 os.path.join(os.path.dirname(self.model_path), "config.json")
             ):
-                return "huggingface"
+                        return "huggingface"
 
         # Default to huggingface
-        return "huggingface"
+                return "huggingface"
 
     def load(self) -> None:
         """
@@ -277,11 +277,11 @@ class QuantizedModel:
             self.load()
 
         if self.model_format == "huggingface":
-            return self._generate_text_huggingface(
+                    return self._generate_text_huggingface(
                 prompt, max_tokens, temperature, top_p, top_k, **kwargs
             )
         elif self.model_format == "ggu":
-            return self._generate_text_gguf(
+                    return self._generate_text_gguf(
                 prompt, max_tokens, temperature, top_p, top_k, **kwargs
             )
         else:
@@ -335,7 +335,7 @@ class QuantizedModel:
             if output_text.startswith(prompt):
                 output_text = output_text[len(prompt) :]
 
-            return output_text
+                    return output_text
 
         except Exception as e:
             logger.error(f"Error generating text with Hugging Face model: {e}")
@@ -377,9 +377,9 @@ class QuantizedModel:
 
             # Extract text from output
             if isinstance(output, dict) and "choices" in output:
-                return output["choices"][0]["text"]
+                        return output["choices"][0]["text"]
             else:
-                return str(output)
+                        return str(output)
 
         except Exception as e:
             logger.error(f"Error generating text with GGUF model: {e}")
@@ -411,7 +411,7 @@ class QuantizedModel:
                 "num_attention_heads": getattr(config, "num_attention_heads", None),
             }
 
-        return metadata
+                return metadata
 
 
 # Example usage

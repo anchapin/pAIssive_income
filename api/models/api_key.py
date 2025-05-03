@@ -80,7 +80,7 @@ class APIKey:
             Generated API key
         """
         # Generate a 32-byte random token
-        return f"{self.KEY_PREFIX}{secrets.token_urlsafe(self.KEY_LENGTH)}"
+                return f"{self.KEY_PREFIX}{secrets.token_urlsafe(self.KEY_LENGTH)}"
 
     @classmethod
     def get_prefix(cls, key: str) -> str:
@@ -97,8 +97,8 @@ class APIKey:
         if key.startswith(cls.KEY_PREFIX):
             key_without_prefix = key[len(cls.KEY_PREFIX) :]
             # Return the first PREFIX_LENGTH characters
-            return f"{cls.KEY_PREFIX}{key_without_prefix[:cls.PREFIX_LENGTH]}"
-        return key[: cls.PREFIX_LENGTH]
+                    return f"{cls.KEY_PREFIX}{key_without_prefix[:cls.PREFIX_LENGTH]}"
+                return key[: cls.PREFIX_LENGTH]
 
     @classmethod
     def hash_key(cls, key: str) -> str:
@@ -112,7 +112,7 @@ class APIKey:
             Hashed API key
         """
         # Use SHA-256 for hashing
-        return hashlib.sha256(key.encode()).hexdigest() if key else None
+                return hashlib.sha256(key.encode()).hexdigest() if key else None
 
     def is_valid(self) -> bool:
         """
@@ -123,13 +123,13 @@ class APIKey:
         """
         # Check if the API key is active
         if not self.is_active:
-            return False
+                    return False
 
         # Check if the API key has expired
         if self.expires_at and datetime.now(timezone.utc) > self.expires_at:
-            return False
+                    return False
 
-        return True
+                return True
 
     def update_last_used(self) -> None:
         """Update the last used timestamp."""
@@ -142,7 +142,7 @@ class APIKey:
         Returns:
             Dictionary representation of the API key
         """
-        return {
+                return {
             "id": self.id,
             "key": self.key,
             "name": self.name,
@@ -206,7 +206,7 @@ class APIKey:
         if "key_hash" in data:
             api_key.key_hash = data["key_hash"]
 
-        return api_key
+                return api_key
 
     def has_scope(self, scope: str) -> bool:
         """
@@ -218,4 +218,4 @@ class APIKey:
         Returns:
             True if the API key has the scope, False otherwise
         """
-        return scope in self.scopes
+                return scope in self.scopes

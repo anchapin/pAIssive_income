@@ -105,7 +105,7 @@ async def example_batch_text_generation():
         else:
             print(f"Error: {result.error}")
 
-    return results
+            return results
 
 
 async def example_batch_embeddings():
@@ -182,7 +182,7 @@ async def example_batch_embeddings():
     except Exception as e:
         print(f"Error generating embeddings: {e}")
 
-    return results
+            return results
 
 
 async def compare_sync_vs_async_batch():

@@ -16,7 +16,7 @@ from api.config import APIConfig, APIVersion, RateLimitScope, RateLimitStrategy
 from api.server import APIServer
 
 
-        import time
+import time
 
 # Add the project root to the path so we can import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -32,17 +32,17 @@ def parse_args() -> argparse.Namespace:
     """
     Parse command-line arguments.
 
-    Returns:
+Returns:
         Parsed arguments
     """
     parser = argparse.ArgumentParser(description="pAIssive Income API Server")
 
-    # Basic configuration
+# Basic configuration
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
 
-    # API configuration
+# API configuration
     parser.add_argument("--prefix", type=str, default="/api", help="API prefix")
     parser.add_argument("--version", type=str, default="v2", help="Default API version")
     parser.add_argument(
@@ -62,7 +62,7 @@ def parse_args() -> argparse.Namespace:
         help="Disable API deprecation header",
     )
 
-    # GraphQL configuration
+# GraphQL configuration
     parser.add_argument(
         "--disable-graphql", action="store_true", help="Disable GraphQL API"
     )
@@ -88,7 +88,7 @@ def parse_args() -> argparse.Namespace:
         help="Disable GraphQL Playground",
     )
 
-    # Security configuration
+# Security configuration
     parser.add_argument(
         "--enable-auth", action="store_true", help="Enable authentication"
     )
@@ -96,7 +96,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--ssl-keyfile", type=str, help="SSL key file")
     parser.add_argument("--ssl-certfile", type=str, help="SSL certificate file")
 
-    # Rate limiting configuration
+# Rate limiting configuration
     parser.add_argument(
         "--enable-rate-limit", action="store_true", help="Enable rate limiting"
     )
@@ -135,7 +135,7 @@ def parse_args() -> argparse.Namespace:
         help="Disable rate limit headers",
     )
 
-    # Analytics configuration
+# Analytics configuration
     parser.add_argument(
         "--disable-analytics", action="store_true", help="Disable API analytics"
     )
@@ -165,7 +165,7 @@ def parse_args() -> argparse.Namespace:
         help="Disable analytics export",
     )
 
-    # Module configuration
+# Module configuration
     parser.add_argument(
         "--disable-niche-analysis",
         action="store_true",
@@ -192,17 +192,17 @@ def parse_args() -> argparse.Namespace:
         "--disable-dashboard", action="store_true", help="Disable dashboard module"
     )
 
-    return parser.parse_args()
+            return parser.parse_args()
 
 
 def create_config(args: argparse.Namespace) -> APIConfig:
     """
     Create API configuration from command-line arguments.
 
-    Args:
+Args:
         args: Command-line arguments
 
-    Returns:
+Returns:
         API configuration
     """
     # Parse active versions
@@ -217,11 +217,11 @@ def create_config(args: argparse.Namespace) -> APIConfig:
         else:
             logger.warning(f"Invalid API version: {version_str}")
 
-    # If no valid versions were provided, use all available versions
+# If no valid versions were provided, use all available versions
     if not active_versions:
         active_versions = list(APIVersion)
 
-    # Parse default version
+# Parse default version
     default_version = None
     if APIVersion.is_valid_version(args.version):
         for version in APIVersion:
@@ -229,11 +229,11 @@ def create_config(args: argparse.Namespace) -> APIConfig:
                 default_version = version
                 break
 
-    # If default version is not valid or not in active versions, use the latest active version
+# If default version is not valid or not in active versions, use the latest active version
     if default_version is None or default_version not in active_versions:
         default_version = max(active_versions, key=lambda v: list(APIVersion).index(v))
 
-    config = APIConfig(
+config = APIConfig(
         # Basic configuration
         host=args.host,
         port=args.port,
@@ -281,7 +281,7 @@ def create_config(args: argparse.Namespace) -> APIConfig:
         enable_dashboard=not args.disable_dashboard,
     )
 
-    return config
+            return config
 
 
 def main() -> None:
@@ -291,27 +291,27 @@ def main() -> None:
     # Parse command-line arguments
     args = parse_args()
 
-    # Create API configuration
+# Create API configuration
     config = create_config(args)
 
-    # Create API server
+# Create API server
     server = APIServer(config)
 
-    # Start server
+# Start server
     try:
         server.start()
 
-        # Keep the main thread alive
+# Keep the main thread alive
 
 
-        while True:
+while True:
             time.sleep(1)
 
-    except KeyboardInterrupt:
+except KeyboardInterrupt:
         logger.info("Stopping server...")
         server.stop()
 
-    except Exception as e:
+except Exception as e:
         logger.error(f"Error running server: {str(e)}")
         server.stop()
         sys.exit(1)

@@ -154,7 +154,7 @@ class StructuredJsonFormatter(logging.Formatter):
         if hasattr(record, "extra"):
             log_record.update(record.extra)
 
-        return json.dumps(log_record)
+                return json.dumps(log_record)
 
 
 def setup_logging(
@@ -219,4 +219,4 @@ def get_logger(name: str) -> logging.Logger:
     Returns:
         logging.Logger: A configured logger
     """
-    return logging.getLogger(name)
+            return logging.getLogger(name)

@@ -48,282 +48,282 @@ def is_valid_email(email: str) -> bool:
     """
     Validate an email address.
 
-    Args:
+Args:
         email: Email address to validate
 
-    Returns:
+Returns:
         True if the email is valid, False otherwise
     """
     if not email:
-        return False
+                    return False
 
-    return bool(EMAIL_REGEX.match(email))
+            return bool(EMAIL_REGEX.match(email))
 
 
 def is_valid_url(url: str) -> bool:
     """
     Validate a URL.
 
-    Args:
+Args:
         url: URL to validate
 
-    Returns:
+Returns:
         True if the URL is valid, False otherwise
     """
     if not url:
-        return False
+                    return False
 
-    return bool(URL_REGEX.match(url))
+            return bool(URL_REGEX.match(url))
 
 
 def is_valid_uuid(uuid_str: str) -> bool:
     """
     Validate a UUID string.
 
-    Args:
+Args:
         uuid_str: UUID string to validate
 
-    Returns:
+Returns:
         True if the UUID is valid, False otherwise
     """
     if not uuid_str:
-        return False
+                    return False
 
-    # Try to parse the UUID
+# Try to parse the UUID
     try:
         uuid_obj = uuid.UUID(uuid_str)
-        return str(uuid_obj) == uuid_str.lower()
+                    return str(uuid_obj) == uuid_str.lower()
     except ValueError:
-        return False
+                    return False
 
 
 def is_valid_phone(phone: str) -> bool:
     """
     Validate a phone number.
 
-    Args:
+Args:
         phone: Phone number to validate
 
-    Returns:
+Returns:
         True if the phone number is valid, False otherwise
     """
     if not phone:
-        return False
+                    return False
 
-    return bool(PHONE_REGEX.match(phone))
+            return bool(PHONE_REGEX.match(phone))
 
 
 def is_valid_username(username: str) -> bool:
     """
     Validate a username.
 
-    Args:
+Args:
         username: Username to validate
 
-    Returns:
+Returns:
         True if the username is valid, False otherwise
     """
     if not username:
-        return False
+                    return False
 
-    return bool(USERNAME_REGEX.match(username))
+            return bool(USERNAME_REGEX.match(username))
 
 
 def is_valid_password(password: str) -> bool:
     """
     Validate a password.
 
-    Args:
+Args:
         password: Password to validate
 
-    Returns:
+Returns:
         True if the password is valid, False otherwise
     """
     if not password:
-        return False
+                    return False
 
-    return bool(PASSWORD_REGEX.match(password))
+            return bool(PASSWORD_REGEX.match(password))
 
 
 def is_valid_slug(slug: str) -> bool:
     """
     Validate a slug.
 
-    Args:
+Args:
         slug: Slug to validate
 
-    Returns:
+Returns:
         True if the slug is valid, False otherwise
     """
     if not slug:
-        return False
+                    return False
 
-    return bool(SLUG_REGEX.match(slug))
+            return bool(SLUG_REGEX.match(slug))
 
 
 def is_valid_json(json_str: str) -> bool:
     """
     Validate a JSON string.
 
-    Args:
+Args:
         json_str: JSON string to validate
 
-    Returns:
+Returns:
         True if the JSON is valid, False otherwise
     """
     if not json_str:
-        return False
+                    return False
 
-    try:
+try:
         json.loads(json_str)
-        return True
+                    return True
     except json.JSONDecodeError:
-        return False
+                    return False
 
 
 def is_valid_date(date_str: str, format_str: str = "%Y-%m-%d") -> bool:
     """
     Validate a date string.
 
-    Args:
+Args:
         date_str: Date string to validate
         format_str: Date format string (default: "%Y-%m-%d")
 
-    Returns:
+Returns:
         True if the date is valid, False otherwise
     """
     if not date_str:
-        return False
+                    return False
 
-    try:
+try:
         datetime.strptime(date_str, format_str)
-        return True
+                    return True
     except ValueError:
-        return False
+                    return False
 
 
 def is_valid_file_path(file_path: str) -> bool:
     """
     Validate a file path.
 
-    Args:
+Args:
         file_path: File path to validate
 
-    Returns:
+Returns:
         True if the file path is valid, False otherwise
     """
     if not file_path:
-        return False
+                    return False
 
-    try:
+try:
         Path(file_path)
-        return True
+                    return True
     except Exception:
-        return False
+                    return False
 
 
 def is_valid_file(file_path: str, must_exist: bool = True) -> bool:
     """
     Validate a file path and check if the file exists.
 
-    Args:
+Args:
         file_path: File path to validate
         must_exist: Whether the file must exist (default: True)
 
-    Returns:
+Returns:
         True if the file path is valid and the file exists (if must_exist is True),
         False otherwise
     """
     if not is_valid_file_path(file_path):
-        return False
+                    return False
 
-    path = Path(file_path)
+path = Path(file_path)
 
-    if must_exist:
-        return path.is_file()
+if must_exist:
+                    return path.is_file()
 
-    return True
+            return True
 
 
 def is_valid_directory(dir_path: str, must_exist: bool = True) -> bool:
     """
     Validate a directory path and check if the directory exists.
 
-    Args:
+Args:
         dir_path: Directory path to validate
         must_exist: Whether the directory must exist (default: True)
 
-    Returns:
+Returns:
         True if the directory path is valid and the directory exists (if must_exist is True),
         False otherwise
     """
     if not is_valid_file_path(dir_path):
-        return False
+                    return False
 
-    path = Path(dir_path)
+path = Path(dir_path)
 
-    if must_exist:
-        return path.is_dir()
+if must_exist:
+                    return path.is_dir()
 
-    return True
+            return True
 
 
 def sanitize_string(input_str: str) -> str:
     """
     Sanitize a string to prevent XSS attacks.
 
-    Args:
+Args:
         input_str: String to sanitize
 
-    Returns:
+Returns:
         Sanitized string
     """
     if input_str is None:
-        return ""
+                    return ""
 
-    # Escape HTML special characters
-    return html.escape(input_str)
+# Escape HTML special characters
+                return html.escape(input_str)
 
 
 def sanitize_html(html_str: str) -> str:
     """
     Sanitize HTML to prevent XSS attacks.
 
-    Args:
+Args:
         html_str: HTML string to sanitize
 
-    Returns:
+Returns:
         Sanitized HTML string
     """
     if html_str is None:
-        return ""
+                    return ""
 
-    # This is a simple implementation that escapes all HTML
+# This is a simple implementation that escapes all HTML
     # For a more sophisticated implementation, consider using a library like bleach
-    return html.escape(html_str)
+                return html.escape(html_str)
 
 
 def sanitize_filename(filename: str) -> str:
     """
     Sanitize a filename to prevent path traversal attacks.
 
-    Args:
+Args:
         filename: Filename to sanitize
 
-    Returns:
+Returns:
         Sanitized filename
     """
     if filename is None:
-        return ""
+                    return ""
 
-    # Get the base name (remove directory parts)
+# Get the base name (remove directory parts)
     base_name = os.path.basename(filename)
 
-    # Handle paths with colons by splitting and taking the last part
+# Handle paths with colons by splitting and taking the last part
     if ":" in base_name:
         base_name = base_name.split(":")[-1]
 
-    # Special handling for test cases with special characters
+# Special handling for test cases with special characters
     # For file*name.txt, file?name.txt, etc., return filename.txt
     special_chars = '*?"<>|'
     for char in special_chars:
@@ -334,43 +334,43 @@ def sanitize_filename(filename: str) -> str:
                 base_name = "".join(parts)
                 break
 
-    # Remove path separators and null bytes
+# Remove path separators and null bytes
     sanitized = re.sub(r'[\\/*?"<>|]', "", base_name)
     sanitized = sanitized.replace("\0", "")
 
-    return sanitized
+            return sanitized
 
 
 def sanitize_path(path_str: str) -> str:
     """
     Sanitize a path to prevent path traversal attacks.
 
-    Args:
+Args:
         path_str: Path to sanitize
 
-    Returns:
+Returns:
         Sanitized path
     """
     if path_str is None or path_str == "":
-        return ""
+                    return ""
 
-    # Convert to Path object and resolve to absolute path
+# Convert to Path object and resolve to absolute path
     try:
         # Get current working directory as base
         current_dir = os.getcwd()
 
-        # Create absolute path based on the input
+# Create absolute path based on the input
         if os.path.isabs(path_str):
             path = Path(path_str).resolve()
         else:
             # For relative paths, join with current directory first
             path = Path(os.path.join(current_dir, path_str)).resolve()
 
-        # Convert to string and normalize the path case to match the test expectations
+# Convert to string and normalize the path case to match the test expectations
         # Use the same case as os.getcwd() returns
         result = str(path)
 
-        # Ensure the drive letter case matches the current directory
+# Ensure the drive letter case matches the current directory
         if (
             len(result) >= 2
             and result[1] == ":"
@@ -379,9 +379,9 @@ def sanitize_path(path_str: str) -> str:
         ):
             result = current_dir[0] + result[1:]
 
-        return result
+            return result
     except Exception:
-        return ""
+                    return ""
 
 
 def validate_and_sanitize_input(
@@ -393,48 +393,48 @@ def validate_and_sanitize_input(
     """
     Validate and sanitize an input value.
 
-    Args:
+Args:
         input_value: Input value to validate and sanitize
         validation_func: Function to validate the input
         sanitization_func: Function to sanitize the input (default: None)
         error_message: Error message to raise if validation fails
 
-    Returns:
+Returns:
         Sanitized input value
 
-    Raises:
+Raises:
         ValueError: If validation fails
     """
     # Validate input
     if not validation_func(input_value):
         raise ValueError(error_message)
 
-    # Sanitize input if a sanitization function is provided
+# Sanitize input if a sanitization function is provided
     if sanitization_func:
-        return sanitization_func(input_value)
+                    return sanitization_func(input_value)
 
-    return input_value
+            return input_value
 
 
 def validate_config_file(config_file: str, schema_cls: Type[T]) -> T:
     """
     Validate a configuration file against a Pydantic schema.
 
-    Args:
+Args:
         config_file: Path to the configuration file
         schema_cls: Pydantic schema class to validate against
 
-    Returns:
+Returns:
         An instance of the schema class with validated data
 
-    Raises:
+Raises:
         ValueError: If the configuration file is invalid
     """
     # Validate file path
     if not is_valid_file(config_file):
         raise ValueError(f"Invalid configuration file: {config_file}")
 
-    # Read configuration file
+# Read configuration file
     try:
         with open(config_file, "r") as f:
             config_data = json.load(f)
@@ -443,9 +443,9 @@ def validate_config_file(config_file: str, schema_cls: Type[T]) -> T:
     except Exception as e:
         raise ValueError(f"Error reading configuration file: {config_file} - {str(e)}")
 
-    # Validate configuration data
+# Validate configuration data
     try:
         validated_data = schema_cls.model_validate(config_data)
-        return validated_data
+                    return validated_data
     except Exception as e:
         raise ValueError(f"Invalid configuration data: {str(e)}")

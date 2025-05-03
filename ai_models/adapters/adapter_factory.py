@@ -65,7 +65,7 @@ class AdapterFactory:
             adapter = adapter_class(**kwargs)
 
             logger.debug(f"Created adapter: {adapter_type}")
-            return adapter
+                    return adapter
 
         except Exception as e:
             # Create a ModelError with the appropriate message and details
@@ -82,7 +82,7 @@ class AdapterFactory:
             error.log()
             raise error
             # This line won't be reached due to reraise=True
-            return None
+                    return None
 
     def get_available_adapters(self) -> List[str]:
         """
@@ -91,7 +91,7 @@ class AdapterFactory:
         Returns:
             List of adapter types
         """
-        return list(self._adapters.keys())
+                return list(self._adapters.keys())
 
 
 # Create a global adapter factory
@@ -105,4 +105,4 @@ def get_adapter_factory() -> AdapterFactory:
     Returns:
         Global adapter factory
     """
-    return adapter_factory
+            return adapter_factory

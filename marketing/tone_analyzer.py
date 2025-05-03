@@ -19,11 +19,11 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 
 
-    import nltk
+import nltk
     from nltk.corpus import stopwords
     from nltk.tokenize import sent_tokenize, word_tokenize
 
-    NLTK_AVAILABLE 
+NLTK_AVAILABLE 
 
 # Third-party imports
 try:
@@ -40,11 +40,11 @@ class ContentAnalyzer(ABC):
     """
     Abstract base class for content analyzers.
 
-    This class provides common functionality for all content analyzers,
+This class provides common functionality for all content analyzers,
     including configuration, analysis, and reporting.
     """
 
-    def __init__(
+def __init__(
         self,
         content: Optional[Dict[str, Any]] = None,
         config: Optional[Dict[str, Any]] = None,
@@ -52,7 +52,7 @@ class ContentAnalyzer(ABC):
         """
         Initialize a content analyzer.
 
-        Args:
+Args:
             content: Optional content to analyze
             config: Optional configuration dictionary
         """
@@ -62,121 +62,121 @@ class ContentAnalyzer(ABC):
         self.created_at = datetime.datetime.now().isoformat()
         self.results = None
 
-    @abstractmethod
+@abstractmethod
     def analyze(self) -> Dict[str, Any]:
         """
         Analyze the content.
 
-        Returns:
+Returns:
             Dictionary with analysis results
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def get_score(self) -> float:
         """
         Get the overall score for the content.
 
-        Returns:
+Returns:
             Score between 0 and 1
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def get_recommendations(self) -> List[Dict[str, Any]]:
         """
         Get recommendations for the content.
 
-        Returns:
+Returns:
             List of recommendation dictionaries
         """
         pass
 
-    def get_default_config(self) -> Dict[str, Any]:
+def get_default_config(self) -> Dict[str, Any]:
         """
         Get the default configuration for the analyzer.
 
-        Returns:
+Returns:
             Default configuration dictionary
         """
-        return {"timestamp": datetime.datetime.now().isoformat()}
+                    return {"timestamp": datetime.datetime.now().isoformat()}
 
-    def validate_config(self) -> Tuple[bool, List[str]]:
+def validate_config(self) -> Tuple[bool, List[str]]:
         """
         Validate the configuration dictionary.
 
-        Returns:
+Returns:
             Tuple of (is_valid, error_messages)
         """
-        return True, []
+                    return True, []
 
-    def set_content(self, content: Dict[str, Any]) -> None:
+def set_content(self, content: Dict[str, Any]) -> None:
         """
         Set the content to analyze.
 
-        Args:
+Args:
             content: Content dictionary
         """
         self.content = content
         self.results = None  # Reset results
 
-    def set_config(self, config: Dict[str, Any]) -> None:
+def set_config(self, config: Dict[str, Any]) -> None:
         """
         Set the configuration dictionary.
 
-        Args:
+Args:
             config: Configuration dictionary
         """
         self.config = config
         self.results = None  # Reset results
 
-    def update_config(self, key: str, value: Any) -> None:
+def update_config(self, key: str, value: Any) -> None:
         """
         Update a specific configuration value.
 
-        Args:
+Args:
             key: Configuration key
             value: Configuration value
         """
         self.config[key] = value
         self.results = None  # Reset results
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the analyzer to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the analyzer
         """
-        return {
+                    return {
             "id": self.id,
             "config": self.config,
             "created_at": self.created_at,
             "results": self.results,
         }
 
-    def to_json(self, indent: int = 2) -> str:
+def to_json(self, indent: int = 2) -> str:
         """
         Convert the analyzer to a JSON string.
 
-        Args:
+Args:
             indent: Number of spaces for indentation
 
-        Returns:
+Returns:
             JSON string representation of the analyzer
         """
-        return json.dumps(self.to_dict(), indent=indent)
+                    return json.dumps(self.to_dict(), indent=indent)
 
 
 class ToneAnalyzer(ContentAnalyzer):
     """
     Class for analyzing and adjusting the tone of content.
 
-    This class provides methods for analyzing tone, sentiment, and style
+This class provides methods for analyzing tone, sentiment, and style
     in content, and making recommendations for adjustments.
     """
 
-    # Define tone categories
+# Define tone categories
     TONE_CATEGORIES = {
         "formal": {
             "description": "Professional, academic, or business-like tone",
@@ -282,7 +282,7 @@ class ToneAnalyzer(ContentAnalyzer):
         },
     }
 
-    # Define sentiment categories
+# Define sentiment categories
     SENTIMENT_CATEGORIES = {
         "positive": [
             "good",
@@ -448,7 +448,7 @@ class ToneAnalyzer(ContentAnalyzer):
         ],
     }
 
-    def __init__(
+def __init__(
         self,
         content: Optional[Dict[str, Any]] = None,
         target_tone: Optional[str] = None,
@@ -457,34 +457,34 @@ class ToneAnalyzer(ContentAnalyzer):
         """
         Initialize a tone analyzer.
 
-        Args:
+Args:
             content: Optional content to analyze
             target_tone: Optional target tone for the content
             config: Optional configuration dictionary
         """
         super().__init__(content, config)
 
-        # Set target tone
+# Set target tone
         self.target_tone = target_tone
 
-        # Initialize NLTK if available
+# Initialize NLTK if available
         if NLTK_AVAILABLE:
             try:
                 nltk.data.find("tokenizers/punkt")
             except LookupError:
                 nltk.download("punkt")
 
-    def get_default_config(self) -> Dict[str, Any]:
+def get_default_config(self) -> Dict[str, Any]:
         """
         Get the default configuration for the tone analyzer.
 
-        Returns:
+Returns:
             Default configuration dictionary
         """
         # Start with base config
         config = super().get_default_config()
 
-        # Add tone-specific config
+# Add tone-specific config
         config.update(
             {
                 "min_tone_consistency": 0.7,  # Minimum consistency score for the target tone
@@ -502,13 +502,13 @@ class ToneAnalyzer(ContentAnalyzer):
             }
         )
 
-        return config
+            return config
 
-    def set_target_tone(self, target_tone: str) -> None:
+def set_target_tone(self, target_tone: str) -> None:
         """
         Set the target tone for the content.
 
-        Args:
+Args:
             target_tone: Target tone
         """
         if target_tone not in self.TONE_CATEGORIES:
@@ -516,52 +516,52 @@ class ToneAnalyzer(ContentAnalyzer):
                 f"Invalid target tone: {target_tone}. Must be one of: {', '.join(self.TONE_CATEGORIES.keys())}"
             )
 
-        self.target_tone = target_tone
+self.target_tone = target_tone
         self.config["target_tone"] = target_tone
         self.results = None  # Reset results
 
-    def validate_content(self) -> Tuple[bool, List[str]]:
+def validate_content(self) -> Tuple[bool, List[str]]:
         """
         Validate the content for tone analysis.
 
-        Returns:
+Returns:
             Tuple of (is_valid, error_messages)
         """
         if self.content is None:
-            return False, ["No content provided"]
+                        return False, ["No content provided"]
 
-        errors = []
+errors = []
 
-        # Check if there's text to analyze
+# Check if there's text to analyze
         text = self._extract_text_from_content()
         if not text:
             errors.append("No text found in content")
 
-        # Check if target tone is valid
+# Check if target tone is valid
         if self.target_tone and self.target_tone not in self.TONE_CATEGORIES:
             errors.append(
                 f"Invalid target tone: {self.target_tone}. Must be one of: {', '.join(self.TONE_CATEGORIES.keys())}"
             )
 
-        return len(errors) == 0, errors
+            return len(errors) == 0, errors
 
-    def analyze(self) -> Dict[str, Any]:
+def analyze(self) -> Dict[str, Any]:
         """
         Analyze the content for tone and sentiment.
 
-        Returns:
+Returns:
             Dictionary with analysis results
         """
         # Validate content
         is_valid, errors = self.validate_content()
 
-        if not is_valid:
+if not is_valid:
             raise ValueError(f"Invalid content: {', '.join(errors)}")
 
-        # Extract text
+# Extract text
         text = self._extract_text_from_content()
 
-        # Initialize results
+# Initialize results
         self.results = {
             "id": str(uuid.uuid4()),
             "timestamp": datetime.datetime.now().isoformat(),
@@ -575,72 +575,72 @@ class ToneAnalyzer(ContentAnalyzer):
             "recommendations": [],
         }
 
-        # Analyze tone
+# Analyze tone
         self.results["tone_analysis"] = self._analyze_tone(text)
 
-        # Analyze sentiment
+# Analyze sentiment
         self.results["sentiment_analysis"] = self._analyze_sentiment(text)
 
-        # Analyze style
+# Analyze style
         self.results["style_analysis"] = self._analyze_style(text)
 
-        # Calculate overall score
+# Calculate overall score
         self.results["overall_score"] = self.get_score()
 
-        # Generate recommendations
+# Generate recommendations
         self.results["recommendations"] = self.get_recommendations()
 
-        return self.results
+            return self.results
 
-    def _analyze_tone(self, text: str) -> Dict[str, Any]:
+def _analyze_tone(self, text: str) -> Dict[str, Any]:
         """
         Analyze the tone of the text.
 
-        Args:
+Args:
             text: Text to analyze
 
-        Returns:
+Returns:
             Dictionary with tone analysis results
         """
         # Get sentences
         sentences = self._get_sentences(text)
 
-        # Initialize tone scores
+# Initialize tone scores
         tone_scores = {}
 
-        # Analyze each tone category
+# Analyze each tone category
         for tone, tone_data in self.TONE_CATEGORIES.items():
             # Count pattern matches
             pattern_matches = 0
 
-            for pattern in tone_data["patterns"]:
+for pattern in tone_data["patterns"]:
                 pattern_matches += len(re.findall(pattern, text, re.IGNORECASE))
 
-            # Count anti-pattern matches
+# Count anti-pattern matches
             anti_pattern_matches = 0
 
-            for pattern in tone_data["anti_patterns"]:
+for pattern in tone_data["anti_patterns"]:
                 anti_pattern_matches += len(re.findall(pattern, text, re.IGNORECASE))
 
-            # Calculate tone score
+# Calculate tone score
             pattern_weight = self.config["tone_pattern_weight"]
             anti_pattern_weight = self.config["tone_anti_pattern_weight"]
 
-            # Normalize by number of sentences
+# Normalize by number of sentences
             pattern_score = pattern_matches / len(sentences) if sentences else 0
             anti_pattern_score = (
                 anti_pattern_matches / len(sentences) if sentences else 0
             )
 
-            # Calculate weighted score
+# Calculate weighted score
             tone_score = (pattern_score * pattern_weight) - (
                 anti_pattern_score * anti_pattern_weight
             )
 
-            # Clamp score to 0-1 range
+# Clamp score to 0-1 range
             tone_score = max(0, min(1, tone_score))
 
-            # Store tone score
+# Store tone score
             tone_scores[tone] = {
                 "score": tone_score,
                 "pattern_matches": pattern_matches,
@@ -648,10 +648,10 @@ class ToneAnalyzer(ContentAnalyzer):
                 "is_target": tone == self.config["target_tone"],
             }
 
-        # Determine dominant tone
+# Determine dominant tone
         dominant_tone = max(tone_scores.items(), key=lambda x: x[1]["score"])
 
-        # Calculate consistency with target tone
+# Calculate consistency with target tone
         target_tone = self.config["target_tone"]
         target_score = tone_scores[target_tone]["score"]
         consistency = (
@@ -660,7 +660,7 @@ class ToneAnalyzer(ContentAnalyzer):
             else 0
         )
 
-        return {
+            return {
             "tone_scores": tone_scores,
             "dominant_tone": dominant_tone[0],
             "dominant_tone_score": dominant_tone[1]["score"],
@@ -670,52 +670,52 @@ class ToneAnalyzer(ContentAnalyzer):
             "is_consistent": consistency >= self.config["min_tone_consistency"],
         }
 
-    def _analyze_sentiment(self, text: str) -> Dict[str, Any]:
+def _analyze_sentiment(self, text: str) -> Dict[str, Any]:
         """
         Analyze the sentiment of the text.
 
-        Args:
+Args:
             text: Text to analyze
 
-        Returns:
+Returns:
             Dictionary with sentiment analysis results
         """
         # Get words
         words = self._get_words(text)
 
-        # Initialize sentiment counts
+# Initialize sentiment counts
         sentiment_counts = {"positive": 0, "negative": 0, "neutral": 0}
 
-        # Count sentiment words
+# Count sentiment words
         for word in words:
             word = word.lower()
 
-            if word in self.SENTIMENT_CATEGORIES["positive"]:
+if word in self.SENTIMENT_CATEGORIES["positive"]:
                 sentiment_counts["positive"] += 1
             elif word in self.SENTIMENT_CATEGORIES["negative"]:
                 sentiment_counts["negative"] += 1
             elif word in self.SENTIMENT_CATEGORIES["neutral"]:
                 sentiment_counts["neutral"] += 1
 
-        # Calculate total sentiment words
+# Calculate total sentiment words
         total_sentiment_words = sum(sentiment_counts.values())
 
-        # Calculate sentiment scores
+# Calculate sentiment scores
         sentiment_scores = {}
 
-        for sentiment, count in sentiment_counts.items():
+for sentiment, count in sentiment_counts.items():
             score = count / total_sentiment_words if total_sentiment_words > 0 else 0
 
-            sentiment_scores[sentiment] = {
+sentiment_scores[sentiment] = {
                 "count": count,
                 "score": score,
                 "is_target": sentiment == self.config["target_sentiment"],
             }
 
-        # Determine dominant sentiment
+# Determine dominant sentiment
         dominant_sentiment = max(sentiment_scores.items(), key=lambda x: x[1]["score"])
 
-        # Calculate consistency with target sentiment
+# Calculate consistency with target sentiment
         target_sentiment = self.config["target_sentiment"]
         target_score = sentiment_scores[target_sentiment]["score"]
         consistency = (
@@ -724,7 +724,7 @@ class ToneAnalyzer(ContentAnalyzer):
             else 0
         )
 
-        return {
+            return {
             "sentiment_scores": sentiment_scores,
             "dominant_sentiment": dominant_sentiment[0],
             "dominant_sentiment_score": dominant_sentiment[1]["score"],
@@ -734,127 +734,127 @@ class ToneAnalyzer(ContentAnalyzer):
             "is_consistent": consistency >= self.config["min_sentiment_consistency"],
         }
 
-    def _extract_text_from_content(self) -> str:
+def _extract_text_from_content(self) -> str:
         """
         Extract text from content for analysis.
 
-        Returns:
+Returns:
             Extracted text
         """
         if not self.content:
-            return ""
+                        return ""
 
-        text = ""
+text = ""
 
-        # Add title
+# Add title
         if "title" in self.content:
             text += self.content["title"] + " "
 
-        # Add meta description
+# Add meta description
         if "meta_description" in self.content:
             text += self.content["meta_description"] + " "
 
-        # Add introduction
+# Add introduction
         if "introduction" in self.content:
             text += self.content["introduction"] + "\n\n"
 
-        # Add sections
+# Add sections
         if "sections" in self.content:
             for section in self.content["sections"]:
                 if "title" in section:
                     text += section["title"] + " "
 
-                if "content" in section:
+if "content" in section:
                     text += section["content"] + "\n\n"
 
-        # Add conclusion
+# Add conclusion
         if "conclusion" in self.content:
             text += self.content["conclusion"] + "\n\n"
 
-        # Add overview (for product descriptions)
+# Add overview (for product descriptions)
         if "overview" in self.content:
             text += self.content["overview"] + "\n\n"
 
-        # Add features (for product descriptions)
+# Add features (for product descriptions)
         if "features" in self.content:
             for feature in self.content["features"]:
                 if "name" in feature:
                     text += feature["name"] + " "
 
-                if "description" in feature:
+if "description" in feature:
                     text += feature["description"] + "\n\n"
 
-        # Add benefits (for product descriptions)
+# Add benefits (for product descriptions)
         if "benefits" in self.content:
             for benefit in self.content["benefits"]:
                 if "name" in benefit:
                     text += benefit["name"] + " "
 
-                if "description" in benefit:
+if "description" in benefit:
                     text += benefit["description"] + "\n\n"
 
-        # Add executive summary (for case studies)
+# Add executive summary (for case studies)
         if "executive_summary" in self.content:
             text += self.content["executive_summary"] + "\n\n"
 
-        # Add challenge (for case studies)
+# Add challenge (for case studies)
         if "challenge" in self.content:
             text += self.content["challenge"] + "\n\n"
 
-        # Add solution (for case studies)
+# Add solution (for case studies)
         if "solution" in self.content:
             text += self.content["solution"] + "\n\n"
 
-        # Add implementation (for case studies)
+# Add implementation (for case studies)
         if "implementation" in self.content:
             text += self.content["implementation"] + "\n\n"
 
-        # Add results (for case studies)
+# Add results (for case studies)
         if "results" in self.content:
             text += self.content["results"] + "\n\n"
 
-        # Add testimonial (for case studies)
+# Add testimonial (for case studies)
         if "testimonial" in self.content:
             text += self.content["testimonial"] + "\n\n"
 
-        return text
+            return text
 
-    def _get_sentences(self, text: str) -> List[str]:
+def _get_sentences(self, text: str) -> List[str]:
         """
         Get sentences from text.
 
-        Args:
+Args:
             text: Text to analyze
 
-        Returns:
+Returns:
             List of sentences
         """
         if NLTK_AVAILABLE:
             # Use NLTK for sentence tokenization
-            return sent_tokenize(text)
+                        return sent_tokenize(text)
         else:
             # Simple sentence tokenization
             # Split on periods, exclamation points, and question marks
             sentences = re.split(r"(?<=[.!?])\s+", text)
 
-            # Filter out empty sentences
-            return [s.strip() for s in sentences if s.strip()]
+# Filter out empty sentences
+                        return [s.strip() for s in sentences if s.strip()]
 
-    def _get_words(self, text: str) -> List[str]:
+def _get_words(self, text: str) -> List[str]:
         """
         Get words from text.
 
-        Args:
+Args:
             text: Text to analyze
 
-        Returns:
+Returns:
             List of words
         """
         if NLTK_AVAILABLE:
             # Use NLTK for word tokenization
             tokens = word_tokenize(text.lower())
 
-            # Remove punctuation and stopwords
+# Remove punctuation and stopwords
             stop_words = set(stopwords.words("english"))
             tokens = [
                 token for token in tokens if token.isalnum() and token not in stop_words
@@ -864,29 +864,29 @@ class ToneAnalyzer(ContentAnalyzer):
             # Remove punctuation
             text = re.sub(r"[^\w\s]", "", text.lower())
 
-            # Split on whitespace
+# Split on whitespace
             tokens = text.split()
 
-        return tokens
+            return tokens
 
-    def _analyze_style(self, text: str) -> Dict[str, Any]:
+def _analyze_style(self, text: str) -> Dict[str, Any]:
         """
         Analyze the writing style of the text.
 
-        Args:
+Args:
             text: Text to analyze
 
-        Returns:
+Returns:
             Dictionary with style analysis results
         """
         # Get sentences and words
         sentences = self._get_sentences(text)
         words = self._get_words(text)
 
-        # Analyze sentence length variety
+# Analyze sentence length variety
         sentence_lengths = [len(self._get_words(sentence)) for sentence in sentences]
 
-        # Calculate standard deviation of sentence lengths
+# Calculate standard deviation of sentence lengths
         mean_length = (
             sum(sentence_lengths) / len(sentence_lengths) if sentence_lengths else 0
         )
@@ -898,18 +898,18 @@ class ToneAnalyzer(ContentAnalyzer):
         )
         std_dev = math.sqrt(variance)
 
-        # Calculate coefficient of variation (normalized standard deviation)
+# Calculate coefficient of variation (normalized standard deviation)
         cv = std_dev / mean_length if mean_length > 0 else 0
 
-        # Analyze vocabulary variety
+# Analyze vocabulary variety
         unique_words = len(set(words))
         vocabulary_variety = unique_words / len(words) if words else 0
 
-        # Analyze punctuation
+# Analyze punctuation
         punctuation_count = sum(1 for char in text if char in string.punctuation)
         punctuation_density = punctuation_count / len(text) if text else 0
 
-        return {
+            return {
             "sentence_length_variety": {"score": cv, "is_optimal": cv >= 0.2},
             "vocabulary_variety": {
                 "score": vocabulary_variety,
@@ -924,20 +924,20 @@ class ToneAnalyzer(ContentAnalyzer):
             },
         }
 
-    def get_score(self) -> float:
+def get_score(self) -> float:
         """
         Get the overall tone score for the content.
 
-        Returns:
+Returns:
             Tone score between 0 and 1
         """
         if self.results is None:
             self.analyze()
 
-        # Calculate tone score
+# Calculate tone score
         tone_score = 0.0
 
-        # Score based on tone consistency
+# Score based on tone consistency
         if self.results["tone_analysis"]["is_consistent"]:
             tone_score += 0.4
         else:
@@ -948,7 +948,7 @@ class ToneAnalyzer(ContentAnalyzer):
                 0.4 * (consistency / min_consistency) if min_consistency > 0 else 0
             )
 
-        # Score based on sentiment consistency
+# Score based on sentiment consistency
         if self.results["sentiment_analysis"]["is_consistent"]:
             tone_score += 0.3
         else:
@@ -959,40 +959,40 @@ class ToneAnalyzer(ContentAnalyzer):
                 0.3 * (consistency / min_consistency) if min_consistency > 0 else 0
             )
 
-        # Score based on style
+# Score based on style
         style_score = 0.0
 
-        if self.results["style_analysis"]["sentence_length_variety"]["is_optimal"]:
+if self.results["style_analysis"]["sentence_length_variety"]["is_optimal"]:
             style_score += 0.33
 
-        if self.results["style_analysis"]["vocabulary_variety"]["is_optimal"]:
+if self.results["style_analysis"]["vocabulary_variety"]["is_optimal"]:
             style_score += 0.33
 
-        if self.results["style_analysis"]["punctuation"]["is_optimal"]:
+if self.results["style_analysis"]["punctuation"]["is_optimal"]:
             style_score += 0.34
 
-        tone_score += 0.3 * style_score
+tone_score += 0.3 * style_score
 
-        return tone_score
+            return tone_score
 
-    def get_recommendations(self) -> List[Dict[str, Any]]:
+def get_recommendations(self) -> List[Dict[str, Any]]:
         """
         Get tone recommendations for the content.
 
-        Returns:
+Returns:
             List of recommendation dictionaries
         """
         if self.results is None:
             self.analyze()
 
-        recommendations = []
+recommendations = []
 
-        # Check tone consistency
+# Check tone consistency
         if not self.results["tone_analysis"]["is_consistent"]:
             target_tone = self.config["target_tone"]
             dominant_tone = self.results["tone_analysis"]["dominant_tone"]
 
-            if dominant_tone != target_tone:
+if dominant_tone != target_tone:
                 recommendations.append(
                     {
                         "id": str(uuid.uuid4()),
@@ -1003,14 +1003,14 @@ class ToneAnalyzer(ContentAnalyzer):
                     }
                 )
 
-        # Check sentiment consistency
+# Check sentiment consistency
         if not self.results["sentiment_analysis"]["is_consistent"]:
             target_sentiment = self.config["target_sentiment"]
             dominant_sentiment = self.results["sentiment_analysis"][
                 "dominant_sentiment"
             ]
 
-            if dominant_sentiment != target_sentiment:
+if dominant_sentiment != target_sentiment:
                 recommendations.append(
                     {
                         "id": str(uuid.uuid4()),
@@ -1021,7 +1021,7 @@ class ToneAnalyzer(ContentAnalyzer):
                     }
                 )
 
-        # Check sentence length variety
+# Check sentence length variety
         if not self.results["style_analysis"]["sentence_length_variety"]["is_optimal"]:
             recommendations.append(
                 {
@@ -1033,7 +1033,7 @@ class ToneAnalyzer(ContentAnalyzer):
                 }
             )
 
-        # Check vocabulary variety
+# Check vocabulary variety
         if not self.results["style_analysis"]["vocabulary_variety"]["is_optimal"]:
             recommendations.append(
                 {
@@ -1045,10 +1045,10 @@ class ToneAnalyzer(ContentAnalyzer):
                 }
             )
 
-        # Check punctuation
+# Check punctuation
         punctuation = self.results["style_analysis"]["punctuation"]
 
-        if not punctuation["is_optimal"]:
+if not punctuation["is_optimal"]:
             if punctuation["density"] < 0.05:
                 recommendations.append(
                     {
@@ -1058,16 +1058,16 @@ class ToneAnalyzer(ContentAnalyzer):
                         "message": "Punctuation usage is low, which can make the content hard to read.",
                         "suggestion": "Add more punctuation to break up long sentences and improve readability.",
                     }
-                )
+                
             elif punctuation["density"] > 0.1:
                 recommendations.append(
                     {
-                        "id": str(uuid.uuid4()),
+                        "id": str(uuid.uuid4(,
                         "type": "punctuation",
                         "severity": "low",
                         "message": "Punctuation usage is high, which can make the content choppy.",
                         "suggestion": "Reduce excessive punctuation and combine some shorter sentences.",
                     }
-                )
+                
 
-        return recommendations
+            return recommendations

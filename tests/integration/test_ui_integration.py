@@ -26,7 +26,7 @@ def initialize_ui_services(register_mock_services):
     """Initialize UI services for testing."""
     # Initialize routes services
 ()
-    return True
+            return True
 
 
 @pytest.fixture
@@ -42,7 +42,7 @@ def web_ui(
         model_manager=mock_model_manager,
         subscription_manager=mock_subscription_manager,
     )
-    return ui
+            return ui
 
 
 @pytest.fixture
@@ -58,7 +58,7 @@ def cli_ui(
         model_manager=mock_model_manager,
         subscription_manager=mock_subscription_manager,
     )
-    return ui
+            return ui
 
 
 def test_web_ui_niche_analysis_integration(web_ui, mock_agent_team):

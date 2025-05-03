@@ -154,13 +154,13 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("ai_models")
             if not service:
-                return []
+                        return []
 
             # Convert enum to string if provided
             type_filter = model_type.value if model_type else None
 
             models = service.get_all_models(model_type=type_filter)
-            return [
+                    return [
                 AIModel(
                     id=str(model.id),
                     name=model.name,
@@ -199,13 +199,13 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("ai_models")
             if not service:
-                return None
+                        return None
 
             model = service.get_model(id)
             if not model:
-                return None
+                        return None
 
-            return AIModel(
+                    return AIModel(
                 id=str(model.id),
                 name=model.name,
                 description=model.description,
@@ -243,10 +243,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("ai_models")
             if not service:
-                return []
+                        return []
 
             history = service.get_inference_history(limit=limit)
-            return [
+                    return [
                 ModelInferenceResult(
                     id=str(result.id),
                     model_id=str(result.model_id),
@@ -289,7 +289,7 @@ if STRAWBERRY_AVAILABLE:
                 stop_sequences=input.stop_sequences,
             )
 
-            return TextGenerationResult(
+                    return TextGenerationResult(
                 id=str(result.id),
                 text=result.text,
                 tokens_used=result.tokens_used,
@@ -317,7 +317,7 @@ if STRAWBERRY_AVAILABLE:
                 text=input.text, model_id=input.model_id, labels=input.labels
             )
 
-            return TextClassificationResult(
+                    return TextClassificationResult(
                 id=str(result.id),
                 labels=[
                     ClassificationLabel(label=label.label, confidence=label.confidence)
@@ -348,7 +348,7 @@ if STRAWBERRY_AVAILABLE:
                 text=input.text, model_id=input.model_id
             )
 
-            return EmbeddingResult(
+                    return EmbeddingResult(
                 id=str(result.id),
                 embedding=result.embedding,
                 dimensions=result.dimensions,

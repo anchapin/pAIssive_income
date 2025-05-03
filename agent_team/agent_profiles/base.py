@@ -53,22 +53,22 @@ class AgentProfile(IAgentProfile):
     @property
     def name(self) -> str:
         """Get the profile name."""
-        return self._name
+                return self._name
 
     @property
     def description(self) -> str:
         """Get the profile description."""
-        return self._description
+                return self._description
 
     @property
     def capabilities(self) -> List[str]:
         """Get the profile capabilities."""
-        return self._capabilities.copy()
+                return self._capabilities.copy()
 
     @property
     def parameters(self) -> Dict[str, Any]:
         """Get the profile parameters."""
-        return self._parameters.copy()
+                return self._parameters.copy()
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -77,7 +77,7 @@ class AgentProfile(IAgentProfile):
         Returns:
             Dictionary representation of the profile
         """
-        return {
+                return {
             "name": self.name,
             "description": self.description,
             "capabilities": self.capabilities,
@@ -86,8 +86,8 @@ class AgentProfile(IAgentProfile):
 
     def __str__(self) -> str:
         """Get a string representation of the profile."""
-        return f"{self.name}: {self.description}"
+                return f"{self.name}: {self.description}"
 
     def __repr__(self) -> str:
         """Get a string representation of the profile for debugging."""
-        return f"AgentProfile(name='{self.name}', capabilities={self.capabilities})"
+                return f"AgentProfile(name='{self.name}', capabilities={self.capabilities})"

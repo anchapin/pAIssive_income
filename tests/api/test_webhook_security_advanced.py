@@ -74,7 +74,7 @@ from api.middleware.webhook_security import (
             def verify_signature(self, secret, payload, signature, max_age_minutes=5):
                 # First verify the signature itself
                 if not super().verify_signature(secret, payload, signature):
-                    return False
+                            return False
                 
                 # Then check the timestamp
                 try:
@@ -82,18 +82,18 @@ from api.middleware.webhook_security import (
                     timestamp = payload_data.get("timestamp")
                     
                     if timestamp is None:
-                        return False
+                                return False
                     
                     # Check if the timestamp is too old
                     current_time = int(time.time())
                     max_age_seconds = max_age_minutes * 60
                     
                     if current_time - timestamp > max_age_seconds:
-                        return False
+                                return False
                     
-                    return True
+                            return True
                 except (json.JSONDecodeError, TypeError, ValueError):
-                    return False
+                            return False
         
         # Create the timestamp-aware verifier
         ts_verifier = TimestampAwareVerifier()
@@ -131,7 +131,7 @@ from api.middleware.webhook_security import (
             def verify_signature_with_nonce(self, secret, payload, signature, nonce_store):
                 # First verify the signature itself
                 if not super().verify_signature(secret, payload, signature):
-                    return False
+                            return False
                 
                 # Then check the nonce
                 try:
@@ -139,18 +139,18 @@ from api.middleware.webhook_security import (
                     nonce = payload_data.get("nonce")
                     
                     if nonce is None:
-                        return False
+                                return False
                     
                     # Check if the nonce has been used before
                     if nonce in nonce_store:
-                        return False
+                                return False
                     
                     # Add the nonce to the store
                     nonce_store.add(nonce)
                     
-                    return True
+                            return True
                 except (json.JSONDecodeError, TypeError, ValueError):
-                    return False
+                            return False
         
         # Create the nonce-aware verifier
         nonce_verifier = NonceAwareVerifier()
@@ -180,7 +180,7 @@ class TestRateLimitBehavior:
             def get(self, key):
                 if self.failure_rate > 0 and random.random() < self.failure_rate:
                     raise Exception("Storage backend failure")
-                return self.data.get(key, [])
+                        return self.data.get(key, [])
             
             def set(self, key, value):
                 if self.failure_rate > 0 and random.random() < self.failure_rate:
@@ -211,7 +211,7 @@ class TestRateLimitBehavior:
                     self.storage.set(key, self.requests[key])
                     
                     # Check if limit is exceeded
-                    return len(self.requests[key]) >= self.limit
+                            return len(self.requests[key]) >= self.limit
                 except Exception:
                     # Fall back to local cache if storage fails
                     if key not in self.local_cache:
@@ -229,7 +229,7 @@ class TestRateLimitBehavior:
                     conservative_limit = max(1, self.limit // 2)
                     
                     # Check if conservative limit is exceeded
-                    return len(self.local_cache[key]) >= conservative_limit
+                            return len(self.local_cache[key]) >= conservative_limit
             
             def add_request(self, key):
                 current_time = time.time()
@@ -323,7 +323,7 @@ class TestIPAllowlistUpdates:
         # Add a test route
         @app.post("/webhooks/test")
         async def test_webhook(request: Request):
-            return {"status": "success"}
+                    return {"status": "success"}
         
         # Create a test client
         client = TestClient(app)
@@ -421,7 +421,7 @@ class TestSignatureVerification:
                 signature = self.create_signature(secret, signature_payload)
                 
                 # Return both the signature and the timestamp
-                return f"t={timestamp},v1={signature}"
+                        return f"t={timestamp},v1={signature}"
             
             def verify_signature_with_timestamp(self, secret, payload, signature_header, max_age_minutes=5):
                 try:
@@ -440,13 +440,13 @@ class TestSignatureVerification:
                     max_age_seconds = max_age_minutes * 60
                     
                     if current_time - timestamp > max_age_seconds:
-                        return False
+                                return False
                     
                     # Verify the signature
                     signature_payload = f"{timestamp}:{payload}"
-                    return self.verify_signature(secret, signature_payload, signature)
+                            return self.verify_signature(secret, signature_payload, signature)
                 except (ValueError, KeyError):
-                    return False
+                            return False
         
         # Create the verifier
         verifier = TimestampVerifier()
@@ -574,7 +574,7 @@ class TestRateLimitingConcurrent:
         # Add a test route
         @app.post("/webhooks/test")
         async def test_webhook(request: Request):
-            return {"status": "success"}
+                    return {"status": "success"}
         
         # Create a test client
         client = TestClient(app)
@@ -583,7 +583,7 @@ class TestRateLimitingConcurrent:
         async def make_request(client_ip):
             with patch("fastapi.Request.client") as mock_client:
                 mock_client.host = client_ip
-                return client.post("/webhooks/test")
+                        return client.post("/webhooks/test")
         
         # Make concurrent requests from the same IP
         client_ip = "192.168.1.1"
@@ -633,7 +633,7 @@ class TestRateLimitingHeaders:
         # Add a test route
         @app.post("/webhooks/test")
         async def test_webhook(request: Request):
-            return {"status": "success"}
+                    return {"status": "success"}
         
         # Create a test client
         client = TestClient(app)

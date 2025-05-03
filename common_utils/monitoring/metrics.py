@@ -66,7 +66,7 @@ class MetricsRegistry:
                 cls._instance._export_handlers: List[
                     Callable[[Dict[str, Metric]], None]
                 ] = []
-        return cls._instance
+                return cls._instance
 
     def create_metric(
         self,
@@ -89,7 +89,7 @@ class MetricsRegistry:
         """
         if name in self._metrics:
             logger.warning(f"Metric '{name}' already exists, returning existing metric")
-            return self._metrics[name]
+                    return self._metrics[name]
 
         metric = Metric(
             name=name,
@@ -99,11 +99,11 @@ class MetricsRegistry:
         )
         self._metrics[name] = metric
         logger.debug(f"Created new metric: {name} ({type.value})")
-        return metric
+                return metric
 
     def get_metric(self, name: str) -> Optional[Metric]:
         """Get a metric by name."""
-        return self._metrics.get(name)
+                return self._metrics.get(name)
 
     def increment(
         self,
@@ -122,13 +122,9 @@ class MetricsRegistry:
         metric = self.get_metric(name)
         if not metric:
             logger.error(f"Cannot increment non-existent metric: {name}")
-            return
-
-        if metric.type != MetricType.COUNTER:
+                    return if metric.type != MetricType.COUNTER:
             logger.error(f"Cannot increment non-counter metric: {name}")
-            return
-
-        metric.value += value
+                    return metric.value += value
         metric.last_updated = time.time()
 
         if labels:
@@ -151,15 +147,11 @@ class MetricsRegistry:
         metric = self.get_metric(name)
         if not metric:
             logger.error(f"Cannot record value for non-existent metric: {name}")
-            return
-
-        if metric.type == MetricType.COUNTER:
+                    return if metric.type == MetricType.COUNTER:
             logger.error(
                 f"Use increment() instead of record() for counter metrics: {name}"
             )
-            return
-
-        if metric.type == MetricType.GAUGE:
+                    return if metric.type == MetricType.GAUGE:
             metric.value = value
         elif metric.type in (MetricType.HISTOGRAM, MetricType.SUMMARY):
             if isinstance(metric.value, dict):
@@ -196,7 +188,7 @@ class MetricsRegistry:
 
     def get_all_metrics(self) -> Dict[str, Metric]:
         """Get all registered metrics."""
-        return self._metrics.copy()
+                return self._metrics.copy()
 
     def register_export_handler(
         self, handler: Callable[[Dict[str, Metric]], None]
@@ -247,7 +239,7 @@ def create_metric(
     """
     if isinstance(type, str):
         type = MetricType(type)
-    return _registry.create_metric(name, type, description, labels)
+            return _registry.create_metric(name, type, description, labels)
 
 
 def increment_counter(
@@ -300,14 +292,14 @@ def record_latency(name: str, labels: Optional[Dict[str, str]] = None):
 
         def __enter__(self):
             self.start_time = time.time()
-            return self
+                    return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
             end_time = time.time()
             duration_ms = (end_time - self.start_time) * 1000  # Convert to milliseconds
             record_value(self.metric_name, duration_ms, self.labels)
 
-    return LatencyRecorder(name, labels)
+            return LatencyRecorder(name, labels)
 
 
 def get_metrics() -> Dict[str, Any]:
@@ -367,7 +359,7 @@ def get_metrics() -> Dict[str, Any]:
 
         result[name] = metric_data
 
-    return result
+            return result
 
 
 def export_metrics() -> None:

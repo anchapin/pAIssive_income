@@ -61,7 +61,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
- as plt
+as plt
 
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
@@ -87,9 +87,7 @@ def test_latency_benchmark(
 
     if not TORCH_AVAILABLE or not TRANSFORMERS_AVAILABLE:
         print("PyTorch and Transformers are required for latency benchmarks")
-        return
-
-    # Create output directory
+                return # Create output directory
     os.makedirs(output_dir, exist_ok=True)
 
     try:
@@ -159,9 +157,7 @@ def test_throughput_benchmark(
 
     if not TORCH_AVAILABLE or not TRANSFORMERS_AVAILABLE:
         print("PyTorch and Transformers are required for throughput benchmarks")
-        return
-
-    # Create output directory
+                return # Create output directory
     os.makedirs(output_dir, exist_ok=True)
 
     try:
@@ -208,9 +204,7 @@ def test_memory_benchmark(model_path: str, output_dir: str) -> None:
 
     if not TORCH_AVAILABLE or not TRANSFORMERS_AVAILABLE:
         print("PyTorch and Transformers are required for memory benchmarks")
-        return
-
-    # Create output directory
+                return # Create output directory
     os.makedirs(output_dir, exist_ok=True)
 
     try:
@@ -273,9 +267,7 @@ def test_model_comparison(
 
     if not TORCH_AVAILABLE or not TRANSFORMERS_AVAILABLE:
         print("PyTorch and Transformers are required for model comparison")
-        return
-
-    # Create output directory
+                return # Create output directory
     os.makedirs(output_dir, exist_ok=True)
 
     try:

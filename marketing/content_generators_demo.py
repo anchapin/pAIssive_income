@@ -10,9 +10,8 @@ import time
 from marketing.user_personas import PersonaCreator
 
 
-def create_demo_persona
-
-from marketing.content_generators import (
+def create_demo_persona():
+    from marketing.content_generators import (
     BlogPostGenerator,
     CaseStudyGenerator,
     ProductDescriptionGenerator,
@@ -26,7 +25,7 @@ from marketing.content_templates import (
     """Create a demo persona for the examples."""
     persona_creator = PersonaCreator()
 
-    return persona_creator.create_persona(
+            return persona_creator.create_persona(
         name="Professional YouTuber",
         description="Professional content creator on YouTube",
         pain_points=[
@@ -58,10 +57,10 @@ def demo_blog_post_generator():
     print("BLOG POST GENERATOR DEMO")
     print("=" * 80)
 
-    # Create a persona
+# Create a persona
     persona = create_demo_persona()
 
-    # Create a blog post template
+# Create a blog post template
     template = BlogPostTemplate(
         title="How to Save 5 Hours a Week on YouTube Script Writing",
         target_persona=persona,
@@ -82,34 +81,34 @@ def demo_blog_post_generator():
         ],
     )
 
-    # Create a blog post generator
+# Create a blog post generator
     generator = BlogPostGenerator(template)
 
-    # Generate content
+# Generate content
     content = generator.generate_content()
 
-    # Print the generated content
+# Print the generated content
     print("\nGenerated Blog Post:")
     print(f"Title: {content['title']}")
     print(f"Meta Description: {content['meta_description']}")
     print("\nIntroduction:")
     print(content["introduction"])
 
-    print("\nSections:")
+print("\nSections:")
     for section in content["sections"]:
         print(f"\n{section['title']}:")
         print(section["content"][:200] + "...")  # Print first 200 chars of each section
 
-    print("\nConclusion:")
+print("\nConclusion:")
     print(content["conclusion"])
 
-    print("\nCall to Action:")
+print("\nCall to Action:")
     print(content["call_to_action"])
 
-    print("\nTags:", ", ".join(content["tags"]))
+print("\nTags:", ", ".join(content["tags"]))
     print("Categories:", ", ".join(content["categories"]))
 
-    print("\nSEO Data:")
+print("\nSEO Data:")
     print(f"Focus Keyword: {content['seo_data']['focus_keyword']}")
     print(f"Secondary Keywords: {', '.join(content['seo_data']['secondary_keywords'])}")
     print(f"Slug: {content['seo_data']['slug']}")
@@ -121,10 +120,10 @@ def demo_product_description_generator():
     print("PRODUCT DESCRIPTION GENERATOR DEMO")
     print("=" * 80)
 
-    # Create a persona
+# Create a persona
     persona = create_demo_persona()
 
-    # Create a product description template
+# Create a product description template
     template = ProductDescriptionTemplate(
         title="AI Script Assistant Pro",
         target_persona=persona,
@@ -164,43 +163,43 @@ def demo_product_description_generator():
         include_pricing=True,
     )
 
-    # Create a product description generator
+# Create a product description generator
     generator = ProductDescriptionGenerator(template)
 
-    # Generate content
+# Generate content
     content = generator.generate_content()
 
-    # Print the generated content
+# Print the generated content
     print("\nGenerated Product Description:")
     print(f"Product Name: {content['product_name']}")
     print(f"Tagline: {content['tagline']}")
 
-    print("\nOverview:")
+print("\nOverview:")
     print(content["overview"])
 
-    print("\nFeatures:")
+print("\nFeatures:")
     for feature in content["features"]:
         print(f"- {feature['name']}: {feature['description']}")
 
-    print("\nBenefits:")
+print("\nBenefits:")
     for benefit in content["benefits"]:
         print(f"- {benefit['name']}: {benefit['description']}")
 
-    print("\nSpecifications:")
+print("\nSpecifications:")
     for key, value in content["specifications"].items():
         print(f"- {key}: {value}")
 
-    print("\nPricing:")
+print("\nPricing:")
     print(f"Regular Price: ${content['pricing']['regular_price']}")
     print(f"Sale Price: ${content['pricing']['sale_price']}")
     print(
         f"Subscription: ${content['pricing']['subscription_price']}/{content['pricing']['subscription_interval']}"
     )
 
-    print("\nCall to Action:")
+print("\nCall to Action:")
     print(content["call_to_action"])
 
-    print("\nSEO Data:")
+print("\nSEO Data:")
     print(f"Meta Title: {content['seo_data']['meta_title']}")
     print(f"Meta Description: {content['seo_data']['meta_description']}")
     print(f"Focus Keyword: {content['seo_data']['focus_keyword']}")
@@ -214,10 +213,10 @@ def demo_case_study_generator():
     print("CASE STUDY GENERATOR DEMO")
     print("=" * 80)
 
-    # Create a persona
+# Create a persona
     persona = create_demo_persona()
 
-    # Create a case study template
+# Create a case study template
     template = CaseStudyTemplate(
         title="How VideoStar Increased Production Speed by 40% with AI Script Assistant Pro",
         target_persona=persona,
@@ -242,50 +241,50 @@ def demo_case_study_generator():
         include_testimonial=True,
     )
 
-    # Create a case study generator
+# Create a case study generator
     generator = CaseStudyGenerator(template)
 
-    # Generate content
+# Generate content
     content = generator.generate_content()
 
-    # Print the generated content
+# Print the generated content
     print("\nGenerated Case Study:")
     print(f"Title: {content['title']}")
 
-    print("\nClient Info:")
+print("\nClient Info:")
     print(f"Name: {content['client_info']['name']}")
     print(f"Industry: {content['client_info']['industry']}")
 
-    print("\nExecutive Summary:")
+print("\nExecutive Summary:")
     print(content["executive_summary"][:300] + "...")  # Print first 300 chars
 
-    print("\nChallenge:")
+print("\nChallenge:")
     print(content["challenge"][:300] + "...")  # Print first 300 chars
 
-    print("\nSolution:")
+print("\nSolution:")
     print(content["solution"][:300] + "...")  # Print first 300 chars
 
-    print("\nResults:")
+print("\nResults:")
     print(content["results"][:300] + "...")  # Print first 300 chars
 
-    print("\nTestimonial:")
+print("\nTestimonial:")
     print(
         content["testimonial"][:300] + "..."
         if content["testimonial"]
         else "No testimonial included"
     )  # Print first 300 chars
 
-    print("\nConclusion:")
+print("\nConclusion:")
     print(content["conclusion"][:300] + "...")  # Print first 300 chars
 
-    print("\nCall to Action:")
+print("\nCall to Action:")
     print(content["call_to_action"])
 
-    print("\nRelated Case Studies:")
+print("\nRelated Case Studies:")
     for case_study in content["related_case_studies"]:
         print(f"- {case_study['title']}")
 
-    print("\nSEO Data:")
+print("\nSEO Data:")
     print(f"Meta Title: {content['seo_data']['meta_title']}")
     print(f"Meta Description: {content['seo_data']['meta_description']}")
     print(f"Focus Keyword: {content['seo_data']['focus_keyword']}")
@@ -297,3 +296,5 @@ if __name__ == "__main__":
     demo_blog_post_generator()
     demo_product_description_generator()
     demo_case_study_generator()
+except Exception as e:
+    pass

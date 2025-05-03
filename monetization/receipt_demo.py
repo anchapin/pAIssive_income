@@ -9,9 +9,8 @@ from .receipt_manager import ReceiptManager
 from .transaction import Transaction, TransactionStatus
 
 
-def print_separator
-
-():
+def print_separator():
+    ():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")
 
@@ -21,7 +20,7 @@ def run_demo():
     print("Receipt Generation Demo")
     print_separator()
 
-    # Create a transaction
+# Create a transaction
     transaction = Transaction(
         amount=49.99,
         currency="USD",
@@ -31,16 +30,16 @@ def run_demo():
         metadata={"subscription_id": "sub_demo_789"},
     )
 
-    # Set transaction as successful
+# Set transaction as successful
     transaction.update_status(TransactionStatus.SUCCEEDED, "Payment successful")
 
-    print(f"Created transaction: {transaction}")
+print(f"Created transaction: {transaction}")
     print(f"Amount: {transaction.amount} {transaction.currency}")
     print(f"Status: {transaction.status}")
 
-    print_separator()
+print_separator()
 
-    # Create a receipt manager
+# Create a receipt manager
     manager = ReceiptManager(
         company_info={
             "name": "AI Tools Inc.",
@@ -52,9 +51,9 @@ def run_demo():
         }
     )
 
-    print("Generating receipt...")
+print("Generating receipt...")
 
-    # Generate a receipt
+# Generate a receipt
     receipt = manager.generate_receipt(
         transaction=transaction,
         customer_info={
@@ -72,59 +71,59 @@ def run_demo():
         ],
     )
 
-    print(f"Receipt generated: {receipt}")
+print(f"Receipt generated: {receipt}")
     print(f"Subtotal: {receipt.format_amount(receipt.get_subtotal())}")
     print(f"Tax: {receipt.format_amount(receipt.get_tax_total())}")
     print(f"Total: {receipt.format_amount(receipt.get_total())}")
 
-    print_separator()
+print_separator()
 
-    # Add a custom field to the receipt
+# Add a custom field to the receipt
     receipt.add_custom_field("Subscription Period", "Jan 1, 2023 - Dec 31, 2023")
 
-    # Add terms to the receipt
+# Add terms to the receipt
     receipt.set_terms(
         "This subscription is subject to our Terms of Service and Privacy Policy."
     )
 
-    # Add notes to the receipt
+# Add notes to the receipt
     receipt.set_notes(
         "Thank you for your business! Your subscription will automatically renew next year."
     )
 
-    # Add an additional fee
+# Add an additional fee
     receipt.add_additional_fee("Processing Fee", 2.50)
 
-    print("Updated receipt with additional information:")
+print("Updated receipt with additional information:")
     print(f"Total with fees: {receipt.format_amount(receipt.get_total())}")
 
-    print_separator()
+print_separator()
 
-    # Save receipt to files
+# Save receipt to files
     print("Saving receipt to files...")
 
-    receipt.save_to_file("receipt_demo_text.txt", format="text")
+receipt.save_to_file("receipt_demo_text.txt", format="text")
     receipt.save_to_file("receipt_demo_html.html", format="html")
     receipt.save_to_file("receipt_demo_json.json", format="json")
 
-    print("Receipt saved to files:")
+print("Receipt saved to files:")
     print("- receipt_demo_text.txt")
     print("- receipt_demo_html.html")
     print("- receipt_demo_json.json")
 
-    print_separator()
+print_separator()
 
-    # Display receipt in text format
+# Display receipt in text format
     print("Receipt in text format:")
     print("-" * 80)
     print(receipt.to_text())
 
-    print_separator()
+print_separator()
 
-    # Simulate sending receipt by email
+# Simulate sending receipt by email
     print("Sending receipt by email...")
 
-    manager.send_receipt(
+manager.send_receipt(
         receipt_id=receipt.id,
         email="demo.customer@example.com",
         subject="Your AI Tools Inc. Receipt",
@@ -132,12 +131,12 @@ def run_demo():
         format="html",
     )
 
-    print_separator()
+print_separator()
 
-    # Create a receipt with multiple items
+# Create a receipt with multiple items
     print("Creating a receipt with multiple items...")
 
-    # Create another transaction
+# Create another transaction
     transaction2 = Transaction(
         amount=79.98,
         currency="USD",
@@ -147,10 +146,10 @@ def run_demo():
         metadata={"order_id": "order_demo_123"},
     )
 
-    # Set transaction as successful
+# Set transaction as successful
     transaction2.update_status(TransactionStatus.SUCCEEDED, "Payment successful")
 
-    # Generate a receipt with multiple items
+# Generate a receipt with multiple items
     receipt2 = manager.generate_receipt(
         transaction=transaction2,
         customer_info={
@@ -181,25 +180,25 @@ def run_demo():
         ],
     )
 
-    print(f"Receipt generated: {receipt2}")
+print(f"Receipt generated: {receipt2}")
     print(f"Items: {len(receipt2.items)}")
     print(f"Subtotal: {receipt2.format_amount(receipt2.get_subtotal())}")
     print(f"Discount: {receipt2.format_amount(receipt2.get_discount_total())}")
     print(f"Tax: {receipt2.format_amount(receipt2.get_tax_total())}")
     print(f"Total: {receipt2.format_amount(receipt2.get_total())}")
 
-    print_separator()
+print_separator()
 
-    # Get customer receipts
+# Get customer receipts
     customer_receipts = manager.get_customer_receipts("cust_demo_123")
 
-    print(f"Customer receipts ({len(customer_receipts)}):")
+print(f"Customer receipts ({len(customer_receipts)}):")
     for r in customer_receipts:
         print(f"- {r}")
 
-    print_separator()
+print_separator()
 
-    print("Demo completed successfully!")
+print("Demo completed successfully!")
 
 
 if __name__ == "__main__":

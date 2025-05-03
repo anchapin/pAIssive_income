@@ -39,7 +39,7 @@ class DeveloperService(BaseService, IDeveloperService):
 
         # Import the Developer Agent class
         try:
-# noqa: F401
+    # noqa: F401
 
             self.developer_agent_available = True
         except ImportError:
@@ -62,7 +62,7 @@ class DeveloperService(BaseService, IDeveloperService):
 
         if niche is None:
             logger.error(f"Niche with ID {niche_id} not found")
-            return {}
+                    return {}
 
         if self.developer_agent_available:
             try:
@@ -89,7 +89,7 @@ class DeveloperService(BaseService, IDeveloperService):
         solutions.append(solution)
         self.save_data(self.solutions_file, solutions)
 
-        return solution
+                return solution
 
     def get_solutions(self) -> List[Dict[str, Any]]:
         """
@@ -102,7 +102,7 @@ class DeveloperService(BaseService, IDeveloperService):
         if solutions is None:
             solutions = []
             self.save_data(self.solutions_file, solutions)
-        return solutions
+                return solutions
 
     def get_solution(self, solution_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -117,8 +117,8 @@ class DeveloperService(BaseService, IDeveloperService):
         solutions = self.get_solutions()
         for solution in solutions:
             if solution["id"] == solution_id:
-                return solution
-        return None
+                        return solution
+                return None
 
     def save_solution(self, solution: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -139,7 +139,7 @@ class DeveloperService(BaseService, IDeveloperService):
                 solution["updated_at"] = datetime.now().isoformat()
                 solutions[i] = solution
                 self.save_data(self.solutions_file, solutions)
-                return solution
+                        return solution
 
         # Add new solution
         if "created_at" not in solution:
@@ -148,7 +148,7 @@ class DeveloperService(BaseService, IDeveloperService):
             solution["updated_at"] = datetime.now().isoformat()
         solutions.append(solution)
         self.save_data(self.solutions_file, solutions)
-        return solution
+                return solution
 
     def _create_mock_solution(self, niche: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -195,7 +195,7 @@ class DeveloperService(BaseService, IDeveloperService):
         )
 
         # Create mock solution
-        return {
+                return {
             "id": str(uuid.uuid4()),
             "name": f"{niche['name']} AI Assistant",
             "description": f"An AI-powered tool that helps with {niche['name'].lower()} tasks",

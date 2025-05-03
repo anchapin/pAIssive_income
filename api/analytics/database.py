@@ -427,7 +427,7 @@ class AnalyticsDatabase:
 
             result.append(row_dict)
 
-        return result
+                return result
 
     def get_daily_metrics(
         self,
@@ -476,7 +476,7 @@ class AnalyticsDatabase:
         query += " ORDER BY date DESC, request_count DESC"
 
         cursor.execute(query, params)
-        return [dict(row) for row in cursor.fetchall()]
+                return [dict(row) for row in cursor.fetchall()]
 
     def get_user_metrics(
         self, start_date: str = None, end_date: str = None, user_id: str = None
@@ -531,7 +531,7 @@ class AnalyticsDatabase:
 
             result.append(row_dict)
 
-        return result
+                return result
 
     def get_api_key_metrics(
         self, start_date: str = None, end_date: str = None, api_key_id: str = None
@@ -586,7 +586,7 @@ class AnalyticsDatabase:
 
             result.append(row_dict)
 
-        return result
+                return result
 
     def get_endpoint_stats(
         self, start_date: str = None, end_date: str = None
@@ -636,7 +636,7 @@ class AnalyticsDatabase:
         query += " GROUP BY endpoint, version ORDER BY total_requests DESC"
 
         cursor.execute(query, params)
-        return [dict(row) for row in cursor.fetchall()]
+                return [dict(row) for row in cursor.fetchall()]
 
     def cleanup_old_data(self, days: int = DEFAULT_ANALYTICS_RETENTION_DAYS) -> int:
         """
@@ -649,7 +649,7 @@ class AnalyticsDatabase:
             Number of records deleted
         """
         if days <= 0:
-            return 0
+                    return 0
 
         with self._lock:
             cursor = self.conn.cursor()
@@ -678,7 +678,7 @@ class AnalyticsDatabase:
 
             self.conn.commit()
 
-            return request_count + metrics_count + user_count + api_key_count
+                    return request_count + metrics_count + user_count + api_key_count
 
     def close(self) -> None:
         """Close the database connection."""

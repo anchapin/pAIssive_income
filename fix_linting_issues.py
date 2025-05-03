@@ -10,9 +10,8 @@ import sys
 from pathlib import Path
 
 
-def fix_unused_imports
-
-#!/usr/bin/env python
+def fix_unused_imports():
+    #!/usr/bin/env python
 """
 Script to fix linting issues in the codebase.
 """
@@ -24,7 +23,7 @@ Script to fix linting issues in the codebase.
     with open(file_path, 'r') as f:
         content = f.read()
     
-    # Fix transformers import in tool_templates/local_ai_integration.py
+# Fix transformers import in tool_templates/local_ai_integration.py
     if 'tool_templates/local_ai_integration.py' in str(file_path):
         content = re.sub(
             r'import torch\n\s*import transformers\n\s*from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline',
@@ -32,14 +31,14 @@ Script to fix linting issues in the codebase.
             content
         )
         
-        # Fix onnxruntime import
+# Fix onnxruntime import
         content = re.sub(
             r'import onnxruntime as ort',
             'import onnxruntime as ort  # noqa: F401',
             content
         )
     
-    # Fix flask imports in tool_templates/ui_templates.py
+# Fix flask imports in tool_templates/ui_templates.py
     if 'tool_templates/ui_templates.py' in str(file_path):
         content = re.sub(
             r'import flask\n\s*from flask import Flask, jsonify, redirect, render_template, request, url_for',
@@ -47,14 +46,14 @@ Script to fix linting issues in the codebase.
             content
         )
         
-        # Fix PyQt5 imports
+# Fix PyQt5 imports
         content = re.sub(
             r'from PyQt5 import QtCore, QtGui, QtWidgets',
             'from PyQt5 import QtCore, QtGui, QtWidgets  # noqa: F401',
             content
         )
     
-    # Fix import order issues in ui/__init__.py
+# Fix import order issues in ui/__init__.py
     if 'ui/__init__.py' in str(file_path):
         # Add noqa: E402 to imports after docstring
         content = re.sub(
@@ -64,32 +63,32 @@ Script to fix linting issues in the codebase.
             flags=re.DOTALL
         )
         
-        # Add noqa to other imports
+# Add noqa to other imports
         content = re.sub(
             r'(from .app_factory import create_app)',
             r'\1  # noqa: E402, F811',
             content
         )
         
-        content = re.sub(
+content = re.sub(
             r'(from .celery_app import create_celery_app)',
             r'\1  # noqa: E402, F811',
             content
         )
         
-        content = re.sub(
+content = re.sub(
             r'(from .socketio_app import init_socketio, socketio)',
             r'\1  # noqa: E402, F811, F401',
             content
         )
         
-        content = re.sub(
+content = re.sub(
             r'(from . import routes)',
             r'\1  # noqa: E402, F811, F401',
             content
         )
     
-    # Fix import order issues in ui/app.py
+# Fix import order issues in ui/app.py
     if 'ui/app.py' in str(file_path):
         # Add noqa: E402 to imports after docstring
         content = re.sub(
@@ -99,19 +98,19 @@ Script to fix linting issues in the codebase.
             flags=re.DOTALL
         )
         
-        content = re.sub(
+content = re.sub(
             r'(import os)',
             r'\1  # noqa: E402, F811',
             content
         )
         
-        content = re.sub(
+content = re.sub(
             r'(from ui import app)',
             r'\1  # noqa: E402, F811',
             content
         )
     
-    # Fix redefinition in ui/routes.py
+# Fix redefinition in ui/routes.py
     if 'ui/routes.py' in str(file_path):
         content = re.sub(
             r'(def handle_exception\(e\):)',
@@ -119,7 +118,7 @@ Script to fix linting issues in the codebase.
             content
         )
     
-    # Fix unused imports in ui/services files
+# Fix unused imports in ui/services files
     if 'ui/services/agent_team_service.py' in str(file_path):
         content = re.sub(
             r'(from agent_team import AgentTeam)',
@@ -127,28 +126,28 @@ Script to fix linting issues in the codebase.
             content
         )
     
-    if 'ui/services/developer_service.py' in str(file_path):
+if 'ui/services/developer_service.py' in str(file_path):
         content = re.sub(
             r'(from agent_team.agent_profiles.developer import DeveloperAgent)',
             r'\1  # noqa: F401',
             content
         )
     
-    if 'ui/services/marketing_service.py' in str(file_path):
+if 'ui/services/marketing_service.py' in str(file_path):
         content = re.sub(
             r'(from agent_team.agent_profiles.marketing import MarketingAgent)',
             r'\1  # noqa: F401',
             content
         )
     
-    if 'ui/services/monetization_service.py' in str(file_path):
+if 'ui/services/monetization_service.py' in str(file_path):
         content = re.sub(
             r'(from agent_team.agent_profiles.monetization import MonetizationAgent)',
             r'\1  # noqa: F401',
             content
         )
     
-    # Fix import issues in tests/test_metered_billing.py
+# Fix import issues in tests/test_metered_billing.py
     if 'tests/test_metered_billing.py' in str(file_path):
         content = re.sub(
             r'import unittest',
@@ -156,25 +155,25 @@ Script to fix linting issues in the codebase.
             content
         )
         
-        content = re.sub(
+content = re.sub(
             r'from datetime import datetime, timedelta',
             'from datetime import datetime, timedelta  # noqa: E402, F811',
             content
         )
         
-        content = re.sub(
+content = re.sub(
             r'from unittest.mock import MagicMock',
             'from unittest.mock import MagicMock  # noqa: E402, F811',
             content
         )
         
-        content = re.sub(
+content = re.sub(
             r'from monetization.metered_billing import MeteredBillingPricing, MeteringInterval',
             'from monetization.metered_billing import MeteredBillingPricing, MeteringInterval  # noqa: E402, F811',
             content
         )
     
-    with open(file_path, 'w') as f:
+with open(file_path, 'w') as f:
         f.write(content)
 
 
@@ -203,13 +202,13 @@ def main():
             process_directory(path)
         else:
             print(f"Invalid path: {path}")
-            return 1
+                        return 1
     else:
         # Default to current directory
         process_directory(".")
     
-    print("Linting fixes applied.")
-    return 0
+print("Linting fixes applied.")
+                return 0
 
 
 if __name__ == "__main__":

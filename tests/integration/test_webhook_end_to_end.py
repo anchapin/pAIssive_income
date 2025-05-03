@@ -83,18 +83,18 @@ def webhook_receiver_app():
         )
 
         if not is_valid:
-            return Response(
+                    return Response(
                 content=json.dumps({"error": "Invalid signature"}),
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 media_type="application/json",
             )
 
-        return {
+                return {
             "status": "success",
             "received_at": datetime.now(timezone.utc).isoformat(),
         }
 
-    return app
+            return app
 
 
 @pytest.fixture
@@ -106,7 +106,7 @@ def webhook_sender_app(webhook_service):
     async def register_webhook(request: Request):
         data = await request.json()
         webhook = await webhook_service.register_webhook(data)
-        return webhook
+                return webhook
 
     @app.post("/send-event/{webhook_id}")
     async def send_event(webhook_id: str, request: Request):
@@ -118,9 +118,9 @@ def webhook_sender_app(webhook_service):
             webhook_id=webhook_id, event_type=event_type, event_data=event_data
         )
 
-        return delivery
+                return delivery
 
-    return app
+            return app
 
 
 class TestWebhookEndToEnd:

@@ -122,7 +122,7 @@ class MigrationManager:
                 result = self.db.fetch_all(
                     f"SELECT version, name, applied_at, description FROM {self.MIGRATIONS_TABLE} ORDER BY version"
                 )
-                return result
+                        return result
             elif isinstance(self.db, MongoDBAdapter):
                 # For MongoDB
                 result = list(
@@ -139,16 +139,16 @@ class MigrationManager:
                     )
                     .sort("version", 1)
                 )
-                return result
+                        return result
             else:
                 # For other database types
                 logger.warning(
                     f"Unknown database type: {type(self.db)}. Cannot get applied migrations."
                 )
-                return []
+                        return []
         except Exception as e:
             logger.error(f"Error fetching applied migrations: {e}")
-            return []
+                    return []
 
     def _load_migration(self, filename: str) -> Optional[Migration]:
         """
@@ -169,7 +169,7 @@ class MigrationManager:
             spec = importlib.util.spec_from_file_location(module_name, module_path)
             if not spec or not spec.loader:
                 logger.error(f"Could not load spec for {filename}")
-                return None
+                        return None
 
             module = importlib.util.module_from_spec(spec)
             sys.modules[module_name] = module
@@ -183,13 +183,13 @@ class MigrationManager:
                     and issubclass(attr, Migration)
                     and attr != Migration
                 ):
-                    return attr()
+                            return attr()
 
             logger.warning(f"No Migration class found in {filename}")
-            return None
+                    return None
         except Exception as e:
             logger.error(f"Error loading migration from {filename}: {e}")
-            return None
+                    return None
 
     def _get_migration_files(self) -> List[str]:
         """
@@ -211,11 +211,11 @@ class MigrationManager:
             # Extract version from filename pattern like "001_initial_schema.py"
             match = re.match(r"^(\d+)_", filename)
             if match:
-                return int(match.group(1))
-            return 0
+                        return int(match.group(1))
+                    return 0
 
         migration_files.sort(key=get_version)
-        return migration_files
+                return migration_files
 
     def create_migration(self, name: str) -> str:
         """
@@ -261,11 +261,11 @@ Generated: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
     @property
     def version(self) -> str:
-        return "{version_str}"
+                return "{version_str}"
 
     @property
     def description(self) -> str:
-        return "{name}"
+                return "{name}"
 
     def up(self, db):
         """Apply the migration."""
@@ -283,7 +283,7 @@ Generated: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
             f.write(content)
 
         logger.info(f"Created migration file: {filepath}")
-        return filepath
+                return filepath
 
     def migrate(self, target_version: Optional[str] = None) -> None:
         """
@@ -359,9 +359,7 @@ Generated: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
         # Nothing to rollback
         if not applied_migrations:
             logger.info("No migrations to roll back")
-            return
-
-        # Limit steps to the number of applied migrations
+                    return # Limit steps to the number of applied migrations
         steps = min(steps, len(applied_migrations))
 
         # Get the migrations to roll back (in reverse order)

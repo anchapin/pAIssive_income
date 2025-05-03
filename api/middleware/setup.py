@@ -60,9 +60,7 @@ def setup_middleware(
     """
     if not FASTAPI_AVAILABLE:
         logger.warning("FastAPI is required for middleware setup")
-        return
-
-    # Add CORS middleware
+                return # Add CORS middleware
     if config.enable_cors:
         app.add_middleware(
             CORSMiddleware,

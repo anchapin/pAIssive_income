@@ -165,5 +165,5 @@ class ErrorResponse(BaseModel):
     """Error response model."""
 
     error_code: str = Field(..., description="Error code")
-    error_message: str = Field(..., description="Error message")
-    details: Optional[Dict[str, Any]] = Field(None, description="Error details")
+    error_message: str = Field(..., description="Error message"
+    details: Optional[Dict[str, Any]] = Field(None, description="Error details"

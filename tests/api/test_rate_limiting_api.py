@@ -152,7 +152,7 @@ class TestRateLimitingAPI:
 
         # Make concurrent requests
 ():
-            return api_test_client.get(f"rate-limiting/{endpoint}")
+                    return api_test_client.get(f"rate-limiting/{endpoint}")
 
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = [executor.submit(make_request) for _ in range(5)]

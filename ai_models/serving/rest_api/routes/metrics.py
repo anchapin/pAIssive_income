@@ -28,7 +28,7 @@ except ImportError:
         pass
 
     def Field(*args, **kwargs):
-        return None
+                return None
 
 
 # Create router
@@ -82,7 +82,7 @@ if FASTAPI_AVAILABLE:
         metrics = server.get_metrics()
 
         # Create response
-        return {"metrics": metrics}
+                return {"metrics": metrics}
 
     @router.get("/metrics/prometheus", response_class=PlainTextResponse)
     async def get_prometheus_metrics(server=None):
@@ -117,4 +117,4 @@ if FASTAPI_AVAILABLE:
             prometheus_metrics.append(f"{name}{labels_str} {metric['value']}")
 
         # Return metrics
-        return "\n".join(prometheus_metrics)
+                return "\n".join(prometheus_metrics)

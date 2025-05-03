@@ -15,31 +15,31 @@ class IModelConfig
 (ABC):
     """Interface for model configuration."""
 
-    @property
+@property
     @abstractmethod
     def models_dir(self) -> str:
         """Get the models directory."""
         pass
 
-    @property
+@property
     @abstractmethod
     def cache_dir(self) -> str:
         """Get the cache directory."""
         pass
 
-    @property
+@property
     @abstractmethod
     def auto_discover(self) -> bool:
         """Get whether to auto-discover models."""
         pass
 
-    @property
+@property
     @abstractmethod
     def max_threads(self) -> int:
         """Get the maximum number of threads to use."""
         pass
 
-    @classmethod
+@classmethod
     @abstractmethod
     def get_default(cls) -> "IModelConfig":
         """Get the default configuration."""
@@ -49,37 +49,37 @@ class IModelConfig
 class IModelInfo(ABC):
     """Interface for model information."""
 
-    @property
+@property
     @abstractmethod
     def id(self) -> str:
         """Get the model ID."""
         pass
 
-    @property
+@property
     @abstractmethod
     def name(self) -> str:
         """Get the model name."""
         pass
 
-    @property
+@property
     @abstractmethod
     def description(self) -> str:
         """Get the model description."""
         pass
 
-    @property
+@property
     @abstractmethod
     def type(self) -> str:
         """Get the model type."""
         pass
 
-    @property
+@property
     @abstractmethod
     def path(self) -> str:
         """Get the model path."""
         pass
 
-    @property
+@property
     @abstractmethod
     def metadata(self) -> Dict[str, Any]:
         """Get the model metadata."""
@@ -89,68 +89,68 @@ class IModelInfo(ABC):
 class IModelManager(ABC):
     """Interface for model manager."""
 
-    @property
+@property
     @abstractmethod
     def config(self) -> IModelConfig:
         """Get the model configuration."""
         pass
 
-    @abstractmethod
+@abstractmethod
     def get_model_info(self, model_id: str) -> IModelInfo:
         """
         Get information about a model.
 
-        Args:
+Args:
             model_id: ID of the model
 
-        Returns:
+Returns:
             Model information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def list_models(self) -> List[IModelInfo]:
         """
         List all available models.
 
-        Returns:
+Returns:
             List of model information
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def load_model(self, model_id: str, **kwargs) -> Any:
         """
         Load a model.
 
-        Args:
+Args:
             model_id: ID of the model to load
             **kwargs: Additional arguments to pass to the model loader
 
-        Returns:
+Returns:
             Loaded model
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def unload_model(self, model_id: str) -> bool:
         """
         Unload a model.
 
-        Args:
+Args:
             model_id: ID of the model to unload
 
-        Returns:
+Returns:
             True if successful, False otherwise
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def discover_models(self) -> List[IModelInfo]:
         """
         Discover models in the models directory.
 
-        Returns:
+Returns:
             List of discovered model information
         """
         pass
@@ -159,57 +159,57 @@ class IModelManager(ABC):
 class IModelAdapter(ABC):
     """Interface for model adapters."""
 
-    @property
+@property
     @abstractmethod
     def name(self) -> str:
         """Get the adapter name."""
         pass
 
-    @property
+@property
     @abstractmethod
     def description(self) -> str:
         """Get the adapter description."""
         pass
 
-    @abstractmethod
+@abstractmethod
     def is_available(self) -> bool:
         """
         Check if the adapter is available.
 
-        Returns:
+Returns:
             True if available, False otherwise
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def connect(self, **kwargs) -> bool:
         """
         Connect to the adapter.
 
-        Args:
+Args:
             **kwargs: Connection parameters
 
-        Returns:
+Returns:
             True if successful, False otherwise
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def disconnect(self) -> bool:
         """
         Disconnect from the adapter.
 
-        Returns:
+Returns:
             True if successful, False otherwise
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def get_models(self) -> List[Dict[str, Any]]:
         """
         Get available models from the adapter.
 
-        Returns:
+Returns:
             List of model dictionaries
         """
         pass
@@ -218,53 +218,53 @@ class IModelAdapter(ABC):
 class ICacheManager(ABC):
     """Interface for cache manager."""
 
-    @abstractmethod
+@abstractmethod
     def get(self, key: str) -> Any:
         """
         Get a value from the cache.
 
-        Args:
+Args:
             key: Cache key
 
-        Returns:
+Returns:
             Cached value, or None if not found
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
         """
         Set a value in the cache.
 
-        Args:
+Args:
             key: Cache key
             value: Value to cache
             ttl: Time to live in seconds
 
-        Returns:
+Returns:
             True if successful, False otherwise
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def delete(self, key: str) -> bool:
         """
         Delete a value from the cache.
 
-        Args:
+Args:
             key: Cache key
 
-        Returns:
+Returns:
             True if successful, False otherwise
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def clear(self) -> bool:
         """
         Clear the cache.
 
-        Returns:
+Returns:
             True if successful, False otherwise
         """
         pass
@@ -273,45 +273,45 @@ class ICacheManager(ABC):
 class IPerformanceMonitor(ABC):
     """Interface for performance monitor."""
 
-    @abstractmethod
+@abstractmethod
     def start_tracking(self, model_id: str, operation: str) -> str:
         """
         Start tracking performance for a model operation.
 
-        Args:
+Args:
             model_id: ID of the model
             operation: Operation being performed
 
-        Returns:
+Returns:
             Tracking ID
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def end_tracking(
         self, tracking_id: str, result_size: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         End tracking performance for a model operation.
 
-        Args:
+Args:
             tracking_id: Tracking ID
             result_size: Size of the result in bytes
 
-        Returns:
+Returns:
             Performance metrics
         """
         pass
 
-    @abstractmethod
+@abstractmethod
     def get_metrics(self, model_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Get performance metrics.
 
-        Args:
+Args:
             model_id: Optional model ID to filter metrics
 
-        Returns:
+Returns:
             Performance metrics
         """
         pass

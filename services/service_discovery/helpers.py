@@ -17,7 +17,7 @@ from services.service_discovery.discovery_client import ServiceDiscoveryClient
 logger 
     from datetime import datetime
 
-    return datetime.utcnow
+            return datetime.utcnow
         from fastapi.responses import JSONResponse
 
         
@@ -110,11 +110,11 @@ def setup_service_discovery(
             signal.signal(signal.SIGTERM, signal_handler)
             signal.signal(signal.SIGINT, signal_handler)
 
-        return client
+                return client
     except Exception as e:
         logger.error(f"Failed to set up service discovery: {str(e)}")
         # Return disabled client when service discovery is not available
-        return ServiceDiscoveryClient(
+                return ServiceDiscoveryClient(
             service_name=service_name, port=port, auto_register=False
         )
 
@@ -152,14 +152,14 @@ def create_health_check_handler(
                     checks[check_name] = {"status": "DOWN", "error": str(e)}
                     status = "DOWN"
 
-        return {
+                return {
             "status": status,
             "service": service_name,
             "timestamp": import_iso_timestamp(),
             "checks": checks,
         }
 
-    return health_check
+            return health_check
 
 
 def import_iso_timestamp() -> str:
@@ -191,14 +191,14 @@ def register_health_check_endpoint(app, url_path: str = "/health", **kwargs):
 
         @app.route(url_path, methods=["GET"])
         def flask_health_check():
-            return health_check()
+                    return health_check()
 
     elif hasattr(app, "add_api_route"):  # FastAPI
 @app.get(url_path)
         def fastapi_health_check():
             result = health_check()
             status_code = 200 if result["status"] == "UP" else 503
-            return JSONResponse(content=result, status_code=status_code)
+                    return JSONResponse(content=result, status_code=status_code)
 
     else:
         logger.warning(
@@ -233,4 +233,4 @@ def get_service_url(
             registry_port=registry_port,
         )
 
-    return client.get_service_url(service_name, path)
+            return client.get_service_url(service_name, path)

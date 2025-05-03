@@ -46,7 +46,7 @@ async def create_api_key(
         api_key = api_key_service.create_api_key(data, user_id=current_user.get("id"))
 
         # Create response
-        return APIKeyCreatedResponse(
+                return APIKeyCreatedResponse(
             id=api_key.id,
             prefix=api_key.prefix,
             key=api_key.key,
@@ -74,7 +74,7 @@ async def list_api_keys(
         api_keys = api_key_service.list_api_keys(
             user_id=current_user.get("id"), page=page, page_size=page_size
         )
-        return api_keys
+                return api_keys
     except Exception as e:
         logger.error(f"Error listing API keys: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -96,7 +96,7 @@ async def get_api_key(
                 status_code=403, detail="Not authorized to access this API key"
             )
 
-        return APIKeyResponse(
+                return APIKeyResponse(
             id=api_key.id,
             prefix=api_key.prefix,
             name=api_key.name,
@@ -138,7 +138,7 @@ async def update_api_key(
         # Update API key
         updated_key = api_key_service.update_api_key(api_key_id, data)
 
-        return APIKeyResponse(
+                return APIKeyResponse(
             id=updated_key.id,
             prefix=updated_key.prefix,
             name=updated_key.name,
@@ -209,7 +209,7 @@ async def revoke_api_key(
         # Revoke API key
         revoked_key = api_key_service.revoke_api_key(api_key_id)
 
-        return APIKeyResponse(
+                return APIKeyResponse(
             id=revoked_key.id,
             prefix=revoked_key.prefix,
             name=revoked_key.name,
@@ -250,7 +250,7 @@ async def regenerate_api_key(
         # Regenerate API key
         regenerated_key = api_key_service.regenerate_api_key(api_key_id)
 
-        return APIKeyCreatedResponse(
+                return APIKeyCreatedResponse(
             id=regenerated_key.id,
             prefix=regenerated_key.prefix,
             key=regenerated_key.key,

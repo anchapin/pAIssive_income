@@ -61,7 +61,7 @@ TEST_EVENT = {
 def webhook_service():
     """Create a webhook service for testing."""
     service = WebhookService()
-    return service
+            return service
 
 
 @pytest.fixture
@@ -71,13 +71,13 @@ def ip_allowlist():
     # Add some test IPs and networks
     allowlist.add_ip("192.168.1.1")
     allowlist.add_network("10.0.0.0/8")
-    return allowlist
+            return allowlist
 
 
 @pytest.fixture
 def rate_limiter():
     """Create a rate limiter for testing."""
-    return WebhookRateLimiter(limit=5, window_seconds=1)
+            return WebhookRateLimiter(limit=5, window_seconds=1)
 
 
 @pytest.fixture
@@ -101,20 +101,20 @@ def app(webhook_service, ip_allowlist, rate_limiter):
     @app.post("/webhooks/test")
     async def test_webhook(request: Request):
         client_ip = request.client.host if request.client else "unknown"
-        return {"status": "success", "client_ip": client_ip}
+                return {"status": "success", "client_ip": client_ip}
 
     @app.post("/api/other")
     async def other_endpoint(request: Request):
         client_ip = request.client.host if request.client else "unknown"
-        return {"status": "success", "client_ip": client_ip}
+                return {"status": "success", "client_ip": client_ip}
 
-    return app
+            return app
 
 
 @pytest.fixture
 def client(app):
     """Create a test client."""
-    return TestClient(app)
+            return TestClient(app)
 
 
 class TestWebhookSecurityIntegration:
@@ -234,11 +234,11 @@ class TestWebhookSecurityIntegration:
                 TEST_WEBHOOK["secret"], payload, signature
             )
 
-            return mock_response
+                    return mock_response
 
         # Helper function to match json.dumps behavior in the service
         def json_dumps(obj):
-            return json.dumps(obj)
+                    return json.dumps(obj)
 
         # Patch the httpx.AsyncClient.post method
         with patch("httpx.AsyncClient.post", mock_post):
@@ -285,7 +285,7 @@ class TestWebhookSecurityIntegration:
                 }
             )
 
-            return {"status": "success"}
+                    return {"status": "success"}
 
         # Start the receiver app in a separate thread
         with TestClient(receiver_app) as receiver_client:

@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def create_celery_app(app=None):
     """Create and configure Celery application."""
 
-    # Initialize Celery
+# Initialize Celery
     celery = Celery(
         "paissive_income",
         broker="pyamqp://guest@localhost//",  # Default RabbitMQ broker URL
@@ -32,10 +32,10 @@ def create_celery_app(app=None):
         include=["ui.tasks"],  # Include task modules
     )
 
-    # Update broker URL from environment variable if available
+# Update broker URL from environment variable if available
     celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", celery.conf.broker_url)
 
-    # Load additional configuration from environment
+# Load additional configuration from environment
     celery.conf.update(
         task_serializer="json",
         accept_content=["json"],
@@ -47,20 +47,20 @@ def create_celery_app(app=None):
         worker_concurrency=os.environ.get("CELERY_CONCURRENCY", 2),
     )
 
-    class ContextTask(celery.Task):
+class ContextTask(celery.Task):
         """Task class with Flask app context."""
 
-        def __call__(self, *args, **kwargs):
+def __call__(self, *args, **kwargs):
             """Execute task with app context."""
             if app is not None:
                 with app.app_context():
-                    return self.run(*args, **kwargs)
-            return self.run(*args, **kwargs)
+                                return self.run(*args, **kwargs)
+                        return self.run(*args, **kwargs)
 
-    celery.Task = ContextTask
+celery.Task = ContextTask
 
-    logger.info("Celery app configured")
-    return celery
+logger.info("Celery app configured")
+                return celery
 
 
 # Create default Celery app without Flask context

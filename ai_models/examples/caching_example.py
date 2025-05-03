@@ -55,7 +55,7 @@ def simulate_model_inference(text: str, delay: float = 1.0) -> Dict[str, Any]:
     logger.info(f"Running inference for: {text}")
     time.sleep(delay)
 
-    return {"text": text, "response": f"Response for: {text}", "timestamp": time.time()}
+            return {"text": text, "response": f"Response for: {text}", "timestamp": time.time()}
 
 
 def test_memory_cache() -> None:
@@ -152,9 +152,7 @@ def test_redis_cache() -> None:
         print("Redis Cache Not Available")
         print("=" * 80)
         print("Redis not available. Please install it with: pip install redis")
-        return
-
-    print("\n" + "=" * 80)
+                return print("\n" + "=" * 80)
     print("Testing Redis Cache")
     print("=" * 80)
 

@@ -54,7 +54,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
         else:
             # Try to import the AgentTeam class
             try:
-# noqa: F401
+    # noqa: F401
 
                 self.agent_team_available = True
             except ImportError:
@@ -100,7 +100,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
         projects.append(project)
         self.save_data(self.projects_file, projects)
 
-        return project
+                return project
 
     def get_projects(self) -> List[Dict[str, Any]]:
         """
@@ -113,7 +113,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
         if projects is None:
             projects = []
             self.save_data(self.projects_file, projects)
-        return projects
+                return projects
 
     def get_project(self, project_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -128,8 +128,8 @@ class AgentTeamService(BaseService, IAgentTeamService):
         projects = self.get_projects()
         for project in projects:
             if project["id"] == project_id:
-                return project
-        return None
+                        return project
+                return None
 
     def update_project(
         self, project_id: str, updates: Dict[str, Any]
@@ -153,8 +153,8 @@ class AgentTeamService(BaseService, IAgentTeamService):
                 )
                 projects[i] = project
                 self.save_data(self.projects_file, projects)
-                return project
-        return None
+                        return project
+                return None
 
     def delete_project(self, project_id: str) -> bool:
         """
@@ -171,8 +171,8 @@ class AgentTeamService(BaseService, IAgentTeamService):
             if project["id"] == project_id:
                 del projects[i]
                 self.save_data(self.projects_file, projects)
-                return True
-        return False
+                        return True
+                return False
 
     def _create_mock_project(
         self, project_name: str, config: Optional[Dict[str, Any]] = None
@@ -188,7 +188,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
             Mock project data
         """
 = datetime.now()
-        return {
+                return {
             "id": str(uuid.uuid4()),
             "name": project_name,
             "created_at": format_datetime(now, "%Y-%m-%dT%H:%M:%S.%fZ"),

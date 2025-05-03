@@ -92,7 +92,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                     channel = channel_data["items"][0]
                     self.channel_id = channel["id"]
 
-                    return {
+                            return {
                         "authenticated": True,
                         "channel_id": channel["id"],
                         "title": channel["snippet"]["title"],
@@ -124,7 +124,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                 if "items" in channel_data and len(channel_data["items"]) > 0:
                     channel = channel_data["items"][0]
 
-                    return {
+                            return {
                         "authenticated": True,
                         "channel_id": channel["id"],
                         "title": channel["snippet"]["title"],
@@ -174,7 +174,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                     channel = channel_data["items"][0]
                     self.channel_id = channel["id"]
 
-                    return {
+                            return {
                         "authenticated": True,
                         "channel_id": channel["id"],
                         "title": channel["snippet"]["title"],
@@ -281,7 +281,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                 f"Invalid privacy status: {content['privacy_status']}. Allowed values: public, unlisted, private",
             )
 
-        return True
+                return True
 
     def post_content(
         self,
@@ -327,7 +327,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             # For demonstration, we'll simulate a successful upload
             video_id = f"youtube_video_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-            return {
+                    return {
                 "id": video_id,
                 "status": "uploaded",
                 "posted_at": datetime.now().isoformat(),
@@ -361,11 +361,11 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             YouTube privacy status
         """
         if visibility == "public":
-            return "public"
+                    return "public"
         elif visibility == "unlisted":
-            return "unlisted"
+                    return "unlisted"
         else:  # private
-            return "private"
+                    return "private"
 
     def schedule_post(
         self,
@@ -413,7 +413,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             # For demonstration, we'll simulate a successful scheduling
             video_id = f"youtube_scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-            return {
+                    return {
                 "id": video_id,
                 "scheduled_time": schedule_time.isoformat(),
                 "status": "scheduled",
@@ -480,7 +480,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             statistics = video["statistics"]
             status = video["status"]
 
-            return {
+                    return {
                 "id": video["id"],
                 "title": snippet["title"],
                 "description": snippet["description"],
@@ -537,7 +537,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             response.raise_for_status()
 
             # YouTube returns 204 No Content on successful deletion
-            return response.status_code == 204
+                    return response.status_code == 204
 
         except requests.exceptions.RequestException as e:
             if e.response and e.response.status_code == 404:
@@ -595,7 +595,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             if post_id:
                 # In a real implementation, we would use the YouTube Analytics API
                 # For demonstration, we'll return mock analytics data
-                return {
+                        return {
                     "video_id": post_id,
                     "period": {"start_date": start_date_str, "end_date": end_date_str},
                     "metrics": {
@@ -613,7 +613,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             else:
                 # In a real implementation, we would use the YouTube Analytics API
                 # For demonstration, we'll return mock analytics data
-                return {
+                        return {
                     "channel_id": self.channel_id,
                     "period": {"start_date": start_date_str, "end_date": end_date_str},
                     "metrics": {
@@ -632,7 +632,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"YouTube analytics error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "video_id": post_id,
                 "channel_id": self.channel_id,
@@ -670,7 +670,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
 
             # In a real implementation, we would use the YouTube Analytics API
             # For demonstration, we'll return mock audience insights data
-            return {
+                    return {
                 "channel_id": self.channel_id,
                 "segment": segment or "all_viewers",
                 "demographics": {
@@ -732,7 +732,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"YouTube audience insights error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "channel_id": self.channel_id,
                 "segment": segment or "all_viewers",

@@ -11,7 +11,7 @@ from niche_analysis.market_analyzer import MarketAnalyzer
 @pytest.fixture
 def market_analyzer():
     """Create a MarketAnalyzer instance for testing."""
-    return MarketAnalyzer()
+            return MarketAnalyzer()
 
 
 class TestCompetitionAnalysis:

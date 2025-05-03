@@ -107,10 +107,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("marketing")
             if not service:
-                return []
+                        return []
 
             personas = service.get_audience_personas()
-            return [
+                    return [
                 AudiencePersona(
                     id=str(persona.id),
                     name=persona.name,
@@ -133,10 +133,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("marketing")
             if not service:
-                return []
+                        return []
 
             channels = service.get_channels()
-            return [
+                    return [
                 MarketingChannel(
                     id=str(channel.id),
                     name=channel.name,
@@ -158,10 +158,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("marketing")
             if not service:
-                return []
+                        return []
 
             campaigns = service.get_all_campaigns()
-            return [self._format_campaign(campaign) for campaign in campaigns]
+                    return [self._format_campaign(campaign) for campaign in campaigns]
 
         @strawberry.field
         def marketing_campaign(
@@ -178,17 +178,17 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("marketing")
             if not service:
-                return None
+                        return None
 
             campaign = service.get_campaign(id)
             if not campaign:
-                return None
+                        return None
 
-            return self._format_campaign(campaign)
+                    return self._format_campaign(campaign)
 
         def _format_campaign(self, campaign) -> MarketingCampaign:
             """Helper method to format campaign data"""
-            return MarketingCampaign(
+                    return MarketingCampaign(
                 id=str(campaign.id),
                 solution_id=str(campaign.solution_id),
                 solution_name=campaign.solution_name,
@@ -256,7 +256,7 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("marketing")
             if not service:
-                return None
+                        return None
 
             # Generate campaign
             campaign = await service.generate_campaign(
@@ -268,10 +268,10 @@ if STRAWBERRY_AVAILABLE:
             )
 
             if not campaign:
-                return None
+                        return None
 
             # Format and return campaign
-            return MarketingCampaign(
+                    return MarketingCampaign(
                 id=str(campaign.id),
                 solution_id=str(campaign.solution_id),
                 solution_name=campaign.solution_name,

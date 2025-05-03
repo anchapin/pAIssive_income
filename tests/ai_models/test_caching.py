@@ -22,7 +22,7 @@ TEST_RESPONSE = {"text": "Hello back!", "tokens": 2, "finish_reason": "length"}
 @pytest.fixture
 def memory_cache_config():
     """Fixture for memory cache configuration."""
-    return CacheConfig(
+            return CacheConfig(
         enabled=True,
         backend="memory",
         ttl=60,  # 60 seconds
@@ -34,7 +34,7 @@ def memory_cache_config():
 @pytest.fixture
 def disk_cache_config(tmp_path):
     """Fixture for disk cache configuration."""
-    return CacheConfig(
+            return CacheConfig(
         enabled=True,
         backend="disk",
         ttl=60,  # 60 seconds
@@ -48,7 +48,7 @@ def disk_cache_config(tmp_path):
 @pytest.fixture
 def sqlite_cache_config(tmp_path):
     """Fixture for SQLite cache configuration."""
-    return CacheConfig(
+            return CacheConfig(
         enabled=True,
         backend="sqlite",
         ttl=60,  # 60 seconds

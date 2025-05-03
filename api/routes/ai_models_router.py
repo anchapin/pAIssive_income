@@ -40,7 +40,7 @@ if FASTAPI_AVAILABLE:
         Returns:
             AI models information
         """
-        return {
+                return {
             "message": "AI Models API is under development",
             "status": "coming_soon",
         }

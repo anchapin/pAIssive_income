@@ -15,7 +15,7 @@ def main():
     """Parse command line arguments and run webhook tests."""
     parser = argparse.ArgumentParser(description="Run webhook tests for pAIssive_income")
     
-    parser.add_argument("--unit", action="store_true", default=False,
+parser.add_argument("--unit", action="store_true", default=False,
                       help="Run only unit tests for webhook functionality")
     parser.add_argument("--integration", action="store_true", default=False,
                       help="Run only integration tests for webhook functionality") 
@@ -26,9 +26,9 @@ def main():
     parser.add_argument("-v", "--verbose", action="store_true", default=False,
                       help="Verbose output")
     
-    args = parser.parse_args()
+args = parser.parse_args()
     
-    # Determine which tests to run
+# Determine which tests to run
     if args.unit:
         print("Running webhook unit tests...")
         cmd = [sys.executable, "run_tests.py", "--webhook", "-m", "unit"]
@@ -43,13 +43,13 @@ def main():
         print("Running standalone webhook test...")
         cmd = [sys.executable, "-m", "pytest", "test_webhook_service.py", "-v"]
     
-    # Add optional flags
+# Add optional flags
     if args.coverage:
         cmd.append("--coverage")
     if args.verbose:
         cmd.append("--verbose")
     
-    # Execute the command
+# Execute the command
     result = subprocess.run(cmd)
     sys.exit(result.returncode)
 

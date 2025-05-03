@@ -45,17 +45,17 @@ class CacheConfig:
             True if the model and operation should be cached, False otherwise
         """
         if not self.enabled:
-            return False
+                    return False
 
         # Check model filters
         if self.model_filters and model_id not in self.model_filters:
-            return False
+                    return False
 
         # Check operation filters
         if self.operation_filters and operation not in self.operation_filters:
-            return False
+                    return False
 
-        return True
+                return True
 
     def get_backend_config(self, backend: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -80,7 +80,7 @@ class CacheConfig:
         if backend_name in self.backend_config:
             config.update(self.backend_config[backend_name])
 
-        return config
+                return config
 
 
 @dataclass

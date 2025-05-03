@@ -7,9 +7,8 @@ import sys
 from typing import Dict, List, Set
 
 
-def create_directory
-
-#!/usr/bin/env python3
+def create_directory():
+    #!/usr/bin/env python3
 """
 Script to automatically generate API documentation for the pAIssive_income project.
 This script:
@@ -41,51 +40,51 @@ def get_module_docstring(module_name: str) -> str:
     try:
         module = importlib.import_module(module_name)
         if module.__doc__:
-            return module.__doc__.strip()
+                        return module.__doc__.strip()
     except (ImportError, AttributeError):
         pass
-    return f"{module_name} module"
+                return f"{module_name} module"
 
 
 def get_module_members(module_name: str) -> Dict[str, List[str]]:
     """Get classes, functions, and other members from a module."""
     members = {"classes": [], "functions": [], "modules": []}
 
-    try:
+try:
         module = importlib.import_module(module_name)
 
-        for name, obj in inspect.getmembers(module):
+for name, obj in inspect.getmembers(module):
             # Skip private/special members
             if name.startswith("_"):
                 continue
 
-            # Identify classes
+# Identify classes
             if inspect.isclass(obj):
                 if obj.__module__ == module_name:
                     members["classes"].append(name)
 
-            # Identify functions
+# Identify functions
             elif inspect.isfunction(obj):
                 if obj.__module__ == module_name:
                     members["functions"].append(name)
 
-            # Identify submodules
+# Identify submodules
             elif inspect.ismodule(obj):
                 members["modules"].append(name)
 
-    except ImportError:
+except ImportError:
         pass
 
-    return members
+            return members
 
 
 def is_package(module_name: str) -> bool:
     """Check if a module is a package (i.e., has __init__.py)."""
     try:
         module = importlib.import_module(module_name)
-        return hasattr(module, "__path__")
+                    return hasattr(module, "__path__")
     except ImportError:
-        return False
+                    return False
 
 
 def get_submodules(package_name: str) -> List[str]:
@@ -101,18 +100,18 @@ def get_submodules(package_name: str) -> List[str]:
                 submodules.extend(get_submodules(name))
     except ImportError:
         pass
-    return submodules
+                return submodules
 
 
 def generate_module_rst(module_name: str, output_dir: str) -> None:
     """Generate .rst file for a module."""
     output_file = os.path.join(output_dir, f"{module_name.split('.')[-1]}.rst")
 
-    # Get module information
+# Get module information
     docstring = get_module_docstring(module_name)
     members = get_module_members(module_name)
 
-    # Create RST content
+# Create RST content
     lines = [
         f"{module_name.split('.')[-1]}",
         "=" * len(module_name.split(".")[-1]),
@@ -126,7 +125,7 @@ def generate_module_rst(module_name: str, output_dir: str) -> None:
         "",
     ]
 
-    # Add sections for classes, functions, etc. if present
+# Add sections for classes, functions, etc. if present
     if members["classes"]:
         lines.extend(["Classes", "-------", ""])
         for cls in sorted(members["classes"]):
@@ -140,12 +139,12 @@ def generate_module_rst(module_name: str, output_dir: str) -> None:
                 ]
             )
 
-    if members["functions"]:
+if members["functions"]:
         lines.extend(["Functions", "---------", ""])
         for func in sorted(members["functions"]):
             lines.extend([f".. autofunction:: {module_name}.{func}", ""])
 
-    write_file(output_file, "\n".join(lines))
+write_file(output_file, "\n".join(lines))
 
 
 def generate_package_index(
@@ -155,10 +154,10 @@ def generate_package_index(
     # Create output directory if it doesn't exist
     create_directory(output_dir)
 
-    # Get module information
+# Get module information
     docstring = get_module_docstring(package_name)
 
-    # Create RST content
+# Create RST content
     title = package_name.split(".")[-1].replace("_", " ").title()
     lines = [
         f".. _{package_name.replace('.', '_')}:",
@@ -173,13 +172,13 @@ def generate_package_index(
         "",
     ]
 
-    # Add submodules to toctree
+# Add submodules to toctree
     for submodule in sorted(submodules):
         module_name = submodule.split(".")[-1]
         if module_name != "__init__":
             lines.append(f"   {module_name}")
 
-    lines.extend(
+lines.extend(
         [
             "",
             "Module Overview",
@@ -193,7 +192,7 @@ def generate_package_index(
         ]
     )
 
-    # Write the index file
+# Write the index file
     index_file = os.path.join(output_dir, "index.rst")
     write_file(index_file, "\n".join(lines))
 
@@ -203,20 +202,18 @@ def process_module(
 ) -> None:
     """Process a module or package to generate documentation."""
     if module_name in processed_modules:
-        return
-
-    print(f"Processing {module_name}...")
+                    return print(f"Processing {module_name}...")
     processed_modules.add(module_name)
 
-    # Determine output directory based on module hierarchy
+# Determine output directory based on module hierarchy
     parts = module_name.split(".")
     relative_path = os.path.join(*parts) if len(parts) > 1 else parts[0]
     output_dir = os.path.join(base_output_dir, "api", relative_path)
 
-    # Create output directory
+# Create output directory
     create_directory(output_dir)
 
-    if is_package(module_name):
+if is_package(module_name):
         # Get submodules
         direct_submodules = []
         for _, name, is_pkg in pkgutil.iter_modules(
@@ -227,7 +224,7 @@ def process_module(
             # Process each submodule
             process_module(name, base_output_dir, processed_modules)
 
-        # Create package index
+# Create package index
         generate_package_index(module_name, output_dir, direct_submodules)
     else:
         # Generate .rst file for the module
@@ -238,15 +235,15 @@ def main() -> None:
     """Main function to generate API documentation."""
     print("Generating API documentation...")
 
-    # Define the base directory for docs
+# Define the base directory for docs
     base_dir = os.path.dirname(os.path.abspath(__file__))
     output_dir = os.path.join(base_dir, "source")
 
-    # Ensure we can import our project modules
+# Ensure we can import our project modules
     project_dir = os.path.dirname(base_dir)  # Parent of docs directory
     sys.path.insert(0, project_dir)
 
-    # Define main modules to document
+# Define main modules to document
     main_modules = [
         "ai_models",
         "agent_team",
@@ -258,13 +255,13 @@ def main() -> None:
         "interfaces",
     ]
 
-    processed_modules = set()
+processed_modules = set()
 
-    # Process each main module
+# Process each main module
     for module_name in main_modules:
         process_module(module_name, output_dir, processed_modules)
 
-    print("API documentation generation complete!")
+print("API documentation generation complete!")
 
 
 if __name__ == "__main__":

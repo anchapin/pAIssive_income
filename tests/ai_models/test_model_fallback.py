@@ -93,9 +93,9 @@ class TestModelFallback
             if model_id == "primary_model":
                 raise ModelAPIError("API connection failed")
             elif model_id == "fallback_model1":
-                return self.fallback_model1
+                        return self.fallback_model1
             elif model_id == "fallback_model2":
-                return self.fallback_model2
+                        return self.fallback_model2
             else:
                 raise ModelError(f"Unknown model: {model_id}")
 
@@ -123,7 +123,7 @@ class TestModelFallback
             if model_id == "primary_model":
                 raise ModelLoadError("Failed to load model")
             elif model_id == "fallback_model2":
-                return self.fallback_model2
+                        return self.fallback_model2
             else:
                 raise ModelError(f"Unknown model: {model_id}")
 
@@ -160,11 +160,11 @@ class TestModelFallback
         # Configure the models with different simulated response times
         def primary_model_generate(*args, **kwargs):
             self.mock_time += 0.01  # Simulate a 10ms response time
-            return "Primary model response"
+                    return "Primary model response"
 
         def fallback_model_generate(*args, **kwargs):
             self.mock_time += 0.05  # Simulate a 50ms response time
-            return "Fallback model response"
+                    return "Fallback model response"
 
         self.primary_model.generate.side_effect = primary_model_generate
         self.fallback_model1.generate.side_effect = fallback_model_generate
@@ -172,9 +172,9 @@ class TestModelFallback
         # Configure model manager for primary model case
         def load_model_primary_case(model_id):
             if model_id == "primary_model":
-                return self.primary_model
+                        return self.primary_model
             elif model_id == "fallback_model1":
-                return self.fallback_model1
+                        return self.fallback_model1
             else:
                 raise ModelError(f"Unknown model: {model_id}")
 
@@ -183,7 +183,7 @@ class TestModelFallback
             if model_id == "primary_model":
                 raise ModelAPIError("API connection failed")
             elif model_id == "fallback_model1":
-                return self.fallback_model1
+                        return self.fallback_model1
             else:
                 raise ModelError(f"Unknown model: {model_id}")
 

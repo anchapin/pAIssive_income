@@ -76,7 +76,7 @@ class ServerConfig:
         Returns:
             Dictionary representation of the configuration
         """
-        return {
+                return {
             "protocol": self.protocol.value,
             "host": self.host,
             "port": self.port,
@@ -125,7 +125,7 @@ class ServerConfig:
         config = cls(protocol=protocol, **config_dict)
 
         config.additional_params = additional_params
-        return config
+                return config
 
 
 class ModelServer(abc.ABC):

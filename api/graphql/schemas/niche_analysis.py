@@ -80,10 +80,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("niche_analysis")
             if not service:
-                return []
+                        return []
 
             segments = service.get_market_segments()
-            return [
+                    return [
                 MarketSegment(
                     id=str(segment.id),
                     name=segment.name,
@@ -103,10 +103,10 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("niche_analysis")
             if not service:
-                return []
+                        return []
 
             results = service.get_all_niche_results()
-            return [
+                    return [
                 NicheAnalysisResult(
                     id=str(result.id),
                     date_created=result.date_created.isoformat(),
@@ -151,13 +151,13 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("niche_analysis")
             if not service:
-                return None
+                        return None
 
             result = service.get_niche_result(id)
             if not result:
-                return None
+                        return None
 
-            return NicheAnalysisResult(
+                    return NicheAnalysisResult(
                 id=str(result.id),
                 date_created=result.date_created.isoformat(),
                 segments=[
@@ -203,13 +203,13 @@ if STRAWBERRY_AVAILABLE:
             """
             service = info.context["services"].get("niche_analysis")
             if not service:
-                return None
+                        return None
 
             result = await service.analyze_niches(input.segment_ids)
             if not result:
-                return None
+                        return None
 
-            return NicheAnalysisResult(
+                    return NicheAnalysisResult(
                 id=str(result.id),
                 date_created=result.date_created.isoformat(),
                 segments=[

@@ -60,7 +60,7 @@ def tier_distributions(draw):
     percentages.append(remaining)
 
     # Create and return the distribution dictionary
-    return {tier: percentage for tier, percentage in zip(tiers, percentages)}
+            return {tier: percentage for tier, percentage in zip(tiers, percentages)}
 
 
 @given(

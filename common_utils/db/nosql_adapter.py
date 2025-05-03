@@ -110,7 +110,7 @@ class MongoDBAdapter(DatabaseInterface):
                     command = json.loads(query)
                 except json.JSONDecodeError as e:
                     raise ValueError(f"Invalid JSON command: {e}")
-                return self.db.command(command)
+                        return self.db.command(command)
             else:
                 # It's a simplified format like "collection_name:operation"
                 parts = query.split(":", 1)
@@ -124,17 +124,17 @@ class MongoDBAdapter(DatabaseInterface):
 
                 if operation == "find":
                     filter_dict = params or {}
-                    return list(collection.find(filter_dict))
+                            return list(collection.find(filter_dict))
                 elif operation == "findOne":
                     filter_dict = params or {}
-                    return collection.find_one(filter_dict)
+                            return collection.find_one(filter_dict)
                 elif operation == "insert":
                     if params:
-                        return collection.insert_one(params)
+                                return collection.insert_one(params)
                     raise ValueError("Parameters required for insert operation")
                 elif operation == "update":
                     if params and "filter" in params and "update" in params:
-                        return collection.update_many(
+                                return collection.update_many(
                             params["filter"], {"$set": params["update"]}
                         )
                     raise ValueError(
@@ -142,7 +142,7 @@ class MongoDBAdapter(DatabaseInterface):
                     )
                 elif operation == "delete":
                     if params:
-                        return collection.delete_many(params)
+                                return collection.delete_many(params)
                     raise ValueError("Parameters required for delete operation")
                 else:
                     raise ValueError(f"Unsupported operation: {operation}")
@@ -187,7 +187,7 @@ class MongoDBAdapter(DatabaseInterface):
             if result and "_id" in result:
                 result["_id"] = str(result["_id"])
 
-            return result
+                    return result
         except PyMongoError as e:
             logger.error(f"Error fetching document from MongoDB: {e}")
             raise
@@ -229,7 +229,7 @@ class MongoDBAdapter(DatabaseInterface):
                 if "_id" in result:
                     result["_id"] = str(result["_id"])
 
-            return results
+                    return results
         except PyMongoError as e:
             logger.error(f"Error fetching documents from MongoDB: {e}")
             raise
@@ -253,7 +253,7 @@ class MongoDBAdapter(DatabaseInterface):
 
             collection = self.db[table]
             result = collection.insert_one(data)
-            return str(result.inserted_id)
+                    return str(result.inserted_id)
         except PyMongoError as e:
             logger.error(f"Error inserting document into MongoDB: {e}")
             raise
@@ -287,7 +287,7 @@ class MongoDBAdapter(DatabaseInterface):
             filter_dict = params or {}
 
             result = collection.update_many(filter_dict, {"$set": data})
-            return result.modified_count
+                    return result.modified_count
         except PyMongoError as e:
             logger.error(f"Error updating documents in MongoDB: {e}")
             raise
@@ -316,7 +316,7 @@ class MongoDBAdapter(DatabaseInterface):
             filter_dict = params or {}
 
             result = collection.delete_many(filter_dict)
-            return result.deleted_count
+                    return result.deleted_count
         except PyMongoError as e:
             logger.error(f"Error deleting documents from MongoDB: {e}")
             raise
@@ -341,7 +341,7 @@ class MongoDBUnitOfWork(UnitOfWork):
         if self.adapter.client:
             self.session = self.adapter.client.start_session()
             self.session.start_transaction()
-        return self
+                return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """End a transaction."""

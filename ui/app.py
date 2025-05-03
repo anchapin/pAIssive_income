@@ -34,5 +34,5 @@ if __name__ == "__main__":
     logger.info(f"Template folder: {app.template_folder}")
     logger.info(f"Static folder: {app.static_folder}")
 
-    # Run the application
+# Run the application
     app.run(debug=True, host="0.0.0.0", port=5000)

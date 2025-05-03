@@ -67,7 +67,7 @@ class MetricsAPI:
         """
         if cls._instance is None:
             cls._instance = cls(config, db_path)
-        return cls._instance
+                return cls._instance
 
     def __init__(self, config=None, db_path: str = None):
         """
@@ -195,7 +195,7 @@ class MetricsAPI:
         @metrics_api.track_inference_decorator("gpt4")
         def generate_text(prompt, **kwargs):
             # Call model and return response
-            return model_response
+                    return model_response
         ```
 
         Args:
@@ -239,11 +239,11 @@ class MetricsAPI:
                     # Stop tracking with output text
                     tracker.stop(output_text=output_text)
 
-                    return response
+                            return response
 
-            return wrapper
+                    return wrapper
 
-        return decorator
+                return decorator
 
     def get_dashboard(self, output_dir: str = None):
         """
@@ -261,7 +261,7 @@ class MetricsAPI:
             self._dashboard = MetricsDashboard(
                 performance_monitor=self.monitor, output_dir=output_dir
             )
-        return self._dashboard
+                return self._dashboard
 
     def generate_model_dashboard(
         self, model_id: str, days: int = 30, output_dir: str = None
@@ -278,7 +278,7 @@ class MetricsAPI:
             Path to the generated dashboard HTML file
         """
         dashboard = self.get_dashboard(output_dir)
-        return dashboard.generate_model_dashboard(model_id=model_id, days=days)
+                return dashboard.generate_model_dashboard(model_id=model_id, days=days)
 
     def generate_model_comparison(
         self, model_ids: List[str], days: int = 30, output_dir: str = None
@@ -306,7 +306,7 @@ class MetricsAPI:
             else:
                 model_names.append(model_id)
 
-        return dashboard.generate_model_comparison_dashboard(
+                return dashboard.generate_model_comparison_dashboard(
             model_ids=model_ids, model_names=model_names, days=days
         )
 
@@ -462,7 +462,7 @@ class MetricsAPI:
             if total_tokens > 0:
                 summary["cost_per_1k_tokens"] = (total_cost * 1000) / total_tokens
 
-        return summary
+                return summary
 
     def set_alert_threshold(
         self,
@@ -521,8 +521,8 @@ class MetricsAPI:
         Returns:
             Number of records deleted
         """
-        return self.monitor.metrics_db.cleanup_old_metrics(days)
+                return self.monitor.metrics_db.cleanup_old_metrics(days)
 
 
 # Create a global instance of the metrics API
-metrics_api = MetricsAPI.get_instance()
+metrics_api = MetricsAPI.get_instance())

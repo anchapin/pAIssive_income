@@ -20,14 +20,14 @@ from ..benchmark_result import BenchmarkResult
 
 # Try to import optional dependencies
 try:
- as np
+as np
 
     NUMPY_AVAILABLE = True
 except ImportError:
     NUMPY_AVAILABLE = False
 
 try:
- as plt
+as plt
  as ticker
 
     MATPLOTLIB_AVAILABLE = True
@@ -99,7 +99,7 @@ def plot_benchmark_results(
     if show:
         plt.show()
 
-    return fig
+            return fig
 
 
 def plot_comparison(
@@ -185,7 +185,7 @@ def plot_comparison(
     if show:
         plt.show()
 
-    return fig
+            return fig
 
 
 def plot_latency_distribution(
@@ -256,7 +256,7 @@ def plot_latency_distribution(
     if show:
         plt.show()
 
-    return fig
+            return fig
 
 
 def plot_memory_usage(
@@ -332,7 +332,7 @@ def plot_memory_usage(
     if show:
         plt.show()
 
-    return fig
+            return fig
 
 
 def _plot_latency_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -> None:
@@ -348,9 +348,7 @@ def _plot_latency_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) ->
         plt.text(
             0.5, 0.5, "No latency data available", ha="center", va="center", fontsize=14
         )
-        return
-
-    # Create subplots
+                return # Create subplots
     gs = fig.add_gridspec(2, 2)
     ax1 = fig.add_subplot(gs[0, 0])
     ax2 = fig.add_subplot(gs[0, 1])
@@ -433,9 +431,7 @@ def _plot_throughput_results(
             va="center",
             fontsize=14,
         )
-        return
-
-    # Create subplot
+                return # Create subplot
     ax = fig.add_subplot(1, 1, 1)
 
     # Plot throughput
@@ -476,9 +472,7 @@ def _plot_memory_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -> 
         plt.text(
             0.5, 0.5, "No memory data available", ha="center", va="center", fontsize=14
         )
-        return
-
-    # Create subplot
+                return # Create subplot
     ax = fig.add_subplot(1, 1, 1)
 
     # Get memory usage breakdown
@@ -547,9 +541,7 @@ def _plot_accuracy_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -
             va="center",
             fontsize=14,
         )
-        return
-
-    # Create subplot
+                return # Create subplot
     ax = fig.add_subplot(1, 1, 1)
 
     # Plot accuracy
@@ -584,9 +576,7 @@ def _plot_perplexity_results(
             va="center",
             fontsize=14,
         )
-        return
-
-    # Create subplot
+                return # Create subplot
     ax = fig.add_subplot(1, 1, 1)
 
     # Plot perplexity
@@ -622,9 +612,7 @@ def _plot_rouge_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -> N
         plt.text(
             0.5, 0.5, "No ROUGE data available", ha="center", va="center", fontsize=14
         )
-        return
-
-    # Create subplot
+                return # Create subplot
     ax = fig.add_subplot(1, 1, 1)
 
     # Get ROUGE scores

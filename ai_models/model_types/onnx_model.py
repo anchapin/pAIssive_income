@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
- as ort
+as ort
 
     ONNX_AVAILABLE = True
 except ImportError:
@@ -218,9 +218,7 @@ class ONNXModel:
         """
         if not TRANSFORMERS_AVAILABLE:
             logger.warning("Transformers not available. Cannot load tokenizer.")
-            return
-
-        try:
+                    return try:
             # Determine tokenizer path
             tokenizer_path = self.tokenizer_path
             if not tokenizer_path:
@@ -243,9 +241,7 @@ class ONNXModel:
                         logger.warning(
                             "Could not determine tokenizer. Please specify tokenizer_path."
                         )
-                        return
-
-            # Load tokenizer
+                                return # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
             logger.info(f"Loaded tokenizer from {tokenizer_path}")
 
@@ -328,11 +324,11 @@ class ONNXModel:
                         output_ids, skip_special_tokens=True
                     )
 
-                return output_text
+                        return output_text
 
             else:
                 # For other model types, return raw outputs
-                return str(outputs)
+                        return str(outputs)
 
         except Exception as e:
             logger.error(f"Error generating text: {e}")
@@ -400,7 +396,7 @@ class ONNXModel:
             # Create result dictionary
             result = {label: float(prob) for label, prob in zip(labels, probs[0])}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error classifying text: {e}")
@@ -463,7 +459,7 @@ class ONNXModel:
                     norms = np.sqrt(np.sum(embeddings**2, axis=1, keepdims=True))
                     embeddings = embeddings / norms
 
-            return embeddings
+                    return embeddings
 
         except Exception as e:
             logger.error(f"Error encoding text: {e}")
@@ -539,7 +535,7 @@ class ONNXModel:
             # Create result dictionary
             result = {label: float(prob) for label, prob in zip(labels, probs[0])}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error classifying image: {e}")
@@ -586,7 +582,7 @@ class ONNXModel:
             # Add batch dimension
             image_data = np.expand_dims(image_data, axis=0)
 
-            return image_data
+                    return image_data
 
         except Exception as e:
             logger.error(f"Error preprocessing image: {e}")
@@ -620,7 +616,7 @@ class ONNXModel:
             metadata["producer_name"] = model_meta.producer_name
             metadata["version"] = model_meta.version
 
-        return metadata
+                return metadata
 
 
 # Example usage

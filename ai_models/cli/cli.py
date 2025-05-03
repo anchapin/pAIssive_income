@@ -40,7 +40,7 @@ def get_commands() -> Dict[str, Type[BaseCommand]]:
     Returns:
         Dictionary mapping command names to command classes
     """
-    return {
+            return {
         # Model management commands
         "download": DownloadCommand,
         "list": ListCommand,
@@ -94,7 +94,7 @@ def create_parser() -> argparse.ArgumentParser:
         )
         command_class.add_arguments(command_parser)
 
-    return parser
+            return parser
 
 
 def main(args: Optional[List[str]] = None) -> int:
@@ -118,7 +118,7 @@ def main(args: Optional[List[str]] = None) -> int:
     # Check if a command was specified
     if not parsed_args.command:
         parser.print_help()
-        return 1
+                return 1
 
     # Get command class
     commands = get_commands()
@@ -127,15 +127,15 @@ def main(args: Optional[List[str]] = None) -> int:
     try:
         # Create and run command
         command = command_class(parsed_args)
-        return command.run()
+                return command.run()
 
     except KeyboardInterrupt:
         logger.info("Interrupted by user")
-        return 130
+                return 130
 
     except Exception as e:
         logger.error(f"Error executing command: {e}", exc_info=True)
-        return 1
+                return 1
 
 
 if __name__ == "__main__":

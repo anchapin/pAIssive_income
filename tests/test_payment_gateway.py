@@ -14,21 +14,21 @@ class TestPaymentGateway
 (unittest.TestCase):
     """Test cases for payment gateway integration."""
 
-    def setUp(self):
+def setUp(self):
         """Set up test fixtures."""
         self.processor = MockPaymentProcessor()
         self.customer_id = None
         self.payment_method_id = None
         self.subscription_id = None
 
-    def create_test_customer(self):
+def create_test_customer(self):
         """Helper to create a test customer with payment method."""
         customer = self.processor.create_customer(
             email="test@example.com", name="Test Customer"
         )
         self.customer_id = customer["id"]
 
-        payment_method = self.processor.create_payment_method(
+payment_method = self.processor.create_payment_method(
             customer_id=self.customer_id,
             payment_type="card",
             payment_details={
@@ -39,14 +39,14 @@ class TestPaymentGateway
             },
         )
         self.payment_method_id = payment_method["id"]
-        return customer, payment_method
+                    return customer, payment_method
 
-    def test_payment_processing_workflow(self):
+def test_payment_processing_workflow(self):
         """Test complete payment processing workflow."""
         # Create customer and payment method
         customer, payment_method = self.create_test_customer()
 
-        # Process a successful payment
+# Process a successful payment
         payment = self.processor.process_payment(
             amount=19.99,
             currency="USD",
@@ -56,7 +56,7 @@ class TestPaymentGateway
         self.assertEqual(payment["status"], "succeeded")
         self.assertEqual(payment["amount"], 19.99)
 
-        # Process a payment with invalid amount
+# Process a payment with invalid amount
         with self.assertRaises(ValueError):
             self.processor.process_payment(
                 amount=-10.0,
@@ -65,7 +65,7 @@ class TestPaymentGateway
                 description="Invalid payment",
             )
 
-        # Process a payment with invalid currency
+# Process a payment with invalid currency
         with self.assertRaises(ValueError):
             self.processor.process_payment(
                 amount=19.99,
@@ -74,12 +74,12 @@ class TestPaymentGateway
                 description="Invalid currency payment",
             )
 
-    def test_subscription_lifecycle(self):
+def test_subscription_lifecycle(self):
         """Test complete subscription lifecycle."""
         # Create customer and payment method
         customer, payment_method = self.create_test_customer()
 
-        # Create a subscription
+# Create a subscription
         subscription = self.processor.create_subscription(
             customer_id=customer["id"],
             plan_id="plan_monthly",
@@ -88,10 +88,10 @@ class TestPaymentGateway
         )
         self.subscription_id = subscription["id"]
 
-        self.assertEqual(subscription["status"], "active")
+self.assertEqual(subscription["status"], "active")
         self.assertIsNotNone(subscription["current_period_end"])
 
-        # Update subscription
+# Update subscription
         updated_subscription = self.processor.update_subscription(
             subscription_id=subscription["id"],
             plan_id="plan_annual",
@@ -99,25 +99,25 @@ class TestPaymentGateway
         )
         self.assertEqual(updated_subscription["plan_id"], "plan_annual")
 
-        # Cancel subscription at period end
+# Cancel subscription at period end
         canceled_subscription = self.processor.cancel_subscription(
             subscription_id=subscription["id"], cancel_at_period_end=True
         )
         self.assertTrue(canceled_subscription["cancel_at_period_end"])
         self.assertEqual(canceled_subscription["status"], "active")
 
-        # Immediate cancellation
+# Immediate cancellation
         canceled_subscription = self.processor.cancel_subscription(
             subscription_id=subscription["id"], cancel_at_period_end=False
         )
         self.assertEqual(canceled_subscription["status"], "canceled")
 
-    def test_refund_and_credit_handling(self):
+def test_refund_and_credit_handling(self):
         """Test refund and credit handling."""
         # Create customer and payment method
         customer, payment_method = self.create_test_customer()
 
-        # Process a payment to refund
+# Process a payment to refund
         payment = self.processor.process_payment(
             amount=50.00,
             currency="USD",
@@ -125,14 +125,14 @@ class TestPaymentGateway
             description="Refundable payment",
         )
 
-        # Full refund
+# Full refund
         refund = self.processor.refund_payment(
             payment_id=payment["id"], reason="Customer request"
         )
         self.assertEqual(refund["amount"], 50.00)
         self.assertEqual(refund["status"], "succeeded")
 
-        # Process another payment for partial refund
+# Process another payment for partial refund
         payment = self.processor.process_payment(
             amount=100.00,
             currency="USD",
@@ -140,23 +140,23 @@ class TestPaymentGateway
             description="Partial refund payment",
         )
 
-        # Partial refund
+# Partial refund
         partial_refund = self.processor.refund_payment(
             payment_id=payment["id"], amount=25.00, reason="Partial refund request"
         )
         self.assertEqual(partial_refund["amount"], 25.00)
         self.assertEqual(partial_refund["status"], "succeeded")
 
-        # Try to refund more than original payment
+# Try to refund more than original payment
         with self.assertRaises(ValueError):
             self.processor.refund_payment(payment_id=payment["id"], amount=200.00)
 
-    def test_payment_failure_scenarios(self):
+def test_payment_failure_scenarios(self):
         """Test payment failure scenarios and retry logic."""
         # Create customer and payment method
         customer, payment_method = self.create_test_customer()
 
-        # Test payment with expired card
+# Test payment with expired card
         expired_payment_method = self.processor.create_payment_method(
             customer_id=customer["id"],
             payment_type="card",
@@ -168,7 +168,7 @@ class TestPaymentGateway
             },
         )
 
-        with self.assertRaises(ValueError):
+with self.assertRaises(ValueError):
             self.processor.process_payment(
                 amount=19.99,
                 currency="USD",
@@ -176,7 +176,7 @@ class TestPaymentGateway
                 description="Payment with expired card",
             )
 
-        # Test payment with insufficient funds
+# Test payment with insufficient funds
         # Note: In mock implementation, we'll consider any amount >= 10000 as triggering insufficient funds
         with self.assertRaises(ValueError):
             self.processor.process_payment(
@@ -186,7 +186,7 @@ class TestPaymentGateway
                 description="Payment with insufficient funds",
             )
 
-        # Test subscription with failed payment
+# Test subscription with failed payment
         with self.assertRaises(ValueError):
             self.processor.create_subscription(
                 customer_id=customer["id"],
@@ -194,7 +194,7 @@ class TestPaymentGateway
                 payment_method_id=payment_method["id"],
             )
 
-    def tearDown(self):
+def tearDown(self):
         """Clean up test fixtures."""
         # Clean up created resources
         if self.subscription_id:
@@ -205,13 +205,13 @@ class TestPaymentGateway
             except Exception:
                 pass
 
-        if self.payment_method_id:
+if self.payment_method_id:
             try:
                 self.processor.delete_payment_method(self.payment_method_id)
             except Exception:
                 pass
 
-        if self.customer_id:
+if self.customer_id:
             try:
                 self.processor.delete_customer(self.customer_id)
             except Exception:

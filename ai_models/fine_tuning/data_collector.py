@@ -132,7 +132,7 @@ class DataCollector:
             combined_dataset = combined_dataset.select(range(self.config.max_samples))
 
         logger.info(f"Combined dataset has {len(combined_dataset)} samples")
-        return combined_dataset
+                return combined_dataset
 
     def prepare(self) -> DatasetDict:
         """
@@ -169,7 +169,7 @@ class DataCollector:
             f"Dataset split: {len(train_dataset)} train, {len(valid_dataset)} validation, {len(test_dataset)} test"
         )
 
-        return DatasetDict(
+                return DatasetDict(
             {"train": train_dataset, "validation": valid_dataset, "test": test_dataset}
         )
 
@@ -192,13 +192,13 @@ class DataCollector:
 
         # Export based on format
         if self.config.output_format == DatasetFormat.JSONL:
-            return self._export_jsonl(dataset, output_path)
+                    return self._export_jsonl(dataset, output_path)
         elif self.config.output_format == DatasetFormat.CSV:
-            return self._export_csv(dataset, output_path)
+                    return self._export_csv(dataset, output_path)
         elif self.config.output_format == DatasetFormat.PARQUET:
-            return self._export_parquet(dataset, output_path)
+                    return self._export_parquet(dataset, output_path)
         elif self.config.output_format == DatasetFormat.HUGGINGFACE:
-            return self._export_huggingface(dataset, output_path)
+                    return self._export_huggingface(dataset, output_path)
         else:
             raise ValueError(f"Unsupported output format: {self.config.output_format}")
 
@@ -218,13 +218,13 @@ class DataCollector:
 
         if ext == ".jsonl" or ext == ".json":
             # Load JSONL file
-            return Dataset.from_json(file_path)
+                    return Dataset.from_json(file_path)
         elif ext == ".csv":
             # Load CSV file
-            return Dataset.from_csv(file_path)
+                    return Dataset.from_csv(file_path)
         elif ext == ".parquet":
             # Load Parquet file
-            return Dataset.from_parquet(file_path)
+                    return Dataset.from_parquet(file_path)
         else:
             raise ValueError(f"Unsupported file format: {ext}")
 
@@ -250,7 +250,7 @@ class DataCollector:
                         break
 
                 if text_field is None:
-                    return True  # No text field found, keep the example
+                            return True  # No text field found, keep the example
 
                 text_length = len(example[text_field])
 
@@ -258,15 +258,15 @@ class DataCollector:
                     self.config.min_length is not None
                     and text_length < self.config.min_length
                 ):
-                    return False
+                            return False
 
                 if (
                     self.config.max_length is not None
                     and text_length > self.config.max_length
                 ):
-                    return False
+                            return False
 
-                return True
+                        return True
 
             dataset = dataset.filter(length_filter)
 
@@ -274,7 +274,7 @@ class DataCollector:
         if self.config.filter_function is not None:
             dataset = dataset.filter(self.config.filter_function)
 
-        return dataset
+                return dataset
 
     def _transform_dataset(self, dataset: Dataset) -> Dataset:
         """
@@ -289,7 +289,7 @@ class DataCollector:
         if self.config.transform_function is not None:
             dataset = dataset.map(self.config.transform_function)
 
-        return dataset
+                return dataset
 
     def _export_jsonl(
         self, dataset: Union[Dataset, DatasetDict], output_path: str
@@ -325,12 +325,12 @@ class DataCollector:
                     indent=2,
                 )
 
-            return metadata_path
+                    return metadata_path
         else:
             # Export single dataset
             output_path = f"{output_path}.jsonl"
             dataset.to_json(output_path)
-            return output_path
+                    return output_path
 
     def _export_csv(
         self, dataset: Union[Dataset, DatasetDict], output_path: str
@@ -366,12 +366,12 @@ class DataCollector:
                     indent=2,
                 )
 
-            return metadata_path
+                    return metadata_path
         else:
             # Export single dataset
             output_path = f"{output_path}.csv"
             dataset.to_csv(output_path, index=False)
-            return output_path
+                    return output_path
 
     def _export_parquet(
         self, dataset: Union[Dataset, DatasetDict], output_path: str
@@ -407,12 +407,12 @@ class DataCollector:
                     indent=2,
                 )
 
-            return metadata_path
+                    return metadata_path
         else:
             # Export single dataset
             output_path = f"{output_path}.parquet"
             dataset.to_parquet(output_path)
-            return output_path
+                    return output_path
 
     def _export_huggingface(
         self, dataset: Union[Dataset, DatasetDict], output_path: str
@@ -429,7 +429,7 @@ class DataCollector:
         """
         # Save the dataset to disk
         dataset.save_to_disk(output_path)
-        return output_path
+                return output_path
 
 
 def collect_data(config: DataCollectionConfig) -> Dataset:
@@ -443,7 +443,7 @@ def collect_data(config: DataCollectionConfig) -> Dataset:
         Collected dataset
     """
     collector = DataCollector(config)
-    return collector.collect()
+            return collector.collect()
 
 
 def prepare_dataset(config: DataCollectionConfig) -> DatasetDict:
@@ -457,7 +457,7 @@ def prepare_dataset(config: DataCollectionConfig) -> DatasetDict:
         Prepared dataset with train, validation, and test splits
     """
     collector = DataCollector(config)
-    return collector.prepare()
+            return collector.prepare()
 
 
 def export_dataset(
@@ -492,4 +492,4 @@ def export_dataset(
 
     # Export dataset
     collector = DataCollector(config)
-    return collector.export(dataset)
+            return collector.export(dataset)

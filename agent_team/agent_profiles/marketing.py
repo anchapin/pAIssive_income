@@ -54,7 +54,7 @@ class MarketingAgent
         # Store the marketing plan in the team's project state
         self.team.project_state["marketing_plan"] = plan
 
-        return plan
+                return plan
 
     def _create_marketing_plan(
         self,
@@ -280,7 +280,7 @@ class MarketingAgent
             },
         }
 
-        return {
+                return {
             "id": str(uuid.uuid4()),
             "solution_id": solution["id"],
             "user_personas": user_personas,
@@ -392,8 +392,8 @@ class MarketingAgent
                 }
             )
 
-        return content_ideas
+                return content_ideas
 
     def __str__(self) -> str:
         """String representation of the Marketing Agent."""
-        return f"{self.name}: {self.description}"
+                return f"{self.name}: {self.description}"

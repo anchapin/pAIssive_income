@@ -38,14 +38,12 @@ class EventEmitter:
         if cls._instance is None:
             cls._instance = super(EventEmitter, cls).__new__(cls)
             cls._instance._initialized = False
-        return cls._instance
+                return cls._instance
 
     def __init__(self):
         """Initialize the event emitter."""
         if self._initialized:
-            return
-
-        # Initialize webhook service
+                    return # Initialize webhook service
         self.webhook_service = WebhookService()
 
         # Event listeners
@@ -88,7 +86,7 @@ class EventEmitter:
                 if self.debug:
                     logger.debug(f"Removed listener for event {event_name}")
 
-        return unsubscribe
+                return unsubscribe
 
     def once(self, event: Union[str, WebhookEventType], listener: Callable) -> Callable:
         """
@@ -106,12 +104,12 @@ class EventEmitter:
         @wraps(listener)
         def wrapper(*args, **kwargs):
             unsubscribe()
-            return listener(*args, **kwargs)
+                    return listener(*args, **kwargs)
 
         # Register wrapper
         unsubscribe = self.on(event, wrapper)
 
-        return unsubscribe
+                return unsubscribe
 
     async def emit(
         self, event: Union[str, WebhookEventType], data: Dict[str, Any]
@@ -154,7 +152,7 @@ class EventEmitter:
         # Trigger webhook notifications
         await self.webhook_service.trigger_event(event_name, data)
 
-        return len(listeners)
+                return len(listeners)
 
     # Convenience methods for common events
 
@@ -171,7 +169,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.NICHE_ANALYSIS_CREATED,
             {"analysis_id": analysis_id, "analysis": analysis_data},
         )
@@ -189,7 +187,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.NICHE_ANALYSIS_UPDATED,
             {"analysis_id": analysis_id, "analysis": analysis_data},
         )
@@ -208,7 +206,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.OPPORTUNITY_SCORED,
             {
                 "opportunity_id": opportunity_id,
@@ -230,7 +228,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.MONETIZATION_PLAN_CREATED,
             {"plan_id": plan_id, "plan": plan_data},
         )
@@ -248,7 +246,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.MARKETING_CAMPAIGN_CREATED,
             {"campaign_id": campaign_id, "campaign": campaign_data},
         )
@@ -267,7 +265,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.MARKETING_CAMPAIGN_COMPLETED,
             {"campaign_id": campaign_id, "results": results, "campaign": campaign_data},
         )
@@ -283,7 +281,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.USER_CREATED, {"user_id": user_id, "user": user_data}
         )
 
@@ -301,7 +299,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.PROJECT_SHARED,
             {
                 "project_id": project_id,
@@ -324,7 +322,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.AGENT_TASK_COMPLETED,
             {"task_id": task_id, "agent_id": agent_id, "results": results},
         )
@@ -348,7 +346,7 @@ class EventEmitter:
         Returns:
             Number of listeners notified
         """
-        return await self.emit(
+                return await self.emit(
             WebhookEventType.MODEL_INFERENCE_COMPLETED,
             {
                 "model_id": model_id,

@@ -21,13 +21,13 @@ from agent_team import AgentTeam
 @pytest.fixture
 def market_analyzer():
     """Create a market analyzer instance for testing."""
-    return MarketAnalyzer()
+            return MarketAnalyzer()
 
 
 @pytest.fixture
 def ab_testing():
     """Create an A/B testing instance for testing."""
-    return ABTesting()
+            return ABTesting()
 
 
 @pytest.fixture

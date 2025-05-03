@@ -55,7 +55,7 @@ if STRAWBERRY_AVAILABLE:
             server = getattr(info.context.get("request").app.state, "api_server", None)
             uptime = server.get_uptime() if server else 0
 
-            return HealthCheckResult(
+                    return HealthCheckResult(
                 status="ok",
                 version=info.context.get("request").app.version,
                 timestamp=datetime.now().isoformat(),
@@ -70,7 +70,7 @@ if STRAWBERRY_AVAILABLE:
             Returns:
                 API information string
             """
-            return "pAIssive Income GraphQL API"
+                    return "pAIssive Income GraphQL API"
 
     @strawberry.type
     class Mutation:
@@ -84,7 +84,7 @@ if STRAWBERRY_AVAILABLE:
             Returns:
                 Pong response
             """
-            return "pong"
+                    return "pong"
 
 else:
     # Fallbacks if Strawberry isn't available

@@ -72,4 +72,4 @@ async def get_context(request: Request) -> Dict[str, Any]:
     if hasattr(request.state, "user"):
         context["user"] = request.state.user
 
-    return context
+            return context

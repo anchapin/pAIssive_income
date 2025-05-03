@@ -68,7 +68,7 @@ class AccuracyMetric
         # Add value
         self.add_value(accuracy)
 
-        return accuracy
+                return accuracy
 
     def measure_single(self, prediction: Any, label: Any) -> float:
         """
@@ -95,7 +95,7 @@ class AccuracyMetric
         # Add value
         self.add_value(accuracy)
 
-        return accuracy
+                return accuracy
 
     def get_overall_accuracy(self) -> float:
         """
@@ -104,7 +104,7 @@ class AccuracyMetric
         Returns:
             Overall accuracy as a percentage
         """
-        return (self.correct / self.total) * 100 if self.total > 0 else 0
+                return (self.correct / self.total) * 100 if self.total > 0 else 0
 
     def reset(self) -> None:
         """
@@ -126,4 +126,4 @@ class AccuracyMetric
         # Add overall accuracy
         stats["overall"] = self.get_overall_accuracy()
 
-        return stats
+                return stats

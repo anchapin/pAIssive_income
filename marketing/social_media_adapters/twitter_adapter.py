@@ -91,7 +91,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 response.raise_for_status()
                 user_data = response.json()
 
-                return {
+                        return {
                     "authenticated": True,
                     "user_id": user_data.get("data", {}).get("id"),
                     "username": user_data.get("data", {}).get("username"),
@@ -119,7 +119,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 response.raise_for_status()
                 user_data = response.json()
 
-                return {
+                        return {
                     "authenticated": True,
                     "bearer_token": self.bearer_token,
                     "token_type": token_data.get("token_type"),
@@ -186,7 +186,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                         f"Invalid media type: {item['type']}. Allowed types: {', '.join(allowed_types)}",
                     )
 
-        return True
+                return True
 
     def post_content(
         self,
@@ -239,7 +239,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
             # Extract tweet ID and other details
             tweet_id = result.get("data", {}).get("id")
 
-            return {
+                    return {
                 "id": tweet_id,
                 "platform_data": result,
                 "url": f"https://twitter.com/user/status/{tweet_id}",
@@ -285,7 +285,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
             # For demonstration, we'll return a mock scheduled tweet
             scheduled_id = f"scheduled_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-            return {
+                    return {
                 "id": scheduled_id,
                 "scheduled_time": schedule_time.isoformat(),
                 "status": "scheduled",
@@ -332,7 +332,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
 
             tweet_data = result["data"]
 
-            return {
+                    return {
                 "id": tweet_data["id"],
                 "text": tweet_data["text"],
                 "created_at": tweet_data.get("created_at"),
@@ -370,7 +370,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
 
             # Check if deletion was successful
             if result.get("data", {}).get("deleted", False):
-                return True
+                        return True
             else:
                 raise DeletionError("twitter", "Failed to delete tweet")
 
@@ -437,7 +437,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                     },
                 }
 
-                return analytics
+                        return analytics
 
             # Otherwise, get account-level analytics
             else:
@@ -445,7 +445,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 # In a real implementation, we would use the Twitter Analytics API
 
                 # For demonstration, we'll return mock analytics data
-                return {
+                        return {
                     "account_id": self.account_id,
                     "period": {"start_date": start_date_str, "end_date": end_date_str},
                     "metrics": {
@@ -462,7 +462,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Twitter analytics error: {e}")
-            return {
+                    return {
                 "error": str(e),
                 "post_id": post_id,
                 "period": {
@@ -497,7 +497,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
             # In a real implementation, we would use the Twitter Audience API
 
             # For demonstration, we'll return mock audience insights data
-            return {
+                    return {
                 "account_id": self.account_id,
                 "segment": segment or "all_followers",
                 "demographics": {
@@ -555,4 +555,4 @@ class TwitterAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"Twitter audience insights error: {e}")
-            return {"error": str(e), "segment": segment or "all_followers"}
+                    return {"error": str(e), "segment": segment or "all_followers"}

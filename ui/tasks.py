@@ -47,7 +47,7 @@ TASK_STATES = {
 # Services
 def get_services():
     """Get services with dependency injection."""
-    return {
+                return {
         "agent_team_service": get_service(IAgentTeamService),
         "niche_analysis_service": get_service(INicheAnalysisService),
         "developer_service": get_service(IDeveloperService),
@@ -67,7 +67,7 @@ def update_task_progress(
     """
     Update the progress of a task.
 
-    Args:
+Args:
         task_id: ID of the task
         current: Current progress value
         total: Total progress value
@@ -85,8 +85,8 @@ def update_task_progress(
             "result": result,
         }
         current_task.update_state(state=state, meta=meta)
-        return meta
-    return None
+                    return meta
+                return None
 
 
 @celery_app.task(bind=True, name="paissive_income.analyze_niches")
@@ -94,28 +94,28 @@ def analyze_niches(self, market_segments: List[str]) -> Dict[str, Any]:
     """
     Background task for niche analysis.
 
-    Args:
+Args:
         market_segments: List of market segments to analyze
 
-    Returns:
+Returns:
         Dictionary with analysis results
     """
     task_id = self.request.id
     logger.info(f"Starting niche analysis task {task_id}")
 
-    try:
+try:
         # Initialize services
         services = get_services()
         niche_service = services["niche_analysis_service"]
 
-        # Update initial progress
+# Update initial progress
         update_task_progress(task_id, 0, 100, "STARTED", "Starting niche analysis")
 
-        # Start analysis
+# Start analysis
         segments_count = len(market_segments)
         niches = []
 
-        # Process each segment
+# Process each segment
         for i, segment in enumerate(market_segments):
             # Update progress
             progress = int((i / segments_count) * 100)
@@ -127,27 +127,27 @@ def analyze_niches(self, market_segments: List[str]) -> Dict[str, Any]:
                 f"Analyzing segment {segment} ({i+1}/{segments_count})",
             )
 
-            # Analyze segment
+# Analyze segment
             segment_niches = niche_service.analyze_segment(segment)
             niches.extend(segment_niches)
 
-            # Simulate work (remove in production)
+# Simulate work (remove in production)
             time.sleep(2)
 
-        # Finalize results
+# Finalize results
         result = {
             "niches": niches,
             "count": len(niches),
             "segments_analyzed": market_segments,
         }
 
-        # Update final progress
+# Update final progress
         update_task_progress(
             task_id, 100, 100, "SUCCESS", "Niche analysis complete", result
         )
-        return result
+                    return result
 
-    except Exception as e:
+except Exception as e:
         logger.error(f"Error in niche analysis task {task_id}: {e}")
         logger.error(traceback.format_exc())
         update_task_progress(task_id, 0, 100, "FAILURE", f"Error: {str(e)}")
@@ -159,26 +159,26 @@ def create_solution(self, niche_id: str) -> Dict[str, Any]:
     """
     Background task for solution development.
 
-    Args:
+Args:
         niche_id: ID of the niche to develop a solution for
 
-    Returns:
+Returns:
         Dictionary with solution details
     """
     task_id = self.request.id
     logger.info(f"Starting solution development task {task_id}")
 
-    try:
+try:
         # Initialize services
         services = get_services()
         developer_service = services["developer_service"]
 
-        # Update initial progress
+# Update initial progress
         update_task_progress(
             task_id, 0, 100, "STARTED", "Starting solution development"
         )
 
-        # Development stages
+# Development stages
         stages = [
             "Analyzing niche requirements",
             "Defining solution architecture",
@@ -188,7 +188,7 @@ def create_solution(self, niche_id: str) -> Dict[str, Any]:
             "Finalizing solution proposal",
         ]
 
-        # Process each development stage
+# Process each development stage
         for i, stage in enumerate(stages):
             # Update progress
             progress = int(((i + 1) / len(stages)) * 100)
@@ -200,19 +200,19 @@ def create_solution(self, niche_id: str) -> Dict[str, Any]:
                 f"Stage {i+1}/{len(stages)}: {stage}",
             )
 
-            # Simulate work (remove in production)
+# Simulate work (remove in production)
             time.sleep(3)
 
-        # Create the actual solution
+# Create the actual solution
         solution = developer_service.create_solution(niche_id)
 
-        # Update final progress
+# Update final progress
         update_task_progress(
             task_id, 100, 100, "SUCCESS", "Solution development complete", solution
         )
-        return solution
+                    return solution
 
-    except Exception as e:
+except Exception as e:
         logger.error(f"Error in solution development task {task_id}: {e}")
         logger.error(traceback.format_exc())
         update_task_progress(task_id, 0, 100, "FAILURE", f"Error: {str(e)}")
@@ -224,26 +224,26 @@ def create_monetization_strategy(self, solution_id: str) -> Dict[str, Any]:
     """
     Background task for creating a monetization strategy.
 
-    Args:
+Args:
         solution_id: ID of the solution to monetize
 
-    Returns:
+Returns:
         Dictionary with monetization strategy details
     """
     task_id = self.request.id
     logger.info(f"Starting monetization strategy task {task_id}")
 
-    try:
+try:
         # Initialize services
         services = get_services()
         monetization_service = services["monetization_service"]
 
-        # Update initial progress
+# Update initial progress
         update_task_progress(
             task_id, 0, 100, "STARTED", "Starting monetization strategy development"
         )
 
-        # Strategy development stages
+# Strategy development stages
         stages = [
             "Analyzing target audience",
             "Researching pricing models",
@@ -253,7 +253,7 @@ def create_monetization_strategy(self, solution_id: str) -> Dict[str, Any]:
             "Creating growth projections",
         ]
 
-        # Process each stage
+# Process each stage
         for i, stage in enumerate(stages):
             # Update progress
             progress = int(((i + 1) / len(stages)) * 100)
@@ -265,19 +265,19 @@ def create_monetization_strategy(self, solution_id: str) -> Dict[str, Any]:
                 f"Stage {i+1}/{len(stages)}: {stage}",
             )
 
-            # Simulate work (remove in production)
+# Simulate work (remove in production)
             time.sleep(2)
 
-        # Create the actual monetization strategy
+# Create the actual monetization strategy
         strategy = monetization_service.create_strategy(solution_id)
 
-        # Update final progress
+# Update final progress
         update_task_progress(
             task_id, 100, 100, "SUCCESS", "Monetization strategy complete", strategy
         )
-        return strategy
+                    return strategy
 
-    except Exception as e:
+except Exception as e:
         logger.error(f"Error in monetization strategy task {task_id}: {e}")
         logger.error(traceback.format_exc())
         update_task_progress(task_id, 0, 100, "FAILURE", f"Error: {str(e)}")
@@ -289,26 +289,26 @@ def create_marketing_campaign(self, solution_id: str) -> Dict[str, Any]:
     """
     Background task for creating a marketing campaign.
 
-    Args:
+Args:
         solution_id: ID of the solution to market
 
-    Returns:
+Returns:
         Dictionary with marketing campaign details
     """
     task_id = self.request.id
     logger.info(f"Starting marketing campaign task {task_id}")
 
-    try:
+try:
         # Initialize services
         services = get_services()
         marketing_service = services["marketing_service"]
 
-        # Update initial progress
+# Update initial progress
         update_task_progress(
             task_id, 0, 100, "STARTED", "Starting marketing campaign development"
         )
 
-        # Campaign development stages
+# Campaign development stages
         stages = [
             "Analyzing target audience",
             "Defining brand messaging",
@@ -318,7 +318,7 @@ def create_marketing_campaign(self, solution_id: str) -> Dict[str, Any]:
             "Finalizing campaign calendar",
         ]
 
-        # Process each stage
+# Process each stage
         for i, stage in enumerate(stages):
             # Update progress
             progress = int(((i + 1) / len(stages)) * 100)
@@ -330,19 +330,19 @@ def create_marketing_campaign(self, solution_id: str) -> Dict[str, Any]:
                 f"Stage {i+1}/{len(stages)}: {stage}",
             )
 
-            # Simulate work (remove in production)
+# Simulate work (remove in production)
             time.sleep(2)
 
-        # Create the actual marketing campaign
+# Create the actual marketing campaign
         campaign = marketing_service.create_campaign(solution_id)
 
-        # Update final progress
+# Update final progress
         update_task_progress(
             task_id, 100, 100, "SUCCESS", "Marketing campaign complete", campaign
         )
-        return campaign
+                    return campaign
 
-    except Exception as e:
+except Exception as e:
         logger.error(f"Error in marketing campaign task {task_id}: {e}")
         logger.error(traceback.format_exc())
         update_task_progress(task_id, 0, 100, "FAILURE", f"Error: {str(e)}")

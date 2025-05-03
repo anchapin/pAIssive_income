@@ -100,7 +100,7 @@ def prune_model(
         )
 
     # Prune the model
-    return pruner.prune(model_path, output_path)
+            return pruner.prune(model_path, output_path)
 
 
 def analyze_pruning(
@@ -290,7 +290,7 @@ def analyze_pruning(
     except Exception as e:
         logger.warning(f"Error loading pruning config: {e}")
 
-    return results
+            return results
 
 
 def _get_model_size(model) -> float:
@@ -324,7 +324,7 @@ def _get_model_size(model) -> float:
 
     # Convert to megabytes
     size_mb = (param_size + buffer_size) / (1024 * 1024)
-    return size_mb
+            return size_mb
 
 
 def _calculate_model_sparsity(model) -> float:
@@ -359,9 +359,9 @@ def _calculate_model_sparsity(model) -> float:
             zero_params += (param == 0).sum().item()  # Count zeros
 
     if total_params == 0:
-        return 0.0  # Avoid division by zero
+                return 0.0  # Avoid division by zero
 
-    return zero_params / total_params  # Sparsity ratio
+            return zero_params / total_params  # Sparsity ratio
 
 
 def _generate_text(model, tokenizer, prompt: str, max_tokens: int, **kwargs) -> str:
@@ -408,7 +408,7 @@ def _generate_text(model, tokenizer, prompt: str, max_tokens: int, **kwargs) -> 
         outputs = model.generate(**inputs, **generation_kwargs)
 
     # Decode the generated token IDs back to text and return
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+            return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 
 def _calculate_text_similarity(text1: str, text2: str) -> float:
@@ -449,7 +449,7 @@ def _calculate_text_similarity(text1: str, text2: str) -> float:
 
     # Handle edge case of empty texts
     if union == 0:
-        return 0.0
+                return 0.0
 
     # Jaccard similarity = intersection size / union size
-    return intersection / union
+            return intersection / union

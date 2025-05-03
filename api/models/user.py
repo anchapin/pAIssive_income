@@ -64,7 +64,7 @@ class User
         Returns:
             Dictionary representation of the user
         """
-        return {
+                return {
             "id": self.id,
             "username": self.username,
             "email": self.email,
@@ -105,7 +105,7 @@ class User
             else None
         )
 
-        return cls(
+                return cls(
             id=data.get("id"),
             username=data.get("username", ""),
             email=data.get("email", ""),
@@ -139,8 +139,8 @@ class User
         """
         # Admin users have all permissions
         if self.is_admin:
-            return True
+                    return True
 
         # Check user-specific permissions (could be stored in metadata)
         permissions = self.metadata.get("permissions", [])
-        return permission in permissions
+                return permission in permissions

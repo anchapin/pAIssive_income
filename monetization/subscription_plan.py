@@ -17,7 +17,7 @@ class BillingInterval
 :
     """Enumeration of billing intervals."""
 
-    DAILY = "daily"
+DAILY = "daily"
     WEEKLY = "weekly"
     MONTHLY = "monthly"
     QUARTERLY = "quarterly"
@@ -28,11 +28,11 @@ class PlanFeature:
     """
     Class representing a feature in a subscription plan.
 
-    This class provides a structured way to represent a feature in a subscription plan,
+This class provides a structured way to represent a feature in a subscription plan,
     including the feature name, description, and limits.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str,
         description: str = "",
@@ -44,7 +44,7 @@ class PlanFeature:
         """
         Initialize a plan feature.
 
-        Args:
+Args:
             name: Name of the feature
             description: Description of the feature
             included: Whether the feature is included in the plan
@@ -60,14 +60,14 @@ class PlanFeature:
         self.metric = metric
         self.metadata = metadata or {}
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the plan feature to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the plan feature
         """
-        return {
+                    return {
             "id": self.id,
             "name": self.name,
             "description": self.description,
@@ -77,15 +77,15 @@ class PlanFeature:
             "metadata": self.metadata,
         }
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "PlanFeature":
         """
         Create a plan feature from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with plan feature data
 
-        Returns:
+Returns:
             PlanFeature instance
         """
         feature = cls(
@@ -97,30 +97,30 @@ class PlanFeature:
             metadata=data.get("metadata", {}),
         )
 
-        feature.id = data["id"]
+feature.id = data["id"]
 
-        return feature
+            return feature
 
-    def __str__(self) -> str:
+def __str__(self) -> str:
         """String representation of the plan feature."""
         if not self.included:
-            return f"{self.name}: Not included"
+                        return f"{self.name}: Not included"
 
-        if self.limit is not None and self.metric:
-            return f"{self.name}: {self.limit} {self.metric}"
+if self.limit is not None and self.metric:
+                        return f"{self.name}: {self.limit} {self.metric}"
 
-        return f"{self.name}: Included"
+            return f"{self.name}: Included"
 
 
 class SubscriptionPlan:
     """
     Class representing a subscription plan.
 
-    This class provides a structured way to represent a subscription plan,
+This class provides a structured way to represent a subscription plan,
     including the plan name, description, pricing, and features.
     """
 
-    def __init__(
+def __init__(
         self,
         name: str,
         description: str = "",
@@ -135,7 +135,7 @@ class SubscriptionPlan:
         """
         Initialize a subscription plan.
 
-        Args:
+Args:
             name: Name of the plan
             description: Description of the plan
             price: Price of the plan
@@ -159,7 +159,7 @@ class SubscriptionPlan:
         self.created_at = datetime.now()
         self.updated_at = self.created_at
 
-    def add_feature(
+def add_feature(
         self,
         name: str,
         description: str = "",
@@ -171,7 +171,7 @@ class SubscriptionPlan:
         """
         Add a feature to the plan.
 
-        Args:
+Args:
             name: Name of the feature
             description: Description of the feature
             included: Whether the feature is included in the plan
@@ -179,7 +179,7 @@ class SubscriptionPlan:
             metric: Metric for the usage limit (if applicable)
             metadata: Additional metadata for the feature
 
-        Returns:
+Returns:
             The created plan feature
         """
         feature = PlanFeature(
@@ -191,96 +191,96 @@ class SubscriptionPlan:
             metadata=metadata,
         )
 
-        self.features.append(feature)
+self.features.append(feature)
         self.updated_at = datetime.now()
 
-        return feature
+            return feature
 
-    def remove_feature(self, feature_id: str) -> bool:
+def remove_feature(self, feature_id: str) -> bool:
         """
         Remove a feature from the plan.
 
-        Args:
+Args:
             feature_id: ID of the feature to remove
 
-        Returns:
+Returns:
             True if the feature was removed, False otherwise
         """
         for i, feature in enumerate(self.features):
             if feature.id == feature_id:
                 self.features.pop(i)
                 self.updated_at = datetime.now()
-                return True
+                            return True
 
-        return False
+            return False
 
-    def get_feature(self, feature_id: str) -> Optional[PlanFeature]:
+def get_feature(self, feature_id: str) -> Optional[PlanFeature]:
         """
         Get a feature from the plan.
 
-        Args:
+Args:
             feature_id: ID of the feature
 
-        Returns:
+Returns:
             The plan feature or None if not found
         """
         for feature in self.features:
             if feature.id == feature_id:
-                return feature
+                            return feature
 
-        return None
+            return None
 
-    def get_feature_by_name(self, name: str) -> Optional[PlanFeature]:
+def get_feature_by_name(self, name: str) -> Optional[PlanFeature]:
         """
         Get a feature from the plan by name.
 
-        Args:
+Args:
             name: Name of the feature
 
-        Returns:
+Returns:
             The plan feature or None if not found
         """
         for feature in self.features:
             if feature.name == name:
-                return feature
+                            return feature
 
-        return None
+            return None
 
-    def has_feature(self, name: str) -> bool:
+def has_feature(self, name: str) -> bool:
         """
         Check if the plan has a feature.
 
-        Args:
+Args:
             name: Name of the feature
 
-        Returns:
+Returns:
             True if the plan has the feature, False otherwise
         """
         feature = self.get_feature_by_name(name)
-        return feature is not None and feature.included
+                    return feature is not None and feature.included
 
-    def get_feature_limit(self, name: str) -> Optional[float]:
+def get_feature_limit(self, name: str) -> Optional[float]:
         """
         Get the limit for a feature.
 
-        Args:
+Args:
             name: Name of the feature
 
-        Returns:
+Returns:
             The feature limit or None if the feature is not found or has no limit
         """
         feature = self.get_feature_by_name(name)
 
-        if feature and feature.included and feature.limit is not None:
-            return feature.limit
+if feature and feature.included and feature.limit is not None:
+                        return feature.limit
 
-        return None
+            return None
 
-    def format_price(self) -> str:
+def format_price(self) -> str:
         """
         Format the price with currency symbol.
 
-        Returns:
+Returns:
             Formatted price with currency symbol
         """
         currency_symbols = {
@@ -292,56 +292,56 @@ class SubscriptionPlan:
             "AUD": "A$",
         }
 
-        symbol = currency_symbols.get(self.currency, self.currency)
+symbol = currency_symbols.get(self.currency, self.currency)
 
-        if self.currency == "JPY":
+if self.currency == "JPY":
             # JPY doesn't use decimal places
-            return f"{symbol}{int(self.price):,}"
+                        return f"{symbol}{int(self.price):,}"
         else:
-            return f"{symbol}{self.price:,.2f}"
+                        return f"{symbol}{self.price:,.2f}"
 
-    def get_billing_interval_days(self) -> int:
+def get_billing_interval_days(self) -> int:
         """
         Get the number of days in the billing interval.
 
-        Returns:
+Returns:
             Number of days in the billing interval
         """
         if self.billing_interval == BillingInterval.DAILY:
-            return 1
+                        return 1
         elif self.billing_interval == BillingInterval.WEEKLY:
-            return 7
+                        return 7
         elif self.billing_interval == BillingInterval.MONTHLY:
-            return 30  # Approximate
+                        return 30  # Approximate
         elif self.billing_interval == BillingInterval.QUARTERLY:
-            return 90  # Approximate
+                        return 90  # Approximate
         elif self.billing_interval == BillingInterval.YEARLY:
-            return 365  # Approximate
+                        return 365  # Approximate
         else:
-            return 30  # Default to monthly
+                        return 30  # Default to monthly
 
-    def get_price_per_day(self) -> float:
+def get_price_per_day(self) -> float:
         """
         Get the price per day.
 
-        Returns:
+Returns:
             Price per day
         """
         days = self.get_billing_interval_days()
 
-        if days <= 0:
-            return 0.0
+if days <= 0:
+                        return 0.0
 
-        return self.price / days
+            return self.price / days
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the subscription plan to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the subscription plan
         """
-        return {
+                    return {
             "id": self.id,
             "name": self.name,
             "description": self.description,
@@ -356,27 +356,27 @@ class SubscriptionPlan:
             "updated_at": self.updated_at.isoformat(),
         }
 
-    def to_json(self, indent: int = 2) -> str:
+def to_json(self, indent: int = 2) -> str:
         """
         Convert the subscription plan to a JSON string.
 
-        Args:
+Args:
             indent: Number of spaces for indentation
 
-        Returns:
+Returns:
             JSON string representation of the subscription plan
         """
-        return json.dumps(self.to_dict(), indent=indent)
+                    return json.dumps(self.to_dict(), indent=indent)
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "SubscriptionPlan":
         """
         Create a subscription plan from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with subscription plan data
 
-        Returns:
+Returns:
             SubscriptionPlan instance
         """
         # Create plan
@@ -391,29 +391,29 @@ class SubscriptionPlan:
             metadata=data.get("metadata", {}),
         )
 
-        # Set plan ID
+# Set plan ID
         plan.id = data["id"]
 
-        # Add features
+# Add features
         for feature_data in data.get("features", []):
             feature = PlanFeature.from_dict(feature_data)
             plan.features.append(feature)
 
-        # Set timestamps
+# Set timestamps
         plan.created_at = datetime.fromisoformat(data["created_at"])
         plan.updated_at = datetime.fromisoformat(data["updated_at"])
 
-        return plan
+            return plan
 
-    def __str__(self) -> str:
+def __str__(self) -> str:
         """String representation of the subscription plan."""
-        return f"{self.name}: {self.format_price()}/{self.billing_interval}"
+                    return f"{self.name}: {self.format_price()}/{self.billing_interval}"
 
 
 class SubscriptionStatus:
     """Enumeration of subscription statuses."""
 
-    ACTIVE = "active"
+ACTIVE = "active"
     TRIALING = "trialing"
     PAST_DUE = "past_due"
     UNPAID = "unpaid"
@@ -426,11 +426,11 @@ class Subscription:
     """
     Class representing a subscription.
 
-    This class provides a structured way to represent a subscription,
+This class provides a structured way to represent a subscription,
     including the subscription plan, customer, and status.
     """
 
-    def __init__(
+def __init__(
         self,
         customer_id: str,
         plan_id: str,
@@ -442,7 +442,7 @@ class Subscription:
         """
         Initialize a subscription.
 
-        Args:
+Args:
             customer_id: ID of the customer
             plan_id: ID of the subscription plan
             start_date: Start date of the subscription
@@ -460,7 +460,7 @@ class Subscription:
         self.created_at = datetime.now()
         self.updated_at = self.created_at
 
-        # Initialize other properties
+# Initialize other properties
         self.canceled_at = None
         self.trial_end = None
         self.current_period_start = self.start_date
@@ -479,11 +479,11 @@ class Subscription:
         self.invoices = []
         self.usage_records = []
 
-    def update_status(self, status: str, reason: Optional[str] = None) -> None:
+def update_status(self, status: str, reason: Optional[str] = None) -> None:
         """
         Update the status of the subscription.
 
-        Args:
+Args:
             status: New status
             reason: Reason for the status change
         """
@@ -491,7 +491,7 @@ class Subscription:
         self.status = status
         self.updated_at = datetime.now()
 
-        # Add status history entry
+# Add status history entry
         self.status_history.append(
             {
                 "status": status,
@@ -500,42 +500,42 @@ class Subscription:
             }
         )
 
-        # Update other properties based on status
+# Update other properties based on status
         if status == SubscriptionStatus.CANCELED:
             self.canceled_at = self.updated_at
         elif status == SubscriptionStatus.PAUSED:
             self.pause_collection = True
             self.pause_reason = reason
 
-    def cancel(self, reason: Optional[str] = None) -> None:
+def cancel(self, reason: Optional[str] = None) -> None:
         """
         Cancel the subscription.
 
-        Args:
+Args:
             reason: Reason for cancellation
         """
         self.update_status(
             SubscriptionStatus.CANCELED, reason or "Subscription canceled"
         )
 
-    def pause(
+def pause(
         self, reason: Optional[str] = None, resume_at: Optional[datetime] = None
     ) -> None:
         """
         Pause the subscription.
 
-        Args:
+Args:
             reason: Reason for pausing
             resume_at: Date to resume the subscription
         """
         self.update_status(SubscriptionStatus.PAUSED, reason or "Subscription paused")
         self.resume_at = resume_at
 
-    def resume(self, reason: Optional[str] = None) -> None:
+def resume(self, reason: Optional[str] = None) -> None:
         """
         Resume the subscription.
 
-        Args:
+Args:
             reason: Reason for resuming
         """
         self.update_status(SubscriptionStatus.ACTIVE, reason or "Subscription resumed")
@@ -543,23 +543,23 @@ class Subscription:
         self.pause_reason = None
         self.resume_at = None
 
-    def set_trial_end(self, trial_end: datetime) -> None:
+def set_trial_end(self, trial_end: datetime) -> None:
         """
         Set the trial end date.
 
-        Args:
+Args:
             trial_end: Trial end date
         """
         self.trial_end = trial_end
 
-        if self.status == SubscriptionStatus.ACTIVE:
+if self.status == SubscriptionStatus.ACTIVE:
             self.update_status(SubscriptionStatus.TRIALING, "Trial started")
 
-    def set_current_period(self, start: datetime, end: datetime) -> None:
+def set_current_period(self, start: datetime, end: datetime) -> None:
         """
         Set the current billing period.
 
-        Args:
+Args:
             start: Start date of the period
             end: End date of the period
         """
@@ -567,115 +567,115 @@ class Subscription:
         self.current_period_end = end
         self.next_billing_date = end
 
-    def add_invoice(self, invoice_id: str) -> None:
+def add_invoice(self, invoice_id: str) -> None:
         """
         Add an invoice to the subscription.
 
-        Args:
+Args:
             invoice_id: ID of the invoice
         """
         self.invoices.append(invoice_id)
 
-    def add_usage_record(self, record_id: str) -> None:
+def add_usage_record(self, record_id: str) -> None:
         """
         Add a usage record to the subscription.
 
-        Args:
+Args:
             record_id: ID of the usage record
         """
         self.usage_records.append(record_id)
 
-    def is_active(self) -> bool:
+def is_active(self) -> bool:
         """
         Check if the subscription is active.
 
-        Returns:
+Returns:
             True if the subscription is active, False otherwise
         """
-        return self.status in [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING]
+                    return self.status in [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING]
 
-    def is_trialing(self) -> bool:
+def is_trialing(self) -> bool:
         """
         Check if the subscription is in trial.
 
-        Returns:
+Returns:
             True if the subscription is in trial, False otherwise
         """
-        return self.status == SubscriptionStatus.TRIALING
+                    return self.status == SubscriptionStatus.TRIALING
 
-    def is_canceled(self) -> bool:
+def is_canceled(self) -> bool:
         """
         Check if the subscription is canceled.
 
-        Returns:
+Returns:
             True if the subscription is canceled, False otherwise
         """
-        return self.status == SubscriptionStatus.CANCELED
+                    return self.status == SubscriptionStatus.CANCELED
 
-    def is_past_due(self) -> bool:
+def is_past_due(self) -> bool:
         """
         Check if the subscription is past due.
 
-        Returns:
+Returns:
             True if the subscription is past due, False otherwise
         """
-        return self.status == SubscriptionStatus.PAST_DUE
+                    return self.status == SubscriptionStatus.PAST_DUE
 
-    def is_paused(self) -> bool:
+def is_paused(self) -> bool:
         """
         Check if the subscription is paused.
 
-        Returns:
+Returns:
             True if the subscription is paused, False otherwise
         """
-        return self.status == SubscriptionStatus.PAUSED
+                    return self.status == SubscriptionStatus.PAUSED
 
-    def get_days_until_next_billing(self) -> Optional[int]:
+def get_days_until_next_billing(self) -> Optional[int]:
         """
         Get the number of days until the next billing date.
 
-        Returns:
+Returns:
             Number of days until the next billing date or None if not applicable
         """
         if not self.next_billing_date:
-            return None
+                        return None
 
-        days = (self.next_billing_date - datetime.now()).days
-        return max(0, days)
+days = (self.next_billing_date - datetime.now()).days
+                    return max(0, days)
 
-    def get_days_in_current_period(self) -> Optional[int]:
+def get_days_in_current_period(self) -> Optional[int]:
         """
         Get the number of days in the current billing period.
 
-        Returns:
+Returns:
             Number of days in the current billing period or None if not applicable
         """
         if not self.current_period_start or not self.current_period_end:
-            return None
+                        return None
 
-        return (self.current_period_end - self.current_period_start).days
+            return (self.current_period_end - self.current_period_start).days
 
-    def get_days_remaining_in_current_period(self) -> Optional[int]:
+def get_days_remaining_in_current_period(self) -> Optional[int]:
         """
         Get the number of days remaining in the current billing period.
 
-        Returns:
+Returns:
             Number of days remaining in the current billing period or None if not applicable
         """
         if not self.current_period_end:
-            return None
+                        return None
 
-        days = (self.current_period_end - datetime.now()).days
-        return max(0, days)
+days = (self.current_period_end - datetime.now()).days
+                    return max(0, days)
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the subscription to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the subscription
         """
-        return {
+                    return {
             "id": self.id,
             "customer_id": self.customer_id,
             "plan_id": self.plan_id,
@@ -702,27 +702,27 @@ class Subscription:
             "metadata": self.metadata,
         }
 
-    def to_json(self, indent: int = 2) -> str:
+def to_json(self, indent: int = 2) -> str:
         """
         Convert the subscription to a JSON string.
 
-        Args:
+Args:
             indent: Number of spaces for indentation
 
-        Returns:
+Returns:
             JSON string representation of the subscription
         """
-        return json.dumps(self.to_dict(), indent=indent)
+                    return json.dumps(self.to_dict(), indent=indent)
 
-    @classmethod
+@classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Subscription":
         """
         Create a subscription from a dictionary.
 
-        Args:
+Args:
             data: Dictionary with subscription data
 
-        Returns:
+Returns:
             Subscription instance
         """
         # Create subscription
@@ -739,10 +739,10 @@ class Subscription:
             metadata=data.get("metadata", {}),
         )
 
-        # Set subscription ID
+# Set subscription ID
         subscription.id = data["id"]
 
-        # Set timestamps
+# Set timestamps
         subscription.created_at = datetime.fromisoformat(data["created_at"])
         subscription.updated_at = datetime.fromisoformat(data["updated_at"])
         subscription.canceled_at = (
@@ -770,18 +770,18 @@ class Subscription:
             datetime.fromisoformat(data["resume_at"]) if data.get("resume_at") else None
         )
 
-        # Set other properties
+# Set other properties
         subscription.pause_collection = data.get("pause_collection", False)
         subscription.pause_reason = data.get("pause_reason")
         subscription.status_history = data.get("status_history", [])
         subscription.invoices = data.get("invoices", [])
         subscription.usage_records = data.get("usage_records", [])
 
-        return subscription
+            return subscription
 
-    def __str__(self) -> str:
+def __str__(self) -> str:
         """String representation of the subscription."""
-        return f"Subscription({self.id}, {self.customer_id}, {self.plan_id}, {self.status})"
+                    return f"Subscription({self.id}, {self.customer_id}, {self.plan_id}, {self.status})"
 
 
 # Example usage
@@ -796,7 +796,7 @@ if __name__ == "__main__":
         trial_days=14,
     )
 
-    # Add features
+# Add features
     plan.add_feature(
         name="API Calls",
         description="Number of API calls per month",
@@ -804,32 +804,32 @@ if __name__ == "__main__":
         metric="calls",
     )
 
-    plan.add_feature(name="Storage", description="Storage space", limit=5, metric="GB")
+plan.add_feature(name="Storage", description="Storage space", limit=5, metric="GB")
 
-    plan.add_feature(name="Advanced Analytics", included=False)
+plan.add_feature(name="Advanced Analytics", included=False)
 
-    print(f"Plan: {plan}")
+print(f"Plan: {plan}")
     print(f"Price: {plan.format_price()}/{plan.billing_interval}")
     print(f"Trial days: {plan.trial_days}")
 
-    print("\nFeatures:")
+print("\nFeatures:")
     for feature in plan.features:
         print(f"- {feature}")
 
-    # Create a subscription
+# Create a subscription
     subscription = Subscription(
         customer_id="cust_123", plan_id=plan.id, status=SubscriptionStatus.TRIALING
     )
 
-    # Set trial end date
+# Set trial end date
     trial_end = datetime.now() + timedelta(days=plan.trial_days)
     subscription.set_trial_end(trial_end)
 
-    # Set current period
+# Set current period
     period_end = datetime.now() + timedelta(days=30)
     subscription.set_current_period(datetime.now(), period_end)
 
-    print(f"\nSubscription: {subscription}")
+print(f"\nSubscription: {subscription}")
     print(f"Status: {subscription.status}")
     print(
         f"Trial end: {subscription.trial_end.strftime('%Y-%m-%d') if subscription.trial_end else 'N/A'}"
@@ -842,24 +842,24 @@ if __name__ == "__main__":
     )
     print(f"Days until next billing: {subscription.get_days_until_next_billing()}")
 
-    # Cancel subscription
+# Cancel subscription
     subscription.cancel("Customer requested cancellation")
 
-    print("\nAfter cancellation:")
+print("\nAfter cancellation:")
     print(f"Status: {subscription.status}")
     print(
         f"Canceled at: {subscription.canceled_at.strftime('%Y-%m-%d %H:%M:%S') if subscription.canceled_at else 'N/A'}"
     )
 
-    # Convert to dictionary and back
+# Convert to dictionary and back
     plan_dict = plan.to_dict()
     restored_plan = SubscriptionPlan.from_dict(plan_dict)
 
-    print(f"\nRestored plan: {restored_plan}")
+print(f"\nRestored plan: {restored_plan}")
     print(f"Is same ID: {restored_plan.id == plan.id}")
 
-    subscription_dict = subscription.to_dict()
+subscription_dict = subscription.to_dict()
     restored_subscription = Subscription.from_dict(subscription_dict)
 
-    print(f"\nRestored subscription: {restored_subscription}")
+print(f"\nRestored subscription: {restored_subscription}")
     print(f"Is same ID: {restored_subscription.id == subscription.id}")

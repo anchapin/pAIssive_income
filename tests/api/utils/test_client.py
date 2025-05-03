@@ -60,7 +60,7 @@ class APITestClient
         """
         url = f"{self.base_url}/{path.lstrip('/')}"
         request_headers = {**self.headers, **(headers or {})}
-        return self.client.get(url, params=params, headers=request_headers)
+                return self.client.get(url, params=params, headers=request_headers)
 
     def post(
         self,
@@ -84,8 +84,8 @@ class APITestClient
         url = f"{self.base_url}/{path.lstrip('/')}"
         request_headers = {**self.headers, **(headers or {})}
         if json is not None:
-            return self.client.post(url, json=json, headers=request_headers)
-        return self.client.post(url, json=data, headers=request_headers)
+                    return self.client.post(url, json=json, headers=request_headers)
+                return self.client.post(url, json=data, headers=request_headers)
 
     def put(
         self,
@@ -106,7 +106,7 @@ class APITestClient
         """
         url = f"{self.base_url}/{path.lstrip('/')}"
         request_headers = {**self.headers, **(headers or {})}
-        return self.client.put(url, json=data, headers=request_headers)
+                return self.client.put(url, json=data, headers=request_headers)
 
     def patch(
         self,
@@ -127,7 +127,7 @@ class APITestClient
         """
         url = f"{self.base_url}/{path.lstrip('/')}"
         request_headers = {**self.headers, **(headers or {})}
-        return self.client.patch(url, json=data, headers=request_headers)
+                return self.client.patch(url, json=data, headers=request_headers)
 
     def delete(self, path: str, headers: Optional[Dict[str, str]] = None) -> Any:
         """
@@ -142,7 +142,7 @@ class APITestClient
         """
         url = f"{self.base_url}/{path.lstrip('/')}"
         request_headers = {**self.headers, **(headers or {})}
-        return self.client.delete(url, headers=request_headers)
+                return self.client.delete(url, headers=request_headers)
 
     def bulk_create(
         self,
@@ -163,7 +163,7 @@ class APITestClient
         """
         url = f"{self.base_url}/{path.lstrip('/')}/bulk"
         request_headers = {**self.headers, **(headers or {})}
-        return self.client.post(url, json={"items": items}, headers=request_headers)
+                return self.client.post(url, json={"items": items}, headers=request_headers)
 
     def bulk_update(
         self,
@@ -184,7 +184,7 @@ class APITestClient
         """
         url = f"{self.base_url}/{path.lstrip('/')}/bulk"
         request_headers = {**self.headers, **(headers or {})}
-        return self.client.put(url, json={"items": items}, headers=request_headers)
+                return self.client.put(url, json={"items": items}, headers=request_headers)
 
     def bulk_delete(
         self, path: str, ids: List[str], headers: Optional[Dict[str, str]] = None
@@ -202,7 +202,7 @@ class APITestClient
         """
         url = f"{self.base_url}/{path.lstrip('/')}/bulk"
         request_headers = {**self.headers, **(headers or {})}
-        return self.client.delete(url, json={"ids": ids}, headers=request_headers)
+                return self.client.delete(url, json={"ids": ids}, headers=request_headers)
 
     def graphql_query(
         self,
@@ -226,7 +226,7 @@ class APITestClient
         request_data = {"query": query}
         if variables:
             request_data["variables"] = variables
-        return self.client.post(url, json=request_data, headers=request_headers)
+                return self.client.post(url, json=request_data, headers=request_headers)
 
     def graphql_mutation(
         self,
@@ -246,7 +246,7 @@ class APITestClient
             Response from the GraphQL API
         """
         # GraphQL mutations use the same endpoint as queries
-        return self.graphql_query(mutation, variables, headers)
+                return self.graphql_query(mutation, variables, headers)
 
 
 @pytest.fixture
@@ -263,7 +263,7 @@ def api_test_client(
     Returns:
         Unauthenticated API test client
     """
-    return APITestClient(api_client, api_unauth_headers)
+            return APITestClient(api_client, api_unauth_headers)
 
 
 @pytest.fixture
@@ -280,4 +280,4 @@ def auth_api_test_client(
     Returns:
         Authenticated API test client
     """
-    return APITestClient(api_client, api_auth_headers)
+            return APITestClient(api_client, api_auth_headers)

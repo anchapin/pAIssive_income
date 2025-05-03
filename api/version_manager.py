@@ -19,7 +19,7 @@ class ChangeType
     Enum for types of API changes.
     """
 
-    ADDED = "added"
+ADDED = "added"
     MODIFIED = "modified"
     DEPRECATED = "deprecated"
     REMOVED = "removed"
@@ -30,7 +30,7 @@ class VersionChange:
     Represents a change between API versions.
     """
 
-    def __init__(
+def __init__(
         self,
         endpoint: str,
         change_type: ChangeType,
@@ -42,7 +42,7 @@ class VersionChange:
         """
         Initialize a version change.
 
-        Args:
+Args:
             endpoint: The API endpoint that changed
             change_type: Type of change
             description: Description of the change
@@ -57,14 +57,14 @@ class VersionChange:
         self.to_version = to_version
         self.sunset_date = sunset_date
 
-    def to_dict(self) -> Dict[str, Any]:
+def to_dict(self) -> Dict[str, Any]:
         """
         Convert the change to a dictionary.
 
-        Returns:
+Returns:
             Dictionary representation of the change
         """
-        return {
+                    return {
             "endpoint": self.endpoint,
             "change_type": self.change_type.value,
             "description": self.description,
@@ -79,27 +79,27 @@ class VersionManager:
     Manages API versions and changes between versions.
     """
 
-    def __init__(self, default_deprecation_period: int = 180):
+def __init__(self, default_deprecation_period: int = 180):
         """
         Initialize the version manager.
 
-        Args:
+Args:
             default_deprecation_period: Default number of days before a deprecated endpoint is removed
         """
         self.changes: Dict[APIVersion, List[VersionChange]] = {}
         self.default_deprecation_period = default_deprecation_period
 
-        # Initialize changes for each version
+# Initialize changes for each version
         for version in APIVersion:
             self.changes[version] = []
 
-    def add_endpoint(
+def add_endpoint(
         self, endpoint: str, version: APIVersion, description: str
     ) -> None:
         """
         Add a new endpoint to a version.
 
-        Args:
+Args:
             endpoint: The new endpoint
             version: Version where the endpoint was added
             description: Description of the endpoint
@@ -112,13 +112,13 @@ class VersionManager:
         )
         self.changes[version].append(change)
 
-    def modify_endpoint(
+def modify_endpoint(
         self, endpoint: str, version: APIVersion, description: str
     ) -> None:
         """
         Mark an endpoint as modified in a version.
 
-        Args:
+Args:
             endpoint: The modified endpoint
             version: Version where the endpoint was modified
             description: Description of the modification
@@ -131,7 +131,7 @@ class VersionManager:
         )
         self.changes[version].append(change)
 
-    def deprecate_endpoint(
+def deprecate_endpoint(
         self,
         endpoint: str,
         version: APIVersion,
@@ -141,7 +141,7 @@ class VersionManager:
         """
         Mark an endpoint as deprecated in a version.
 
-        Args:
+Args:
             endpoint: The deprecated endpoint
             version: Version where the endpoint was deprecated
             description: Description of the deprecation
@@ -152,7 +152,7 @@ class VersionManager:
                 days=self.default_deprecation_period
             )
 
-        change = VersionChange(
+change = VersionChange(
             endpoint=endpoint,
             change_type=ChangeType.DEPRECATED,
             description=description,
@@ -161,7 +161,7 @@ class VersionManager:
         )
         self.changes[version].append(change)
 
-    def remove_endpoint(
+def remove_endpoint(
         self,
         endpoint: str,
         version: APIVersion,
@@ -171,7 +171,7 @@ class VersionManager:
         """
         Mark an endpoint as removed in a version.
 
-        Args:
+Args:
             endpoint: The removed endpoint
             version: Version where the endpoint was removed
             description: Description of the removal
@@ -186,23 +186,23 @@ class VersionManager:
         )
         self.changes[version].append(change)
 
-    def get_changes_for_version(self, version: APIVersion) -> List[Dict[str, Any]]:
+def get_changes_for_version(self, version: APIVersion) -> List[Dict[str, Any]]:
         """
         Get all changes for a specific version.
 
-        Args:
+Args:
             version: The version to get changes for
 
-        Returns:
+Returns:
             List of changes for the version
         """
-        return [change.to_dict() for change in self.changes.get(version, [])]
+                    return [change.to_dict() for change in self.changes.get(version, [])]
 
-    def get_deprecated_endpoints(self) -> List[Dict[str, Any]]:
+def get_deprecated_endpoints(self) -> List[Dict[str, Any]]:
         """
         Get all deprecated endpoints across all versions.
 
-        Returns:
+Returns:
             List of deprecated endpoints
         """
         deprecated = []
@@ -210,13 +210,13 @@ class VersionManager:
             for change in self.changes[version]:
                 if change.change_type == ChangeType.DEPRECATED:
                     deprecated.append(change.to_dict())
-        return deprecated
+                    return deprecated
 
-    def get_removed_endpoints(self) -> List[Dict[str, Any]]:
+def get_removed_endpoints(self) -> List[Dict[str, Any]]:
         """
         Get all removed endpoints across all versions.
 
-        Returns:
+Returns:
             List of removed endpoints
         """
         removed = []
@@ -224,47 +224,47 @@ class VersionManager:
             for change in self.changes[version]:
                 if change.change_type == ChangeType.REMOVED:
                     removed.append(change.to_dict())
-        return removed
+                    return removed
 
-    def get_changelog(self) -> Dict[str, List[Dict[str, Any]]]:
+def get_changelog(self) -> Dict[str, List[Dict[str, Any]]]:
         """
         Get a complete changelog for all versions.
 
-        Returns:
+Returns:
             Dictionary mapping version values to lists of changes
         """
         changelog = {}
         for version in self.changes:
             changelog[version.value] = self.get_changes_for_version(version)
-        return changelog
+                    return changelog
 
-    def is_endpoint_available(self, endpoint: str, version: APIVersion) -> bool:
+def is_endpoint_available(self, endpoint: str, version: APIVersion) -> bool:
         """
         Check if an endpoint is available in a specific version.
 
-        Args:
+Args:
             endpoint: The endpoint to check
             version: The version to check
 
-        Returns:
+Returns:
             True if the endpoint is available, False otherwise
         """
         # Check if the endpoint was removed in this version
         for change in self.changes.get(version, []):
             if change.endpoint == endpoint and change.change_type == ChangeType.REMOVED:
-                return False
+                            return False
 
-        # Check if the endpoint was added in this version or an earlier version
+# Check if the endpoint was added in this version or an earlier version
         versions = list(APIVersion)
         version_idx = versions.index(version)
 
-        for i in range(version_idx + 1):
+for i in range(version_idx + 1):
             current_version = versions[i]
             for change in self.changes.get(current_version, []):
                 if (
                     change.endpoint == endpoint
                     and change.change_type == ChangeType.ADDED
                 ):
-                    return True
+                                return True
 
-        return False
+            return False

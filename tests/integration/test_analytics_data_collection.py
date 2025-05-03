@@ -27,7 +27,7 @@ def auth_api_test_client():
     """Create an authenticated API test client."""
     client = APITestClient(base_url="http://localhost:8000/api")
     client.authenticate("test_user", "test_password")
-    return client
+            return client
 
 
 class TestAnalyticsDataCollection:
@@ -38,7 +38,7 @@ class TestAnalyticsDataCollection:
         assert response.status_code == expected_status
         data = response.json()
         assert "error" not in data
-        return data
+                return data
 
     def test_api_request_tracking(self, auth_api_test_client):
         """Test API request tracking."""
@@ -183,7 +183,7 @@ class TestAnalyticsDataCollection:
                 response = MagicMock()
                 response.status_code = 200
                 response.json.return_value = {"data": "slow response"}
-                return response
+                        return response
 
             # Replace with our slow method
             mock_get.side_effect = slow_get

@@ -42,7 +42,7 @@ def temp_db_path():
 def metrics_api(temp_db_path):
     """Create a metrics API instance with a temporary database."""
     api = MetricsAPI(db_path=temp_db_path)
-    return api
+            return api
 
 
 def test_alert_threshold_accuracy(metrics_api):
@@ -218,7 +218,7 @@ def test_alert_correlation_logic(metrics_api):
     def detect_correlations(alerts, time_window_seconds=60):
         """Detect correlations between alerts within a time window."""
         if len(alerts) <= 1:
-            return []
+                    return []
         
         correlations = []
         for i, alert1 in enumerate(alerts):
@@ -236,7 +236,7 @@ def test_alert_correlation_logic(metrics_api):
             if len(correlated) > 1:
                 correlations.append(correlated)
         
-        return correlations
+                return correlations
     
     # Check for correlations in the last scenario
     correlations = detect_correlations(alerts_triggered)

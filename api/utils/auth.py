@@ -46,7 +46,7 @@ def create_access_token(
     )
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+            return encoded_jwt
 
 
 def verify_token(token: str) -> Dict[str, Any]:
@@ -64,7 +64,7 @@ def verify_token(token: str) -> Dict[str, Any]:
     """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
+                return payload
     except jwt.PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -94,4 +94,4 @@ def get_user_from_token(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return payload
+            return payload

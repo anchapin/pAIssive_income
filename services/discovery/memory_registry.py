@@ -53,7 +53,7 @@ class InMemoryServiceRegistry
         # Register the service
         self._services[service.instance_id] = service
         self._last_heartbeat[service.instance_id] = time.time()
-        return True
+                return True
 
     def deregister(self, instance_id: str) -> bool:
         """
@@ -69,8 +69,8 @@ class InMemoryServiceRegistry
             del self._services[instance_id]
             if instance_id in self._last_heartbeat:
                 del self._last_heartbeat[instance_id]
-            return True
-        return False
+                    return True
+                return False
 
     def renew(self, instance_id: str) -> bool:
         """
@@ -90,8 +90,8 @@ class InMemoryServiceRegistry
             if service.status == ServiceStatus.UNHEALTHY:
                 service.status = ServiceStatus.HEALTHY
 
-            return True
-        return False
+                    return True
+                return False
 
     def get_instance(self, instance_id: str) -> Optional[ServiceInstance]:
         """
@@ -104,7 +104,7 @@ class InMemoryServiceRegistry
             The service instance, or None if not found
         """
         self._check_instance_health(instance_id)
-        return self._services.get(instance_id)
+                return self._services.get(instance_id)
 
     def get_instances(self, service_id: str) -> List[ServiceInstance]:
         """
@@ -117,7 +117,7 @@ class InMemoryServiceRegistry
             List of service instances for the specified service
         """
         self._check_all_health()
-        return [
+                return [
             instance
             for instance in self._services.values()
             if instance.service_id == service_id
@@ -139,7 +139,7 @@ class InMemoryServiceRegistry
                 result[instance.service_id] = []
             result[instance.service_id].append(instance)
 
-        return result
+                return result
 
     def update_status(self, instance_id: str, status: ServiceStatus) -> bool:
         """
@@ -154,8 +154,8 @@ class InMemoryServiceRegistry
         """
         if instance_id in self._services:
             self._services[instance_id].status = status
-            return True
-        return False
+                    return True
+                return False
 
     def _check_instance_health(self, instance_id: str) -> None:
         """

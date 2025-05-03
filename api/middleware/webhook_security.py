@@ -62,7 +62,7 @@ class WebhookIPAllowlistMiddleware(BaseHTTPMiddleware):
         """
         # Only apply to webhook endpoints
         if not request.url.path.startswith(self.webhook_path_prefix):
-            return await call_next(request)
+                    return await call_next(request)
 
         # Get client IP
         client_ip = request.client.host if request.client else None
@@ -90,13 +90,13 @@ class WebhookIPAllowlistMiddleware(BaseHTTPMiddleware):
                     user_agent=request.headers.get("user-agent"),
                 )
 
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_403_FORBIDDEN,
                 content={"detail": "IP address not allowed"},
             )
 
         # Continue processing
-        return await call_next(request)
+                return await call_next(request)
 
 
 class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
@@ -140,7 +140,7 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
         """
         # Only apply to webhook endpoints
         if not request.url.path.startswith(self.webhook_path_prefix):
-            return await call_next(request)
+                    return await call_next(request)
 
         # Get client IP for rate limiting key
         client_ip = request.client.host if request.client else "unknown"
@@ -188,7 +188,7 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
             )
             response.headers["Retry-After"] = str(reset_seconds)
 
-            return response
+                    return response
 
         # Add request to rate limiter
         self.rate_limiter.add_request(client_ip)
@@ -206,4 +206,4 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
             str(int(reset_time)) if reset_time else ""
         )
 
-        return response
+                return response

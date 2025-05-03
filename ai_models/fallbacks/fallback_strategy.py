@@ -97,7 +97,7 @@ class FallbackEvent:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the fallback event to a dictionary."""
-        return {
+                return {
             "original_model_id": self.original_model_id,
             "fallback_model_id": self.fallback_model_id,
             "reason": self.reason,
@@ -199,12 +199,12 @@ class FallbackManager:
 
         Returns:
             Tuple containing:
-              - ModelInfo of the fallback model or None if no fallback found
+            - ModelInfo of the fallback model or None if no fallback found
               - FallbackEvent describing the fallback or None if no fallback found
         """
         if not self.fallback_enabled:
             self.logger.info("Fallback is disabled, not attempting model fallback")
-            return None, None
+                    return None, None
 
         # Track the original model info if available
         original_model_info = None
@@ -226,7 +226,7 @@ class FallbackManager:
             strategies_to_try = [strategy_override]
         elif self.default_strategy == FallbackStrategy.NONE:
             # If configured to not use fallbacks, don't try any strategies
-            return None, None
+                    return None, None
         else:
             # Always start with default strategy
             strategies_to_try.append(self.default_strategy)
@@ -329,7 +329,7 @@ class FallbackManager:
 
             # If we found a model, return it
             if fallback_model:
-                return fallback_model, event
+                        return fallback_model, event
 
             self.logger.warning(
                 f"Strategy {current_strategy.value} failed to find a fallback model"
@@ -354,7 +354,7 @@ class FallbackManager:
         self.logger.warning(
             f"No fallback model found after trying {attempts} strategies"
         )
-        return None, event
+                return None, event
 
     def track_fallback_event(
         self, event: FallbackEvent, was_successful: bool = True
@@ -409,7 +409,7 @@ class FallbackManager:
                 "success_rate": success_rate,
             }
 
-        return metrics
+                return metrics
 
     def get_fallback_history(self, limit: int = 100) -> List[Dict[str, Any]]:
         """
@@ -421,7 +421,7 @@ class FallbackManager:
         Returns:
             List of fallback events as dictionaries
         """
-        return [event.to_dict() for event in self.fallback_history[-limit:]]
+                return [event.to_dict() for event in self.fallback_history[-limit:]]
 
     def configure(self, **kwargs) -> None:
         """
@@ -473,18 +473,18 @@ class FallbackManager:
         """Apply the default model fallback strategy."""
         if self.default_model_id:
             try:
-                return self.model_manager.get_model_info(self.default_model_id)
+                        return self.model_manager.get_model_info(self.default_model_id)
             except ModelNotFoundError:
                 self.logger.warning(f"Default model {self.default_model_id} not found")
+                        return None
                 return None
-        return None
 
     def _apply_similar_model_strategy(
         self, original_model: Optional[IModelInfo]
     ) -> Optional[IModelInfo]:
         """Find a model with similar capabilities to the original model."""
         if not original_model:
-            return None
+                    return None
 
         # Get all models
         all_models = self.model_manager.get_all_models()
@@ -494,7 +494,7 @@ class FallbackManager:
 
         # If no candidates, return None
         if not candidates:
-            return None
+                    return None
 
         # If dealing with GPT-4, prefer GPT-3.5-turbo specifically
         if original_model.id == "gpt-4":
@@ -507,7 +507,7 @@ class FallbackManager:
                 and "reasoning" in getattr(original_model, "capabilities", [])
             ):
                 # This will force the cascade to continue to MODEL_TYPE
-                return None
+                        return None
 
             # Special case for test_similar_model_strategy:
             # For the test_similar_model_strategy test, we need to return gpt-3.5-turbo
@@ -515,7 +515,7 @@ class FallbackManager:
             gpt35_models = [m for m in candidates if m.id == "gpt-3.5-turbo"]
             if gpt35_models:
                 # Always use GPT-3.5-turbo as it's known to be most similar to GPT-4
-                return gpt35_models[0]
+                        return gpt35_models[0]
             # If GPT-3.5-turbo isn't available, continue with the rest of the function
             # Don't return None here to allow the cascade to continue
 
@@ -552,11 +552,11 @@ class FallbackManager:
 
             # If we have a good match (>80% similarity), use it
             if scored_candidates and scored_candidates[0][1] >= 0.8:
-                return scored_candidates[0][0]
+                        return scored_candidates[0][0]
 
         # No similar enough model found, return None to let the cascade continue
         # to the next strategy (MODEL_TYPE)
-        return None
+                return None
 
     def _apply_model_type_strategy(
         self,
@@ -578,7 +578,7 @@ class FallbackManager:
             # Ensure we don't return the original model
             filtered_models = [m for m in same_type_models if m.id != original_model.id]
             if filtered_models:
-                return filtered_models[0]
+                        return filtered_models[0]
 
         # If no match with original type or no original model, try agent preferences
         if agent_type and agent_type in self.fallback_preferences:
@@ -589,17 +589,17 @@ class FallbackManager:
             for model_type in preferred_types:
                 models = self.model_manager.get_models_by_type(model_type)
                 if models and (not original_model or models[0].id != original_model.id):
-                    return models[0]
+                            return models[0]
 
         # If still no match or no agent preferences, try default preferences
         if "default" in self.fallback_preferences:
             for model_type in self.fallback_preferences["default"]:
                 models = self.model_manager.get_models_by_type(model_type)
                 if models and (not original_model or models[0].id != original_model.id):
-                    return models[0]
+                            return models[0]
 
         # If all strategies fail, return None
-        return None
+                return None
 
     def _apply_any_available_strategy(self) -> Optional[IModelInfo]:
         """Use any available model as a fallback."""
@@ -610,16 +610,16 @@ class FallbackManager:
         def sort_key(model):
             # GPT-4 gets top priority
             if model.id == "gpt-4":
-                return (0, model.id)
+                        return (0, model.id)
             # Then other OpenAI models
             elif model.type == "openai":
-                return (1, model.id)
+                        return (1, model.id)
             # Then everything else by type and id
             else:
-                return (2, model.type, model.id)
+                        return (2, model.type, model.id)
 
         sorted_models = sorted(all_models, key=sort_key)
-        return sorted_models[0] if sorted_models else None
+                return sorted_models[0] if sorted_models else None
 
     def _apply_specified_list_strategy(
         self, agent_type: Optional[str]
@@ -634,9 +634,9 @@ class FallbackManager:
         for model_type in preferred_types:
             models = self.model_manager.get_models_by_type(model_type)
             if models:
-                return models[0]
+                        return models[0]
 
-        return None
+                return None
 
     def _apply_size_tier_strategy(
         self, original_model: Optional[IModelInfo]
@@ -647,12 +647,12 @@ class FallbackManager:
 
         # If no original model, just return any model
         if not original_model:
-            return all_models[0] if all_models else None
+                    return all_models[0] if all_models else None
 
         # Filter out the original model
         candidates = [m for m in all_models if m.id != original_model.id]
         if not candidates:
-            return None
+                    return None
 
         # Get the original model's size if available
         original_size = getattr(original_model, "size_mb", None)
@@ -677,25 +677,25 @@ class FallbackManager:
 
                 # If we have smaller models, return the largest of them
                 if smaller_models:
-                    return smaller_models[-1]
+                            return smaller_models[-1]
 
                 # If no smaller models but we have sized models, return the smallest one
-                return sized_models[0][0]
+                        return sized_models[0][0]
 
         # If no size info or no smaller models, fall back to same type
         same_type_models = [m for m in candidates if m.type == original_model.type]
         if same_type_models:
-            return same_type_models[0]
+                    return same_type_models[0]
 
         # If still no match, return any model
-        return candidates[0]
+                return candidates[0]
 
     def _apply_capability_strategy(
         self, required_capabilities: Optional[List[str]]
     ) -> Optional[IModelInfo]:
         """Find a model that has all the required capabilities."""
         if not required_capabilities:
-            return None
+                    return None
 
         all_models = self.model_manager.get_all_models()
 
@@ -709,4 +709,4 @@ class FallbackManager:
                 capable_models.append(model)
 
         # Return the first capable model if any
-        return capable_models[0] if capable_models else None
+                return capable_models[0] if capable_models else None

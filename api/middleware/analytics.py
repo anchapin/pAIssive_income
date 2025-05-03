@@ -61,7 +61,7 @@ except ImportError:
         async def analytics_middleware(
             request: Request, call_next: Callable
         ) -> Response:
-            return await self.dispatch(request, call_next)
+                    return await self.dispatch(request, call_next)
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
@@ -76,7 +76,7 @@ except ImportError:
         """
         # Skip analytics for docs and OpenAPI
         if request.url.path in ["/docs", "/redoc", "/openapi.json"]:
-            return await call_next(request)
+                    return await call_next(request)
 
         # Record start time
         start_time = time.time()
@@ -193,4 +193,4 @@ except ImportError:
             except Exception as e:
                 logger.error(f"Error tracking request: {e}")
 
-        return response
+                return response

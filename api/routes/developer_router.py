@@ -29,7 +29,7 @@ async def get_developer_info():
     Returns:
         Developer information
     """
-    return {
+            return {
         "message": "Developer API is available",
         "status": "active",
         "endpoints": ["/niches", "/templates", "/solutions", "/solution"],
@@ -100,7 +100,7 @@ async def get_niches(
         end_idx = start_idx + page_size
         paginated_items = items[start_idx:end_idx]
 
-        return {
+                return {
             "items": paginated_items,
             "total": total,
             "page": page,
@@ -183,7 +183,7 @@ async def get_templates(
         end_idx = start_idx + page_size
         paginated_items = items[start_idx:end_idx]
 
-        return {
+                return {
             "items": paginated_items,
             "total": total,
             "page": page,
@@ -232,7 +232,7 @@ async def create_solution(data: Dict[str, Any] = Body(...)):
             "updated_at": None,
         }
 
-        return solution
+                return solution
     except HTTPException:
         raise
     except Exception as e:
@@ -344,7 +344,7 @@ async def get_solutions(
         end_idx = start_idx + page_size
         paginated_items = items[start_idx:end_idx]
 
-        return {
+                return {
             "items": paginated_items,
             "total": total,
             "page": page,
@@ -394,7 +394,7 @@ async def get_solution(solution_id: str = Path(..., description="Solution ID")):
             "updated_at": "2025-04-29T21:35:00Z",
         }
 
-        return solution
+                return solution
     except HTTPException:
         raise
     except Exception as e:
@@ -446,7 +446,7 @@ async def update_solution(
             "updated_at": datetime.now().isoformat(),
         }
 
-        return solution
+                return solution
     except HTTPException:
         raise
     except Exception as e:
@@ -476,7 +476,7 @@ async def delete_solution(solution_id: str = Path(..., description="Solution ID"
             )
 
         # Delete solution (no content to return)
-        return None
+                return None
     except HTTPException:
         raise
     except Exception as e:

@@ -12,61 +12,60 @@ from datetime import datetime
 from typing import Any, Dict
 
 
-def create_test_file
-
-(directory: str, filename: str, content: str) -> str:
+def create_test_file():
+    (directory: str, filename: str, content: str) -> str:
     """
     Create a test file with the given content.
 
-    Args:
+Args:
         directory: Directory to create the file in
         filename: Name of the file
         content: Content of the file
 
-    Returns:
+Returns:
         Path to the created file
     """
     os.makedirs(directory, exist_ok=True)
     file_path = os.path.join(directory, filename)
 
-    with open(file_path, "w") as f:
+with open(file_path, "w") as f:
         f.write(content)
 
-    return file_path
+            return file_path
 
 
 def create_test_json_file(directory: str, filename: str, data: Dict[str, Any]) -> str:
     """
     Create a test JSON file with the given data.
 
-    Args:
+Args:
         directory: Directory to create the file in
         filename: Name of the file
         data: Data to write to the file
 
-    Returns:
+Returns:
         Path to the created file
     """
     os.makedirs(directory, exist_ok=True)
     file_path = os.path.join(directory, filename)
 
-    with open(file_path, "w") as f:
+with open(file_path, "w") as f:
         json.dump(data, f, indent=2)
 
-    return file_path
+            return file_path
 
 
 def create_mock_niche(name: str = "Test Niche") -> Dict[str, Any]:
     """
     Create a mock niche for testing.
 
-    Args:
+Args:
         name: Name of the niche
 
-    Returns:
+Returns:
         Mock niche dictionary
     """
-    return {
+                return {
         "id": str(uuid.uuid4()),
         "name": name,
         "market_segment": name.lower().replace(" ", "_"),
@@ -115,13 +114,13 @@ def create_mock_subscription_model(
     """
     Create a mock subscription model for testing.
 
-    Args:
+Args:
         name: Name of the subscription model
 
-    Returns:
+Returns:
         Mock subscription model dictionary
     """
-    return {
+                return {
         "id": str(uuid.uuid4()),
         "name": name,
         "description": f"A test subscription model for {name}",
@@ -183,13 +182,13 @@ def create_mock_model_info(name: str = "Test Model") -> Dict[str, Any]:
     """
     Create a mock model info for testing.
 
-    Args:
+Args:
         name: Name of the model
 
-    Returns:
+Returns:
         Mock model info dictionary
     """
-    return {
+                return {
         "id": str(uuid.uuid4()),
         "name": name,
         "description": f"A test model for {name}",

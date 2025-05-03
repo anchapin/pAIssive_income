@@ -24,7 +24,7 @@ class AIModelsService
         Returns:
             List of AI models
         """
-        return self._get("ai-models/models")
+                return self._get("ai-models/models")
 
     def get_model(self, model_id: str) -> Dict[str, Any]:
         """
@@ -36,7 +36,7 @@ class AIModelsService
         Returns:
             Model details
         """
-        return self._get(f"ai-models/models/{model_id}")
+                return self._get(f"ai-models/models/{model_id}")
 
     def run_inference(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -51,7 +51,7 @@ class AIModelsService
         Returns:
             Inference results
         """
-        return self._post("ai-models/inference", data)
+                return self._post("ai-models/inference", data)
 
     def download_model(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -66,7 +66,7 @@ class AIModelsService
         Returns:
             Download status
         """
-        return self._post("ai-models/models/download", data)
+                return self._post("ai-models/models/download", data)
 
     def get_model_performance(self, model_id: str) -> Dict[str, Any]:
         """
@@ -78,7 +78,7 @@ class AIModelsService
         Returns:
             Performance metrics
         """
-        return self._get(f"ai-models/models/{model_id}/performance")
+                return self._get(f"ai-models/models/{model_id}/performance")
 
     def compare_models(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -93,7 +93,7 @@ class AIModelsService
         Returns:
             Comparison results
         """
-        return self._post("ai-models/models/compare", data)
+                return self._post("ai-models/models/compare", data)
 
     def create_model_version(
         self, model_id: str, data: Dict[str, Any]
@@ -111,4 +111,4 @@ class AIModelsService
         Returns:
             Created model version
         """
-        return self._post(f"ai-models/models/{model_id}/versions", data)
+                return self._post(f"ai-models/models/{model_id}/versions", data)

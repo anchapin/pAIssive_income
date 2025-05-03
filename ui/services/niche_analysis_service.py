@@ -73,7 +73,7 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
                 {"id": str(uuid.uuid4()), "name": segment} for segment in segment_names
             ]
             self.save_data(self.market_segments_file, segments_data)
-        return segments_data
+                return segments_data
 
     def add_market_segment(self, segment: str) -> List[Dict[str, Any]]:
         """
@@ -90,7 +90,7 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
         if segment not in segment_names:
             segments.append({"id": str(uuid.uuid4()), "name": segment})
             self.save_data(self.market_segments_file, segments)
-        return segments
+                return segments
 
     def analyze_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
         """
@@ -147,7 +147,7 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
             all_niches.append(niche)
         self.save_data(self.niches_file, all_niches)
 
-        return niches
+                return niches
 
     def get_niches(self) -> List[Dict[str, Any]]:
         """
@@ -160,7 +160,7 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
         if niches is None:
             niches = []
             self.save_data(self.niches_file, niches)
-        return niches
+                return niches
 
     def get_niche(self, niche_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -175,8 +175,8 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
         niches = self.get_niches()
         for niche in niches:
             if niche["id"] == niche_id:
-                return niche
-        return None
+                        return niche
+                return None
 
     def save_niche(self, niche: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -196,12 +196,12 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
                 # Update existing niche
                 niches[i] = niche
                 self.save_data(self.niches_file, niches)
-                return niche
+                        return niche
 
         # Add new niche
         niches.append(niche)
         self.save_data(self.niches_file, niches)
-        return niche
+                return niche
 
     def _create_mock_niches(self, market_segments: List[str]) -> List[Dict[str, Any]]:
         """
@@ -291,4 +291,4 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
         # Sort mock niches by opportunity score (descending)
         mock_niches.sort(key=lambda x: x["opportunity_score"], reverse=True)
 
-        return mock_niches
+                return mock_niches

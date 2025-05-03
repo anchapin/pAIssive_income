@@ -16,9 +16,8 @@ from .invoice_manager import InvoiceManager
 from .usage_tracker import UsageTracker
 
 
-def print_separator
-
-():
+def print_separator():
+    ():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")
 
@@ -28,13 +27,13 @@ def run_demo():
     print("Invoice Generation and Management Demo")
     print_separator()
 
-    # Create a usage tracker
+# Create a usage tracker
     tracker = UsageTracker(storage_dir="usage_data")
 
-    # Create a billing calculator
+# Create a billing calculator
     calculator = BillingCalculator(usage_tracker=tracker)
 
-    # Create an invoice manager
+# Create an invoice manager
     manager = InvoiceManager(
         billing_calculator=calculator,
         usage_tracker=tracker,
@@ -48,10 +47,10 @@ def run_demo():
         },
     )
 
-    # Create an invoice delivery system
+# Create an invoice delivery system
     delivery = InvoiceDelivery()
 
-    # Create a customer
+# Create a customer
     customer_id = "cust_demo_123"
     customer_info = {
         "name": "Demo Customer",
@@ -59,14 +58,14 @@ def run_demo():
         "address": "456 Oak St, San Francisco, CA 94112",
     }
 
-    print(f"Creating invoice for customer: {customer_info['name']}")
+print(f"Creating invoice for customer: {customer_info['name']}")
 
-    # Create an invoice
+# Create an invoice
     invoice = manager.create_invoice(
         customer_id=customer_id, customer_info=customer_info
     )
 
-    # Add items
+# Add items
     invoice.add_item(
         description="Premium Subscription (Monthly)",
         quantity=1,
@@ -74,49 +73,49 @@ def run_demo():
         tax_rate=0.0825,  # 8.25% tax
     )
 
-    invoice.add_item(
+invoice.add_item(
         description="Additional User Licenses",
         quantity=3,
         unit_price=9.99,
         tax_rate=0.0825,  # 8.25% tax
     )
 
-    # Add an additional fee
+# Add an additional fee
     invoice.add_additional_fee(name="Processing Fee", amount=2.50)
 
-    # Set payment terms and notes
+# Set payment terms and notes
     invoice.set_payment_terms("Net 30")
     invoice.set_notes("Thank you for your business!")
 
-    print(f"Invoice created: {invoice}")
+print(f"Invoice created: {invoice}")
     print(f"Number: {invoice.number}")
     print(f"Date: {invoice.date.strftime('%Y-%m-%d')}")
     print(f"Due Date: {invoice.due_date.strftime('%Y-%m-%d')}")
     print(f"Status: {invoice.status}")
 
-    print("\nItems:")
+print("\nItems:")
     for item in invoice.items:
         print(f"- {item}")
 
-    print(f"\nSubtotal: {invoice.format_amount(invoice.get_subtotal())}")
+print(f"\nSubtotal: {invoice.format_amount(invoice.get_subtotal())}")
     print(f"Tax: {invoice.format_amount(invoice.get_tax_total())}")
     print(
         f"Additional Fees: {invoice.format_amount(invoice.get_additional_fees_total())}"
     )
     print(f"Total: {invoice.format_amount(invoice.get_total())}")
 
-    print_separator()
+print_separator()
 
-    # Update status to sent
+# Update status to sent
     print("Updating invoice status to SENT...")
     manager.update_invoice_status(
         invoice.id, InvoiceStatus.SENT, "Invoice sent to customer"
     )
     print(f"Updated status: {invoice.status}")
 
-    print_separator()
+print_separator()
 
-    # Add a payment
+# Add a payment
     print("Adding a partial payment...")
     payment = manager.add_payment(
         invoice_id=invoice.id,
@@ -125,20 +124,20 @@ def run_demo():
         transaction_id="txn_123456",
     )
 
-    print(f"Payment added: {invoice.format_amount(payment['amount'])}")
+print(f"Payment added: {invoice.format_amount(payment['amount'])}")
     print(f"Total paid: {invoice.format_amount(invoice.get_total_paid())}")
     print(f"Balance due: {invoice.format_amount(invoice.get_balance_due())}")
     print(f"Status: {invoice.status}")
 
-    print_separator()
+print_separator()
 
-    # Export invoice to different formats
+# Export invoice to different formats
     print("Exporting invoice to different formats...")
 
-    # Create output directory if it doesn't exist
+# Create output directory if it doesn't exist
     os.makedirs("invoice_exports", exist_ok=True)
 
-    html_output = delivery.export_invoice(
+html_output = delivery.export_invoice(
         invoice, format="html", output_path="invoice_exports/invoice_example.html"
     )
     text_output = delivery.export_invoice(
@@ -151,23 +150,23 @@ def run_demo():
         invoice, format="json", output_path="invoice_exports/invoice_example.json"
     )
 
-    print(f"Invoice exported to HTML: {html_output}")
+print(f"Invoice exported to HTML: {html_output}")
     print(f"Invoice exported to text: {text_output}")
     print(f"Invoice exported to CSV: {csv_output}")
     print(f"Invoice exported to JSON: {json_output}")
 
-    print_separator()
+print_separator()
 
-    # Generate PDF
+# Generate PDF
     print("Generating PDF invoice...")
     pdf_output = delivery.generate_pdf(
         invoice, output_path="invoice_exports/invoice_example.pd"
     )
     print(f"Invoice exported to PDF: {pdf_output}")
 
-    print_separator()
+print_separator()
 
-    # Send invoice by email
+# Send invoice by email
     print("Sending invoice by email...")
     delivery.send_invoice_by_email(
         invoice=invoice,
@@ -178,12 +177,12 @@ def run_demo():
         attach_pdf=True,
     )
 
-    print_separator()
+print_separator()
 
-    # Create multiple invoices for demo
+# Create multiple invoices for demo
     print("Creating multiple invoices for demo...")
 
-    for i in range(3):
+for i in range(3):
         # Create invoice
         inv = manager.create_invoice(
             customer_id=customer_id,
@@ -191,10 +190,10 @@ def run_demo():
             date=datetime.now() - timedelta(days=30 * i),
         )
 
-        # Add random items
+# Add random items
         num_items = random.randint(1, 3)
 
-        for j in range(num_items):
+for j in range(num_items):
             inv.add_item(
                 description=f"Service {j+1}",
                 quantity=random.randint(1, 5),
@@ -202,7 +201,7 @@ def run_demo():
                 tax_rate=0.0825,
             )
 
-        # Update status
+# Update status
         if i == 0:
             manager.update_invoice_status(inv.id, InvoiceStatus.PENDING)
         elif i == 1:
@@ -215,65 +214,65 @@ def run_demo():
         else:
             manager.update_invoice_status(inv.id, InvoiceStatus.OVERDUE)
 
-    print("Created 3 additional invoices with different statuses")
+print("Created 3 additional invoices with different statuses")
 
-    print_separator()
+print_separator()
 
-    # Get customer invoices
+# Get customer invoices
     customer_invoices = manager.get_customer_invoices(customer_id)
 
-    print(f"Customer invoices ({len(customer_invoices)}):")
+print(f"Customer invoices ({len(customer_invoices)}):")
     for inv in customer_invoices:
         print(
             f"- {inv.number} ({inv.date.strftime('%Y-%m-%d')}): {inv.format_amount(inv.get_total())} - {inv.status}"
         )
 
-    print_separator()
+print_separator()
 
-    # Get invoice summary
+# Get invoice summary
     summary = manager.get_invoice_summary()
 
-    print("Invoice summary:")
+print("Invoice summary:")
     print(f"Total count: {summary['total_count']}")
     print(f"Total amount: ${summary['total_amount']:.2f}")
     print(f"Total paid: ${summary['total_paid']:.2f}")
     print(f"Total due: ${summary['total_due']:.2f}")
 
-    print("\nBy status:")
+print("\nBy status:")
     for status, data in summary["by_status"].items():
         print(
             f"- {status}: {data['count']} invoices, ${data['amount']:.2f} total, ${data['due']:.2f} due"
         )
 
-    print("\nBy month:")
+print("\nBy month:")
     for month, data in sorted(summary["by_month"].items()):
         print(
             f"- {month}: {data['count']} invoices, ${data['amount']:.2f} total, ${data['due']:.2f} due"
         )
 
-    print_separator()
+print_separator()
 
-    # Export all invoices
+# Export all invoices
     print("Exporting all invoices to CSV...")
     csv_all = delivery.export_invoices(
         customer_invoices, format="csv", output_path="invoice_exports/all_invoices.csv"
     )
     print(f"All invoices exported to CSV: {csv_all}")
 
-    print_separator()
+print_separator()
 
-    # Get overdue invoices
+# Get overdue invoices
     overdue_invoices = manager.get_overdue_invoices()
 
-    print(f"Overdue invoices ({len(overdue_invoices)}):")
+print(f"Overdue invoices ({len(overdue_invoices)}):")
     for inv in overdue_invoices:
         print(
             f"- {inv.number} ({inv.date.strftime('%Y-%m-%d')}): {inv.format_amount(inv.get_total())} - {inv.status}"
         )
 
-    print_separator()
+print_separator()
 
-    print("Demo completed successfully!")
+print("Demo completed successfully!")
 
 
 if __name__ == "__main__":

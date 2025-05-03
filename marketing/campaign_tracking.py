@@ -34,11 +34,11 @@ logger = logging.getLogger(__name__)
 class CampaignTrackingError(MarketingError):
     """Error raised when there's an issue with campaign tracking."""
 
-    def __init__(self, message: str, campaign_id: Optional[str] = None, **kwargs):
+def __init__(self, message: str, campaign_id: Optional[str] = None, **kwargs):
         """
         Initialize the campaign tracking error.
 
-        Args:
+Args:
             message: Human-readable error message
             campaign_id: ID of the campaign that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -47,7 +47,7 @@ class CampaignTrackingError(MarketingError):
         if campaign_id:
             details["campaign_id"] = campaign_id
 
-        super().__init__(
+super().__init__(
             message=message, code="campaign_tracking_error", details=details, **kwargs
         )
 
@@ -55,11 +55,11 @@ class CampaignTrackingError(MarketingError):
 class CampaignNotFoundError(CampaignTrackingError):
     """Error raised when a campaign is not found."""
 
-    def __init__(self, campaign_id: str, **kwargs):
+def __init__(self, campaign_id: str, **kwargs):
         """
         Initialize the campaign not found error.
 
-        Args:
+Args:
             campaign_id: ID of the campaign that was not found
             **kwargs: Additional arguments to pass to the base class
         """
@@ -74,11 +74,11 @@ class CampaignNotFoundError(CampaignTrackingError):
 class InvalidMetricError(CampaignTrackingError):
     """Error raised when an invalid metric is provided."""
 
-    def __init__(self, metric: str, campaign_id: Optional[str] = None, **kwargs):
+def __init__(self, metric: str, campaign_id: Optional[str] = None, **kwargs):
         """
         Initialize the invalid metric error.
 
-        Args:
+Args:
             metric: Name of the invalid metric
             campaign_id: ID of the campaign that caused the error
             **kwargs: Additional arguments to pass to the base class
@@ -86,7 +86,7 @@ class InvalidMetricError(CampaignTrackingError):
         details = kwargs.pop("details", {})
         details["metric"] = metric
 
-        super().__init__(
+super().__init__(
             message=f"Invalid metric: {metric}",
             campaign_id=campaign_id,
             code="invalid_metric",
@@ -98,7 +98,7 @@ class InvalidMetricError(CampaignTrackingError):
 class MetricGroup:
     """Group of related metrics for a campaign."""
 
-    # Standard metric groups
+# Standard metric groups
     AWARENESS = "awareness"
     ENGAGEMENT = "engagement"
     ACQUISITION = "acquisition"
@@ -106,7 +106,7 @@ class MetricGroup:
     RETENTION = "retention"
     REVENUE = "revenue"
 
-    # Common metrics mapped to groups
+# Common metrics mapped to groups
     METRIC_TO_GROUP = {
         # Awareness metrics
         "impressions": AWARENESS,
@@ -145,38 +145,38 @@ class MetricGroup:
         "arr": REVENUE,
     }
 
-    # All available groups
+# All available groups
     ALL_GROUPS = {AWARENESS, ENGAGEMENT, ACQUISITION, CONVERSION, RETENTION, REVENUE}
 
 
 class CampaignTracker(ICampaignTracker):
     """Class for tracking campaign performance metrics."""
 
-    def __init__(self, storage_path: Optional[str] = None):
+def __init__(self, storage_path: Optional[str] = None):
         """
         Initialize the campaign tracker.
 
-        Args:
+Args:
             storage_path: Optional path to store campaign data. If None, data will be stored in memory only.
         """
         self.campaigns = {}
         self.metrics = {}
         self.storage_path = storage_path
 
-        # Create storage directory if it doesn't exist
+# Create storage directory if it doesn't exist
         if storage_path and not os.path.exists(storage_path):
             os.makedirs(storage_path)
 
-        # Load existing data if available
+# Load existing data if available
         if storage_path and os.path.exists(
             os.path.join(storage_path, "campaigns.json")
         ):
             self._load_campaigns()
 
-        if storage_path and os.path.exists(os.path.join(storage_path, "metrics.json")):
+if storage_path and os.path.exists(os.path.join(storage_path, "metrics.json")):
             self._load_metrics()
 
-    def create_campaign(
+def create_campaign(
         self,
         name: str,
         description: str,
@@ -192,7 +192,7 @@ class CampaignTracker(ICampaignTracker):
         """
         Create a new campaign for tracking.
 
-        Args:
+Args:
             name: Campaign name
             description: Campaign description
             channels: Marketing channels used (e.g., "email", "social_media", "content")
@@ -204,16 +204,16 @@ class CampaignTracker(ICampaignTracker):
             tags: Optional tags for categorizing the campaign
             metadata: Optional additional data about the campaign
 
-        Returns:
+Returns:
             Dictionary containing the created campaign data
         """
         campaign_id = str(uuid.uuid4())
         now = datetime.now()
 
-        if start_date is None:
+if start_date is None:
             start_date = now
 
-        campaign = {
+campaign = {
             "id": campaign_id,
             "name": name,
             "description": description,
@@ -240,37 +240,37 @@ class CampaignTracker(ICampaignTracker):
             "updated_at": now.isoformat(),
         }
 
-        self.campaigns[campaign_id] = campaign
+self.campaigns[campaign_id] = campaign
 
-        # Initialize metrics for this campaign
+# Initialize metrics for this campaign
         self.metrics[campaign_id] = {}
 
-        # Save to disk if storage path is set
+# Save to disk if storage path is set
         self._save_campaigns()
         self._save_metrics()
 
-        return campaign
+            return campaign
 
-    def update_campaign(self, campaign_id: str, **kwargs) -> Dict[str, Any]:
+def update_campaign(self, campaign_id: str, **kwargs) -> Dict[str, Any]:
         """
         Update a campaign's details.
 
-        Args:
+Args:
             campaign_id: ID of the campaign to update
             **kwargs: Campaign attributes to update
 
-        Returns:
+Returns:
             Updated campaign dictionary
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
         """
         if campaign_id not in self.campaigns:
             raise CampaignNotFoundError(campaign_id)
 
-        campaign = self.campaigns[campaign_id]
+campaign = self.campaigns[campaign_id]
 
-        # Update allowed fields
+# Update allowed fields
         allowed_fields = [
             "name",
             "description",
@@ -285,7 +285,7 @@ class CampaignTracker(ICampaignTracker):
             "status",
         ]
 
-        for field, value in kwargs.items():
+for field, value in kwargs.items():
             if field in allowed_fields:
                 # Handle datetime conversion for dates
                 if field in ["start_date", "end_date"] and isinstance(value, datetime):
@@ -293,33 +293,33 @@ class CampaignTracker(ICampaignTracker):
                 else:
                     campaign[field] = value
 
-        # Update timestamp
+# Update timestamp
         campaign["updated_at"] = datetime.now().isoformat()
 
-        # Save to disk
+# Save to disk
         self._save_campaigns()
 
-        return campaign
+            return campaign
 
-    def get_campaign(self, campaign_id: str) -> Dict[str, Any]:
+def get_campaign(self, campaign_id: str) -> Dict[str, Any]:
         """
         Get campaign details.
 
-        Args:
+Args:
             campaign_id: ID of the campaign to retrieve
 
-        Returns:
+Returns:
             Campaign dictionary
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
         """
         if campaign_id not in self.campaigns:
             raise CampaignNotFoundError(campaign_id)
 
-        return self.campaigns[campaign_id]
+            return self.campaigns[campaign_id]
 
-    def list_campaigns(
+def list_campaigns(
         self,
         status: Optional[str] = None,
         channel: Optional[str] = None,
@@ -330,71 +330,71 @@ class CampaignTracker(ICampaignTracker):
         """
         List campaigns with optional filtering.
 
-        Args:
+Args:
             status: Optional filter for campaign status
             channel: Optional filter for campaigns using a specific channel
             tag: Optional filter for campaigns with a specific tag
             start_date_after: Optional filter for campaigns starting after a date
             start_date_before: Optional filter for campaigns starting before a date
 
-        Returns:
+Returns:
             List of campaign dictionaries matching the filters
         """
         results = []
 
-        for campaign in self.campaigns.values():
+for campaign in self.campaigns.values():
             # Apply filters
             if status and campaign.get("status") != status:
                 continue
 
-            if channel and channel not in campaign.get("channels", []):
+if channel and channel not in campaign.get("channels", []):
                 continue
 
-            if tag and tag not in campaign.get("tags", []):
+if tag and tag not in campaign.get("tags", []):
                 continue
 
-            if start_date_after:
+if start_date_after:
                 campaign_start = datetime.fromisoformat(campaign["start_date"])
                 if campaign_start < start_date_after:
                     continue
 
-            if start_date_before:
+if start_date_before:
                 campaign_start = datetime.fromisoformat(campaign["start_date"])
                 if campaign_start > start_date_before:
                     continue
 
-            results.append(campaign)
+results.append(campaign)
 
-        return results
+            return results
 
-    def delete_campaign(self, campaign_id: str) -> bool:
+def delete_campaign(self, campaign_id: str) -> bool:
         """
         Delete a campaign and its associated metrics.
 
-        Args:
+Args:
             campaign_id: ID of the campaign to delete
 
-        Returns:
+Returns:
             True if the campaign was deleted, False otherwise
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
         """
         if campaign_id not in self.campaigns:
             raise CampaignNotFoundError(campaign_id)
 
-        # Remove campaign and its metrics
+# Remove campaign and its metrics
         del self.campaigns[campaign_id]
         if campaign_id in self.metrics:
             del self.metrics[campaign_id]
 
-        # Save to disk
+# Save to disk
         self._save_campaigns()
         self._save_metrics()
 
-        return True
+            return True
 
-    def record_metric(
+def record_metric(
         self,
         campaign_id: str,
         metric_name: str,
@@ -406,7 +406,7 @@ class CampaignTracker(ICampaignTracker):
         """
         Record a metric value for a campaign.
 
-        Args:
+Args:
             campaign_id: ID of the campaign
             metric_name: Name of the metric to record
             value: Value of the metric
@@ -414,30 +414,30 @@ class CampaignTracker(ICampaignTracker):
             channel: Optional channel to associate with the metric
             metadata: Optional additional data about the metric
 
-        Returns:
+Returns:
             Dictionary containing the recorded metric
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
         """
         if campaign_id not in self.campaigns:
             raise CampaignNotFoundError(campaign_id)
 
-        # Default timestamp to now if not provided
+# Default timestamp to now if not provided
         if timestamp is None:
             timestamp = datetime.now()
 
-        # Create unique ID for this metric record
+# Create unique ID for this metric record
         metric_id = str(uuid.uuid4())
 
-        # Initialize metrics dictionary for this campaign if it doesn't exist
+# Initialize metrics dictionary for this campaign if it doesn't exist
         if campaign_id not in self.metrics:
             self.metrics[campaign_id] = {}
 
-        # Get metric group
+# Get metric group
         metric_group = MetricGroup.METRIC_TO_GROUP.get(metric_name.lower(), "custom")
 
-        # Create metric record
+# Create metric record
         metric_record = {
             "id": metric_id,
             "campaign_id": campaign_id,
@@ -451,15 +451,15 @@ class CampaignTracker(ICampaignTracker):
             "metadata": metadata or {},
         }
 
-        # Add to metrics dictionary
+# Add to metrics dictionary
         self.metrics[campaign_id][metric_id] = metric_record
 
-        # Save to disk
+# Save to disk
         self._save_metrics()
 
-        return metric_record
+            return metric_record
 
-    def get_metrics(
+def get_metrics(
         self,
         campaign_id: str,
         metric_name: Optional[str] = None,
@@ -472,7 +472,7 @@ class CampaignTracker(ICampaignTracker):
         """
         Get metrics for a campaign with optional filtering and aggregation.
 
-        Args:
+Args:
             campaign_id: ID of the campaign
             metric_name: Optional name of a specific metric to retrieve
             start_time: Optional start time to filter metrics
@@ -481,31 +481,31 @@ class CampaignTracker(ICampaignTracker):
             group_by: Optional grouping ("channel", "daily", "weekly", "monthly")
             aggregation: Aggregation method ("sum", "avg", "min", "max", "count")
 
-        Returns:
+Returns:
             Dictionary containing the campaign metrics data
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
             InvalidParameterError: If an invalid parameter is provided
         """
         if campaign_id not in self.campaigns:
             raise CampaignNotFoundError(campaign_id)
 
-        # Validate aggregation method
+# Validate aggregation method
         valid_aggregations = ["sum", "avg", "min", "max", "count"]
         if aggregation not in valid_aggregations:
             raise InvalidParameterError(
                 f"Invalid aggregation method: {aggregation}. Must be one of {valid_aggregations}"
             )
 
-        # Validate group_by parameter
+# Validate group_by parameter
         valid_groupings = [None, "channel", "daily", "weekly", "monthly", "metric"]
         if group_by not in valid_groupings:
             raise InvalidParameterError(
                 f"Invalid group_by value: {group_by}. Must be one of {valid_groupings}"
             )
 
-        # Initialize result
+# Initialize result
         result = {
             "campaign_id": campaign_id,
             "campaign_name": self.campaigns[campaign_id]["name"],
@@ -513,49 +513,49 @@ class CampaignTracker(ICampaignTracker):
             "total_count": 0,
         }
 
-        # Initialize grouped data if requested
+# Initialize grouped data if requested
         if group_by:
             result["grouped_data"] = {}
 
-        # Initialize aggregates for each metric
+# Initialize aggregates for each metric
         aggregates = defaultdict(list)
 
-        # Get campaign metrics
+# Get campaign metrics
         campaign_metrics = self.metrics.get(campaign_id, {}).values()
 
-        # Apply filters
+# Apply filters
         filtered_metrics = []
         for metric in campaign_metrics:
             # Filter by metric name
             if metric_name and metric["name"] != metric_name:
                 continue
 
-            # Filter by channel
+# Filter by channel
             if channel and metric.get("channel") != channel:
                 continue
 
-            # Filter by time range
+# Filter by time range
             metric_time = datetime.fromisoformat(metric["timestamp"])
 
-            if start_time and metric_time < start_time:
+if start_time and metric_time < start_time:
                 continue
 
-            if end_time and metric_time > end_time:
+if end_time and metric_time > end_time:
                 continue
 
-            # Add to filtered metrics
+# Add to filtered metrics
             filtered_metrics.append(metric)
 
-            # Add to result metrics list
+# Add to result metrics list
             result["metrics"].append(metric)
 
-            # Add to aggregates
+# Add to aggregates
             aggregates[metric["name"]].append(metric["value"])
 
-        # Set total count
+# Set total count
         result["total_count"] = len(filtered_metrics)
 
-        # Perform aggregations
+# Perform aggregations
         result["aggregate"] = {}
         for metric_name, values in aggregates.items():
             if aggregation == "sum":
@@ -571,7 +571,7 @@ class CampaignTracker(ICampaignTracker):
             elif aggregation == "count":
                 result["aggregate"][metric_name] = len(values)
 
-        # Group data if requested
+# Group data if requested
         if group_by:
             if group_by == "channel":
                 # Group by channel
@@ -582,7 +582,7 @@ class CampaignTracker(ICampaignTracker):
                         channels[channel] = defaultdict(list)
                     channels[channel][metric["name"]].append(metric["value"])
 
-                # Calculate aggregates for each channel
+# Calculate aggregates for each channel
                 for channel_name, channel_metrics in channels.items():
                     result["grouped_data"][channel_name] = {}
                     for metric_name, values in channel_metrics.items():
@@ -607,7 +607,7 @@ class CampaignTracker(ICampaignTracker):
                                 values
                             )
 
-            elif group_by == "metric":
+elif group_by == "metric":
                 # Group by metric name
                 metrics_dict = {}
                 for metric in filtered_metrics:
@@ -619,7 +619,7 @@ class CampaignTracker(ICampaignTracker):
                         }
                     metrics_dict[metric_name]["values"].append(metric["value"])
 
-                # Calculate aggregates for each metric
+# Calculate aggregates for each metric
                 for metric_name, metric_data in metrics_dict.items():
                     values = metric_data["values"]
                     result["grouped_data"][metric_name] = {
@@ -627,7 +627,7 @@ class CampaignTracker(ICampaignTracker):
                         "aggregate": 0,
                     }
 
-                    if aggregation == "sum":
+if aggregation == "sum":
                         result["grouped_data"][metric_name]["aggregate"] = sum(values)
                     elif aggregation == "avg":
                         result["grouped_data"][metric_name]["aggregate"] = sum(
@@ -640,14 +640,14 @@ class CampaignTracker(ICampaignTracker):
                     elif aggregation == "count":
                         result["grouped_data"][metric_name]["aggregate"] = len(values)
 
-            else:
+else:
                 # Group by time period
                 time_periods = {}
 
-                for metric in filtered_metrics:
+for metric in filtered_metrics:
                     metric_time = datetime.fromisoformat(metric["timestamp"])
 
-                    if group_by == "daily":
+if group_by == "daily":
                         period_key = metric_time.date().isoformat()
                     elif group_by == "weekly":
                         # Get start of week (Monday)
@@ -658,12 +658,12 @@ class CampaignTracker(ICampaignTracker):
                     elif group_by == "monthly":
                         period_key = f"{metric_time.year}-{metric_time.month:02d}"
 
-                    if period_key not in time_periods:
+if period_key not in time_periods:
                         time_periods[period_key] = defaultdict(list)
 
-                    time_periods[period_key][metric["name"]].append(metric["value"])
+time_periods[period_key][metric["name"]].append(metric["value"])
 
-                # Calculate aggregates for each time period
+# Calculate aggregates for each time period
                 for period, period_metrics in time_periods.items():
                     result["grouped_data"][period] = {}
                     for metric_name, values in period_metrics.items():
@@ -680,9 +680,9 @@ class CampaignTracker(ICampaignTracker):
                         elif aggregation == "count":
                             result["grouped_data"][period][metric_name] = len(values)
 
-        return result
+            return result
 
-    def analyze_performance(
+def analyze_performance(
         self,
         campaign_id: str,
         metrics: Optional[List[str]] = None,
@@ -690,28 +690,28 @@ class CampaignTracker(ICampaignTracker):
         """
         Analyze campaign performance against target metrics.
 
-        Args:
+Args:
             campaign_id: ID of the campaign
             metrics: Optional list of metrics to include in the analysis
 
-        Returns:
+Returns:
             Dictionary containing the performance analysis
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
         """
         if campaign_id not in self.campaigns:
             raise CampaignNotFoundError(campaign_id)
 
-        campaign = self.campaigns[campaign_id]
+campaign = self.campaigns[campaign_id]
         target_metrics = campaign["target_metrics"]
 
-        # Get current metrics data
+# Get current metrics data
         metrics_data = self.get_metrics(
             campaign_id=campaign_id, group_by="metric", aggregation="sum"
         )
 
-        # Initialize result
+# Initialize result
         result = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
@@ -722,34 +722,34 @@ class CampaignTracker(ICampaignTracker):
             "groups_performance": {},
         }
 
-        # Filter metrics if requested
+# Filter metrics if requested
         metric_names = metrics or list(target_metrics.keys())
 
-        # Calculate performance for each metric
+# Calculate performance for each metric
         performance_scores = []
         for metric_name in metric_names:
             if metric_name not in target_metrics:
                 continue
 
-            target_value = target_metrics[metric_name]
+target_value = target_metrics[metric_name]
             current_value = 0
 
-            # Get current value from metrics data
+# Get current value from metrics data
             if (
                 "grouped_data" in metrics_data
                 and metric_name in metrics_data["grouped_data"]
             ):
                 current_value = metrics_data["grouped_data"][metric_name]["aggregate"]
 
-            # Calculate achievement percentage
+# Calculate achievement percentage
             achievement = 0
             if target_value > 0:
                 achievement = min(100, (current_value / target_value) * 100)
 
-            # Calculate remaining value
+# Calculate remaining value
             remaining = max(0, target_value - current_value)
 
-            # Store results
+# Store results
             result["metrics_performance"][metric_name] = {
                 "target": target_value,
                 "current": current_value,
@@ -758,13 +758,13 @@ class CampaignTracker(ICampaignTracker):
                 "group": MetricGroup.METRIC_TO_GROUP.get(metric_name.lower(), "custom"),
             }
 
-            result["metrics_achievement"][metric_name] = achievement
+result["metrics_achievement"][metric_name] = achievement
             result["metrics_remaining"][metric_name] = remaining
 
-            # Add to performance scores
+# Add to performance scores
             performance_scores.append(achievement)
 
-            # Add to group performance
+# Add to group performance
             group = MetricGroup.METRIC_TO_GROUP.get(metric_name.lower(), "custom")
             if group not in result["groups_performance"]:
                 result["groups_performance"][group] = {
@@ -772,16 +772,16 @@ class CampaignTracker(ICampaignTracker):
                     "average_achievement": 0,
                 }
 
-            result["groups_performance"][group]["metrics"].append(metric_name)
+result["groups_performance"][group]["metrics"].append(metric_name)
 
-        # Calculate overall performance
+# Calculate overall performance
         result["overall_performance"] = (
             sum(performance_scores) / len(performance_scores)
             if performance_scores
             else 0
         )
 
-        # Calculate group average achievements
+# Calculate group average achievements
         for group, group_data in result["groups_performance"].items():
             metrics_list = group_data["metrics"]
             achievements = [result["metrics_achievement"][m] for m in metrics_list]
@@ -789,22 +789,22 @@ class CampaignTracker(ICampaignTracker):
                 sum(achievements) / len(achievements) if achievements else 0
             )
 
-        return result
+            return result
 
-    def compare_campaigns(
+def compare_campaigns(
         self, campaign_ids: List[str], metrics: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Compare performance of multiple campaigns.
 
-        Args:
+Args:
             campaign_ids: List of campaign IDs to compare
             metrics: Optional list of metrics to include in the comparison
 
-        Returns:
+Returns:
             Dictionary containing the campaign comparison
 
-        Raises:
+Raises:
             CampaignNotFoundError: If any campaign is not found
         """
         # Validate campaigns
@@ -812,7 +812,7 @@ class CampaignTracker(ICampaignTracker):
             if campaign_id not in self.campaigns:
                 raise CampaignNotFoundError(campaign_id)
 
-        # Initialize result
+# Initialize result
         result = {
             "campaign_ids": campaign_ids,
             "campaigns": {},
@@ -820,7 +820,7 @@ class CampaignTracker(ICampaignTracker):
             "overall_ranking": [],
         }
 
-        # Add campaign info
+# Add campaign info
         for campaign_id in campaign_ids:
             campaign = self.campaigns[campaign_id]
             result["campaigns"][campaign_id] = {
@@ -832,21 +832,21 @@ class CampaignTracker(ICampaignTracker):
                 "budget": campaign.get("budget"),
             }
 
-        # Get all metrics from all campaigns
+# Get all metrics from all campaigns
         all_metrics = set()
         for campaign_id in campaign_ids:
             campaign = self.campaigns[campaign_id]
             all_metrics.update(campaign.get("target_metrics", {}).keys())
 
-            # Add metrics from recorded data
+# Add metrics from recorded data
             if campaign_id in self.metrics:
                 for metric_record in self.metrics[campaign_id].values():
                     all_metrics.add(metric_record["name"])
 
-        # Filter metrics if requested
+# Filter metrics if requested
         metric_names = metrics if metrics is not None else list(all_metrics)
 
-        # Get performance analysis for each campaign
+# Get performance analysis for each campaign
         campaign_analyses = {}
         for campaign_id in campaign_ids:
             try:
@@ -859,7 +859,7 @@ class CampaignTracker(ICampaignTracker):
                     "metrics_performance": {},
                 }
 
-        # Compare metrics across campaigns
+# Compare metrics across campaigns
         for metric_name in metric_names:
             metric_comparison = {
                 "campaign_values": {},
@@ -869,36 +869,36 @@ class CampaignTracker(ICampaignTracker):
                 "average_achievement": 0,
             }
 
-            values = []
+values = []
             achievements = []
 
-            for campaign_id in campaign_ids:
+for campaign_id in campaign_ids:
                 analysis = campaign_analyses[campaign_id]
                 performance = analysis.get("metrics_performance", {}).get(
                     metric_name, {}
                 )
 
-                if performance:
+if performance:
                     current_value = performance.get("current", 0)
                     achievement = performance.get("achievement_percentage", 0)
 
-                    metric_comparison["campaign_values"][campaign_id] = {
+metric_comparison["campaign_values"][campaign_id] = {
                         "current": current_value,
                         "target": performance.get("target", 0),
                         "achievement": achievement,
                     }
 
-                    values.append(current_value)
+values.append(current_value)
                     achievements.append(achievement)
 
-                    # Update highest value
+# Update highest value
                     if current_value > metric_comparison["highest_value"]["value"]:
                         metric_comparison["highest_value"] = {
                             "campaign_id": campaign_id,
                             "value": current_value,
                         }
 
-                    # Update highest achievement
+# Update highest achievement
                     if (
                         achievement
                         > metric_comparison["highest_achievement"]["percentage"]
@@ -908,7 +908,7 @@ class CampaignTracker(ICampaignTracker):
                             "percentage": achievement,
                         }
 
-            # Calculate averages
+# Calculate averages
             metric_comparison["average_value"] = (
                 sum(values) / len(values) if values else 0
             )
@@ -916,10 +916,10 @@ class CampaignTracker(ICampaignTracker):
                 sum(achievements) / len(achievements) if achievements else 0
             )
 
-            # Add to result
+# Add to result
             result["metrics_comparison"][metric_name] = metric_comparison
 
-        # Create overall ranking
+# Create overall ranking
         ranking = []
         for campaign_id in campaign_ids:
             analysis = campaign_analyses[campaign_id]
@@ -931,13 +931,13 @@ class CampaignTracker(ICampaignTracker):
                 }
             )
 
-        # Sort by performance (highest first)
+# Sort by performance (highest first)
         ranking.sort(key=lambda x: x["performance"], reverse=True)
         result["overall_ranking"] = ranking
 
-        return result
+            return result
 
-    def generate_report(
+def generate_report(
         self,
         campaign_id: str,
         report_type: str = "summary",
@@ -947,24 +947,24 @@ class CampaignTracker(ICampaignTracker):
         """
         Generate a campaign performance report.
 
-        Args:
+Args:
             campaign_id: ID of the campaign
             report_type: Type of report to generate ("summary", "detailed", "goals")
             start_date: Optional start date for report data
             end_date: Optional end date for report data
 
-        Returns:
+Returns:
             Dictionary containing the report data
 
-        Raises:
+Raises:
             CampaignNotFoundError: If the campaign is not found
         """
         if campaign_id not in self.campaigns:
             raise CampaignNotFoundError(campaign_id)
 
-        campaign = self.campaigns[campaign_id]
+campaign = self.campaigns[campaign_id]
 
-        # Initialize report
+# Initialize report
         report = {
             "campaign_id": campaign_id,
             "campaign_name": campaign["name"],
@@ -983,7 +983,7 @@ class CampaignTracker(ICampaignTracker):
             "performance_summary": {},
         }
 
-        # Get metrics
+# Get metrics
         self.get_metrics(
             campaign_id=campaign_id,
             start_time=start_date,
@@ -991,10 +991,10 @@ class CampaignTracker(ICampaignTracker):
             group_by="metric",
         )
 
-        # Get performance analysis
+# Get performance analysis
         performance = self.analyze_performance(campaign_id)
 
-        # Add performance summary
+# Add performance summary
         report["performance_summary"] = {
             "overall_performance": performance["overall_performance"],
             "top_metrics": [],
@@ -1002,14 +1002,14 @@ class CampaignTracker(ICampaignTracker):
             "metrics_by_group": {},
         }
 
-        # Add metrics by group
+# Add metrics by group
         for group, group_data in performance["groups_performance"].items():
             report["performance_summary"]["metrics_by_group"][group] = {
                 "metrics": [],
                 "average_achievement": group_data["average_achievement"],
             }
 
-            for metric_name in group_data["metrics"]:
+for metric_name in group_data["metrics"]:
                 metric_perf = performance["metrics_performance"][metric_name]
                 report["performance_summary"]["metrics_by_group"][group][
                     "metrics"
@@ -1022,12 +1022,12 @@ class CampaignTracker(ICampaignTracker):
                     }
                 )
 
-        # Sort metrics by achievement
+# Sort metrics by achievement
         sorted_metrics = sorted(
             performance["metrics_achievement"].items(), key=lambda x: x[1], reverse=True
         )
 
-        # Add top 5 metrics
+# Add top 5 metrics
         top_metrics = sorted_metrics[:5]
         for metric_name, achievement in top_metrics:
             metric_perf = performance["metrics_performance"][metric_name]
@@ -1040,7 +1040,7 @@ class CampaignTracker(ICampaignTracker):
                 }
             )
 
-        # Add bottom 5 metrics
+# Add bottom 5 metrics
         bottom_metrics = (
             sorted_metrics[-5:] if len(sorted_metrics) >= 5 else sorted_metrics
         )
@@ -1055,7 +1055,7 @@ class CampaignTracker(ICampaignTracker):
                 }
             )
 
-        # Add additional details based on report type
+# Add additional details based on report type
         if report_type == "detailed":
             # Add time-based data
             time_metrics = self.get_metrics(
@@ -1065,9 +1065,9 @@ class CampaignTracker(ICampaignTracker):
                 group_by="daily" if (end_date - start_date).days <= 30 else "weekly",
             )
 
-            report["time_series"] = time_metrics.get("grouped_data", {})
+report["time_series"] = time_metrics.get("grouped_data", {})
 
-            # Add channel data
+# Add channel data
             channel_metrics = self.get_metrics(
                 campaign_id=campaign_id,
                 start_time=start_date,
@@ -1075,9 +1075,9 @@ class CampaignTracker(ICampaignTracker):
                 group_by="channel",
             )
 
-            report["channel_performance"] = channel_metrics.get("grouped_data", {})
+report["channel_performance"] = channel_metrics.get("grouped_data", {})
 
-            # Add all metrics
+# Add all metrics
             report["all_metrics"] = {}
             for metric_name, metric_data in performance["metrics_performance"].items():
                 report["all_metrics"][metric_name] = {
@@ -1088,16 +1088,16 @@ class CampaignTracker(ICampaignTracker):
                     "group": metric_data["group"],
                 }
 
-        elif report_type == "goals":
+elif report_type == "goals":
             # Add goals-focused data
             report["goals"] = []
 
-            for goal in campaign["goals"]:
+for goal in campaign["goals"]:
                 goal_metrics = {}
                 goal_achievement = 0
                 metrics_count = 0
 
-                for metric_name in goal.get("metrics", []):
+for metric_name in goal.get("metrics", []):
                     if metric_name in performance["metrics_performance"]:
                         metric_perf = performance["metrics_performance"][metric_name]
                         goal_metrics[metric_name] = {
@@ -1106,14 +1106,14 @@ class CampaignTracker(ICampaignTracker):
                             "achievement": metric_perf["achievement_percentage"],
                         }
 
-                        goal_achievement += metric_perf["achievement_percentage"]
+goal_achievement += metric_perf["achievement_percentage"]
                         metrics_count += 1
 
-                avg_achievement = (
+avg_achievement = (
                     goal_achievement / metrics_count if metrics_count > 0 else 0
                 )
 
-                report["goals"].append(
+report["goals"].append(
                     {
                         "name": goal["name"],
                         "description": goal.get("description", ""),
@@ -1122,57 +1122,49 @@ class CampaignTracker(ICampaignTracker):
                     }
                 )
 
-        return report
+            return report
 
-    def _load_campaigns(self) -> None:
+def _load_campaigns(self) -> None:
         """Load campaigns from disk."""
         if not self.storage_path:
-            return
+                        return campaigns_path = os.path.join(self.storage_path, "campaigns.json")
 
-        campaigns_path = os.path.join(self.storage_path, "campaigns.json")
-
-        try:
+try:
             with open(campaigns_path, "r") as f:
                 self.campaigns = json.load(f)
         except Exception as e:
             logger.error(f"Error loading campaigns: {e}")
             self.campaigns = {}
 
-    def _save_campaigns(self) -> None:
+def _save_campaigns(self) -> None:
         """Save campaigns to disk."""
         if not self.storage_path:
-            return
+                        return campaigns_path = os.path.join(self.storage_path, "campaigns.json")
 
-        campaigns_path = os.path.join(self.storage_path, "campaigns.json")
-
-        try:
+try:
             with open(campaigns_path, "w") as f:
                 json.dump(self.campaigns, f, indent=2)
         except Exception as e:
             logger.error(f"Error saving campaigns: {e}")
 
-    def _load_metrics(self) -> None:
+def _load_metrics(self) -> None:
         """Load metrics from disk."""
         if not self.storage_path:
-            return
+                        return metrics_path = os.path.join(self.storage_path, "metrics.json")
 
-        metrics_path = os.path.join(self.storage_path, "metrics.json")
-
-        try:
+try:
             with open(metrics_path, "r") as f:
                 self.metrics = json.load(f)
         except Exception as e:
             logger.error(f"Error loading metrics: {e}")
             self.metrics = {}
 
-    def _save_metrics(self) -> None:
+def _save_metrics(self) -> None:
         """Save metrics to disk."""
         if not self.storage_path:
-            return
+                        return metrics_path = os.path.join(self.storage_path, "metrics.json")
 
-        metrics_path = os.path.join(self.storage_path, "metrics.json")
-
-        try:
+try:
             with open(metrics_path, "w") as f:
                 json.dump(self.metrics, f, indent=2)
         except Exception as e:

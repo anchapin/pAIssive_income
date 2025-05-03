@@ -55,7 +55,7 @@ class BaseService(IBaseService):
             try:
                 data = load_from_json_file(filepath)
                 logger.debug(f"Successfully loaded data from {filepath}")
-                return data
+                        return data
             except Exception as e:
                 error = DataError(
                     message=f"Failed to load data from file {filename}: {e}",
@@ -65,7 +65,7 @@ class BaseService(IBaseService):
                 )
                 error.log()
                 raise error
-        return None
+                return None
 
     def save_data(self, filename: str, data: Dict[str, Any]) -> bool:
         """
@@ -85,7 +85,7 @@ class BaseService(IBaseService):
         try:
             save_to_json_file(data, filepath)
             logger.debug(f"Successfully saved data to {filepath}")
-            return True
+                    return True
         except Exception as e:
             error = DataError(
                 message=f"Failed to save data to file {filename}: {e}",

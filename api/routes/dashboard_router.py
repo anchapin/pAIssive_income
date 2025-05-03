@@ -92,7 +92,7 @@ if FASTAPI_AVAILABLE:
         Returns:
             Dashboard information
         """
-        return {
+                return {
             "message": "Dashboard API is available",
             "status": "active",
             "endpoints": [
@@ -156,7 +156,7 @@ if FASTAPI_AVAILABLE:
             total_subscribers = sum(project["subscribers"] for project in projects)
             project_count = len(projects)
 
-            return {
+                    return {
                 "projects": projects,
                 "total_revenue": total_revenue,
                 "total_subscribers": total_subscribers,
@@ -217,7 +217,7 @@ if FASTAPI_AVAILABLE:
                 {"product": "Data Analysis Tool", "revenue": 450.0}
             ]
 
-            return {
+                    return {
                 "daily_revenue": daily_revenue,
                 "monthly_revenue": monthly_revenue,
                 "revenue_by_product": revenue_by_product,
@@ -273,7 +273,7 @@ if FASTAPI_AVAILABLE:
                 {"plan": "Enterprise", "subscribers": 3}
             ]
 
-            return {
+                    return {
                 "total_subscribers": 168,
                 "active_subscribers": 48,
                 "churn_rate": 0.05,
@@ -340,7 +340,7 @@ if FASTAPI_AVAILABLE:
                 {"channel": "SEO", "conversions": 5, "cost": 150.0, "roi": 1.5}
             ]
 
-            return {
+                    return {
                 "campaigns": campaigns,
                 "conversion_rate": 0.035,
                 "cost_per_acquisition": 30.0,
@@ -394,7 +394,7 @@ if FASTAPI_AVAILABLE:
                 "estimated_cost": 15.75
             }
 
-            return {
+                    return {
                 "total_requests": total_requests,
                 "requests_by_model": requests_by_model,
                 "token_usage": token_usage,
@@ -432,7 +432,7 @@ if FASTAPI_AVAILABLE:
             # In a real implementation, you would generate the data in the requested format
 
             # For now, return a 501 Not Implemented status
-            return JSONResponse(
+                    return JSONResponse(
                 status_code=status.HTTP_501_NOT_IMPLEMENTED,
                 content={"message": f"Export to {format} format is not implemented yet"}
             )
@@ -440,5 +440,5 @@ if FASTAPI_AVAILABLE:
             logger.error(f"Error exporting dashboard data: {str(e)}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to export dashboard data: {str(e)}"
-            )
+                detail=f"Failed to export dashboard data: {str(e}"
+            

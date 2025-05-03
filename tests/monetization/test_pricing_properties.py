@@ -57,7 +57,7 @@ def subscription_tiers_strategy(draw):
         tier = {"id": tier_id, "name": tier_name, "price": price}
         tiers.append(tier)
 
-    return tiers
+            return tiers
 
 
 @composite
@@ -71,7 +71,7 @@ def user_counts_strategy(draw, tiers):
         count = draw(st.integers(min_value=0, max_value=10000))
         user_counts[tier_id] = count
 
-    return user_counts
+            return user_counts
 
 
 @composite
@@ -90,7 +90,7 @@ def solution_cost_strategy(draw):
         st.floats(min_value=0, max_value=10000, allow_infinity=False, allow_nan=False)
     )
 
-    return {
+            return {
         "infrastructure_cost": round(infrastructure_cost, 2),
         "development_cost": round(development_cost, 2),
         "marketing_cost": round(marketing_cost, 2),
@@ -138,7 +138,7 @@ def pricing_calculator_params_strategy(draw):
             price = round(price, 2)
         competitor_prices[tier_name] = price
 
-    return {
+            return {
         "name": name,
         "description": description,
         "pricing_strategy": pricing_strategy,
@@ -167,7 +167,7 @@ def optimal_price_params_strategy(draw):
         st.floats(min_value=0.1, max_value=1.0, allow_infinity=False, allow_nan=False)
     )
 
-    return {
+            return {
         "tier_name": tier_name,
         "cost_per_user": round(cost_per_user, 2),
         "value_perception": round(value_perception, 2),

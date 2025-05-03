@@ -24,7 +24,7 @@ def mock_model():
     model = MagicMock()
     model.name = "Test Model"
     model.id = "test-model"
-    return model
+            return model
 
 
 def test_inference_metrics_init():

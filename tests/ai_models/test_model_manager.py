@@ -45,13 +45,13 @@ def mock_config():
     config.model_sources = ["local", "huggingface"]
     config.default_text_model = "gpt2"
     config.default_embedding_model = "all-MiniLM-L6-v2"
-    return config
+            return config
 
 
 @pytest.fixture
 def mock_performance_monitor():
     """Create a mock PerformanceMonitor."""
-    return MagicMock()
+            return MagicMock()
 
 
 @pytest.fixture
@@ -62,7 +62,7 @@ def model_manager(mock_config, mock_performance_monitor):
     manager.performance_monitor = mock_performance_monitor
     manager.models = {}
     manager.loaded_models = {}
-    return manager
+            return manager
 
 
 def test_model_manager_init(model_manager, mock_config, mock_performance_monitor):

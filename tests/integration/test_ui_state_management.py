@@ -20,13 +20,13 @@ from ui.event_handlers import EventHandler
 @pytest.fixture
 def state_manager():
     """Create a state manager instance."""
-    return StateManager()
+            return StateManager()
 
 
 @pytest.fixture
 def event_handler():
     """Create an event handler instance."""
-    return EventHandler()
+            return EventHandler()
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def web_ui_with_state(state_manager):
     """Create a Web UI instance with state management."""
     ui = WebUI()
     ui.state_manager = state_manager
-    return ui
+            return ui
 
 
 @pytest.fixture
@@ -42,7 +42,7 @@ def cli_ui_with_state(state_manager):
     """Create a CLI UI instance with state management."""
     ui = CommandLineInterface()
     ui.state_manager = state_manager
-    return ui
+            return ui
 
 
 class TestUIStateManagement:

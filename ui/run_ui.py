@@ -31,7 +31,7 @@ def start_flask_server():
     print("Starting Flask API server...")
     flask_cmd = [sys.executable, os.path.join(UI_DIR, "api_server.py")]
     flask_process = subprocess.Popen(flask_cmd)
-    return flask_process
+                return flask_process
 
 
 def start_react_dev_server():
@@ -41,21 +41,21 @@ def start_react_dev_server():
         npm_install_cmd = ["npm", "install"]
         subprocess.run(npm_install_cmd, cwd=REACT_APP_DIR, check=True)
 
-    print("Starting React development server...")
+print("Starting React development server...")
     react_cmd = ["npm", "start"]
     react_process = subprocess.Popen(react_cmd, cwd=REACT_APP_DIR)
-    return react_process
+                return react_process
 
 
 def open_browser(url="http://localhost:3000", delay=5):
     """Open the browser after a delay"""
 
-    def _open_browser():
+def _open_browser():
         time.sleep(delay)
         print(f"Opening browser at {url}...")
         webbrowser.open(url)
 
-    browser_thread = threading.Thread(target=_open_browser)
+browser_thread = threading.Thread(target=_open_browser)
     browser_thread.daemon = True
     browser_thread.start()
 
@@ -64,16 +64,16 @@ def main():
     """Main function to start all services"""
     print("Starting pAIssive Income Framework UI...")
 
-    # Start Flask API server
+# Start Flask API server
     flask_process = start_flask_server()
 
-    # Start React development server
+# Start React development server
     react_process = start_react_dev_server()
 
-    # Open the browser after servers have started
+# Open the browser after servers have started
     open_browser()
 
-    try:
+try:
         # Keep the script running
         print("\nServers are running. Press Ctrl+C to stop...\n")
         while True:

@@ -45,7 +45,7 @@ class BaseSocialMediaAdapter(ABC):
     @property
     def is_connected(self) -> bool:
         """Check if the adapter is connected to the platform."""
-        return self._connected
+                return self._connected
 
     @abstractmethod
     def authenticate(self) -> Dict[str, Any]:
@@ -209,4 +209,4 @@ class BaseSocialMediaAdapter(ABC):
         Returns:
             True if the platform has the capability, False otherwise
         """
-        return capability in self.capabilities
+                return capability in self.capabilities

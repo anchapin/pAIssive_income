@@ -69,10 +69,10 @@ class BaseMetric
             Dictionary with statistics
         """
         if not self.values:
-            return {}
+                    return {}
 
 
-        return {
+                return {
             "min": min(self.values),
             "max": max(self.values),
             "mean": statistics.mean(self.values),
@@ -87,7 +87,7 @@ class BaseMetric
         Returns:
             Dictionary representation of the metric
         """
-        return {
+                return {
             "name": self.name,
             "unit": self.unit,
             "values": self.values,

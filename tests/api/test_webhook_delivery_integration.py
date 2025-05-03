@@ -47,13 +47,13 @@ def app():
     """Create a FastAPI test application."""
     app = FastAPI()
     app.include_router(webhook_router, prefix="/webhooks")
-    return app
+            return app
 
 
 @pytest.fixture
 def client(app):
     """Create a test client."""
-    return TestClient(app)
+            return TestClient(app)
 
 
 @pytest.fixture

@@ -64,7 +64,7 @@ def run_benchmark(
     # Run benchmark
     result = runner.run()
 
-    return result
+            return result
 
 
 def compare_models(
@@ -107,7 +107,7 @@ def compare_models(
         except Exception as e:
             logger.error(f"Error benchmarking model {model_path}: {e}")
 
-    return results
+            return results
 
 
 def save_benchmark_results(
@@ -143,7 +143,7 @@ def save_benchmark_results(
         result.save(output_path)
         output_paths.append(output_path)
 
-    return output_paths
+            return output_paths
 
 
 def load_benchmark_results(input_paths: Union[str, List[str]]) -> List[BenchmarkResult]:
@@ -171,4 +171,4 @@ def load_benchmark_results(input_paths: Union[str, List[str]]) -> List[Benchmark
         except Exception as e:
             logger.error(f"Error loading result from {input_path}: {e}")
 
-    return results
+            return results

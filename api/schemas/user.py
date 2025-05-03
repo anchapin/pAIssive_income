@@ -144,7 +144,7 @@ class PaginatedTeamList(PaginatedList):
     items: List[Team] = Field(..., description="List of teams")
 
 
-class PaginatedActivityList(PaginatedList):
+class PaginatedActivityList(PaginatedList:
     """Response model for paginated activity list."""
 
-    items: List[Activity] = Field(..., description="List of activities")
+    items: List[Activity] = Field(..., description="List of activities"

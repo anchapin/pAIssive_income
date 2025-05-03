@@ -46,7 +46,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
- as trt
+as trt
 
     TENSORRT_AVAILABLE = True
 except ImportError:
@@ -57,7 +57,7 @@ except ImportError:
 
 try:
 
- as cuda
+as cuda
 
     PYCUDA_AVAILABLE = True
 except ImportError:
@@ -189,9 +189,7 @@ class TensorRTAdapter:
         """
         if not TRANSFORMERS_AVAILABLE:
             logger.warning("Transformers not available. Cannot load tokenizer.")
-            return
-
-        try:
+                    return try:
             logger.info(f"Loading tokenizer from {self.tokenizer_path}")
             self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_path)
             logger.info("Tokenizer loaded successfully")
@@ -239,7 +237,7 @@ class TensorRTAdapter:
             device_buffers.append(device_buffer)
             bindings.append(int(device_buffer))
 
-        return host_buffers, device_buffers, bindings
+                return host_buffers, device_buffers, bindings
 
     def _infer(self, inputs: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """
@@ -289,7 +287,7 @@ class TensorRTAdapter:
             shape = self.context.get_binding_shape(index)
             outputs[name] = host_buffers[index].reshape(shape)
 
-        return outputs
+                return outputs
 
     def generate_text(
         self,
@@ -363,7 +361,7 @@ class TensorRTAdapter:
                         output_ids, skip_special_tokens=True
                     )
 
-                return output_text
+                        return output_text
             else:
                 # Try to find output tensor
                 for name, tensor in outputs.items():
@@ -378,7 +376,7 @@ class TensorRTAdapter:
                                 tensor, skip_special_tokens=True
                             )
 
-                        return output_text
+                                return output_text
 
             # If no output found
             raise ValueError("Could not find output tensor in model outputs")
@@ -454,7 +452,7 @@ class TensorRTAdapter:
             # Create result dictionary
             result = {label: float(prob) for label, prob in zip(labels, probs[0])}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error classifying text: {e}")
@@ -528,7 +526,7 @@ class TensorRTAdapter:
                     norms = np.sqrt(np.sum(embeddings**2, axis=1, keepdims=True))
                     embeddings = embeddings / norms
 
-            return embeddings
+                    return embeddings
 
         except Exception as e:
             logger.error(f"Error creating embeddings: {e}")
@@ -603,7 +601,7 @@ class TensorRTAdapter:
             # Create result dictionary
             result = {label: float(prob) for label, prob in zip(labels, probs[0])}
 
-            return result
+                    return result
 
         except Exception as e:
             logger.error(f"Error classifying image: {e}")
@@ -649,7 +647,7 @@ class TensorRTAdapter:
             # Add batch dimension
             image_data = np.expand_dims(image_data, axis=0)
 
-            return image_data
+                    return image_data
 
         except Exception as e:
             logger.error(f"Error preprocessing image: {e}")
@@ -676,7 +674,7 @@ class TensorRTAdapter:
             },
         }
 
-        return metadata
+                return metadata
 
 
 # Example usage

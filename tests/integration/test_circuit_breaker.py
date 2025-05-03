@@ -99,7 +99,7 @@ class TestCircuitBreaker:
         service_name = "request-test-service"
 
         def service_call():
-            return {"status": "success"}
+                    return {"status": "success"}
 
         def failing_service():
             raise ConnectionError("Service unavailable")
@@ -127,7 +127,7 @@ class TestCircuitBreaker:
 
         # Register fallback handler
         def fallback_response(error):
-            return {"status": "fallback", "error": str(error)}
+                    return {"status": "fallback", "error": str(error)}
 
         self.fallback_handler.register_fallback(service_name, fallback_response)
 
@@ -154,8 +154,8 @@ class TestCircuitBreaker:
         # Define custom failure detector
         def is_failure(response):
             if isinstance(response, dict):
-                return response.get("status_code", 200) >= 500
-            return False
+                        return response.get("status_code", 200) >= 500
+                    return False
 
         self.failure_detector.register_failure_check(service_name, is_failure)
 

@@ -18,12 +18,12 @@ class PersonaCreator
     Tool for creating detailed user personas for marketing campaigns.
     """
 
-    def __init__(self):
+def __init__(self):
         """Initialize the PersonaCreator."""
         self.name = "Persona Creator"
         self.description = "Creates detailed user personas for marketing campaigns"
 
-    def create_persona(
+def create_persona(
         self,
         name: str,
         description: str,
@@ -36,7 +36,7 @@ class PersonaCreator
         """
         Create a detailed user persona.
 
-        Args:
+Args:
             name: Name of the persona (e.g., "Professional YouTuber")
             description: Brief description of the persona
             pain_points: List of pain points the persona experiences
@@ -45,13 +45,13 @@ class PersonaCreator
             behavior: Dictionary of behavioral traits
             preferred_channels: Optional list of preferred marketing channels
 
-        Returns:
+Returns:
             A dictionary representing the user persona
         """
         # Create a unique ID for the persona
         persona_id = str(uuid.uuid4())
 
-        # Create the persona dictionary
+# Create the persona dictionary
         persona = {
             "id": persona_id,
             "name": name,
@@ -64,19 +64,19 @@ class PersonaCreator
             "created_at": datetime.now().isoformat(),
         }
 
-        return persona
+            return persona
 
-    def analyze_persona_market_fit(
+def analyze_persona_market_fit(
         self, persona: Dict[str, Any], niche: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Analyze how well a persona fits with a specific market niche.
 
-        Args:
+Args:
             persona: The user persona to analyze
             niche: The market niche to compare against
 
-        Returns:
+Returns:
             A dictionary with the analysis results
         """
         # Calculate pain point overlap
@@ -87,12 +87,12 @@ class PersonaCreator
             len(persona["pain_points"]), len(niche["problem_areas"]), 1
         )
 
-        # Calculate overall fit score (0-1)
+# Calculate overall fit score (0-1)
         fit_score = pain_point_score
 
-        # TODO: Implement more sophisticated fit analysis based on demographics, behavior, etc.
+# TODO: Implement more sophisticated fit analysis based on demographics, behavior, etc.
 
-        return {
+            return {
             "persona_id": persona["id"],
             "niche_id": niche["id"],
             "pain_point_overlap": pain_point_overlap,
@@ -111,35 +111,35 @@ class DemographicAnalyzer:
     Tool for analyzing demographic information for user personas.
     """
 
-    def __init__(self):
+def __init__(self):
         """Initialize the DemographicAnalyzer."""
         self.name = "Demographic Analyzer"
         self.description = "Analyzes demographic information for user personas"
 
-    def analyze_demographics(
+def analyze_demographics(
         self, demographics: Dict[str, Any], niche: str = None
     ) -> Dict[str, Any]:
         """
         Analyze demographics for a target audience.
 
-        Args:
+Args:
             demographics: Dictionary containing demographic information
             niche: Optional niche market to analyze for
 
-        Returns:
+Returns:
             A dictionary with demographic analysis results
         """
         # Generate a unique ID for this analysis
         analysis_id = str(uuid.uuid4())
 
-        # Extract demographic data
+# Extract demographic data
         age_range = demographics.get("age_range", "unknown")
         gender = demographics.get("gender", "unknown")
         location = demographics.get("location", "unknown")
         education = demographics.get("education", "unknown")
         income = demographics.get("income", "unknown")
 
-        # Generate analysis based on demographics
+# Generate analysis based on demographics
         analysis = {
             "age_range": {
                 "description": f"Target audience is in the {age_range} age range",
@@ -163,7 +163,7 @@ class DemographicAnalyzer:
             },
         }
 
-        # Generate recommendations based on demographics
+# Generate recommendations based on demographics
         recommendations = [
             f"Focus marketing efforts on {age_range} age group",
             f"Adjust messaging to appeal to {gender} audience",
@@ -172,12 +172,12 @@ class DemographicAnalyzer:
             f"Price products/services appropriately for {income} income level",
         ]
 
-        if niche:
+if niche:
             recommendations.append(
                 f"Tailor marketing to address specific needs of {niche} users"
             )
 
-        return {
+            return {
             "id": analysis_id,
             "niche": niche or "general",
             "demographics": demographics,
@@ -186,14 +186,14 @@ class DemographicAnalyzer:
             "timestamp": datetime.now().isoformat(),
         }
 
-    def _count_occurrences(self, items: List[str]) -> Dict[str, int]:
+def _count_occurrences(self, items: List[str]) -> Dict[str, int]:
         """
         Count occurrences of items in a list.
 
-        Args:
+Args:
             items: List of items to count
 
-        Returns:
+Returns:
             Dictionary with counts of each item
         """
         result = {}
@@ -202,136 +202,136 @@ class DemographicAnalyzer:
                 result[item] += 1
             else:
                 result[item] = 1
-        return result
+                    return result
 
-    def _get_age_implications(self, age_range: str) -> List[str]:
+def _get_age_implications(self, age_range: str) -> List[str]:
         """Get marketing implications for age range."""
         if "18-24" in age_range or "young" in age_range.lower():
-            return [
+                        return [
                 "Use social media platforms popular with younger audiences",
                 "Emphasize mobile-first experiences",
                 "Focus on trendy, visual content",
             ]
         elif "25-34" in age_range or "30" in age_range:
-            return [
+                        return [
                 "Balance social media with email marketing",
                 "Focus on career advancement and efficiency",
                 "Emphasize value and time-saving benefits",
             ]
         elif "35-44" in age_range or "40" in age_range:
-            return [
+                        return [
                 "Focus on professional networks and email",
                 "Emphasize reliability and established solutions",
                 "Address work-life balance concerns",
             ]
         elif "45" in age_range or "50" in age_range or "older" in age_range.lower():
-            return [
+                        return [
                 "Use more traditional marketing channels",
                 "Focus on ease of use and customer support",
                 "Address privacy and security concerns",
             ]
         else:
-            return [
+                        return [
                 "Use a mix of marketing channels",
                 "Balance innovative features with ease of use",
                 "Focus on universal benefits",
             ]
 
-    def _get_gender_implications(self, gender: str) -> List[str]:
+def _get_gender_implications(self, gender: str) -> List[str]:
         """Get marketing implications for gender."""
         if gender.lower() == "male":
-            return [
+                        return [
                 "Consider male-oriented design elements",
                 "Focus on direct, feature-oriented messaging",
                 "Target platforms with higher male demographics",
             ]
         elif gender.lower() == "female":
-            return [
+                        return [
                 "Consider female-oriented design elements",
                 "Focus on benefit-oriented messaging",
                 "Target platforms with higher female demographics",
             ]
         else:  # mixed, non-binary, etc.
-            return [
+                        return [
                 "Use inclusive design and language",
                 "Focus on universal benefits",
                 "Test messaging across different audience segments",
             ]
 
-    def _get_location_implications(self, location: str) -> List[str]:
+def _get_location_implications(self, location: str) -> List[str]:
         """Get marketing implications for location."""
         if location.lower() == "urban":
-            return [
+                        return [
                 "Focus on convenience and time-saving",
                 "Consider higher price points",
                 "Target urban-specific pain points",
             ]
         elif location.lower() == "suburban":
-            return [
+                        return [
                 "Balance value and quality messaging",
                 "Focus on family and community benefits",
                 "Consider moderate price points",
             ]
         elif location.lower() == "rural":
-            return [
+                        return [
                 "Emphasize reliability and practicality",
                 "Consider connectivity limitations",
                 "Focus on value and durability",
             ]
         else:
-            return [
+                        return [
                 "Use location-agnostic messaging",
                 "Consider regional differences in marketing",
                 "Test different approaches across locations",
             ]
 
-    def _get_education_implications(self, education: str) -> List[str]:
+def _get_education_implications(self, education: str) -> List[str]:
         """Get marketing implications for education level."""
         if (
             "college" in education.lower()
             or "degree" in education.lower()
             or "higher" in education.lower()
         ):
-            return [
+                        return [
                 "Use more sophisticated language",
                 "Include data and research in marketing",
                 "Focus on advanced features and customization",
             ]
         elif "high school" in education.lower() or "basic" in education.lower():
-            return [
+                        return [
                 "Use clear, straightforward language",
                 "Focus on practical benefits",
                 "Emphasize ease of use and support",
             ]
         else:
-            return [
+                        return [
                 "Balance technical and accessible language",
                 "Focus on universal benefits",
                 "Include both basic and advanced use cases",
             ]
 
-    def _get_income_implications(self, income: str) -> List[str]:
+def _get_income_implications(self, income: str) -> List[str]:
         """Get marketing implications for income level."""
         if "high" in income.lower() or "upper" in income.lower():
-            return [
+                        return [
                 "Focus on premium features and exclusivity",
                 "Emphasize quality over cost",
                 "Consider higher price points with premium positioning",
             ]
         elif "middle" in income.lower():
-            return [
+                        return [
                 "Balance value and quality messaging",
                 "Offer tiered pricing options",
                 "Focus on ROI and long-term benefits",
             ]
         elif "low" in income.lower():
-            return [
+                        return [
                 "Emphasize affordability and essential features",
                 "Consider freemium models",
                 "Focus on immediate value and necessity",
             ]
         else:
-            return [
+                        return [
                 "Offer flexible pricing options",
                 "Focus on value for money",
                 "Balance feature set with affordability",
@@ -343,21 +343,21 @@ class PainPointIdentifier:
     Tool for identifying and analyzing pain points for user personas.
     """
 
-    def __init__(self):
+def __init__(self):
         """Initialize the PainPointIdentifier."""
         self.name = "Pain Point Identifier"
         self.description = "Identifies and analyzes pain points for user personas"
 
-    def identify_pain_points(
+def identify_pain_points(
         self, niche: Union[str, Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """
         Identify potential pain points for a specific niche.
 
-        Args:
+Args:
             niche: The market niche to analyze (string or dictionary)
 
-        Returns:
+Returns:
             A list of pain points with severity and impact
         """
         # Handle string input (niche name)
@@ -457,7 +457,7 @@ class PainPointIdentifier:
                 ],
             }
 
-            # Return pain points for the specified niche or generic ones
+# Return pain points for the specified niche or generic ones
             if niche_name.lower() in niche_pain_points:
                 pain_points = []
                 for pp in niche_pain_points[niche_name.lower()]:
@@ -471,10 +471,10 @@ class PainPointIdentifier:
                         "solution_gaps": pp["solution_gaps"],
                     }
                     pain_points.append(pain_point)
-                return pain_points
+                            return pain_points
             else:
                 # Return generic pain points for unknown niches
-                return [
+                            return [
                     {
                         "id": str(uuid.uuid4()),
                         "name": "Time Efficiency",
@@ -503,11 +503,11 @@ class PainPointIdentifier:
                     },
                 ]
 
-        # Handle dictionary input (niche object)
+# Handle dictionary input (niche object)
         else:
             pain_points = []
 
-            # Extract problem areas if available
+# Extract problem areas if available
             if "problem_areas" in niche:
                 for i, problem in enumerate(niche["problem_areas"]):
                     # Calculate severity based on position in the list (first items are more severe)
@@ -518,7 +518,7 @@ class PainPointIdentifier:
                         else "medium" if severity > 0.4 else "low"
                     )
 
-                    pain_points.append(
+pain_points.append(
                         {
                             "id": str(uuid.uuid4()),
                             "name": f"Problem {i+1}",
@@ -534,10 +534,10 @@ class PainPointIdentifier:
                         }
                     )
 
-            # If no problem areas found, return generic pain points
+# If no problem areas found, return generic pain points
             if not pain_points:
                 niche_name = niche.get("name", "this niche")
-                return [
+                            return [
                     {
                         "id": str(uuid.uuid4()),
                         "name": "Efficiency",
@@ -568,30 +568,30 @@ class PainPointIdentifier:
 
             return pain_points
 
-    def analyze_pain_point(
+def analyze_pain_point(
         self, pain_point: Dict[str, Any], niche: str = None
     ) -> Dict[str, Any]:
         """
         Analyze a specific pain point in detail.
 
-        Args:
+Args:
             pain_point: The pain point to analyze
             niche: Optional niche context for the analysis
 
-        Returns:
+Returns:
             Detailed analysis of the pain point
         """
         # Generate a unique ID for this analysis
         analysis_id = str(uuid.uuid4())
 
-        # Extract pain point information
+# Extract pain point information
         pain_point_id = pain_point.get("id", str(uuid.uuid4()))
         name = pain_point.get("name", "Unnamed Pain Point")
         description = pain_point.get("description", "")
         severity = pain_point.get("severity", "medium")
         pain_point.get("impact", "")
 
-        # Generate analysis based on severity
+# Generate analysis based on severity
         if severity == "high":
             urgency = "High urgency - should be addressed immediately"
             market_opportunity = "Strong market opportunity"
@@ -605,7 +605,7 @@ class PainPointIdentifier:
             market_opportunity = "Niche market opportunity"
             willingness_to_pay = "low"
 
-        # Generate potential solutions
+# Generate potential solutions
         potential_solutions = [
             {
                 "name": f"AI-powered {name.lower()} assistant",
@@ -627,7 +627,7 @@ class PainPointIdentifier:
             },
         ]
 
-        # Create the analysis
+# Create the analysis
         analysis = {
             "id": analysis_id,
             "pain_point_id": pain_point_id,
@@ -653,23 +653,23 @@ class PainPointIdentifier:
             "timestamp": datetime.now().isoformat(),
         }
 
-        return analysis
+            return analysis
 
-    def categorize_pain_points(
+def categorize_pain_points(
         self, pain_points: List[Dict[str, Any]]
     ) -> Dict[str, List[Dict[str, Any]]]:
         """
         Categorize pain points into different types.
 
-        Args:
+Args:
             pain_points: List of pain points to categorize
 
-        Returns:
+Returns:
             Dictionary with pain points categorized by impact
         """
         categories = {"high_impact": [], "medium_impact": [], "low_impact": []}
 
-        for pain_point in pain_points:
+for pain_point in pain_points:
             if pain_point["impact"] == "high":
                 categories["high_impact"].append(pain_point)
             elif pain_point["impact"] == "medium":
@@ -677,7 +677,7 @@ class PainPointIdentifier:
             else:
                 categories["low_impact"].append(pain_point)
 
-        return categories
+            return categories
 
 
 class GoalMapper:
@@ -685,33 +685,33 @@ class GoalMapper:
     Tool for mapping user goals to product features and marketing messages.
     """
 
-    def __init__(self):
+def __init__(self):
         """Initialize the GoalMapper."""
         pass
 
-    def map_goals_to_features(
+def map_goals_to_features(
         self, persona: Dict[str, Any], solution: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """
         Map user goals to product features.
 
-        Args:
+Args:
             persona: The user persona with goals
             solution: The product solution with features
 
-        Returns:
+Returns:
             A list of mappings between goals and features
         """
         mappings = []
 
-        for goal in persona["goals"]:
+for goal in persona["goals"]:
             relevant_features = []
 
-            for feature in solution["features"]:
+for feature in solution["features"]:
                 # Simple relevance check - could be more sophisticated
                 relevance = 0
 
-                # Check if goal keywords appear in feature name or description
+# Check if goal keywords appear in feature name or description
                 goal_words = goal.lower().split()
                 for word in goal_words:
                     if (
@@ -720,7 +720,7 @@ class GoalMapper:
                     ):
                         relevance += 1
 
-                if relevance > 0:
+if relevance > 0:
                     relevant_features.append(
                         {
                             "feature_id": feature["id"],
@@ -729,7 +729,7 @@ class GoalMapper:
                         }
                     )
 
-            mappings.append(
+mappings.append(
                 {
                     "goal": goal,
                     "relevant_features": sorted(
@@ -745,19 +745,19 @@ class GoalMapper:
                 }
             )
 
-        return mappings
+            return mappings
 
-    def generate_goal_based_messaging(
+def generate_goal_based_messaging(
         self, persona: Dict[str, Any], solution: Dict[str, Any]
     ) -> Dict[str, List[str]]:
         """
         Generate marketing messages based on user goals.
 
-        Args:
+Args:
             persona: The user persona with goals
             solution: The product solution
 
-        Returns:
+Returns:
             Dictionary with marketing messages for different channels
         """
         messages = {
@@ -767,12 +767,12 @@ class GoalMapper:
             "value_propositions": [],
         }
 
-        for goal in persona["goals"]:
+for goal in persona["goals"]:
             # Generate headlines
             messages["headlines"].append(f"Achieve {goal} with {solution['name']}")
             messages["headlines"].append(f"{solution['name']}: The key to {goal}")
 
-            # Generate email subjects
+# Generate email subjects
             messages["email_subjects"].append(
                 f"Want to {goal.lower()}? Try {solution['name']}"
             )
@@ -780,7 +780,7 @@ class GoalMapper:
                 f"How {persona['name']}s are achieving {goal.lower()}"
             )
 
-            # Generate social media posts
+# Generate social media posts
             messages["social_media"].append(
                 f"Are you struggling to {goal.lower()}? {solution['name']} can help! #AI #Productivity"
             )
@@ -788,7 +788,7 @@ class GoalMapper:
                 f"See how {solution['name']} helps {persona['name']}s {goal.lower()} effortlessly. Try it today!"
             )
 
-            # Generate value propositions
+# Generate value propositions
             messages["value_propositions"].append(
                 f"{solution['name']} helps {persona['name']}s {goal.lower()} more efficiently"
             )
@@ -796,7 +796,7 @@ class GoalMapper:
                 f"Designed specifically to help you {goal.lower()}"
             )
 
-        return messages
+            return messages
 
 
 class BehaviorAnalyzer:
@@ -804,23 +804,23 @@ class BehaviorAnalyzer:
     Tool for analyzing user behavior patterns and preferences.
     """
 
-    def __init__(self):
+def __init__(self):
         """Initialize the BehaviorAnalyzer."""
         pass
 
-    def analyze_tech_adoption(self, persona: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_tech_adoption(self, persona: Dict[str, Any]) -> Dict[str, Any]:
         """
         Analyze technology adoption patterns for a persona.
 
-        Args:
+Args:
             persona: The user persona to analyze
 
-        Returns:
+Returns:
             Analysis of technology adoption patterns
         """
         tech_savvy = persona["behavior"].get("tech_savvy", "medium")
 
-        adoption_patterns = {
+adoption_patterns = {
             "high": {
                 "early_adopter": True,
                 "requires_training": False,
@@ -850,24 +850,24 @@ class BehaviorAnalyzer:
             },
         }
 
-        result = adoption_patterns.get(tech_savvy, adoption_patterns["medium"])
+result = adoption_patterns.get(tech_savvy, adoption_patterns["medium"])
         result["tech_savvy_level"] = tech_savvy
 
-        return result
+            return result
 
-    def analyze_price_sensitivity(self, persona: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_price_sensitivity(self, persona: Dict[str, Any]) -> Dict[str, Any]:
         """
         Analyze price sensitivity for a persona.
 
-        Args:
+Args:
             persona: The user persona to analyze
 
-        Returns:
+Returns:
             Analysis of price sensitivity
         """
         price_sensitivity = persona["behavior"].get("price_sensitivity", "medium")
 
-        sensitivity_patterns = {
+sensitivity_patterns = {
             "high": {
                 "prefers_free_tier": True,
                 "trial_importance": "critical",
@@ -897,35 +897,35 @@ class BehaviorAnalyzer:
             },
         }
 
-        result = sensitivity_patterns.get(
+result = sensitivity_patterns.get(
             price_sensitivity, sensitivity_patterns["medium"]
         )
         result["price_sensitivity_level"] = price_sensitivity
 
-        return result
+            return result
 
-    def generate_behavior_based_recommendations(
+def generate_behavior_based_recommendations(
         self, persona: Dict[str, Any]
     ) -> Dict[str, List[str]]:
         """
         Generate recommendations based on user behavior.
 
-        Args:
+Args:
             persona: The user persona to analyze
 
-        Returns:
+Returns:
             Dictionary with recommendations for product, marketing, and onboarding
         """
         tech_adoption = self.analyze_tech_adoption(persona)
         price_sensitivity = self.analyze_price_sensitivity(persona)
 
-        recommendations = {
+recommendations = {
             "product_recommendations": [],
             "marketing_recommendations": [],
             "onboarding_recommendations": [],
         }
 
-        # Product recommendations
+# Product recommendations
         if tech_adoption["tech_savvy_level"] == "high":
             recommendations["product_recommendations"].append(
                 "Include advanced features and customization options"
@@ -941,7 +941,7 @@ class BehaviorAnalyzer:
                 "Include templates and presets for common tasks"
             )
 
-        # Marketing recommendations
+# Marketing recommendations
         if price_sensitivity["price_sensitivity_level"] == "high":
             recommendations["marketing_recommendations"].append(
                 "Emphasize ROI and cost savings in marketing materials"
@@ -957,7 +957,7 @@ class BehaviorAnalyzer:
                 "Highlight premium aspects and exclusivity"
             )
 
-        # Onboarding recommendations
+# Onboarding recommendations
         recommendations["onboarding_recommendations"].append(
             f"Provide {tech_adoption['recommended_onboarding']} onboarding"
         )
@@ -965,4 +965,4 @@ class BehaviorAnalyzer:
             f"Introduce features at a {tech_adoption['feature_introduction_pace']} pace"
         )
 
-        return recommendations
+            return recommendations

@@ -81,7 +81,7 @@ if parent_dir not in sys.path:
         manager.register_model(model)
         print(f"Registered test model: {model.name} ({model.id}) - Type: {model.type}")
 
-    return manager
+            return manager
 
 
 def test_basic_fallback(manager: ModelManager):

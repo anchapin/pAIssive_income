@@ -29,13 +29,13 @@ except ImportError:
         pass
 
     def Field(*args, **kwargs):
-        return None
+                return None
     def File(*args, **kwargs):
-        return None
+                return None
     def Form(*args, **kwargs):
-        return None
+                return None
     def UploadFile(*args, **kwargs):
-        return None
+                return None
 
 
 # Create router
@@ -118,7 +118,7 @@ if FASTAPI_AVAILABLE:
 
             # Transcribe audio
             result = await _transcribe_audio(server_model, audio_data, model, language)
-            return result
+                    return result
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -141,7 +141,7 @@ if FASTAPI_AVAILABLE:
         try:
             # Generate speech
             result = await _text_to_speech(model, request)
-            return result
+                    return result
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -166,7 +166,7 @@ if FASTAPI_AVAILABLE:
             audio_data, content_type = await _text_to_speech_raw(model, request)
 
             # Stream audio
-            return StreamingResponse(iter([audio_data]), media_type=content_type)
+                    return StreamingResponse(iter([audio_data]), media_type=content_type)
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -192,7 +192,7 @@ async def _transcribe_audio(model, audio_data, model_name=None, language=None):
     )
 
     # Create response
-    return {"text": result["text"]}
+            return {"text": result["text"]}
 
 
 async def _text_to_speech(model, request):
@@ -213,10 +213,10 @@ async def _text_to_speech(model, request):
     audio_b64 = base64.b64encode(audio_data).decode("utf-8")
 
     # Create response
-    return {"audio": audio_b64}
+            return {"audio": audio_b64}
 
 
-async def _text_to_speech_raw(model, request):
+async def _text_to_speech_raw(model, request:
     """
     Convert text to speech and return raw audio data.
 
@@ -230,9 +230,9 @@ async def _text_to_speech_raw(model, request):
     # Generate speech
     audio_data = model.text_to_speech(
         text=request.text, voice=request.voice, format=request.response_format
-    )
+    
 
     # Determine content type
     content_type = "audio/mpeg" if request.response_format == "mp3" else "audio/wav"
 
-    return audio_data, content_type
+            return audio_data, content_type

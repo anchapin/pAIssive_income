@@ -96,13 +96,13 @@ class OpportunityResponse(BaseModel):
 @app.get("/")
 async def root():
     """Root endpoint for Niche Analysis Service."""
-    return {"message": "pAIssive Income Niche Analysis Service", "status": "running"}
+            return {"message": "pAIssive Income Niche Analysis Service", "status": "running"}
 
 
 @app.get("/api/status")
 async def api_status():
     """API status endpoint."""
-    return {"status": "ok", "version": "1.0.0", "service": "niche-analysis-service"}
+            return {"status": "ok", "version": "1.0.0", "service": "niche-analysis-service"}
 
 
 @app.post("/api/niches/analyze", response_model=NicheResponse)
@@ -125,7 +125,7 @@ async def analyze_niches(request: NicheRequest, background_tasks: BackgroundTask
             request.market_segments, force_refresh=request.force_refresh
         )
 
-        return {"niches": niches, "request_id": request_id}
+                return {"niches": niches, "request_id": request_id}
     except Exception as e:
         logger.error(f"Error analyzing niches: {str(e)}")
         raise HTTPException(
@@ -156,7 +156,7 @@ async def analyze_opportunities(
             request.niche_name, force_refresh=request.force_refresh
         )
 
-        return {
+                return {
             "opportunities": opportunities,
             "niche_name": request.niche_name,
             "request_id": request_id,
@@ -172,7 +172,7 @@ async def analyze_opportunities(
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy"}
+            return {"status": "healthy"}
 
 
 def check_service_health() -> bool:
@@ -183,7 +183,7 @@ def check_service_health() -> bool:
         bool: True if the service is healthy, False otherwise
     """
     # Add any specific health checks here
-    return niche_analyzer is not None
+            return niche_analyzer is not None
 
 
 def initialize_niche_analyzer():
@@ -198,10 +198,10 @@ def initialize_niche_analyzer():
         niche_analyzer = NicheAnalyzer(agent_team=agent_team)
 
         logger.info("Initialized niche analyzer")
-        return True
+                return True
     except Exception as e:
         logger.error(f"Failed to initialize niche analyzer: {str(e)}")
-        return False
+                return False
 
 
 def register_with_service_registry(port: int):
@@ -270,7 +270,7 @@ if __name__ == "__main__":
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8001, help="Port to listen on")
 
-    args = parser.parse_args()
+    args = parser.parse_args(
 
     # Start the Niche Analysis Service
-    start_niche_analysis_service(host=args.host, port=args.port)
+    start_niche_analysis_service(host=args.host, port=args.port

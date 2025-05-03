@@ -76,7 +76,7 @@ class QuantizationConfig:
         Returns:
             Dictionary representation of the configuration
         """
-        return {
+                return {
             "method": self.method.value,
             "bits": self.bits,
             "compute_dtype": self.compute_dtype,
@@ -126,7 +126,7 @@ class QuantizationConfig:
         config = cls(method=method, **config_dict)
 
         config.additional_params = additional_params
-        return config
+                return config
 
 
 class Quantizer(abc.ABC):
