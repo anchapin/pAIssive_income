@@ -20,19 +20,18 @@ def start_ui(config: Optional[Dict[str, Any]] = None) -> None:
     """
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     logger = logging.getLogger(__name__)
-    
+
     # Create and configure the Flask app
     app = create_app(config)
-    
+
     # Log startup
     logger.info("Starting UI service")
-    
+
     # Start the app
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0", port=5000)
 
 
 if __name__ == "__main__":

@@ -85,8 +85,11 @@ class PersonaCreator:
         # Calculate demographic fit score
         demographic_score = 0.0
         if "demographics" in persona and "target_demographics" in niche:
-            matches = sum(1 for k, v in persona["demographics"].items() 
-                         if k in niche["target_demographics"] and v == niche["target_demographics"][k])
+            matches = sum(
+                1
+                for k, v in persona["demographics"].items()
+                if k in niche["target_demographics"] and v == niche["target_demographics"][k]
+            )
             total = len(niche["target_demographics"]) if niche["target_demographics"] else 1
             demographic_score = matches / total
 

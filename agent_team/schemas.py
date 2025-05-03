@@ -5,30 +5,29 @@ This module provides Pydantic models for data validation in the Agent Team modul
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ModelSettingSchema(BaseModel):
     """Pydantic model for agent model settings."""
+
     model: str = Field(..., description="The AI model to use for the agent")
     temperature: float = Field(
-        ...,
-        description="Temperature setting for the AI model",
-        ge=0.0,
-        le=1.0
+        ..., description="Temperature setting for the AI model", ge=0.0, le=1.0
     )
     max_tokens: int = Field(2000, description="Maximum tokens per response")
 
     model_config = ConfigDict(
         extra="allow",  # Allow extra fields for future model-specific parameters
-        protected_namespaces=()  # Disable protected namespace warnings
+        protected_namespaces=(),  # Disable protected namespace warnings
     )
 
 
 class ModelSettingsSchema(BaseModel):
     """Pydantic model for all agents' model settings."""
+
     researcher: ModelSettingSchema
     developer: ModelSettingSchema
     monetization: ModelSettingSchema
@@ -36,56 +35,45 @@ class ModelSettingsSchema(BaseModel):
     feedback: ModelSettingSchema
 
     model_config = ConfigDict(
-        extra="allow",
-        protected_namespaces=()  # Disable protected namespace warnings
+        extra="allow", protected_namespaces=()  # Disable protected namespace warnings
     )
 
 
 class WorkflowSettingsSchema(BaseModel):
     """Schema for workflow configuration settings."""
+
     auto_progression: bool = Field(
-        False,
-        description="Whether to auto-progress through workflow steps"
+        False, description="Whether to auto-progress through workflow steps"
     )
     review_required: bool = Field(
-        True,
-        description="Whether human review is required between steps"
+        True, description="Whether human review is required between steps"
     )
 
     model_config = ConfigDict(
-        extra="allow",
-        protected_namespaces=()  # Disable protected namespace warnings
+        extra="allow", protected_namespaces=()  # Disable protected namespace warnings
     )
 
 
 class TeamConfigSchema(BaseModel):
     """Configuration schema for the agent team."""
+
     project_name: str = Field(default="unnamed")
-    model_settings: ModelSettingsSchema = Field(
-        ...,
-        description="Model settings for each agent"
-    )
-    workflow: WorkflowSettingsSchema = Field(
-        ...,
-        description="Workflow settings"
-    )
+    model_settings: ModelSettingsSchema = Field(..., description="Model settings for each agent")
+    workflow: WorkflowSettingsSchema = Field(..., description="Workflow settings")
 
     model_config = ConfigDict(
-        extra="allow",
-        protected_namespaces=()  # Disable protected namespace warnings
+        extra="allow", protected_namespaces=()  # Disable protected namespace warnings
     )
 
 
 class NicheSchema(BaseModel):
     """Pydantic model for a niche."""
+
     id: str = Field(..., description="Unique identifier for the niche")
     name: str = Field(..., description="Name of the niche")
     market_segment: str = Field(..., description="Market segment of the niche")
     opportunity_score: float = Field(
-        ...,
-        description="Opportunity score of the niche",
-        ge=0.0,
-        le=1.0
+        ..., description="Opportunity score of the niche", ge=0.0, le=1.0
     )
     description: str = Field(..., description="Description of the niche")
     market_size: float = Field(..., description="Market size estimate")
@@ -98,13 +86,13 @@ class NicheSchema(BaseModel):
     competition: Dict[str, Any] = Field(..., description="Competition analysis")
 
     model_config = ConfigDict(
-        extra="allow",
-        protected_namespaces=()  # Disable protected namespace warnings
+        extra="allow", protected_namespaces=()  # Disable protected namespace warnings
     )
 
 
 class TechnologyStackSchema(BaseModel):
     """Pydantic model for a solution's technology stack."""
+
     language: str = Field(..., description="Programming language")
     frameworks: List[str] = Field(..., description="Frameworks used")
     apis: Optional[List[str]] = Field(None, description="APIs used")
@@ -114,12 +102,13 @@ class TechnologyStackSchema(BaseModel):
 
 class FeatureSchema(BaseModel):
     """Pydantic model for a solution feature."""
+
     name: str = Field(..., description="Name of the feature")
     description: str = Field(..., description="Description of the feature")
     priority: str = Field(..., description="Priority of the feature (high, medium, low)")
     complexity: Optional[str] = Field(None, description="Complexity of the feature")
 
-    @field_validator('priority')
+    @field_validator("priority")
     @classmethod
     def validate_priority(cls, v):
         """Validate that priority is one of the allowed values."""
@@ -130,6 +119,7 @@ class FeatureSchema(BaseModel):
 
 class SolutionSchema(BaseModel):
     """Pydantic model for a solution."""
+
     id: str = Field(..., description="Unique identifier for the solution")
     name: str = Field(..., description="Name of the solution")
     description: str = Field(..., description="Description of the solution")
@@ -140,25 +130,24 @@ class SolutionSchema(BaseModel):
     development_roadmap: List[Dict[str, Any]] = Field(..., description="Development roadmap")
     resource_requirements: Dict[str, Any] = Field(..., description="Resource requirements")
     implementation_plan: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Implementation plan for the solution"
+        None, description="Implementation plan for the solution"
     )
 
     model_config = ConfigDict(
-        extra="allow",
-        protected_namespaces=()  # Disable protected namespace warnings
+        extra="allow", protected_namespaces=()  # Disable protected namespace warnings
     )
 
 
 class PricingTierSchema(BaseModel):
     """Pydantic model for a pricing tier."""
+
     name: str = Field(..., description="Name of the pricing tier")
     price: float = Field(..., description="Price of the tier", ge=0.0)
     billing_period: str = Field(..., description="Billing period")
     features: List[str] = Field(..., description="Features included in this tier")
     limits: Optional[Dict[str, Any]] = Field(None, description="Usage limits for this tier")
 
-    @field_validator('billing_period')
+    @field_validator("billing_period")
     @classmethod
     def validate_billing_period(cls, v):
         """Validate that billing period is one of the allowed values."""
@@ -169,6 +158,7 @@ class PricingTierSchema(BaseModel):
 
 class MonetizationStrategySchema(BaseModel):
     """Pydantic model for a monetization strategy."""
+
     id: str = Field(..., description="Unique identifier for the strategy")
     solution_id: str = Field(..., description="ID of the solution")
     model_type: str = Field(..., description="Type of monetization model")
@@ -179,13 +169,13 @@ class MonetizationStrategySchema(BaseModel):
     break_even_analysis: Dict[str, Any] = Field(..., description="Break-even analysis")
 
     model_config = ConfigDict(
-        extra="allow",
-        protected_namespaces=()  # Disable protected namespace warnings
+        extra="allow", protected_namespaces=()  # Disable protected namespace warnings
     )
 
 
 class MarketingChannelSchema(BaseModel):
     """Pydantic model for a marketing channel."""
+
     name: str = Field(..., description="Name of the marketing channel")
     description: str = Field(..., description="Description of the channel")
     type: str = Field(..., description="Type of marketing channel")
@@ -199,6 +189,7 @@ class MarketingChannelSchema(BaseModel):
 
 class MarketingPlanSchema(BaseModel):
     """Pydantic model for a marketing plan."""
+
     id: str = Field(..., description="Unique identifier for the plan")
     solution_id: str = Field(..., description="ID of the solution")
     target_audience: List[str] = Field(..., description="Target audience segments")
@@ -210,13 +201,13 @@ class MarketingPlanSchema(BaseModel):
     launch_plan: Optional[Dict[str, Any]] = Field(None, description="Launch plan")
 
     model_config = ConfigDict(
-        extra="allow",
-        protected_namespaces=()  # Disable protected namespace warnings
+        extra="allow", protected_namespaces=()  # Disable protected namespace warnings
     )
 
 
 class FeedbackType(str, Enum):
     """Enumeration of feedback types."""
+
     FEATURE_REQUEST = "feature_request"
     BUG_REPORT = "bug_report"
     USABILITY = "usability"
@@ -227,6 +218,7 @@ class FeedbackType(str, Enum):
 
 class FeedbackItemSchema(BaseModel):
     """Schema for user feedback."""
+
     user_id: str = Field(..., description="ID of the user providing feedback")
     timestamp: datetime = Field(..., description="Timestamp of the feedback")
     category: FeedbackType = Field(..., description="Category of the feedback")
@@ -237,36 +229,20 @@ class FeedbackItemSchema(BaseModel):
 
 class ProjectStateSchema(BaseModel):
     """Pydantic model for the project state."""
+
     id: str = Field(..., description="Unique identifier for the project")
     name: str = Field(..., description="Name of the project")
     identified_niches: List[Dict[str, Any]] = Field(
-        default_factory=list,
-        description="Identified niches"
+        default_factory=list, description="Identified niches"
     )
-    selected_niche: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Selected niche"
-    )
-    user_problems: List[Dict[str, Any]] = Field(
-        default_factory=list,
-        description="User problems"
-    )
-    solution_design: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Solution design"
-    )
+    selected_niche: Optional[Dict[str, Any]] = Field(None, description="Selected niche")
+    user_problems: List[Dict[str, Any]] = Field(default_factory=list, description="User problems")
+    solution_design: Optional[Dict[str, Any]] = Field(None, description="Solution design")
     monetization_strategy: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Monetization strategy"
+        None, description="Monetization strategy"
     )
-    marketing_plan: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Marketing plan"
-    )
-    feedback_data: List[Dict[str, Any]] = Field(
-        default_factory=list,
-        description="Feedback data"
-    )
+    marketing_plan: Optional[Dict[str, Any]] = Field(None, description="Marketing plan")
+    feedback_data: List[Dict[str, Any]] = Field(default_factory=list, description="Feedback data")
     created_at: str = Field(..., description="Creation timestamp")
     updated_at: str = Field(..., description="Last update timestamp")
 
@@ -281,6 +257,5 @@ class ProjectStateSchema(BaseModel):
         return v
 
     model_config = ConfigDict(
-        extra="allow",
-        protected_namespaces=()  # Disable protected namespace warnings
+        extra="allow", protected_namespaces=()  # Disable protected namespace warnings
     )

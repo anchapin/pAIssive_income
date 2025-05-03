@@ -9,7 +9,9 @@ and plan marketing campaigns.
 import logging
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Create and initialize the Flask application
@@ -37,8 +39,10 @@ def init_app_with_services():
     from service_initialization import initialize_services
 
     from .app_factory import init_app
+
     init_app(app, initialize_services)
     logger.info("pAIssive Income UI initialized with services")
+
 
 # This function can be called after all modules are imported to initialize services
 # It's not called automatically to avoid circular imports

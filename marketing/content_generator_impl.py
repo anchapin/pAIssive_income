@@ -1,6 +1,7 @@
 """
 Concrete implementation of ContentGenerator for use in tests and examples.
 """
+
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -30,12 +31,7 @@ class ConcreteContentGenerator(ContentGenerator):
         self.topics = []
 
     def add_content_type(
-        self,
-        name: str,
-        format: str,
-        frequency: str,
-        goal: str,
-        target_metrics: List[str]
+        self, name: str, format: str, frequency: str, goal: str, target_metrics: List[str]
     ) -> None:
         """Add a content type to the generator.
 
@@ -46,21 +42,18 @@ class ConcreteContentGenerator(ContentGenerator):
             goal: Goal of this content type
             target_metrics: Metrics to track for this content type
         """
-        self.content_types.append({
-            "id": str(uuid.uuid4()),
-            "name": name,
-            "format": format,
-            "frequency": frequency,
-            "goal": goal,
-            "target_metrics": target_metrics
-        })
+        self.content_types.append(
+            {
+                "id": str(uuid.uuid4()),
+                "name": name,
+                "format": format,
+                "frequency": frequency,
+                "goal": goal,
+                "target_metrics": target_metrics,
+            }
+        )
 
-    def add_topic(
-        self,
-        name: str,
-        description: str,
-        keywords: List[str]
-    ) -> None:
+    def add_topic(self, name: str, description: str, keywords: List[str]) -> None:
         """Add a topic to the generator.
 
         Args:
@@ -68,12 +61,14 @@ class ConcreteContentGenerator(ContentGenerator):
             description: Description of the topic
             keywords: Keywords related to the topic
         """
-        self.topics.append({
-            "id": str(uuid.uuid4()),
-            "name": name,
-            "description": description,
-            "keywords": keywords
-        })
+        self.topics.append(
+            {
+                "id": str(uuid.uuid4()),
+                "name": name,
+                "description": description,
+                "keywords": keywords,
+            }
+        )
 
     def generate(self, template: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         """Generate content from template.
@@ -95,16 +90,12 @@ class ConcreteContentGenerator(ContentGenerator):
             "metadata": {
                 "generator": self.name,
                 "topics": [t["name"] for t in self.topics],
-                "content_types": [ct["name"] for ct in self.content_types]
-            }
+                "content_types": [ct["name"] for ct in self.content_types],
+            },
         }
 
     def generate_content(
-        self,
-        content_type: str,
-        topic: str,
-        title: str,
-        **kwargs
+        self, content_type: str, topic: str, title: str, **kwargs
     ) -> Dict[str, Any]:
         """Generate content with the specified parameters.
 
@@ -119,16 +110,12 @@ class ConcreteContentGenerator(ContentGenerator):
         """
         # Find the content type
         content_type_info = next(
-            (ct for ct in self.content_types if ct["name"] == content_type),
-            None
+            (ct for ct in self.content_types if ct["name"] == content_type), None
         )
-        
+
         # Find the topic
-        topic_info = next(
-            (t for t in self.topics if t["name"] == topic),
-            None
-        )
-        
+        topic_info = next((t for t in self.topics if t["name"] == topic), None)
+
         # Create a template
         template = {
             "id": str(uuid.uuid4()),
@@ -136,15 +123,15 @@ class ConcreteContentGenerator(ContentGenerator):
             "topic": topic,
             "content_type": content_type,
             "format": content_type_info["format"] if content_type_info else "text",
-            "keywords": topic_info["keywords"] if topic_info else []
+            "keywords": topic_info["keywords"] if topic_info else [],
         }
-        
+
         # Generate content
         result = self.generate(template, **kwargs)
-        
+
         # Add the topic and content type to the result
         result["topic"] = topic
         result["content_type"] = content_type
         result["title"] = title
-        
+
         return result

@@ -65,7 +65,9 @@ def initialize_services(config: Optional[Dict[str, Any]] = None) -> DependencyCo
     return container
 
 
-def _register_configuration(container: DependencyContainer, config: Optional[Dict[str, Any]] = None) -> None:
+def _register_configuration(
+    container: DependencyContainer, config: Optional[Dict[str, Any]] = None
+) -> None:
     """
     Register configuration in the dependency container.
 
@@ -92,9 +94,7 @@ def _register_ai_models(container: DependencyContainer) -> None:
     """
     # Register model manager
     container.register(
-        IModelManager,
-        lambda: ModelManager(config=container.resolve(IModelConfig)),
-        singleton=True
+        IModelManager, lambda: ModelManager(config=container.resolve(IModelConfig)), singleton=True
     )
 
     # Register adapter factory
@@ -112,29 +112,22 @@ def _register_agent_team(container: DependencyContainer) -> None:
         container: Dependency container
     """
     # Register agent profile
-    container.register(
-        IAgentProfile,
-        lambda: AgentProfile(name="default"),
-        singleton=True
-    )
+    container.register(IAgentProfile, lambda: AgentProfile(name="default"), singleton=True)
 
     # Register research agent
     container.register(
         IResearchAgent,
         lambda: ResearchAgent(
-            profile=container.resolve(IAgentProfile),
-            model_manager=container.resolve(IModelManager)
+            profile=container.resolve(IAgentProfile), model_manager=container.resolve(IModelManager)
         ),
-        singleton=True
+        singleton=True,
     )
 
     # Register agent team
     container.register(
         IAgentTeam,
-        lambda: AgentTeam(
-            research_agent=container.resolve(IResearchAgent)
-        ),
-        singleton=True
+        lambda: AgentTeam(research_agent=container.resolve(IResearchAgent)),
+        singleton=True,
     )
 
     logger.info("Registered agent team services")
@@ -150,10 +143,8 @@ def _register_niche_analysis(container: DependencyContainer) -> None:
     # Register niche analyzer
     container.register(
         INicheAnalyzer,
-        lambda: NicheAnalyzer(
-            agent_team=container.resolve(IAgentTeam)
-        ),
-        singleton=True
+        lambda: NicheAnalyzer(agent_team=container.resolve(IAgentTeam)),
+        singleton=True,
     )
 
     logger.info("Registered niche analysis services")
@@ -167,11 +158,7 @@ def _register_monetization(container: DependencyContainer) -> None:
         container: Dependency container
     """
     # Register monetization calculator
-    container.register(
-        IMonetizationCalculator,
-        lambda: MonetizationCalculator(),
-        singleton=True
-    )
+    container.register(IMonetizationCalculator, lambda: MonetizationCalculator(), singleton=True)
 
     logger.info("Registered monetization services")
 
@@ -186,10 +173,8 @@ def _register_marketing(container: DependencyContainer) -> None:
     # Register marketing strategy generator
     container.register(
         IMarketingStrategy,
-        lambda: StrategyGenerator(
-            agent_team=container.resolve(IAgentTeam)
-        ),
-        singleton=True
+        lambda: StrategyGenerator(agent_team=container.resolve(IAgentTeam)),
+        singleton=True,
     )
 
     logger.info("Registered marketing services")

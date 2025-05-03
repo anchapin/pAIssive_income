@@ -4,6 +4,7 @@ Celery configuration for the pAIssive Income UI.
 This module sets up Celery for handling asynchronous tasks and
 integrates with Socket.IO for real-time progress updates.
 """
+
 import logging
 from typing import Any, Dict, Optional
 
@@ -22,6 +23,7 @@ from .socketio_app import socketio
 # Set up logging
 logger = logging.getLogger(__name__)
 
+
 def create_celery_app(app: Flask) -> Celery:
     """
     Create and configure Celery for the Flask application.
@@ -35,7 +37,7 @@ def create_celery_app(app: Flask) -> Celery:
     celery = Celery(
         app.import_name,
         broker=app.config.get("CELERY_BROKER_URL", "redis://localhost:6379/0"),
-        backend=app.config.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+        backend=app.config.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0"),
     )
 
     # Configure Celery
@@ -66,6 +68,7 @@ def create_celery_app(app: Flask) -> Celery:
     celery.Task = ContextTask
     return celery
 
+
 def emit_task_event(event_name: str, task_id: str, data: Dict[str, Any]):
     """
     Emit a Socket.IO event for task updates.
@@ -81,6 +84,7 @@ def emit_task_event(event_name: str, task_id: str, data: Dict[str, Any]):
         logger.debug(f"Emitted {event_name} for task {task_id}: {data}")
     except Exception as e:
         logger.error(f"Error emitting {event_name} for task {task_id}: {e}")
+
 
 @after_task_publish.connect
 def task_sent_handler(sender: Optional[str] = None, headers: Optional[Dict] = None, **kwargs):
@@ -98,14 +102,11 @@ def task_sent_handler(sender: Optional[str] = None, headers: Optional[Dict] = No
             emit_task_event(
                 "task_progress",
                 task_id,
-                {
-                    "status": "PENDING",
-                    "message": "Task queued",
-                    "progress": 0
-                }
+                {"status": "PENDING", "message": "Task queued", "progress": 0},
             )
     except Exception as e:
         logger.error(f"Error in task_sent_handler: {e}")
+
 
 @task_prerun.connect
 def task_prerun_handler(task_id: str, task: Any, *args, **kwargs):
@@ -122,14 +123,11 @@ def task_prerun_handler(task_id: str, task: Any, *args, **kwargs):
         emit_task_event(
             "task_progress",
             task_id,
-            {
-                "status": "STARTED",
-                "message": "Task started",
-                "progress": 0
-            }
+            {"status": "STARTED", "message": "Task started", "progress": 0},
         )
     except Exception as e:
         logger.error(f"Error in task_prerun_handler: {e}")
+
 
 @task_success.connect
 def task_success_handler(sender: Optional[Any] = None, result: Any = None, **kwargs):
@@ -151,18 +149,19 @@ def task_success_handler(sender: Optional[Any] = None, result: Any = None, **kwa
                     "status": "SUCCESS",
                     "message": "Task completed successfully",
                     "progress": 100,
-                    "result": result
-                }
+                    "result": result,
+                },
             )
     except Exception as e:
         logger.error(f"Error in task_success_handler: {e}")
+
 
 @task_failure.connect
 def task_failure_handler(
     sender: Optional[Any] = None,
     exception: Optional[Exception] = None,
     traceback: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ):
     """
     Handle task failure events.
@@ -184,10 +183,11 @@ def task_failure_handler(
                     "message": f"Task failed: {str(exception)}",
                     "error": str(exception),
                     "traceback": traceback,
-                }
+                },
             )
     except Exception as e:
         logger.error(f"Error in task_failure_handler: {e}")
+
 
 # Create Celery instance (will be initialized with create_celery_app)
 celery_app = Celery(__name__)

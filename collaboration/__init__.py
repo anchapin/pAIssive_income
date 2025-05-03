@@ -16,33 +16,27 @@ from .workspace import TeamWorkspace, WorkspaceManager
 
 __all__ = [
     # Workspace management
-    'TeamWorkspace',
-    'WorkspaceManager',
-    
+    "TeamWorkspace",
+    "WorkspaceManager",
     # Project sharing
-    'ProjectSharing',
-    'SharingPermission',
-    
+    "ProjectSharing",
+    "SharingPermission",
     # Access control
-    'RoleManager',
-    'Role',
-    'Permission',
-    
+    "RoleManager",
+    "Role",
+    "Permission",
     # Version control
-    'VersionControl',
-    'VersionInfo',
-    
+    "VersionControl",
+    "VersionInfo",
     # Activity tracking
-    'ActivityTracker',
-    'ActivityLog',
-    'NotificationManager',
-    
+    "ActivityTracker",
+    "ActivityLog",
+    "NotificationManager",
     # Comments and feedback
-    'CommentSystem',
-    'Comment',
-    'Reaction',
-    
+    "CommentSystem",
+    "Comment",
+    "Reaction",
     # External integrations
-    'CollaborationIntegration',
-    'IntegrationType'
+    "CollaborationIntegration",
+    "IntegrationType",
 ]

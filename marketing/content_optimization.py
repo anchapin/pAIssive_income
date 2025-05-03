@@ -23,6 +23,7 @@ try:
     import nltk
     from nltk.corpus import stopwords
     from nltk.tokenize import sent_tokenize, word_tokenize
+
     NLTK_AVAILABLE = True
 except ImportError:
     NLTK_AVAILABLE = False
@@ -43,9 +44,7 @@ class SEOAnalyzer(ABC):
     """
 
     def __init__(
-        self,
-        content: Optional[Dict[str, Any]] = None,
-        config: Optional[Dict[str, Any]] = None
+        self, content: Optional[Dict[str, Any]] = None, config: Optional[Dict[str, Any]] = None
     ):
         """
         Initialize an SEO analyzer.
@@ -116,7 +115,7 @@ class SEOAnalyzer(ABC):
             "check_keyword_in_first_paragraph": True,
             "check_keyword_in_url": True,
             "check_keyword_in_meta_description": True,
-            "timestamp": datetime.datetime.now().isoformat()
+            "timestamp": datetime.datetime.now().isoformat(),
         }
 
     def validate_config(self) -> Tuple[bool, List[str]]:
@@ -137,7 +136,7 @@ class SEOAnalyzer(ABC):
             "min_title_length",
             "max_title_length",
             "min_meta_description_length",
-            "max_meta_description_length"
+            "max_meta_description_length",
         ]
 
         for field in required_fields:
@@ -145,41 +144,81 @@ class SEOAnalyzer(ABC):
                 errors.append(f"Missing required field: {field}")
 
         # Validate field types and values
-        if "min_keyword_density" in self.config and not (isinstance(self.config["min_keyword_density"], (int, float)) and 0 <= self.config["min_keyword_density"] <= 1):
+        if "min_keyword_density" in self.config and not (
+            isinstance(self.config["min_keyword_density"], (int, float))
+            and 0 <= self.config["min_keyword_density"] <= 1
+        ):
             errors.append("min_keyword_density must be a number between 0 and 1")
 
-        if "max_keyword_density" in self.config and not (isinstance(self.config["max_keyword_density"], (int, float)) and 0 <= self.config["max_keyword_density"] <= 1):
+        if "max_keyword_density" in self.config and not (
+            isinstance(self.config["max_keyword_density"], (int, float))
+            and 0 <= self.config["max_keyword_density"] <= 1
+        ):
             errors.append("max_keyword_density must be a number between 0 and 1")
 
-        if "min_word_count" in self.config and not (isinstance(self.config["min_word_count"], int) and self.config["min_word_count"] > 0):
+        if "min_word_count" in self.config and not (
+            isinstance(self.config["min_word_count"], int) and self.config["min_word_count"] > 0
+        ):
             errors.append("min_word_count must be a positive integer")
 
-        if "optimal_word_count" in self.config and not (isinstance(self.config["optimal_word_count"], int) and self.config["optimal_word_count"] > 0):
+        if "optimal_word_count" in self.config and not (
+            isinstance(self.config["optimal_word_count"], int)
+            and self.config["optimal_word_count"] > 0
+        ):
             errors.append("optimal_word_count must be a positive integer")
 
-        if "min_title_length" in self.config and not (isinstance(self.config["min_title_length"], int) and self.config["min_title_length"] > 0):
+        if "min_title_length" in self.config and not (
+            isinstance(self.config["min_title_length"], int) and self.config["min_title_length"] > 0
+        ):
             errors.append("min_title_length must be a positive integer")
 
-        if "max_title_length" in self.config and not (isinstance(self.config["max_title_length"], int) and self.config["max_title_length"] > 0):
+        if "max_title_length" in self.config and not (
+            isinstance(self.config["max_title_length"], int) and self.config["max_title_length"] > 0
+        ):
             errors.append("max_title_length must be a positive integer")
 
-        if "min_meta_description_length" in self.config and not (isinstance(self.config["min_meta_description_length"], int) and self.config["min_meta_description_length"] > 0):
+        if "min_meta_description_length" in self.config and not (
+            isinstance(self.config["min_meta_description_length"], int)
+            and self.config["min_meta_description_length"] > 0
+        ):
             errors.append("min_meta_description_length must be a positive integer")
 
-        if "max_meta_description_length" in self.config and not (isinstance(self.config["max_meta_description_length"], int) and self.config["max_meta_description_length"] > 0):
+        if "max_meta_description_length" in self.config and not (
+            isinstance(self.config["max_meta_description_length"], int)
+            and self.config["max_meta_description_length"] > 0
+        ):
             errors.append("max_meta_description_length must be a positive integer")
 
         # Check min <= max
-        if "min_keyword_density" in self.config and "max_keyword_density" in self.config and self.config["min_keyword_density"] > self.config["max_keyword_density"]:
+        if (
+            "min_keyword_density" in self.config
+            and "max_keyword_density" in self.config
+            and self.config["min_keyword_density"] > self.config["max_keyword_density"]
+        ):
             errors.append("min_keyword_density must be less than or equal to max_keyword_density")
 
-        if "min_title_length" in self.config and "max_title_length" in self.config and self.config["min_title_length"] > self.config["max_title_length"]:
+        if (
+            "min_title_length" in self.config
+            and "max_title_length" in self.config
+            and self.config["min_title_length"] > self.config["max_title_length"]
+        ):
             errors.append("min_title_length must be less than or equal to max_title_length")
 
-        if "min_meta_description_length" in self.config and "max_meta_description_length" in self.config and self.config["min_meta_description_length"] > self.config["max_meta_description_length"]:
-            errors.append("min_meta_description_length must be less than or equal to max_meta_description_length")
+        if (
+            "min_meta_description_length" in self.config
+            and "max_meta_description_length" in self.config
+            and self.config["min_meta_description_length"]
+            > self.config["max_meta_description_length"]
+        ):
+            errors.append(
+                "min_meta_description_length must be less than or equal to max_meta_description_length"
+            )
 
-        if "min_word_count" in self.config and "optimal_word_count" in self.config and self.config["min_word_count"] > self.config["optimal_word_count"]:
+        if (
+            "min_word_count" in self.config
+            and "optimal_word_count" in self.config
+            and self.config["min_word_count"] > self.config["optimal_word_count"]
+        ):
             errors.append("min_word_count must be less than or equal to optimal_word_count")
 
         return len(errors) == 0, errors
@@ -247,7 +286,7 @@ class SEOAnalyzer(ABC):
             "id": self.id,
             "config": self.config,
             "created_at": self.created_at,
-            "results": self.results
+            "results": self.results,
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -275,7 +314,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         self,
         content: Optional[Dict[str, Any]] = None,
         keywords: Optional[List[str]] = None,
-        config: Optional[Dict[str, Any]] = None
+        config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize a keyword analyzer.
@@ -291,14 +330,14 @@ class KeywordAnalyzer(SEOAnalyzer):
         # Initialize NLTK if available
         if NLTK_AVAILABLE:
             try:
-                nltk.data.find('tokenizers/punkt')
+                nltk.data.find("tokenizers/punkt")
             except LookupError:
-                nltk.download('punkt')
+                nltk.download("punkt")
 
             try:
-                nltk.data.find('corpora/stopwords')
+                nltk.data.find("corpora/stopwords")
             except LookupError:
-                nltk.download('stopwords')
+                nltk.download("stopwords")
 
     def set_keywords(self, keywords: List[str]) -> None:
         """
@@ -357,7 +396,7 @@ class KeywordAnalyzer(SEOAnalyzer):
             "keyword_density": {},
             "keyword_placement": {},
             "overall_score": 0.0,
-            "recommendations": []
+            "recommendations": [],
         }
 
         # Analyze keyword density
@@ -421,7 +460,9 @@ class KeywordAnalyzer(SEOAnalyzer):
             density = keyword_count / total_words if total_words > 0 else 0
 
             # Determine if density is within optimal range
-            is_optimal = self.config["min_keyword_density"] <= density <= self.config["max_keyword_density"]
+            is_optimal = (
+                self.config["min_keyword_density"] <= density <= self.config["max_keyword_density"]
+            )
 
             keyword_density[keyword] = {
                 "count": keyword_count,
@@ -429,14 +470,11 @@ class KeywordAnalyzer(SEOAnalyzer):
                 "is_optimal": is_optimal,
                 "optimal_range": {
                     "min": self.config["min_keyword_density"],
-                    "max": self.config["max_keyword_density"]
-                }
+                    "max": self.config["max_keyword_density"],
+                },
             }
 
-        return {
-            "total_words": total_words,
-            "keywords": keyword_density
-        }
+        return {"total_words": total_words, "keywords": keyword_density}
 
     def _analyze_keyword_placement(self) -> Dict[str, Any]:
         """
@@ -485,7 +523,7 @@ class KeywordAnalyzer(SEOAnalyzer):
                 "first_paragraph": self._contains_keyword(first_paragraph, keyword),
                 "headings": any(self._contains_keyword(heading, keyword) for heading in headings),
                 "url": self._contains_keyword(url, keyword),
-                "alt_texts": any(self._contains_keyword(alt, keyword) for alt in alt_texts)
+                "alt_texts": any(self._contains_keyword(alt, keyword) for alt in alt_texts),
             }
 
             # Calculate placement score based on location weights
@@ -497,7 +535,7 @@ class KeywordAnalyzer(SEOAnalyzer):
             placement_analysis[keyword] = {
                 "locations": locations,
                 "placement_score": placement_score,
-                "recommendations": recommendations
+                "recommendations": recommendations,
             }
 
         return placement_analysis
@@ -621,7 +659,7 @@ class KeywordAnalyzer(SEOAnalyzer):
             List of words
         """
         # Remove punctuation
-        text = re.sub(r'[^\w\s]', '', text.lower())
+        text = re.sub(r"[^\w\s]", "", text.lower())
 
         # Split on whitespace
         return text.split()
@@ -645,7 +683,7 @@ class KeywordAnalyzer(SEOAnalyzer):
         keyword_lower = keyword.lower()
 
         # Use word boundary matching to count occurrences
-        pattern = r'\b' + re.escape(keyword_lower) + r'\b'
+        pattern = r"\b" + re.escape(keyword_lower) + r"\b"
         matches = re.findall(pattern, text_lower)
 
         return len(matches)
@@ -680,7 +718,7 @@ class KeywordAnalyzer(SEOAnalyzer):
             "first_paragraph": 2.0,
             "headings": 1.5,
             "url": 1.0,
-            "alt_texts": 1.0
+            "alt_texts": 1.0,
         }
 
         # Calculate score
@@ -692,7 +730,9 @@ class KeywordAnalyzer(SEOAnalyzer):
 
         return placement_score
 
-    def _generate_placement_recommendations(self, locations: Dict[str, bool], keyword: str) -> List[str]:
+    def _generate_placement_recommendations(
+        self, locations: Dict[str, bool], keyword: str
+    ) -> List[str]:
         """
         Generate recommendations for improving keyword placement.
 
@@ -708,7 +748,9 @@ class KeywordAnalyzer(SEOAnalyzer):
         # Check each location and suggest improvements if keyword is missing
         for loc, present in locations.items():
             if not present:
-                recommendations.append(f"Consider including the keyword '{keyword}' in the {loc.replace('_', ' ')}.")
+                recommendations.append(
+                    f"Consider including the keyword '{keyword}' in the {loc.replace('_', ' ')}."
+                )
 
         return recommendations
 
@@ -777,23 +819,27 @@ class KeywordAnalyzer(SEOAnalyzer):
                 max_density = data["optimal_range"]["max"]
 
                 if density < min_density:
-                    recommendations.append({
-                        "id": str(uuid.uuid4()),
-                        "type": "keyword_density",
-                        "keyword": keyword,
-                        "severity": "medium",
-                        "message": f"Keyword '{keyword}' density is too low ({density:.2%}). Aim for at least {min_density:.2%}.",
-                        "suggestion": f"Add more instances of '{keyword}' throughout the content."
-                    })
+                    recommendations.append(
+                        {
+                            "id": str(uuid.uuid4()),
+                            "type": "keyword_density",
+                            "keyword": keyword,
+                            "severity": "medium",
+                            "message": f"Keyword '{keyword}' density is too low ({density:.2%}). Aim for at least {min_density:.2%}.",
+                            "suggestion": f"Add more instances of '{keyword}' throughout the content.",
+                        }
+                    )
                 else:  # density > max_density
-                    recommendations.append({
-                        "id": str(uuid.uuid4()),
-                        "type": "keyword_density",
-                        "keyword": keyword,
-                        "severity": "medium",
-                        "message": f"Keyword '{keyword}' density is too high ({density:.2%}). Aim for at most {max_density:.2%}.",
-                        "suggestion": f"Reduce the number of instances of '{keyword}' or add more content to dilute the density."
-                    })
+                    recommendations.append(
+                        {
+                            "id": str(uuid.uuid4()),
+                            "type": "keyword_density",
+                            "keyword": keyword,
+                            "severity": "medium",
+                            "message": f"Keyword '{keyword}' density is too high ({density:.2%}). Aim for at most {max_density:.2%}.",
+                            "suggestion": f"Reduce the number of instances of '{keyword}' or add more content to dilute the density.",
+                        }
+                    )
 
         # Check keyword placement
         for keyword, data in self.results["keyword_placement"].items():
@@ -802,58 +848,72 @@ class KeywordAnalyzer(SEOAnalyzer):
 
             # Check title
             if not locations["title"] and self.config.get("check_keyword_in_title", True):
-                recommendations.append({
-                    "id": str(uuid.uuid4()),
-                    "type": "keyword_placement",
-                    "keyword": keyword,
-                    "severity": "high",
-                    "message": f"Keyword '{keyword}' is not in the title.",
-                    "suggestion": f"Include '{keyword}' in the title for better SEO."
-                })
+                recommendations.append(
+                    {
+                        "id": str(uuid.uuid4()),
+                        "type": "keyword_placement",
+                        "keyword": keyword,
+                        "severity": "high",
+                        "message": f"Keyword '{keyword}' is not in the title.",
+                        "suggestion": f"Include '{keyword}' in the title for better SEO.",
+                    }
+                )
 
             # Check headings
             if not locations["headings"] and self.config.get("check_keyword_in_headings", True):
-                recommendations.append({
-                    "id": str(uuid.uuid4()),
-                    "type": "keyword_placement",
-                    "keyword": keyword,
-                    "severity": "medium",
-                    "message": f"Keyword '{keyword}' is not in any headings.",
-                    "suggestion": f"Include '{keyword}' in at least one heading for better SEO."
-                })
+                recommendations.append(
+                    {
+                        "id": str(uuid.uuid4()),
+                        "type": "keyword_placement",
+                        "keyword": keyword,
+                        "severity": "medium",
+                        "message": f"Keyword '{keyword}' is not in any headings.",
+                        "suggestion": f"Include '{keyword}' in at least one heading for better SEO.",
+                    }
+                )
 
             # Check first paragraph
-            if not locations["first_paragraph"] and self.config.get("check_keyword_in_first_paragraph", True):
-                recommendations.append({
-                    "id": str(uuid.uuid4()),
-                    "type": "keyword_placement",
-                    "keyword": keyword,
-                    "severity": "medium",
-                    "message": f"Keyword '{keyword}' is not in the first paragraph.",
-                    "suggestion": f"Include '{keyword}' in the first paragraph for better SEO."
-                })
+            if not locations["first_paragraph"] and self.config.get(
+                "check_keyword_in_first_paragraph", True
+            ):
+                recommendations.append(
+                    {
+                        "id": str(uuid.uuid4()),
+                        "type": "keyword_placement",
+                        "keyword": keyword,
+                        "severity": "medium",
+                        "message": f"Keyword '{keyword}' is not in the first paragraph.",
+                        "suggestion": f"Include '{keyword}' in the first paragraph for better SEO.",
+                    }
+                )
 
             # Check meta description
-            if not locations["meta_description"] and self.config.get("check_keyword_in_meta_description", True):
-                recommendations.append({
-                    "id": str(uuid.uuid4()),
-                    "type": "keyword_placement",
-                    "keyword": keyword,
-                    "severity": "medium",
-                    "message": f"Keyword '{keyword}' is not in the meta description.",
-                    "suggestion": f"Include '{keyword}' in the meta description for better SEO."
-                })
+            if not locations["meta_description"] and self.config.get(
+                "check_keyword_in_meta_description", True
+            ):
+                recommendations.append(
+                    {
+                        "id": str(uuid.uuid4()),
+                        "type": "keyword_placement",
+                        "keyword": keyword,
+                        "severity": "medium",
+                        "message": f"Keyword '{keyword}' is not in the meta description.",
+                        "suggestion": f"Include '{keyword}' in the meta description for better SEO.",
+                    }
+                )
 
             # Check URL
             if not locations["url"] and self.config.get("check_keyword_in_url", True):
-                recommendations.append({
-                    "id": str(uuid.uuid4()),
-                    "type": "keyword_placement",
-                    "keyword": keyword,
-                    "severity": "medium",
-                    "message": f"Keyword '{keyword}' is not in the URL.",
-                    "suggestion": f"Include '{keyword}' in the URL for better SEO."
-                })
+                recommendations.append(
+                    {
+                        "id": str(uuid.uuid4()),
+                        "type": "keyword_placement",
+                        "keyword": keyword,
+                        "severity": "medium",
+                        "message": f"Keyword '{keyword}' is not in the URL.",
+                        "suggestion": f"Include '{keyword}' in the URL for better SEO.",
+                    }
+                )
 
         # Check word count
         total_words = self.results["keyword_density"]["total_words"]
@@ -861,21 +921,25 @@ class KeywordAnalyzer(SEOAnalyzer):
         optimal_word_count = self.config["optimal_word_count"]
 
         if total_words < min_word_count:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "content_length",
-                "severity": "high",
-                "message": f"Content is too short ({total_words} words). Aim for at least {min_word_count} words.",
-                "suggestion": "Add more content to provide more value and improve SEO."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "content_length",
+                    "severity": "high",
+                    "message": f"Content is too short ({total_words} words). Aim for at least {min_word_count} words.",
+                    "suggestion": "Add more content to provide more value and improve SEO.",
+                }
+            )
         elif total_words < optimal_word_count:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "content_length",
-                "severity": "low",
-                "message": f"Content is shorter than optimal ({total_words} words). Aim for around {optimal_word_count} words for best results.",
-                "suggestion": "Consider adding more content to provide more value and improve SEO."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "content_length",
+                    "severity": "low",
+                    "message": f"Content is shorter than optimal ({total_words} words). Aim for around {optimal_word_count} words for best results.",
+                    "suggestion": "Consider adding more content to provide more value and improve SEO.",
+                }
+            )
 
         return recommendations
 
@@ -889,9 +953,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
     """
 
     def __init__(
-        self,
-        content: Optional[Dict[str, Any]] = None,
-        config: Optional[Dict[str, Any]] = None
+        self, content: Optional[Dict[str, Any]] = None, config: Optional[Dict[str, Any]] = None
     ):
         """
         Initialize a readability analyzer.
@@ -905,9 +967,9 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Initialize NLTK if available
         if NLTK_AVAILABLE:
             try:
-                nltk.data.find('tokenizers/punkt')
+                nltk.data.find("tokenizers/punkt")
             except LookupError:
-                nltk.download('punkt')
+                nltk.download("punkt")
 
     def get_default_config(self) -> Dict[str, Any]:
         """
@@ -920,26 +982,28 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         config = super().get_default_config()
 
         # Add readability-specific config
-        config.update({
-            "target_reading_level": "intermediate",  # beginner, intermediate, advanced
-            "max_sentence_length": 25,  # words
-            "min_sentence_length": 5,  # words
-            "max_paragraph_length": 150,  # words
-            "min_paragraph_length": 30,  # words
-            "max_passive_voice_percentage": 0.15,  # 15%
-            "max_complex_word_percentage": 0.1,  # 10%
-            "min_flesch_reading_ease": 60.0,  # 60-70 is standard
-            "max_flesch_kincaid_grade": 9.0,  # 9th grade level
-            "max_smog_index": 9.0,  # 9th grade level
-            "max_coleman_liau_index": 9.0,  # 9th grade level
-            "max_automated_readability_index": 9.0,  # 9th grade level
-            "max_gunning_fog_index": 12.0,  # 12th grade level
-            "check_transition_words": True,
-            "check_sentence_beginnings": True,
-            "check_adverb_usage": True,
-            "check_passive_voice": True,
-            "check_consecutive_sentences": True
-        })
+        config.update(
+            {
+                "target_reading_level": "intermediate",  # beginner, intermediate, advanced
+                "max_sentence_length": 25,  # words
+                "min_sentence_length": 5,  # words
+                "max_paragraph_length": 150,  # words
+                "min_paragraph_length": 30,  # words
+                "max_passive_voice_percentage": 0.15,  # 15%
+                "max_complex_word_percentage": 0.1,  # 10%
+                "min_flesch_reading_ease": 60.0,  # 60-70 is standard
+                "max_flesch_kincaid_grade": 9.0,  # 9th grade level
+                "max_smog_index": 9.0,  # 9th grade level
+                "max_coleman_liau_index": 9.0,  # 9th grade level
+                "max_automated_readability_index": 9.0,  # 9th grade level
+                "max_gunning_fog_index": 12.0,  # 12th grade level
+                "check_transition_words": True,
+                "check_sentence_beginnings": True,
+                "check_adverb_usage": True,
+                "check_passive_voice": True,
+                "check_consecutive_sentences": True,
+            }
+        )
 
         return config
 
@@ -1054,7 +1118,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             "paragraph_analysis": {},
             "style_analysis": {},
             "overall_score": 0.0,
-            "recommendations": []
+            "recommendations": [],
         }
 
         # Analyze text statistics
@@ -1096,7 +1160,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         else:
             # Simple sentence tokenization
             # Split on periods, exclamation points, and question marks
-            sentences = re.split(r'(?<=[.!?])\s+', text)
+            sentences = re.split(r"(?<=[.!?])\s+", text)
 
             # Filter out empty sentences
             return [s.strip() for s in sentences if s.strip()]
@@ -1117,7 +1181,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         else:
             # Simple word tokenization
             # Remove punctuation
-            text = re.sub(r'[^\w\s]', '', text.lower())
+            text = re.sub(r"[^\w\s]", "", text.lower())
 
             # Split on whitespace
             return text.split()
@@ -1133,7 +1197,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             List of paragraphs
         """
         # Split on double newlines
-        paragraphs = text.split('\n\n')
+        paragraphs = text.split("\n\n")
 
         # Filter out empty paragraphs
         return [p.strip() for p in paragraphs if p.strip()]
@@ -1164,20 +1228,20 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             Number of syllables
         """
         # Remove non-alphabetic characters
-        word = re.sub(r'[^a-zA-Z]', '', word.lower())
+        word = re.sub(r"[^a-zA-Z]", "", word.lower())
 
         if not word:
             return 0
 
         # Count vowel groups
-        count = len(re.findall(r'[aeiouy]+', word))
+        count = len(re.findall(r"[aeiouy]+", word))
 
         # Adjust for silent e at end of word
-        if word.endswith('e') and len(word) > 2 and word[-2] not in 'aeiouy':
+        if word.endswith("e") and len(word) > 2 and word[-2] not in "aeiouy":
             count -= 1
 
         # Adjust for words ending in 'le'
-        if word.endswith('le') and len(word) > 2 and word[-3] not in 'aeiouy':
+        if word.endswith("le") and len(word) > 2 and word[-3] not in "aeiouy":
             count += 1
 
         # Ensure at least one syllable
@@ -1229,7 +1293,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             "avg_words_per_sentence": avg_words_per_sentence,
             "avg_syllables_per_word": avg_syllables_per_word,
             "avg_words_per_paragraph": avg_words_per_paragraph,
-            "complex_word_percentage": complex_word_percentage
+            "complex_word_percentage": complex_word_percentage,
         }
 
     def _analyze_readability_scores(self, text: str) -> Dict[str, Any]:
@@ -1258,90 +1322,85 @@ class ReadabilityAnalyzer(SEOAnalyzer):
 
         # Calculate Flesch Reading Ease
         flesch_reading_ease = self._calculate_flesch_reading_ease(
-            stats["avg_words_per_sentence"],
-            stats["avg_syllables_per_word"]
+            stats["avg_words_per_sentence"], stats["avg_syllables_per_word"]
         )
 
         # Calculate Flesch-Kincaid Grade Level
         flesch_kincaid_grade = self._calculate_flesch_kincaid_grade(
-            stats["avg_words_per_sentence"],
-            stats["avg_syllables_per_word"]
+            stats["avg_words_per_sentence"], stats["avg_syllables_per_word"]
         )
 
         # Calculate SMOG Index
-        smog_index = self._calculate_smog_index(
-            stats["num_complex_words"],
-            stats["num_sentences"]
-        )
+        smog_index = self._calculate_smog_index(stats["num_complex_words"], stats["num_sentences"])
 
         # Calculate Coleman-Liau Index
         coleman_liau_index = self._calculate_coleman_liau_index(
-            stats["num_words"],
-            stats["num_sentences"],
-            text
+            stats["num_words"], stats["num_sentences"], text
         )
 
         # Calculate Automated Readability Index
         automated_readability_index = self._calculate_automated_readability_index(
-            stats["num_words"],
-            stats["num_sentences"],
-            text
+            stats["num_words"], stats["num_sentences"], text
         )
 
         # Calculate Gunning Fog Index
         gunning_fog_index = self._calculate_gunning_fog(
-            stats["avg_words_per_sentence"],
-            stats["complex_word_percentage"]
+            stats["avg_words_per_sentence"], stats["complex_word_percentage"]
         )
 
         # Determine reading level
         reading_level = self._determine_reading_level(flesch_reading_ease)
 
         # Determine grade level
-        grade_level = self._determine_grade_level([
-            flesch_kincaid_grade,
-            smog_index,
-            coleman_liau_index,
-            automated_readability_index,
-            gunning_fog_index
-        ])
+        grade_level = self._determine_grade_level(
+            [
+                flesch_kincaid_grade,
+                smog_index,
+                coleman_liau_index,
+                automated_readability_index,
+                gunning_fog_index,
+            ]
+        )
 
         return {
             "flesch_reading_ease": {
                 "score": flesch_reading_ease,
                 "interpretation": self._interpret_flesch_reading_ease(flesch_reading_ease),
-                "is_optimal": flesch_reading_ease >= self.config["min_flesch_reading_ease"]
+                "is_optimal": flesch_reading_ease >= self.config["min_flesch_reading_ease"],
             },
             "flesch_kincaid_grade": {
                 "score": flesch_kincaid_grade,
                 "interpretation": f"{flesch_kincaid_grade:.1f} grade level",
-                "is_optimal": flesch_kincaid_grade <= self.config["max_flesch_kincaid_grade"]
+                "is_optimal": flesch_kincaid_grade <= self.config["max_flesch_kincaid_grade"],
             },
             "smog_index": {
                 "score": smog_index,
                 "interpretation": f"{smog_index:.1f} grade level",
-                "is_optimal": smog_index <= self.config["max_smog_index"]
+                "is_optimal": smog_index <= self.config["max_smog_index"],
             },
             "coleman_liau_index": {
                 "score": coleman_liau_index,
                 "interpretation": f"{coleman_liau_index:.1f} grade level",
-                "is_optimal": coleman_liau_index <= self.config["max_coleman_liau_index"]
+                "is_optimal": coleman_liau_index <= self.config["max_coleman_liau_index"],
             },
             "automated_readability_index": {
                 "score": automated_readability_index,
                 "interpretation": f"{automated_readability_index:.1f} grade level",
-                "is_optimal": automated_readability_index <= self.config["max_automated_readability_index"]
+                "is_optimal": automated_readability_index
+                <= self.config["max_automated_readability_index"],
             },
             "gunning_fog_index": {
                 "score": gunning_fog_index,
                 "interpretation": f"{gunning_fog_index:.1f} grade level",
-                "is_optimal": gunning_fog_index <= self.config["max_gunning_fog_index"]
+                "is_optimal": gunning_fog_index <= self.config["max_gunning_fog_index"],
             },
             "reading_level": reading_level,
-            "grade_level": grade_level
+            "grade_level": grade_level,
         }
 
-    def _calculate_flesch_reading_ease(self, avg_words_per_sentence: float, avg_syllables_per_word: float) -> float:
+    def _calculate_flesch_reading_ease(
+        self, avg_words_per_sentence: float, avg_syllables_per_word: float
+    ) -> float:
         """
         Calculate the Flesch Reading Ease score for the text.
 
@@ -1375,7 +1434,9 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Clamp score to 0-100 range
         return max(0, min(100, score))
 
-    def _calculate_flesch_kincaid_grade(self, avg_words_per_sentence: float, avg_syllables_per_word: float) -> float:
+    def _calculate_flesch_kincaid_grade(
+        self, avg_words_per_sentence: float, avg_syllables_per_word: float
+    ) -> float:
         """
         Calculate Flesch-Kincaid Grade Level.
 
@@ -1406,7 +1467,9 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Need at least 30 sentences for accurate SMOG calculation
         if num_sentences < 30:
             # Adjust formula for fewer sentences
-            adjusted_complex_words = num_complex_words * (30 / num_sentences) if num_sentences > 0 else 0
+            adjusted_complex_words = (
+                num_complex_words * (30 / num_sentences) if num_sentences > 0 else 0
+            )
         else:
             adjusted_complex_words = num_complex_words
 
@@ -1443,7 +1506,9 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Clamp score to 0-18 range
         return max(0, min(18, score))
 
-    def _calculate_automated_readability_index(self, num_words: int, num_sentences: int, text: str) -> float:
+    def _calculate_automated_readability_index(
+        self, num_words: int, num_sentences: int, text: str
+    ) -> float:
         """
         Calculate Automated Readability Index.
 
@@ -1470,7 +1535,9 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Clamp score to 0-18 range
         return max(0, min(18, score))
 
-    def _calculate_gunning_fog(self, avg_words_per_sentence: float, complex_word_percentage: float) -> float:
+    def _calculate_gunning_fog(
+        self, avg_words_per_sentence: float, complex_word_percentage: float
+    ) -> float:
         """
         Calculate the Gunning Fog Index for the text.
 
@@ -1589,9 +1656,17 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         avg_length = sum(sentence_lengths) / len(sentence_lengths) if sentence_lengths else 0
 
         # Count sentences by length
-        short_sentences = sum(1 for length in sentence_lengths if length < self.config["min_sentence_length"])
-        long_sentences = sum(1 for length in sentence_lengths if length > self.config["max_sentence_length"])
-        optimal_sentences = sum(1 for length in sentence_lengths if self.config["min_sentence_length"] <= length <= self.config["max_sentence_length"])
+        short_sentences = sum(
+            1 for length in sentence_lengths if length < self.config["min_sentence_length"]
+        )
+        long_sentences = sum(
+            1 for length in sentence_lengths if length > self.config["max_sentence_length"]
+        )
+        optimal_sentences = sum(
+            1
+            for length in sentence_lengths
+            if self.config["min_sentence_length"] <= length <= self.config["max_sentence_length"]
+        )
 
         # Calculate percentages
         short_sentence_percentage = short_sentences / len(sentences) if sentences else 0
@@ -1619,11 +1694,11 @@ class ReadabilityAnalyzer(SEOAnalyzer):
                 "short_percentage": short_sentence_percentage,
                 "long_percentage": long_sentence_percentage,
                 "optimal_percentage": optimal_sentence_percentage,
-                "is_optimal": long_sentence_percentage <= 0.2 and short_sentence_percentage <= 0.1
+                "is_optimal": long_sentence_percentage <= 0.2 and short_sentence_percentage <= 0.1,
             },
             "sentence_beginnings": sentence_beginnings,
             "sentence_variety": sentence_variety,
-            "transition_words": transition_words
+            "transition_words": transition_words,
         }
 
     def _analyze_sentence_beginnings(self, sentences: List[str]) -> Dict[str, Any]:
@@ -1641,7 +1716,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
                 "unique_beginnings_count": 0,
                 "unique_beginnings_percentage": 0,
                 "common_beginnings": {},
-                "is_optimal": False
+                "is_optimal": False,
             }
 
         # Get first word of each sentence
@@ -1666,7 +1741,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             "unique_beginnings_count": unique_beginnings,
             "unique_beginnings_percentage": unique_beginnings_percentage,
             "common_beginnings": {word: count for word, count in most_common},
-            "is_optimal": unique_beginnings_percentage >= 0.7
+            "is_optimal": unique_beginnings_percentage >= 0.7,
         }
 
     def _analyze_sentence_variety(self, sentences: List[str]) -> Dict[str, Any]:
@@ -1680,17 +1755,16 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             Dictionary with sentence variety analysis
         """
         if not sentences:
-            return {
-                "length_variety": 0,
-                "is_optimal": False
-            }
+            return {"length_variety": 0, "is_optimal": False}
 
         # Calculate sentence lengths
         sentence_lengths = [len(self._get_words(sentence)) for sentence in sentences]
 
         # Calculate standard deviation of sentence lengths
         mean_length = sum(sentence_lengths) / len(sentence_lengths)
-        variance = sum((length - mean_length) ** 2 for length in sentence_lengths) / len(sentence_lengths)
+        variance = sum((length - mean_length) ** 2 for length in sentence_lengths) / len(
+            sentence_lengths
+        )
         std_dev = math.sqrt(variance)
 
         # Calculate coefficient of variation (normalized standard deviation)
@@ -1699,10 +1773,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Determine if variety is optimal
         is_optimal = cv >= 0.2
 
-        return {
-            "length_variety": cv,
-            "is_optimal": is_optimal
-        }
+        return {"length_variety": cv, "is_optimal": is_optimal}
 
     def _analyze_transition_words(self, sentences: List[str]) -> Dict[str, Any]:
         """
@@ -1716,15 +1787,51 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         """
         # Common transition words
         transition_words = [
-            "additionally", "also", "furthermore", "moreover", "in addition",
-            "similarly", "likewise", "in the same way", "equally",
-            "however", "but", "yet", "nevertheless", "nonetheless", "on the other hand",
-            "in contrast", "conversely", "instead", "alternatively",
-            "therefore", "thus", "consequently", "as a result", "hence",
-            "for example", "for instance", "specifically", "namely", "to illustrate",
-            "in fact", "indeed", "actually", "to clarify", "in other words",
-            "first", "second", "third", "next", "then", "finally", "lastly",
-            "in conclusion", "to summarize", "in summary", "to conclude"
+            "additionally",
+            "also",
+            "furthermore",
+            "moreover",
+            "in addition",
+            "similarly",
+            "likewise",
+            "in the same way",
+            "equally",
+            "however",
+            "but",
+            "yet",
+            "nevertheless",
+            "nonetheless",
+            "on the other hand",
+            "in contrast",
+            "conversely",
+            "instead",
+            "alternatively",
+            "therefore",
+            "thus",
+            "consequently",
+            "as a result",
+            "hence",
+            "for example",
+            "for instance",
+            "specifically",
+            "namely",
+            "to illustrate",
+            "in fact",
+            "indeed",
+            "actually",
+            "to clarify",
+            "in other words",
+            "first",
+            "second",
+            "third",
+            "next",
+            "then",
+            "finally",
+            "lastly",
+            "in conclusion",
+            "to summarize",
+            "in summary",
+            "to conclude",
         ]
 
         # Count sentences with transition words
@@ -1752,7 +1859,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             "sentences_with_transitions": sentences_with_transitions,
             "transition_percentage": transition_percentage,
             "common_transitions": {word: count for word, count in most_common},
-            "is_optimal": transition_percentage >= 0.3
+            "is_optimal": transition_percentage >= 0.3,
         }
 
     def _analyze_paragraph_structure(self, text: str) -> Dict[str, Any]:
@@ -1777,9 +1884,17 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         avg_length = sum(paragraph_lengths) / len(paragraph_lengths) if paragraph_lengths else 0
 
         # Count paragraphs by length
-        short_paragraphs = sum(1 for length in paragraph_lengths if length < self.config["min_paragraph_length"])
-        long_paragraphs = sum(1 for length in paragraph_lengths if length > self.config["max_paragraph_length"])
-        optimal_paragraphs = sum(1 for length in paragraph_lengths if self.config["min_paragraph_length"] <= length <= self.config["max_paragraph_length"])
+        short_paragraphs = sum(
+            1 for length in paragraph_lengths if length < self.config["min_paragraph_length"]
+        )
+        long_paragraphs = sum(
+            1 for length in paragraph_lengths if length > self.config["max_paragraph_length"]
+        )
+        optimal_paragraphs = sum(
+            1
+            for length in paragraph_lengths
+            if self.config["min_paragraph_length"] <= length <= self.config["max_paragraph_length"]
+        )
 
         # Calculate percentages
         short_paragraph_percentage = short_paragraphs / len(paragraphs) if paragraphs else 0
@@ -1801,9 +1916,10 @@ class ReadabilityAnalyzer(SEOAnalyzer):
                 "short_percentage": short_paragraph_percentage,
                 "long_percentage": long_paragraph_percentage,
                 "optimal_percentage": optimal_paragraph_percentage,
-                "is_optimal": long_paragraph_percentage <= 0.2 and short_paragraph_percentage <= 0.1
+                "is_optimal": long_paragraph_percentage <= 0.2
+                and short_paragraph_percentage <= 0.1,
             },
-            "paragraph_variety": paragraph_variety
+            "paragraph_variety": paragraph_variety,
         }
 
     def _analyze_paragraph_variety(self, paragraphs: List[str]) -> Dict[str, Any]:
@@ -1817,17 +1933,16 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             Dictionary with paragraph variety analysis
         """
         if not paragraphs:
-            return {
-                "length_variety": 0,
-                "is_optimal": False
-            }
+            return {"length_variety": 0, "is_optimal": False}
 
         # Calculate paragraph lengths
         paragraph_lengths = [len(self._get_words(paragraph)) for paragraph in paragraphs]
 
         # Calculate standard deviation of paragraph lengths
         mean_length = sum(paragraph_lengths) / len(paragraph_lengths)
-        variance = sum((length - mean_length) ** 2 for length in paragraph_lengths) / len(paragraph_lengths)
+        variance = sum((length - mean_length) ** 2 for length in paragraph_lengths) / len(
+            paragraph_lengths
+        )
         std_dev = math.sqrt(variance)
 
         # Calculate coefficient of variation (normalized standard deviation)
@@ -1836,10 +1951,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         # Determine if variety is optimal
         is_optimal = cv >= 0.2
 
-        return {
-            "length_variety": cv,
-            "is_optimal": is_optimal
-        }
+        return {"length_variety": cv, "is_optimal": is_optimal}
 
     def _analyze_writing_style(self, text: str) -> Dict[str, Any]:
         """
@@ -1863,7 +1975,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         return {
             "passive_voice": passive_voice,
             "adverb_usage": adverb_usage,
-            "complex_words": complex_words
+            "complex_words": complex_words,
         }
 
     def _analyze_passive_voice(self, text: str) -> Dict[str, Any]:
@@ -1878,9 +1990,9 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         """
         # Simple passive voice detection patterns
         passive_patterns = [
-            r'\b(?:am|is|are|was|were|be|being|been)\s+(\w+ed)\b',
-            r'\b(?:am|is|are|was|were|be|being|been)\s+(\w+en)\b',
-            r'\b(?:am|is|are|was|were|be|being|been)\s+(\w+t)\b'
+            r"\b(?:am|is|are|was|were|be|being|been)\s+(\w+ed)\b",
+            r"\b(?:am|is|are|was|were|be|being|been)\s+(\w+en)\b",
+            r"\b(?:am|is|are|was|were|be|being|been)\s+(\w+t)\b",
         ]
 
         # Count passive voice instances
@@ -1901,7 +2013,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         return {
             "passive_count": passive_count,
             "passive_percentage": passive_percentage,
-            "is_optimal": is_optimal
+            "is_optimal": is_optimal,
         }
 
     def _analyze_adverb_usage(self, text: str) -> Dict[str, Any]:
@@ -1915,7 +2027,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             Dictionary with adverb usage analysis
         """
         # Simple adverb detection pattern (words ending in 'ly')
-        adverb_pattern = r'\b\w+ly\b'
+        adverb_pattern = r"\b\w+ly\b"
 
         # Find adverbs
         adverbs = re.findall(adverb_pattern, text, re.IGNORECASE)
@@ -1942,7 +2054,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             "adverb_count": adverb_count,
             "adverb_percentage": adverb_percentage,
             "common_adverbs": {word: count for word, count in most_common},
-            "is_optimal": is_optimal
+            "is_optimal": is_optimal,
         }
 
     def _analyze_complex_words(self, text: str) -> Dict[str, Any]:
@@ -1980,7 +2092,7 @@ class ReadabilityAnalyzer(SEOAnalyzer):
             "complex_word_count": complex_word_count,
             "complex_word_percentage": complex_word_percentage,
             "common_complex_words": {word: count for word, count in most_common},
-            "is_optimal": is_optimal
+            "is_optimal": is_optimal,
         }
 
     def get_score(self) -> float:
@@ -2073,153 +2185,193 @@ class ReadabilityAnalyzer(SEOAnalyzer):
         min_flesch = self.config["min_flesch_reading_ease"]
 
         if flesch_score < min_flesch:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "readability_score",
-                "severity": "high",
-                "message": f"Flesch Reading Ease score ({flesch_score:.1f}) is below the recommended minimum ({min_flesch:.1f}).",
-                "suggestion": "Use shorter sentences and simpler words to improve readability."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "readability_score",
+                    "severity": "high",
+                    "message": f"Flesch Reading Ease score ({flesch_score:.1f}) is below the recommended minimum ({min_flesch:.1f}).",
+                    "suggestion": "Use shorter sentences and simpler words to improve readability.",
+                }
+            )
 
         # Check grade level
         grade_level = self.results["readability_scores"]["grade_level"]
         max_grade = self.config["max_flesch_kincaid_grade"]
 
         if grade_level > max_grade:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "grade_level",
-                "severity": "medium",
-                "message": f"Content grade level ({grade_level:.1f}) is above the recommended maximum ({max_grade:.1f}).",
-                "suggestion": "Simplify language and sentence structure to lower the grade level."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "grade_level",
+                    "severity": "medium",
+                    "message": f"Content grade level ({grade_level:.1f}) is above the recommended maximum ({max_grade:.1f}).",
+                    "suggestion": "Simplify language and sentence structure to lower the grade level.",
+                }
+            )
 
         # Check sentence length
         avg_sentence_length = self.results["sentence_analysis"]["sentence_length"]["avg"]
         max_sentence_length = self.config["max_sentence_length"]
-        long_sentence_percentage = self.results["sentence_analysis"]["sentence_length"]["long_percentage"]
-        is_sentence_length_optimal = self.results["sentence_analysis"]["sentence_length"]["is_optimal"]
+        long_sentence_percentage = self.results["sentence_analysis"]["sentence_length"][
+            "long_percentage"
+        ]
+        is_sentence_length_optimal = self.results["sentence_analysis"]["sentence_length"][
+            "is_optimal"
+        ]
 
         if not is_sentence_length_optimal:
             # Always add a recommendation if sentence length is not optimal
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "sentence_length",
-                "severity": "medium",
-                "message": f"Sentence length distribution is not optimal. Average length: {avg_sentence_length:.1f} words, Maximum recommended: {max_sentence_length} words.",
-                "suggestion": "Aim for a better mix of sentence lengths. Break longer sentences into shorter ones to improve readability."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "sentence_length",
+                    "severity": "medium",
+                    "message": f"Sentence length distribution is not optimal. Average length: {avg_sentence_length:.1f} words, Maximum recommended: {max_sentence_length} words.",
+                    "suggestion": "Aim for a better mix of sentence lengths. Break longer sentences into shorter ones to improve readability.",
+                }
+            )
         elif avg_sentence_length > max_sentence_length * 0.8:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "sentence_length",
-                "severity": "medium",
-                "message": f"Average sentence length ({avg_sentence_length:.1f} words) is approaching the maximum recommended length ({max_sentence_length} words).",
-                "suggestion": "Break longer sentences into shorter ones to improve readability."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "sentence_length",
+                    "severity": "medium",
+                    "message": f"Average sentence length ({avg_sentence_length:.1f} words) is approaching the maximum recommended length ({max_sentence_length} words).",
+                    "suggestion": "Break longer sentences into shorter ones to improve readability.",
+                }
+            )
 
         if long_sentence_percentage > 0.2:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "sentence_length",
-                "severity": "medium",
-                "message": f"{long_sentence_percentage:.1%} of sentences are longer than the recommended maximum ({max_sentence_length} words).",
-                "suggestion": "Identify and break up long sentences to improve readability."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "sentence_length",
+                    "severity": "medium",
+                    "message": f"{long_sentence_percentage:.1%} of sentences are longer than the recommended maximum ({max_sentence_length} words).",
+                    "suggestion": "Identify and break up long sentences to improve readability.",
+                }
+            )
 
         # Check sentence beginnings
-        unique_beginnings_percentage = self.results["sentence_analysis"]["sentence_beginnings"]["unique_beginnings_percentage"]
+        unique_beginnings_percentage = self.results["sentence_analysis"]["sentence_beginnings"][
+            "unique_beginnings_percentage"
+        ]
 
         if unique_beginnings_percentage < 0.7:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "sentence_beginnings",
-                "severity": "low",
-                "message": f"Only {unique_beginnings_percentage:.1%} of sentences have unique beginnings.",
-                "suggestion": "Vary sentence beginnings to improve flow and engagement."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "sentence_beginnings",
+                    "severity": "low",
+                    "message": f"Only {unique_beginnings_percentage:.1%} of sentences have unique beginnings.",
+                    "suggestion": "Vary sentence beginnings to improve flow and engagement.",
+                }
+            )
 
         # Check transition words
-        transition_percentage = self.results["sentence_analysis"]["transition_words"]["transition_percentage"]
+        transition_percentage = self.results["sentence_analysis"]["transition_words"][
+            "transition_percentage"
+        ]
 
         if transition_percentage < 0.3:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "transition_words",
-                "severity": "low",
-                "message": f"Only {transition_percentage:.1%} of sentences contain transition words.",
-                "suggestion": "Add more transition words to improve flow and coherence."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "transition_words",
+                    "severity": "low",
+                    "message": f"Only {transition_percentage:.1%} of sentences contain transition words.",
+                    "suggestion": "Add more transition words to improve flow and coherence.",
+                }
+            )
 
         # Check paragraph length
         avg_paragraph_length = self.results["paragraph_analysis"]["paragraph_length"]["avg"]
         max_paragraph_length = self.config["max_paragraph_length"]
-        long_paragraph_percentage = self.results["paragraph_analysis"]["paragraph_length"]["long_percentage"]
-        is_paragraph_length_optimal = self.results["paragraph_analysis"]["paragraph_length"]["is_optimal"]
+        long_paragraph_percentage = self.results["paragraph_analysis"]["paragraph_length"][
+            "long_percentage"
+        ]
+        is_paragraph_length_optimal = self.results["paragraph_analysis"]["paragraph_length"][
+            "is_optimal"
+        ]
 
         if not is_paragraph_length_optimal:
             # Always add a recommendation if paragraph length is not optimal
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "paragraph_length",
-                "severity": "medium",
-                "message": f"Paragraph length distribution is not optimal. Average length: {avg_paragraph_length:.1f} words, Maximum recommended: {max_paragraph_length} words.",
-                "suggestion": "Aim for a better mix of paragraph lengths. Break longer paragraphs into shorter ones to improve readability."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "paragraph_length",
+                    "severity": "medium",
+                    "message": f"Paragraph length distribution is not optimal. Average length: {avg_paragraph_length:.1f} words, Maximum recommended: {max_paragraph_length} words.",
+                    "suggestion": "Aim for a better mix of paragraph lengths. Break longer paragraphs into shorter ones to improve readability.",
+                }
+            )
         elif avg_paragraph_length > max_paragraph_length * 0.8:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "paragraph_length",
-                "severity": "medium",
-                "message": f"Average paragraph length ({avg_paragraph_length:.1f} words) is approaching the maximum recommended length ({max_paragraph_length} words).",
-                "suggestion": "Break longer paragraphs into shorter ones to improve readability."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "paragraph_length",
+                    "severity": "medium",
+                    "message": f"Average paragraph length ({avg_paragraph_length:.1f} words) is approaching the maximum recommended length ({max_paragraph_length} words).",
+                    "suggestion": "Break longer paragraphs into shorter ones to improve readability.",
+                }
+            )
 
         if long_paragraph_percentage > 0.2:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "paragraph_length",
-                "severity": "medium",
-                "message": f"{long_paragraph_percentage:.1%} of paragraphs are longer than the recommended maximum ({max_paragraph_length} words).",
-                "suggestion": "Identify and break up long paragraphs to improve readability."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "paragraph_length",
+                    "severity": "medium",
+                    "message": f"{long_paragraph_percentage:.1%} of paragraphs are longer than the recommended maximum ({max_paragraph_length} words).",
+                    "suggestion": "Identify and break up long paragraphs to improve readability.",
+                }
+            )
 
         # Check passive voice
         passive_percentage = self.results["style_analysis"]["passive_voice"]["passive_percentage"]
         max_passive = self.config["max_passive_voice_percentage"]
 
         if passive_percentage > max_passive:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "passive_voice",
-                "severity": "medium",
-                "message": f"Passive voice usage ({passive_percentage:.1%}) exceeds the recommended maximum ({max_passive:.1%}).",
-                "suggestion": "Replace passive voice with active voice to improve clarity and engagement."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "passive_voice",
+                    "severity": "medium",
+                    "message": f"Passive voice usage ({passive_percentage:.1%}) exceeds the recommended maximum ({max_passive:.1%}).",
+                    "suggestion": "Replace passive voice with active voice to improve clarity and engagement.",
+                }
+            )
 
         # Check adverb usage
         adverb_percentage = self.results["style_analysis"]["adverb_usage"]["adverb_percentage"]
 
         if adverb_percentage > 0.05:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "adverb_usage",
-                "severity": "low",
-                "message": f"Adverb usage ({adverb_percentage:.1%}) is higher than recommended (5%).",
-                "suggestion": "Replace adverbs with stronger verbs to improve clarity and impact."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "adverb_usage",
+                    "severity": "low",
+                    "message": f"Adverb usage ({adverb_percentage:.1%}) is higher than recommended (5%).",
+                    "suggestion": "Replace adverbs with stronger verbs to improve clarity and impact.",
+                }
+            )
 
         # Check complex words
-        complex_word_percentage = self.results["style_analysis"]["complex_words"]["complex_word_percentage"]
+        complex_word_percentage = self.results["style_analysis"]["complex_words"][
+            "complex_word_percentage"
+        ]
         max_complex = self.config["max_complex_word_percentage"]
 
         if complex_word_percentage > max_complex:
-            recommendations.append({
-                "id": str(uuid.uuid4()),
-                "type": "complex_words",
-                "severity": "medium",
-                "message": f"Complex word usage ({complex_word_percentage:.1%}) exceeds the recommended maximum ({max_complex:.1%}).",
-                "suggestion": "Replace complex words with simpler alternatives to improve readability."
-            })
+            recommendations.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "complex_words",
+                    "severity": "medium",
+                    "message": f"Complex word usage ({complex_word_percentage:.1%}) exceeds the recommended maximum ({max_complex:.1%}).",
+                    "suggestion": "Replace complex words with simpler alternatives to improve readability.",
+                }
+            )
 
         return recommendations

@@ -15,9 +15,7 @@ class MarketingService:
         """Initialize the service."""
         self.strategy = strategy
 
-    def create_strategy(
-        self, target_persona: Dict[str, Any], goals: List[str]
-    ) -> Dict[str, Any]:
+    def create_strategy(self, target_persona: Dict[str, Any], goals: List[str]) -> Dict[str, Any]:
         """
         Create a marketing strategy.
 

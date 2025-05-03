@@ -4,6 +4,7 @@ Socket.IO integration for the pAIssive Income UI.
 This module provides real-time updates for long-running tasks and
 user interactions using Socket.IO.
 """
+
 import logging
 from typing import Any, Dict, Optional
 
@@ -15,6 +16,7 @@ from service_initialization import get_service
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
 
 class SocketIONamespace(Namespace):
     """Custom Socket.IO namespace for pAIssive Income events."""
@@ -91,11 +93,7 @@ class SocketIONamespace(Namespace):
                 emit("status", status)
                 logger.debug(f"Status sent for task {task_id}: {status}")
             except Exception as e:
-                error_data = {
-                    "task_id": task_id,
-                    "error": str(e),
-                    "type": "status_error"
-                }
+                error_data = {"task_id": task_id, "error": str(e), "type": "status_error"}
                 emit("error", error_data)
                 logger.error(f"Error getting status for task {task_id}: {e}")
 
@@ -164,7 +162,7 @@ def init_socketio(app: Flask, async_mode: Optional[str] = None) -> SocketIO:
         async_mode=async_mode,
         cors_allowed_origins="*",  # Configure as needed
         logger=True,
-        engineio_logger=True
+        engineio_logger=True,
     )
 
     # Register namespace
@@ -174,10 +172,7 @@ def init_socketio(app: Flask, async_mode: Optional[str] = None) -> SocketIO:
     @socketio.on_error_default
     def default_error_handler(e):
         logger.error(f"Socket.IO error: {e}")
-        error_data = {
-            "error": str(e),
-            "type": "socket_error"
-        }
+        error_data = {"error": str(e), "type": "socket_error"}
         emit("error", error_data)
 
     return socketio

@@ -311,9 +311,7 @@ def request_password_reset():
 
     return (
         jsonify(
-            {
-                "message": "If your email is registered, you will receive a password reset link."
-            }
+            {"message": "If your email is registered, you will receive a password reset link."}
         ),
         200,
     )
@@ -332,11 +330,7 @@ def reset_password_endpoint():
     success = reset_password(token, new_password)
     if success:
         return (
-            jsonify(
-                {
-                    "message": "Password reset successful."
-                }
-            ),
+            jsonify({"message": "Password reset successful."}),
             200,
         )
 
@@ -1189,7 +1183,7 @@ def get_campaign_details(campaign_id):
                         "type": "Welcome Email",
                         "subject": "Welcome to AI Content Optimizer! Here's How to Get Started",
                         "content": "Hi [Name],\n\nThanks for signing up for AI Content Optimizer! "
-                                   "We're excited to have you on board.\n\n...",
+                        "We're excited to have you on board.\n\n...",
                     }
                 ],
             },

@@ -1,5 +1,5 @@
 [tool.bandit]
-exclude_dirs = ["tests", "__pycache__", "custom_stubs"]
+exclude_dirs = ["tests", "__pycache__", "custom_stubs", ".venv", "venv", "env", ".env"]
 skips = ["B101", "B311"]  # B101 for assert statements in tests
 
 [tool.black]
@@ -18,7 +18,7 @@ exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 100
-skip = ["__pycache__", "custom_stubs"]
+skip = ["__pycache__", "custom_stubs", ".venv", "venv", "env", ".env"]
 
 [build-system]
 requires = ["setuptools>=42", "wheel"]

@@ -3,7 +3,6 @@ Main script for the pAIssive Income project.
 Demonstrates how to use the framework to identify niches and develop AI tools.
 """
 
-
 from agent_team import AgentTeam
 
 

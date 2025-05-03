@@ -25,10 +25,7 @@ def create_app(config: Optional[Dict[str, Any]] = None) -> Flask:
     app = Flask(__name__)
 
     # Apply default configuration
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DEBUG=True
-    )
+    app.config.from_mapping(SECRET_KEY="dev", DEBUG=True)
 
     # Apply passed configuration
     if config:
@@ -56,18 +53,18 @@ def _configure_logging(app: Flask) -> None:
     Args:
         app: Flask application instance
     """
-    log_level = app.config.get('LOG_LEVEL', logging.INFO)
+    log_level = app.config.get("LOG_LEVEL", logging.INFO)
     app.logger.setLevel(log_level)
 
     # Create console handler if it doesn't exist
     if not app.logger.handlers:
         console_handler = logging.StreamHandler()
         console_handler.setLevel(log_level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         console_handler.setFormatter(formatter)
         app.logger.addHandler(console_handler)
 
-    app.logger.info('Logging configured for Flask application')
+    app.logger.info("Logging configured for Flask application")
 
 
 def _register_error_handlers(app: Flask) -> None:
@@ -84,7 +81,7 @@ def _register_error_handlers(app: Flask) -> None:
     app.register_error_handler(404, handle_not_found)
     app.register_error_handler(500, handle_server_error)
 
-    app.logger.info('Error handlers registered')
+    app.logger.info("Error handlers registered")
 
 
 def _register_blueprints(app: Flask) -> None:
@@ -98,6 +95,6 @@ def _register_blueprints(app: Flask) -> None:
     from .routes import api_bp, main_bp
 
     app.register_blueprint(main_bp)
-    app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(api_bp, url_prefix="/api")
 
-    app.logger.info('Blueprints registered')
+    app.logger.info("Blueprints registered")

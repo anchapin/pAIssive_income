@@ -29,25 +29,23 @@ from .team_config import AgentTeam
 
 __all__ = [
     # Team configuration
-    'AgentTeam',
-    'TeamConfigSchema',
-    'ModelSettingsSchema',
-    'WorkflowSettingsSchema',
-
+    "AgentTeam",
+    "TeamConfigSchema",
+    "ModelSettingsSchema",
+    "WorkflowSettingsSchema",
     # Agent profiles
-    'AgentProfile',
-    'ResearchAgent',
-    'DeveloperAgent',
-    'MonetizationAgent',
-    'MarketingAgent',
-    'FeedbackAgent',
-
+    "AgentProfile",
+    "ResearchAgent",
+    "DeveloperAgent",
+    "MonetizationAgent",
+    "MarketingAgent",
+    "FeedbackAgent",
     # Project schemas
-    'AgentProfileSchema',
-    'NicheSchema',
-    'SolutionSchema',
-    'MonetizationStrategySchema',
-    'MarketingPlanSchema',
-    'FeedbackItemSchema',
-    'ProjectStateSchema'
+    "AgentProfileSchema",
+    "NicheSchema",
+    "SolutionSchema",
+    "MonetizationStrategySchema",
+    "MarketingPlanSchema",
+    "FeedbackItemSchema",
+    "ProjectStateSchema",
 ]

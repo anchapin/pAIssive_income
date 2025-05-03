@@ -12,35 +12,43 @@ class Verbosity(Enum):
     verbose = 2
     debug = 3
 
+
 def given(*args, **kwargs):
     def decorator(func):
         return func
+
     return decorator
+
 
 class strategies:
     pass
 
+
 def assume(condition):
     pass
+
 
 class settings:
     default = None
     _current_profile = "default"
-    
+
     def __init__(self, **kwargs):
         pass
-        
+
     def __call__(self, func):
         return func
-        
+
     @classmethod
     def show_changed(cls):
         return ""
 
+
 # Initialize default settings
 settings.default = settings()
+
 
 def example(*args, **kwargs):
     def decorator(func):
         return func
+
     return decorator

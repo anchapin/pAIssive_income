@@ -11,14 +11,14 @@ import os
 import sys
 import time
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # Add the project root to the Python path to import the errors module
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-from errors import ModelError, ModelLoadError, ModelNotFoundError, SecurityError
+from errors import ModelError, ModelNotFoundError, SecurityError
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
 # Set up logging with secure defaults
@@ -105,6 +105,7 @@ class FallbackEvent:
         sanitized = {}
         for key, value in details.items():
             # Only allow alphanumeric keys with underscores
+            import re
             if not re.match(r"^[a-zA-Z0-9_]+$", key):
                 continue
             # Convert values to strings and limit length

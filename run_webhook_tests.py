@@ -24,7 +24,7 @@ TEST_WEBHOOK = {
     "is_active": True,
     "created_at": datetime.now(timezone.utc),
     "last_called_at": None,
-    "secret": "test-secret-key"
+    "secret": "test-secret-key",
 }
 
 TEST_EVENT = {
@@ -33,9 +33,10 @@ TEST_EVENT = {
         "user_id": "user-123",
         "username": "testuser",
         "email": "test@example.com",
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    },
 }
+
 
 class WebhookDeliveryTest(unittest.TestCase):
     """Test webhook delivery functionality."""
@@ -46,20 +47,20 @@ class WebhookDeliveryTest(unittest.TestCase):
         mock_response = mock.MagicMock()
         mock_response.status_code = 200
         mock_response.text = '{"status":"ok"}'
-        
+
         with mock.patch("httpx.AsyncClient.post", return_value=mock_response):
             # Create a real webhook service instance for testing
             service = WebhookService()
-            
+
             # Patch the get_webhook method to return our test webhook
             with mock.patch.object(service, "get_webhook", return_value=TEST_WEBHOOK):
                 # Deliver an event
                 delivery = await service.deliver_event(
                     webhook_id=TEST_WEBHOOK_ID,
                     event_type=WebhookEventType.USER_CREATED,
-                    event_data=TEST_EVENT["data"]
+                    event_data=TEST_EVENT["data"],
                 )
-                
+
                 # Assertions
                 self.assertIsNotNone(delivery)
                 self.assertEqual(delivery["webhook_id"], TEST_WEBHOOK_ID)
@@ -73,26 +74,28 @@ class WebhookDeliveryTest(unittest.TestCase):
         # Setup mock for httpx.AsyncClient.post to simulate a failure
         mock_response = mock.MagicMock()
         mock_response.status_code = 500
-        mock_response.text = 'Internal Server Error'
-        mock_response.raise_for_status = mock.MagicMock(side_effect=httpx.HTTPStatusError(
-            "Server error", 
-            request=httpx.Request("POST", TEST_WEBHOOK["url"]), 
-            response=mock_response
-        ))
-        
+        mock_response.text = "Internal Server Error"
+        mock_response.raise_for_status = mock.MagicMock(
+            side_effect=httpx.HTTPStatusError(
+                "Server error",
+                request=httpx.Request("POST", TEST_WEBHOOK["url"]),
+                response=mock_response,
+            )
+        )
+
         with mock.patch("httpx.AsyncClient.post", return_value=mock_response):
             # Create a real webhook service instance for testing
             service = WebhookService()
-            
+
             # Patch the get_webhook method to return our test webhook
             with mock.patch.object(service, "get_webhook", return_value=TEST_WEBHOOK):
                 # Deliver an event
                 delivery = await service.deliver_event(
                     webhook_id=TEST_WEBHOOK_ID,
                     event_type=WebhookEventType.USER_CREATED,
-                    event_data=TEST_EVENT["data"]
+                    event_data=TEST_EVENT["data"],
                 )
-                
+
                 # Assertions
                 self.assertIsNotNone(delivery)
                 self.assertEqual(delivery["webhook_id"], TEST_WEBHOOK_ID)
@@ -106,18 +109,20 @@ class WebhookDeliveryTest(unittest.TestCase):
         """Test handling of connection errors during webhook delivery."""
         # Create a real webhook service instance for testing
         service = WebhookService()
-        
+
         # Patch the get_webhook method to return our test webhook
         with mock.patch.object(service, "get_webhook", return_value=TEST_WEBHOOK):
             # Patch httpx.AsyncClient.post to raise a connection error
-            with mock.patch("httpx.AsyncClient.post", side_effect=httpx.ConnectError("Connection refused")):
+            with mock.patch(
+                "httpx.AsyncClient.post", side_effect=httpx.ConnectError("Connection refused")
+            ):
                 # Deliver an event
                 delivery = await service.deliver_event(
                     webhook_id=TEST_WEBHOOK_ID,
                     event_type=WebhookEventType.USER_CREATED,
-                    event_data=TEST_EVENT["data"]
+                    event_data=TEST_EVENT["data"],
                 )
-                
+
                 # Assertions
                 self.assertIsNotNone(delivery)
                 self.assertEqual(delivery["webhook_id"], TEST_WEBHOOK_ID)
@@ -126,6 +131,7 @@ class WebhookDeliveryTest(unittest.TestCase):
                 self.assertEqual(delivery["attempts"][0]["status"], WebhookDeliveryStatus.FAILED)
                 self.assertIsNone(delivery["attempts"][0]["response_code"])
                 self.assertIn("Connection refused", delivery["attempts"][0]["error_message"])
+
 
 if __name__ == "__main__":
     # Run the tests

@@ -30,8 +30,7 @@ except ImportError:
 
 # Check for aiohttp availability for async operations
 try:
-    import aiohttp
-
+    # aiohttp already imported above
     AIOHTTP_AVAILABLE = True
 except ImportError:
     logger.warning("aiohttp not available. Async operations will not work.")
@@ -54,7 +53,7 @@ class OllamaAdapter(BaseModelAdapter):
         """
         super().__init__(
             name="Ollama",
-            description="Adapter for connecting to Ollama, a local API server for running large language models",
+            description="Adapter for connecting to Ollama, a local API server for LLMs",
         )
 
         if not REQUESTS_AVAILABLE:
@@ -174,7 +173,7 @@ class OllamaAdapter(BaseModelAdapter):
             return standardized_models
 
         except Exception as e:
-            self._handle_error(e, f"Failed to get models from Ollama", operation="get_models")
+            self._handle_error(e, "Failed to get models from Ollama", operation="get_models")
             return []
 
     def get_model_info(self, model_name: str) -> Dict[str, Any]:
