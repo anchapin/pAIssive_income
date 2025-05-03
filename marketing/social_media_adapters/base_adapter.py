@@ -4,13 +4,10 @@ Base adapter for social media platforms.
 This module provides a base class for adapters that connect to various social media platforms.
 """
 
-
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-
-
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -45,7 +42,7 @@ class BaseSocialMediaAdapter(ABC):
     @property
     def is_connected(self) -> bool:
         """Check if the adapter is connected to the platform."""
-                return self._connected
+        return self._connected
 
     @abstractmethod
     def authenticate(self) -> Dict[str, Any]:
@@ -209,4 +206,4 @@ class BaseSocialMediaAdapter(ABC):
         Returns:
             True if the platform has the capability, False otherwise
         """
-                return capability in self.capabilities
+        return capability in self.capabilities

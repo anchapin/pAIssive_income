@@ -4,15 +4,12 @@ Benchmark configuration for AI models.
 This module provides configuration classes for benchmarking AI models.
 """
 
-
 import enum
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
 
 
-class BenchmarkType
-
-(enum.Enum):
+class BenchmarkType(enum.Enum):
     """
     Enumeration of benchmark types.
     """
@@ -67,7 +64,7 @@ class BenchmarkConfig:
         Returns:
             Dictionary representation of the configuration
         """
-                return {
+        return {
             "model_path": self.model_path,
             "model_type": self.model_type,
             "benchmark_type": self.benchmark_type.value,
@@ -114,4 +111,4 @@ class BenchmarkConfig:
         config = cls(benchmark_type=benchmark_type, **config_dict)
 
         config.additional_params = additional_params
-                return config
+        return config

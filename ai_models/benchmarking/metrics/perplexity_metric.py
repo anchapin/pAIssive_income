@@ -1,35 +1,23 @@
 """
-Perplexity metric for benchmarking AI models.
+Perplexity metric for benchmarking language models.
 
 This module provides a metric for measuring the perplexity of language models.
 """
 
-try:
-    import torch
-except ImportError:
-    pass
-
-
 import math
-from typing import Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from .base_metric import BaseMetric
 
-
-    import torch
-    import numpy
-
 # Try to import optional dependencies
 try:
-
-
+    import torch
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-as np
-
+    import numpy as np
     NUMPY_AVAILABLE = True
 except ImportError:
     NUMPY_AVAILABLE = False
@@ -37,7 +25,7 @@ except ImportError:
 
 class PerplexityMetric(BaseMetric):
     """
-    Metric for measuring perplexity.
+    Metric for measuring perplexity of language models.
     """
 
     def __init__(self, **kwargs):
@@ -48,51 +36,50 @@ class PerplexityMetric(BaseMetric):
             **kwargs: Additional parameters for the metric
         """
         super().__init__(name="perplexity", unit="", **kwargs)
-        self.total_loss = 0
+        self.total_loss = 0.0
         self.total_tokens = 0
 
-    def measure(self, func: Callable, texts: List[str], *args, **kwargs) -> float:
+    def measure(
+        self, 
+        model: Any, 
+        tokenizer: Any, 
+        text: Union[str, List[str]], 
+        device: str = "cpu",
+        **kwargs
+    ) -> float:
         """
-        Measure the perplexity of a model on a dataset.
+        Measure the perplexity of a model on text.
 
         Args:
-            func: Function that returns (loss, num_tokens) for a text
-            texts: List of texts
-            *args: Positional arguments for the function
-            **kwargs: Keyword arguments for the function
+            model: Language model
+            tokenizer: Tokenizer for the model
+            text: Input text or list of texts
+            device: Device to run the model on
+            **kwargs: Additional parameters for the model
 
         Returns:
-            Perplexity
+            Perplexity score
         """
-        total_loss = 0
+        if not TORCH_AVAILABLE:
+            raise ImportError("PyTorch is required for perplexity calculation")
+
+        # Convert single text to list
+        if isinstance(text, str):
+            texts = [text]
+        else:
+            texts = text
+
+        # Calculate perplexity for each text
+        total_loss = 0.0
         total_tokens = 0
 
-        for text in texts:
-            # Get loss and number of tokens
-            loss, num_tokens = func(text, *args, **kwargs)
-
-            total_loss += loss * num_tokens
-            total_tokens += num_tokens
+        for input_text in texts:
+            loss, tokens = self._calculate_loss(model, tokenizer, input_text, device, **kwargs)
+            total_loss += loss
+            total_tokens += tokens
 
         # Calculate perplexity
-        if TORCH_AVAILABLE and isinstance(total_loss, torch.Tensor):
-            perplexity = (
-                torch.exp(total_loss / total_tokens).item()
-                if total_tokens > 0
-                else float("in")
-            )
-        elif NUMPY_AVAILABLE and isinstance(total_loss, np.ndarray):
-            perplexity = (
-                float(np.exp(total_loss / total_tokens))
-                if total_tokens > 0
-                else float("in")
-            )
-        else:
-            perplexity = (
-                math.exp(total_loss / total_tokens)
-                if total_tokens > 0
-                else float("in")
-            )
+        perplexity = math.exp(total_loss / total_tokens) if total_tokens > 0 else float('inf')
 
         # Update counters
         self.total_loss += total_loss
@@ -101,71 +88,4 @@ class PerplexityMetric(BaseMetric):
         # Add value
         self.add_value(perplexity)
 
-                return perplexity
-
-    def measure_single(self, loss: float, num_tokens: int) -> float:
-        """
-        Measure the perplexity for a single text.
-
-        Args:
-            loss: Loss value
-            num_tokens: Number of tokens
-
-        Returns:
-            Perplexity
-        """
-        # Calculate perplexity
-        if TORCH_AVAILABLE and isinstance(loss, torch.Tensor):
-            perplexity = torch.exp(loss).item()
-        elif NUMPY_AVAILABLE and isinstance(loss, np.ndarray):
-            perplexity = float(np.exp(loss))
-        else:
-            perplexity = math.exp(loss)
-
-        # Update counters
-        self.total_loss += loss * num_tokens
-        self.total_tokens += num_tokens
-
-        # Add value
-        self.add_value(perplexity)
-
-                return perplexity
-
-    def get_overall_perplexity(self) -> float:
-        """
-        Get the overall perplexity across all measurements.
-
-        Returns:
-            Overall perplexity
-        """
-        if self.total_tokens == 0:
-                    return float("in")
-
-        if TORCH_AVAILABLE and isinstance(self.total_loss, torch.Tensor):
-                    return torch.exp(self.total_loss / self.total_tokens).item()
-        elif NUMPY_AVAILABLE and isinstance(self.total_loss, np.ndarray):
-                    return float(np.exp(self.total_loss / self.total_tokens))
-        else:
-                    return math.exp(self.total_loss / self.total_tokens)
-
-    def reset(self) -> None:
-        """
-        Reset the metric.
-        """
-        super().reset()
-        self.total_loss = 0
-        self.total_tokens = 0
-
-    def get_stats(self) -> Dict[str, float]:
-        """
-        Get statistics about the perplexity values.
-
-        Returns:
-            Dictionary with statistics
-        """
-        stats = super().get_stats()
-
-        # Add overall perplexity
-        stats["overall"] = self.get_overall_perplexity()
-
-                return stats
+        return perplexity

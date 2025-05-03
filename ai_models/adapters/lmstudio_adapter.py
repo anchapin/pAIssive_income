@@ -5,13 +5,9 @@ This module provides an adapter for connecting to LM Studio,
 a desktop application for running large language models locally.
 """
 
-
 import json
 import logging
 from typing import Any, Dict, Generator, List, Optional, Union
-
-
-    import requests
 
 # Set up logging
 logging.basicConfig(
@@ -21,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-
-
+    import requests
     REQUESTS_AVAILABLE = True
 except ImportError:
     logger.warning("Requests not available. LM Studio adapter will not work.")
@@ -102,7 +97,7 @@ class LMStudioAdapter:
             response.raise_for_status()
 
             data = response.json()
-                    return data.get("data", [])
+            return data.get("data", [])
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error listing models: {e}")
@@ -126,7 +121,7 @@ class LMStudioAdapter:
             )
             response.raise_for_status()
 
-                    return response.json()
+            return response.json()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error getting model info for {model_id}: {e}")
@@ -186,9 +181,9 @@ class LMStudioAdapter:
 
         try:
             if stream:
-                        return self._generate_completions_stream(request_data)
+                return self._generate_completions_stream(request_data)
             else:
-                        return self._generate_completions_sync(request_data)
+                return self._generate_completions_sync(request_data)
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error generating completions with {model}: {e}")
@@ -214,7 +209,7 @@ class LMStudioAdapter:
         )
         response.raise_for_status()
 
-                return response.json()
+        return response.json()
 
     def _generate_completions_stream(
         self, request_data: Dict[str, Any]
@@ -314,9 +309,9 @@ class LMStudioAdapter:
 
         try:
             if stream:
-                        return self._generate_chat_completions_stream(request_data)
+                return self._generate_chat_completions_stream(request_data)
             else:
-                        return self._generate_chat_completions_sync(request_data)
+                return self._generate_chat_completions_sync(request_data)
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error generating chat completions with {model}: {e}")
@@ -342,7 +337,7 @@ class LMStudioAdapter:
         )
         response.raise_for_status()
 
-                return response.json()
+        return response.json()
 
     def _generate_chat_completions_stream(
         self, request_data: Dict[str, Any]
@@ -419,7 +414,7 @@ class LMStudioAdapter:
             )
             response.raise_for_status()
 
-                    return response.json()
+            return response.json()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error creating embeddings with {model}: {e}")
@@ -443,7 +438,7 @@ class LMStudioAdapter:
             )
             response.raise_for_status()
 
-                    return response.json()
+            return response.json()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error getting model parameters for {model}: {e}")
@@ -471,7 +466,7 @@ class LMStudioAdapter:
             )
             response.raise_for_status()
 
-                    return response.json()
+            return response.json()
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error setting model parameters for {model}: {e}")

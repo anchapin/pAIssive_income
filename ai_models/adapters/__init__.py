@@ -5,21 +5,16 @@ This package provides adapters for connecting to various AI model frameworks,
 including Ollama, LM Studio, OpenAI-compatible APIs, and GPU acceleration libraries.
 """
 
-
 from .adapter_factory import AdapterFactory, adapter_factory, get_adapter_factory
 from .base_adapter import BaseModelAdapter
 from .lmstudio_adapter import LMStudioAdapter
 from .ollama_adapter import OllamaAdapter
 from .openai_compatible_adapter import OpenAICompatibleAdapter
 
-
-    from .tensorrt_adapter import TensorRTAdapter
-
-    TENSORRT_AVAILABLE 
-
 # Import TensorRT adapter if available
 try:
-= True
+    from .tensorrt_adapter import TensorRTAdapter
+    TENSORRT_AVAILABLE = True
 except ImportError:
     TENSORRT_AVAILABLE = False
 

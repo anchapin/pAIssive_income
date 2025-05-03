@@ -4,16 +4,12 @@ Base metric for benchmarking AI models.
 This module provides the base class for metrics used in benchmarking.
 """
 
-
 import abc
+import statistics
 from typing import Any, Dict
 
 
-class BaseMetric
-
-        import statistics
-
-(abc.ABC):
+class BaseMetric(abc.ABC):
     """
     Base class for benchmark metrics.
     """
@@ -69,10 +65,9 @@ class BaseMetric
             Dictionary with statistics
         """
         if not self.values:
-                    return {}
+            return {}
 
-
-                return {
+        return {
             "min": min(self.values),
             "max": max(self.values),
             "mean": statistics.mean(self.values),
@@ -87,7 +82,7 @@ class BaseMetric
         Returns:
             Dictionary representation of the metric
         """
-                return {
+        return {
             "name": self.name,
             "unit": self.unit,
             "values": self.values,
