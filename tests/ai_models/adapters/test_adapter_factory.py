@@ -2,7 +2,6 @@
 Tests for the AdapterFactory class.
 """
 
-
 import pytest
 
 # Temporarily disabled due to circular import issue with llama_cpp

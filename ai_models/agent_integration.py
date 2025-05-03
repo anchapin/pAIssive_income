@@ -13,7 +13,8 @@ from typing import Any, Dict, List, Optional
 from dependency_container import get_container
 from errors import ModelError, ModelLoadError
 from interfaces.model_interfaces import IModelInfo, IModelManager
-from .fallbacks import FallbackManager, FallbackStrategy, FallbackEvent
+
+from .fallbacks import FallbackEvent, FallbackManager, FallbackStrategy
 from .model_config import ModelConfig
 from .model_manager import ModelManager
 
@@ -25,12 +26,13 @@ logging.basicConfig(
         logging.FileHandler(
             os.path.join(os.path.dirname(__file__), "logs", "agent_integration.log"),
             mode="a",
-            encoding="utf-8"
+            encoding="utf-8",
         ),
-        logging.StreamHandler()
-    ]
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger(__name__)
+
 
 class AgentModelProvider:
     """
@@ -81,18 +83,15 @@ class AgentModelProvider:
                 "developer": ["huggingface", "llama"],
                 "monetization": ["huggingface"],
                 "marketing": ["huggingface"],
-                "default": ["huggingface"]
-            }
+                "default": ["huggingface"],
+            },
         }
 
         # Apply any custom fallback configuration
         if fallback_config:
             # Only update allowed keys to prevent injection of malicious config
             allowed_keys = set(default_fallback_config.keys())
-            sanitized_config = {
-                k: v for k, v in fallback_config.items() 
-                if k in allowed_keys
-            }
+            sanitized_config = {k: v for k, v in fallback_config.items() if k in allowed_keys}
             for key, value in sanitized_config.items():
                 default_fallback_config[key] = value
 
@@ -139,8 +138,7 @@ class AgentModelProvider:
             if not model_info and self.fallback_manager.fallback_enabled:
                 # Try fallback
                 fallback_model_info, event = self.fallback_manager.find_fallback_model(
-                    agent_type=agent_type,
-                    task_type=task_type
+                    agent_type=agent_type, task_type=task_type
                 )
                 model_info = fallback_model_info
 
@@ -162,11 +160,11 @@ class AgentModelProvider:
             raise
 
     def _handle_fallback(
-        self, 
+        self,
         failed_model_id: str,
-        agent_type: str, 
+        agent_type: str,
         task_type: Optional[str],
-        original_error: Exception
+        original_error: Exception,
     ) -> Any:
         """Handle model fallback when primary model fails."""
         logger.warning(
@@ -193,7 +191,7 @@ class AgentModelProvider:
                     raise ModelLoadError(
                         f"Failed to load fallback model {fallback_info.id}: {e}"
                     ) from e
-            
+
             raise ValueError("No fallback models available")
 
         except Exception as e:
@@ -203,30 +201,33 @@ class AgentModelProvider:
             ) from e
 
     def _register_model_assignment(
-        self, 
-        agent_type: str,
-        model_id: str,
-        task_type: Optional[str] = None
+        self, agent_type: str, model_id: str, task_type: Optional[str] = None
     ) -> None:
         """Register a model assignment securely."""
         if agent_type not in self.agent_models:
             self.agent_models[agent_type] = {}
-        
+
         self.agent_models[agent_type][task_type or "default"] = model_id
         logger.info(
             f"Assigned model {model_id} to agent {agent_type}, task {task_type or 'default'}"
         )
 
-    def configure_fallback(self, fallback_enabled: bool = True, fallback_config: Optional[Dict] = None) -> None:
+    def configure_fallback(
+        self, fallback_enabled: bool = True, fallback_config: Optional[Dict] = None
+    ) -> None:
         """Configure fallback behavior securely."""
         try:
             # Validate and sanitize configuration
             if fallback_config:
                 # Validate configuration structure
                 allowed_keys = {
-                    "max_attempts", "default_model_id", "logging_level",
-                    "use_general_purpose_fallback", "fallback_preferences",
-                    "secure_mode", "allowed_model_types"
+                    "max_attempts",
+                    "default_model_id",
+                    "logging_level",
+                    "use_general_purpose_fallback",
+                    "fallback_preferences",
+                    "secure_mode",
+                    "allowed_model_types",
                 }
                 invalid_keys = set(fallback_config.keys()) - allowed_keys
                 if invalid_keys:
@@ -237,7 +238,7 @@ class AgentModelProvider:
                 "max_attempts": 3,
                 "logging_level": logging.INFO,
                 "use_general_purpose_fallback": True,
-                "secure_mode": True
+                "secure_mode": True,
             }
 
             # Apply custom configuration
@@ -271,7 +272,7 @@ class AgentModelProvider:
                 sanitized_metrics[str(strategy)] = {
                     "success_rate": float(data.get("success_rate", 0.0)),
                     "total_attempts": int(data.get("total_attempts", 0)),
-                    "successful_attempts": int(data.get("successful_attempts", 0))
+                    "successful_attempts": int(data.get("successful_attempts", 0)),
                 }
             return sanitized_metrics
         except Exception as e:
@@ -284,7 +285,7 @@ class AgentModelProvider:
             # Validate limit
             limit = max(1, min(1000, limit))  # Constrain between 1 and 1000
             history = self.fallback_manager.get_fallback_history(limit)
-            
+
             # Sanitize history entries
             sanitized_history = []
             for entry in history:
@@ -292,14 +293,15 @@ class AgentModelProvider:
                     "timestamp": str(entry.get("timestamp", "")),
                     "model_id": str(entry.get("model_id", "")),
                     "status": str(entry.get("status", "")),
-                    "error": str(entry.get("error", ""))
+                    "error": str(entry.get("error", "")),
                 }
                 sanitized_history.append(sanitized_entry)
-            
+
             return sanitized_history
         except Exception as e:
             logger.error(f"Error getting fallback history: {e}")
             return []
+
 
 class AgentModelIntegration:
     """Secure integration between AI models and agents."""
@@ -317,21 +319,16 @@ class AgentModelIntegration:
         self._fallback_manager = FallbackManager(
             max_attempts=max_retries,
             fallback_preferences=fallback_preferences,
-            secure_mode=True  # Enable secure mode by default
+            secure_mode=True,  # Enable secure mode by default
         )
 
-    async def get_completion(
-        self, 
-        prompt: str, 
-        model_id: Optional[str] = None, 
-        **kwargs
-    ) -> str:
+    async def get_completion(self, prompt: str, model_id: Optional[str] = None, **kwargs) -> str:
         """Get a secure text completion from an AI model."""
         try:
             # Validate prompt
             if not isinstance(prompt, str):
                 raise ValueError("Prompt must be a string")
-            
+
             # Limit prompt length for security
             max_prompt_length = 4096  # Reasonable limit
             if len(prompt) > max_prompt_length:
@@ -339,10 +336,7 @@ class AgentModelIntegration:
 
             # Sanitize kwargs
             allowed_kwargs = {"temperature", "max_tokens", "top_p", "top_k"}
-            sanitized_kwargs = {
-                k: v for k, v in kwargs.items() 
-                if k in allowed_kwargs
-            }
+            sanitized_kwargs = {k: v for k, v in kwargs.items() if k in allowed_kwargs}
 
             # Use fallback manager to handle retries and model switching
             async def completion_attempt(current_model_id: str) -> str:
@@ -360,17 +354,14 @@ class AgentModelIntegration:
             raise ModelError("Failed to generate completion") from e
 
     async def get_embedding(
-        self, 
-        text: str, 
-        model_id: Optional[str] = None, 
-        **kwargs
+        self, text: str, model_id: Optional[str] = None, **kwargs
     ) -> List[float]:
         """Get secure embeddings from an AI model."""
         try:
             # Validate input
             if not isinstance(text, str):
                 raise ValueError("Text must be a string")
-            
+
             # Limit input length for security
             max_text_length = 4096  # Reasonable limit
             if len(text) > max_text_length:
@@ -378,19 +369,18 @@ class AgentModelIntegration:
 
             # Sanitize kwargs
             allowed_kwargs = {"pooling", "normalize"}
-            sanitized_kwargs = {
-                k: v for k, v in kwargs.items() 
-                if k in allowed_kwargs
-            }
+            sanitized_kwargs = {k: v for k, v in kwargs.items() if k in allowed_kwargs}
 
             async def embedding_attempt(current_model_id: str) -> List[float]:
                 model = await self.model_manager.load_model_async(current_model_id)
                 embeddings = await model.generate_embeddings(text, **sanitized_kwargs)
-                
+
                 # Validate embeddings
-                if not isinstance(embeddings, list) or not all(isinstance(x, float) for x in embeddings):
+                if not isinstance(embeddings, list) or not all(
+                    isinstance(x, float) for x in embeddings
+                ):
                     raise ValueError("Invalid embedding format")
-                    
+
                 return embeddings
 
             return await self._fallback_manager.execute_with_fallbacks(

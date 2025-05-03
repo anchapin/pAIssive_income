@@ -4,27 +4,28 @@ Tests for mock model providers.
 This module demonstrates how to use the mock model providers in tests.
 """
 
-import unittest
 import os
 import sys
-from typing import Dict, List, Any, Optional
-import pytest
+import unittest
+from typing import Any, Dict, List, Optional
+
 import numpy as np
+import pytest
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from tests.mocks.mock_model_providers import (
-    create_mock_provider,
-    MockOpenAIProvider,
-    MockOllamaProvider,
-    MockLMStudioProvider,
-    MockHuggingFaceProvider,
-    MockLocalModelProvider,
-    MockONNXProvider
-)
-from ai_models.model_manager import ModelManager, ModelInfo
 from ai_models.model_config import ModelConfig
+from ai_models.model_manager import ModelInfo, ModelManager
+from tests.mocks.mock_model_providers import (
+    MockHuggingFaceProvider,
+    MockLMStudioProvider,
+    MockLocalModelProvider,
+    MockOllamaProvider,
+    MockONNXProvider,
+    MockOpenAIProvider,
+    create_mock_provider,
+)
 
 
 class TestMockProviders(unittest.TestCase):
@@ -52,15 +53,12 @@ class TestMockProviders(unittest.TestCase):
         self.assertIsInstance(onnx_provider, MockONNXProvider)
 
         # Test with custom configuration
-        custom_config = {
-            "default_completion": "This is a custom response",
-            "success_rate": 1.0
-        }
+        custom_config = {"default_completion": "This is a custom response", "success_rate": 1.0}
         custom_provider = create_mock_provider("openai", config=custom_config)
         self.assertEqual(custom_provider.success_rate, 1.0)
         self.assertEqual(
             custom_provider.mock_responses["chat_completion"]["choices"][0]["message"]["content"],
-            "This is a custom response"
+            "This is a custom response",
         )
 
         # Test with invalid provider type
@@ -129,7 +127,9 @@ class TestMockProviders(unittest.TestCase):
 
         # Test with invalid capability
         with self.assertRaises(ValueError):
-            provider.text_classification("gpt2", "Hello, world!")  # gpt2 doesn't support classification
+            provider.text_classification(
+                "gpt2", "Hello, world!"
+            )  # gpt2 doesn't support classification
 
     def test_local_mock_provider(self):
         """Test the local model mock provider."""
@@ -214,7 +214,7 @@ class TestMockProviders(unittest.TestCase):
             name="Mock HF Model",
             type="huggingface",
             path="gpt2",
-            description="Mock Hugging Face model for testing"
+            description="Mock Hugging Face model for testing",
         )
         manager.register_model(hf_model)
 
@@ -226,7 +226,7 @@ class TestMockProviders(unittest.TestCase):
             path=os.path.join(temp_dir, "mock-model.gguf"),
             description="Mock local GGUF model for testing",
             format="gguf",
-            quantization="q4_k_m"
+            quantization="q4_k_m",
         )
         # Create an empty file to simulate the model
         with open(local_model.path, "w") as f:
@@ -277,7 +277,7 @@ def mock_providers():
         "local": MockLocalModelProvider(),
         "onnx": MockONNXProvider(),
         "ollama": MockOllamaProvider(),
-        "lmstudio": MockLMStudioProvider()
+        "lmstudio": MockLMStudioProvider(),
     }
     return providers
 
@@ -286,8 +286,7 @@ def test_usage_with_pytest(mock_openai_provider, mock_providers):
     """Example test using pytest fixtures."""
     # Test with a single provider fixture
     response = mock_openai_provider.create_chat_completion(
-        "gpt-3.5-turbo",
-        [{"role": "user", "content": "Hello, pytest!"}]
+        "gpt-3.5-turbo", [{"role": "user", "content": "Hello, pytest!"}]
     )
     assert "choices" in response
     assert "message" in response["choices"][0]

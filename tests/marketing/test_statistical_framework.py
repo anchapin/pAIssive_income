@@ -2,19 +2,20 @@
 Tests for the statistical analysis framework used in marketing.
 """
 
-import pytest
-import numpy as np
-from scipy import stats
 from unittest.mock import MagicMock, patch
 
+import numpy as np
+import pytest
+from scipy import stats
+
+from marketing.errors import InsufficientDataError, InvalidTestConfigurationError
 from marketing.statistical_framework import (
-    StatisticalTestRunner,
     ConfidenceIntervalCalculator,
     EffectSizeEstimator,
     MultipleTestingAdjuster,
-    SequentialAnalyzer
+    SequentialAnalyzer,
+    StatisticalTestRunner,
 )
-from marketing.errors import InsufficientDataError, InvalidTestConfigurationError
 
 
 class TestStatisticalFramework:
@@ -69,9 +70,7 @@ class TestStatisticalFramework:
         total_b = 1000
 
         # Run z-test
-        result = self.test_runner.run_z_test_proportions(
-            success_a, total_a, success_b, total_b
-        )
+        result = self.test_runner.run_z_test_proportions(success_a, total_a, success_b, total_b)
 
         # Validate results
         assert "z_statistic" in result
@@ -113,9 +112,7 @@ class TestStatisticalFramework:
         # Test relative risk
         a_success, a_total = 150, 1000
         b_success, b_total = 180, 1000
-        rr = self.effect_estimator.relative_risk(
-            a_success, a_total, b_success, b_total
-        )
+        rr = self.effect_estimator.relative_risk(a_success, a_total, b_success, b_total)
 
         # Validate relative risk
         assert isinstance(rr, float)
@@ -141,21 +138,13 @@ class TestStatisticalFramework:
         """Test sequential analysis methods."""
         # Initialize sequential test
         test = self.sequential_analyzer.init_test(
-            min_sample=100,
-            max_sample=1000,
-            effect_size=0.1,
-            alpha=0.05,
-            beta=0.2
+            min_sample=100, max_sample=1000, effect_size=0.1, alpha=0.05, beta=0.2
         )
 
         # Add observations
         for _ in range(5):
             result = self.sequential_analyzer.update_analysis(
-                test,
-                successes_a=30,
-                total_a=100,
-                successes_b=35,
-                total_b=100
+                test, successes_a=30, total_a=100, successes_b=35, total_b=100
             )
 
         # Validate sequential analysis
@@ -167,22 +156,14 @@ class TestStatisticalFramework:
     def test_power_analysis(self):
         """Test power analysis calculations."""
         # Calculate required sample size
-        sample_size = self.test_runner.calculate_sample_size(
-            effect_size=0.2,
-            alpha=0.05,
-            power=0.8
-        )
+        sample_size = self.test_runner.calculate_sample_size(effect_size=0.2, alpha=0.05, power=0.8)
 
         # Validate sample size calculation
         assert isinstance(sample_size, int)
         assert sample_size > 0
 
         # Calculate achieved power
-        power = self.test_runner.calculate_power(
-            effect_size=0.2,
-            sample_size=1000,
-            alpha=0.05
-        )
+        power = self.test_runner.calculate_power(effect_size=0.2, sample_size=1000, alpha=0.05)
 
         # Validate power calculation
         assert 0 <= power <= 1
@@ -194,10 +175,7 @@ class TestStatisticalFramework:
         success_count = 20
 
         # Check sample size assumption
-        result = self.test_runner.check_sample_size_assumption(
-            sample_size,
-            success_count
-        )
+        result = self.test_runner.check_sample_size_assumption(sample_size, success_count)
         assert isinstance(result, bool)
 
         # Check normality assumption
@@ -212,10 +190,7 @@ class TestStatisticalFramework:
         # Test with insufficient data
         with pytest.raises(InsufficientDataError):
             self.test_runner.run_z_test_proportions(
-                success_a=0,
-                total_a=0,
-                success_b=10,
-                total_b=100
+                success_a=0, total_a=0, success_b=10, total_b=100
             )
 
         # Test with invalid proportions
@@ -225,9 +200,7 @@ class TestStatisticalFramework:
         # Test with invalid confidence level
         with pytest.raises(ValueError):
             self.ci_calculator.calculate_proportion_ci(
-                successes=10,
-                total=100,
-                confidence_level=1.5  # Invalid confidence level > 1
+                successes=10, total=100, confidence_level=1.5  # Invalid confidence level > 1
             )
 
     def test_test_selection(self):
@@ -235,18 +208,16 @@ class TestStatisticalFramework:
         # Test data for different scenarios
         small_sample = {"successes": 5, "total": 50}
         large_sample = {"successes": 150, "total": 1000}
-        
+
         # Test small sample scenario
         test_type = self.test_runner.select_appropriate_test(
-            sample_a=small_sample,
-            sample_b=small_sample
+            sample_a=small_sample, sample_b=small_sample
         )
         assert test_type == "fisher"  # Should select Fisher's exact test
 
         # Test large sample scenario
         test_type = self.test_runner.select_appropriate_test(
-            sample_a=large_sample,
-            sample_b=large_sample
+            sample_a=large_sample, sample_b=large_sample
         )
         assert test_type in ["chi_square", "z_test"]  # Should select chi-square or z-test
 

@@ -2,14 +2,15 @@
 Basic integration tests for webhook security features.
 """
 
-import unittest
-import sys
-import json
-import hmac
-import hashlib
 import base64
+import hashlib
+import hmac
+import json
+import sys
 import time
-from typing import Dict, List, Any, Optional, Set
+import unittest
+from typing import Any, Dict, List, Optional, Set
+
 
 class WebhookSignatureVerifier:
     """Webhook signature verification."""

@@ -5,10 +5,11 @@ This module provides Pydantic models for data validation in the Marketing module
 """
 
 import uuid
-from typing import Dict, List, Any, Optional, Union, Literal
-from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Literal, Optional, Union
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 # Enums

@@ -4,18 +4,19 @@ Tests for the Monetization GraphQL API.
 This module contains tests for Monetization GraphQL queries and mutations.
 """
 
+from typing import Any, Dict, List
+
 import pytest
-from typing import Dict, Any, List
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_monetization_strategy_data
-)
+from tests.api.utils.test_data import generate_id, generate_monetization_strategy_data
 from tests.api.utils.test_validators import (
-    validate_json_response, validate_field_exists,
-    validate_field_equals, validate_field_type,
-    validate_field_not_empty
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_not_empty,
+    validate_field_type,
+    validate_json_response,
 )
 
 
@@ -62,10 +63,7 @@ class TestMonetizationGraphQLAPI:
         """
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
+        response = api_test_client.post("graphql", json={"query": query})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -151,11 +149,7 @@ class TestMonetizationGraphQLAPI:
 
         # Make request
         response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"id": strategy_id}
-            }
+            "graphql", json={"query": query, "variables": {"id": strategy_id}}
         )
 
         # Validate response structure
@@ -166,7 +160,7 @@ class TestMonetizationGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "monetizationStrategy")
-            
+
             # The strategy might not exist, which is fine
             if data["monetizationStrategy"]:
                 strategy = data["monetizationStrategy"]
@@ -241,18 +235,12 @@ class TestMonetizationGraphQLAPI:
             "timeframe": {
                 "startDate": "2025-05-01",
                 "endDate": "2026-04-30",
-                "periodicity": "MONTHLY"
-            }
+                "periodicity": "MONTHLY",
+            },
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": variables
-            }
-        )
+        response = api_test_client.post("graphql", json={"query": query, "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -262,7 +250,7 @@ class TestMonetizationGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "revenueProjections")
-            
+
             if data["revenueProjections"]:
                 projections = data["revenueProjections"]
                 validate_field_exists(projections, "periods")
@@ -308,18 +296,12 @@ class TestMonetizationGraphQLAPI:
                 "name": test_data["name"],
                 "description": test_data["description"],
                 "solutionId": test_data["solution_id"],
-                "model": test_data["model"]
+                "model": test_data["model"],
             }
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -329,7 +311,7 @@ class TestMonetizationGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "createMonetizationStrategy")
-            
+
             if data["createMonetizationStrategy"]:
                 strategy = data["createMonetizationStrategy"]
                 validate_field_exists(strategy, "id")
@@ -384,18 +366,12 @@ class TestMonetizationGraphQLAPI:
                 "name": test_data["name"],
                 "description": test_data["description"],
                 "solutionId": test_data["solution_id"],
-                "model": test_data["model"]
-            }
+                "model": test_data["model"],
+            },
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -405,7 +381,7 @@ class TestMonetizationGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "updateMonetizationStrategy")
-            
+
             # The update might return None if strategy doesn't exist
             if data["updateMonetizationStrategy"]:
                 strategy = data["updateMonetizationStrategy"]
@@ -435,11 +411,7 @@ class TestMonetizationGraphQLAPI:
 
         # Make request
         response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": {"id": strategy_id}
-            }
+            "graphql", json={"query": mutation, "variables": {"id": strategy_id}}
         )
 
         # Validate response structure
@@ -504,22 +476,12 @@ class TestMonetizationGraphQLAPI:
             "input": {
                 "strategyId": strategy_id,
                 "optimizationGoal": "MAXIMIZE_REVENUE",
-                "constraints": {
-                    "minPrice": 5.0,
-                    "maxPrice": 100.0,
-                    "maxPriceChange": 25
-                }
+                "constraints": {"minPrice": 5.0, "maxPrice": 100.0, "maxPriceChange": 25},
             }
         }
 
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -529,7 +491,7 @@ class TestMonetizationGraphQLAPI:
         if "errors" not in result:
             data = result["data"]
             validate_field_exists(data, "optimizePricing")
-            
+
             if data["optimizePricing"]:
                 optimization = data["optimizePricing"]
                 validate_field_exists(optimization, "strategyId")
@@ -549,10 +511,7 @@ class TestMonetizationGraphQLAPI:
         }
         """
 
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
+        response = api_test_client.post("graphql", json={"query": query})
         result = validate_json_response(response)
         validate_field_exists(result, "errors")
 
@@ -575,8 +534,8 @@ class TestMonetizationGraphQLAPI:
                         # Missing required fields
                         "description": "Invalid strategy"
                     }
-                }
-            }
+                },
+            },
         )
         result = validate_json_response(response)
         validate_field_exists(result, "errors")

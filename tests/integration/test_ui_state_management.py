@@ -5,13 +5,14 @@ This module contains tests for UI event handling and state management across
 different UI components.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from ui.web_ui import WebUI
+import pytest
+
 from ui.cli_ui import CommandLineInterface
-from ui.state_management import StateManager, UIState, StateTransition
 from ui.event_handlers import EventHandler
+from ui.state_management import StateManager, StateTransition, UIState
+from ui.web_ui import WebUI
 
 
 @pytest.fixture
@@ -56,15 +57,15 @@ class TestUIStateManagement:
         """Test state transition."""
         # Transition to a new state
         state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
-        
+
         # Check new state
         assert state_manager.current_state == UIState.NICHE_ANALYSIS
         assert state_manager.previous_state == UIState.INITIAL
         assert state_manager.state_data == {"market_segments": ["e-commerce"]}
-        
+
         # Transition to another state
         state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
-        
+
         # Check new state
         assert state_manager.current_state == UIState.SOLUTION_DEVELOPMENT
         assert state_manager.previous_state == UIState.NICHE_ANALYSIS
@@ -76,7 +77,7 @@ class TestUIStateManagement:
         state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
         state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
         state_manager.transition_to(UIState.MONETIZATION, {"solution_id": "solution1"})
-        
+
         # Check state history
         history = state_manager.get_state_history()
         assert len(history) == 4  # Including initial state
@@ -90,17 +91,17 @@ class TestUIStateManagement:
         # Transition through several states
         state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
         state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
-        
+
         # Rollback to previous state
         state_manager.rollback()
-        
+
         # Check current state
         assert state_manager.current_state == UIState.NICHE_ANALYSIS
         assert state_manager.state_data == {"market_segments": ["e-commerce"]}
-        
+
         # Rollback again
         state_manager.rollback()
-        
+
         # Check current state
         assert state_manager.current_state == UIState.INITIAL
         assert state_manager.state_data == {}
@@ -108,32 +109,32 @@ class TestUIStateManagement:
     def test_web_ui_state_integration(self, web_ui_with_state):
         """Test Web UI integration with state management."""
         ui = web_ui_with_state
-        
+
         # Simulate user actions that change state
         ui.state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
-        
+
         # Check UI state
         assert ui.state_manager.current_state == UIState.NICHE_ANALYSIS
-        
+
         # Simulate selecting a niche
         ui.state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
-        
+
         # Check UI state
         assert ui.state_manager.current_state == UIState.SOLUTION_DEVELOPMENT
 
     def test_cli_ui_state_integration(self, cli_ui_with_state):
         """Test CLI UI integration with state management."""
         ui = cli_ui_with_state
-        
+
         # Simulate user commands that change state
         ui.state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
-        
+
         # Check UI state
         assert ui.state_manager.current_state == UIState.NICHE_ANALYSIS
-        
+
         # Simulate selecting a niche
         ui.state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
-        
+
         # Check UI state
         assert ui.state_manager.current_state == UIState.SOLUTION_DEVELOPMENT
 
@@ -141,18 +142,20 @@ class TestUIStateManagement:
         """Test event handling."""
         ui = web_ui_with_state
         ui.event_handler = event_handler
-        
+
         # Mock event handlers
         event_handler.handle_niche_selected = MagicMock()
         event_handler.handle_solution_developed = MagicMock()
-        
+
         # Simulate events
         ui.handle_event("niche_selected", {"niche_id": "niche1"})
         ui.handle_event("solution_developed", {"solution_id": "solution1"})
-        
+
         # Check that event handlers were called
         event_handler.handle_niche_selected.assert_called_once_with(ui, {"niche_id": "niche1"})
-        event_handler.handle_solution_developed.assert_called_once_with(ui, {"solution_id": "solution1"})
+        event_handler.handle_solution_developed.assert_called_once_with(
+            ui, {"solution_id": "solution1"}
+        )
 
     def test_state_validation(self, state_manager):
         """Test state validation."""
@@ -163,24 +166,28 @@ class TestUIStateManagement:
             UIState.SOLUTION_DEVELOPMENT: [UIState.MONETIZATION, UIState.MARKETING],
             UIState.MONETIZATION: [UIState.MARKETING, UIState.EXPORT],
             UIState.MARKETING: [UIState.EXPORT],
-            UIState.EXPORT: [UIState.INITIAL]
+            UIState.EXPORT: [UIState.INITIAL],
         }
-        
+
         # Set valid transitions
         state_manager.set_valid_transitions(valid_transitions)
-        
+
         # Test valid transition
         assert state_manager.is_valid_transition(UIState.INITIAL, UIState.NICHE_ANALYSIS)
-        assert state_manager.is_valid_transition(UIState.NICHE_ANALYSIS, UIState.SOLUTION_DEVELOPMENT)
-        
+        assert state_manager.is_valid_transition(
+            UIState.NICHE_ANALYSIS, UIState.SOLUTION_DEVELOPMENT
+        )
+
         # Test invalid transition
         assert not state_manager.is_valid_transition(UIState.INITIAL, UIState.MONETIZATION)
         assert not state_manager.is_valid_transition(UIState.NICHE_ANALYSIS, UIState.MARKETING)
-        
+
         # Test transition with validation
-        state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]}, validate=True)
+        state_manager.transition_to(
+            UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]}, validate=True
+        )
         assert state_manager.current_state == UIState.NICHE_ANALYSIS
-        
+
         # Test invalid transition with validation
         with pytest.raises(StateTransition.InvalidTransitionError):
             state_manager.transition_to(UIState.EXPORT, {}, validate=True)
@@ -189,16 +196,16 @@ class TestUIStateManagement:
         """Test state persistence."""
         # Transition to a state
         state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
-        
+
         # Save state
         state_data = state_manager.serialize()
-        
+
         # Create a new state manager
         new_state_manager = StateManager()
-        
+
         # Load state
         new_state_manager.deserialize(state_data)
-        
+
         # Check state
         assert new_state_manager.current_state == UIState.NICHE_ANALYSIS
         assert new_state_manager.state_data == {"market_segments": ["e-commerce"]}
@@ -207,20 +214,22 @@ class TestUIStateManagement:
         """Test state synchronization between different UI components."""
         web_ui = web_ui_with_state
         cli_ui = cli_ui_with_state
-        
+
         # Share the same state manager
         cli_ui.state_manager = web_ui.state_manager
-        
+
         # Change state in web UI
-        web_ui.state_manager.transition_to(UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]})
-        
+        web_ui.state_manager.transition_to(
+            UIState.NICHE_ANALYSIS, {"market_segments": ["e-commerce"]}
+        )
+
         # Check state in CLI UI
         assert cli_ui.state_manager.current_state == UIState.NICHE_ANALYSIS
         assert cli_ui.state_manager.state_data == {"market_segments": ["e-commerce"]}
-        
+
         # Change state in CLI UI
         cli_ui.state_manager.transition_to(UIState.SOLUTION_DEVELOPMENT, {"niche_id": "niche1"})
-        
+
         # Check state in web UI
         assert web_ui.state_manager.current_state == UIState.SOLUTION_DEVELOPMENT
         assert web_ui.state_manager.state_data == {"niche_id": "niche1"}

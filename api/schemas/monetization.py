@@ -4,15 +4,17 @@ Monetization schemas for the API server.
 This module provides Pydantic models for Monetization API request and response validation.
 """
 
-from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field
 from datetime import datetime
-from uuid import UUID
 from enum import Enum
+from typing import Any, Dict, List, Optional
+from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 
 class SubscriptionType(str, Enum):
     """Subscription type enumeration."""
+
     FREEMIUM = "freemium"
     TIERED = "tiered"
     USAGE_BASED = "usage_based"
@@ -21,6 +23,7 @@ class SubscriptionType(str, Enum):
 
 class BillingPeriod(str, Enum):
     """Billing period enumeration."""
+
     MONTHLY = "monthly"
     QUARTERLY = "quarterly"
     ANNUAL = "annual"
@@ -29,6 +32,7 @@ class BillingPeriod(str, Enum):
 
 class FeatureResponse(BaseModel):
     """Feature response model."""
+
     id: str = Field(..., description="Feature ID")
     name: str = Field(..., description="Feature name")
     description: str = Field(..., description="Feature description")
@@ -38,6 +42,7 @@ class FeatureResponse(BaseModel):
 
 class PricingTierResponse(BaseModel):
     """Pricing tier response model."""
+
     id: str = Field(..., description="Tier ID")
     name: str = Field(..., description="Tier name")
     description: str = Field(..., description="Tier description")
@@ -53,6 +58,7 @@ class PricingTierResponse(BaseModel):
 
 class SubscriptionModelRequest(BaseModel):
     """Subscription model request model."""
+
     name: str = Field(..., description="Model name")
     description: str = Field(..., description="Model description")
     solution_id: str = Field(..., description="Solution ID")
@@ -63,6 +69,7 @@ class SubscriptionModelRequest(BaseModel):
 
 class SubscriptionModelResponse(BaseModel):
     """Subscription model response model."""
+
     id: str = Field(..., description="Model ID")
     name: str = Field(..., description="Model name")
     description: str = Field(..., description="Model description")
@@ -76,6 +83,7 @@ class SubscriptionModelResponse(BaseModel):
 
 class RevenueProjectionRequest(BaseModel):
     """Revenue projection request model."""
+
     subscription_model_id: str = Field(..., description="Subscription model ID")
     initial_users: int = Field(..., description="Initial number of users")
     growth_rate: float = Field(..., description="Monthly growth rate (0-1)")
@@ -86,6 +94,7 @@ class RevenueProjectionRequest(BaseModel):
 
 class RevenueProjectionResponse(BaseModel):
     """Revenue projection response model."""
+
     id: str = Field(..., description="Projection ID")
     subscription_model_id: str = Field(..., description="Subscription model ID")
     initial_users: int = Field(..., description="Initial number of users")
@@ -93,7 +102,9 @@ class RevenueProjectionResponse(BaseModel):
     churn_rate: float = Field(..., description="Monthly churn rate (0-1)")
     conversion_rate: float = Field(..., description="Conversion rate from free to paid (0-1)")
     time_period: int = Field(..., description="Projection time period in months")
-    monthly_projections: List[Dict[str, Any]] = Field(..., description="Monthly revenue projections")
+    monthly_projections: List[Dict[str, Any]] = Field(
+        ..., description="Monthly revenue projections"
+    )
     total_revenue: float = Field(..., description="Total projected revenue")
     total_users: int = Field(..., description="Total projected users")
     created_at: datetime = Field(..., description="Creation timestamp")

@@ -4,21 +4,30 @@ Tests for the niche analysis API.
 This module contains tests for the niche analysis API endpoints.
 """
 
+from typing import Any, Dict, List
+
 import pytest
-from typing import Dict, Any, List
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_niche_analysis_data, generate_niche_data
-)
+from tests.api.utils.test_data import generate_id, generate_niche_analysis_data, generate_niche_data
 from tests.api.utils.test_validators import (
-    validate_status_code, validate_json_response, validate_error_response,
-    validate_success_response, validate_paginated_response, validate_bulk_response,
-    validate_field_exists, validate_field_equals, validate_field_type,
-    validate_field_not_empty, validate_list_not_empty, validate_list_length,
-    validate_list_min_length, validate_list_max_length, validate_list_contains,
-    validate_list_contains_dict_with_field
+    validate_bulk_response,
+    validate_error_response,
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_not_empty,
+    validate_field_type,
+    validate_json_response,
+    validate_list_contains,
+    validate_list_contains_dict_with_field,
+    validate_list_length,
+    validate_list_max_length,
+    validate_list_min_length,
+    validate_list_not_empty,
+    validate_paginated_response,
+    validate_status_code,
+    validate_success_response,
 )
 
 
@@ -29,79 +38,79 @@ class TestNicheAnalysisAPI:
         """Test analyzing a niche."""
         # Generate test data
         data = generate_niche_analysis_data()
-        
+
         # Make request
         response = api_test_client.post("niche-analysis/analyze", data)
-        
+
         # Validate response
         result = validate_success_response(response, 202)  # Accepted (async operation)
-        
+
         # Validate fields
         validate_field_exists(result, "task_id")
         validate_field_type(result, "task_id", str)
         validate_field_not_empty(result, "task_id")
-        
+
         # Validate that the response includes a status URL
         validate_field_exists(result, "status_url")
         validate_field_type(result, "status_url", str)
         validate_field_not_empty(result, "status_url")
-    
+
     def test_get_analyses(self, api_test_client: APITestClient):
         """Test getting all niche analyses."""
         # Make request
         response = api_test_client.get("niche-analysis/analyses")
-        
+
         # Validate response
         result = validate_paginated_response(response)
-        
+
         # Validate items
         validate_field_type(result, "items", list)
-    
+
     def test_get_analysis(self, api_test_client: APITestClient):
         """Test getting a specific niche analysis."""
         # Generate a random ID
         analysis_id = generate_id()
-        
+
         # Make request
         response = api_test_client.get(f"niche-analysis/analyses/{analysis_id}")
-        
+
         # This might return 404 if the analysis doesn't exist, which is fine for testing
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
             result = validate_success_response(response)
-            
+
             # Validate fields
             validate_field_exists(result, "id")
             validate_field_equals(result, "id", analysis_id)
             validate_field_exists(result, "market_segments")
             validate_field_type(result, "market_segments", list)
-    
+
     def test_get_niches(self, api_test_client: APITestClient):
         """Test getting all niches."""
         # Make request
         response = api_test_client.get("niche-analysis/niches")
-        
+
         # Validate response
         result = validate_paginated_response(response)
-        
+
         # Validate items
         validate_field_type(result, "items", list)
-    
+
     def test_get_niche(self, api_test_client: APITestClient):
         """Test getting a specific niche."""
         # Generate a random ID
         niche_id = generate_id()
-        
+
         # Make request
         response = api_test_client.get(f"niche-analysis/niches/{niche_id}")
-        
+
         # This might return 404 if the niche doesn't exist, which is fine for testing
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
             result = validate_success_response(response)
-            
+
             # Validate fields
             validate_field_exists(result, "id")
             validate_field_equals(result, "id", niche_id)
@@ -113,33 +122,33 @@ class TestNicheAnalysisAPI:
             validate_field_type(result, "market_segments", list)
             validate_field_exists(result, "opportunity_score")
             assert isinstance(result["opportunity_score"], (int, float))
-    
+
     def test_get_segments(self, api_test_client: APITestClient):
         """Test getting all market segments."""
         # Make request
         response = api_test_client.get("niche-analysis/segments")
-        
+
         # Validate response
         result = validate_success_response(response)
-        
+
         # Validate fields
         validate_field_exists(result, "segments")
         validate_field_type(result, "segments", list)
-    
+
     def test_bulk_create_niches(self, api_test_client: APITestClient):
         """Test bulk creating niches."""
         # Generate test data
         niches = [generate_niche_data() for _ in range(3)]
-        
+
         # Make request
         response = api_test_client.bulk_create("niche-analysis/niches", niches)
-        
+
         # Validate response
         result = validate_bulk_response(response, 201)  # Created
-        
+
         # Validate stats
         validate_field_equals(result["stats"], "total", 3)
-    
+
     def test_filter_niches(self, api_test_client: APITestClient):
         """Test filtering niches."""
         # Make request with filter
@@ -149,41 +158,41 @@ class TestNicheAnalysisAPI:
                 "filter": "market_segments:contains:e-commerce",
                 "sort": "opportunity_score:desc",
                 "page": 1,
-                "page_size": 10
-            }
+                "page_size": 10,
+            },
         )
-        
+
         # Validate response
         result = validate_paginated_response(response)
-        
+
         # Validate items
         validate_field_type(result, "items", list)
-        
+
         # If there are items, validate that they match the filter
         if result["items"]:
             for item in result["items"]:
                 validate_field_exists(item, "market_segments")
                 validate_list_contains(item["market_segments"], "e-commerce")
-    
+
     def test_invalid_analysis_request(self, api_test_client: APITestClient):
         """Test invalid analysis request."""
         # Make request with invalid data
         response = api_test_client.post("niche-analysis/analyze", {})
-        
+
         # Validate error response
         validate_error_response(response, 422)  # Unprocessable Entity
-    
+
     def test_nonexistent_niche(self, api_test_client: APITestClient):
         """Test getting a nonexistent niche."""
         # Generate a random ID that is unlikely to exist
         niche_id = "nonexistent-" + generate_id()
-        
+
         # Make request
         response = api_test_client.get(f"niche-analysis/niches/{niche_id}")
-        
+
         # Validate error response
         validate_error_response(response, 404)  # Not Found
-    
+
     def test_get_analysis_results_by_id(self, api_test_client: APITestClient):
         """Test getting analysis results by ID."""
         # First create an analysis
@@ -191,15 +200,15 @@ class TestNicheAnalysisAPI:
         analysis_response = api_test_client.post("niche-analysis/analyze", data)
         analysis_result = validate_success_response(analysis_response, 202)
         analysis_id = analysis_result["task_id"]
-        
+
         # Make request for results
         response = api_test_client.get(f"niche-analysis/results/{analysis_id}")
-        
+
         # Handle both completed and in-progress states
         if response.status_code == 200:
             # Analysis complete
             result = validate_success_response(response)
-            
+
             # Validate fields
             validate_field_exists(result, "id")
             validate_field_equals(result, "id", analysis_id)
@@ -207,7 +216,7 @@ class TestNicheAnalysisAPI:
             validate_field_equals(result, "status", "completed")
             validate_field_exists(result, "results")
             validate_field_type(result, "results", list)
-            
+
             # Validate result items
             if result["results"]:
                 first_result = result["results"][0]
@@ -230,13 +239,13 @@ class TestNicheAnalysisAPI:
         """Test getting all analysis results."""
         # Make request
         response = api_test_client.get("niche-analysis/results")
-        
+
         # Validate response
         result = validate_paginated_response(response)
-        
+
         # Validate items structure
         validate_field_type(result, "items", list)
-        
+
         # If there are items, validate their structure
         if result["items"]:
             first_item = result["items"][0]
@@ -244,7 +253,7 @@ class TestNicheAnalysisAPI:
             validate_field_exists(first_item, "status")
             validate_field_exists(first_item, "created_at")
             validate_field_exists(first_item, "updated_at")
-            
+
             # If the analysis is complete, validate results
             if first_item["status"] == "completed":
                 validate_field_exists(first_item, "results")
@@ -255,20 +264,15 @@ class TestNicheAnalysisAPI:
         # Make request with filters
         response = api_test_client.get(
             "niche-analysis/results",
-            params={
-                "status": "completed",
-                "sort": "created_at:desc",
-                "page": 1,
-                "page_size": 10
-            }
+            params={"status": "completed", "sort": "created_at:desc", "page": 1, "page_size": 10},
         )
-        
+
         # Validate response
         result = validate_paginated_response(response)
-        
+
         # Validate items
         validate_field_type(result, "items", list)
-        
+
         # If there are items, validate they match the filter
         if result["items"]:
             for item in result["items"]:
@@ -278,10 +282,10 @@ class TestNicheAnalysisAPI:
         """Test getting results for a nonexistent analysis."""
         # Generate a random ID that is unlikely to exist
         analysis_id = "nonexistent-" + generate_id()
-        
+
         # Make request
         response = api_test_client.get(f"niche-analysis/results/{analysis_id}")
-        
+
         # Validate error response
         validate_error_response(response, 404)  # Not Found
 
@@ -298,8 +302,8 @@ class TestNicheAnalysisAPI:
             "metadata": {
                 "complexity": "medium",
                 "implementation_time": "3-6 months",
-                "initial_investment": "medium"
-            }
+                "initial_investment": "medium",
+            },
         }
 
         # Make request
@@ -354,7 +358,7 @@ class TestNicheAnalysisAPI:
                 "name": f"Updated Niche {i}",
                 "description": f"Updated description for niche {i}",
                 "market_segments": ["segment-1", "segment-2"],
-                "opportunity_score_threshold": 0.7 + (i * 0.1)
+                "opportunity_score_threshold": 0.7 + (i * 0.1),
             }
             for i in range(3)
         ]
@@ -423,17 +427,17 @@ class TestNicheAnalysisAPI:
         """Test invalid niche operations."""
         # Test invalid niche update
         niche_id = generate_id()
-        response = api_test_client.put(f"niche-analysis/niches/{niche_id}", {
-            "name": "",  # Empty name
-            "market_segments": "invalid"  # Should be a list
-        })
+        response = api_test_client.put(
+            f"niche-analysis/niches/{niche_id}",
+            {"name": "", "market_segments": "invalid"},  # Empty name  # Should be a list
+        )
         validate_error_response(response, 422)  # Unprocessable Entity
 
         # Test update with nonexistent ID
-        response = api_test_client.put("niche-analysis/niches/nonexistent-id", {
-            "name": "Valid Name",
-            "market_segments": ["valid-segment"]
-        })
+        response = api_test_client.put(
+            "niche-analysis/niches/nonexistent-id",
+            {"name": "Valid Name", "market_segments": ["valid-segment"]},
+        )
         validate_error_response(response, 404)  # Not Found
 
         # Test bulk operations with empty lists
@@ -444,14 +448,15 @@ class TestNicheAnalysisAPI:
         validate_error_response(response, 422)
 
         # Test bulk operations with invalid data
-        response = api_test_client.bulk_update("niche-analysis/niches", [
-            {"id": "invalid-id"},  # Missing required fields
-            {"name": "No ID"}  # Missing ID
-        ])
+        response = api_test_client.bulk_update(
+            "niche-analysis/niches",
+            [{"id": "invalid-id"}, {"name": "No ID"}],  # Missing required fields  # Missing ID
+        )
         validate_error_response(response, 422)
 
         # Test bulk delete with invalid IDs
-        response = api_test_client.bulk_delete("niche-analysis/niches", 
-                                             ["invalid-id-1", "invalid-id-2"])
+        response = api_test_client.bulk_delete(
+            "niche-analysis/niches", ["invalid-id-1", "invalid-id-2"]
+        )
         result = validate_bulk_response(response)
         validate_field_equals(result["stats"], "failed", 2)

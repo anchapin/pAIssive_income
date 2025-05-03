@@ -11,15 +11,15 @@ import os
 import sys
 import time
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Add the project root to the Python path to import the errors module
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
+from errors import ModelError, ModelLoadError, ModelNotFoundError, SecurityError
 from interfaces.model_interfaces import IModelInfo, IModelManager
-from errors import ModelError, ModelLoadError, SecurityError, ModelNotFoundError
 
 # Set up logging with secure defaults
 logging.basicConfig(
@@ -29,12 +29,13 @@ logging.basicConfig(
         logging.FileHandler(
             os.path.join(os.path.dirname(__file__), "logs", "fallback.log"),
             mode="a",
-            encoding="utf-8"
+            encoding="utf-8",
         ),
-        logging.StreamHandler()
-    ]
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger(__name__)
+
 
 class FallbackStrategy(Enum):
     """Enumeration of fallback strategy types."""
@@ -47,6 +48,7 @@ class FallbackStrategy(Enum):
     SPECIFIED_LIST = "specified_list"  # Try models in a specified order
     SIZE_TIER = "size_tier"  # Try models of different size tiers
     CAPABILITY_BASED = "capability"  # Try models with required capabilities
+
 
 class FallbackEvent:
     """Class representing a model fallback event."""
@@ -88,20 +90,22 @@ class FallbackEvent:
     def _is_safe_model_id(model_id: str) -> bool:
         """Validate model ID format."""
         import re
-        return bool(re.match(r'^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$', model_id))
+
+        return bool(re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$", model_id))
 
     @staticmethod
     def _is_safe_type_name(type_name: str) -> bool:
         """Validate type name format."""
         import re
-        return bool(re.match(r'^[a-zA-Z0-9_\-]+$', type_name))
+
+        return bool(re.match(r"^[a-zA-Z0-9_\-]+$", type_name))
 
     def _sanitize_details(self, details: Dict[str, Any]) -> Dict[str, Any]:
         """Sanitize details dictionary."""
         sanitized = {}
         for key, value in details.items():
             # Only allow alphanumeric keys with underscores
-            if not re.match(r'^[a-zA-Z0-9_]+$', key):
+            if not re.match(r"^[a-zA-Z0-9_]+$", key):
                 continue
             # Convert values to strings and limit length
             sanitized[key] = str(value)[:500]
@@ -119,6 +123,7 @@ class FallbackEvent:
             "timestamp": self.timestamp,
             "details": self.details,
         }
+
 
 class FallbackManager:
     """Manager class for handling model fallbacks securely."""
@@ -163,7 +168,7 @@ class FallbackManager:
         # Set up secure logging
         log_dir = os.path.join(os.path.dirname(__file__), "logs")
         os.makedirs(log_dir, mode=0o750, exist_ok=True)
-        
+
         self.logger = logging.getLogger(__name__ + ".fallback")
         self.logger.setLevel(logging_level)
 
@@ -174,41 +179,41 @@ class FallbackManager:
         """Initialize metrics securely."""
         self.fallback_history: List[FallbackEvent] = []
         self.fallback_metrics: Dict[FallbackStrategy, Dict[str, int]] = {
-            strategy: {"success_count": 0, "total_count": 0}
-            for strategy in FallbackStrategy
+            strategy: {"success_count": 0, "total_count": 0} for strategy in FallbackStrategy
         }
 
     def _validate_preferences(self, preferences: Dict[str, List[str]]) -> Dict[str, List[str]]:
         """Validate fallback preferences."""
         validated = {}
         allowed_types = {"huggingface", "llama", "openai", "general-purpose"}
-        
+
         for agent_type, model_types in preferences.items():
             # Validate agent type
             if not self._is_safe_type_name(agent_type):
                 continue
-                
+
             # Validate and filter model types
             safe_types = [
-                mt for mt in model_types
-                if isinstance(mt, str) and mt.lower() in allowed_types
+                mt for mt in model_types if isinstance(mt, str) and mt.lower() in allowed_types
             ]
             if safe_types:
                 validated[agent_type] = safe_types
-                
+
         return validated
 
     @staticmethod
     def _is_safe_model_id(model_id: str) -> bool:
         """Validate model ID format."""
         import re
-        return bool(re.match(r'^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$', model_id))
+
+        return bool(re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$", model_id))
 
     @staticmethod
     def _is_safe_type_name(type_name: str) -> bool:
         """Validate type name format."""
         import re
-        return bool(re.match(r'^[a-zA-Z0-9_\-]+$', type_name))
+
+        return bool(re.match(r"^[a-zA-Z0-9_\-]+$", type_name))
 
     def find_fallback_model(
         self,
@@ -249,11 +254,11 @@ class FallbackManager:
                 FallbackStrategy.MODEL_TYPE,
                 FallbackStrategy.CAPABILITY_BASED,
                 FallbackStrategy.SPECIFIED_LIST,
-                FallbackStrategy.ANY_AVAILABLE
+                FallbackStrategy.ANY_AVAILABLE,
             ]
 
             # Use override or cascade
-            strategies_to_try = ([strategy_override] if strategy_override else cascade_order)
+            strategies_to_try = [strategy_override] if strategy_override else cascade_order
 
             reason = "Primary model selection failed"
             attempts = 0
@@ -276,7 +281,8 @@ class FallbackManager:
                         fallback_model = self._apply_similar_model_strategy(original_model_info)
                     elif strategy == FallbackStrategy.MODEL_TYPE:
                         fallback_model = self._apply_model_type_strategy(
-                            original_model_info, agent_type, task_type)
+                            original_model_info, agent_type, task_type
+                        )
                     elif strategy == FallbackStrategy.ANY_AVAILABLE:
                         fallback_model = self._apply_any_available_strategy()
                     elif strategy == FallbackStrategy.SPECIFIED_LIST:
@@ -307,11 +313,13 @@ class FallbackManager:
                         strategy_used=strategy,
                         details={
                             "attempts": attempts,
-                            "original_model_type": original_model_info.type if original_model_info else None,
-                            "fallback_model_type": fallback_model.type
-                        }
+                            "original_model_type": (
+                                original_model_info.type if original_model_info else None
+                            ),
+                            "fallback_model_type": fallback_model.type,
+                        },
                     )
-                    
+
                     self.track_fallback_event(event, was_successful=True)
                     return fallback_model, event
 
@@ -325,8 +333,10 @@ class FallbackManager:
                 strategy_used=strategies_to_try[-1],
                 details={
                     "attempts": attempts,
-                    "original_model_type": original_model_info.type if original_model_info else None,
-                }
+                    "original_model_type": (
+                        original_model_info.type if original_model_info else None
+                    ),
+                },
             )
             self.track_fallback_event(event, was_successful=False)
             return None, event
@@ -343,10 +353,10 @@ class FallbackManager:
 
     def _validate_fallback_model(self, model: IModelInfo) -> None:
         """Validate fallback model security requirements."""
-        if not model or not hasattr(model, 'id') or not self._is_safe_model_id(model.id):
+        if not model or not hasattr(model, "id") or not self._is_safe_model_id(model.id):
             raise SecurityError("Invalid fallback model ID")
-        
-        if not hasattr(model, 'type') or not self._is_safe_type_name(model.type):
+
+        if not hasattr(model, "type") or not self._is_safe_type_name(model.type):
             raise SecurityError("Invalid fallback model type")
 
     # ... (rest of the FallbackManager implementation remains the same,

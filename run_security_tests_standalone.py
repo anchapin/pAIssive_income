@@ -2,14 +2,14 @@
 Standalone script to run webhook security tests without dependencies.
 """
 
-import unittest
-import time
-import sys
-import hmac
-import hashlib
 import base64
+import hashlib
+import hmac
 import ipaddress
-from typing import Dict, List, Any, Optional, Union, Set
+import sys
+import time
+import unittest
+from typing import Any, Dict, List, Optional, Set, Union
 
 # Recreate the security classes here to avoid import issues
 

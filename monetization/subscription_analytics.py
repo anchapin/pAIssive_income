@@ -9,7 +9,6 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-
 from .subscription import SubscriptionPlan
 from .subscription_manager import SubscriptionManager
 from .user_subscription import Subscription, SubscriptionStatus

@@ -4,7 +4,6 @@ Tests for the OllamaAdapter class.
 
 from unittest.mock import MagicMock, patch
 
-
 from ai_models.adapters import OllamaAdapter
 from interfaces.model_interfaces import IModelAdapter
 

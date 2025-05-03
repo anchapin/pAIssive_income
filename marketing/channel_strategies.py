@@ -3,14 +3,12 @@ Channel Strategies module for the pAIssive Income project.
 Provides templates for marketing strategies across different channels.
 """
 
-from typing import Dict, List, Any, Optional
+import logging
 import uuid
 from datetime import datetime, timedelta
-import logging
+from typing import Any, Dict, List, Optional
 
-from .errors import (
-    ChannelStrategyError, ValidationError, handle_exception
-)
+from .errors import ChannelStrategyError, ValidationError, handle_exception
 
 # Set up logging
 logger = logging.getLogger(__name__)

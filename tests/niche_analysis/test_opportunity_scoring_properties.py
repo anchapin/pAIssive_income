@@ -5,14 +5,19 @@ This module tests properties that should hold true for opportunity scoring algor
 in the niche_analysis module, using the Hypothesis framework for property-based testing.
 """
 
-import pytest
 import uuid
 from datetime import datetime
-from hypothesis import given, strategies as st, assume, settings, example
-from hypothesis.strategies import composite
 
+import pytest
+
+from hypothesis import assume, example, given, settings
+from hypothesis import strategies as st
+from hypothesis.strategies import composite
 from niche_analysis.schemas import (
-    FactorScoreSchema, FactorScoresSchema, FactorsSchema, OpportunityScoreSchema
+    FactorScoreSchema,
+    FactorScoresSchema,
+    FactorsSchema,
+    OpportunityScoreSchema,
 )
 
 
@@ -25,7 +30,7 @@ def factor_values_strategy(draw):
         "competition": draw(st.floats(min_value=0.0, max_value=1.0)),
         "problem_severity": draw(st.floats(min_value=0.0, max_value=1.0)),
         "solution_feasibility": draw(st.floats(min_value=0.0, max_value=1.0)),
-        "monetization_potential": draw(st.floats(min_value=0.0, max_value=1.0))
+        "monetization_potential": draw(st.floats(min_value=0.0, max_value=1.0)),
     }
 
 
@@ -41,10 +46,12 @@ def factor_weights_strategy(draw):
     # sort them, and use the differences as weights
 
     # Generate 5 random points between 0 and 1
-    points = sorted([0.0] + [draw(st.floats(min_value=0.0, max_value=1.0)) for _ in range(5)] + [1.0])
+    points = sorted(
+        [0.0] + [draw(st.floats(min_value=0.0, max_value=1.0)) for _ in range(5)] + [1.0]
+    )
 
     # Use the gaps between points as the 6 weights
-    weights = [points[i+1] - points[i] for i in range(6)]
+    weights = [points[i + 1] - points[i] for i in range(6)]
 
     # Ensure minimum weight of 0.05 for each factor
     if any(w < 0.05 for w in weights):
@@ -63,8 +70,14 @@ def factor_weights_strategy(draw):
         weights[5] += remaining
 
     # Create the weights dictionary
-    factor_names = ["market_size", "growth_rate", "competition",
-                   "problem_severity", "solution_feasibility", "monetization_potential"]
+    factor_names = [
+        "market_size",
+        "growth_rate",
+        "competition",
+        "problem_severity",
+        "solution_feasibility",
+        "monetization_potential",
+    ]
     factor_weights = dict(zip(factor_names, weights))
 
     # Verify weights sum to 1.0 (with floating point tolerance)
@@ -127,7 +140,7 @@ def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
             score=value,
             weight=weight,
             weighted_score=weighted_score,
-            analysis=analyze_factor(factor_name, value)
+            analysis=analyze_factor(factor_name, value),
         )
 
     # The overall score is the sum of weighted scores
@@ -155,35 +168,35 @@ def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
         recommendations = [
             "Proceed with high priority",
             "Allocate significant resources",
-            "Develop a comprehensive implementation plan"
+            "Develop a comprehensive implementation plan",
         ]
     elif overall_score >= 0.6:
         assessment = "Very good opportunity worth pursuing"
         recommendations = [
             "Proceed with medium-high priority",
             "Allocate appropriate resources",
-            "Develop an implementation plan"
+            "Develop an implementation plan",
         ]
     elif overall_score >= 0.4:
         assessment = "Good opportunity with moderate potential"
         recommendations = [
             "Proceed with medium priority",
             "Allocate moderate resources",
-            "Develop an initial implementation plan"
+            "Develop an initial implementation plan",
         ]
     elif overall_score >= 0.2:
         assessment = "Fair opportunity with limited potential"
         recommendations = [
             "Proceed with caution",
             "Allocate limited resources for exploration",
-            "Consider further research before proceeding"
+            "Consider further research before proceeding",
         ]
     else:
         assessment = "Limited opportunity with minimal potential"
         recommendations = [
             "Deprioritize this opportunity",
             "Consider alternatives",
-            "Reassess if market conditions change"
+            "Reassess if market conditions change",
         ]
 
     # Create the opportunity score object
@@ -196,7 +209,7 @@ def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
         factor_scores=factor_scores_obj,
         factors=factors_obj,
         recommendations=recommendations,
-        timestamp=datetime.now().isoformat()
+        timestamp=datetime.now().isoformat(),
     )
 
     return opportunity_score
@@ -205,10 +218,7 @@ def calculate_opportunity_score(factors, weights, apply_weight_bias=False):
 class TestOpportunityScoringAlgorithmProperties:
     """Property-based tests for opportunity scoring algorithms."""
 
-    @given(
-        factors=factor_values_strategy(),
-        weights=factor_weights_strategy()
-    )
+    @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_score_bounds(self, factors, weights):
         """Test that opportunity scores are bounded between 0 and 1."""
         result = calculate_opportunity_score(factors, weights)
@@ -223,10 +233,7 @@ class TestOpportunityScoringAlgorithmProperties:
                 assert 0.0 <= factor_score.score <= 1.0
                 assert 0.0 <= factor_score.weighted_score <= factor_score.weight
 
-    @given(
-        factors=factor_values_strategy(),
-        weights=factor_weights_strategy()
-    )
+    @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_weighted_score_calculation(self, factors, weights):
         """Test that weighted scores are calculated correctly."""
         result = calculate_opportunity_score(factors, weights)
@@ -237,10 +244,7 @@ class TestOpportunityScoringAlgorithmProperties:
                 expected_weighted_score = factor_score.score * factor_score.weight
                 assert factor_score.weighted_score == pytest.approx(expected_weighted_score)
 
-    @given(
-        factors=factor_values_strategy(),
-        weights=factor_weights_strategy()
-    )
+    @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_overall_score_calculation(self, factors, weights):
         """Test that the overall score is the sum of weighted scores."""
         result = calculate_opportunity_score(factors, weights)
@@ -254,10 +258,7 @@ class TestOpportunityScoringAlgorithmProperties:
 
         assert result.overall_score == pytest.approx(sum_weighted_scores)
 
-    @given(
-        factors=factor_values_strategy(),
-        weights=factor_weights_strategy()
-    )
+    @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_opportunity_assessment_consistency(self, factors, weights):
         """Test that opportunity assessment is consistent with the score."""
         result = calculate_opportunity_score(factors, weights)
@@ -277,7 +278,7 @@ class TestOpportunityScoringAlgorithmProperties:
     @given(
         factors1=factor_values_strategy(),
         factors2=factor_values_strategy(),
-        weights=factor_weights_strategy()
+        weights=factor_weights_strategy(),
     )
     def test_monotonicity(self, factors1, factors2, weights):
         """
@@ -285,10 +286,7 @@ class TestOpportunityScoringAlgorithmProperties:
         the factors in option B, then the score of A should be higher than or equal to B.
         """
         # Create a new set of factors where each factor is the maximum of the two inputs
-        max_factors = {
-            factor: max(factors1[factor], factors2[factor])
-            for factor in factors1
-        }
+        max_factors = {factor: max(factors1[factor], factors2[factor]) for factor in factors1}
 
         # Calculate scores
         score1 = calculate_opportunity_score(factors1, weights).overall_score
@@ -299,10 +297,7 @@ class TestOpportunityScoringAlgorithmProperties:
         assert score_max >= score1
         assert score_max >= score2
 
-    @given(
-        factors=factor_values_strategy(),
-        weights=factor_weights_strategy()
-    )
+    @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_factor_influence(self, factors, weights):
         """Test that improving a factor increases the overall score."""
         base_score = calculate_opportunity_score(factors, weights).overall_score
@@ -323,9 +318,7 @@ class TestOpportunityScoringAlgorithmProperties:
             # Property: Improving a factor should increase the overall score
             assert improved_score > base_score
 
-    @given(
-        factors=factor_values_strategy()
-    )
+    @given(factors=factor_values_strategy())
     def test_weight_influence(self, factors):
         """Test that weights influence the score appropriately."""
         # Skip the test if all factors are zero - weights don't matter in this case
@@ -382,7 +375,7 @@ class TestOpportunityScoringAlgorithmProperties:
             "competition": 0.7,
             "problem_severity": 0.9,
             "solution_feasibility": 0.8,
-            "monetization_potential": 0.9
+            "monetization_potential": 0.9,
         },
         weights={
             "market_size": 0.2,
@@ -390,13 +383,10 @@ class TestOpportunityScoringAlgorithmProperties:
             "competition": 0.15,
             "problem_severity": 0.2,
             "solution_feasibility": 0.15,
-            "monetization_potential": 0.15
-        }
+            "monetization_potential": 0.15,
+        },
     )
-    @given(
-        factors=factor_values_strategy(),
-        weights=factor_weights_strategy()
-    )
+    @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_recommendations_consistency(self, factors, weights):
         """Test that recommendations are consistent with the score."""
         result = calculate_opportunity_score(factors, weights)
@@ -413,13 +403,11 @@ class TestOpportunityScoringAlgorithmProperties:
         else:
             assert any("deprioritize" in r.lower() for r in result.recommendations)
 
-    @given(
-        factors=factor_values_strategy()
-    )
+    @given(factors=factor_values_strategy())
     def test_equal_weights(self, factors):
         """Test that equal weights produce expected scores."""
         # Create equal weights for all factors
-        equal_weights = {factor: 1.0/6.0 for factor in factors}
+        equal_weights = {factor: 1.0 / 6.0 for factor in factors}
 
         result = calculate_opportunity_score(factors, equal_weights)
 
@@ -427,10 +415,7 @@ class TestOpportunityScoringAlgorithmProperties:
         expected_score = sum(factors.values()) / len(factors)
         assert result.overall_score == pytest.approx(expected_score)
 
-    @given(
-        factors=factor_values_strategy(),
-        weights=factor_weights_strategy()
-    )
+    @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_perfect_scores(self, factors, weights):
         """Test that perfect factor scores lead to a perfect overall score."""
         # Create perfect factors (all 1.0)
@@ -442,10 +427,7 @@ class TestOpportunityScoringAlgorithmProperties:
         assert result.overall_score == pytest.approx(1.0)
         assert "Excellent opportunity" in result.opportunity_assessment
 
-    @given(
-        factors=factor_values_strategy(),
-        weights=factor_weights_strategy()
-    )
+    @given(factors=factor_values_strategy(), weights=factor_weights_strategy())
     def test_zero_scores(self, factors, weights):
         """Test that zero factor scores lead to a zero overall score."""
         # Create zero factors (all 0.0)

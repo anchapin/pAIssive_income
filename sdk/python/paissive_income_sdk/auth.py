@@ -4,7 +4,7 @@ Authentication classes for the pAIssive Income SDK.
 This module provides authentication classes for the pAIssive Income API.
 """
 
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 
 class Auth:

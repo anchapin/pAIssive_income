@@ -2,8 +2,9 @@
 Minimal stub for the hypothesis package.
 """
 
-from functools import wraps
 from enum import Enum
+from functools import wraps
+
 
 class Verbosity(Enum):
     quiet = 0

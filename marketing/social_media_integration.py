@@ -5,38 +5,38 @@ This module provides functionality for integrating with various social media pla
 for content posting, analytics tracking, and audience insights.
 """
 
-import os
-import json
-import uuid
-import logging
-from typing import Dict, List, Any, Optional, Union, Tuple
-from datetime import datetime, timedelta
 import importlib
+import json
+import logging
+import os
+import uuid
+from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Local imports
 from interfaces.marketing_interfaces import ISocialMediaIntegration
 from marketing.errors import (
-    PlatformNotSupportedError,
-    PlatformNotFoundError,
     AuthenticationError,
     ContentValidationError,
-    PostNotFoundError,
-    PostingError,
     DeletionError,
+    NotSupportedError,
+    PlatformNotFoundError,
+    PlatformNotSupportedError,
+    PostingError,
+    PostNotFoundError,
     SchedulingError,
-    NotSupportedError
 )
 from marketing.schemas import (
-    SocialMediaPlatform,
-    SocialMediaConnectionSchema,
-    SocialMediaAuthSchema,
-    SocialMediaPostSchema,
-    SocialMediaAnalyticsSchema,
-    SocialMediaCampaignSchema,
     AudienceInsightSchema,
     ContentVisibility,
-    PostScheduleType
+    PostScheduleType,
+    SocialMediaAnalyticsSchema,
+    SocialMediaAuthSchema,
+    SocialMediaCampaignSchema,
+    SocialMediaConnectionSchema,
+    SocialMediaPlatform,
+    SocialMediaPostSchema,
 )
 
 # Configure logging

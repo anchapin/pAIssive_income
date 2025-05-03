@@ -4,7 +4,6 @@ Tests for the FreemiumModel class.
 
 import os
 
-
 from monetization.subscription_models import FreemiumModel
 
 

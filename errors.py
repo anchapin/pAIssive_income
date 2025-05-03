@@ -5,12 +5,12 @@ This module provides custom exception classes and error handling utilities
 for consistent error management across the project.
 """
 
-from typing import Dict, Any, Optional, List, Type, Union
-import logging
-import traceback
-import sys
 import json
+import logging
+import sys
+import traceback
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Type, Union
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -537,6 +537,41 @@ class OpportunityScoringError(NicheAnalysisError):
         super().__init__(
             message=message,
             details=details,
+            **kwargs
+        )
+
+
+# Security Errors
+
+class SecurityError(BaseError):
+    """Error raised when a security issue is detected."""
+
+    def __init__(
+        self,
+        message: str,
+        security_type: Optional[str] = None,
+        **kwargs
+    ):
+        """
+        Initialize the security error.
+
+        Args:
+            message: Human-readable error message
+            security_type: Type of security issue
+            **kwargs: Additional arguments to pass to the base class
+        """
+        details = kwargs.pop("details", {})
+        if security_type:
+            details["security_type"] = security_type
+
+        # Only set code if it's not already provided in kwargs
+        if 'code' not in kwargs:
+            kwargs['code'] = "security_error"
+
+        super().__init__(
+            message=message,
+            details=details,
+            http_status=403,
             **kwargs
         )
 

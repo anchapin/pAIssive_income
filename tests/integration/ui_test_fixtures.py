@@ -1,14 +1,16 @@
 """
 Fixtures for UI integration tests.
 """
-import pytest
+
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from agent_team import AgentTeam
 from ai_models import ModelManager
-from monetization import SubscriptionManager
-from interfaces.ui_interfaces import IAgentTeamService
 from dependency_container import get_container
+from interfaces.ui_interfaces import IAgentTeamService
+from monetization import SubscriptionManager
 
 
 @pytest.fixture
@@ -29,7 +31,7 @@ def mock_agent_team():
             "name": "Content Generation for Marketing",
             "market_segment": "digital-marketing",
             "opportunity_score": 0.78,
-        }
+        },
     ]
 
     # Mock the develop_solution method
@@ -39,8 +41,8 @@ def mock_agent_team():
         "description": "An AI tool that helps e-commerce businesses optimize inventory levels.",
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
-            {"id": "feature2", "name": "Reorder Alerts"}
-        ]
+            {"id": "feature2", "name": "Reorder Alerts"},
+        ],
     }
 
     # Mock the create_monetization_strategy method
@@ -51,9 +53,9 @@ def mock_agent_team():
             "name": "Inventory Optimizer Subscription",
             "tiers": [
                 {"name": "Free", "price_monthly": 0},
-                {"name": "Pro", "price_monthly": 29.99}
-            ]
-        }
+                {"name": "Pro", "price_monthly": 29.99},
+            ],
+        },
     }
 
     # Mock the create_marketing_plan method
@@ -61,7 +63,7 @@ def mock_agent_team():
         "id": "marketing1",
         "name": "Inventory Optimizer Marketing Plan",
         "channels": ["content", "social", "email"],
-        "target_audience": "E-commerce store owners"
+        "target_audience": "E-commerce store owners",
     }
 
     return team
@@ -74,16 +76,8 @@ def mock_model_manager():
 
     # Mock the list_models method
     manager.list_models.return_value = [
-        {
-            "id": "model1",
-            "name": "GPT-4",
-            "capabilities": ["text-generation"]
-        },
-        {
-            "id": "model2",
-            "name": "DALL-E 3",
-            "capabilities": ["image-generation"]
-        }
+        {"id": "model1", "name": "GPT-4", "capabilities": ["text-generation"]},
+        {"id": "model2", "name": "DALL-E 3", "capabilities": ["image-generation"]},
     ]
 
     return manager
@@ -103,7 +97,7 @@ def mock_subscription_manager():
             "plan_name": "Pro Plan",
             "status": "active",
             "created_at": "2025-04-01T10:00:00Z",
-            "expires_at": "2026-04-01T10:00:00Z"
+            "expires_at": "2026-04-01T10:00:00Z",
         }
     ]
 
@@ -120,31 +114,32 @@ def mock_agent_team_service():
     service.create_project.return_value = {
         "id": "project1",
         "name": "Test Project",
-        "status": "active"
+        "status": "active",
     }
 
     # Mock the get_projects method
     service.get_projects.return_value = [
-        {
-            "id": "project1",
-            "name": "Test Project",
-            "status": "active"
-        }
+        {"id": "project1", "name": "Test Project", "status": "active"}
     ]
 
     return service
 
 
 @pytest.fixture
-def register_mock_services(mock_agent_team_service, mock_agent_team, mock_model_manager, mock_subscription_manager):
+def register_mock_services(
+    mock_agent_team_service, mock_agent_team, mock_model_manager, mock_subscription_manager
+):
     """Register mock services in the dependency container."""
-    from interfaces.ui_interfaces import (
-        IAgentTeamService, INicheAnalysisService, IDeveloperService,
-        IMonetizationService, IMarketingService
-    )
     from interfaces.agent_interfaces import IAgentTeam
     from interfaces.model_interfaces import IModelManager
     from interfaces.monetization_interfaces import ISubscriptionManager
+    from interfaces.ui_interfaces import (
+        IAgentTeamService,
+        IDeveloperService,
+        IMarketingService,
+        IMonetizationService,
+        INicheAnalysisService,
+    )
 
     # Get the container
     container = get_container()

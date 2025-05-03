@@ -2,8 +2,6 @@
 Tests for the user personas components in the Marketing module.
 """
 
-
-
 from marketing.user_personas import (
     DemographicAnalyzer,
     PainPointIdentifier,

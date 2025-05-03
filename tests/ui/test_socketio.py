@@ -1,13 +1,14 @@
 """
 Tests for Socket.IO integration in the pAIssive Income UI.
 """
+
 import json
-import pytest
 from unittest.mock import MagicMock, patch
 
-from flask import Flask
+import pytest
 from flask_socketio import SocketIO
 
+from flask import Flask
 from ui.socketio_app import SocketIONamespace, init_socketio
 
 
@@ -57,8 +58,8 @@ class TestSocketIOIntegration:
                 "task_id": "test_task",
                 "status": "ANALYZING",
                 "progress": 50,
-                "message": "Analyzing data..."
-            }
+                "message": "Analyzing data...",
+            },
         )
 
         # Check received messages
@@ -91,7 +92,7 @@ class TestSocketIOIntegration:
             "task_id": task_id,
             "status": "PROCESSING",
             "progress": 75,
-            "message": "Processing shared task..."
+            "message": "Processing shared task...",
         }
         mock_socketio.emit("task_progress", update_data, room=task_id)
 
@@ -112,7 +113,7 @@ class TestSocketIOIntegration:
         error_data = {
             "error": "Task failed",
             "task_id": "error_task",
-            "details": "An unexpected error occurred"
+            "details": "An unexpected error occurred",
         }
         mock_client.emit("error", error_data)
 
@@ -139,12 +140,8 @@ class TestSocketIOIntegration:
         mock_socketio = SocketIO()
         mock_socketio.emit(
             "task_progress",
-            {
-                "task_id": "room_test",
-                "status": "COMPLETE",
-                "progress": 100
-            },
-            room="room_test"
+            {"task_id": "room_test", "status": "COMPLETE", "progress": 100},
+            room="room_test",
         )
 
         received = mock_client.get_received()
@@ -158,7 +155,7 @@ class TestSocketIOIntegration:
         mock_service.get_task_status.return_value = {
             "status": "RUNNING",
             "progress": 60,
-            "message": "Processing task..."
+            "message": "Processing task...",
         }
         mock_get_service.return_value = mock_service
 
@@ -179,7 +176,7 @@ class TestSocketIOIntegration:
         clients = [
             mock_socketio.test_client(mock_app),
             mock_socketio.test_client(mock_app),
-            mock_socketio.test_client(mock_app)
+            mock_socketio.test_client(mock_app),
         ]
 
         # Connect all clients
@@ -188,10 +185,7 @@ class TestSocketIOIntegration:
             client.get_received()  # Clear initial messages
 
         # Broadcast a message
-        broadcast_data = {
-            "type": "system_update",
-            "message": "System maintenance in 5 minutes"
-        }
+        broadcast_data = {"type": "system_update", "message": "System maintenance in 5 minutes"}
         mock_socketio.emit("broadcast", broadcast_data)
 
         # Check that all clients received the message
@@ -214,17 +208,10 @@ class TestSocketIOIntegration:
                 "data": {
                     "model_id": "gpt-4",
                     "status": "ready",
-                    "capabilities": ["text", "chat", "embeddings"]
-                }
+                    "capabilities": ["text", "chat", "embeddings"],
+                },
             },
-            {
-                "name": "resource_usage",
-                "data": {
-                    "cpu": 45.2,
-                    "memory": 1024.5,
-                    "requests": 150
-                }
-            }
+            {"name": "resource_usage", "data": {"cpu": 45.2, "memory": 1024.5, "requests": 150}},
         ]
 
         # Emit each custom event
@@ -237,6 +224,7 @@ class TestSocketIOIntegration:
 
     def test_namespace_handlers(self, mock_app):
         """Test custom namespace event handlers."""
+
         # Create a custom namespace
         class TestNamespace(SocketIONamespace):
             def on_custom_event(self, data):

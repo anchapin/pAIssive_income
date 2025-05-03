@@ -5,42 +5,23 @@ This package provides utilities for asynchronous communication between
 microservices using a message queue (RabbitMQ).
 """
 
-from .client import (
-    MessageQueueClient,
-    AsyncMessageQueueClient,
-    MessageHandler,
-    AsyncMessageHandler
-)
-
-from .message import (
-    Message,
-    MessageSchema,
-    MessagePriority,
-    MessageStatus,
-    MessageType
-)
-
-from .exceptions import (
-    MessageQueueError,
-    ConnectionError,
-    PublishError,
-    ConsumeError,
-    SchemaError
-)
+from .client import AsyncMessageHandler, AsyncMessageQueueClient, MessageHandler, MessageQueueClient
+from .exceptions import ConnectionError, ConsumeError, MessageQueueError, PublishError, SchemaError
+from .message import Message, MessagePriority, MessageSchema, MessageStatus, MessageType
 
 __all__ = [
-    'MessageQueueClient',
-    'AsyncMessageQueueClient',
-    'MessageHandler',
-    'AsyncMessageHandler',
-    'Message',
-    'MessageSchema',
-    'MessagePriority',
-    'MessageStatus',
-    'MessageType',
-    'MessageQueueError',
-    'ConnectionError',
-    'PublishError',
-    'ConsumeError',
-    'SchemaError'
+    "MessageQueueClient",
+    "AsyncMessageQueueClient",
+    "MessageHandler",
+    "AsyncMessageHandler",
+    "Message",
+    "MessageSchema",
+    "MessagePriority",
+    "MessageStatus",
+    "MessageType",
+    "MessageQueueError",
+    "ConnectionError",
+    "PublishError",
+    "ConsumeError",
+    "SchemaError",
 ]

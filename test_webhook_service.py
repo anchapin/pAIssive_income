@@ -5,8 +5,10 @@ Test script for webhook service.
 import asyncio
 import json
 from datetime import datetime, timezone
+
+from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
-from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
+
 
 async def test_webhook_service():
     """Test the webhook service."""

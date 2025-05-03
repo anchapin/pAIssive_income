@@ -82,7 +82,9 @@ class CacheVersionManager:
 
         # Update version
         self._namespace_versions[namespace] = new_version
-        logger.info(f"Updated cache namespace {namespace} from {current} to {new_version} ({reason})")
+        logger.info(
+            f"Updated cache namespace {namespace} from {current} to {new_version} ({reason})"
+        )
 
     def clear_namespace_on_restart(self, namespace: str) -> None:
         """

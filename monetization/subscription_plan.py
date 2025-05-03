@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 
-
 class BillingInterval:
     """Enumeration of billing intervals."""
 

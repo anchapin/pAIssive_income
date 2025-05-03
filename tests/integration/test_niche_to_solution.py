@@ -1,11 +1,13 @@
 """
 Integration tests for the niche-to-solution workflow.
 """
+
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from agent_team import AgentTeam
-from niche_analysis import MarketAnalyzer, ProblemIdentifier, OpportunityScorer
+from niche_analysis import MarketAnalyzer, OpportunityScorer, ProblemIdentifier
 
 
 @pytest.fixture
@@ -117,13 +119,16 @@ def mock_agents():
     }
 
 
-@patch('agent_team.team_config.ResearchAgent')
-@patch('agent_team.team_config.DeveloperAgent')
-@patch('agent_team.team_config.MonetizationAgent')
-@patch('agent_team.team_config.MarketingAgent')
+@patch("agent_team.team_config.ResearchAgent")
+@patch("agent_team.team_config.DeveloperAgent")
+@patch("agent_team.team_config.MonetizationAgent")
+@patch("agent_team.team_config.MarketingAgent")
 def test_niche_to_solution_workflow(
-    mock_marketing_class, mock_monetization_class, mock_developer_class, mock_researcher_class,
-    mock_agents
+    mock_marketing_class,
+    mock_monetization_class,
+    mock_developer_class,
+    mock_researcher_class,
+    mock_agents,
 ):
     """Test the complete niche-to-solution workflow."""
     # Set up the mock agents

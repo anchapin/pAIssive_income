@@ -4,13 +4,15 @@ Integration tests for the niche analysis → market trend → A/B testing workfl
 This module tests the complete workflow from niche analysis through market trend
 analysis to A/B testing setup and analysis.
 """
-import pytest
-import hashlib
-from unittest.mock import patch, MagicMock
 
-from niche_analysis import MarketAnalyzer
-from marketing import ABTesting
+import hashlib
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from agent_team import AgentTeam
+from marketing import ABTesting
+from niche_analysis import MarketAnalyzer
 
 
 @pytest.fixture
@@ -28,7 +30,7 @@ def ab_testing():
 @pytest.fixture
 def mock_agent_team():
     """Create a mock agent team for testing."""
-    with patch('agent_team.AgentTeam') as mock:
+    with patch("agent_team.AgentTeam") as mock:
         team = MagicMock()
         mock.return_value = team
         yield team
@@ -74,16 +76,16 @@ def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_te
     # Create variants based on user segments
     variants = []
     for i, segment in enumerate(user_analysis["user_segments"]):
-        is_control = (i == 0)  # First segment is control
+        is_control = i == 0  # First segment is control
         variant = {
             "name": f"Variant for {segment}",
             "is_control": is_control,
             "content": {
                 "headline": f"Solution for {segment}",
                 "description": f"Tailored for {segment} needs",
-                "cta": "Try Now" if is_control else "Get Started"
+                "cta": "Try Now" if is_control else "Get Started",
             },
-            "target_segment": segment
+            "target_segment": segment,
         }
         variants.append(variant)
 
@@ -93,7 +95,7 @@ def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_te
         description=f"Testing landing page variants for {selected_niche} based on user segments",
         content_type="landing_page",
         test_type="a_b",
-        variants=variants
+        variants=variants,
     )
 
     # Verify test creation
@@ -112,8 +114,10 @@ def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_te
         # Simulate different conversion rates for different variants
         # Control variant: 10% conversion
         # Other variants: 8-15% conversion depending on the variant
-        # Use deterministic MD5 hash instead of built-in hash() for consistent test results
-        name_hash = int.from_bytes(hashlib.md5(variant["name"].encode()).digest(), 'big')
+        # Use deterministic SHA-256 hash instead of built-in hash() for consistent test results
+        name_hash = int.from_bytes(
+            hashlib.sha256(variant["name"].encode(), usedforsecurity=False).digest(), "big"
+        )
         conversion_rate = 0.1 if variant["is_control"] else (0.08 + (name_hash % 8) / 100)
         conversion_count = int(1000 * conversion_rate)
 
@@ -134,7 +138,9 @@ def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_te
     mock_agent_team.implement_ab_test_winner(test["id"], winning_variant["id"])
 
     # Verify that the agent team method was called
-    mock_agent_team.implement_ab_test_winner.assert_called_once_with(test["id"], winning_variant["id"])
+    mock_agent_team.implement_ab_test_winner.assert_called_once_with(
+        test["id"], winning_variant["id"]
+    )
 
 
 def test_niche_to_ab_testing_workflow_with_multivariate(market_analyzer, ab_testing):
@@ -160,20 +166,16 @@ def test_niche_to_ab_testing_workflow_with_multivariate(market_analyzer, ab_test
     headlines = [
         "Create Amazing Content Faster",
         "AI-Powered Content Creation",
-        "Professional Content in Minutes"
+        "Professional Content in Minutes",
     ]
 
     descriptions = [
         "Our AI tools help you create high-quality content with minimal effort",
         "Generate blog posts, social media content, and more with our advanced AI",
-        "Save time and resources with automated content creation"
+        "Save time and resources with automated content creation",
     ]
 
-    ctas = [
-        "Start Creating",
-        "Try It Free",
-        "Get Started Now"
-    ]
+    ctas = ["Start Creating", "Try It Free", "Get Started Now"]
 
     # Create variants for all combinations
     variants = []
@@ -185,11 +187,7 @@ def test_niche_to_ab_testing_workflow_with_multivariate(market_analyzer, ab_test
                 variant = {
                     "name": f"{headline[:10]}... / {description[:10]}... / {cta}",
                     "is_control": control_set,  # First combination is control
-                    "content": {
-                        "headline": headline,
-                        "description": description,
-                        "cta": cta
-                    }
+                    "content": {"headline": headline, "description": description, "cta": cta},
                 }
                 variants.append(variant)
                 control_set = False  # Only the first one is control
@@ -200,7 +198,7 @@ def test_niche_to_ab_testing_workflow_with_multivariate(market_analyzer, ab_test
         description=f"Testing different combinations of headlines, descriptions, and CTAs for {selected_niche}",
         content_type="landing_page",
         test_type="multivariate",
-        variants=variants
+        variants=variants,
     )
 
     # Verify test creation

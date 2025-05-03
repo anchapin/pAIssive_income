@@ -5,10 +5,11 @@ This module provides functions to create and configure Flask applications.
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
+from flask_cors import CORS
 
 from flask import Flask
-from flask_cors import CORS
 
 
 def create_app(config: Optional[Dict[str, Any]] = None) -> Flask:
@@ -94,7 +95,7 @@ def _register_blueprints(app: Flask) -> None:
         app: Flask application instance
     """
     # Import blueprints here to avoid circular imports
-    from .routes import main_bp, api_bp
+    from .routes import api_bp, main_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp, url_prefix='/api')

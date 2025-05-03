@@ -6,18 +6,18 @@ for different marketing assets including email campaigns, landing pages,
 ad copy, call-to-action elements, and more.
 """
 
-import uuid
 import json
-import math
 import logging
+import math
+import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy import stats
 
 from interfaces.marketing_interfaces import IABTesting
-from marketing.errors import MarketingError, InvalidTestConfigurationError, TestNotFoundError
+from marketing.errors import InvalidTestConfigurationError, MarketingError, TestNotFoundError
 
 
 class ABTestingError(MarketingError):

@@ -4,8 +4,9 @@ Test validators for API tests.
 This module provides utilities for validating API responses in tests.
 """
 
-from typing import Dict, Any, Optional, List, Union, Callable
 import json
+from typing import Any, Callable, Dict, List, Optional, Union
+
 from fastapi.testclient import TestClient
 from requests import Response
 
@@ -21,8 +22,9 @@ def validate_status_code(response: Response, expected_status_code: int) -> None:
     Raises:
         AssertionError: If the status code is not as expected
     """
-    assert response.status_code == expected_status_code, \
-        f"Expected status code {expected_status_code}, got {response.status_code}. Response: {response.text}"
+    assert (
+        response.status_code == expected_status_code
+    ), f"Expected status code {expected_status_code}, got {response.status_code}. Response: {response.text}"
 
 
 def validate_json_response(response: Response) -> Dict[str, Any]:
@@ -44,8 +46,9 @@ def validate_json_response(response: Response) -> Dict[str, Any]:
         assert False, f"Response is not valid JSON: {response.text}"
 
 
-def validate_error_response(response: Response, expected_status_code: int,
-                           expected_error_code: Optional[str] = None) -> Dict[str, Any]:
+def validate_error_response(
+    response: Response, expected_status_code: int, expected_error_code: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Validate an error response.
 
@@ -65,28 +68,38 @@ def validate_error_response(response: Response, expected_status_code: int,
 
     # Check for both possible error formats
     if "error" in data:
-        assert "message" in data["error"], f"Error response does not contain 'message' field: {data}"
+        assert (
+            "message" in data["error"]
+        ), f"Error response does not contain 'message' field: {data}"
 
         if expected_error_code:
             assert "code" in data["error"], f"Error response does not contain 'code' field: {data}"
-            assert data["error"]["code"] == expected_error_code, \
-                f"Expected error code {expected_error_code}, got {data['error']['code']}"
+            assert (
+                data["error"]["code"] == expected_error_code
+            ), f"Expected error code {expected_error_code}, got {data['error']['code']}"
     elif "detail" in data:
         # Alternative error format
         if isinstance(data["detail"], dict):
-            assert "message" in data["detail"], f"Error response does not contain 'message' field: {data}"
+            assert (
+                "message" in data["detail"]
+            ), f"Error response does not contain 'message' field: {data}"
 
             if expected_error_code:
-                assert "code" in data["detail"], f"Error response does not contain 'code' field: {data}"
-                assert data["detail"]["code"] == expected_error_code, \
-                    f"Expected error code {expected_error_code}, got {data['detail']['code']}"
+                assert (
+                    "code" in data["detail"]
+                ), f"Error response does not contain 'code' field: {data}"
+                assert (
+                    data["detail"]["code"] == expected_error_code
+                ), f"Expected error code {expected_error_code}, got {data['detail']['code']}"
     else:
         assert False, f"Error response does not contain 'error' or 'detail' field: {data}"
 
     return data
 
 
-def validate_success_response(response: Response, expected_status_code: int = 200) -> Dict[str, Any]:
+def validate_success_response(
+    response: Response, expected_status_code: int = 200
+) -> Dict[str, Any]:
     """
     Validate a success response.
 
@@ -109,7 +122,9 @@ def validate_success_response(response: Response, expected_status_code: int = 20
     return validate_json_response(response)
 
 
-def validate_paginated_response(response: Response, expected_status_code: int = 200) -> Dict[str, Any]:
+def validate_paginated_response(
+    response: Response, expected_status_code: int = 200
+) -> Dict[str, Any]:
     """
     Validate a paginated response.
 
@@ -151,11 +166,17 @@ def validate_bulk_response(response: Response, expected_status_code: int = 200) 
 
     assert "stats" in data, f"Bulk response does not contain 'stats' field: {data}"
     assert "total" in data["stats"], f"Bulk response stats does not contain 'total' field: {data}"
-    assert "success" in data["stats"], f"Bulk response stats does not contain 'success' field: {data}"
-    assert "failure" in data["stats"], f"Bulk response stats does not contain 'failure' field: {data}"
+    assert (
+        "success" in data["stats"]
+    ), f"Bulk response stats does not contain 'success' field: {data}"
+    assert (
+        "failure" in data["stats"]
+    ), f"Bulk response stats does not contain 'failure' field: {data}"
 
     if data["stats"]["failure"] > 0:
-        assert "errors" in data, f"Bulk response with failures does not contain 'errors' field: {data}"
+        assert (
+            "errors" in data
+        ), f"Bulk response with failures does not contain 'errors' field: {data}"
 
     return data
 
@@ -187,8 +208,9 @@ def validate_field_equals(data: Dict[str, Any], field: str, expected_value: Any)
         AssertionError: If the field does not equal the expected value
     """
     validate_field_exists(data, field)
-    assert data[field] == expected_value, \
-        f"Field '{field}' expected to be {expected_value}, got {data[field]}"
+    assert (
+        data[field] == expected_value
+    ), f"Field '{field}' expected to be {expected_value}, got {data[field]}"
 
 
 def validate_field_type(data: Dict[str, Any], field: str, expected_type: type) -> None:
@@ -204,8 +226,9 @@ def validate_field_type(data: Dict[str, Any], field: str, expected_type: type) -
         AssertionError: If the field is not of the expected type
     """
     validate_field_exists(data, field)
-    assert isinstance(data[field], expected_type), \
-        f"Field '{field}' expected to be of type {expected_type}, got {type(data[field])}"
+    assert isinstance(
+        data[field], expected_type
+    ), f"Field '{field}' expected to be of type {expected_type}, got {type(data[field])}"
 
 
 def validate_field_not_empty(data: Dict[str, Any], field: str) -> None:
@@ -247,8 +270,9 @@ def validate_list_length(data: List[Any], expected_length: int) -> None:
     Raises:
         AssertionError: If the list does not have the expected length
     """
-    assert len(data) == expected_length, \
-        f"List expected to have length {expected_length}, got {len(data)}"
+    assert (
+        len(data) == expected_length
+    ), f"List expected to have length {expected_length}, got {len(data)}"
 
 
 def validate_list_min_length(data: List[Any], min_length: int) -> None:
@@ -262,8 +286,9 @@ def validate_list_min_length(data: List[Any], min_length: int) -> None:
     Raises:
         AssertionError: If the list does not have at least the minimum length
     """
-    assert len(data) >= min_length, \
-        f"List expected to have at least length {min_length}, got {len(data)}"
+    assert (
+        len(data) >= min_length
+    ), f"List expected to have at least length {min_length}, got {len(data)}"
 
 
 def validate_list_max_length(data: List[Any], max_length: int) -> None:
@@ -277,8 +302,9 @@ def validate_list_max_length(data: List[Any], max_length: int) -> None:
     Raises:
         AssertionError: If the list does not have at most the maximum length
     """
-    assert len(data) <= max_length, \
-        f"List expected to have at most length {max_length}, got {len(data)}"
+    assert (
+        len(data) <= max_length
+    ), f"List expected to have at most length {max_length}, got {len(data)}"
 
 
 def validate_list_contains(data: List[Any], item: Any) -> None:
@@ -295,7 +321,9 @@ def validate_list_contains(data: List[Any], item: Any) -> None:
     assert item in data, f"List does not contain item {item}"
 
 
-def validate_list_contains_dict_with_field(data: List[Dict[str, Any]], field: str, value: Any) -> None:
+def validate_list_contains_dict_with_field(
+    data: List[Dict[str, Any]], field: str, value: Any
+) -> None:
     """
     Validate that a list contains a dictionary with a field equal to a value.
 

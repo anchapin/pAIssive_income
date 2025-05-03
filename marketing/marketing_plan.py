@@ -5,8 +5,8 @@ This module provides functionality for creating and managing marketing plans.
 """
 
 import uuid
-from typing import Dict, List, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 class MarketingPlan:

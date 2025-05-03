@@ -5,38 +5,39 @@ This module provides route handlers for Monetization operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, HTTPException, Depends, Query, Path, Body
+    from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
     from fastapi.responses import JSONResponse
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
 
+from ..schemas.common import ErrorResponse, IdResponse, PaginatedResponse, SuccessResponse
+
 # Import schemas
 from ..schemas.monetization import (
-    SubscriptionModelRequest,
-    SubscriptionModelResponse,
-    PricingTierResponse,
+    BillingPeriod,
     FeatureResponse,
+    PricingTierResponse,
     RevenueProjectionRequest,
     RevenueProjectionResponse,
+    SubscriptionModelRequest,
+    SubscriptionModelResponse,
     SubscriptionType,
-    BillingPeriod
 )
-from ..schemas.common import ErrorResponse, SuccessResponse, IdResponse, PaginatedResponse
 
 # Create router
 if FASTAPI_AVAILABLE:
@@ -47,9 +48,13 @@ else:
 # Try to import monetization module
 try:
     from monetization import (
-        SubscriptionModel, FreemiumModel, PricingCalculator, RevenueProjector,
-        MonetizationCalculator
+        FreemiumModel,
+        MonetizationCalculator,
+        PricingCalculator,
+        RevenueProjector,
+        SubscriptionModel,
     )
+
     MONETIZATION_AVAILABLE = True
 except ImportError:
     logger.warning("Monetization module not available")
@@ -58,90 +63,81 @@ except ImportError:
 
 # Define route handlers
 if FASTAPI_AVAILABLE:
+
     @router.post(
         "/subscription-models",
         response_model=IdResponse,
         responses={
             201: {"description": "Subscription model created"},
             400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Create a subscription model",
-        description="Create a new subscription model for a solution"
+        description="Create a new subscription model for a solution",
     )
     async def create_subscription_model(request: SubscriptionModelRequest):
         """
         Create a new subscription model for a solution.
-        
+
         Args:
             request: Subscription model request
-            
+
         Returns:
             Subscription model ID
         """
         try:
             # Check if monetization module is available
             if not MONETIZATION_AVAILABLE:
-                raise HTTPException(
-                    status_code=500,
-                    detail="Monetization module not available"
-                )
-            
+                raise HTTPException(status_code=500, detail="Monetization module not available")
+
             # Generate model ID
             model_id = str(uuid.uuid4())
-            
+
             # Here we would create the actual subscription model
             # For now, just return the model ID
-            
-            return IdResponse(
-                id=model_id,
-                message="Subscription model created"
-            )
-        
+
+            return IdResponse(id=model_id, message="Subscription model created")
+
         except Exception as e:
             logger.error(f"Error creating subscription model: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error creating subscription model: {str(e)}"
+                status_code=500, detail=f"Error creating subscription model: {str(e)}"
             )
-    
+
     @router.get(
         "/subscription-models",
         response_model=PaginatedResponse[SubscriptionModelResponse],
         responses={
             200: {"description": "List of subscription models"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Get all subscription models",
-        description="Get a list of all subscription models"
+        description="Get a list of all subscription models",
     )
     async def get_all_subscription_models(
         page: int = Query(1, description="Page number"),
         page_size: int = Query(10, description="Page size"),
-        solution_id: Optional[str] = Query(None, description="Filter by solution ID")
+        solution_id: Optional[str] = Query(None, description="Filter by solution ID"),
     ):
         """
         Get a list of all subscription models.
-        
+
         Args:
             page: Page number
             page_size: Page size
             solution_id: Filter by solution ID
-            
+
         Returns:
             List of subscription models
         """
         try:
             # Check if monetization module is available
             if not MONETIZATION_AVAILABLE:
-                raise HTTPException(
-                    status_code=500,
-                    detail="Monetization module not available"
-                )
-            
+                raise HTTPException(status_code=500, detail="Monetization module not available")
+
             # Here we would get the actual subscription models
             # For now, return mock data
-            
+
             # Create mock features
             features = [
                 FeatureResponse(
@@ -149,24 +145,24 @@ if FASTAPI_AVAILABLE:
                     name="Basic Feature",
                     description="A basic feature",
                     category="Core",
-                    is_premium=False
+                    is_premium=False,
                 ),
                 FeatureResponse(
                     id="feature2",
                     name="Advanced Feature",
                     description="An advanced feature",
                     category="Advanced",
-                    is_premium=True
+                    is_premium=True,
                 ),
                 FeatureResponse(
                     id="feature3",
                     name="Premium Feature",
                     description="A premium feature",
                     category="Premium",
-                    is_premium=True
-                )
+                    is_premium=True,
+                ),
             ]
-            
+
             # Create mock tiers
             tiers = [
                 PricingTierResponse(
@@ -180,7 +176,7 @@ if FASTAPI_AVAILABLE:
                     is_free=True,
                     user_limit=1,
                     storage_limit=1,
-                    api_limit=100
+                    api_limit=100,
                 ),
                 PricingTierResponse(
                     id="tier2",
@@ -193,7 +189,7 @@ if FASTAPI_AVAILABLE:
                     is_free=False,
                     user_limit=5,
                     storage_limit=10,
-                    api_limit=1000
+                    api_limit=1000,
                 ),
                 PricingTierResponse(
                     id="tier3",
@@ -206,10 +202,10 @@ if FASTAPI_AVAILABLE:
                     is_free=False,
                     user_limit=None,
                     storage_limit=None,
-                    api_limit=None
-                )
+                    api_limit=None,
+                ),
             ]
-            
+
             # Create mock subscription models
             models = [
                 SubscriptionModelResponse(
@@ -221,69 +217,64 @@ if FASTAPI_AVAILABLE:
                     features=features,
                     tiers=tiers,
                     created_at=datetime.now(),
-                    updated_at=None
+                    updated_at=None,
                 )
             ]
-            
+
             # Filter by solution ID if specified
             if solution_id:
                 models = [model for model in models if model.solution_id == solution_id]
-            
+
             return PaginatedResponse(
                 items=models,
                 total=len(models),
                 page=page,
                 page_size=page_size,
-                pages=(len(models) + page_size - 1) // page_size
+                pages=(len(models) + page_size - 1) // page_size,
             )
-        
+
         except Exception as e:
             logger.error(f"Error getting subscription models: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting subscription models: {str(e)}"
+                status_code=500, detail=f"Error getting subscription models: {str(e)}"
             )
-    
+
     @router.get(
         "/subscription-models/{model_id}",
         response_model=SubscriptionModelResponse,
         responses={
             200: {"description": "Subscription model details"},
             404: {"model": ErrorResponse, "description": "Subscription model not found"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Get subscription model details",
-        description="Get details of a specific subscription model"
+        description="Get details of a specific subscription model",
     )
     async def get_subscription_model(
         model_id: str = Path(..., description="Subscription model ID")
     ):
         """
         Get details of a specific subscription model.
-        
+
         Args:
             model_id: Subscription model ID
-            
+
         Returns:
             Subscription model details
         """
         try:
             # Check if monetization module is available
             if not MONETIZATION_AVAILABLE:
-                raise HTTPException(
-                    status_code=500,
-                    detail="Monetization module not available"
-                )
-            
+                raise HTTPException(status_code=500, detail="Monetization module not available")
+
             # Here we would get the actual subscription model
             # For now, check if the ID matches our mock data
-            
+
             if model_id != "model1":
                 raise HTTPException(
-                    status_code=404,
-                    detail=f"Subscription model not found: {model_id}"
+                    status_code=404, detail=f"Subscription model not found: {model_id}"
                 )
-            
+
             # Create mock features
             features = [
                 FeatureResponse(
@@ -291,24 +282,24 @@ if FASTAPI_AVAILABLE:
                     name="Basic Feature",
                     description="A basic feature",
                     category="Core",
-                    is_premium=False
+                    is_premium=False,
                 ),
                 FeatureResponse(
                     id="feature2",
                     name="Advanced Feature",
                     description="An advanced feature",
                     category="Advanced",
-                    is_premium=True
+                    is_premium=True,
                 ),
                 FeatureResponse(
                     id="feature3",
                     name="Premium Feature",
                     description="A premium feature",
                     category="Premium",
-                    is_premium=True
-                )
+                    is_premium=True,
+                ),
             ]
-            
+
             # Create mock tiers
             tiers = [
                 PricingTierResponse(
@@ -322,7 +313,7 @@ if FASTAPI_AVAILABLE:
                     is_free=True,
                     user_limit=1,
                     storage_limit=1,
-                    api_limit=100
+                    api_limit=100,
                 ),
                 PricingTierResponse(
                     id="tier2",
@@ -335,7 +326,7 @@ if FASTAPI_AVAILABLE:
                     is_free=False,
                     user_limit=5,
                     storage_limit=10,
-                    api_limit=1000
+                    api_limit=1000,
                 ),
                 PricingTierResponse(
                     id="tier3",
@@ -348,10 +339,10 @@ if FASTAPI_AVAILABLE:
                     is_free=False,
                     user_limit=None,
                     storage_limit=None,
-                    api_limit=None
-                )
+                    api_limit=None,
+                ),
             ]
-            
+
             # Create mock subscription model
             model = SubscriptionModelResponse(
                 id=model_id,
@@ -362,84 +353,82 @@ if FASTAPI_AVAILABLE:
                 features=features,
                 tiers=tiers,
                 created_at=datetime.now(),
-                updated_at=None
+                updated_at=None,
             )
-            
+
             return model
-        
+
         except HTTPException:
             raise
-        
+
         except Exception as e:
             logger.error(f"Error getting subscription model: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error getting subscription model: {str(e)}"
+                status_code=500, detail=f"Error getting subscription model: {str(e)}"
             )
-    
+
     @router.post(
         "/revenue-projections",
         response_model=RevenueProjectionResponse,
         responses={
             201: {"description": "Revenue projection created"},
             400: {"model": ErrorResponse, "description": "Bad request"},
-            500: {"model": ErrorResponse, "description": "Internal server error"}
+            500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Create a revenue projection",
-        description="Create a new revenue projection for a subscription model"
+        description="Create a new revenue projection for a subscription model",
     )
     async def create_revenue_projection(request: RevenueProjectionRequest):
         """
         Create a new revenue projection for a subscription model.
-        
+
         Args:
             request: Revenue projection request
-            
+
         Returns:
             Revenue projection details
         """
         try:
             # Check if monetization module is available
             if not MONETIZATION_AVAILABLE:
-                raise HTTPException(
-                    status_code=500,
-                    detail="Monetization module not available"
-                )
-            
+                raise HTTPException(status_code=500, detail="Monetization module not available")
+
             # Generate projection ID
             projection_id = str(uuid.uuid4())
-            
+
             # Here we would create the actual revenue projection
             # For now, return mock data
-            
+
             # Create mock monthly projections
             monthly_projections = []
             total_revenue = 0
             total_users = request.initial_users
-            
+
             for month in range(1, request.time_period + 1):
                 # Calculate users for this month
                 new_users = int(total_users * request.growth_rate)
                 churned_users = int(total_users * request.churn_rate)
                 total_users = total_users + new_users - churned_users
-                
+
                 # Calculate paid users
                 paid_users = int(total_users * request.conversion_rate)
-                
+
                 # Calculate revenue (assuming $20/month per paid user)
                 monthly_revenue = paid_users * 20
                 total_revenue += monthly_revenue
-                
+
                 # Add to projections
-                monthly_projections.append({
-                    "month": month,
-                    "total_users": total_users,
-                    "paid_users": paid_users,
-                    "new_users": new_users,
-                    "churned_users": churned_users,
-                    "revenue": monthly_revenue
-                })
-            
+                monthly_projections.append(
+                    {
+                        "month": month,
+                        "total_users": total_users,
+                        "paid_users": paid_users,
+                        "new_users": new_users,
+                        "churned_users": churned_users,
+                        "revenue": monthly_revenue,
+                    }
+                )
+
             # Create projection response
             projection = RevenueProjectionResponse(
                 id=projection_id,
@@ -452,14 +441,13 @@ if FASTAPI_AVAILABLE:
                 monthly_projections=monthly_projections,
                 total_revenue=total_revenue,
                 total_users=total_users,
-                created_at=datetime.now()
+                created_at=datetime.now(),
             )
-            
+
             return projection
-        
+
         except Exception as e:
             logger.error(f"Error creating revenue projection: {str(e)}")
             raise HTTPException(
-                status_code=500,
-                detail=f"Error creating revenue projection: {str(e)}"
+                status_code=500, detail=f"Error creating revenue projection: {str(e)}"
             )

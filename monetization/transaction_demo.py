@@ -4,7 +4,6 @@ Transaction management demo for the pAIssive Income project.
 This script demonstrates how to use the transaction management system.
 """
 
-
 from .mock_payment_processor import MockPaymentProcessor
 from .transaction_manager import TransactionManager
 

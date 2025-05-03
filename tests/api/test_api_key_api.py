@@ -4,21 +4,30 @@ Tests for the API key API.
 This module contains tests for the API key API endpoints.
 """
 
+from typing import Any, Dict, List
+
 import pytest
-from typing import Dict, Any, List
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_api_key_data
-)
+from tests.api.utils.test_data import generate_api_key_data, generate_id
 from tests.api.utils.test_validators import (
-    validate_status_code, validate_json_response, validate_error_response,
-    validate_success_response, validate_paginated_response, validate_bulk_response,
-    validate_field_exists, validate_field_equals, validate_field_type,
-    validate_field_not_empty, validate_list_not_empty, validate_list_length,
-    validate_list_min_length, validate_list_max_length, validate_list_contains,
-    validate_list_contains_dict_with_field
+    validate_bulk_response,
+    validate_error_response,
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_not_empty,
+    validate_field_type,
+    validate_json_response,
+    validate_list_contains,
+    validate_list_contains_dict_with_field,
+    validate_list_length,
+    validate_list_max_length,
+    validate_list_min_length,
+    validate_list_not_empty,
+    validate_paginated_response,
+    validate_status_code,
+    validate_success_response,
 )
 
 
@@ -109,7 +118,7 @@ class TestAPIKeyAPI:
         data = {
             "name": "Updated Key",
             "description": "Updated description",
-            "permissions": ["read", "write"]
+            "permissions": ["read", "write"],
         }
 
         # Make request

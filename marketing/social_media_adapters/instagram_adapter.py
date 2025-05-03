@@ -5,22 +5,23 @@ This module provides an adapter for connecting to the Instagram Graph API for po
 retrieving analytics, and managing social media campaigns.
 """
 
-import logging
 import json
-import requests
-from typing import Dict, List, Any, Optional, Union
+import logging
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Union
 
-from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
+import requests
+
 from marketing.errors import (
     AuthenticationError,
     ContentValidationError,
-    PostNotFoundError,
-    PostingError,
     DeletionError,
+    NotSupportedError,
+    PostingError,
+    PostNotFoundError,
     SchedulingError,
-    NotSupportedError
 )
+from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
 
 # Set up logging
 logger = logging.getLogger(__name__)

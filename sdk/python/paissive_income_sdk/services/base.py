@@ -4,7 +4,7 @@ Base service class for the pAIssive Income API.
 This module provides a base service class that all other service classes inherit from.
 """
 
-from typing import Dict, Any, Optional, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 class BaseService:

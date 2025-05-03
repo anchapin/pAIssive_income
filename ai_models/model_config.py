@@ -5,20 +5,22 @@ This module provides classes and functions for configuring AI models,
 including settings for model paths, cache, and performance options.
 """
 
+import json
 import os
 import sys
-import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from interfaces.model_interfaces import IModelConfig
 
+
 @dataclass
 class ModelConfig(IModelConfig):
     """
     Configuration for AI models with secure defaults.
     """
+
     # Base directories - using restricted permissions by default
     _models_dir: str = field(
         default_factory=lambda: os.path.join(os.path.expanduser("~"), ".pAIssive_income", "models")
@@ -120,7 +122,7 @@ class ModelConfig(IModelConfig):
             "auto_discover": self.auto_discover,
             "model_sources": self.model_sources,
             "default_text_model": self.default_text_model,
-            "default_embedding_model": self.default_embedding_model
+            "default_embedding_model": self.default_embedding_model,
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -145,16 +147,16 @@ class ModelConfig(IModelConfig):
         try:
             # Create directory if it doesn't exist
             os.makedirs(os.path.dirname(config_path), mode=0o750, exist_ok=True)
-            
+
             # Write config with secure permissions
-            with open(config_path, 'w', encoding='utf-8') as f:
+            with open(config_path, "w", encoding="utf-8") as f:
                 os.chmod(config_path, 0o640)  # Secure file permissions
                 json.dump(self.to_dict(), f, indent=2)
         except Exception as e:
             raise ValueError(f"Failed to save configuration to {config_path}: {e}")
 
     @classmethod
-    def load(cls, config_path: str) -> 'ModelConfig':
+    def load(cls, config_path: str) -> "ModelConfig":
         """
         Load configuration from a JSON file with validation.
 
@@ -163,7 +165,7 @@ class ModelConfig(IModelConfig):
 
         Returns:
             ModelConfig instance
-            
+
         Raises:
             ValueError: If the configuration file is invalid or cannot be loaded
         """
@@ -172,44 +174,54 @@ class ModelConfig(IModelConfig):
 
         try:
             # Load raw config from file
-            with open(config_path, 'r', encoding='utf-8') as f:
+            with open(config_path, "r", encoding="utf-8") as f:
                 config_dict = json.load(f)
-            
+
             # Validate using Pydantic if available
             try:
                 from pydantic import ValidationError
-                
+
                 # Use the Pydantic schema to validate the config
                 validated_config = ModelConfigSchema.model_validate(config_dict)
-                
+
                 # Convert back to dict for creating the ModelConfig instance
                 validated_dict = validated_config.model_dump()
-                
+
                 # Convert public field names to private ones
                 private_dict = {
-                    f"_{key}" if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"} else key: value
+                    (
+                        f"_{key}"
+                        if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"}
+                        else key
+                    ): value
                     for key, value in validated_dict.items()
                 }
-                
+
                 return cls(**private_dict)
-                
+
             except ImportError:
                 # Fallback to basic validation if Pydantic isn't available
                 print("Warning: Pydantic validation not available - using basic validation")
-                
+
                 # Basic validation of required fields and types
                 required_fields = {"models_dir", "cache_dir", "cache_enabled", "cache_ttl"}
                 if not all(field in config_dict for field in required_fields):
-                    raise ValueError(f"Missing required fields: {required_fields - set(config_dict.keys())}")
-                
+                    raise ValueError(
+                        f"Missing required fields: {required_fields - set(config_dict.keys())}"
+                    )
+
                 # Convert public field names to private ones
                 private_dict = {
-                    f"_{key}" if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"} else key: value
+                    (
+                        f"_{key}"
+                        if key in {"models_dir", "cache_dir", "max_threads", "auto_discover"}
+                        else key
+                    ): value
                     for key, value in config_dict.items()
                 }
-                
+
                 return cls(**private_dict)
-                
+
         except Exception as e:
             raise ValueError(f"Failed to load configuration from {config_path}: {e}")
 
@@ -226,7 +238,7 @@ class ModelConfig(IModelConfig):
         return os.path.join(config_dir, "model_config.json")
 
     @classmethod
-    def get_default(cls) -> 'ModelConfig':
+    def get_default(cls) -> "ModelConfig":
         """
         Get the default configuration.
 
@@ -247,15 +259,17 @@ class ModelConfig(IModelConfig):
             config.save(config_path)
         except Exception as e:
             print(f"Warning: Failed to save default config: {e}")
-        
+
         return config
+
 
 # Optional Pydantic schema for validation
 try:
     from pydantic import BaseModel, Field, model_validator
-    
+
     class ModelConfigSchema(BaseModel):
         """Pydantic schema for model configuration validation."""
+
         models_dir: str
         cache_dir: str
         cache_enabled: bool = True

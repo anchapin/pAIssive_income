@@ -6,22 +6,22 @@ This module provides rate limiting middleware for the API server.
 
 import logging
 import time
-from typing import Dict, List, Optional, Any, Callable, Tuple
 from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from ..config import APIConfig, RateLimitScope
 from ..rate_limit import RateLimitManager
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
     from fastapi import FastAPI, Request, Response
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for rate limiting middleware")
@@ -51,10 +51,7 @@ class RateLimitMiddleware:
         self.rate_limit_manager = RateLimitManager(config, storage_type, **storage_kwargs)
 
     def check_rate_limit(
-        self,
-        client_id: str,
-        endpoint: Optional[str] = None,
-        api_key: Optional[str] = None
+        self, client_id: str, endpoint: Optional[str] = None, api_key: Optional[str] = None
     ) -> Tuple[bool, Dict[str, Any]]:
         """
         Check if a request should be rate limited.
@@ -147,7 +144,7 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
                 status_code=429,
                 content='{"detail":"Rate limit exceeded"}',
                 media_type="application/json",
-                headers=headers
+                headers=headers,
             )
 
         # Process the request

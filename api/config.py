@@ -2,17 +2,20 @@
 Configuration for the API server.
 """
 
-import os
 import enum
-from typing import List, Optional, Dict, Any
+import os
+from typing import Any, Dict, List, Optional
+
 
 class APIVersion(enum.Enum):
     """API version enum."""
+
     V1 = "1"
+
 
 class APIConfig:
     """Configuration for the API server."""
-    
+
     def __init__(
         self,
         title: Optional[str] = None,
@@ -38,7 +41,7 @@ class APIConfig:
     ):
         """
         Initialize the API configuration.
-        
+
         Args:
             title: API title
             description: API description
@@ -78,9 +81,15 @@ class APIConfig:
         self.enable_dashboard = enable_dashboard
         self.enable_analytics = enable_analytics
         self.enable_developer = enable_developer
-        self.webhook_allowed_ips = webhook_allowed_ips or ["192.0.2.1", "192.0.2.2", "192.0.2.3", "192.0.2.4"]
+        self.webhook_allowed_ips = webhook_allowed_ips or [
+            "192.0.2.1",
+            "192.0.2.2",
+            "192.0.2.3",
+            "192.0.2.4",
+        ]
         self.webhook_rate_limit = webhook_rate_limit
         self.webhook_rate_limit_window = webhook_rate_limit_window
+
 
 # Default configuration
 default_config = APIConfig()

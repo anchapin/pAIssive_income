@@ -4,21 +4,30 @@ Tests for the webhook API.
 This module contains tests for the webhook API endpoints.
 """
 
+from typing import Any, Dict, List
+
 import pytest
-from typing import Dict, Any, List
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id, generate_webhook_data
-)
+from tests.api.utils.test_data import generate_id, generate_webhook_data
 from tests.api.utils.test_validators import (
-    validate_status_code, validate_json_response, validate_error_response,
-    validate_success_response, validate_paginated_response, validate_bulk_response,
-    validate_field_exists, validate_field_equals, validate_field_type,
-    validate_field_not_empty, validate_list_not_empty, validate_list_length,
-    validate_list_min_length, validate_list_max_length, validate_list_contains,
-    validate_list_contains_dict_with_field
+    validate_bulk_response,
+    validate_error_response,
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_not_empty,
+    validate_field_type,
+    validate_json_response,
+    validate_list_contains,
+    validate_list_contains_dict_with_field,
+    validate_list_length,
+    validate_list_max_length,
+    validate_list_min_length,
+    validate_list_not_empty,
+    validate_paginated_response,
+    validate_status_code,
+    validate_success_response,
 )
 
 
@@ -110,7 +119,7 @@ class TestWebhookAPI:
             "url": "https://example.com/updated-webhook",
             "event_types": ["niche.created", "solution.created"],
             "description": "Updated webhook",
-            "is_active": True
+            "is_active": True,
         }
 
         # Make request
@@ -223,7 +232,9 @@ class TestWebhookAPI:
         delivery_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.post(f"webhooks/{webhook_id}/deliveries/{delivery_id}/redeliver")
+        response = auth_api_test_client.post(
+            f"webhooks/{webhook_id}/deliveries/{delivery_id}/redeliver"
+        )
 
         # This might return 404 if the webhook or delivery doesn't exist, which is fine for testing
         if response.status_code == 404:

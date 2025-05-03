@@ -9,11 +9,11 @@ This script demonstrates how to:
 - Compare multiple campaigns
 """
 
-import os
-from datetime import datetime, timedelta
-from typing import Dict, List, Any
 import json
+import os
 import random
+from datetime import datetime, timedelta
+from typing import Any, Dict, List
 
 from marketing.campaign_tracking import CampaignTracker, MetricGroup
 

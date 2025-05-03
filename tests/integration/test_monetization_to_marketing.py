@@ -1,12 +1,14 @@
 """
 Integration tests for the monetization-to-marketing workflow.
 """
+
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from agent_team import AgentTeam
-from monetization import SubscriptionModel, FreemiumModel, PricingCalculator
-from marketing import MarketingPlan, ConcreteContentGenerator, ChannelStrategy
+from marketing import ChannelStrategy, ConcreteContentGenerator, MarketingPlan
+from monetization import FreemiumModel, PricingCalculator, SubscriptionModel
 
 
 @pytest.fixture
@@ -24,59 +26,50 @@ def mock_monetization_strategy():
                     "name": "Free",
                     "price_monthly": 0.0,
                     "features": ["Basic Forecasting"],
-                    "limits": {"api_calls": 100, "exports": 10}
+                    "limits": {"api_calls": 100, "exports": 10},
                 },
                 {
                     "id": "tier2",
                     "name": "Pro",
                     "price_monthly": 19.99,
                     "features": ["Advanced Forecasting", "Reorder Alerts"],
-                    "limits": {"api_calls": 1000, "exports": 100}
+                    "limits": {"api_calls": 1000, "exports": 100},
                 },
                 {
                     "id": "tier3",
                     "name": "Business",
                     "price_monthly": 49.99,
-                    "features": ["Advanced Forecasting", "Reorder Alerts", "Custom Reporting", "API Access"],
-                    "limits": {"api_calls": 10000, "exports": 1000}
-                }
+                    "features": [
+                        "Advanced Forecasting",
+                        "Reorder Alerts",
+                        "Custom Reporting",
+                        "API Access",
+                    ],
+                    "limits": {"api_calls": 10000, "exports": 1000},
+                },
             ],
         },
         "target_audience": {
             "segments": [
                 "Small businesses",
                 "E-commerce store owners",
-                "Retail inventory managers"
+                "Retail inventory managers",
             ],
             "user_personas": {
                 "free_tier": "Small business owners looking for basic inventory management",
                 "pro_tier": "Growing e-commerce businesses with moderate inventory needs",
-                "business_tier": "Established businesses with complex inventory requirements"
-            }
+                "business_tier": "Established businesses with complex inventory requirements",
+            },
         },
         "pricing_strategy": {
             "model_type": "freemium",
             "pricing_psychology": "price_anchoring",
-            "discount_strategy": "annual_discount"
+            "discount_strategy": "annual_discount",
         },
         "revenue_projections": {
-            "year_1": {
-                "total": 250000,
-                "by_tier": {
-                    "Free": 0,
-                    "Pro": 150000,
-                    "Business": 100000
-                }
-            },
-            "year_3": {
-                "total": 1200000,
-                "by_tier": {
-                    "Free": 0,
-                    "Pro": 500000,
-                    "Business": 700000
-                }
-            }
-        }
+            "year_1": {"total": 250000, "by_tier": {"Free": 0, "Pro": 150000, "Business": 100000}},
+            "year_3": {"total": 1200000, "by_tier": {"Free": 0, "Pro": 500000, "Business": 700000}},
+        },
     }
 
 
@@ -93,35 +86,35 @@ def mock_solution():
                 "name": "Demand Forecasting",
                 "description": "Predict future inventory needs based on historical data",
                 "complexity": "high",
-                "value_proposition": "Save time and reduce stockouts"
+                "value_proposition": "Save time and reduce stockouts",
             },
             {
                 "id": "feature2",
                 "name": "Reorder Alerts",
                 "description": "Get alerts when inventory is running low",
                 "complexity": "medium",
-                "value_proposition": "Never run out of stock again"
+                "value_proposition": "Never run out of stock again",
             },
             {
                 "id": "feature3",
                 "name": "Custom Reporting",
                 "description": "Generate custom inventory reports",
                 "complexity": "medium",
-                "value_proposition": "Get the insights you need"
+                "value_proposition": "Get the insights you need",
             },
             {
                 "id": "feature4",
                 "name": "API Access",
                 "description": "Access inventory data through API",
                 "complexity": "high",
-                "value_proposition": "Integrate with your existing systems"
-            }
+                "value_proposition": "Integrate with your existing systems",
+            },
         ],
         "market_data": {
             "target_audience": "E-commerce store owners and inventory managers",
             "market_size": "large",
-            "competition": "medium"
-        }
+            "competition": "medium",
+        },
     }
 
 
@@ -164,28 +157,20 @@ def mock_agents():
         "budget": {
             "amount": 5000,
             "period": "monthly",
-            "allocation": {
-                "content": 0.3,
-                "social": 0.2,
-                "email": 0.15,
-                "ads": 0.35
-            }
+            "allocation": {"content": 0.3, "social": 0.2, "email": 0.15, "ads": 0.35},
         },
         "content_calendar": {
             "content_types": ["blog_posts", "case_studies", "webinars", "newsletters"],
-            "frequency": "weekly"
-        }
+            "frequency": "weekly",
+        },
     }
 
-    return {
-        "marketing": mock_marketing
-    }
+    return {"marketing": mock_marketing}
 
 
-@patch('agent_team.team_config.MarketingAgent')
+@patch("agent_team.team_config.MarketingAgent")
 def test_monetization_to_marketing_workflow(
-    mock_marketing_class, mock_agents, mock_monetization_strategy,
-    mock_solution, mock_niche
+    mock_marketing_class, mock_agents, mock_monetization_strategy, mock_solution, mock_niche
 ):
     """Test the monetization-to-marketing workflow."""
     # Set up the mock agents
@@ -221,22 +206,18 @@ def test_subscription_tiers_to_channel_strategy_integration(
     # Create a channel strategy using monetization data
     channel_strategy = ChannelStrategy(
         name=f"{mock_solution['name']} Channel Strategy",
-        description=f"Channel strategy for {mock_solution['name']}"
+        description=f"Channel strategy for {mock_solution['name']}",
     )
 
     # Extract target audiences from monetization strategy
     audiences = []
     for segment in mock_monetization_strategy["target_audience"]["segments"]:
-        audiences.append({
-            "name": segment,
-            "tier_focus": "all"
-        })
+        audiences.append({"name": segment, "tier_focus": "all"})
 
-    for tier_name, persona in mock_monetization_strategy["target_audience"]["user_personas"].items():
-        audiences.append({
-            "name": persona,
-            "tier_focus": tier_name
-        })
+    for tier_name, persona in mock_monetization_strategy["target_audience"][
+        "user_personas"
+    ].items():
+        audiences.append({"name": persona, "tier_focus": tier_name})
 
     # Add channels based on audience and tiers
     # Content marketing for all tiers
@@ -246,7 +227,7 @@ def test_subscription_tiers_to_channel_strategy_integration(
         description="Blog posts, guides, and case studies",
         tiers_focus=["all"],
         cost_efficiency=0.8,
-        primary_metrics=["traffic", "leads", "conversions"]
+        primary_metrics=["traffic", "leads", "conversions"],
     )
 
     # Email marketing for leads and premium tier upsells
@@ -256,7 +237,7 @@ def test_subscription_tiers_to_channel_strategy_integration(
         description="Newsletters, product updates, and upgrade offers",
         tiers_focus=["pro_tier", "business_tier"],
         cost_efficiency=0.9,
-        primary_metrics=["open_rate", "click_rate", "conversions"]
+        primary_metrics=["open_rate", "click_rate", "conversions"],
     )
 
     # Add social media strategy
@@ -266,7 +247,7 @@ def test_subscription_tiers_to_channel_strategy_integration(
         description="Social posts, engagement, and community building",
         tiers_focus=["free_tier", "pro_tier"],
         cost_efficiency=0.7,
-        primary_metrics=["engagement", "followers", "traffic"]
+        primary_metrics=["engagement", "followers", "traffic"],
     )
 
     # Add paid search specifically for business tier
@@ -276,16 +257,28 @@ def test_subscription_tiers_to_channel_strategy_integration(
         description="Google Ads for high-intent business keywords",
         tiers_focus=["business_tier"],
         cost_efficiency=0.6,
-        primary_metrics=["clicks", "conversions", "ROI"]
+        primary_metrics=["clicks", "conversions", "ROI"],
     )
 
     # Verify channel strategy integration with monetization tiers
     assert len(channel_strategy.channels) == 4
 
     # Check that each channel has the appropriate focus
-    free_tier_channels = [c for c in channel_strategy.channels if "free_tier" in c["tiers_focus"] or "all" in c["tiers_focus"]]
-    pro_tier_channels = [c for c in channel_strategy.channels if "pro_tier" in c["tiers_focus"] or "all" in c["tiers_focus"]]
-    business_tier_channels = [c for c in channel_strategy.channels if "business_tier" in c["tiers_focus"] or "all" in c["tiers_focus"]]
+    free_tier_channels = [
+        c
+        for c in channel_strategy.channels
+        if "free_tier" in c["tiers_focus"] or "all" in c["tiers_focus"]
+    ]
+    pro_tier_channels = [
+        c
+        for c in channel_strategy.channels
+        if "pro_tier" in c["tiers_focus"] or "all" in c["tiers_focus"]
+    ]
+    business_tier_channels = [
+        c
+        for c in channel_strategy.channels
+        if "business_tier" in c["tiers_focus"] or "all" in c["tiers_focus"]
+    ]
 
     # All tiers should have content marketing
     assert any(c["name"] == "Content Marketing" for c in free_tier_channels)
@@ -302,9 +295,7 @@ def test_subscription_tiers_to_channel_strategy_integration(
     assert all(value > 0 for value in budget_allocation.values())
 
 
-def test_freemium_model_to_content_strategy_integration(
-    mock_monetization_strategy
-):
+def test_freemium_model_to_content_strategy_integration(mock_monetization_strategy):
     """Test integration between freemium model and content strategy."""
     # Extract the subscription model tiers
     tiers = mock_monetization_strategy["subscription_model"]["tiers"]
@@ -318,7 +309,7 @@ def test_freemium_model_to_content_strategy_integration(
         # Create content generator
         generator = ConcreteContentGenerator(
             name=f"{tier_name} Tier Content Generator",
-            description=f"Content generator for {tier_name} tier"
+            description=f"Content generator for {tier_name} tier",
         )
 
         # Add content types based on tier
@@ -329,14 +320,14 @@ def test_freemium_model_to_content_strategy_integration(
                 format="text",
                 frequency="weekly",
                 goal="awareness",
-                target_metrics=["traffic", "signups"]
+                target_metrics=["traffic", "signups"],
             )
             generator.add_content_type(
                 name="Social Media Posts",
                 format="text+image",
                 frequency="daily",
                 goal="engagement",
-                target_metrics=["likes", "shares", "clicks"]
+                target_metrics=["likes", "shares", "clicks"],
             )
 
         elif tier_name == "Pro":
@@ -346,14 +337,14 @@ def test_freemium_model_to_content_strategy_integration(
                 format="pdf",
                 frequency="monthly",
                 goal="conversion",
-                target_metrics=["downloads", "sales calls"]
+                target_metrics=["downloads", "sales calls"],
             )
             generator.add_content_type(
                 name="Webinars",
                 format="video",
                 frequency="monthly",
                 goal="lead_nurturing",
-                target_metrics=["registrations", "attendance", "upgrades"]
+                target_metrics=["registrations", "attendance", "upgrades"],
             )
 
         elif tier_name == "Business":
@@ -363,14 +354,14 @@ def test_freemium_model_to_content_strategy_integration(
                 format="pdf",
                 frequency="quarterly",
                 goal="thought_leadership",
-                target_metrics=["downloads", "sales meetings"]
+                target_metrics=["downloads", "sales meetings"],
             )
             generator.add_content_type(
                 name="Integration Guides",
                 format="text+code",
                 frequency="as_needed",
                 goal="retention",
-                target_metrics=["api_adoption", "feature_usage"]
+                target_metrics=["api_adoption", "feature_usage"],
             )
 
         # Add features as topics
@@ -379,7 +370,7 @@ def test_freemium_model_to_content_strategy_integration(
             generator.add_topic(
                 name=feature,
                 description=f"Content about {feature}",
-                keywords=[feature.lower().replace(" ", "-"), feature.lower()]
+                keywords=[feature.lower().replace(" ", "-"), feature.lower()],
             )
 
         content_generators[tier_name] = generator
@@ -396,19 +387,19 @@ def test_freemium_model_to_content_strategy_integration(
     free_content = content_generators["Free"].generate_content(
         content_type="Blog Posts",
         topic="Basic Forecasting",
-        title="Introduction to Inventory Forecasting"
+        title="Introduction to Inventory Forecasting",
     )
 
     pro_content = content_generators["Pro"].generate_content(
         content_type="Case Studies",
         topic="Advanced Forecasting",
-        title="How Company X Reduced Stockouts by 75% with Advanced Forecasting"
+        title="How Company X Reduced Stockouts by 75% with Advanced Forecasting",
     )
 
     business_content = content_generators["Business"].generate_content(
         content_type="Integration Guides",
         topic="API Access",
-        title="Integrating Your ERP System with Our Inventory API"
+        title="Integrating Your ERP System with Our Inventory API",
     )
 
     # Verify that content contains appropriate keywords
@@ -417,9 +408,7 @@ def test_freemium_model_to_content_strategy_integration(
     assert "API" in str(business_content)
 
 
-def test_pricing_strategy_to_marketing_message_alignment(
-    mock_monetization_strategy
-):
+def test_pricing_strategy_to_marketing_message_alignment(mock_monetization_strategy):
     """Test alignment of pricing strategy with marketing messages."""
     # Extract the pricing strategy and tiers
     pricing_strategy = mock_monetization_strategy["pricing_strategy"]
@@ -438,11 +427,19 @@ def test_pricing_strategy_to_marketing_message_alignment(
     if pricing_strategy["pricing_psychology"] == "price_anchoring":
         # Find the top tier
         top_tier = max(tiers, key=lambda t: t["price_monthly"])
-        middle_tier = [t for t in tiers if t["price_monthly"] > 0 and t != top_tier][0] if len(tiers) > 2 else top_tier
+        middle_tier = (
+            [t for t in tiers if t["price_monthly"] > 0 and t != top_tier][0]
+            if len(tiers) > 2
+            else top_tier
+        )
 
         marketing_messages["recommended_plan"] = middle_tier["name"]
-        marketing_messages["price_comparison"] = f"Get all essential features at just ${middle_tier['price_monthly']} per month"
-        marketing_messages["enterprise_message"] = f"Need more? Our {top_tier['name']} plan includes everything at ${top_tier['price_monthly']} per month"
+        marketing_messages["price_comparison"] = (
+            f"Get all essential features at just ${middle_tier['price_monthly']} per month"
+        )
+        marketing_messages["enterprise_message"] = (
+            f"Need more? Our {top_tier['name']} plan includes everything at ${top_tier['price_monthly']} per month"
+        )
 
     # For annual discounts, highlight savings
     if pricing_strategy["discount_strategy"] == "annual_discount":
@@ -467,9 +464,7 @@ def test_pricing_strategy_to_marketing_message_alignment(
         assert "Unlock" in marketing_messages["upgrade_message"]
 
 
-def test_revenue_projections_to_marketing_budget_allocation(
-    mock_monetization_strategy
-):
+def test_revenue_projections_to_marketing_budget_allocation(mock_monetization_strategy):
     """Test using revenue projections to inform marketing budget allocation."""
     # Extract revenue projections
     revenue_projections = mock_monetization_strategy["revenue_projections"]
@@ -481,19 +476,19 @@ def test_revenue_projections_to_marketing_budget_allocation(
     # Allocate budget based on tier revenue projections
     tier_allocations_year_1 = {}
     for tier, revenue in revenue_projections["year_1"]["by_tier"].items():
-        tier_allocations_year_1[tier] = (revenue / year_1_revenue) * marketing_budget_year_1 if year_1_revenue > 0 else 0
+        tier_allocations_year_1[tier] = (
+            (revenue / year_1_revenue) * marketing_budget_year_1 if year_1_revenue > 0 else 0
+        )
 
     # Create a marketing plan with budget allocation
     marketing_plan = MarketingPlan(
         name="AI Inventory Manager Marketing Plan",
-        description="Marketing plan based on monetization strategy and revenue projections"
+        description="Marketing plan based on monetization strategy and revenue projections",
     )
 
     # Add budget
     marketing_plan.set_budget(
-        total_amount=marketing_budget_year_1,
-        period="annual",
-        allocation_strategy="tier_based"
+        total_amount=marketing_budget_year_1, period="annual", allocation_strategy="tier_based"
     )
 
     # Add budget allocation for each tier
@@ -501,7 +496,9 @@ def test_revenue_projections_to_marketing_budget_allocation(
         marketing_plan.add_tier_budget_allocation(
             tier_name=tier,
             amount=amount,
-            focus_areas=["acquisition"] if tier == "Free" else ["acquisition", "conversion", "retention"]
+            focus_areas=(
+                ["acquisition"] if tier == "Free" else ["acquisition", "conversion", "retention"]
+            ),
         )
 
     # Add channels and strategies
@@ -509,35 +506,35 @@ def test_revenue_projections_to_marketing_budget_allocation(
         name="Content Marketing",
         budget_percentage=0.30,
         primary_goal="awareness",
-        target_tiers=["Free", "Pro"]
+        target_tiers=["Free", "Pro"],
     )
 
     marketing_plan.add_channel(
         name="SEO",
         budget_percentage=0.15,
         primary_goal="traffic",
-        target_tiers=["Free", "Pro", "Business"]
+        target_tiers=["Free", "Pro", "Business"],
     )
 
     marketing_plan.add_channel(
         name="Email Marketing",
         budget_percentage=0.15,
         primary_goal="conversion",
-        target_tiers=["Free", "Pro"]
+        target_tiers=["Free", "Pro"],
     )
 
     marketing_plan.add_channel(
         name="Paid Advertising",
         budget_percentage=0.25,
         primary_goal="acquisition",
-        target_tiers=["Pro", "Business"]
+        target_tiers=["Pro", "Business"],
     )
 
     marketing_plan.add_channel(
         name="Direct Sales",
         budget_percentage=0.15,
         primary_goal="conversion",
-        target_tiers=["Business"]
+        target_tiers=["Business"],
     )
 
     # Verify marketing budget allocation
@@ -546,9 +543,17 @@ def test_revenue_projections_to_marketing_budget_allocation(
 
     # Check that the tier budget allocations are proportional to revenue
     for tier, allocation in marketing_plan.tier_budget_allocations.items():
-        expected_proportion = revenue_projections["year_1"]["by_tier"].get(tier, 0) / year_1_revenue if year_1_revenue > 0 else 0
-        actual_proportion = allocation["amount"] / marketing_budget_year_1 if marketing_budget_year_1 > 0 else 0
-        assert abs(expected_proportion - actual_proportion) < 0.01  # Within 1% margin for floating point comparison
+        expected_proportion = (
+            revenue_projections["year_1"]["by_tier"].get(tier, 0) / year_1_revenue
+            if year_1_revenue > 0
+            else 0
+        )
+        actual_proportion = (
+            allocation["amount"] / marketing_budget_year_1 if marketing_budget_year_1 > 0 else 0
+        )
+        assert (
+            abs(expected_proportion - actual_proportion) < 0.01
+        )  # Within 1% margin for floating point comparison
 
     # Verify channel allocations
     channel_allocation_sum = sum(c["budget_percentage"] for c in marketing_plan.channels)
@@ -560,7 +565,9 @@ def test_revenue_projections_to_marketing_budget_allocation(
 
     assert len(free_tier_channels) >= 2  # Free tier should have at least 2 channels
     assert len(business_tier_channels) >= 2  # Business tier should have at least 2 channels
-    assert any(c["name"] == "Direct Sales" for c in business_tier_channels)  # Business tier should include direct sales
+    assert any(
+        c["name"] == "Direct Sales" for c in business_tier_channels
+    )  # Business tier should include direct sales
 
 
 def test_end_to_end_monetization_to_marketing_workflow(
@@ -577,7 +584,7 @@ def test_end_to_end_monetization_to_marketing_workflow(
     # Step 2: Create a marketing plan
     marketing_plan = MarketingPlan(
         name=f"{mock_solution['name']} Marketing Plan",
-        description=f"Comprehensive marketing plan for {mock_solution['name']}"
+        description=f"Comprehensive marketing plan for {mock_solution['name']}",
     )
 
     # Step 3: Set marketing goals based on monetization strategy and revenue projections
@@ -587,7 +594,7 @@ def test_end_to_end_monetization_to_marketing_workflow(
         description=f"Achieve ${year_1_revenue} in annual recurring revenue",
         metric="ARR",
         target_value=year_1_revenue,
-        timeframe="1 year"
+        timeframe="1 year",
     )
 
     free_to_paid_conversion_goal = 0.05  # 5% conversion from free to paid
@@ -596,7 +603,7 @@ def test_end_to_end_monetization_to_marketing_workflow(
         description="Convert free tier users to paid subscriptions",
         metric="conversion_rate",
         target_value=free_to_paid_conversion_goal,
-        timeframe="ongoing"
+        timeframe="ongoing",
     )
 
     # Different goals for different tiers
@@ -605,7 +612,7 @@ def test_end_to_end_monetization_to_marketing_workflow(
         description="Acquire new free tier users",
         metric="free_signups",
         target_value=10000,
-        timeframe="1 year"
+        timeframe="1 year",
     )
 
     marketing_plan.add_goal(
@@ -613,7 +620,7 @@ def test_end_to_end_monetization_to_marketing_workflow(
         description="Acquire new pro tier subscribers",
         metric="pro_subscriptions",
         target_value=500,
-        timeframe="1 year"
+        timeframe="1 year",
     )
 
     marketing_plan.add_goal(
@@ -621,15 +628,13 @@ def test_end_to_end_monetization_to_marketing_workflow(
         description="Acquire new business tier subscribers",
         metric="business_subscriptions",
         target_value=100,
-        timeframe="1 year"
+        timeframe="1 year",
     )
 
     # Step 4: Calculate marketing budget and allocation
     marketing_budget = year_1_revenue * 0.2  # 20% of projected revenue
     marketing_plan.set_budget(
-        total_amount=marketing_budget,
-        period="annual",
-        allocation_strategy="tier_based"
+        total_amount=marketing_budget, period="annual", allocation_strategy="tier_based"
     )
 
     # Step 5: Define target personas based on monetization strategy
@@ -639,7 +644,7 @@ def test_end_to_end_monetization_to_marketing_workflow(
             description=persona_description,
             target_tier=tier_name,
             goals=["improve inventory management", "reduce stockouts"],
-            pain_points=["manual inventory tracking", "stockouts", "overstocking"]
+            pain_points=["manual inventory tracking", "stockouts", "overstocking"],
         )
 
     # Step 6: Define marketing channels and strategies based on tiers
@@ -652,8 +657,8 @@ def test_end_to_end_monetization_to_marketing_workflow(
         strategies=[
             "Educational blog posts about inventory management",
             "SEO optimization for inventory management keywords",
-            "Free tools and resources"
-        ]
+            "Free tools and resources",
+        ],
     )
 
     marketing_plan.add_channel(
@@ -664,8 +669,8 @@ def test_end_to_end_monetization_to_marketing_workflow(
         strategies=[
             "Platform-specific content strategy",
             "Community building",
-            "User testimonials and case studies"
-        ]
+            "User testimonials and case studies",
+        ],
     )
 
     # Pro tier - focus on conversion and retention
@@ -677,8 +682,8 @@ def test_end_to_end_monetization_to_marketing_workflow(
         strategies=[
             "Free-to-Pro upgrade campaigns",
             "Feature announcements",
-            "Case studies showcasing ROI"
-        ]
+            "Case studies showcasing ROI",
+        ],
     )
 
     # Business tier - focus on high-value acquisition
@@ -690,8 +695,8 @@ def test_end_to_end_monetization_to_marketing_workflow(
         strategies=[
             "Google Ads for high-intent keywords",
             "Retargeting campaigns",
-            "LinkedIn ads for business decision-makers"
-        ]
+            "LinkedIn ads for business decision-makers",
+        ],
     )
 
     marketing_plan.add_channel(
@@ -702,8 +707,8 @@ def test_end_to_end_monetization_to_marketing_workflow(
         strategies=[
             "Outbound sales campaigns",
             "Demo requests follow-up",
-            "Partner referral program"
-        ]
+            "Partner referral program",
+        ],
     )
 
     # Step 7: Create content strategy aligned with monetization tiers
@@ -715,21 +720,21 @@ def test_end_to_end_monetization_to_marketing_workflow(
                 "name": "Blog Posts",
                 "target_tiers": ["free_tier"],
                 "frequency": "weekly",
-                "topics": ["Basic inventory management", "Getting started guides"]
+                "topics": ["Basic inventory management", "Getting started guides"],
             },
             {
                 "name": "Case Studies",
                 "target_tiers": ["pro_tier"],
                 "frequency": "monthly",
-                "topics": ["ROI from advanced forecasting", "Time savings with alerts"]
+                "topics": ["ROI from advanced forecasting", "Time savings with alerts"],
             },
             {
                 "name": "White Papers",
                 "target_tiers": ["business_tier"],
                 "frequency": "quarterly",
-                "topics": ["Enterprise inventory management", "API integration strategies"]
-            }
-        ]
+                "topics": ["Enterprise inventory management", "API integration strategies"],
+            },
+        ],
     )
 
     # Step 8: Create messaging strategy based on pricing strategy
@@ -762,9 +767,15 @@ def test_end_to_end_monetization_to_marketing_workflow(
                 {"name": "Awareness", "channels": ["Content Marketing", "Social Media"]},
                 {"name": "Interest", "channels": ["Email Marketing", "Retargeting"]},
                 {"name": "Consideration", "channels": ["Case Studies", "Webinars"]},
-                {"name": "Conversion", "channels": ["Email Marketing", "Direct Sales" if tier_name == "business_tier" else "Website"]},
-                {"name": "Retention", "channels": ["Email Marketing", "Customer Success"]}
-            ]
+                {
+                    "name": "Conversion",
+                    "channels": [
+                        "Email Marketing",
+                        "Direct Sales" if tier_name == "business_tier" else "Website",
+                    ],
+                },
+                {"name": "Retention", "channels": ["Email Marketing", "Customer Success"]},
+            ],
         )
 
     # Step 10: Verify the marketing plan is comprehensive and aligned with monetization strategy
@@ -778,8 +789,12 @@ def test_end_to_end_monetization_to_marketing_workflow(
 
     # Check content strategy alignment with tiers
     content_strategy = marketing_plan.content_strategies[0]
-    free_tier_content = [ct for ct in content_strategy["content_types"] if "free_tier" in ct["target_tiers"]]
-    business_tier_content = [ct for ct in content_strategy["content_types"] if "business_tier" in ct["target_tiers"]]
+    free_tier_content = [
+        ct for ct in content_strategy["content_types"] if "free_tier" in ct["target_tiers"]
+    ]
+    business_tier_content = [
+        ct for ct in content_strategy["content_types"] if "business_tier" in ct["target_tiers"]
+    ]
 
     assert len(free_tier_content) >= 1
     assert len(business_tier_content) >= 1

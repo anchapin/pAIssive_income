@@ -5,14 +5,15 @@ This module provides classes for integrating with external collaboration tools
 such as GitHub, Slack, Microsoft Teams, and others.
 """
 
-import os
 import json
-import uuid
 import logging
-import requests
-from typing import Dict, List, Optional, Any, Set
+import os
+import uuid
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional, Set
+
+import requests
 
 # Set up logging
 logger = logging.getLogger(__name__)

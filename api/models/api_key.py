@@ -6,12 +6,13 @@ This module provides the API key model for API key management.
 
 import secrets
 from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
+
 
 class APIKey:
     """API key model."""
-    
+
     def __init__(
         self,
         id: Optional[str] = None,
@@ -23,11 +24,11 @@ class APIKey:
         is_active: bool = True,
         expires_at: Optional[datetime] = None,
         created_at: Optional[datetime] = None,
-        last_used_at: Optional[datetime] = None
+        last_used_at: Optional[datetime] = None,
     ):
         """
         Initialize an API key.
-        
+
         Args:
             id: API key ID
             key: API key value
@@ -50,42 +51,42 @@ class APIKey:
         self.expires_at = expires_at
         self.created_at = created_at or datetime.now(timezone.utc)
         self.last_used_at = last_used_at
-    
+
     def _generate_key(self) -> str:
         """
         Generate a new API key.
-        
+
         Returns:
             Generated API key
         """
         # Generate a 32-byte random token
         return f"pik_{secrets.token_urlsafe(32)}"
-    
+
     def is_valid(self) -> bool:
         """
         Check if the API key is valid.
-        
+
         Returns:
             True if the API key is valid, False otherwise
         """
         # Check if the API key is active
         if not self.is_active:
             return False
-        
+
         # Check if the API key has expired
         if self.expires_at and datetime.now(timezone.utc) > self.expires_at:
             return False
-        
+
         return True
-    
+
     def update_last_used(self) -> None:
         """Update the last used timestamp."""
         self.last_used_at = datetime.now(timezone.utc)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert the API key to a dictionary.
-        
+
         Returns:
             Dictionary representation of the API key
         """
@@ -99,25 +100,27 @@ class APIKey:
             "is_active": self.is_active,
             "expires_at": self.expires_at.isoformat() if self.expires_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "last_used_at": self.last_used_at.isoformat() if self.last_used_at else None
+            "last_used_at": self.last_used_at.isoformat() if self.last_used_at else None,
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "APIKey":
         """
         Create an API key from a dictionary.
-        
+
         Args:
             data: Dictionary representation of the API key
-            
+
         Returns:
             API key instance
         """
         # Convert ISO format strings to datetime objects
         expires_at = datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
         created_at = datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None
-        last_used_at = datetime.fromisoformat(data["last_used_at"]) if data.get("last_used_at") else None
-        
+        last_used_at = (
+            datetime.fromisoformat(data["last_used_at"]) if data.get("last_used_at") else None
+        )
+
         return cls(
             id=data.get("id"),
             key=data.get("key"),
@@ -128,16 +131,16 @@ class APIKey:
             is_active=data.get("is_active", True),
             expires_at=expires_at,
             created_at=created_at,
-            last_used_at=last_used_at
+            last_used_at=last_used_at,
         )
-    
+
     def has_scope(self, scope: str) -> bool:
         """
         Check if the API key has a specific scope.
-        
+
         Args:
             scope: Scope to check
-            
+
         Returns:
             True if the API key has the scope, False otherwise
         """

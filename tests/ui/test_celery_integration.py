@@ -1,13 +1,14 @@
 """
 Tests for Celery integration with Flask and Socket.IO.
 """
+
 import json
-import pytest
 from unittest.mock import MagicMock, patch
 
+import pytest
 from celery import states
-from flask import Flask
 
+from flask import Flask
 from ui.celery_app import (
     create_celery_app,
     emit_task_event,
@@ -24,7 +25,7 @@ def mock_app():
     app = Flask(__name__)
     app.config.update(
         CELERY_BROKER_URL="redis://localhost:6379/0",
-        CELERY_RESULT_BACKEND="redis://localhost:6379/0"
+        CELERY_RESULT_BACKEND="redis://localhost:6379/0",
     )
     return app
 
@@ -55,12 +56,12 @@ class TestCeleryIntegration:
     def test_create_celery_app(self, mock_app):
         """Test Celery app creation and configuration."""
         celery = create_celery_app(mock_app)
-        
+
         # Check basic configuration
         assert celery.main == mock_app.import_name
         assert celery.conf["broker_url"] == "redis://localhost:6379/0"
         assert celery.conf["result_backend"] == "redis://localhost:6379/0"
-        
+
         # Check task configuration
         assert celery.conf["task_serializer"] == "json"
         assert celery.conf["result_serializer"] == "json"
@@ -74,20 +75,14 @@ class TestCeleryIntegration:
         """Test Socket.IO event emission for tasks."""
         task_id = "test_task_id"
         event_name = "task_progress"
-        data = {
-            "status": "RUNNING",
-            "progress": 50,
-            "message": "Processing..."
-        }
+        data = {"status": "RUNNING", "progress": 50, "message": "Processing..."}
 
         # Test event emission
         emit_task_event(event_name, task_id, data)
 
         # Verify Socket.IO emit was called correctly
         mock_socketio.emit.assert_called_once_with(
-            event_name,
-            {"task_id": task_id, **data},
-            room=task_id
+            event_name, {"task_id": task_id, **data}, room=task_id
         )
 
     @patch("ui.celery_app.emit_task_event")
@@ -99,11 +94,7 @@ class TestCeleryIntegration:
         mock_emit.assert_called_once_with(
             "task_progress",
             "test_task_id",
-            {
-                "status": "PENDING",
-                "message": "Task queued",
-                "progress": 0
-            }
+            {"status": "PENDING", "message": "Task queued", "progress": 0},
         )
 
     @patch("ui.celery_app.emit_task_event")
@@ -118,11 +109,7 @@ class TestCeleryIntegration:
         mock_emit.assert_called_once_with(
             "task_progress",
             task_id,
-            {
-                "status": "STARTED",
-                "message": "Task started",
-                "progress": 0
-            }
+            {"status": "STARTED", "message": "Task started", "progress": 0},
         )
 
     @patch("ui.celery_app.emit_task_event")
@@ -140,8 +127,8 @@ class TestCeleryIntegration:
                 "status": "SUCCESS",
                 "message": "Task completed successfully",
                 "progress": 100,
-                "result": result
-            }
+                "result": result,
+            },
         )
 
     @patch("ui.celery_app.emit_task_event")
@@ -150,11 +137,7 @@ class TestCeleryIntegration:
         exception = ValueError("Test error")
         traceback = "Test traceback"
 
-        task_failure_handler(
-            sender=mock_task,
-            exception=exception,
-            traceback=traceback
-        )
+        task_failure_handler(sender=mock_task, exception=exception, traceback=traceback)
 
         # Verify event emission
         mock_emit.assert_called_once_with(
@@ -165,15 +148,16 @@ class TestCeleryIntegration:
                 "message": "Task failed: Test error",
                 "error": "Test error",
                 "traceback": traceback,
-            }
+            },
         )
 
     def test_task_context(self, mock_celery):
         """Test task execution with Flask application context."""
-        
+
         @mock_celery.task
         def test_task():
             from flask import current_app
+
             return current_app.name
 
         # Execute task (should maintain app context)
@@ -202,14 +186,11 @@ class TestCeleryIntegration:
     @patch("ui.celery_app.socketio")
     def test_task_progress_updates(self, mock_socketio, mock_celery):
         """Test task progress updates via Socket.IO."""
-        
+
         @mock_celery.task(bind=True)
         def progress_task(self):
             # Simulate progress updates
-            self.update_state(
-                state="PROGRESS",
-                meta={"progress": 50, "message": "Halfway done"}
-            )
+            self.update_state(state="PROGRESS", meta={"progress": 50, "message": "Halfway done"})
             return "Completed"
 
         # Execute task
@@ -224,7 +205,7 @@ class TestCeleryIntegration:
     @patch("ui.celery_app.socketio")
     def test_error_handling(self, mock_socketio, mock_celery):
         """Test error handling in tasks."""
-        
+
         @mock_celery.task
         def error_task():
             raise ValueError("Test error")

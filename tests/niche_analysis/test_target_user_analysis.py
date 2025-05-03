@@ -2,15 +2,16 @@
 Tests for target user analysis functionality.
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
 
-from niche_analysis.target_user_analysis import (
-    UserSegmentationAnalyzer,
-    UserNeedsPrioritizer,
-    WillingnessToPay
-)
+import pytest
+
 from niche_analysis.errors import InsufficientDataError, InvalidUserDataError
+from niche_analysis.target_user_analysis import (
+    UserNeedsPrioritizer,
+    UserSegmentationAnalyzer,
+    WillingnessToPay,
+)
 
 
 class TestTargetUserAnalysis:
@@ -31,15 +32,15 @@ class TestTargetUserAnalysis:
                 "company_size": "startup",
                 "tech_stack": ["python", "javascript"],
                 "pain_points": ["code quality", "testing"],
-                "budget": "medium"
+                "budget": "medium",
             },
             {
                 "role": "team_lead",
                 "company_size": "enterprise",
                 "tech_stack": ["java", "python"],
                 "pain_points": ["productivity", "collaboration"],
-                "budget": "high"
-            }
+                "budget": "high",
+            },
         ]
 
         # Perform segmentation
@@ -65,18 +66,13 @@ class TestTargetUserAnalysis:
         """Test user needs prioritization."""
         # Test data
         needs_data = [
-            {
-                "need": "code quality",
-                "frequency": 0.8,
-                "impact": 0.9,
-                "current_solutions": 0.5
-            },
+            {"need": "code quality", "frequency": 0.8, "impact": 0.9, "current_solutions": 0.5},
             {
                 "need": "testing automation",
                 "frequency": 0.7,
                 "impact": 0.8,
-                "current_solutions": 0.4
-            }
+                "current_solutions": 0.4,
+            },
         ]
 
         # Prioritize needs
@@ -105,12 +101,12 @@ class TestTargetUserAnalysis:
             "survey_responses": [
                 {"price_point": 50, "would_pay": True},
                 {"price_point": 100, "would_pay": True},
-                {"price_point": 200, "would_pay": False}
+                {"price_point": 200, "would_pay": False},
             ],
             "market_data": {
                 "competitor_prices": [49.99, 99.99, 149.99],
-                "typical_budget": "medium"
-            }
+                "typical_budget": "medium",
+            },
         }
 
         # Estimate willingness to pay
@@ -133,14 +129,14 @@ class TestTargetUserAnalysis:
                     "role": "senior_developer",
                     "goals": ["improve_productivity", "reduce_errors"],
                     "challenges": ["complex_codebase", "tight_deadlines"],
-                    "preferences": ["automated_tools", "integrated_workflow"]
+                    "preferences": ["automated_tools", "integrated_workflow"],
                 }
             ],
             "survey_data": {
                 "common_pain_points": ["code_quality", "testing"],
                 "tool_preferences": ["vs_code", "git"],
-                "collaboration_needs": ["high"]
-            }
+                "collaboration_needs": ["high"],
+            },
         }
 
         # Create personas
@@ -161,18 +157,15 @@ class TestTargetUserAnalysis:
         """Test user journey mapping."""
         # Test data
         journey_data = {
-            "awareness": {
-                "channels": ["search", "social_media"],
-                "pain_points": ["discovery"]
-            },
+            "awareness": {"channels": ["search", "social_media"], "pain_points": ["discovery"]},
             "consideration": {
                 "evaluation_criteria": ["features", "price"],
-                "information_needs": ["documentation", "reviews"]
+                "information_needs": ["documentation", "reviews"],
             },
             "decision": {
                 "key_factors": ["trial_experience", "support"],
-                "obstacles": ["budget_approval"]
-            }
+                "obstacles": ["budget_approval"],
+            },
         }
 
         # Map user journey
@@ -197,14 +190,14 @@ class TestTargetUserAnalysis:
                 "size": 1000,
                 "average_deal_size": 5000,
                 "acquisition_cost": 1000,
-                "churn_rate": 0.1
+                "churn_rate": 0.1,
             },
             "startup": {
                 "size": 5000,
                 "average_deal_size": 1000,
                 "acquisition_cost": 200,
-                "churn_rate": 0.2
-            }
+                "churn_rate": 0.2,
+            },
         }
 
         # Analyze segment value
@@ -231,9 +224,9 @@ class TestTargetUserAnalysis:
 
         # Test with invalid survey responses
         with pytest.raises(ValueError):
-            self.wtp_analyzer.estimate_willingness_to_pay({
-                "survey_responses": [{"price_point": -50}]  # Invalid negative price
-            })
+            self.wtp_analyzer.estimate_willingness_to_pay(
+                {"survey_responses": [{"price_point": -50}]}  # Invalid negative price
+            )
 
     def test_cross_segment_analysis(self):
         """Test cross-segment analysis."""
@@ -241,12 +234,12 @@ class TestTargetUserAnalysis:
         segments = {
             "enterprise": {
                 "needs": ["security", "scalability"],
-                "preferences": ["enterprise_support", "compliance"]
+                "preferences": ["enterprise_support", "compliance"],
             },
             "startup": {
                 "needs": ["cost_efficiency", "quick_setup"],
-                "preferences": ["self_service", "flexibility"]
-            }
+                "preferences": ["self_service", "flexibility"],
+            },
         }
 
         # Analyze cross-segment patterns

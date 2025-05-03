@@ -5,23 +5,21 @@ This module defines the routes for the web interface, handling requests
 for different parts of the application.
 """
 
-from flask import render_template, request, jsonify, redirect, url_for, session, flash
 import logging
-from datetime import datetime
-import uuid
 import traceback
+import uuid
+from datetime import datetime
+
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
 
 from . import app
-from .errors import (
-    UIError, RouteError, ServiceError, ValidationError,
-    api_error_handler
-)
+from .errors import RouteError, ServiceError, UIError, ValidationError, api_error_handler
+from .task_manager import cancel_task, get_task_id, get_task_status, store_task_id
 from .tasks import (
-    analyze_niches, create_solution, create_monetization_strategy,
-    create_marketing_campaign
-)
-from .task_manager import (
-    get_task_status, store_task_id, get_task_id, cancel_task
+    analyze_niches,
+    create_marketing_campaign,
+    create_monetization_strategy,
+    create_solution,
 )
 
 # Set up logging
@@ -40,11 +38,15 @@ def init_services():
     global agent_team_service, niche_analysis_service, developer_service, monetization_service, marketing_service
 
     # Import here to avoid circular imports
-    from .service_registry import get_ui_service
     from interfaces.ui_interfaces import (
-        IAgentTeamService, INicheAnalysisService, IDeveloperService,
-        IMonetizationService, IMarketingService
+        IAgentTeamService,
+        IDeveloperService,
+        IMarketingService,
+        IMonetizationService,
+        INicheAnalysisService,
     )
+
+    from .service_registry import get_ui_service
 
     # Initialize services
     agent_team_service = get_ui_service(IAgentTeamService)
@@ -100,7 +102,7 @@ def run_niche_analysis():
     """Run niche analysis on selected market segments as a background task."""
     from .validation_schemas import NicheAnalysisRequest
     from .validators import validate_form_data
-    
+
     # Validate input using Pydantic schema
     validated_data = validate_form_data(NicheAnalysisRequest)
     market_segments = validated_data.market_segments
@@ -182,7 +184,7 @@ def develop_solution():
     """Develop a solution for a selected niche as a background task."""
     from .validation_schemas import DeveloperSolutionRequest
     from .validators import validate_form_data
-    
+
     # Validate input using Pydantic schema
     validated_data = validate_form_data(DeveloperSolutionRequest)
     niche_id = validated_data.niche_id
@@ -264,7 +266,7 @@ def create_monetization_strategy_route():
     """Create a monetization strategy for a selected solution as a background task."""
     from .validation_schemas import MonetizationStrategyRequest
     from .validators import validate_form_data
-    
+
     # Validate input using Pydantic schema
     validated_data = validate_form_data(MonetizationStrategyRequest)
     solution_id = validated_data.solution_id
@@ -346,7 +348,7 @@ def create_marketing_campaign_route():
     """Create a marketing campaign for a selected solution as a background task."""
     from .validation_schemas import MarketingCampaignRequest
     from .validators import validate_form_data
-    
+
     # Validate input using Pydantic schema
     validated_data = validate_form_data(MarketingCampaignRequest)
     solution_id = validated_data.solution_id

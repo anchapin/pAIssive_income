@@ -6,23 +6,24 @@ of marketing content across different channels. It helps identify which content
 is performing best and provides insights to improve content strategy.
 """
 
+import json
+import logging
+
 # Standard library imports
 import os
-import json
-import uuid
-from typing import Dict, List, Any, Optional, Union, Tuple
-from datetime import datetime, timedelta
-from collections import defaultdict
 import statistics
-import logging
+import uuid
+from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Local imports
 from interfaces.marketing_interfaces import IContentPerformanceAnalyzer
 from marketing.errors import (
     ContentNotFoundError,
-    InvalidParameterError,
     InsufficientDataError,
-    StorageError
+    InvalidParameterError,
+    StorageError,
 )
 
 # Configure logging

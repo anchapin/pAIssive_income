@@ -5,16 +5,16 @@ This module provides classes for sharing projects between users and workspaces,
 with appropriate permissions and access controls.
 """
 
-import uuid
-import logging
 import json
+import logging
 import os
-from typing import Dict, List, Optional, Any, Set
+import uuid
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any, Dict, List, Optional, Set
 
-from .errors import SharingError, PermissionError
 from .access_control import Permission
+from .errors import PermissionError, SharingError
 
 # Set up logging
 logger = logging.getLogger(__name__)

@@ -12,7 +12,7 @@ import os
 import subprocess
 import sys
 import time
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -62,7 +62,7 @@ def start_consul(data_dir: str = "./consul_data", port: int = 8500) -> subproces
         "-data-dir", data_dir,
         "-ui",
         "-bind", "127.0.0.1",
-        "-client", "0.0.0.0"
+        "-client", "127.0.0.1"
     ]
 
     if port != 8500:

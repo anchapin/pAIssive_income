@@ -9,18 +9,18 @@ This module provides tools for:
 - Generating campaign reports
 """
 
-import uuid
-from typing import Dict, List, Any, Optional, Tuple, Union
-from datetime import datetime, timedelta
 import json
-import os
 import logging
 import math
+import os
 import statistics
+import uuid
 from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from marketing.errors import MarketingError, MarketingCampaignError, InvalidParameterError
 from interfaces.marketing_interfaces import ICampaignTracker
+from marketing.errors import InvalidParameterError, MarketingCampaignError, MarketingError
 
 logger = logging.getLogger(__name__)
 

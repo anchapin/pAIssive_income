@@ -6,7 +6,7 @@ as a standalone application.
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 from .app_factory import create_app
 

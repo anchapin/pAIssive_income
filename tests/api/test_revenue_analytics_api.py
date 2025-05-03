@@ -4,21 +4,30 @@ Tests for the revenue analytics API.
 This module contains tests for revenue analytics endpoints.
 """
 
+from typing import Any, Dict, List
+
 import pytest
-from typing import Dict, Any, List
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id
-)
+from tests.api.utils.test_data import generate_id
 from tests.api.utils.test_validators import (
-    validate_status_code, validate_json_response, validate_error_response,
-    validate_success_response, validate_paginated_response, validate_bulk_response,
-    validate_field_exists, validate_field_equals, validate_field_type,
-    validate_field_not_empty, validate_list_not_empty, validate_list_length,
-    validate_list_min_length, validate_list_max_length, validate_list_contains,
-    validate_list_contains_dict_with_field
+    validate_bulk_response,
+    validate_error_response,
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_not_empty,
+    validate_field_type,
+    validate_json_response,
+    validate_list_contains,
+    validate_list_contains_dict_with_field,
+    validate_list_length,
+    validate_list_max_length,
+    validate_list_min_length,
+    validate_list_not_empty,
+    validate_paginated_response,
+    validate_status_code,
+    validate_success_response,
 )
 
 
@@ -29,16 +38,12 @@ class TestRevenueAnalyticsAPI:
         """Test Monthly Recurring Revenue (MRR) calculation."""
         # Make request with time period
         response = api_test_client.get(
-            "analytics/revenue/mrr",
-            params={
-                "date": "2025-04",
-                "include_breakdown": True
-            }
+            "analytics/revenue/mrr", params={"date": "2025-04", "include_breakdown": True}
         )
-        
+
         # Validate response
         result = validate_success_response(response)
-        
+
         # Validate fields
         validate_field_exists(result, "mrr")
         assert isinstance(result["mrr"], (int, float))
@@ -46,7 +51,7 @@ class TestRevenueAnalyticsAPI:
         validate_field_type(result, "currency", str)
         validate_field_exists(result, "date")
         validate_field_equals(result, "date", "2025-04")
-        
+
         # Validate breakdown if included
         if "breakdown" in result:
             validate_field_type(result["breakdown"], dict)
@@ -61,16 +66,12 @@ class TestRevenueAnalyticsAPI:
         """Test Annual Recurring Revenue (ARR) calculation."""
         # Make request with year
         response = api_test_client.get(
-            "analytics/revenue/arr",
-            params={
-                "year": "2025",
-                "include_breakdown": True
-            }
+            "analytics/revenue/arr", params={"year": "2025", "include_breakdown": True}
         )
-        
+
         # Validate response
         result = validate_success_response(response)
-        
+
         # Validate fields
         validate_field_exists(result, "arr")
         assert isinstance(result["arr"], (int, float))
@@ -78,7 +79,7 @@ class TestRevenueAnalyticsAPI:
         validate_field_type(result, "currency", str)
         validate_field_exists(result, "year")
         validate_field_equals(result, "year", "2025")
-        
+
         # Validate breakdown if included
         if "breakdown" in result:
             validate_field_type(result["breakdown"], dict)
@@ -96,13 +97,13 @@ class TestRevenueAnalyticsAPI:
             params={
                 "customer_segment": "enterprise",
                 "subscription_plan": "premium",
-                "time_period": "2025-01/2025-12"
-            }
+                "time_period": "2025-01/2025-12",
+            },
         )
-        
+
         # Validate response
         result = validate_success_response(response)
-        
+
         # Validate fields
         validate_field_exists(result, "average_clv")
         assert isinstance(result["average_clv"], (int, float))
@@ -119,16 +120,12 @@ class TestRevenueAnalyticsAPI:
         """Test churn analysis and metrics."""
         # Make request with period
         response = api_test_client.get(
-            "analytics/revenue/churn",
-            params={
-                "period": "2025-04",
-                "include_reasons": True
-            }
+            "analytics/revenue/churn", params={"period": "2025-04", "include_reasons": True}
         )
-        
+
         # Validate response
         result = validate_success_response(response)
-        
+
         # Validate fields
         validate_field_exists(result, "customer_churn_rate")
         assert isinstance(result["customer_churn_rate"], (int, float))
@@ -138,7 +135,7 @@ class TestRevenueAnalyticsAPI:
         validate_field_type(result["churned_customers"], int)
         validate_field_exists(result, "churned_mrr")
         assert isinstance(result["churned_mrr"], (int, float))
-        
+
         # Validate churn reasons if included
         if "churn_reasons" in result:
             validate_field_type(result["churn_reasons"], list)
@@ -160,17 +157,17 @@ class TestRevenueAnalyticsAPI:
                 "start_date": "2025-05-01",
                 "periods": 12,
                 "interval": "month",
-                "include_confidence_intervals": True
-            }
+                "include_confidence_intervals": True,
+            },
         )
-        
+
         # Validate response
         result = validate_success_response(response)
-        
+
         # Validate fields
         validate_field_exists(result, "forecast_periods")
         validate_field_type(result["forecast_periods"], list)
-        
+
         # Validate forecast periods
         if result["forecast_periods"]:
             period = result["forecast_periods"][0]
@@ -178,7 +175,7 @@ class TestRevenueAnalyticsAPI:
             validate_field_type(period["period"], str)
             validate_field_exists(period, "forecasted_revenue")
             assert isinstance(period["forecasted_revenue"], (int, float))
-            
+
             # Validate confidence intervals if included
             if "confidence_intervals" in period:
                 intervals = period["confidence_intervals"]

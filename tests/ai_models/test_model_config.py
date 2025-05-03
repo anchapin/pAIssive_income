@@ -5,7 +5,6 @@ Tests for the ModelConfig class.
 import json
 import os
 
-
 from ai_models.model_config import ModelConfig
 
 

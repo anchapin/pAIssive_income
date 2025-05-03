@@ -5,38 +5,38 @@ This module provides pytest fixtures for common testing scenarios,
 making it easier to use mocks consistently across tests.
 """
 
-import os
-import pytest
-import tempfile
 import json
-from typing import Dict, Any, Optional
-from unittest.mock import MagicMock, patch
+import os
+import tempfile
 from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from .mock_external_apis import (
+    MockEmailAPI,
+    MockHuggingFaceAPI,
+    MockPaymentAPI,
+    MockStorageAPI,
+    create_mock_api,
+)
+from .mock_http import MockResponse, mock_requests
+from .mock_huggingface_hub import HfHubHTTPError, MockRepoInfo, mock_huggingface_hub
 
 # Import our mock implementations
 from .mock_model_providers import (
-    MockOpenAIProvider,
-    MockOllamaProvider,
-    MockLMStudioProvider,
     MockHuggingFaceProvider,
+    MockLMStudioProvider,
     MockLocalModelProvider,
+    MockOllamaProvider,
     MockONNXProvider,
-    create_mock_provider
+    MockOpenAIProvider,
+    create_mock_provider,
 )
-
-from .mock_http import MockResponse, mock_requests
-from .mock_huggingface_hub import mock_huggingface_hub, MockRepoInfo, HfHubHTTPError
-
-from .mock_external_apis import (
-    MockHuggingFaceAPI,
-    MockPaymentAPI,
-    MockEmailAPI,
-    MockStorageAPI,
-    create_mock_api
-)
-
 
 # Model Provider Fixtures
+
 
 @pytest.fixture
 def mock_openai_provider(config: Optional[Dict[str, Any]] = None):
@@ -139,7 +139,7 @@ def patch_model_providers(monkeypatch):
         "lmstudio": MockLMStudioProvider(),
         "huggingface": MockHuggingFaceProvider(),
         "local": MockLocalModelProvider(),
-        "onnx": MockONNXProvider()
+        "onnx": MockONNXProvider(),
     }
 
     # Define a function to return the appropriate mock provider
@@ -148,7 +148,10 @@ def patch_model_providers(monkeypatch):
 
     # Apply the patch to adapters
     try:
-        monkeypatch.setattr('ai_models.adapters.adapter_factory.adapter_factory.create_adapter', mock_get_model_provider)
+        monkeypatch.setattr(
+            "ai_models.adapters.adapter_factory.adapter_factory.create_adapter",
+            mock_get_model_provider,
+        )
     except (ImportError, AttributeError):
         pass
 
@@ -156,6 +159,7 @@ def patch_model_providers(monkeypatch):
 
 
 # HTTP and External API Fixtures
+
 
 @pytest.fixture
 def mock_http():
@@ -187,16 +191,18 @@ def mock_http_with_common_responses():
             "object": "chat.completion",
             "created": 1677652288,
             "model": "gpt-3.5-turbo-0613",
-            "choices": [{
-                "index": 0,
-                "message": {
-                    "role": "assistant",
-                    "content": "This is a mock response from the AI."
-                },
-                "finish_reason": "stop"
-            }]
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": "This is a mock response from the AI.",
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
         },
-        method="POST"
+        method="POST",
     )
 
     mock_requests.add_response(
@@ -207,16 +213,13 @@ def mock_http_with_common_responses():
                 {
                     "object": "embedding",
                     "embedding": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-                    "index": 0
+                    "index": 0,
                 }
             ],
             "model": "text-embedding-ada-002",
-            "usage": {
-                "prompt_tokens": 8,
-                "total_tokens": 8
-            }
+            "usage": {"prompt_tokens": 8, "total_tokens": 8},
         },
-        method="POST"
+        method="POST",
     )
 
     # Add mock response for Ollama API
@@ -226,9 +229,9 @@ def mock_http_with_common_responses():
             "model": "llama2",
             "created_at": "2023-01-01T00:00:00Z",
             "response": "This is a mock response from Ollama.",
-            "done": True
+            "done": True,
         },
-        method="POST"
+        method="POST",
     )
 
     mock_requests.add_response(
@@ -238,11 +241,11 @@ def mock_http_with_common_responses():
             "created_at": "2023-01-01T00:00:00Z",
             "message": {
                 "role": "assistant",
-                "content": "This is a mock chat response from Ollama."
+                "content": "This is a mock chat response from Ollama.",
             },
-            "done": True
+            "done": True,
         },
-        method="POST"
+        method="POST",
     )
 
     # Add mock response for LM Studio API
@@ -253,16 +256,18 @@ def mock_http_with_common_responses():
             "object": "chat.completion",
             "created": 1677652288,
             "model": "local-model",
-            "choices": [{
-                "index": 0,
-                "message": {
-                    "role": "assistant",
-                    "content": "This is a mock response from LM Studio."
-                },
-                "finish_reason": "stop"
-            }]
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": "This is a mock response from LM Studio.",
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
         },
-        method="POST"
+        method="POST",
     )
 
     return mock_requests
@@ -283,15 +288,15 @@ def patch_requests(monkeypatch):
     mock_requests.reset()
 
     # Patch all the commonly used requests functions
-    monkeypatch.setattr('requests.get', mock_requests.get)
-    monkeypatch.setattr('requests.post', mock_requests.post)
-    monkeypatch.setattr('requests.put', mock_requests.put)
-    monkeypatch.setattr('requests.delete', mock_requests.delete)
-    monkeypatch.setattr('requests.patch', mock_requests.patch)
-    monkeypatch.setattr('requests.head', mock_requests.head)
-    monkeypatch.setattr('requests.options', mock_requests.options)
-    monkeypatch.setattr('requests.request', mock_requests.request)
-    monkeypatch.setattr('requests.session', mock_requests.session)
+    monkeypatch.setattr("requests.get", mock_requests.get)
+    monkeypatch.setattr("requests.post", mock_requests.post)
+    monkeypatch.setattr("requests.put", mock_requests.put)
+    monkeypatch.setattr("requests.delete", mock_requests.delete)
+    monkeypatch.setattr("requests.patch", mock_requests.patch)
+    monkeypatch.setattr("requests.head", mock_requests.head)
+    monkeypatch.setattr("requests.options", mock_requests.options)
+    monkeypatch.setattr("requests.request", mock_requests.request)
+    monkeypatch.setattr("requests.session", mock_requests.session)
 
     return mock_requests
 
@@ -319,37 +324,45 @@ def mock_hf_hub_with_models():
     mock_huggingface_hub.reset()
 
     # Add common repositories
-    mock_huggingface_hub.add_repo({
-        "id": "gpt2",
-        "downloads": 1000000,
-        "likes": 5000,
-        "tags": ["text-generation", "pytorch"],
-        "pipeline_tag": "text-generation"
-    })
+    mock_huggingface_hub.add_repo(
+        {
+            "id": "gpt2",
+            "downloads": 1000000,
+            "likes": 5000,
+            "tags": ["text-generation", "pytorch"],
+            "pipeline_tag": "text-generation",
+        }
+    )
 
-    mock_huggingface_hub.add_repo({
-        "id": "sentence-transformers/all-MiniLM-L6-v2",
-        "downloads": 500000,
-        "likes": 2000,
-        "tags": ["sentence-similarity", "pytorch"],
-        "pipeline_tag": "feature-extraction"
-    })
+    mock_huggingface_hub.add_repo(
+        {
+            "id": "sentence-transformers/all-MiniLM-L6-v2",
+            "downloads": 500000,
+            "likes": 2000,
+            "tags": ["sentence-similarity", "pytorch"],
+            "pipeline_tag": "feature-extraction",
+        }
+    )
 
-    mock_huggingface_hub.add_repo({
-        "id": "mistralai/Mistral-7B-v0.1",
-        "downloads": 800000,
-        "likes": 3000,
-        "tags": ["text-generation", "pytorch"],
-        "pipeline_tag": "text-generation"
-    })
+    mock_huggingface_hub.add_repo(
+        {
+            "id": "mistralai/Mistral-7B-v0.1",
+            "downloads": 800000,
+            "likes": 3000,
+            "tags": ["text-generation", "pytorch"],
+            "pipeline_tag": "text-generation",
+        }
+    )
 
-    mock_huggingface_hub.add_repo({
-        "id": "bert-base-uncased",
-        "downloads": 900000,
-        "likes": 4000,
-        "tags": ["fill-mask", "pytorch"],
-        "pipeline_tag": "fill-mask"
-    })
+    mock_huggingface_hub.add_repo(
+        {
+            "id": "bert-base-uncased",
+            "downloads": 900000,
+            "likes": 4000,
+            "tags": ["fill-mask", "pytorch"],
+            "pipeline_tag": "fill-mask",
+        }
+    )
 
     # Add common files
     import json
@@ -357,36 +370,42 @@ def mock_hf_hub_with_models():
     mock_huggingface_hub.add_file(
         repo_id="gpt2",
         file_path="config.json",
-        content=json.dumps({
-            "model_type": "gpt2",
-            "vocab_size": 50257,
-            "n_positions": 1024,
-            "n_embd": 768,
-            "n_layer": 12,
-            "n_head": 12
-        })
+        content=json.dumps(
+            {
+                "model_type": "gpt2",
+                "vocab_size": 50257,
+                "n_positions": 1024,
+                "n_embd": 768,
+                "n_layer": 12,
+                "n_head": 12,
+            }
+        ),
     )
 
     mock_huggingface_hub.add_file(
         repo_id="bert-base-uncased",
         file_path="config.json",
-        content=json.dumps({
-            "model_type": "bert",
-            "hidden_size": 768,
-            "num_attention_heads": 12,
-            "num_hidden_layers": 12
-        })
+        content=json.dumps(
+            {
+                "model_type": "bert",
+                "hidden_size": 768,
+                "num_attention_heads": 12,
+                "num_hidden_layers": 12,
+            }
+        ),
     )
 
     mock_huggingface_hub.add_file(
         repo_id="sentence-transformers/all-MiniLM-L6-v2",
         file_path="config.json",
-        content=json.dumps({
-            "model_type": "bert",
-            "hidden_size": 384,
-            "num_attention_heads": 12,
-            "num_hidden_layers": 6
-        })
+        content=json.dumps(
+            {
+                "model_type": "bert",
+                "hidden_size": 384,
+                "num_attention_heads": 12,
+                "num_hidden_layers": 6,
+            }
+        ),
     )
 
     return mock_huggingface_hub
@@ -407,13 +426,13 @@ def patch_huggingface_hub(monkeypatch):
     mock_huggingface_hub.reset()
 
     # Patch the huggingface_hub functions
-    monkeypatch.setattr('huggingface_hub.hf_hub_download', mock_huggingface_hub.hf_hub_download)
-    monkeypatch.setattr('huggingface_hub.snapshot_download', mock_huggingface_hub.snapshot_download)
-    monkeypatch.setattr('huggingface_hub.list_models', mock_huggingface_hub.list_models)
-    monkeypatch.setattr('huggingface_hub.login', mock_huggingface_hub.login)
+    monkeypatch.setattr("huggingface_hub.hf_hub_download", mock_huggingface_hub.hf_hub_download)
+    monkeypatch.setattr("huggingface_hub.snapshot_download", mock_huggingface_hub.snapshot_download)
+    monkeypatch.setattr("huggingface_hub.list_models", mock_huggingface_hub.list_models)
+    monkeypatch.setattr("huggingface_hub.login", mock_huggingface_hub.login)
 
     # Patch the HfHubHTTPError exception
-    monkeypatch.setattr('huggingface_hub.utils.HfHubHTTPError', HfHubHTTPError)
+    monkeypatch.setattr("huggingface_hub.utils.HfHubHTTPError", HfHubHTTPError)
 
     return mock_huggingface_hub
 
@@ -489,14 +508,18 @@ def patch_external_apis(monkeypatch):
         "huggingface": MockHuggingFaceAPI(),
         "payment": MockPaymentAPI(),
         "email": MockEmailAPI(),
-        "storage": MockStorageAPI()
+        "storage": MockStorageAPI(),
     }
 
     # Patch HuggingFace Hub if available
     try:
-        monkeypatch.setattr('huggingface_hub.HfApi', lambda: mock_apis["huggingface"])
-        monkeypatch.setattr('huggingface_hub.hf_hub_download',
-                          lambda model_id, *args, **kwargs: mock_apis["huggingface"].download_model(model_id, "mock_path"))
+        monkeypatch.setattr("huggingface_hub.HfApi", lambda: mock_apis["huggingface"])
+        monkeypatch.setattr(
+            "huggingface_hub.hf_hub_download",
+            lambda model_id, *args, **kwargs: mock_apis["huggingface"].download_model(
+                model_id, "mock_path"
+            ),
+        )
     except (ImportError, AttributeError):
         pass
 
@@ -504,12 +527,16 @@ def patch_external_apis(monkeypatch):
     # These paths would need to be adjusted based on the actual project structure
     try:
         # Example patches for payment processing
-        monkeypatch.setattr('monetization.payment_method_manager.create_payment_client',
-                          lambda *args, **kwargs: mock_apis["payment"])
+        monkeypatch.setattr(
+            "monetization.payment_method_manager.create_payment_client",
+            lambda *args, **kwargs: mock_apis["payment"],
+        )
 
         # Example patches for email services
-        monkeypatch.setattr('marketing.content_generators.get_email_client',
-                          lambda *args, **kwargs: mock_apis["email"])
+        monkeypatch.setattr(
+            "marketing.content_generators.get_email_client",
+            lambda *args, **kwargs: mock_apis["email"],
+        )
     except (ImportError, AttributeError):
         pass
 
@@ -517,6 +544,7 @@ def patch_external_apis(monkeypatch):
 
 
 # Common Test Scenario Fixtures
+
 
 @pytest.fixture
 def mock_model_inference_result():
@@ -533,15 +561,11 @@ def mock_model_inference_result():
             {
                 "text": "This is a mock model response for testing purposes.",
                 "index": 0,
-                "finish_reason": "stop"
+                "finish_reason": "stop",
             }
         ],
-        "usage": {
-            "prompt_tokens": 10,
-            "completion_tokens": 20,
-            "total_tokens": 30
-        },
-        "created": int(datetime.now().timestamp())
+        "usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
+        "created": int(datetime.now().timestamp()),
     }
 
 
@@ -563,16 +587,12 @@ def mock_chat_completion_result():
                 "index": 0,
                 "message": {
                     "role": "assistant",
-                    "content": "This is a mock response from the chat model."
+                    "content": "This is a mock response from the chat model.",
                 },
-                "finish_reason": "stop"
+                "finish_reason": "stop",
             }
         ],
-        "usage": {
-            "prompt_tokens": 15,
-            "completion_tokens": 25,
-            "total_tokens": 40
-        }
+        "usage": {"prompt_tokens": 15, "completion_tokens": 25, "total_tokens": 40},
     }
 
 
@@ -590,14 +610,11 @@ def mock_embedding_result():
             {
                 "object": "embedding",
                 "embedding": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-                "index": 0
+                "index": 0,
             }
         ],
         "model": "text-embedding-model",
-        "usage": {
-            "prompt_tokens": 8,
-            "total_tokens": 8
-        }
+        "usage": {"prompt_tokens": 8, "total_tokens": 8},
     }
 
 
@@ -618,7 +635,7 @@ def mock_subscription_data():
             "email": "test@example.com",
             "name": "Test User",
             "created": timestamp,
-            "metadata": {"user_id": "user_123"}
+            "metadata": {"user_id": "user_123"},
         },
         "subscription": {
             "id": f"sub_test_{timestamp}",
@@ -628,11 +645,11 @@ def mock_subscription_data():
                 "name": "Premium Monthly",
                 "amount": 1999,
                 "currency": "usd",
-                "interval": "month"
+                "interval": "month",
             },
             "current_period_start": timestamp,
             "current_period_end": timestamp + (30 * 24 * 60 * 60),  # 30 days later
-            "created": timestamp
+            "created": timestamp,
         },
         "payment_method": {
             "id": f"pm_test_{timestamp}",
@@ -640,8 +657,8 @@ def mock_subscription_data():
             "last4": "4242",
             "exp_month": 12,
             "exp_year": 2025,
-            "brand": "visa"
-        }
+            "brand": "visa",
+        },
     }
 
 
@@ -664,13 +681,9 @@ def mock_niche_analysis_data():
                 "challenges": [
                     "Integration with existing workflows",
                     "Privacy concerns",
-                    "Technical complexity"
+                    "Technical complexity",
                 ],
-                "target_audience": [
-                    "Knowledge workers",
-                    "Small businesses",
-                    "Freelancers"
-                ]
+                "target_audience": ["Knowledge workers", "Small businesses", "Freelancers"],
             },
             {
                 "name": "Content Creator Automation",
@@ -678,16 +691,8 @@ def mock_niche_analysis_data():
                 "market_size": "Medium",
                 "competition_level": "Low",
                 "growth_trend": "Rapidly increasing",
-                "challenges": [
-                    "Quality control",
-                    "Customization needs",
-                    "Ethical considerations"
-                ],
-                "target_audience": [
-                    "YouTubers",
-                    "Bloggers",
-                    "Social media influencers"
-                ]
+                "challenges": ["Quality control", "Customization needs", "Ethical considerations"],
+                "target_audience": ["YouTubers", "Bloggers", "Social media influencers"],
             },
             {
                 "name": "AI-powered Personal Finance",
@@ -695,21 +700,17 @@ def mock_niche_analysis_data():
                 "market_size": "Medium",
                 "competition_level": "Medium-high",
                 "growth_trend": "Steady increase",
-                "challenges": [
-                    "Regulatory compliance",
-                    "Data security",
-                    "Trust building"
-                ],
+                "challenges": ["Regulatory compliance", "Data security", "Trust building"],
                 "target_audience": [
                     "Young professionals",
                     "Financial enthusiasts",
-                    "Small business owners"
-                ]
-            }
+                    "Small business owners",
+                ],
+            },
         ],
         "analysis_summary": "The AI tools market shows significant growth potential across multiple niches. The highest opportunity scores are in productivity tools, content creation, and personal finance applications. Each niche presents unique challenges but also substantial monetization potential.",
         "recommended_focus": "AI Productivity Tools",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
@@ -729,18 +730,14 @@ def mock_marketing_campaign_data():
                 "demographics": {
                     "age_range": "25-45",
                     "education": "College degree or higher",
-                    "income": "Above average"
+                    "income": "Above average",
                 },
                 "pain_points": [
                     "Limited time for repetitive tasks",
                     "Need for better organization",
-                    "Information overload"
+                    "Information overload",
                 ],
-                "goals": [
-                    "Increase productivity",
-                    "Streamline workflows",
-                    "Reduce stress"
-                ]
+                "goals": ["Increase productivity", "Streamline workflows", "Reduce stress"],
             }
         ],
         "channels": [
@@ -751,8 +748,8 @@ def mock_marketing_campaign_data():
                 "performance_metrics": {
                     "open_rate": 0.25,
                     "click_rate": 0.08,
-                    "conversion_rate": 0.02
-                }
+                    "conversion_rate": 0.02,
+                },
             },
             {
                 "name": "Social Media",
@@ -762,32 +759,31 @@ def mock_marketing_campaign_data():
                 "performance_metrics": {
                     "engagement_rate": 0.04,
                     "share_rate": 0.01,
-                    "conversion_rate": 0.015
-                }
-            }
+                    "conversion_rate": 0.015,
+                },
+            },
         ],
         "content_calendar": [
             {
-                "date": (datetime.now().replace(day=1) +
-                        timedelta(days=7)).strftime("%Y-%m-%d"),
+                "date": (datetime.now().replace(day=1) + timedelta(days=7)).strftime("%Y-%m-%d"),
                 "channel": "Email",
                 "title": "Introducing Our New AI-Powered Feature",
                 "content_type": "Product announcement",
-                "status": "Draft"
+                "status": "Draft",
             },
             {
-                "date": (datetime.now().replace(day=1) +
-                        timedelta(days=9)).strftime("%Y-%m-%d"),
+                "date": (datetime.now().replace(day=1) + timedelta(days=9)).strftime("%Y-%m-%d"),
                 "channel": "LinkedIn",
                 "title": "How Our Tool Saved Client X 10 Hours Per Week",
                 "content_type": "Case study",
-                "status": "Planned"
-            }
-        ]
+                "status": "Planned",
+            },
+        ],
     }
 
 
 # Complete Test Scenario Fixtures
+
 
 @pytest.fixture
 def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_model_providers):
@@ -813,28 +809,25 @@ def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_mod
             "object": "chat.completion",
             "created": 1677652288,
             "model": "gpt-3.5-turbo-0613",
-            "choices": [{
-                "index": 0,
-                "message": {
-                    "role": "assistant",
-                    "content": "This is a mock response from the AI model testing environment."
-                },
-                "finish_reason": "stop"
-            }]
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": "This is a mock response from the AI model testing environment.",
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
         },
-        method="POST"
+        method="POST",
     )
 
     # Set up mock Hugging Face models
-    patch_huggingface_hub.add_repo({
-        "id": "gpt2",
-        "pipeline_tag": "text-generation"
-    })
+    patch_huggingface_hub.add_repo({"id": "gpt2", "pipeline_tag": "text-generation"})
 
     patch_huggingface_hub.add_file(
-        repo_id="gpt2",
-        file_path="config.json",
-        content='{"model_type": "gpt2"}'
+        repo_id="gpt2", file_path="config.json", content='{"model_type": "gpt2"}'
     )
 
     # Create a temporary directory for file operations
@@ -842,14 +835,16 @@ def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_mod
 
     # Add generate method to model providers
     for provider_name, provider in patch_model_providers.items():
-        if not hasattr(provider, 'generate'):
-            provider.generate = lambda text, **kwargs: "This is a mock response generated for: " + text
+        if not hasattr(provider, "generate"):
+            provider.generate = (
+                lambda text, **kwargs: "This is a mock response generated for: " + text
+            )
 
     return {
         "http": patch_requests,
         "huggingface_hub": patch_huggingface_hub,
         "model_providers": patch_model_providers,
-        "temp_dir": temp_dir
+        "temp_dir": temp_dir,
     }
 
 
@@ -875,10 +870,10 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
             "id": mock_subscription_data["customer"]["id"],
             "email": mock_subscription_data["customer"]["email"],
             "name": mock_subscription_data["customer"]["name"],
-            "created": mock_subscription_data["customer"]["created"]
+            "created": mock_subscription_data["customer"]["created"],
         },
         method="POST",
-        status_code=200
+        status_code=200,
     )
 
     patch_requests.add_response(
@@ -887,10 +882,10 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
             "id": mock_subscription_data["subscription"]["id"],
             "status": mock_subscription_data["subscription"]["status"],
             "current_period_start": mock_subscription_data["subscription"]["current_period_start"],
-            "current_period_end": mock_subscription_data["subscription"]["current_period_end"]
+            "current_period_end": mock_subscription_data["subscription"]["current_period_end"],
         },
         method="POST",
-        status_code=200
+        status_code=200,
     )
 
     # Create a temporary directory for file operations
@@ -901,14 +896,14 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
         "customers": [mock_subscription_data["customer"]],
         "subscriptions": [mock_subscription_data["subscription"]],
         "payment_methods": [mock_subscription_data["payment_method"]],
-        "invoices": []
+        "invoices": [],
     }
 
     return {
         "http": patch_requests,
         "temp_dir": temp_dir,
         "mock_db": mock_db,
-        "subscription_data": mock_subscription_data
+        "subscription_data": mock_subscription_data,
     }
 
 
@@ -932,7 +927,7 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
         "https://api.sendgrid.com/v3/mail/send",
         {"message": "Email sent successfully"},
         method="POST",
-        status_code=202
+        status_code=202,
     )
 
     # Set up mock social media API responses
@@ -940,14 +935,14 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
         "https://api.twitter.com/2/tweets",
         {"data": {"id": "1234567890", "text": "Test tweet"}},
         method="POST",
-        status_code=201
+        status_code=201,
     )
 
     patch_requests.add_response(
         "https://api.linkedin.com/v2/ugcPosts",
         {"id": "urn:li:share:1234567890"},
         method="POST",
-        status_code=201
+        status_code=201,
     )
 
     # Create a temporary directory for file operations
@@ -956,7 +951,7 @@ def mock_marketing_testing_setup(patch_requests, mock_marketing_campaign_data):
     return {
         "http": patch_requests,
         "temp_dir": temp_dir,
-        "campaign_data": mock_marketing_campaign_data
+        "campaign_data": mock_marketing_campaign_data,
     }
 
 
@@ -986,12 +981,12 @@ def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis
         "target audience": "The primary target audience consists of knowledge workers and small businesses.",
         "analyze market trends": "Market analysis shows positive growth trends in AI inventory management.",
         "identify target audience": "The target audience is primarily e-commerce businesses and retail chains.",
-        "evaluate competition": "Competition analysis reveals 3 major competitors with basic AI features."
+        "evaluate competition": "Competition analysis reveals 3 major competitors with basic AI features.",
     }
 
     # Add generate method to model providers if not already present
     for provider_name, provider in patch_model_providers.items():
-        if not hasattr(provider, 'generate'):
+        if not hasattr(provider, "generate"):
             provider.generate = lambda text, **kwargs: f"This is a mock response for: {text}"
 
     # Create a temporary directory for file operations
@@ -1000,5 +995,5 @@ def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis
     return {
         "model_providers": patch_model_providers,
         "temp_dir": temp_dir,
-        "niche_data": mock_niche_analysis_data
+        "niche_data": mock_niche_analysis_data,
     }

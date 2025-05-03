@@ -4,11 +4,12 @@ Script to run GitHub Actions workflows locally.
 This script simulates the GitHub Actions CI/CD pipeline locally.
 """
 
+import argparse
 import os
 import subprocess
 import sys
-import argparse
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
 
 # Define colors for better output
 class Colors:

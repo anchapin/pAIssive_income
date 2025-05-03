@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional
 
 from .base import CacheBackend
 
+
 class DiskCache(CacheBackend):
     """
     Disk-based cache backend.
@@ -82,7 +83,10 @@ class DiskCache(CacheBackend):
                 metadata = self._load_metadata(key)
 
                 # Check if expired
-                if metadata.get("expiration_time") is not None and time.time() > metadata["expiration_time"]:
+                if (
+                    metadata.get("expiration_time") is not None
+                    and time.time() > metadata["expiration_time"]
+                ):
                     self.delete(key)
                     self.stats["misses"] += 1
                     self._save_stats()
@@ -109,12 +113,7 @@ class DiskCache(CacheBackend):
                 self._save_stats()
                 return None
 
-    def set(
-        self,
-        key: str,
-        value: Dict[str, Any],
-        ttl: Optional[int] = None
-    ) -> bool:
+    def set(self, key: str, value: Dict[str, Any], ttl: Optional[int] = None) -> bool:
         """
         Set a value in the cache.
 
@@ -160,7 +159,11 @@ class DiskCache(CacheBackend):
                 "expiration_time": expiration_time,
                 "access_count": access_count,
                 "last_access_time": current_time,
-                "creation_time": current_time if not self.exists(key) else self._load_metadata(key).get("creation_time", current_time)
+                "creation_time": (
+                    current_time
+                    if not self.exists(key)
+                    else self._load_metadata(key).get("creation_time", current_time)
+                ),
             }
 
             # Save value and metadata
@@ -266,6 +269,7 @@ class DiskCache(CacheBackend):
 
             except Exception as e:
                 import logging
+
                 logging.exception("Error during cache clear")
                 return False
 
@@ -308,7 +312,7 @@ class DiskCache(CacheBackend):
 
             try:
                 metadata_path = os.path.join(self.metadata_dir, filename)
-                with open(metadata_path, 'r') as f:
+                with open(metadata_path, "r") as f:
                     metadata = json.load(f)
                     if "key" in metadata:
                         key = metadata["key"]
@@ -429,7 +433,7 @@ class DiskCache(CacheBackend):
             value: Value to save
         """
         file_path = self._get_file_path(key)
-        
+
         # Always use JSON for security reasons
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(value, f)
@@ -535,7 +539,7 @@ class DiskCache(CacheBackend):
                     # Least Recently Used
                     key_to_evict = min(
                         metadata_map.keys(),
-                        key=lambda k: metadata_map[k].get("last_access_time", 0)
+                        key=lambda k: metadata_map[k].get("last_access_time", 0),
                     )
 
                 elif self.eviction_policy == "lfu":
@@ -544,27 +548,26 @@ class DiskCache(CacheBackend):
                         metadata = metadata_map[k]
                         count = metadata.get("access_count", 0)
                         # Creation time is used as a tiebreaker - older items are evicted first
-                        creation_time = metadata.get("creation_time", float('inf'))
+                        creation_time = metadata.get("creation_time", float("inf"))
                         # Return tuple of (count, creation_time) for comparison
-                        return (count, -creation_time)  # Negative creation_time so older items are evicted first
+                        return (
+                            count,
+                            -creation_time,
+                        )  # Negative creation_time so older items are evicted first
 
-                    key_to_evict = min(
-                        metadata_map.keys(),
-                        key=get_score
-                    )
+                    key_to_evict = min(metadata_map.keys(), key=get_score)
 
                 elif self.eviction_policy == "fifo":
                     # First In First Out
                     key_to_evict = min(
-                        metadata_map.keys(),
-                        key=lambda k: metadata_map[k].get("creation_time", 0)
+                        metadata_map.keys(), key=lambda k: metadata_map[k].get("creation_time", 0)
                     )
 
                 else:
                     # Default to LRU
                     key_to_evict = min(
                         metadata_map.keys(),
-                        key=lambda k: metadata_map[k].get("last_access_time", 0)
+                        key=lambda k: metadata_map[k].get("last_access_time", 0),
                     )
 
                 if key_to_evict:
@@ -574,7 +577,10 @@ class DiskCache(CacheBackend):
 
             except Exception as e:
                 import logging
-                logging.exception("Error during cache eviction. Falling back to deleting the first key.")
+
+                logging.exception(
+                    "Error during cache eviction. Falling back to deleting the first key."
+                )
                 if keys:
                     # If there's any error, just delete the first key
                     self.delete(keys[0])
@@ -595,7 +601,7 @@ class DiskCache(CacheBackend):
 
                 metadata_path = os.path.join(self.metadata_dir, filename)
                 try:
-                    with open(metadata_path, 'r') as f:
+                    with open(metadata_path, "r") as f:
                         metadata = json.load(f)
 
                     expiration_time = metadata.get("expiration_time")

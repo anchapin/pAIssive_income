@@ -2,13 +2,14 @@
 Tests for webhook service error handling scenarios.
 """
 
-import pytest
 import asyncio
-from unittest.mock import patch, MagicMock
-import httpx
 from datetime import datetime, timezone
+from unittest.mock import MagicMock, patch
 
-from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
+import httpx
+import pytest
+
+from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
 
 # Test data
@@ -22,7 +23,7 @@ TEST_WEBHOOK = {
     "is_active": True,
     "created_at": datetime.now(timezone.utc),
     "last_called_at": None,
-    "secret": "test-secret-key"
+    "secret": "test-secret-key",
 }
 
 TEST_EVENT = {
@@ -31,16 +32,17 @@ TEST_EVENT = {
         "user_id": "user-123",
         "username": "testuser",
         "email": "test@example.com",
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    },
 }
+
 
 @pytest.mark.asyncio
 async def test_webhook_connection_error():
     """Test handling of connection errors during webhook delivery."""
     # Create a real webhook service instance for testing
     service = WebhookService()
-    
+
     # Patch the get_webhook method to return our test webhook
     with patch.object(service, "get_webhook", return_value=TEST_WEBHOOK):
         # Patch httpx.AsyncClient.post to raise a connection error
@@ -49,9 +51,9 @@ async def test_webhook_connection_error():
             delivery = await service.deliver_event(
                 webhook_id=TEST_WEBHOOK_ID,
                 event_type=WebhookEventType.USER_CREATED,
-                event_data=TEST_EVENT["data"]
+                event_data=TEST_EVENT["data"],
             )
-            
+
             # Assertions
             assert delivery is not None
             assert delivery["webhook_id"] == TEST_WEBHOOK_ID
@@ -61,23 +63,26 @@ async def test_webhook_connection_error():
             assert delivery["attempts"][0]["response_code"] is None
             assert "Connection refused" in delivery["attempts"][0]["error_message"]
 
+
 @pytest.mark.asyncio
 async def test_webhook_timeout_error():
     """Test handling of timeout errors during webhook delivery."""
     # Create a real webhook service instance for testing
     service = WebhookService()
-    
+
     # Patch the get_webhook method to return our test webhook
     with patch.object(service, "get_webhook", return_value=TEST_WEBHOOK):
         # Patch httpx.AsyncClient.post to raise a timeout error
-        with patch("httpx.AsyncClient.post", side_effect=httpx.TimeoutException("Request timed out")):
+        with patch(
+            "httpx.AsyncClient.post", side_effect=httpx.TimeoutException("Request timed out")
+        ):
             # Deliver an event
             delivery = await service.deliver_event(
                 webhook_id=TEST_WEBHOOK_ID,
                 event_type=WebhookEventType.USER_CREATED,
-                event_data=TEST_EVENT["data"]
+                event_data=TEST_EVENT["data"],
             )
-            
+
             # Assertions
             assert delivery is not None
             assert delivery["webhook_id"] == TEST_WEBHOOK_ID
@@ -87,17 +92,18 @@ async def test_webhook_timeout_error():
             assert delivery["attempts"][0]["response_code"] is None
             assert "Request timed out" in delivery["attempts"][0]["error_message"]
 
+
 @pytest.mark.asyncio
 async def test_webhook_invalid_response():
     """Test handling of invalid responses during webhook delivery."""
     # Setup mock for httpx.AsyncClient.post to return invalid JSON
     mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.text = 'Not a valid JSON'
-    
+    mock_response.text = "Not a valid JSON"
+
     # Create a real webhook service instance for testing
     service = WebhookService()
-    
+
     # Patch the get_webhook method to return our test webhook
     with patch.object(service, "get_webhook", return_value=TEST_WEBHOOK):
         # Patch httpx.AsyncClient.post to return our mock response
@@ -106,24 +112,27 @@ async def test_webhook_invalid_response():
             delivery = await service.deliver_event(
                 webhook_id=TEST_WEBHOOK_ID,
                 event_type=WebhookEventType.USER_CREATED,
-                event_data=TEST_EVENT["data"]
+                event_data=TEST_EVENT["data"],
             )
-            
+
             # Assertions
             assert delivery is not None
             assert delivery["webhook_id"] == TEST_WEBHOOK_ID
-            assert delivery["status"] == WebhookDeliveryStatus.SUCCESS  # HTTP 200 is still a success
+            assert (
+                delivery["status"] == WebhookDeliveryStatus.SUCCESS
+            )  # HTTP 200 is still a success
             assert len(delivery["attempts"]) == 1
             assert delivery["attempts"][0]["status"] == WebhookDeliveryStatus.SUCCESS
             assert delivery["attempts"][0]["response_code"] == 200
-            assert delivery["attempts"][0]["response_body"] == 'Not a valid JSON'
+            assert delivery["attempts"][0]["response_body"] == "Not a valid JSON"
+
 
 @pytest.mark.asyncio
 async def test_webhook_not_found():
     """Test handling of non-existent webhook."""
     # Create a real webhook service instance for testing
     service = WebhookService()
-    
+
     # Patch the get_webhook method to return None (webhook not found)
     with patch.object(service, "get_webhook", return_value=None):
         # Deliver an event to a non-existent webhook
@@ -131,11 +140,12 @@ async def test_webhook_not_found():
             await service.deliver_event(
                 webhook_id="non-existent-webhook",
                 event_type=WebhookEventType.USER_CREATED,
-                event_data=TEST_EVENT["data"]
+                event_data=TEST_EVENT["data"],
             )
-        
+
         # Assertions
         assert "Webhook not found" in str(excinfo.value)
+
 
 @pytest.mark.asyncio
 async def test_webhook_inactive():
@@ -143,10 +153,10 @@ async def test_webhook_inactive():
     # Create an inactive webhook
     inactive_webhook = TEST_WEBHOOK.copy()
     inactive_webhook["is_active"] = False
-    
+
     # Create a real webhook service instance for testing
     service = WebhookService()
-    
+
     # Patch the get_webhook method to return our inactive webhook
     with patch.object(service, "get_webhook", return_value=inactive_webhook):
         # Deliver an event to an inactive webhook
@@ -154,22 +164,25 @@ async def test_webhook_inactive():
             await service.deliver_event(
                 webhook_id=TEST_WEBHOOK_ID,
                 event_type=WebhookEventType.USER_CREATED,
-                event_data=TEST_EVENT["data"]
+                event_data=TEST_EVENT["data"],
             )
-        
+
         # Assertions
         assert "Webhook is inactive" in str(excinfo.value)
+
 
 @pytest.mark.asyncio
 async def test_webhook_event_not_subscribed():
     """Test handling of event type not subscribed to by the webhook."""
     # Create a webhook with limited event subscriptions
     limited_webhook = TEST_WEBHOOK.copy()
-    limited_webhook["events"] = [WebhookEventType.PAYMENT_RECEIVED]  # Only subscribed to payment events
-    
+    limited_webhook["events"] = [
+        WebhookEventType.PAYMENT_RECEIVED
+    ]  # Only subscribed to payment events
+
     # Create a real webhook service instance for testing
     service = WebhookService()
-    
+
     # Patch the get_webhook method to return our limited webhook
     with patch.object(service, "get_webhook", return_value=limited_webhook):
         # Deliver an event of a type not subscribed to
@@ -177,8 +190,8 @@ async def test_webhook_event_not_subscribed():
             await service.deliver_event(
                 webhook_id=TEST_WEBHOOK_ID,
                 event_type=WebhookEventType.USER_CREATED,  # Not subscribed to this event
-                event_data=TEST_EVENT["data"]
+                event_data=TEST_EVENT["data"],
             )
-        
+
         # Assertions
         assert "Webhook is not subscribed to event type" in str(excinfo.value)

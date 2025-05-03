@@ -1,10 +1,12 @@
 """
 Tests for the ModelInfo class.
 """
-import pytest
-from unittest.mock import patch
-from datetime import datetime
+
 import json
+from datetime import datetime
+from unittest.mock import patch
+
+import pytest
 
 from ai_models.model_base_types import ModelInfo
 
@@ -17,7 +19,7 @@ def test_model_info_init():
         description="A test model",
         type="huggingface",
         path="/path/to/model",
-        capabilities=["text-generation", "embedding"]
+        capabilities=["text-generation", "embedding"],
     )
 
     # Check that the model info has the expected attributes
@@ -49,7 +51,7 @@ def test_model_info_with_metadata():
         type="huggingface",
         path="/path/to/model",
         capabilities=["text-generation"],
-        metadata=metadata
+        metadata=metadata,
     )
 
     # Check that the metadata was set
@@ -75,7 +77,7 @@ def test_model_info_with_performance():
         type="huggingface",
         path="/path/to/model",
         capabilities=["text-generation"],
-        performance=performance
+        performance=performance,
     )
 
     # Check that the performance metrics were set
@@ -93,7 +95,7 @@ def test_model_info_to_dict():
         description="A test model",
         type="huggingface",
         path="/path/to/model",
-        capabilities=["text-generation"]
+        capabilities=["text-generation"],
     )
 
     # Convert to dictionary
@@ -128,7 +130,7 @@ def test_model_info_to_json():
         description="A test model",
         type="huggingface",
         path="/path/to/model",
-        capabilities=["text-generation"]
+        capabilities=["text-generation"],
     )
 
     # Convert to JSON
@@ -189,18 +191,20 @@ def test_model_info_update_performance():
         description="A test model",
         type="huggingface",
         path="/path/to/model",
-        capabilities=["text-generation"]
+        capabilities=["text-generation"],
     )
 
     # Initial performance should be empty
     assert model_info.performance == {}
 
     # Update performance
-    model_info.update_performance({
-        "latency_ms": 100,
-        "throughput": 10,
-        "memory_usage_mb": 1000,
-    })
+    model_info.update_performance(
+        {
+            "latency_ms": 100,
+            "throughput": 10,
+            "memory_usage_mb": 1000,
+        }
+    )
 
     # Check that the performance was updated
     assert model_info.performance["latency_ms"] == 100
@@ -208,11 +212,13 @@ def test_model_info_update_performance():
     assert model_info.performance["memory_usage_mb"] == 1000
 
     # Update performance again
-    model_info.update_performance({
-        "latency_ms": 50,  # Changed
-        "throughput": 20,  # Changed
-        "accuracy": 0.95,  # New
-    })
+    model_info.update_performance(
+        {
+            "latency_ms": 50,  # Changed
+            "throughput": 20,  # Changed
+            "accuracy": 0.95,  # New
+        }
+    )
 
     # Check that the performance was updated and merged
     assert model_info.performance["latency_ms"] == 50
@@ -221,7 +227,7 @@ def test_model_info_update_performance():
     assert model_info.performance["accuracy"] == 0.95
 
 
-@patch('ai_models.model_base_types.datetime')
+@patch("ai_models.model_base_types.datetime")
 def test_model_info_update_timestamp(mock_datetime):
     """Test that update_performance updates the timestamp."""
     # Mock datetime.now() to return a fixed datetime
@@ -234,7 +240,7 @@ def test_model_info_update_timestamp(mock_datetime):
         description="A test model",
         type="huggingface",
         path="/path/to/model",
-        capabilities=["text-generation"]
+        capabilities=["text-generation"],
     )
 
     # Set initial updated_at to a different value
@@ -255,7 +261,7 @@ def test_model_info_has_capability():
         description="A test model",
         type="huggingface",
         path="/path/to/model",
-        capabilities=["text-generation", "embedding"]
+        capabilities=["text-generation", "embedding"],
     )
 
     # Check capabilities

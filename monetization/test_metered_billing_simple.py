@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 # Use absolute imports
 from monetization.metered_billing import MeteredBillingPricing, MeteringInterval
-from monetization.usage_tracking import UsageMetric, UsageCategory
+from monetization.usage_tracking import UsageCategory, UsageMetric
 
 
 def test_metering_intervals():
@@ -20,7 +20,7 @@ def test_metering_intervals():
     model = MeteredBillingPricing(
         name="Test Metered Billing",
         description="Test metered billing model",
-        metering_interval=MeteringInterval.HOURLY
+        metering_interval=MeteringInterval.HOURLY,
     )
 
     # Test hourly interval
@@ -58,7 +58,7 @@ def test_custom_billing_period():
     model = MeteredBillingPricing(
         name="Test Metered Billing",
         description="Test metered billing model",
-        metering_interval=MeteringInterval.MONTHLY
+        metering_interval=MeteringInterval.MONTHLY,
     )
 
     customer_id = "customer123"
@@ -72,9 +72,7 @@ def test_custom_billing_period():
     custom_end = custom_start + timedelta(days=10)
 
     model.set_custom_billing_period(
-        customer_id=customer_id,
-        start_time=custom_start,
-        end_time=custom_end
+        customer_id=customer_id, start_time=custom_start, end_time=custom_end
     )
 
     # Get the custom billing period

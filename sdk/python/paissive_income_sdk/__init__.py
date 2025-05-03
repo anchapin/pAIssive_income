@@ -6,17 +6,17 @@ This package provides a Python client for the pAIssive Income API.
 
 __version__ = "0.1.0"
 
-from .client import Client
 from .auth import APIKeyAuth, JWTAuth
+from .client import Client
 from .services import (
-    NicheAnalysisService,
-    MonetizationService,
-    MarketingService,
-    AIModelsService,
     AgentTeamService,
-    UserService,
+    AIModelsService,
+    APIKeyService,
     DashboardService,
-    APIKeyService
+    MarketingService,
+    MonetizationService,
+    NicheAnalysisService,
+    UserService,
 )
 
 __all__ = [

@@ -5,24 +5,23 @@ This module provides functions for initializing and configuring services
 used by the project, including dependency injection setup.
 """
 
-import os
 import logging
-from typing import Dict, Any, Optional
+import os
+from typing import Any, Dict, Optional
 
-from dependency_container import get_container, DependencyContainer
-from interfaces.agent_interfaces import IAgentTeam, IAgentProfile, IResearchAgent
-from interfaces.model_interfaces import IModelManager, IModelConfig
-from interfaces.niche_interfaces import INicheAnalyzer
-from interfaces.monetization_interfaces import IMonetizationCalculator
-from interfaces.marketing_interfaces import IMarketingStrategy
-
-from agent_team import AgentTeam, ResearchAgent, AgentProfile
-from ai_models.model_manager import ModelManager
-from ai_models.model_config import ModelConfig
+from agent_team import AgentProfile, AgentTeam, ResearchAgent
 from ai_models.adapters import get_adapter_factory
-from niche_analysis.niche_analyzer import NicheAnalyzer
-from monetization.calculator import MonetizationCalculator
+from ai_models.model_config import ModelConfig
+from ai_models.model_manager import ModelManager
+from dependency_container import DependencyContainer, get_container
+from interfaces.agent_interfaces import IAgentProfile, IAgentTeam, IResearchAgent
+from interfaces.marketing_interfaces import IMarketingStrategy
+from interfaces.model_interfaces import IModelConfig, IModelManager
+from interfaces.monetization_interfaces import IMonetizationCalculator
+from interfaces.niche_interfaces import INicheAnalyzer
 from marketing.strategy_generator import StrategyGenerator
+from monetization.calculator import MonetizationCalculator
+from niche_analysis.niche_analyzer import NicheAnalyzer
 from ui.service_registry import register_ui_services
 
 # Set up logging

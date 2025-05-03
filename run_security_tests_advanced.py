@@ -6,8 +6,9 @@ This script runs the advanced security tests for authentication and authorizatio
 edge cases as recommended in the security testing section.
 """
 
-import unittest
 import sys
+import unittest
+
 from tests.security.test_advanced_authentication import TestAdvancedAuthentication
 from tests.security.test_authorization_edge_cases import TestAuthorizationEdgeCases
 

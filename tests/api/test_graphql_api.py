@@ -4,21 +4,30 @@ Tests for the GraphQL API.
 This module contains tests for GraphQL queries, mutations, and subscriptions.
 """
 
+from typing import Any, Dict, List
+
 import pytest
-from typing import Dict, Any, List
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id
-)
+from tests.api.utils.test_data import generate_id
 from tests.api.utils.test_validators import (
-    validate_status_code, validate_json_response, validate_error_response,
-    validate_success_response, validate_paginated_response, validate_bulk_response,
-    validate_field_exists, validate_field_equals, validate_field_type,
-    validate_field_not_empty, validate_list_not_empty, validate_list_length,
-    validate_list_min_length, validate_list_max_length, validate_list_contains,
-    validate_list_contains_dict_with_field
+    validate_bulk_response,
+    validate_error_response,
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_not_empty,
+    validate_field_type,
+    validate_json_response,
+    validate_list_contains,
+    validate_list_contains_dict_with_field,
+    validate_list_length,
+    validate_list_max_length,
+    validate_list_min_length,
+    validate_list_not_empty,
+    validate_paginated_response,
+    validate_status_code,
+    validate_success_response,
 )
 
 
@@ -49,24 +58,16 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         # Variables
-        variables = {
-            "id": generate_id()
-        }
-        
+        variables = {"id": generate_id()}
+
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": variables
-            }
-        )
-        
+        response = api_test_client.post("graphql", json={"query": query, "variables": variables})
+
         # Validate response structure
         result = validate_json_response(response)
-        
+
         # GraphQL specific validation
         validate_field_exists(result, "data")
         if "errors" not in result:  # If no errors, validate data
@@ -110,24 +111,16 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         # Variables
-        variables = {
-            "id": generate_id()
-        }
-        
+        variables = {"id": generate_id()}
+
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": variables
-            }
-        )
-        
+        response = api_test_client.post("graphql", json={"query": query, "variables": variables})
+
         # Validate response structure
         result = validate_json_response(response)
-        
+
         # GraphQL specific validation
         validate_field_exists(result, "data")
         if "errors" not in result:
@@ -164,7 +157,7 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         # Variables
         variables = {
             "input": {
@@ -174,26 +167,17 @@ class TestGraphQLAPI:
                 "endDate": "2025-05-31",
                 "channels": ["SOCIAL_MEDIA", "EMAIL"],
                 "targetAudience": {
-                    "demographics": {
-                        "ageRanges": ["25_34", "35_44"],
-                        "locations": ["US", "UK"]
-                    }
-                }
+                    "demographics": {"ageRanges": ["25_34", "35_44"], "locations": ["US", "UK"]}
+                },
             }
         }
-        
+
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
-        
+        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+
         # Validate response structure
         result = validate_json_response(response)
-        
+
         # GraphQL specific validation
         validate_field_exists(result, "data")
         if "errors" not in result:
@@ -201,7 +185,7 @@ class TestGraphQLAPI:
             validate_field_exists(data, "createCampaign")
             validate_field_exists(data["createCampaign"], "campaign")
             validate_field_exists(data["createCampaign"], "errors")
-            
+
             campaign = data["createCampaign"]["campaign"]
             if campaign:
                 validate_field_exists(campaign, "id")
@@ -227,24 +211,18 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         # Variables
-        variables = {
-            "campaignId": generate_id()
-        }
-        
+        variables = {"campaignId": generate_id()}
+
         # Make request to set up subscription
         response = api_test_client.post(
-            "graphql",
-            json={
-                "query": subscription,
-                "variables": variables
-            }
+            "graphql", json={"query": subscription, "variables": variables}
         )
-        
+
         # Validate initial response structure
         result = validate_json_response(response)
-        
+
         # GraphQL specific validation for subscription setup
         validate_field_exists(result, "data")
         if "errors" not in result:
@@ -261,16 +239,13 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
-        
+        response = api_test_client.post("graphql", json={"query": query})
+
         # Validate response structure
         result = validate_json_response(response)
-        
+
         # GraphQL specific validation
         validate_field_exists(result, "errors")
         errors = result["errors"]
@@ -298,16 +273,13 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         # Make request
-        response = api_test_client.post(
-            "graphql",
-            json={"query": query}
-        )
-        
+        response = api_test_client.post("graphql", json={"query": query})
+
         # Validate response structure
         result = validate_json_response(response)
-        
+
         # GraphQL specific validation
         validate_field_exists(result, "data")
         if "errors" not in result:
@@ -345,15 +317,15 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         response = api_test_client.post("graphql", json={"query": query})
         result = validate_json_response(response)
-        
+
         # Validate response structure
         validate_field_exists(result, "data")
         validate_field_exists(result["data"], "marketingStrategies")
         validate_field_type(result["data"]["marketingStrategies"], list)
-        
+
         # Test getting specific marketing strategy
         strategy_id = "test-strategy-id"
         query = """
@@ -370,20 +342,16 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"id": strategy_id}
-            }
+            "graphql", json={"query": query, "variables": {"id": strategy_id}}
         )
         result = validate_json_response(response)
-        
+
         # Validate response structure
         validate_field_exists(result, "data")
         validate_field_exists(result["data"], "marketingStrategy")
-        
+
         # Test getting marketing channels
         query = """
         query {
@@ -397,10 +365,10 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         response = api_test_client.post("graphql", json={"query": query})
         result = validate_json_response(response)
-        
+
         # Validate response structure
         validate_field_exists(result, "data")
         validate_field_exists(result["data"], "marketingChannels")
@@ -433,7 +401,7 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         variables = {
             "input": {
                 "name": "Test Strategy",
@@ -441,34 +409,24 @@ class TestGraphQLAPI:
                 "targetAudience": {
                     "demographics": {"ageRange": ["25-34"], "location": ["US"]},
                     "interests": ["technology", "marketing"],
-                    "painPoints": ["time-consuming content creation"]
+                    "painPoints": ["time-consuming content creation"],
                 },
                 "channels": [
                     {
                         "name": "social_media",
                         "priority": "high",
-                        "contentTypes": ["posts", "stories"]
+                        "contentTypes": ["posts", "stories"],
                     }
                 ],
                 "goals": [
-                    {
-                        "metric": "engagement_rate",
-                        "targetValue": 0.05,
-                        "timeframe": "monthly"
-                    }
-                ]
+                    {"metric": "engagement_rate", "targetValue": 0.05, "timeframe": "monthly"}
+                ],
             }
         }
-        
-        response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": variables
-            }
-        )
+
+        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
         result = validate_json_response(response)
-        
+
         # Validate response structure
         validate_field_exists(result, "data")
         validate_field_exists(result["data"], "createMarketingStrategy")
@@ -478,7 +436,7 @@ class TestGraphQLAPI:
             validate_field_equals(strategy, "name", variables["input"]["name"])
             validate_field_exists(strategy, "channels")
             validate_field_type(strategy, "channels", list)
-        
+
         # Test updating marketing strategy
         strategy_id = strategy["id"] if strategy else "test-strategy-id"
         mutation = """
@@ -495,7 +453,7 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         update_variables = {
             "id": strategy_id,
             "input": {
@@ -505,44 +463,36 @@ class TestGraphQLAPI:
                     {
                         "name": "email",
                         "priority": "medium",
-                        "contentTypes": ["newsletter", "drip_campaign"]
+                        "contentTypes": ["newsletter", "drip_campaign"],
                     }
-                ]
-            }
+                ],
+            },
         }
-        
+
         response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": update_variables
-            }
+            "graphql", json={"query": mutation, "variables": update_variables}
         )
         result = validate_json_response(response)
-        
+
         # Validate response structure
         validate_field_exists(result, "data")
         validate_field_exists(result["data"], "updateMarketingStrategy")
         updated = result["data"]["updateMarketingStrategy"]
         if updated:
             validate_field_equals(updated, "name", update_variables["input"]["name"])
-        
+
         # Test deleting marketing strategy
         mutation = """
         mutation($id: ID!) {
             deleteMarketingStrategy(id: $id)
         }
         """
-        
+
         response = api_test_client.post(
-            "graphql",
-            json={
-                "query": mutation,
-                "variables": {"id": strategy_id}
-            }
+            "graphql", json={"query": mutation, "variables": {"id": strategy_id}}
         )
         result = validate_json_response(response)
-        
+
         # Validate response structure
         validate_field_exists(result, "data")
         validate_field_exists(result["data"], "deleteMarketingStrategy")
@@ -559,21 +509,17 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         response = api_test_client.post(
-            "graphql",
-            json={
-                "query": query,
-                "variables": {"id": "non-existent-id"}
-            }
+            "graphql", json={"query": query, "variables": {"id": "non-existent-id"}}
         )
         result = validate_json_response(response)
-        
+
         # Should return null data without error
         validate_field_exists(result, "data")
         validate_field_exists(result["data"], "marketingStrategy")
         assert result["data"]["marketingStrategy"] is None
-        
+
         # Test creating strategy with invalid input
         mutation = """
         mutation($input: MarketingStrategyInput!) {
@@ -583,7 +529,7 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         response = api_test_client.post(
             "graphql",
             json={
@@ -593,16 +539,16 @@ class TestGraphQLAPI:
                         # Missing required fields
                         "description": "Invalid strategy"
                     }
-                }
-            }
+                },
+            },
         )
         result = validate_json_response(response)
-        
+
         # Should return validation error
         validate_field_exists(result, "errors")
         validate_field_type(result["errors"], list)
         assert len(result["errors"]) > 0
-        
+
         # Test updating non-existent strategy
         mutation = """
         mutation($id: ID!, $input: MarketingStrategyInput!) {
@@ -612,22 +558,19 @@ class TestGraphQLAPI:
             }
         }
         """
-        
+
         response = api_test_client.post(
             "graphql",
             json={
                 "query": mutation,
                 "variables": {
                     "id": "non-existent-id",
-                    "input": {
-                        "name": "Test Strategy",
-                        "description": "Test description"
-                    }
-                }
-            }
+                    "input": {"name": "Test Strategy", "description": "Test description"},
+                },
+            },
         )
         result = validate_json_response(response)
-        
+
         # Should return null data without error
         validate_field_exists(result, "data")
         validate_field_exists(result["data"], "updateMarketingStrategy")

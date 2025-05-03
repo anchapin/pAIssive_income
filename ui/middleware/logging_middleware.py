@@ -7,7 +7,6 @@ This module provides middleware for logging HTTP requests and responses.
 import logging
 import time
 
-
 from flask import g
 
 # Configure logger

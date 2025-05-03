@@ -3,14 +3,12 @@ Content Templates module for the pAIssive Income project.
 Provides templates for creating marketing content.
 """
 
-from typing import Dict, List, Any, Optional, Union
+import logging
 import uuid
 from datetime import datetime
-import logging
+from typing import Any, Dict, List, Optional, Union
 
-from .errors import (
-    ContentTemplateError, ValidationError, handle_exception
-)
+from .errors import ContentTemplateError, ValidationError, handle_exception
 
 # Set up logging
 logger = logging.getLogger(__name__)

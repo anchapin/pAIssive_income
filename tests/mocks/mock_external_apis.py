@@ -189,12 +189,7 @@ class MockPaymentAPI:
         self._subscriptions = {}
         self._payments = {}
 
-    def create_customer(
-        self,
-        email: str,
-        name: str,
-        **kwargs
-    ) -> Dict[str, Any]:
+    def create_customer(self, email: str, name: str, **kwargs) -> Dict[str, Any]:
         """
         Create a mock customer.
 
@@ -212,17 +207,12 @@ class MockPaymentAPI:
             "email": email,
             "name": name,
             "created_at": datetime.utcnow().isoformat(),
-            **kwargs
+            **kwargs,
         }
         self._customers[customer_id] = customer
         return customer
 
-    def create_subscription(
-        self,
-        customer_id: str,
-        plan_id: str,
-        **kwargs
-    ) -> Dict[str, Any]:
+    def create_subscription(self, customer_id: str, plan_id: str, **kwargs) -> Dict[str, Any]:
         """
         Create a mock subscription.
 
@@ -245,17 +235,13 @@ class MockPaymentAPI:
             "status": "active",
             "created_at": datetime.utcnow().isoformat(),
             "current_period_end": None,  # Set based on plan
-            **kwargs
+            **kwargs,
         }
         self._subscriptions[subscription_id] = subscription
         return subscription
 
     def process_payment(
-        self,
-        amount: int,
-        currency: str,
-        payment_method: str,
-        **kwargs
+        self, amount: int, currency: str, payment_method: str, **kwargs
     ) -> Dict[str, Any]:
         """
         Process a mock payment.
@@ -277,7 +263,7 @@ class MockPaymentAPI:
             "payment_method": payment_method,
             "status": "succeeded",
             "created_at": datetime.utcnow().isoformat(),
-            **kwargs
+            **kwargs,
         }
         self._payments[payment_id] = payment
         return payment
@@ -304,17 +290,11 @@ class MockEmailAPI:
         self._templates = {
             "welcome_email": {
                 "subject": "Welcome to {service_name}!",
-                "content": "Hello {name}, welcome to our service!"
+                "content": "Hello {name}, welcome to our service!",
             }
         }
 
-    def send_email(
-        self,
-        to: str,
-        subject: str,
-        content: str,
-        **kwargs
-    ) -> Dict[str, Any]:
+    def send_email(self, to: str, subject: str, content: str, **kwargs) -> Dict[str, Any]:
         """
         Send a mock email.
 
@@ -333,17 +313,13 @@ class MockEmailAPI:
             "subject": subject,
             "content": content,
             "sent_at": datetime.utcnow().isoformat(),
-            **kwargs
+            **kwargs,
         }
         self._sent_emails.append(email)
         return {"status": "sent", "email_id": email["id"]}
 
     def send_template(
-        self,
-        template_id: str,
-        to: str,
-        variables: Dict[str, Any],
-        **kwargs
+        self, template_id: str, to: str, variables: Dict[str, Any], **kwargs
     ) -> Dict[str, Any]:
         """
         Send a mock templated email.
@@ -366,10 +342,7 @@ class MockEmailAPI:
 
         return self.send_email(to=to, subject=subject, content=content, **kwargs)
 
-    def send_batch(
-        self,
-        emails: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def send_batch(self, emails: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Send multiple mock emails.
 
@@ -395,7 +368,7 @@ class MockEmailAPI:
             "status": "completed",
             "sent_count": sent_count,
             "failed_count": failed_count,
-            "results": results
+            "results": results,
         }
 
     def get_sent_emails(self) -> List[Dict[str, Any]]:
@@ -411,12 +384,7 @@ class MockStorageAPI:
         self._files = {}
         self._base_url = "https://mock-storage.example.com"
 
-    def upload_file(
-        self,
-        file_path: str,
-        content: str,
-        **kwargs
-    ) -> Dict[str, Any]:
+    def upload_file(self, file_path: str, content: str, **kwargs) -> Dict[str, Any]:
         """
         Upload a mock file.
 
@@ -436,13 +404,10 @@ class MockStorageAPI:
             "size": len(content),
             "url": f"{self._base_url}/{file_id}",
             "uploaded_at": datetime.utcnow().isoformat(),
-            **kwargs
+            **kwargs,
         }
         self._files[file_id] = file_data
-        return {
-            "id": file_id,
-            "url": file_data["url"]
-        }
+        return {"id": file_id, "url": file_data["url"]}
 
     def download_file(self, file_id: str) -> Dict[str, Any]:
         """
@@ -466,8 +431,8 @@ class MockStorageAPI:
             "metadata": {
                 "path": file_data["path"],
                 "size": file_data["size"],
-                "uploaded_at": file_data["uploaded_at"]
-            }
+                "uploaded_at": file_data["uploaded_at"],
+            },
         }
 
     def delete_file(self, file_id: str) -> Dict[str, str]:
@@ -502,7 +467,7 @@ class MockStorageAPI:
                 "path": data["path"],
                 "size": data["size"],
                 "url": data["url"],
-                "uploaded_at": data["uploaded_at"]
+                "uploaded_at": data["uploaded_at"],
             }
             for file_id, data in self._files.items()
         ]
@@ -549,7 +514,7 @@ def create_mock_api(api_type: str, config: dict = None) -> Any:
         ValueError: If api_type is not recognized
     """
     config = config or {}
-    
+
     if api_type == "huggingface":
         return MockHuggingFaceAPI(**config)
     elif api_type == "payment":

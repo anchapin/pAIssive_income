@@ -5,6 +5,14 @@ This module provides functionality for managing a team of specialized AI agents
 that collaborate on developing and monetizing niche AI tools for passive income.
 """
 
+from .agent_profiles import (
+    AgentProfile,
+    DeveloperAgent,
+    FeedbackAgent,
+    MarketingAgent,
+    MonetizationAgent,
+    ResearchAgent,
+)
 from .schemas import (
     AgentProfileSchema,
     FeedbackItemSchema,
@@ -18,10 +26,6 @@ from .schemas import (
     WorkflowSettingsSchema,
 )
 from .team_config import AgentTeam
-from .agent_profiles import (
-    AgentProfile, ResearchAgent, DeveloperAgent,
-    MonetizationAgent, MarketingAgent, FeedbackAgent
-)
 
 __all__ = [
     # Team configuration

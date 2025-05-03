@@ -2,8 +2,9 @@
 Script to run the webhook tests.
 """
 
-import pytest
 import sys
+
+import pytest
 
 if __name__ == "__main__":
     print("Running webhook schema tests...")

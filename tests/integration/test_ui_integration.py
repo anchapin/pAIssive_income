@@ -1,24 +1,23 @@
 """
 Integration tests for UI interactions with backend services.
 """
-import pytest
-from unittest.mock import patch, MagicMock
 
-# Import UI modules
-from ui.web_ui import WebUI
-from ui.cli_ui import CommandLineInterface
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Import test fixtures
 from tests.integration.ui_test_fixtures import (
     mock_agent_team,
+    mock_agent_team_service,
     mock_model_manager,
     mock_subscription_manager,
-    mock_agent_team_service,
-    register_mock_services
+    register_mock_services,
 )
+from ui.cli_ui import CommandLineInterface
 
-
-
+# Import UI modules
+from ui.web_ui import WebUI
 
 
 @pytest.fixture
@@ -26,6 +25,7 @@ def initialize_ui_services(register_mock_services):
     """Initialize UI services for testing."""
     # Initialize routes services
     from ui.routes import init_services
+
     init_services()
     return True
 
@@ -36,7 +36,7 @@ def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initi
     ui = WebUI(
         agent_team=mock_agent_team,
         model_manager=mock_model_manager,
-        subscription_manager=mock_subscription_manager
+        subscription_manager=mock_subscription_manager,
     )
     return ui
 
@@ -47,7 +47,7 @@ def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initi
     ui = CommandLineInterface(
         agent_team=mock_agent_team,
         model_manager=mock_model_manager,
-        subscription_manager=mock_subscription_manager
+        subscription_manager=mock_subscription_manager,
     )
     return ui
 
@@ -106,8 +106,8 @@ def test_web_ui_monetization_strategy_integration(web_ui, mock_agent_team):
         "description": "An AI tool that helps e-commerce businesses optimize inventory levels.",
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
-            {"id": "feature2", "name": "Reorder Alerts"}
-        ]
+            {"id": "feature2", "name": "Reorder Alerts"},
+        ],
     }
     web_ui.current_solution = selected_solution
 
@@ -141,8 +141,8 @@ def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
         "description": "An AI tool that helps e-commerce businesses optimize inventory levels.",
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
-            {"id": "feature2", "name": "Reorder Alerts"}
-        ]
+            {"id": "feature2", "name": "Reorder Alerts"},
+        ],
     }
     selected_monetization = {
         "id": "monetization1",
@@ -151,9 +151,9 @@ def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
             "name": "Inventory Optimizer Subscription",
             "tiers": [
                 {"name": "Free", "price_monthly": 0},
-                {"name": "Pro", "price_monthly": 29.99}
-            ]
-        }
+                {"name": "Pro", "price_monthly": 29.99},
+            ],
+        },
     }
     web_ui.current_niches = [selected_niche]
     web_ui.current_solution = selected_solution
@@ -205,7 +205,7 @@ def test_cli_ui_full_workflow_integration(cli_ui, mock_agent_team):
     assert hasattr(cli_ui, "current_marketing_plan")
 
 
-@patch('ui.web_ui.WebUI.render_template')
+@patch("ui.web_ui.WebUI.render_template")
 def test_web_ui_render_integration(mock_render_template, web_ui, mock_agent_team):
     """Test the WebUI template rendering integration."""
     # Set up some data
@@ -213,12 +213,15 @@ def test_web_ui_render_integration(mock_render_template, web_ui, mock_agent_team
     web_ui.current_solution = mock_agent_team.develop_solution.return_value
 
     # Set up the mock to return a tuple
-    mock_render_template.return_value = ("dashboard.html", {
-        "niches": web_ui.current_niches,
-        "solution": web_ui.current_solution,
-        "monetization": web_ui.current_monetization,
-        "marketing_plan": web_ui.current_marketing_plan
-    })
+    mock_render_template.return_value = (
+        "dashboard.html",
+        {
+            "niches": web_ui.current_niches,
+            "solution": web_ui.current_solution,
+            "monetization": web_ui.current_monetization,
+            "marketing_plan": web_ui.current_marketing_plan,
+        },
+    )
 
     # Simulate rendering the dashboard page
     web_ui.render_dashboard()
@@ -239,20 +242,17 @@ def test_web_ui_render_integration(mock_render_template, web_ui, mock_agent_team
     assert kwargs["solution"] == web_ui.current_solution
 
 
-@patch('ui.web_ui.WebUI.handle_ajax_request')
+@patch("ui.web_ui.WebUI.handle_ajax_request")
 def test_web_ui_ajax_integration(mock_handle_ajax_request, web_ui):
     """Test the WebUI AJAX request handling integration."""
     # Simulate an AJAX request
-    request_data = {
-        "action": "analyze_niche",
-        "market_segments": ["e-commerce"]
-    }
+    request_data = {"action": "analyze_niche", "market_segments": ["e-commerce"]}
 
     # Set up the mock to return a success response
     mock_handle_ajax_request.return_value = {
-        'success': True,
-        'action': "analyze_niche",
-        'data': {"market_segments": ["e-commerce"]}
+        "success": True,
+        "action": "analyze_niche",
+        "data": {"market_segments": ["e-commerce"]},
     }
 
     web_ui.process_ajax_request(request_data)
@@ -301,7 +301,7 @@ def test_web_ui_subscription_manager_integration(web_ui, mock_subscription_manag
     assert subscriptions[0]["status"] == "active"
 
 
-@patch('ui.event_handlers.handle_niche_selected')
+@patch("ui.event_handlers.handle_niche_selected")
 def test_web_ui_event_handling_integration(mock_handle_niche_selected, web_ui):
     """Test the WebUI integration with event handlers."""
     # Set up some data
@@ -339,7 +339,7 @@ def test_cli_ui_input_parsing_integration(cli_ui):
         "develop solution",
         "create monetization",
         "create marketing",
-        "export plan"
+        "export plan",
     ]
 
     # Process each command
@@ -348,13 +348,13 @@ def test_cli_ui_input_parsing_integration(cli_ui):
 
     # Verify each command was processed correctly
     expected_calls = [
-        ('help', []),
-        ('analyze', ['e-commerce', 'healthcare']),
-        ('select', ['niche', '1']),
-        ('develop', ['solution']),
-        ('create', ['monetization']),
-        ('create', ['marketing']),
-        ('export', ['plan'])
+        ("help", []),
+        ("analyze", ["e-commerce", "healthcare"]),
+        ("select", ["niche", "1"]),
+        ("develop", ["solution"]),
+        ("create", ["monetization"]),
+        ("create", ["marketing"]),
+        ("export", ["plan"]),
     ]
 
     actual_calls = cli_ui.process_command.call_args_list
@@ -370,12 +370,14 @@ def test_persistence_integration(web_ui):
     """Test the UI integration with data persistence."""
     # Mock the persistence methods
     web_ui.save_data = MagicMock()
-    web_ui.load_data = MagicMock(return_value={
-        "niches": [{"id": "niche1", "name": "Saved Niche"}],
-        "solution": {"id": "solution1", "name": "Saved Solution"},
-        "monetization": {"id": "monetization1", "name": "Saved Monetization"},
-        "marketing_plan": {"id": "marketing1", "name": "Saved Marketing Plan"}
-    })
+    web_ui.load_data = MagicMock(
+        return_value={
+            "niches": [{"id": "niche1", "name": "Saved Niche"}],
+            "solution": {"id": "solution1", "name": "Saved Solution"},
+            "monetization": {"id": "monetization1", "name": "Saved Monetization"},
+            "marketing_plan": {"id": "marketing1", "name": "Saved Marketing Plan"},
+        }
+    )
 
     # Simulate saving the current state
     web_ui.current_niches = [{"id": "niche1", "name": "Test Niche"}]

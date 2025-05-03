@@ -17,14 +17,15 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 import semver
 
 from errors import ConfigurationError
+
 from .model_base_types import ModelInfo
 
 # Set up logging with secure defaults
 logging.basicConfig(
-    level=logging.INFO, 
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class ModelVersion:
     """
@@ -65,7 +66,9 @@ class ModelVersion:
         try:
             semver.parse(version)
         except ValueError as e:
-            raise ValueError(f"Invalid version string: {version}. Must follow semver format (e.g., '1.0.0')") from e
+            raise ValueError(
+                f"Invalid version string: {version}. Must follow semver format (e.g., '1.0.0')"
+            ) from e
 
         self.version: str = version
         self.model_id: str = model_id
@@ -134,7 +137,7 @@ class ModelVersion:
         except KeyError as e:
             raise ValueError(f"Missing required field in version data: {e}")
 
-    def is_compatible_with_version(self, other_version: Union[str, 'ModelVersion']) -> bool:
+    def is_compatible_with_version(self, other_version: Union[str, "ModelVersion"]) -> bool:
         """
         Check if this version is compatible with another version.
 
@@ -182,13 +185,14 @@ class ModelVersion:
             return False
         return self.version == other.version and self.model_id == other.model_id
 
-    def __lt__(self, other: 'ModelVersion') -> bool:
+    def __lt__(self, other: "ModelVersion") -> bool:
         """Compare versions based on semver."""
         return semver.compare(self.version, other.version) < 0
 
-    def __gt__(self, other: 'ModelVersion') -> bool:
+    def __gt__(self, other: "ModelVersion") -> bool:
         """Compare versions based on semver."""
         return semver.compare(self.version, other.version) > 0
+
 
 class ModelVersionRegistry:
     """
@@ -203,7 +207,9 @@ class ModelVersionRegistry:
             registry_path: Path to the registry file
         """
         self.registry_path = registry_path
-        self.versions: Dict[str, Dict[str, ModelVersion]] = {}  # model_id -> version_str -> ModelVersion
+        self.versions: Dict[str, Dict[str, ModelVersion]] = (
+            {}
+        )  # model_id -> version_str -> ModelVersion
 
         # Create directory with secure permissions if it doesn't exist
         os.makedirs(os.path.dirname(self.registry_path), mode=0o750, exist_ok=True)
@@ -214,7 +220,9 @@ class ModelVersionRegistry:
     def _load_registry(self) -> None:
         """Load the registry from disk."""
         if not os.path.exists(self.registry_path):
-            logger.info(f"Model version registry not found at {self.registry_path}. Creating new registry.")
+            logger.info(
+                f"Model version registry not found at {self.registry_path}. Creating new registry."
+            )
             return
 
         try:
@@ -224,7 +232,7 @@ class ModelVersionRegistry:
                 logger.warning(f"Insecure permissions on registry file {self.registry_path}")
                 os.chmod(self.registry_path, 0o640)
 
-            with open(self.registry_path, 'r', encoding='utf-8') as f:
+            with open(self.registry_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             for model_id, versions_data in data.items():
@@ -240,7 +248,7 @@ class ModelVersionRegistry:
             error = ConfigurationError(
                 message=f"Invalid JSON format in model version registry: {e}",
                 config_key=self.registry_path,
-                original_exception=e
+                original_exception=e,
             )
             error.log()
             # Create a new registry
@@ -265,7 +273,7 @@ class ModelVersionRegistry:
             os.makedirs(os.path.dirname(self.registry_path), mode=0o750, exist_ok=True)
 
             # Write with secure permissions
-            with open(self.registry_path, 'w', encoding='utf-8') as f:
+            with open(self.registry_path, "w", encoding="utf-8") as f:
                 os.chmod(self.registry_path, 0o640)
                 json.dump(registry_data, f, indent=2)
 
@@ -275,8 +283,9 @@ class ModelVersionRegistry:
             logger.error(f"Error saving model version registry: {e}")
 
     # ... Rest of the ModelVersionRegistry class implementation ...
-    # (Note: Previous methods remain unchanged - they operate on in-memory data 
+    # (Note: Previous methods remain unchanged - they operate on in-memory data
     # and don't need security enhancements)
+
 
 class ModelMigrationTool:
     """
@@ -295,8 +304,9 @@ class ModelMigrationTool:
         self.logger: logging.Logger = logging.getLogger(__name__)
 
     # ... Rest of the ModelMigrationTool class implementation ...
-    # (Note: Previous methods remain unchanged as they don't involve file operations 
+    # (Note: Previous methods remain unchanged as they don't involve file operations
     # or security-sensitive operations)
+
 
 class VersionedModelManager:
     """
@@ -319,5 +329,5 @@ class VersionedModelManager:
         self.logger: logging.Logger = logging.getLogger(__name__)
 
     # ... Rest of the VersionedModelManager class implementation ...
-    # (Note: Previous methods remain unchanged as they depend on the security 
+    # (Note: Previous methods remain unchanged as they depend on the security
     # improvements in ModelVersionRegistry)

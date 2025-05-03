@@ -1,24 +1,23 @@
 """
 Tests for the content templates components in the Marketing module.
 """
-import pytest
-from unittest.mock import patch, MagicMock
+
 from datetime import datetime
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from marketing.content_templates import (
-    ContentTemplate,
     BlogPostTemplate,
+    ContentTemplate,
+    EmailNewsletterTemplate,
     SocialMediaTemplate,
-    EmailNewsletterTemplate
 )
 
 
 def test_content_template_init():
     """Test ContentTemplate initialization."""
-    template = ContentTemplate(
-        name="Test Template",
-        description="A test content template"
-    )
+    template = ContentTemplate(name="Test Template", description="A test content template")
 
     # Check that the template has the expected attributes
     assert template.name == "Test Template"
@@ -32,10 +31,7 @@ def test_content_template_init():
 
 def test_content_template_add_section():
     """Test add_section method of ContentTemplate."""
-    template = ContentTemplate(
-        name="Test Template",
-        description="A test content template"
-    )
+    template = ContentTemplate(name="Test Template", description="A test content template")
 
     # Add a section
     section = template.add_section(
@@ -43,7 +39,7 @@ def test_content_template_add_section():
         description="The introduction section",
         content_type="text",
         placeholder="Write an engaging introduction here...",
-        required=True
+        required=True,
     )
 
     # Check that the section was added
@@ -64,7 +60,7 @@ def test_content_template_generate_content():
     template = ContentTemplate(
         name="Test Template",
         description="A test content template",
-        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"]
+        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"],
     )
 
     # Add sections
@@ -73,7 +69,7 @@ def test_content_template_generate_content():
         description="The introduction section",
         content_type="text",
         placeholder="Write an engaging introduction here...",
-        required=True
+        required=True,
     )
 
     template.add_section(
@@ -81,7 +77,7 @@ def test_content_template_generate_content():
         description="The main content section",
         content_type="text",
         placeholder="Write the main content here...",
-        required=True
+        required=True,
     )
 
     template.add_section(
@@ -89,7 +85,7 @@ def test_content_template_generate_content():
         description="The conclusion section",
         content_type="text",
         placeholder="Write a compelling conclusion here...",
-        required=True
+        required=True,
     )
 
     # Generate content
@@ -97,7 +93,7 @@ def test_content_template_generate_content():
         topic="AI Tools for Small Businesses",
         target_audience="Small business owners",
         tone="informative",
-        keywords=["AI", "small business", "productivity", "automation"]
+        keywords=["AI", "small business", "productivity", "automation"],
     )
 
     # Check that the content has the expected attributes
@@ -131,8 +127,7 @@ def test_content_template_generate_content():
 def test_blog_post_template_init():
     """Test BlogPostTemplate initialization."""
     template = BlogPostTemplate(
-        name="Test Blog Post Template",
-        description="A test blog post template"
+        name="Test Blog Post Template", description="A test blog post template"
     )
 
     # Check that the template has the expected attributes
@@ -158,7 +153,7 @@ def test_blog_post_template_generate_blog_post():
     template = BlogPostTemplate(
         name="Test Blog Post Template",
         description="A test blog post template",
-        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"]
+        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"],
     )
 
     # Generate a blog post
@@ -168,7 +163,7 @@ def test_blog_post_template_generate_blog_post():
         tone="informative",
         keywords=["AI", "small business", "productivity", "automation"],
         word_count=1000,
-        include_images=True
+        include_images=True,
     )
 
     # Check that the blog post has the expected attributes
@@ -207,7 +202,7 @@ def test_social_media_template_init():
     template = SocialMediaTemplate(
         name="Test Social Media Template",
         description="A test social media template",
-        platform="instagram"
+        platform="instagram",
     )
 
     # Check that the template has the expected attributes
@@ -232,7 +227,7 @@ def test_social_media_template_generate_post():
         name="Test Social Media Template",
         description="A test social media template",
         platform="instagram",
-        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"]
+        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"],
     )
 
     # Generate a social media post
@@ -242,7 +237,7 @@ def test_social_media_template_generate_post():
         tone="conversational",
         include_hashtags=True,
         include_emoji=True,
-        include_call_to_action=True
+        include_call_to_action=True,
     )
 
     # Check that the post has the expected attributes
@@ -281,8 +276,7 @@ def test_social_media_template_generate_post():
 def test_email_newsletter_template_init():
     """Test EmailNewsletterTemplate initialization."""
     template = EmailNewsletterTemplate(
-        name="Test Email Newsletter Template",
-        description="A test email newsletter template"
+        name="Test Email Newsletter Template", description="A test email newsletter template"
     )
 
     # Check that the template has the expected attributes
@@ -309,7 +303,7 @@ def test_email_newsletter_template_generate_newsletter():
     template = EmailNewsletterTemplate(
         name="Test Email Newsletter Template",
         description="A test email newsletter template",
-        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"]
+        key_points=["Productivity benefits", "Cost savings", "Implementation strategies"],
     )
 
     # Generate an email newsletter
@@ -319,7 +313,7 @@ def test_email_newsletter_template_generate_newsletter():
         tone="friendly",
         include_images=True,
         include_personalization=True,
-        include_call_to_action=True
+        include_call_to_action=True,
     )
 
     # Check that the newsletter has the expected attributes

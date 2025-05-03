@@ -2,23 +2,20 @@
 Integration tests for message queue functionality.
 """
 
-import pytest
 import json
 import time
-from unittest.mock import MagicMock, patch
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from services.errors import MessageConsumeError, MessagePublishError, QueueConfigError
 from services.messaging import (
-    MessageQueueClient,
-    MessagePublisher,
-    MessageConsumer,
     DeadLetterQueue,
-    QueueConfig
-)
-from services.errors import (
-    MessagePublishError,
-    MessageConsumeError,
-    QueueConfigError
+    MessageConsumer,
+    MessagePublisher,
+    MessageQueueClient,
+    QueueConfig,
 )
 
 
@@ -34,7 +31,7 @@ class TestMessageQueue:
             dead_letter_exchange="test_dlx",
             max_retries=3,
             retry_delay=1000,  # milliseconds
-            consumer_timeout=5000  # milliseconds
+            consumer_timeout=5000,  # milliseconds
         )
         self.publisher = MessagePublisher(self.config)
         self.consumer = MessageConsumer(self.config)
@@ -49,17 +46,12 @@ class TestMessageQueue:
             "action": "profile_update",
             "user_id": "123",
             "timestamp": datetime.utcnow().isoformat(),
-            "data": {
-                "name": "John Doe",
-                "email": "john@example.com"
-            }
+            "data": {"name": "John Doe", "email": "john@example.com"},
         }
 
         # Publish message
         result = self.publisher.publish(
-            routing_key="user.events",
-            message=message,
-            headers={"version": "1.0"}
+            routing_key="user.events", message=message, headers={"version": "1.0"}
         )
 
         # Validate publish result
@@ -70,9 +62,7 @@ class TestMessageQueue:
 
         # Verify message can be consumed
         consumed = self.consumer.consume(
-            queue_name="user_events",
-            routing_key="user.events",
-            timeout=1000
+            queue_name="user_events", routing_key="user.events", timeout=1000
         )
 
         assert consumed is not None
@@ -82,24 +72,17 @@ class TestMessageQueue:
 
     def test_message_consumption_patterns(self):
         """Test different message consumption patterns."""
-        messages = [
-            {"id": i, "data": f"test_data_{i}"} for i in range(5)
-        ]
+        messages = [{"id": i, "data": f"test_data_{i}"} for i in range(5)]
 
         # Test batch publishing
-        batch_result = self.publisher.publish_batch(
-            routing_key="batch.test",
-            messages=messages
-        )
+        batch_result = self.publisher.publish_batch(routing_key="batch.test", messages=messages)
         assert len(batch_result["published"]) == len(messages)
 
         # Test single consumer
         consumed_single = []
         for _ in range(5):
             msg = self.consumer.consume(
-                queue_name="batch_test",
-                routing_key="batch.test",
-                timeout=1000
+                queue_name="batch_test", routing_key="batch.test", timeout=1000
             )
             if msg:
                 consumed_single.append(msg["message"])
@@ -109,23 +92,14 @@ class TestMessageQueue:
 
         # Test competing consumers
         consumer2 = MessageConsumer(self.config)
-        self.publisher.publish_batch(
-            routing_key="batch.test",
-            messages=messages
-        )
+        self.publisher.publish_batch(routing_key="batch.test", messages=messages)
 
         consumed_1, consumed_2 = [], []
         for _ in range(5):
             msg1 = self.consumer.consume(
-                queue_name="batch_test",
-                routing_key="batch.test",
-                timeout=500
+                queue_name="batch_test", routing_key="batch.test", timeout=500
             )
-            msg2 = consumer2.consume(
-                queue_name="batch_test",
-                routing_key="batch.test",
-                timeout=500
-            )
+            msg2 = consumer2.consume(queue_name="batch_test", routing_key="batch.test", timeout=500)
             if msg1:
                 consumed_1.append(msg1["message"])
             if msg2:
@@ -139,35 +113,25 @@ class TestMessageQueue:
     def test_dead_letter_handling(self):
         """Test dead letter queue handling."""
         # Message that will fail processing
-        bad_message = {
-            "type": "invalid_event",
-            "data": "malformed"
-        }
+        bad_message = {"type": "invalid_event", "data": "malformed"}
 
         # Configure consumer to fail processing
         def failing_processor(message):
             raise ValueError("Simulated processing failure")
 
         # Register message handler that will fail
-        self.consumer.register_handler(
-            routing_key="test.failures",
-            handler=failing_processor
-        )
+        self.consumer.register_handler(routing_key="test.failures", handler=failing_processor)
 
         # Publish message that will fail
         self.publisher.publish(
-            routing_key="test.failures",
-            message=bad_message,
-            headers={"retry_count": 0}
+            routing_key="test.failures", message=bad_message, headers={"retry_count": 0}
         )
 
         # Wait for retries and DLQ
         time.sleep((self.config.max_retries * self.config.retry_delay / 1000) + 1)
 
         # Check DLQ
-        dlq_message = self.dlq.get_message(
-            queue_name="test_failures_dlq"
-        )
+        dlq_message = self.dlq.get_message(queue_name="test_failures_dlq")
 
         # Verify message in DLQ
         assert dlq_message is not None
@@ -180,39 +144,25 @@ class TestMessageQueue:
         test_message = {"type": "ack_test", "data": "test"}
 
         # Test auto-ack
-        self.publisher.publish(
-            routing_key="test.ack",
-            message=test_message
-        )
+        self.publisher.publish(routing_key="test.ack", message=test_message)
 
         consumed_auto = self.consumer.consume(
-            queue_name="ack_test",
-            routing_key="test.ack",
-            auto_ack=True,
-            timeout=1000
+            queue_name="ack_test", routing_key="test.ack", auto_ack=True, timeout=1000
         )
         assert consumed_auto is not None
 
         # Verify message is not redelivered
         time.sleep(1)
         redelivered = self.consumer.consume(
-            queue_name="ack_test",
-            routing_key="test.ack",
-            timeout=1000
+            queue_name="ack_test", routing_key="test.ack", timeout=1000
         )
         assert redelivered is None
 
         # Test manual ack
-        self.publisher.publish(
-            routing_key="test.ack",
-            message=test_message
-        )
+        self.publisher.publish(routing_key="test.ack", message=test_message)
 
         consumed_manual = self.consumer.consume(
-            queue_name="ack_test",
-            routing_key="test.ack",
-            auto_ack=False,
-            timeout=1000
+            queue_name="ack_test", routing_key="test.ack", auto_ack=False, timeout=1000
         )
         assert consumed_manual is not None
 
@@ -222,9 +172,7 @@ class TestMessageQueue:
         # Verify message is not redelivered
         time.sleep(1)
         redelivered = self.consumer.consume(
-            queue_name="ack_test",
-            routing_key="test.ack",
-            timeout=1000
+            queue_name="ack_test", routing_key="test.ack", timeout=1000
         )
         assert redelivered is None
 
@@ -232,52 +180,33 @@ class TestMessageQueue:
         """Test different message routing patterns."""
         # Test direct routing
         direct_msg = {"type": "direct", "data": "test"}
-        self.publisher.publish(
-            routing_key="direct.test",
-            message=direct_msg
-        )
+        self.publisher.publish(routing_key="direct.test", message=direct_msg)
 
         consumed_direct = self.consumer.consume(
-            queue_name="direct_test",
-            routing_key="direct.test",
-            timeout=1000
+            queue_name="direct_test", routing_key="direct.test", timeout=1000
         )
         assert consumed_direct["message"] == direct_msg
 
         # Test topic routing
         topic_msg = {"type": "topic", "data": "test"}
-        self.publisher.publish(
-            routing_key="topic.test.info",
-            message=topic_msg
-        )
+        self.publisher.publish(routing_key="topic.test.info", message=topic_msg)
 
         # Consumer with wildcard routing key
         consumed_topic = self.consumer.consume(
-            queue_name="topic_test",
-            routing_key="topic.#",
-            timeout=1000
+            queue_name="topic_test", routing_key="topic.#", timeout=1000
         )
         assert consumed_topic["message"] == topic_msg
 
         # Test fanout routing
         fanout_msg = {"type": "broadcast", "data": "test"}
-        self.publisher.publish_fanout(
-            exchange_name="test_fanout",
-            message=fanout_msg
-        )
+        self.publisher.publish_fanout(exchange_name="test_fanout", message=fanout_msg)
 
         # Multiple consumers should receive the same message
         consumer1 = MessageConsumer(self.config)
         consumer2 = MessageConsumer(self.config)
 
-        msg1 = consumer1.consume_fanout(
-            exchange_name="test_fanout",
-            timeout=1000
-        )
-        msg2 = consumer2.consume_fanout(
-            exchange_name="test_fanout",
-            timeout=1000
-        )
+        msg1 = consumer1.consume_fanout(exchange_name="test_fanout", timeout=1000)
+        msg2 = consumer2.consume_fanout(exchange_name="test_fanout", timeout=1000)
 
         assert msg1["message"] == fanout_msg
         assert msg2["message"] == fanout_msg
@@ -286,23 +215,17 @@ class TestMessageQueue:
         """Test error handling scenarios."""
         # Test invalid routing key
         with pytest.raises(MessagePublishError):
-            self.publisher.publish(
-                routing_key="",  # Invalid routing key
-                message={"test": "data"}
-            )
+            self.publisher.publish(routing_key="", message={"test": "data"})  # Invalid routing key
 
         # Test invalid message format
         with pytest.raises(MessagePublishError):
             self.publisher.publish(
-                routing_key="test.errors",
-                message=object()  # Non-serializable object
+                routing_key="test.errors", message=object()  # Non-serializable object
             )
 
         # Test consumer timeout
         result = self.consumer.consume(
-            queue_name="empty_queue",
-            routing_key="test.empty",
-            timeout=100  # Very short timeout
+            queue_name="empty_queue", routing_key="test.empty", timeout=100  # Very short timeout
         )
         assert result is None
 
@@ -311,7 +234,7 @@ class TestMessageQueue:
             QueueConfig(
                 broker_url="invalid://localhost",
                 exchange_name="test",
-                queue_prefix=""  # Invalid prefix
+                queue_prefix="",  # Invalid prefix
             )
 
     def test_message_persistence(self):
@@ -322,18 +245,14 @@ class TestMessageQueue:
             exchange_name="durable_exchange",
             queue_prefix="persistent",
             message_ttl=3600000,  # 1 hour
-            durable=True
+            durable=True,
         )
         durable_publisher = MessagePublisher(config)
         durable_consumer = MessageConsumer(config)
 
         # Publish persistent message
         message = {"type": "persistent", "data": "test"}
-        durable_publisher.publish(
-            routing_key="persistent.test",
-            message=message,
-            persistent=True
-        )
+        durable_publisher.publish(routing_key="persistent.test", message=message, persistent=True)
 
         # Simulate broker restart
         with patch("services.messaging.MessageQueueClient.reconnect") as mock_reconnect:
@@ -342,9 +261,7 @@ class TestMessageQueue:
 
         # Message should still be available
         consumed = durable_consumer.consume(
-            queue_name="persistent_test",
-            routing_key="persistent.test",
-            timeout=1000
+            queue_name="persistent_test", routing_key="persistent.test", timeout=1000
         )
         assert consumed["message"] == message
 

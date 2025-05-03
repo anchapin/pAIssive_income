@@ -5,14 +5,13 @@ This module provides CORS middleware for the API server.
 """
 
 import logging
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 
 from ..config import APIConfig
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -20,6 +19,7 @@ logger = logging.getLogger(__name__)
 try:
     from fastapi import FastAPI
     from fastapi.middleware.cors import CORSMiddleware as FastAPICORSMiddleware
+
     FASTAPI_AVAILABLE = True
 except ImportError:
     logger.warning("FastAPI is required for CORS middleware")
@@ -30,7 +30,7 @@ class CORSMiddleware:
     """
     CORS middleware for the API server.
     """
-    
+
     def __init__(
         self,
         allow_origins: List[str] = ["*"],
@@ -38,11 +38,11 @@ class CORSMiddleware:
         allow_headers: List[str] = ["*"],
         allow_credentials: bool = True,
         expose_headers: List[str] = [],
-        max_age: int = 600
+        max_age: int = 600,
     ):
         """
         Initialize the CORS middleware.
-        
+
         Args:
             allow_origins: List of allowed origins
             allow_methods: List of allowed methods
@@ -62,7 +62,7 @@ class CORSMiddleware:
 def setup_cors_middleware(app: Any, config: APIConfig) -> None:
     """
     Set up CORS middleware for the API server.
-    
+
     Args:
         app: FastAPI application
         config: API configuration
@@ -70,7 +70,7 @@ def setup_cors_middleware(app: Any, config: APIConfig) -> None:
     if not FASTAPI_AVAILABLE:
         logger.warning("FastAPI is required for CORS middleware")
         return
-    
+
     # Add CORS middleware
     app.add_middleware(
         FastAPICORSMiddleware,

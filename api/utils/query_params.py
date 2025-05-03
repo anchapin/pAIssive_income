@@ -6,26 +6,28 @@ including pagination, filtering, and sorting.
 """
 
 import logging
-from enum import Enum
-from typing import List, Dict, Any, Optional, Union, TypeVar, Generic, Callable, Tuple
-from datetime import datetime
 import re
+from datetime import datetime
+from enum import Enum
+from typing import Any, Callable, Dict, Generic, List, Optional, Tuple, TypeVar, Union
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 # Type variable for generic typing
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class SortDirection(str, Enum):
     """Sort direction enum."""
+
     ASC = "asc"
     DESC = "desc"
 
 
 class FilterOperator(str, Enum):
     """Filter operator enum."""
+
     EQ = "eq"  # Equal
     NEQ = "neq"  # Not equal
     GT = "gt"  # Greater than
@@ -58,7 +60,7 @@ class QueryParams:
         sort_dir: SortDirection = SortDirection.ASC,
         filters: Optional[Dict[str, Any]] = None,
         filter_operators: Optional[Dict[str, FilterOperator]] = None,
-        max_page_size: int = 100
+        max_page_size: int = 100,
     ):
         """
         Initialize query parameters.
@@ -74,7 +76,9 @@ class QueryParams:
         """
         # Validate and set pagination parameters
         self.page = max(1, page)  # Ensure page is at least 1
-        self.page_size = min(max(1, page_size), max_page_size)  # Ensure page_size is between 1 and max_page_size
+        self.page_size = min(
+            max(1, page_size), max_page_size
+        )  # Ensure page_size is between 1 and max_page_size
 
         # Set sorting parameters
         self.sort_by = sort_by
@@ -89,8 +93,13 @@ class QueryParams:
         self.limit = self.page_size
 
     @classmethod
-    def from_request(cls, request_params: Dict[str, Any], allowed_sort_fields: List[str] = None,
-                   allowed_filter_fields: List[str] = None, max_page_size: int = 100) -> 'QueryParams':
+    def from_request(
+        cls,
+        request_params: Dict[str, Any],
+        allowed_sort_fields: List[str] = None,
+        allowed_filter_fields: List[str] = None,
+        max_page_size: int = 100,
+    ) -> "QueryParams":
         """
         Create QueryParams from request parameters.
 
@@ -104,13 +113,13 @@ class QueryParams:
             QueryParams instance
         """
         # Extract pagination parameters
-        page = int(request_params.get('page', 1))
-        page_size = int(request_params.get('page_size', 10))
+        page = int(request_params.get("page", 1))
+        page_size = int(request_params.get("page_size", 10))
 
         # Extract sorting parameters
-        sort_by = request_params.get('sort_by')
-        sort_dir_str = request_params.get('sort_dir', 'asc').lower()
-        sort_dir = SortDirection.DESC if sort_dir_str == 'desc' else SortDirection.ASC
+        sort_by = request_params.get("sort_by")
+        sort_dir_str = request_params.get("sort_dir", "asc").lower()
+        sort_dir = SortDirection.DESC if sort_dir_str == "desc" else SortDirection.ASC
 
         # Validate sort_by if allowed_sort_fields is provided
         if allowed_sort_fields and sort_by and sort_by not in allowed_sort_fields:
@@ -122,7 +131,7 @@ class QueryParams:
         filter_operators = {}
 
         # Process filter parameters (format: filter[field]=value or filter[field][operator]=value)
-        filter_pattern = re.compile(r'^filter\[([^\]]+)\](?:\[([^\]]+)\])?$')
+        filter_pattern = re.compile(r"^filter\[([^\]]+)\](?:\[([^\]]+)\])?$")
 
         for key, value in request_params.items():
             match = filter_pattern.match(key)
@@ -146,16 +155,16 @@ class QueryParams:
                     filter_operators[field] = FilterOperator.EQ
 
                 # Handle special value conversions
-                if value.lower() == 'true':
+                if value.lower() == "true":
                     filters[field] = True
-                elif value.lower() == 'false':
+                elif value.lower() == "false":
                     filters[field] = False
-                elif value.lower() == 'null':
+                elif value.lower() == "null":
                     filters[field] = None
                 else:
                     # Try to convert to int or float if possible
                     try:
-                        if '.' in value:
+                        if "." in value:
                             filters[field] = float(value)
                         else:
                             filters[field] = int(value)
@@ -170,7 +179,7 @@ class QueryParams:
             sort_dir=sort_dir,
             filters=filters,
             filter_operators=filter_operators,
-            max_page_size=max_page_size
+            max_page_size=max_page_size,
         )
 
 
@@ -192,8 +201,9 @@ def apply_pagination(items: List[T], query_params: QueryParams) -> Tuple[List[T]
     return items[start_idx:end_idx], total
 
 
-def apply_filtering(items: List[T], query_params: QueryParams,
-                  field_getter: Callable[[T, str], Any] = None) -> List[T]:
+def apply_filtering(
+    items: List[T], query_params: QueryParams, field_getter: Callable[[T, str], Any] = None
+) -> List[T]:
     """
     Apply filtering to a list of items.
 
@@ -210,6 +220,7 @@ def apply_filtering(items: List[T], query_params: QueryParams,
 
     # Default field getter function with nested field support
     if field_getter is None:
+
         def field_getter(item, field):
             if "." in field:
                 parts = field.split(".")
@@ -278,11 +289,19 @@ def apply_filtering(items: List[T], query_params: QueryParams,
                     include = False
                     break
             elif operator == FilterOperator.STARTS_WITH:
-                if not (isinstance(field_value, str) and isinstance(value, str) and field_value.startswith(value)):
+                if not (
+                    isinstance(field_value, str)
+                    and isinstance(value, str)
+                    and field_value.startswith(value)
+                ):
                     include = False
                     break
             elif operator == FilterOperator.ENDS_WITH:
-                if not (isinstance(field_value, str) and isinstance(value, str) and field_value.endswith(value)):
+                if not (
+                    isinstance(field_value, str)
+                    and isinstance(value, str)
+                    and field_value.endswith(value)
+                ):
                     include = False
                     break
             elif operator == FilterOperator.IN:
@@ -298,13 +317,19 @@ def apply_filtering(items: List[T], query_params: QueryParams,
                     include = False
                     break
             elif operator == FilterOperator.HAS_ALL:
-                if not (isinstance(field_value, list) and isinstance(value, list) 
-                       and all(v in field_value for v in value)):
+                if not (
+                    isinstance(field_value, list)
+                    and isinstance(value, list)
+                    and all(v in field_value for v in value)
+                ):
                     include = False
                     break
             elif operator == FilterOperator.HAS_ANY:
-                if not (isinstance(field_value, list) and isinstance(value, list) 
-                       and any(v in field_value for v in value)):
+                if not (
+                    isinstance(field_value, list)
+                    and isinstance(value, list)
+                    and any(v in field_value for v in value)
+                ):
                     include = False
                     break
 
@@ -314,8 +339,9 @@ def apply_filtering(items: List[T], query_params: QueryParams,
     return filtered_items
 
 
-def apply_sorting(items: List[T], query_params: QueryParams,
-                field_getter: Callable[[T, str], Any] = None) -> List[T]:
+def apply_sorting(
+    items: List[T], query_params: QueryParams, field_getter: Callable[[T, str], Any] = None
+) -> List[T]:
     """
     Apply sorting to a list of items.
 
@@ -332,6 +358,7 @@ def apply_sorting(items: List[T], query_params: QueryParams,
 
     # Default field getter function with nested field support
     if field_getter is None:
+
         def field_getter(item, field):
             if "." in field:
                 parts = field.split(".")
@@ -369,7 +396,7 @@ def apply_sorting(items: List[T], query_params: QueryParams,
                 value = -value
             elif isinstance(value, str):
                 # For strings in descending order, invert the characters
-                value = ''.join(chr(255 - ord(c)) for c in value)
+                value = "".join(chr(255 - ord(c)) for c in value)
 
         # Create a composite sort key that includes both fields for multi-field sort
         if query_params.sort_by == "priority":
@@ -377,13 +404,13 @@ def apply_sorting(items: List[T], query_params: QueryParams,
             score = field_getter(item, "stats.score")
             if score is not None and query_params.sort_dir == SortDirection.DESC:
                 score = -score
-            return (0, value, score if score is not None else float('-inf'))
+            return (0, value, score if score is not None else float("-inf"))
         elif query_params.sort_by == "stats.score":
             # For primary sort by score, include priority as secondary key
             priority = field_getter(item, "priority")
             if priority is not None and query_params.sort_dir == SortDirection.DESC:
                 priority = -priority
-            return (0, value, priority if priority is not None else float('-inf'))
+            return (0, value, priority if priority is not None else float("-inf"))
 
         return (0, value, 0)
 
@@ -392,8 +419,12 @@ def apply_sorting(items: List[T], query_params: QueryParams,
 
     # For descending sort with None values, we need to move them to the beginning
     if query_params.sort_dir == SortDirection.DESC:
-        none_items = [item for item in sorted_items if field_getter(item, query_params.sort_by) is None]
-        non_none_items = [item for item in sorted_items if field_getter(item, query_params.sort_by) is not None]
+        none_items = [
+            item for item in sorted_items if field_getter(item, query_params.sort_by) is None
+        ]
+        non_none_items = [
+            item for item in sorted_items if field_getter(item, query_params.sort_by) is not None
+        ]
         sorted_items = none_items + non_none_items
 
     return sorted_items

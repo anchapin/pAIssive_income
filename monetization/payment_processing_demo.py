@@ -4,7 +4,6 @@ Payment processing demo for the pAIssive Income project.
 This script demonstrates how to use the payment processing system.
 """
 
-
 from .payment_processor_factory import factory
 
 

@@ -5,12 +5,12 @@ This script demonstrates how to track and analyze the performance of marketing c
 across different channels using the ContentPerformanceAnalyzer.
 """
 
-from datetime import datetime, timedelta
-from typing import Dict, List, Any
-import random
-import os
 import json
+import os
+import random
+from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any, Dict, List
 
 from marketing.content_performance import ContentPerformanceAnalyzer
 

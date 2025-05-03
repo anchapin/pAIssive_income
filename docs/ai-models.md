@@ -233,7 +233,7 @@ manager.set_performance_monitor(monitor)
 with monitor.track_inference("model-id") as tracker:
     # Use the model
     result = model.generate("Hello, world!")
-    
+
     # Set metrics
     tracker.set_metrics(
         input_tokens=len("Hello, world!"),
@@ -415,7 +415,7 @@ if cache_manager.has(cache_key):
 else:
     # Generate the result
     result = model.generate("Hello, world!")
-    
+
     # Cache the result
     cache_manager.set(cache_key, result)
 ```
@@ -457,7 +457,7 @@ from ai_models.serving import ModelServer, ServerConfig, RESTServer, RESTConfig
 # Create a server configuration
 server_config = ServerConfig(
     protocol="REST",
-    host="0.0.0.0",
+    host="127.0.0.1",
     port=8000
 )
 
@@ -570,7 +570,7 @@ if not discovered_models:
     )
     manager.register_model(hf_model)
     print(f"Registered example Hugging Face model: {hf_model.name}")
-    
+
     # Register an embedding model
     embedding_model = ModelInfo(
         id="example-embedding-model",

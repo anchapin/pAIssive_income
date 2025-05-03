@@ -5,17 +5,18 @@ This module contains tests for analytics data collection across different
 API endpoints and services.
 """
 
-import pytest
 import time
-from unittest.mock import patch, MagicMock
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import (
+    generate_marketing_strategy_data,
+    generate_monetization_data,
     generate_niche_analysis_data,
     generate_solution_data,
-    generate_monetization_data,
-    generate_marketing_strategy_data
 )
 
 
@@ -175,6 +176,7 @@ class TestAnalyticsDataCollection:
 
         # Simulate a slow request
         with patch("tests.api.utils.test_client.APITestClient.get") as mock_get:
+
             def slow_get(endpoint):
                 time.sleep(1)  # Simulate a slow response
                 response = MagicMock()
@@ -205,7 +207,9 @@ class TestAnalyticsDataCollection:
         endpoints = performance_data["endpoints"]
 
         # Check that the slow endpoint has a higher response time
-        niche_endpoint = next((e for e in endpoints if e["endpoint"] == "niche-analysis/niches"), None)
+        niche_endpoint = next(
+            (e for e in endpoints if e["endpoint"] == "niche-analysis/niches"), None
+        )
         solution_endpoint = next((e for e in endpoints if e["endpoint"] == "solutions"), None)
 
         if niche_endpoint and solution_endpoint:

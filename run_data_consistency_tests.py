@@ -2,30 +2,30 @@
 Script to run the data consistency tests.
 """
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-# Import test classes
-from tests.common_utils.db.test_concurrent_operations import (
-    test_parallel_updates_consistency,
-    test_transaction_prevents_race_conditions,
-    test_transaction_isolation_levels,
-    test_deadlock_prevention,
-    test_concurrent_batch_operations
+from tests.common_utils.db.test_cache_coherency import (
+    test_cache_eviction_policy,
+    test_cache_hit_miss_ratios,
+    test_cache_invalidation_propagation,
+    test_cache_invalidation_timing,
+    test_cache_persistence,
+    test_cache_update_propagation,
+    test_concurrent_cache_access,
 )
 
-from tests.common_utils.db.test_cache_coherency import (
-    test_cache_invalidation_timing,
-    test_cache_update_propagation,
-    test_cache_hit_miss_ratios,
-    test_concurrent_cache_access,
-    test_cache_invalidation_propagation,
-    test_cache_persistence,
-    test_cache_eviction_policy
+# Import test classes
+from tests.common_utils.db.test_concurrent_operations import (
+    test_concurrent_batch_operations,
+    test_deadlock_prevention,
+    test_parallel_updates_consistency,
+    test_transaction_isolation_levels,
+    test_transaction_prevents_race_conditions,
 )
 
 

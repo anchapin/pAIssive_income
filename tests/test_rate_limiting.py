@@ -2,18 +2,18 @@
 Tests for API rate limiting functionality.
 """
 
-import unittest
 import time
+import unittest
 from datetime import datetime
-from typing import Dict, Any, Tuple
+from typing import Any, Dict, Tuple
 
-from api.config import APIConfig, RateLimitStrategy, RateLimitScope
+from api.config import APIConfig, RateLimitScope, RateLimitStrategy
 from api.rate_limit import (
-    RateLimitManager,
     FixedWindowRateLimiter,
-    TokenBucketRateLimiter,
     LeakyBucketRateLimiter,
-    SlidingWindowRateLimiter
+    RateLimitManager,
+    SlidingWindowRateLimiter,
+    TokenBucketRateLimiter,
 )
 
 
@@ -29,17 +29,10 @@ class TestRateLimiting(unittest.TestCase):
             rate_limit_requests=100,
             rate_limit_period=60,
             rate_limit_burst=50,
-            rate_limit_tiers={
-                "default": 100,
-                "basic": 300,
-                "premium": 1000,
-                "unlimited": 0
-            },
-            endpoint_rate_limits={
-                "/api/v1/ai-models/inference": 20
-            },
+            rate_limit_tiers={"default": 100, "basic": 300, "premium": 1000, "unlimited": 0},
+            endpoint_rate_limits={"/api/v1/ai-models/inference": 20},
             rate_limit_exempt_ips={"127.0.0.1"},
-            rate_limit_exempt_api_keys={"test-api-key"}
+            rate_limit_exempt_api_keys={"test-api-key"},
         )
         self.manager = RateLimitManager(self.config)
 
@@ -167,13 +160,13 @@ class TestRateLimiting(unittest.TestCase):
     def test_rate_limit_headers(self):
         """Test rate limit headers."""
         client_id = "test_client"
-        
+
         # Make some requests to get non-zero rate limit info
         _, limit_info = self.manager.check_rate_limit(client_id)
-        
+
         # Get headers
         headers = self.manager.get_rate_limit_headers(limit_info)
-        
+
         # Verify required headers are present
         self.assertIn("X-RateLimit-Limit", headers)
         self.assertIn("X-RateLimit-Remaining", headers)

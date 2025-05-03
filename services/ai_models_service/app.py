@@ -5,26 +5,25 @@ This module provides the AI Models Service implementation, which manages AI mode
 inference, and optimization for the pAIssive income platform.
 """
 
-import os
-import logging
 import argparse
-from typing import Dict, Any, Optional, List, Union
+import logging
+import os
+from typing import Any, Dict, List, Optional, Union
 
-from fastapi import FastAPI, Request, HTTPException, status, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from services.service_discovery.registration import (
-    register_service,
+    get_default_tags,
     get_service_metadata,
-    get_default_tags
+    register_service,
 )
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -32,7 +31,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="pAIssive Income AI Models Service",
     description="AI Models Service for pAIssive Income platform",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add CORS middleware
@@ -47,9 +46,11 @@ app.add_middleware(
 # Global variables
 service_registration = None
 
+
 # Define models for the API
 class ModelRequest(BaseModel):
     """Request model for AI model inference."""
+
     model_name: str = Field(..., description="Name of the AI model to use")
     prompt: str = Field(..., description="Prompt for the AI model")
     max_tokens: int = Field(256, description="Maximum number of tokens to generate")
@@ -59,6 +60,7 @@ class ModelRequest(BaseModel):
 
 class ModelResponse(BaseModel):
     """Response model for AI model inference."""
+
     model_name: str = Field(..., description="Name of the AI model used")
     generated_text: str = Field(..., description="Generated text from the model")
     tokens_used: int = Field(..., description="Number of tokens used")
@@ -68,6 +70,7 @@ class ModelResponse(BaseModel):
 
 class ModelInfo(BaseModel):
     """Information about an AI model."""
+
     name: str = Field(..., description="Name of the model")
     description: str = Field(..., description="Description of the model")
     version: str = Field(..., description="Version of the model")
@@ -86,7 +89,7 @@ AVAILABLE_MODELS = {
         provider="OpenAI",
         capabilities=["text-generation", "chat", "summarization"],
         parameters={"max_tokens": 8192, "default_temperature": 0.7},
-        metadata={"deployment_date": "2023-04-01"}
+        metadata={"deployment_date": "2023-04-01"},
     ),
     "llama2": ModelInfo(
         name="llama2",
@@ -95,7 +98,7 @@ AVAILABLE_MODELS = {
         provider="Meta",
         capabilities=["text-generation", "chat"],
         parameters={"max_tokens": 4096, "default_temperature": 0.7},
-        metadata={"deployment_date": "2023-07-15"}
+        metadata={"deployment_date": "2023-07-15"},
     ),
     "claude": ModelInfo(
         name="claude",
@@ -104,8 +107,8 @@ AVAILABLE_MODELS = {
         provider="Anthropic",
         capabilities=["text-generation", "chat", "summarization"],
         parameters={"max_tokens": 8192, "default_temperature": 0.7},
-        metadata={"deployment_date": "2023-05-01"}
-    )
+        metadata={"deployment_date": "2023-05-01"},
+    ),
 }
 
 
@@ -118,11 +121,7 @@ async def root():
 @app.get("/api/status")
 async def api_status():
     """API status endpoint."""
-    return {
-        "status": "ok",
-        "version": "1.0.0",
-        "service": "ai-models-service"
-    }
+    return {"status": "ok", "version": "1.0.0", "service": "ai-models-service"}
 
 
 @app.get("/api/models", response_model=List[ModelInfo])
@@ -136,44 +135,42 @@ async def get_model(model_name: str):
     """Get information about a specific AI model."""
     if model_name not in AVAILABLE_MODELS:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Model '{model_name}' not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Model '{model_name}' not found"
         )
-    
+
     return AVAILABLE_MODELS[model_name]
 
 
 @app.post("/api/generate", response_model=ModelResponse)
 async def generate_text(request: ModelRequest, background_tasks: BackgroundTasks):
     """Generate text using an AI model."""
-    import time
     import random
-    
+    import time
+
     # Check if the requested model exists
     if request.model_name not in AVAILABLE_MODELS:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Model '{request.model_name}' not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Model '{request.model_name}' not found"
         )
-    
+
     # Simulate processing time
     start_time = time.time()
-    
+
     # Simulate model inference (in a real implementation, this would call the actual model)
     # For now, just generate a simple response based on the prompt
     generated_text = f"This is a response to: {request.prompt}\n\n"
     generated_text += "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
     generated_text += "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
     generated_text += "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris."
-    
+
     # Simulate variable processing time
     time.sleep(random.uniform(0.5, 2.0))
-    
+
     processing_time = time.time() - start_time
-    
+
     # Add a background task to log the request (in a real implementation, this might save to a database)
     background_tasks.add_task(log_model_request, request.model_name, len(request.prompt))
-    
+
     return ModelResponse(
         model_name=request.model_name,
         generated_text=generated_text,
@@ -182,8 +179,8 @@ async def generate_text(request: ModelRequest, background_tasks: BackgroundTasks
         metadata={
             "prompt_length": len(request.prompt),
             "temperature": request.temperature,
-            "max_tokens": request.max_tokens
-        }
+            "max_tokens": request.max_tokens,
+        },
     )
 
 
@@ -195,7 +192,7 @@ async def log_model_request(model_name: str, prompt_length: int):
 def check_service_health() -> bool:
     """
     Check if this service is healthy.
-    
+
     Returns:
         bool: True if healthy, False otherwise
     """
@@ -207,21 +204,20 @@ def check_service_health() -> bool:
 def register_with_service_registry(port: int):
     """
     Register this service with the service registry.
-    
+
     Args:
         port: Port this service is running on
     """
     global service_registration
-    
+
     # Get metadata and tags
     metadata = get_service_metadata()
-    metadata.update({
-        "models_available": ",".join(AVAILABLE_MODELS.keys()),
-        "supports_async": "true"
-    })
-    
+    metadata.update(
+        {"models_available": ",".join(AVAILABLE_MODELS.keys()), "supports_async": "true"}
+    )
+
     tags = get_default_tags() + ["ai", "models", "inference"]
-    
+
     # Register service
     service_registration = register_service(
         app=app,
@@ -231,28 +227,30 @@ def register_with_service_registry(port: int):
         health_check_path="/health",
         check_functions=[check_service_health],
         tags=tags,
-        metadata=metadata
+        metadata=metadata,
     )
-    
+
     if service_registration:
         logger.info("Successfully registered AI Models Service with service registry")
     else:
-        logger.warning("Failed to register with service registry, continuing without service discovery")
+        logger.warning(
+            "Failed to register with service registry, continuing without service discovery"
+        )
 
 
-def start_ai_models_service(host: str = "0.0.0.0", port: int = 8002):
+def start_ai_models_service(host: str = "127.0.0.1", port: int = 8002):
     """
     Start the AI Models Service.
-    
+
     Args:
         host: Host to bind to
         port: Port to listen on
     """
     import uvicorn
-    
+
     # Register with service registry
     register_with_service_registry(port)
-    
+
     # Start the AI Models Service
     uvicorn.run(app, host=host, port=port)
 
@@ -260,10 +258,10 @@ def start_ai_models_service(host: str = "0.0.0.0", port: int = 8002):
 if __name__ == "__main__":
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="AI Models Service")
-    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8002, help="Port to listen on")
-    
+
     args = parser.parse_args()
-    
+
     # Start the AI Models Service
     start_ai_models_service(host=args.host, port=args.port)

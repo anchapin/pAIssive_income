@@ -5,15 +5,15 @@ These tests verify that the system can gracefully handle model failures
 and properly implement fallback strategies.
 """
 
+import time
 import unittest
 from unittest.mock import MagicMock, patch
-import time
 
-from ai_models.fallbacks import FallbackManager, FallbackStrategy, FallbackEvent
 from ai_models.agent_integration import AgentModelProvider
-from ai_models.model_manager import ModelManager
+from ai_models.fallbacks import FallbackEvent, FallbackManager, FallbackStrategy
 from ai_models.model_base_types import ModelInfo
-from errors import ModelError, ModelLoadError, ModelAPIError
+from ai_models.model_manager import ModelManager
+from errors import ModelAPIError, ModelError, ModelLoadError
 
 
 class TestModelFallback(unittest.TestCase):
@@ -37,7 +37,7 @@ class TestModelFallback(unittest.TestCase):
             type="openai",
             path=None,
             capabilities=["text-generation", "summarization", "reasoning"],
-            size_mb=1000
+            size_mb=1000,
         )
 
         self.fallback_model1_info = ModelInfo(
@@ -47,7 +47,7 @@ class TestModelFallback(unittest.TestCase):
             type="huggingface",
             path=None,
             capabilities=["text-generation", "summarization"],
-            size_mb=500
+            size_mb=500,
         )
 
         self.fallback_model2_info = ModelInfo(
@@ -57,20 +57,20 @@ class TestModelFallback(unittest.TestCase):
             type="ollama",
             path=None,
             capabilities=["text-generation"],
-            size_mb=200
+            size_mb=200,
         )
 
         # Configure model manager mock
         self.model_manager.get_model_info.side_effect = lambda model_id: {
             "primary_model": self.primary_model_info,
             "fallback_model1": self.fallback_model1_info,
-            "fallback_model2": self.fallback_model2_info
+            "fallback_model2": self.fallback_model2_info,
         }.get(model_id)
 
         self.model_manager.get_all_models.return_value = [
             self.primary_model_info,
             self.fallback_model1_info,
-            self.fallback_model2_info
+            self.fallback_model2_info,
         ]
 
         # Create agent model provider with fallback enabled
@@ -79,12 +79,13 @@ class TestModelFallback(unittest.TestCase):
             fallback_enabled=True,
             fallback_config={
                 "default_strategy": FallbackStrategy.CAPABILITY_BASED,
-                "default_model_id": "fallback_model1"
-            }
+                "default_model_id": "fallback_model1",
+            },
         )
 
     def test_graceful_degradation_with_api_failure(self):
         """Test that the system gracefully degrades when a model API fails."""
+
         # Configure model manager to raise an API error for the primary model
         def load_model_side_effect(model_id):
             if model_id == "primary_model":
@@ -107,7 +108,9 @@ class TestModelFallback(unittest.TestCase):
         self.provider.assign_model_to_agent("researcher", "primary_model", "text-generation")
 
         # Try to get the model, which should trigger fallback
-        model = self.provider.get_model_with_fallback("researcher", "primary_model", "text-generation")
+        model = self.provider.get_model_with_fallback(
+            "researcher", "primary_model", "text-generation"
+        )
 
         # Verify we got a fallback model
         self.assertIsNotNone(model)
@@ -115,6 +118,7 @@ class TestModelFallback(unittest.TestCase):
 
     def test_fallback_chain_with_multiple_failures(self):
         """Test that fallback chain works correctly with multiple failures."""
+
         # Configure model manager to raise errors for primary model but return fallback model
         def load_model_side_effect(model_id):
             if model_id == "primary_model":
@@ -140,7 +144,9 @@ class TestModelFallback(unittest.TestCase):
         self.provider.assign_model_to_agent("researcher", "primary_model", "text-generation")
 
         # Try to get the model, which should trigger fallback
-        model = self.provider.get_model_with_fallback("researcher", "primary_model", "text-generation")
+        model = self.provider.get_model_with_fallback(
+            "researcher", "primary_model", "text-generation"
+        )
 
         # Verify we got the fallback model
         self.assertIsNotNone(model)
@@ -195,14 +201,18 @@ class TestModelFallback(unittest.TestCase):
         # Measure performance with primary model
         self.model_manager.load_model.side_effect = load_model_primary_case
         self.mock_time = 0.0  # Reset mock time
-        model = self.provider.get_model_with_fallback("researcher", "primary_model", "text-generation")
+        model = self.provider.get_model_with_fallback(
+            "researcher", "primary_model", "text-generation"
+        )
         response = model.generate(prompt="Test prompt")
         primary_time = self.mock_time
 
         # Measure performance with fallback model
         self.model_manager.load_model.side_effect = load_model_fallback_case
         self.mock_time = 0.0  # Reset mock time
-        model = self.provider.get_model_with_fallback("researcher", "primary_model", "text-generation")
+        model = self.provider.get_model_with_fallback(
+            "researcher", "primary_model", "text-generation"
+        )
         response = model.generate(prompt="Test prompt")
         fallback_time = self.mock_time
 

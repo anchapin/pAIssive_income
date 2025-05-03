@@ -5,30 +5,32 @@ This module provides classes for optimizing marketing content, including
 SEO optimization, readability analysis, and tone/style adjustment.
 """
 
-# Standard library imports
-from typing import Dict, List, Any, Optional, Union, Tuple, Type
-from abc import ABC, abstractmethod
-import uuid
-import json
 import datetime
-import re
+import json
 import math
-import string
 import random
+import re
+import string
+import uuid
+from abc import ABC, abstractmethod
 from collections import Counter
+
+# Standard library imports
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 # Third-party imports
 try:
     import nltk
-    from nltk.tokenize import word_tokenize, sent_tokenize
     from nltk.corpus import stopwords
+    from nltk.tokenize import sent_tokenize, word_tokenize
     NLTK_AVAILABLE = True
 except ImportError:
     NLTK_AVAILABLE = False
 
+from .content_generators import ContentGenerator
+
 # Local imports
 from .content_templates import ContentTemplate
-from .content_generators import ContentGenerator
 from .tone_analyzer import ToneAnalyzer
 
 

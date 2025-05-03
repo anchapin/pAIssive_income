@@ -1,4 +1,4 @@
-from api.utils.query_params import QueryParams, FilterOperator, apply_filtering
+from api.utils.query_params import FilterOperator, QueryParams, apply_filtering
 
 # Test data
 items = [

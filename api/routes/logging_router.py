@@ -5,14 +5,15 @@ This module provides route handlers for log operations.
 """
 
 import logging
-from typing import Optional, Dict, Any
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from ..middleware.auth import get_current_user, require_scopes
-from ..services.logging_service import LoggingService
 from ..models.user import User
 from ..schemas.common import ErrorResponse
+from ..services.logging_service import LoggingService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,14 +25,15 @@ logging_service = LoggingService()
 # Create router
 router = APIRouter()
 
+
 @router.get(
     "/api",
     dependencies=[Depends(require_scopes(["logs:read"]))],
     responses={
         200: {"description": "API logs"},
         401: {"description": "Unauthorized"},
-        403: {"description": "Forbidden"}
-    }
+        403: {"description": "Forbidden"},
+    },
 )
 async def get_api_logs(
     level: Optional[str] = Query(None, description="Filter by log level"),
@@ -43,11 +45,11 @@ async def get_api_logs(
     status_code: Optional[int] = Query(None, description="Filter by status code"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
     offset: int = Query(0, ge=0, description="Number of logs to skip"),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get API logs.
-    
+
     This endpoint requires the "logs:read" scope.
     """
     # Create filters
@@ -60,7 +62,7 @@ async def get_api_logs(
         filters["method"] = method
     if status_code:
         filters["status_code"] = status_code
-    
+
     # Get logs
     logs = logging_service.get_logs(
         log_type="api",
@@ -69,10 +71,11 @@ async def get_api_logs(
         end_time=end_time,
         limit=limit,
         offset=offset,
-        filters=filters
+        filters=filters,
     )
-    
+
     return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}
+
 
 @router.get(
     "/security",
@@ -80,8 +83,8 @@ async def get_api_logs(
     responses={
         200: {"description": "Security logs"},
         401: {"description": "Unauthorized"},
-        403: {"description": "Forbidden"}
-    }
+        403: {"description": "Forbidden"},
+    },
 )
 async def get_security_logs(
     level: Optional[str] = Query(None, description="Filter by log level"),
@@ -95,20 +98,20 @@ async def get_security_logs(
     status: Optional[str] = Query(None, description="Filter by status"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
     offset: int = Query(0, ge=0, description="Number of logs to skip"),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get security logs.
-    
+
     This endpoint requires the "logs:read:security" scope.
     """
     # Check if user is admin
     if not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only administrators can access security logs"
+            detail="Only administrators can access security logs",
         )
-    
+
     # Create filters
     filters = {}
     if security_level:
@@ -123,7 +126,7 @@ async def get_security_logs(
         filters["action"] = action
     if status:
         filters["status"] = status
-    
+
     # Get logs
     logs = logging_service.get_logs(
         log_type="security",
@@ -132,10 +135,11 @@ async def get_security_logs(
         end_time=end_time,
         limit=limit,
         offset=offset,
-        filters=filters
+        filters=filters,
     )
-    
+
     return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}
+
 
 @router.get(
     "/webhook",
@@ -143,8 +147,8 @@ async def get_security_logs(
     responses={
         200: {"description": "Webhook logs"},
         401: {"description": "Unauthorized"},
-        403: {"description": "Forbidden"}
-    }
+        403: {"description": "Forbidden"},
+    },
 )
 async def get_webhook_logs(
     level: Optional[str] = Query(None, description="Filter by log level"),
@@ -156,11 +160,11 @@ async def get_webhook_logs(
     end_time: Optional[datetime] = Query(None, description="Filter by end time"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
     offset: int = Query(0, ge=0, description="Number of logs to skip"),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get webhook logs.
-    
+
     This endpoint requires the "logs:read" scope.
     """
     # Create filters
@@ -173,7 +177,7 @@ async def get_webhook_logs(
         filters["event_type"] = event_type
     if success is not None:
         filters["success"] = success
-    
+
     # Get logs
     logs = logging_service.get_logs(
         log_type="webhook",
@@ -182,7 +186,7 @@ async def get_webhook_logs(
         end_time=end_time,
         limit=limit,
         offset=offset,
-        filters=filters
+        filters=filters,
     )
-    
+
     return {"logs": logs, "total": len(logs), "limit": limit, "offset": offset}

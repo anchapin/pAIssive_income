@@ -24,15 +24,12 @@ class ModelError(Exception):
     """Base class for all model-related errors."""
 
 
-
 class ModelNotFoundError(ModelError):
     """Error raised when a model is not found."""
 
 
-
 class ModelLoadError(ModelError):
     """Error raised when a model fails to load."""
-
 
 
 class FallbackStrategy(Enum):

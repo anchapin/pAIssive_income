@@ -4,23 +4,32 @@ Tests for the rate limiting functionality.
 This module contains tests for rate limiting and throttling endpoints.
 """
 
-import pytest
 import time
-from typing import Dict, Any, List
 from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Dict, List
+
+import pytest
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
-    generate_id
-)
+from tests.api.utils.test_data import generate_id
 from tests.api.utils.test_validators import (
-    validate_status_code, validate_json_response, validate_error_response,
-    validate_success_response, validate_paginated_response, validate_bulk_response,
-    validate_field_exists, validate_field_equals, validate_field_type,
-    validate_field_not_empty, validate_list_not_empty, validate_list_length,
-    validate_list_min_length, validate_list_max_length, validate_list_contains,
-    validate_list_contains_dict_with_field
+    validate_bulk_response,
+    validate_error_response,
+    validate_field_equals,
+    validate_field_exists,
+    validate_field_not_empty,
+    validate_field_type,
+    validate_json_response,
+    validate_list_contains,
+    validate_list_contains_dict_with_field,
+    validate_list_length,
+    validate_list_max_length,
+    validate_list_min_length,
+    validate_list_not_empty,
+    validate_paginated_response,
+    validate_status_code,
+    validate_success_response,
 )
 
 
@@ -99,8 +108,8 @@ class TestRateLimitingAPI:
             "limits": {
                 "requests_per_second": 10,
                 "requests_per_minute": 100,
-                "requests_per_hour": 1000
-            }
+                "requests_per_hour": 1000,
+            },
         }
 
         # Apply custom rate limits
@@ -133,10 +142,7 @@ class TestRateLimitingAPI:
             responses = []
 
             for _ in range(5):
-                response = api_test_client.get(
-                    f"rate-limiting/{endpoint}",
-                    headers=headers
-                )
+                response = api_test_client.get(f"rate-limiting/{endpoint}", headers=headers)
                 responses.append(response)
 
             # Validate rate limits are tracked separately per IP
@@ -148,10 +154,7 @@ class TestRateLimitingAPI:
         endpoint = "test-concurrent-throttling"
 
         # Configure throttling
-        config = {
-            "max_concurrent_requests": 3,
-            "timeout_seconds": 5
-        }
+        config = {"max_concurrent_requests": 3, "timeout_seconds": 5}
 
         response = api_test_client.post("rate-limiting/throttle-config", config)
         validate_success_response(response)
@@ -191,7 +194,8 @@ class TestRateLimitingAPI:
 
                 # Calculate average response time
                 successful_responses = [
-                    r for r in responses
+                    r
+                    for r in responses
                     if r.status_code in (200, 429)  # Include rate limited responses
                 ]
 
@@ -202,7 +206,7 @@ class TestRateLimitingAPI:
         # Validate graceful degradation
         # Response times should increase gradually, not exponentially
         for i in range(1, len(response_times)):
-            ratio = response_times[i] / response_times[i-1]
+            ratio = response_times[i] / response_times[i - 1]
             assert ratio < 5, "Response time increased too dramatically"
 
     def test_custom_quota_limits(self, auth_api_test_client: APITestClient):
@@ -213,7 +217,7 @@ class TestRateLimitingAPI:
             "daily_limit": 1000,
             "monthly_limit": 10000,
             "overage_allowed": True,
-            "overage_rate": 1.5
+            "overage_rate": 1.5,
         }
 
         response = auth_api_test_client.post("rate-limiting/quota", quota_data)
@@ -233,12 +237,14 @@ class TestRateLimitingAPI:
             if response.status_code == 200:
                 assert "X-Daily-Quota-Remaining" in response.headers
                 assert "X-Monthly-Quota-Remaining" in response.headers
-                quota_headers.append({
-                    "daily": int(response.headers["X-Daily-Quota-Remaining"]),
-                    "monthly": int(response.headers["X-Monthly-Quota-Remaining"])
-                })
+                quota_headers.append(
+                    {
+                        "daily": int(response.headers["X-Daily-Quota-Remaining"]),
+                        "monthly": int(response.headers["X-Monthly-Quota-Remaining"]),
+                    }
+                )
 
         # Validate quota tracking
         for i in range(1, len(quota_headers)):
-            assert quota_headers[i]["daily"] < quota_headers[i-1]["daily"]
-            assert quota_headers[i]["monthly"] < quota_headers[i-1]["monthly"]
+            assert quota_headers[i]["daily"] < quota_headers[i - 1]["daily"]
+            assert quota_headers[i]["monthly"] < quota_headers[i - 1]["monthly"]

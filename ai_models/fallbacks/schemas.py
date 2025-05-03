@@ -9,7 +9,8 @@ import re
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
 
 class FallbackStrategyEnum(str, Enum):
     """Enumeration of fallback strategy types for Pydantic models."""
@@ -22,6 +23,7 @@ class FallbackStrategyEnum(str, Enum):
     SPECIFIED_LIST = "specified_list"  # Try models in a specified order
     SIZE_TIER = "size_tier"  # Try models of different size tiers
     CAPABILITY_BASED = "capability"  # Try models with required capabilities
+
 
 class FallbackPreferences(BaseModel):
     """Model for fallback preferences configuration."""
@@ -57,8 +59,7 @@ class FallbackPreferences(BaseModel):
 
             # Validate and filter model types
             safe_types = [
-                mt for mt in model_types
-                if isinstance(mt, str) and mt.lower() in allowed_types
+                mt for mt in model_types if isinstance(mt, str) and mt.lower() in allowed_types
             ]
             if safe_types:
                 validated[agent_type] = safe_types
@@ -69,10 +70,11 @@ class FallbackPreferences(BaseModel):
         """Get fallback preferences for a specific agent type."""
         if not re.match(r"^[a-zA-Z0-9_\-]+$", agent_type):
             raise ValueError("Invalid agent type format")
-            
+
         return self.preferred_model_types.get(
             agent_type, self.preferred_model_types.get("default", [])
         )
+
 
 class FallbackConfig(BaseModel):
     """Configuration model for fallback behavior with security features."""
@@ -85,10 +87,10 @@ class FallbackConfig(BaseModel):
     )
 
     max_attempts: int = Field(
-        default=3, 
-        description="Maximum number of fallback attempts", 
+        default=3,
+        description="Maximum number of fallback attempts",
         ge=1,  # Must be positive
-        le=10  # Security: limit maximum attempts
+        le=10,  # Security: limit maximum attempts
     )
 
     default_model_id: Optional[str] = Field(
@@ -101,9 +103,9 @@ class FallbackConfig(BaseModel):
     )
 
     logging_level: str = Field(
-        default="INFO", 
+        default="INFO",
         description="Logging level for fallback events",
-        pattern=r"^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"  # Security: validate log levels
+        pattern=r"^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",  # Security: validate log levels
     )
 
     use_general_purpose_fallback: bool = Field(
@@ -120,7 +122,7 @@ class FallbackConfig(BaseModel):
         default=["huggingface", "llama", "openai", "general-purpose"],
         description="List of allowed model types",
     )
-    
+
     model_config = ConfigDict(
         str_max_length=1024,  # Security: limit string lengths
         str_strip_whitespace=True,  # Security: strip whitespace
@@ -141,7 +143,7 @@ class FallbackConfig(BaseModel):
                 "use_general_purpose_fallback": True,
                 "secure_mode": True,
             }
-        }
+        },
     )
 
     @field_validator("default_model_id")
@@ -157,43 +159,40 @@ class FallbackConfig(BaseModel):
     def validate_allowed_types(cls, v: List[str]) -> List[str]:
         """Validate allowed model types."""
         allowed_types = {"huggingface", "llama", "openai", "general-purpose"}
-        validated = [
-            mt for mt in v
-            if isinstance(mt, str) and mt.lower() in allowed_types
-        ]
+        validated = [mt for mt in v if isinstance(mt, str) and mt.lower() in allowed_types]
         if not validated:
             raise ValueError("Must specify at least one valid model type")
         return validated
+
 
 class FallbackEventSchema(BaseModel):
     """Schema for a model fallback event with security validations."""
 
     original_model_id: Optional[str] = Field(
-        default=None, 
+        default=None,
         description="ID of the original model that failed",
-        pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$"  # Security: validate model ID format
+        pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$",  # Security: validate model ID format
     )
 
     fallback_model_id: str = Field(
         description="ID of the fallback model that was selected",
-        pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$"  # Security: validate model ID format
+        pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$",  # Security: validate model ID format
     )
 
     reason: str = Field(
-        description="Reason for the fallback",
-        max_length=1000  # Security: limit reason length
+        description="Reason for the fallback", max_length=1000  # Security: limit reason length
     )
 
     agent_type: Optional[str] = Field(
-        default=None, 
+        default=None,
         description="Type of agent using the model",
-        pattern=r"^[a-zA-Z0-9_\-]+$"  # Security: validate agent type format
+        pattern=r"^[a-zA-Z0-9_\-]+$",  # Security: validate agent type format
     )
 
     task_type: Optional[str] = Field(
-        default=None, 
+        default=None,
         description="Type of task being performed",
-        pattern=r"^[a-zA-Z0-9_\-]+$"  # Security: validate task type format
+        pattern=r"^[a-zA-Z0-9_\-]+$",  # Security: validate task type format
     )
 
     strategy_used: FallbackStrategyEnum = Field(
@@ -202,13 +201,11 @@ class FallbackEventSchema(BaseModel):
     )
 
     timestamp: float = Field(
-        description="Timestamp of the fallback event",
-        ge=0  # Security: ensure positive timestamp
+        description="Timestamp of the fallback event", ge=0  # Security: ensure positive timestamp
     )
 
     details: Dict[str, Any] = Field(
-        default_factory=dict, 
-        description="Additional details about the fallback"
+        default_factory=dict, description="Additional details about the fallback"
     )
 
     model_config = ConfigDict(
@@ -229,19 +226,20 @@ class FallbackEventSchema(BaseModel):
             sanitized[key] = str(value)[:500]
         return sanitized
 
+
 class FallbackMetrics(BaseModel):
     """Schema for fallback metrics with validation."""
 
     success_count: int = Field(
-        default=0, 
+        default=0,
         description="Number of successful fallbacks with this strategy",
-        ge=0  # Security: ensure non-negative count
+        ge=0,  # Security: ensure non-negative count
     )
 
     total_count: int = Field(
-        default=0, 
+        default=0,
         description="Total number of times this strategy was used",
-        ge=0  # Security: ensure non-negative count
+        ge=0,  # Security: ensure non-negative count
     )
 
     success_rate: float = Field(

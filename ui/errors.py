@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 from typing import Any, Dict, Optional, Union
+
 from flask import jsonify
 
 # Add the project root to the Python path to import the errors module

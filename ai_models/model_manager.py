@@ -1,26 +1,27 @@
 """Model manager module for handling AI model loading and configuration."""
 
+import asyncio
 import logging
 import os
 import re
 import stat
 import threading
 import time
-import asyncio
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Union, Callable, Tuple, Coroutine
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
+from errors import ModelError, ModelLoadError, SecurityError
 from interfaces.model_interfaces import IModelConfig, IModelManager
+
 from .adapters import (
     AdapterFactory,
     BaseModelAdapter,
     LMStudioAdapter,
 )
+from .model_base_types import ModelInfo
 from .model_config import ModelConfig
 from .model_downloader import ModelDownloader
-from .model_base_types import ModelInfo
-from errors import ModelError, ModelLoadError, SecurityError
 
 # Set up logging with secure defaults
 logging.basicConfig(
@@ -30,12 +31,13 @@ logging.basicConfig(
         logging.FileHandler(
             os.path.join(os.path.dirname(__file__), "logs", "model_manager.log"),
             mode="a",
-            encoding="utf-8"
+            encoding="utf-8",
         ),
-        logging.StreamHandler()
-    ]
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger(__name__)
+
 
 class ModelManager(IModelManager):
     """Manages AI model loading, caching, and inference with security features."""
@@ -47,10 +49,10 @@ class ModelManager(IModelManager):
         self._cache_dir = config.cache_dir
         self._model_downloader = ModelDownloader(self._models_dir, config)
         self.loaded_models: Dict[str, BaseModelAdapter] = {}
-        
+
         # Lock for thread safety
         self._model_lock = threading.RLock()
-        
+
         # Create necessary directories with secure permissions
         try:
             self._create_secure_directory(self._models_dir)
@@ -58,7 +60,7 @@ class ModelManager(IModelManager):
             self._create_secure_directory(os.path.join(os.path.dirname(__file__), "logs"))
         except OSError as e:
             raise SecurityError(f"Failed to create secure directories: {e}")
-        
+
         self._discover_models()
 
     def _create_secure_directory(self, path: str) -> None:
@@ -66,15 +68,15 @@ class ModelManager(IModelManager):
         try:
             # Create directory if it doesn't exist
             os.makedirs(path, mode=0o750, exist_ok=True)
-            
+
             # Set secure permissions
             os.chmod(path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP)  # 0o750
-            
+
             # Verify permissions
             st = os.stat(path)
             if st.st_mode & 0o777 != 0o750:
                 raise SecurityError(f"Failed to set secure permissions on {path}")
-                
+
         except Exception as e:
             raise SecurityError(f"Error setting up secure directory {path}: {e}")
 
@@ -89,7 +91,7 @@ class ModelManager(IModelManager):
 
         Returns:
             List of discovered model information
-            
+
         Raises:
             SecurityError: If directory permissions are incorrect
         """
@@ -102,7 +104,9 @@ class ModelManager(IModelManager):
             else:
                 st = os.stat(self._models_dir)
                 if st.st_mode & 0o777 != 0o750:
-                    raise SecurityError(f"Insecure permissions on models directory: {self._models_dir}")
+                    raise SecurityError(
+                        f"Insecure permissions on models directory: {self._models_dir}"
+                    )
 
             # Auto-discover models in models directory
             for model_dir in os.listdir(self._models_dir):
@@ -113,7 +117,7 @@ class ModelManager(IModelManager):
                         if not self._is_safe_directory_name(model_dir):
                             logger.warning(f"Skipping directory with unsafe name: {model_dir}")
                             continue
-                            
+
                         # Validate model directory permissions
                         st = os.stat(model_path)
                         if st.st_mode & 0o777 != 0o750:
@@ -122,10 +126,14 @@ class ModelManager(IModelManager):
 
                         # Verify read access
                         if not os.access(model_path, os.R_OK):
-                            logger.warning(f"Insufficient permissions to read model directory: {model_path}")
+                            logger.warning(
+                                f"Insufficient permissions to read model directory: {model_path}"
+                            )
                             continue
 
-                        model_info = self._model_downloader.register_local_model(model_dir, model_path)
+                        model_info = self._model_downloader.register_local_model(
+                            model_dir, model_path
+                        )
                         if model_info:
                             discovered_models.append(model_info)
                     except Exception as e:
@@ -139,7 +147,7 @@ class ModelManager(IModelManager):
 
     def _is_safe_directory_name(self, name: str) -> bool:
         """Check if directory name contains only safe characters."""
-        return bool(re.match(r'^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$', name))
+        return bool(re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$", name))
 
     def _discover_models(self) -> None:
         """Internal method to discover models if auto-discover is enabled."""
@@ -198,9 +206,11 @@ class ModelManager(IModelManager):
 
     def _is_safe_model_id(self, model_id: str) -> bool:
         """Check if model ID contains only safe characters."""
-        return bool(re.match(r'^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$', model_id))
+        return bool(re.match(r"^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$", model_id))
 
-    async def load_model_async(self, model_id: str, version: str = None, **kwargs) -> BaseModelAdapter:
+    async def load_model_async(
+        self, model_id: str, version: str = None, **kwargs
+    ) -> BaseModelAdapter:
         """
         Load a model asynchronously with security checks.
 
@@ -220,8 +230,7 @@ class ModelManager(IModelManager):
         loop = asyncio.get_event_loop()
         try:
             return await loop.run_in_executor(
-                None,
-                lambda: self.load_model(model_id, version, **kwargs)
+                None, lambda: self.load_model(model_id, version, **kwargs)
             )
         except Exception as e:
             logger.error(f"Failed to load model {model_id} asynchronously: {e}")
@@ -285,7 +294,7 @@ class ModelManager(IModelManager):
                 try:
                     # Clean up adapter resources
                     adapter = self.loaded_models[model_id]
-                    if hasattr(adapter, 'cleanup'):
+                    if hasattr(adapter, "cleanup"):
                         adapter.cleanup()
                     del self.loaded_models[model_id]
                     return True

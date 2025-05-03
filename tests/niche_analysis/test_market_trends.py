@@ -2,18 +2,19 @@
 Tests for market trend analysis functionality.
 """
 
-import pytest
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
+import pytest
+
+from niche_analysis.errors import InsufficientDataError, InvalidTimeRangeError
+from niche_analysis.market_analyzer import MarketAnalyzer
 from niche_analysis.market_trends import (
+    HistoricalTrendAnalyzer,
     MarketTrendAnalyzer,
     TrendIdentifier,
     TrendSeverityClassifier,
-    HistoricalTrendAnalyzer
 )
-from niche_analysis.errors import InsufficientDataError, InvalidTimeRangeError
-from niche_analysis.market_analyzer import MarketAnalyzer
 
 
 @pytest.fixture
@@ -39,7 +40,7 @@ class TestMarketTrendAnalysis:
             {"date": "2025-01-01", "value": 100},
             {"date": "2025-02-01", "value": 120},
             {"date": "2025-03-01", "value": 150},
-            {"date": "2025-04-01", "value": 200}
+            {"date": "2025-04-01", "value": 200},
         ]
 
         # Identify trends
@@ -59,14 +60,14 @@ class TestMarketTrendAnalysis:
             {"date": "2025-01-01", "value": 100},
             {"date": "2025-02-01", "value": 105},
             {"date": "2025-03-01", "value": 108},
-            {"date": "2025-04-01", "value": 110}
+            {"date": "2025-04-01", "value": 110},
         ]
 
         severe_trend = [
             {"date": "2025-01-01", "value": 100},
             {"date": "2025-02-01", "value": 150},
             {"date": "2025-03-01", "value": 200},
-            {"date": "2025-04-01", "value": 300}
+            {"date": "2025-04-01", "value": 300},
         ]
 
         # Classify trends
@@ -88,7 +89,7 @@ class TestMarketTrendAnalysis:
             {"date": "2024-04-01", "value": 120},
             {"date": "2024-07-01", "value": 90},
             {"date": "2024-10-01", "value": 140},
-            {"date": "2025-01-01", "value": 160}
+            {"date": "2025-01-01", "value": 160},
         ]
 
         # Analyze seasonal patterns
@@ -117,9 +118,9 @@ class TestMarketTrendAnalysis:
         cycle_data = [
             {"date": "2024-01-01", "value": 100},  # Start of cycle
             {"date": "2024-04-01", "value": 150},  # Peak
-            {"date": "2024-07-01", "value": 80},   # Trough
+            {"date": "2024-07-01", "value": 80},  # Trough
             {"date": "2024-10-01", "value": 120},  # Recovery
-            {"date": "2025-01-01", "value": 110}   # New cycle
+            {"date": "2025-01-01", "value": 110},  # New cycle
         ]
 
         # Detect market cycles
@@ -138,14 +139,8 @@ class TestMarketTrendAnalysis:
     def test_trend_correlation(self):
         """Test trend correlation analysis."""
         # Test data for multiple related trends
-        trend1 = [
-            {"date": "2025-01-01", "value": 100},
-            {"date": "2025-02-01", "value": 120}
-        ]
-        trend2 = [
-            {"date": "2025-01-01", "value": 50},
-            {"date": "2025-02-01", "value": 55}
-        ]
+        trend1 = [{"date": "2025-01-01", "value": 100}, {"date": "2025-02-01", "value": 120}]
+        trend2 = [{"date": "2025-01-01", "value": 50}, {"date": "2025-02-01", "value": 55}]
 
         # Analyze correlation between trends
         correlation = self.trend_analyzer.analyze_trend_correlation(trend1, trend2)
@@ -163,9 +158,9 @@ class TestMarketTrendAnalysis:
             {"date": "2025-01-01", "value": 100},
             {"date": "2025-02-01", "value": 110},
             {"date": "2025-03-01", "value": 120},
-            {"date": "2025-04-01", "value": 90},   # Breakpoint
+            {"date": "2025-04-01", "value": 90},  # Breakpoint
             {"date": "2025-05-01", "value": 85},
-            {"date": "2025-06-01", "value": 80}
+            {"date": "2025-06-01", "value": 80},
         ]
 
         # Detect breakpoints
@@ -183,21 +178,15 @@ class TestMarketTrendAnalysis:
         """Test handling of invalid trend data."""
         # Test with insufficient data points
         with pytest.raises(InsufficientDataError):
-            self.trend_identifier.identify_trends([
-                {"date": "2025-01-01", "value": 100}
-            ])
+            self.trend_identifier.identify_trends([{"date": "2025-01-01", "value": 100}])
 
         # Test with invalid date format
         with pytest.raises(ValueError):
-            self.trend_identifier.identify_trends([
-                {"date": "invalid_date", "value": 100}
-            ])
+            self.trend_identifier.identify_trends([{"date": "invalid_date", "value": 100}])
 
         # Test with missing values
         with pytest.raises(ValueError):
-            self.trend_identifier.identify_trends([
-                {"date": "2025-01-01"}
-            ])
+            self.trend_identifier.identify_trends([{"date": "2025-01-01"}])
 
     def test_trend_forecasting(self):
         """Test trend forecasting capabilities."""
@@ -205,13 +194,12 @@ class TestMarketTrendAnalysis:
         historical_data = [
             {"date": "2025-01-01", "value": 100},
             {"date": "2025-02-01", "value": 120},
-            {"date": "2025-03-01", "value": 140}
+            {"date": "2025-03-01", "value": 140},
         ]
 
         # Generate forecast
         forecast = self.trend_analyzer.forecast_trend(
-            historical_data,
-            periods=2  # Forecast 2 periods ahead
+            historical_data, periods=2  # Forecast 2 periods ahead
         )
 
         # Validate forecast
@@ -229,7 +217,7 @@ class TestMarketTrendAnalysis:
             {"date": "2025-01-01", "value": 100},
             {"date": "2025-02-01", "value": 120},
             {"date": "2025-03-01", "value": 140},
-            {"date": "2025-04-01", "value": 160}
+            {"date": "2025-04-01", "value": 160},
         ]
 
         # Test trend significance
@@ -245,58 +233,62 @@ class TestMarketTrendAnalysis:
     def test_current_trend_analysis(self, market_analyzer):
         """Test analysis of current trends."""
         result = market_analyzer.analyze_trends("e-commerce")
-        
+
         # Verify current trends exist and have correct structure
         assert "current_trends" in result
         assert len(result["current_trends"]) > 0
-        
+
         # Test first trend has all required fields
         trend = result["current_trends"][0]
         assert "name" in trend
         assert "description" in trend
         assert "impact" in trend
         assert "maturity" in trend
-        
+
         # Verify impact levels are valid
         assert trend["impact"] in ["high", "medium", "low"]
-        
+
         # Verify maturity levels are valid
         assert trend["maturity"] in ["emerging", "growing", "mature"]
 
     def test_future_predictions(self, market_analyzer):
         """Test future trend predictions."""
         result = market_analyzer.analyze_trends("e-commerce")
-        
+
         # Verify future predictions exist and have correct structure
         assert "future_predictions" in result
         assert len(result["future_predictions"]) > 0
-        
+
         # Test first prediction has all required fields
         prediction = result["future_predictions"][0]
         assert "name" in prediction
         assert "description" in prediction
         assert "likelihood" in prediction
         assert "timeframe" in prediction
-        
+
         # Verify likelihood levels are valid
         assert prediction["likelihood"] in ["high", "medium", "low"]
-        
+
         # Verify timeframes are valid
         assert prediction["timeframe"] in ["1 year", "2-3 years", "5+ years"]
 
     def test_technological_shifts(self, market_analyzer):
         """Test technological shift identification."""
         result = market_analyzer.analyze_trends("e-commerce")
-        
+
         # Verify technological shifts exist
         assert "technological_shifts" in result
         assert len(result["technological_shifts"]) > 0
-        
+
         # Verify common technology trends are included
         tech_shifts = result["technological_shifts"]
-        expected_shifts = ["ai integration", "mobile-first approach", 
-                         "voice interfaces", "automation"]
-        
+        expected_shifts = [
+            "ai integration",
+            "mobile-first approach",
+            "voice interfaces",
+            "automation",
+        ]
+
         for shift in expected_shifts:
             assert shift in tech_shifts
 
@@ -304,16 +296,16 @@ class TestMarketTrendAnalysis:
         """Test caching behavior for trend analysis."""
         # First call to get fresh data
         first_result = market_analyzer.analyze_trends("e-commerce")
-        
+
         # Second call should return cached data
         second_result = market_analyzer.analyze_trends("e-commerce")
-        
+
         # Results should be identical when using cache
         assert first_result == second_result
-        
+
         # Force refresh should bypass cache
         fresh_result = market_analyzer.analyze_trends("e-commerce", force_refresh=True)
-        
+
         # Verify timestamp is updated in fresh result
         assert fresh_result != first_result
 

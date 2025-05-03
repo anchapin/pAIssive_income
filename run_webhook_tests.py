@@ -4,11 +4,13 @@ Script to run the webhook tests individually.
 
 import sys
 import unittest
-from unittest import mock
-import pytest
-import httpx
 from datetime import datetime, timezone
-from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
+from unittest import mock
+
+import httpx
+import pytest
+
+from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_service import WebhookService
 
 # Test data

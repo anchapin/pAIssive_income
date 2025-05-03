@@ -1,12 +1,18 @@
 """Tests for the model caching system."""
 
-import pytest
-import time
 import sqlite3
-from typing import Dict, Any, Optional
+import time
+from typing import Any, Dict, Optional
+
+import pytest
+
 from ai_models.caching import (
-    CacheManager, CacheConfig, CacheKey,
-    MemoryCache, DiskCache, SQLiteCache
+    CacheConfig,
+    CacheKey,
+    CacheManager,
+    DiskCache,
+    MemoryCache,
+    SQLiteCache,
 )
 
 # Test data
@@ -14,11 +20,8 @@ TEST_MODEL_ID = "test-model"
 TEST_OPERATION = "generate"
 TEST_INPUT = "Hello, world!"
 TEST_PARAMS = {"temperature": 0.7, "max_tokens": 100}
-TEST_RESPONSE = {
-    "text": "Hello back!",
-    "tokens": 2,
-    "finish_reason": "length"
-}
+TEST_RESPONSE = {"text": "Hello back!", "tokens": 2, "finish_reason": "length"}
+
 
 @pytest.fixture
 def memory_cache_config():
@@ -28,8 +31,9 @@ def memory_cache_config():
         backend="memory",
         ttl=60,  # 60 seconds
         max_size=3,  # Small size to test eviction
-        eviction_policy="lru"
+        eviction_policy="lru",
     )
+
 
 @pytest.fixture
 def disk_cache_config(tmp_path):
@@ -39,13 +43,9 @@ def disk_cache_config(tmp_path):
         backend="disk",
         ttl=60,  # 60 seconds
         max_size=3,  # Small size to test eviction
-        backend_config={
-            "disk": {
-                "cache_dir": str(tmp_path / "cache"),
-                "serialization": "json"
-            }
-        }
+        backend_config={"disk": {"cache_dir": str(tmp_path / "cache"), "serialization": "json"}},
     )
+
 
 @pytest.fixture
 def sqlite_cache_config(tmp_path):
@@ -54,13 +54,9 @@ def sqlite_cache_config(tmp_path):
         enabled=True,
         backend="sqlite",
         ttl=60,  # 60 seconds
-        backend_config={
-            "sqlite": {
-                "db_path": str(tmp_path / "cache.db"),
-                "serialization": "json"
-            }
-        }
+        backend_config={"sqlite": {"db_path": str(tmp_path / "cache.db"), "serialization": "json"}},
     )
+
 
 def test_cache_hit_miss(memory_cache_config):
     """Test cache hit and miss scenarios."""
@@ -81,6 +77,7 @@ def test_cache_hit_miss(memory_cache_config):
     assert stats["hits"] == 1
     assert stats["misses"] == 1
 
+
 def test_cache_ttl(memory_cache_config):
     """Test cache TTL (time to live) expiration."""
     # Set a very short TTL for testing
@@ -89,7 +86,7 @@ def test_cache_ttl(memory_cache_config):
 
     # Set a value
     cache.set(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_RESPONSE, TEST_PARAMS)
-    
+
     # Verify it's there
     result = cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_PARAMS)
     assert result == TEST_RESPONSE
@@ -100,6 +97,7 @@ def test_cache_ttl(memory_cache_config):
     # Verify it's gone
     result = cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_PARAMS)
     assert result is None
+
 
 def test_cache_size_and_eviction(memory_cache_config):
     """Test cache size limits and eviction policies."""
@@ -139,6 +137,7 @@ def test_cache_size_and_eviction(memory_cache_config):
     assert cache.get(TEST_MODEL_ID, TEST_OPERATION, input_keys[2]) is not None  # "Input 2"
     assert cache.get(TEST_MODEL_ID, TEST_OPERATION, new_input) is not None  # "Input 3"
 
+
 def test_cache_invalidation(memory_cache_config):
     """Test cache invalidation methods."""
     cache = CacheManager(memory_cache_config)
@@ -158,6 +157,7 @@ def test_cache_invalidation(memory_cache_config):
     cache.clear_namespace(TEST_MODEL_ID)
     assert cache.get_size() == 0
 
+
 def test_cache_persistence(disk_cache_config):
     """Test cache persistence with disk backend."""
     cache = CacheManager(disk_cache_config)
@@ -172,37 +172,34 @@ def test_cache_persistence(disk_cache_config):
     result = new_cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_PARAMS)
     assert result == TEST_RESPONSE
 
+
 def test_sqlite_cache_features(sqlite_cache_config, tmp_path):
     """Test SQLite-specific cache features."""
     cache = CacheManager(sqlite_cache_config)
 
     # Test basic operations
     cache.set(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_RESPONSE, TEST_PARAMS)
-    
+
     # Create a new SQLite config that points to a file we'll lock
     locked_db_path = tmp_path / "locked.db"
     locked_config = CacheConfig(
         enabled=True,
         backend="sqlite",
-        backend_config={
-            "sqlite": {
-                "db_path": str(locked_db_path),
-                "serialization": "json"
-            }
-        }
+        backend_config={"sqlite": {"db_path": str(locked_db_path), "serialization": "json"}},
     )
-    
+
     # Create and hold a lock on the database file
-    with open(locked_db_path, 'w') as f:
-        f.write('dummy')  # Create the file that's not a valid SQLite database
-        
+    with open(locked_db_path, "w") as f:
+        f.write("dummy")  # Create the file that's not a valid SQLite database
+
     # This should fail because the file exists but is not a valid SQLite database
     with pytest.raises(sqlite3.DatabaseError):
         locked_cache = CacheManager(locked_config)
-    
+
     # Verify the original cache still works
     result = cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT, TEST_PARAMS)
     assert result == TEST_RESPONSE
+
 
 def test_cache_statistics(memory_cache_config):
     """Test cache statistics tracking."""
@@ -228,6 +225,7 @@ def test_cache_statistics(memory_cache_config):
     cache.get(TEST_MODEL_ID, TEST_OPERATION, TEST_INPUT)
     stats = cache.get_stats()
     assert stats["hits"] == 1
+
 
 def test_cache_enabled_flag(memory_cache_config):
     """Test cache enabled/disabled functionality."""

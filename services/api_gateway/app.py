@@ -5,36 +5,35 @@ This module provides the API Gateway implementation, which serves as the entry p
 for all client requests to the microservices architecture.
 """
 
-import os
-import logging
 import argparse
 import json
+import logging
+import os
 import time
-from typing import Dict, Any, Optional, List, Union
+from typing import Any, Dict, List, Optional, Union
 
-from fastapi import FastAPI, Request, Depends, HTTPException, status
+import httpx
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
-import httpx
 
+from services.api_gateway.middleware import RateLimitMiddleware, ServiceAuthMiddleware
 from services.service_discovery.registration import (
-    register_service,
+    get_default_tags,
     get_service_metadata,
-    get_default_tags
+    register_service,
 )
 from services.shared.auth import (
+    ServiceTokenError,
+    ServiceTokenPayload,
     create_service_token,
     validate_service_token,
-    ServiceTokenPayload,
-    ServiceTokenError
 )
-from services.api_gateway.middleware import ServiceAuthMiddleware, RateLimitMiddleware
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -42,7 +41,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="pAIssive Income API Gateway",
     description="API Gateway for pAIssive Income microservices architecture",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add CORS middleware
@@ -64,9 +63,9 @@ app.add_middleware(
         "/health",
         "/docs",
         "/redoc",
-        "/openapi.json"
+        "/openapi.json",
     ],
-    require_auth=False  # Don't require auth for all requests, only for service-to-service communication
+    require_auth=False,  # Don't require auth for all requests, only for service-to-service communication
 )
 
 # Add rate limiting middleware
@@ -74,14 +73,7 @@ app.add_middleware(
     RateLimitMiddleware,
     rate_limit=100,  # 100 requests per minute
     window_size=60,  # 1 minute window
-    exclude_paths=[
-        "/",
-        "/api/status",
-        "/health",
-        "/docs",
-        "/redoc",
-        "/openapi.json"
-    ]
+    exclude_paths=["/", "/api/status", "/health", "/docs", "/redoc", "/openapi.json"],
 )
 
 # Global variables
@@ -97,11 +89,7 @@ async def root():
 @app.get("/api/status")
 async def api_status():
     """API status endpoint."""
-    return {
-        "status": "ok",
-        "version": "1.0.0",
-        "service": "api-gateway"
-    }
+    return {"status": "ok", "version": "1.0.0", "service": "api-gateway"}
 
 
 @app.get("/api/services")
@@ -110,17 +98,21 @@ async def list_services():
     if not service_registration or not service_registration.client:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Service discovery not available"
+            detail="Service discovery not available",
         )
 
     try:
         services = service_registration.client.discover_all_services()
-        return {"services": {name: [s.dict() for s in instances] for name, instances in services.items()}}
+        return {
+            "services": {
+                name: [s.dict() for s in instances] for name, instances in services.items()
+            }
+        }
     except Exception as e:
         logger.error(f"Error discovering services: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to discover services: {str(e)}"
+            detail=f"Failed to discover services: {str(e)}",
         )
 
 
@@ -128,7 +120,9 @@ async def list_services():
 async def health_check():
     """Health check endpoint."""
     # Check if service discovery is available
-    service_discovery_available = service_registration is not None and service_registration.client is not None
+    service_discovery_available = (
+        service_registration is not None and service_registration.client is not None
+    )
 
     # Check if we can discover services
     services_available = False
@@ -144,13 +138,14 @@ async def health_check():
         "status": "healthy",
         "service_discovery": "available" if service_discovery_available else "unavailable",
         "services_available": services_available,
-        "timestamp": time.time()
+        "timestamp": time.time(),
     }
 
 
 # Service token models
 class ServiceTokenRequest(BaseModel):
     """Request model for service token generation."""
+
     service_name: str = Field(..., description="Name of the service requesting the token")
     target_service: str = Field(..., description="Name of the target service")
     token_id: Optional[str] = Field(None, description="Unique token ID")
@@ -160,6 +155,7 @@ class ServiceTokenRequest(BaseModel):
 
 class ServiceTokenResponse(BaseModel):
     """Response model for service token generation."""
+
     token: str = Field(..., description="The generated JWT token")
     expires_at: int = Field(..., description="Token expiration time (Unix timestamp)")
     issuer: str = Field(..., description="Service that issued the token")
@@ -180,7 +176,7 @@ async def create_service_token_endpoint(request: ServiceTokenRequest):
             audience=request.target_service,
             token_id=request.token_id,
             expiration=request.expiration,
-            claims=request.claims
+            claims=request.claims,
         )
 
         # Calculate expiration time
@@ -193,26 +189,20 @@ async def create_service_token_endpoint(request: ServiceTokenRequest):
             "token": token,
             "expires_at": expires_at,
             "issuer": request.service_name,
-            "audience": request.target_service
+            "audience": request.target_service,
         }
     except ServiceTokenError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"Error creating service token: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create service token: {str(e)}"
+            detail=f"Failed to create service token: {str(e)}",
         )
 
 
 @app.post("/api/auth/validate-token")
-async def validate_service_token_endpoint(
-    request: Request,
-    audience: Optional[str] = None
-):
+async def validate_service_token_endpoint(request: Request, audience: Optional[str] = None):
     """
     Validate a JWT token for service-to-service authentication.
 
@@ -225,14 +215,13 @@ async def validate_service_token_endpoint(
     if not service_token:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Service token is required in X-Service-Token header"
+            detail="Service token is required in X-Service-Token header",
         )
 
     try:
         # Validate the service token
         token_payload = validate_service_token(
-            token=service_token,
-            audience=audience or "api-gateway"
+            token=service_token, audience=audience or "api-gateway"
         )
 
         # Return the validated token payload
@@ -243,18 +232,15 @@ async def validate_service_token_endpoint(
             "expires_at": token_payload.exp,
             "issued_at": token_payload.iat,
             "token_id": token_payload.jti,
-            "claims": token_payload.claims
+            "claims": token_payload.claims,
         }
     except ServiceTokenError as e:
-        return {
-            "valid": False,
-            "error": str(e)
-        }
+        return {"valid": False, "error": str(e)}
     except Exception as e:
         logger.error(f"Error validating service token: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to validate service token: {str(e)}"
+            detail=f"Failed to validate service token: {str(e)}",
         )
 
 
@@ -269,7 +255,12 @@ async def route_requests(request: Request, call_next):
     path = request.url.path
 
     # Skip routing for API Gateway's own endpoints
-    if path == "/" or path.startswith("/api/status") or path.startswith("/api/services") or path.startswith("/health"):
+    if (
+        path == "/"
+        or path.startswith("/api/status")
+        or path.startswith("/api/services")
+        or path.startswith("/health")
+    ):
         return await call_next(request)
 
     # Extract service name from path (e.g., /api/niche-analysis/... -> niche-analysis)
@@ -285,7 +276,7 @@ async def route_requests(request: Request, call_next):
             "monetization": "monetization-service",
             "agent-team": "agent-team-service",
             "ui": "ui-service",
-            "auth": "authentication-service"
+            "auth": "authentication-service",
         }
 
         target_service = service_name_map.get(service_name, service_name)
@@ -298,7 +289,7 @@ async def route_requests(request: Request, call_next):
                 if not service_url:
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Service '{target_service}' not found"
+                        detail=f"Service '{target_service}' not found",
                     )
 
                 # Construct target URL
@@ -321,9 +312,7 @@ async def route_requests(request: Request, call_next):
                 # Create a token for the API Gateway to authenticate with the target service
                 try:
                     service_token = create_service_token(
-                        issuer="api-gateway",
-                        audience=target_service,
-                        expiration=300  # 5 minutes
+                        issuer="api-gateway", audience=target_service, expiration=300  # 5 minutes
                     )
                     headers["X-Service-Token"] = service_token
                 except Exception as e:
@@ -340,7 +329,7 @@ async def route_requests(request: Request, call_next):
                             headers=headers,
                             params=params,
                             content=body,
-                            follow_redirects=True
+                            follow_redirects=True,
                         )
 
                         # Log the request
@@ -355,14 +344,14 @@ async def route_requests(request: Request, call_next):
                             content=response.content,
                             status_code=response.status_code,
                             headers=dict(response.headers),
-                            media_type=response.headers.get("content-type")
+                            media_type=response.headers.get("content-type"),
                         )
                     except httpx.RequestError as e:
                         # Handle request errors (connection errors, timeouts, etc.)
                         logger.error(f"Error forwarding request to {target_service}: {str(e)}")
                         return JSONResponse(
                             content={"detail": f"Service unavailable: {str(e)}"},
-                            status_code=status.HTTP_503_SERVICE_UNAVAILABLE
+                            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                         )
             except HTTPException:
                 # Re-raise HTTP exceptions
@@ -372,7 +361,7 @@ async def route_requests(request: Request, call_next):
                 logger.error(f"Error routing request to {target_service}: {str(e)}")
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Failed to route request: {str(e)}"
+                    detail=f"Failed to route request: {str(e)}",
                 )
 
     # If we get here, just pass the request through
@@ -413,16 +402,18 @@ def register_with_service_registry(port: int):
         health_check_path="/health",
         check_functions=[check_service_health],
         tags=tags,
-        metadata=metadata
+        metadata=metadata,
     )
 
     if service_registration:
         logger.info("Successfully registered API Gateway with service registry")
     else:
-        logger.warning("Failed to register with service registry, continuing without service discovery")
+        logger.warning(
+            "Failed to register with service registry, continuing without service discovery"
+        )
 
 
-def start_api_gateway(host: str = "0.0.0.0", port: int = 8000):
+def start_api_gateway(host: str = "127.0.0.1", port: int = 8000):
     """
     Start the API Gateway service.
 
@@ -442,7 +433,7 @@ def start_api_gateway(host: str = "0.0.0.0", port: int = 8000):
 if __name__ == "__main__":
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="API Gateway service")
-    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on")
 
     args = parser.parse_args()

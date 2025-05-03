@@ -7,9 +7,9 @@ user interactions using Socket.IO.
 import logging
 from typing import Any, Dict, Optional
 
-from flask import Flask
 from flask_socketio import Namespace, SocketIO, emit, join_room, leave_room
 
+from flask import Flask
 from interfaces.ui_interfaces import ITaskService
 from service_initialization import get_service
 

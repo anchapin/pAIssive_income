@@ -2,19 +2,20 @@
 Tests for API rate limiting functionality.
 """
 
-import pytest
 import time
 from unittest.mock import patch
+
+import pytest
 from fastapi.testclient import TestClient
 
-from api.middleware.rate_limit import RateLimitMiddleware
 from api.config import APIConfig, RateLimitStrategy
+from api.middleware.rate_limit import RateLimitMiddleware
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_validators import (
     validate_error_response,
-    validate_success_response,
     validate_field_exists,
     validate_field_type,
+    validate_success_response,
 )
 
 
@@ -50,20 +51,13 @@ class TestRateLimiting:
     def test_exceeding_rate_limit(self, api_test_client: APITestClient):
         """Test requests exceeding rate limit."""
         # Configure a test rate limiter with low limit
-        config = APIConfig(
-            enable_rate_limit=True,
-            rate_limit_requests=5,
-            rate_limit_period=60
-        )
+        config = APIConfig(enable_rate_limit=True, rate_limit_requests=5, rate_limit_period=60)
         rate_limiter = RateLimitMiddleware(config)
 
         # Make requests until rate limited
         responses = []
         for _ in range(7):  # Exceed the limit of 5
-            response = api_test_client.get(
-                "user/profile",
-                headers={"X-Test-Rate-Limit": "true"}
-            )
+            response = api_test_client.get("user/profile", headers={"X-Test-Rate-Limit": "true"})
             responses.append(response)
 
         # Verify rate limit was hit
@@ -81,15 +75,11 @@ class TestRateLimiting:
         retry_after = int(rate_limited_response.headers["Retry-After"])
         assert retry_after > 0
 
-    @patch('time.time')
+    @patch("time.time")
     def test_rate_limit_reset(self, mock_time, api_test_client: APITestClient):
         """Test rate limit reset behavior."""
         # Configure test rate limiter
-        config = APIConfig(
-            enable_rate_limit=True,
-            rate_limit_requests=3,
-            rate_limit_period=60
-        )
+        config = APIConfig(enable_rate_limit=True, rate_limit_requests=3, rate_limit_period=60)
         rate_limiter = RateLimitMiddleware(config)
 
         # Set initial time
@@ -182,20 +172,25 @@ class TestRateLimiting:
         # Verify remaining requests decreased
         assert remaining2 == remaining1 - 1
 
-    @pytest.mark.parametrize("strategy", [
-        RateLimitStrategy.FIXED,
-        RateLimitStrategy.TOKEN_BUCKET,
-        RateLimitStrategy.LEAKY_BUCKET,
-        RateLimitStrategy.SLIDING_WINDOW
-    ])
-    def test_rate_limit_reset_strategies(self, mock_time, api_test_client: APITestClient, strategy: RateLimitStrategy):
+    @pytest.mark.parametrize(
+        "strategy",
+        [
+            RateLimitStrategy.FIXED,
+            RateLimitStrategy.TOKEN_BUCKET,
+            RateLimitStrategy.LEAKY_BUCKET,
+            RateLimitStrategy.SLIDING_WINDOW,
+        ],
+    )
+    def test_rate_limit_reset_strategies(
+        self, mock_time, api_test_client: APITestClient, strategy: RateLimitStrategy
+    ):
         """Test rate limit reset behavior with different rate limiting strategies."""
         # Configure test rate limiter with specific strategy
         config = APIConfig(
             enable_rate_limit=True,
             rate_limit_requests=3,
             rate_limit_period=60,
-            rate_limit_strategy=strategy
+            rate_limit_strategy=strategy,
         )
         rate_limiter = RateLimitMiddleware(config)
 
@@ -235,11 +230,7 @@ class TestRateLimiting:
 
     def test_rate_limit_header_accuracy(self, mock_time, api_test_client: APITestClient):
         """Test accuracy of rate limit headers across multiple requests."""
-        config = APIConfig(
-            enable_rate_limit=True,
-            rate_limit_requests=5,
-            rate_limit_period=60
-        )
+        config = APIConfig(enable_rate_limit=True, rate_limit_requests=5, rate_limit_period=60)
         rate_limiter = RateLimitMiddleware(config)
 
         # Set initial time
@@ -299,7 +290,7 @@ class TestRateLimiting:
             enable_rate_limit=True,
             rate_limit_requests=10,
             rate_limit_period=60,
-            rate_limit_strategy=RateLimitStrategy.SLIDING_WINDOW  # Sliding window for gradual reset
+            rate_limit_strategy=RateLimitStrategy.SLIDING_WINDOW,  # Sliding window for gradual reset
         )
         rate_limiter = RateLimitMiddleware(config)
 

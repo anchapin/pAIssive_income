@@ -5,14 +5,14 @@ This module provides classes for managing the subscription lifecycle,
 including creation, renewal, cancellation, and upgrades/downgrades.
 """
 
-from typing import Dict, List, Any, Optional, Union, Tuple
-from datetime import datetime, timedelta
-import uuid
-import json
 import copy
+import json
 import os
+import uuid
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from .subscription import SubscriptionPlan, FeatureWrapper, TierWrapper
+from .subscription import FeatureWrapper, SubscriptionPlan, TierWrapper
 from .user_subscription import Subscription, SubscriptionStatus
 
 
@@ -25,9 +25,7 @@ class SubscriptionManager:
     """
 
     def __init__(
-        self,
-        storage_dir: Optional[str] = None,
-        plans: Optional[Dict[str, SubscriptionPlan]] = None
+        self, storage_dir: Optional[str] = None, plans: Optional[Dict[str, SubscriptionPlan]] = None
     ):
         """
         Initialize a subscription manager.
@@ -65,10 +63,7 @@ class SubscriptionManager:
             Created subscription plan
         """
         # Create a new subscription plan
-        plan = SubscriptionPlan(
-            name=model.name,
-            description=model.description
-        )
+        plan = SubscriptionPlan(name=model.name, description=model.description)
 
         # Add features from the model
         feature_map = {}  # Map model feature IDs to plan feature IDs
@@ -80,9 +75,11 @@ class SubscriptionManager:
                 feature_dict = {
                     "name": feature.name if hasattr(feature, "name") else "Unknown",
                     "description": feature.description if hasattr(feature, "description") else "",
-                    "feature_type": feature.feature_type if hasattr(feature, "feature_type") else "boolean",
+                    "feature_type": (
+                        feature.feature_type if hasattr(feature, "feature_type") else "boolean"
+                    ),
                     "category": feature.category if hasattr(feature, "category") else "general",
-                    "id": feature.id if hasattr(feature, "id") else str(uuid.uuid4())
+                    "id": feature.id if hasattr(feature, "id") else str(uuid.uuid4()),
                 }
 
             # Add the feature to the plan
@@ -90,7 +87,7 @@ class SubscriptionManager:
                 name=feature_dict["name"],
                 description=feature_dict["description"],
                 type=feature_dict.get("feature_type", "boolean"),
-                category=feature_dict.get("category", "general")
+                category=feature_dict.get("category", "general"),
             )
 
             # Wrap the feature in a FeatureWrapper
@@ -112,21 +109,25 @@ class SubscriptionManager:
                     "price_yearly": tier.price_yearly if hasattr(tier, "price_yearly") else None,
                     "target_users": tier.target_users if hasattr(tier, "target_users") else "",
                     "features": tier.features if hasattr(tier, "features") else [],
-                    "limits": tier.limits if hasattr(tier, "limits") else {}
+                    "limits": tier.limits if hasattr(tier, "limits") else {},
                 }
 
             # Get features for this tier
             tier_features = []
             if "features" in tier_dict:
-                tier_features = [feature_map[f_id] for f_id in tier_dict["features"] if f_id in feature_map]
+                tier_features = [
+                    feature_map[f_id] for f_id in tier_dict["features"] if f_id in feature_map
+                ]
 
             # Create the tier
             plan_tier = plan.add_tier(
                 name=tier_dict["name"],
                 description=tier_dict["description"],
                 price_monthly=tier_dict.get("price_monthly", 0.0),
-                price_annual=tier_dict.get("price_yearly", None),  # Note: model uses price_yearly, plan uses price_annual
-                target_users=tier_dict.get("target_users", "")
+                price_annual=tier_dict.get(
+                    "price_yearly", None
+                ),  # Note: model uses price_yearly, plan uses price_annual
+                target_users=tier_dict.get("target_users", ""),
             )
 
             # Wrap the tier in a TierWrapper
@@ -175,7 +176,7 @@ class SubscriptionManager:
         billing_cycle: str = "monthly",
         start_date: Optional[datetime] = None,
         metadata: Optional[Dict[str, Any]] = None,
-        payment_method_id: Optional[str] = None
+        payment_method_id: Optional[str] = None,
     ) -> Optional[Subscription]:
         """
         Create a new subscription.
@@ -217,7 +218,7 @@ class SubscriptionManager:
             tier_id=tier_id,
             billing_cycle=billing_cycle,
             start_date=start_date,
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
 
         # Add payment method if provided
@@ -238,7 +239,7 @@ class SubscriptionManager:
             user_id=user_id,
             plan_id=plan_id,
             tier_id=tier_id,
-            billing_cycle=billing_cycle
+            billing_cycle=billing_cycle,
         )
 
         return subscription
@@ -263,7 +264,7 @@ class SubscriptionManager:
             user_id=subscription.user_id,
             plan_id=subscription.plan_id,
             tier_id=subscription.tier_id,
-            billing_cycle=subscription.billing_cycle
+            billing_cycle=subscription.billing_cycle,
         )
 
     def get_subscription(self, subscription_id: str) -> Optional[Subscription]:
@@ -289,7 +290,8 @@ class SubscriptionManager:
             List of subscriptions for the user
         """
         return [
-            subscription for subscription in self.subscriptions.values()
+            subscription
+            for subscription in self.subscriptions.values()
             if subscription.user_id == user_id
         ]
 
@@ -302,7 +304,9 @@ class SubscriptionManager:
         """
         return list(self.subscriptions.values())
 
-    def get_active_subscription(self, user_id: str, plan_id: Optional[str] = None) -> Optional[Subscription]:
+    def get_active_subscription(
+        self, user_id: str, plan_id: Optional[str] = None
+    ) -> Optional[Subscription]:
         """
         Get the active subscription for a user.
 
@@ -342,10 +346,7 @@ class SubscriptionManager:
         return None
 
     def cancel_subscription(
-        self,
-        subscription_id: str,
-        cancel_at_period_end: bool = True,
-        reason: Optional[str] = None
+        self, subscription_id: str, cancel_at_period_end: bool = True, reason: Optional[str] = None
     ) -> Optional[Subscription]:
         """
         Cancel a subscription.
@@ -371,11 +372,13 @@ class SubscriptionManager:
             subscription.status = SubscriptionStatus.CANCELED
 
             # Add status history entry
-            subscription.status_history.append({
-                "status": subscription.status,
-                "timestamp": datetime.now().isoformat(),
-                "reason": reason or "Subscription canceled"
-            })
+            subscription.status_history.append(
+                {
+                    "status": subscription.status,
+                    "timestamp": datetime.now().isoformat(),
+                    "reason": reason or "Subscription canceled",
+                }
+            )
 
         # Add cancellation metadata
         subscription.add_metadata("cancel_at_period_end", cancel_at_period_end)
@@ -391,7 +394,7 @@ class SubscriptionManager:
             subscription_id=subscription_id,
             user_id=subscription.user_id,
             cancel_at_period_end=cancel_at_period_end,
-            reason=reason
+            reason=reason,
         )
 
         return subscription
@@ -427,11 +430,13 @@ class SubscriptionManager:
             subscription.status = SubscriptionStatus.ACTIVE
 
         # Add status history entry
-        subscription.status_history.append({
-            "status": subscription.status,
-            "timestamp": datetime.now().isoformat(),
-            "reason": "Subscription reactivated"
-        })
+        subscription.status_history.append(
+            {
+                "status": subscription.status,
+                "timestamp": datetime.now().isoformat(),
+                "reason": "Subscription reactivated",
+            }
+        )
 
         # Save the subscription if storage directory is set
         if self.storage_dir:
@@ -441,7 +446,7 @@ class SubscriptionManager:
         self._record_event(
             event_type="subscription_reactivated",
             subscription_id=subscription_id,
-            user_id=subscription.user_id
+            user_id=subscription.user_id,
         )
 
         return subscription
@@ -451,7 +456,7 @@ class SubscriptionManager:
         subscription_id: str,
         new_tier_id: str,
         prorate: bool = True,
-        effective_date: Optional[datetime] = None
+        effective_date: Optional[datetime] = None,
     ) -> Optional[Subscription]:
         """
         Change the tier of a subscription.
@@ -474,7 +479,7 @@ class SubscriptionManager:
         plan = self.get_plan(subscription.plan_id)
 
         # If the plan is not in the manager, use the subscription's plan directly
-        if not plan and hasattr(subscription, 'plan'):
+        if not plan and hasattr(subscription, "plan"):
             plan = subscription.plan
 
         if not plan:
@@ -512,7 +517,9 @@ class SubscriptionManager:
         if prorate and price_difference > 0:
             # Calculate days left in billing period
             days_left = (subscription.current_period_end - effective_date).days
-            days_in_period = (subscription.current_period_end - subscription.current_period_start).days
+            days_in_period = (
+                subscription.current_period_end - subscription.current_period_start
+            ).days
 
             # Calculate prorated amount
             prorated_amount = price_difference * (days_left / days_in_period)
@@ -537,20 +544,25 @@ class SubscriptionManager:
             pass
 
         # Add metadata
-        subscription.add_metadata("tier_change", {
-            "old_tier_id": old_tier_id,
-            "new_tier_id": tier_id_to_use,  # Use the same ID we set on the subscription
-            "effective_date": effective_date.isoformat(),
-            "prorate": prorate,
-            "prorated_amount": prorated_amount
-        })
+        subscription.add_metadata(
+            "tier_change",
+            {
+                "old_tier_id": old_tier_id,
+                "new_tier_id": tier_id_to_use,  # Use the same ID we set on the subscription
+                "effective_date": effective_date.isoformat(),
+                "prorate": prorate,
+                "prorated_amount": prorated_amount,
+            },
+        )
 
         # Add status history entry
-        subscription.status_history.append({
-            "status": subscription.status,
-            "timestamp": datetime.now().isoformat(),
-            "reason": f"Subscription tier changed from {old_tier['name']} to {new_tier['name']}"
-        })
+        subscription.status_history.append(
+            {
+                "status": subscription.status,
+                "timestamp": datetime.now().isoformat(),
+                "reason": f"Subscription tier changed from {old_tier['name']} to {new_tier['name']}",
+            }
+        )
 
         # Save the subscription if storage directory is set
         if self.storage_dir:
@@ -564,16 +576,13 @@ class SubscriptionManager:
             old_tier_id=old_tier_id,
             new_tier_id=tier_id_to_use,  # Use the same ID we set on the subscription
             prorate=prorate,
-            prorated_amount=prorated_amount
+            prorated_amount=prorated_amount,
         )
 
         return subscription
 
     def change_billing_cycle(
-        self,
-        subscription_id: str,
-        new_billing_cycle: str,
-        prorate: bool = True
+        self, subscription_id: str, new_billing_cycle: str, prorate: bool = True
     ) -> Optional[Subscription]:
         """
         Change the billing cycle of a subscription.
@@ -627,7 +636,9 @@ class SubscriptionManager:
         if prorate:
             # Calculate days left in billing period
             days_left = (subscription.current_period_end - effective_date).days
-            days_in_period = (subscription.current_period_end - subscription.current_period_start).days
+            days_in_period = (
+                subscription.current_period_end - subscription.current_period_start
+            ).days
 
             # Calculate prorated amount for remaining days in old cycle
             prorated_amount = old_price * (days_left / days_in_period)
@@ -639,20 +650,25 @@ class SubscriptionManager:
         subscription.current_period_end = new_period_end
 
         # Add metadata
-        subscription.add_metadata("billing_cycle_change", {
-            "old_billing_cycle": old_billing_cycle,
-            "new_billing_cycle": new_billing_cycle,
-            "effective_date": effective_date.isoformat(),
-            "prorate": prorate,
-            "prorated_amount": prorated_amount
-        })
+        subscription.add_metadata(
+            "billing_cycle_change",
+            {
+                "old_billing_cycle": old_billing_cycle,
+                "new_billing_cycle": new_billing_cycle,
+                "effective_date": effective_date.isoformat(),
+                "prorate": prorate,
+                "prorated_amount": prorated_amount,
+            },
+        )
 
         # Add status history entry
-        subscription.status_history.append({
-            "status": subscription.status,
-            "timestamp": datetime.now().isoformat(),
-            "reason": f"Billing cycle changed from {old_billing_cycle} to {new_billing_cycle}"
-        })
+        subscription.status_history.append(
+            {
+                "status": subscription.status,
+                "timestamp": datetime.now().isoformat(),
+                "reason": f"Billing cycle changed from {old_billing_cycle} to {new_billing_cycle}",
+            }
+        )
 
         # Save the subscription if storage directory is set
         if self.storage_dir:
@@ -666,7 +682,7 @@ class SubscriptionManager:
             old_billing_cycle=old_billing_cycle,
             new_billing_cycle=new_billing_cycle,
             prorate=prorate,
-            prorated_amount=prorated_amount
+            prorated_amount=prorated_amount,
         )
 
         return subscription
@@ -708,7 +724,9 @@ class SubscriptionManager:
         if subscription.billing_cycle == "monthly":
             subscription.current_period_end = subscription.current_period_start + timedelta(days=30)
         else:
-            subscription.current_period_end = subscription.current_period_start + timedelta(days=365)
+            subscription.current_period_end = subscription.current_period_start + timedelta(
+                days=365
+            )
 
         # Update end date
         subscription.end_date = subscription.current_period_end
@@ -718,11 +736,13 @@ class SubscriptionManager:
             subscription.status = SubscriptionStatus.ACTIVE
 
             # Add status history entry
-            subscription.status_history.append({
-                "status": subscription.status,
-                "timestamp": datetime.now().isoformat(),
-                "reason": "Trial period ended, subscription now active"
-            })
+            subscription.status_history.append(
+                {
+                    "status": subscription.status,
+                    "timestamp": datetime.now().isoformat(),
+                    "reason": "Trial period ended, subscription now active",
+                }
+            )
 
         # Reset usage if needed
         if subscription.get_metadata("reset_usage_on_renewal", True):
@@ -741,16 +761,13 @@ class SubscriptionManager:
             subscription_id=subscription_id,
             user_id=subscription.user_id,
             new_period_start=subscription.current_period_start.isoformat(),
-            new_period_end=subscription.current_period_end.isoformat()
+            new_period_end=subscription.current_period_end.isoformat(),
         )
 
         return subscription
 
     def update_subscription_status(
-        self,
-        subscription_id: str,
-        new_status: str,
-        reason: Optional[str] = None
+        self, subscription_id: str, new_status: str, reason: Optional[str] = None
     ) -> Optional[Subscription]:
         """
         Update the status of a subscription.
@@ -775,7 +792,7 @@ class SubscriptionManager:
             SubscriptionStatus.PAST_DUE,
             SubscriptionStatus.UNPAID,
             SubscriptionStatus.CANCELED,
-            SubscriptionStatus.EXPIRED
+            SubscriptionStatus.EXPIRED,
         ]
 
         if new_status not in valid_statuses:
@@ -786,11 +803,13 @@ class SubscriptionManager:
         subscription.status = new_status
 
         # Add status history entry
-        subscription.status_history.append({
-            "status": new_status,
-            "timestamp": datetime.now().isoformat(),
-            "reason": reason or f"Status changed from {old_status} to {new_status}"
-        })
+        subscription.status_history.append(
+            {
+                "status": new_status,
+                "timestamp": datetime.now().isoformat(),
+                "reason": reason or f"Status changed from {old_status} to {new_status}",
+            }
+        )
 
         # Save the subscription if storage directory is set
         if self.storage_dir:
@@ -803,7 +822,7 @@ class SubscriptionManager:
             user_id=subscription.user_id,
             old_status=old_status,
             new_status=new_status,
-            reason=reason
+            reason=reason,
         )
 
         return subscription
@@ -819,19 +838,23 @@ class SubscriptionManager:
         now = datetime.now()
 
         for subscription in self.subscriptions.values():
-            if (subscription.status == SubscriptionStatus.TRIAL and
-                subscription.trial_end_date and
-                now >= subscription.trial_end_date):
+            if (
+                subscription.status == SubscriptionStatus.TRIAL
+                and subscription.trial_end_date
+                and now >= subscription.trial_end_date
+            ):
 
                 # Update status to active
                 subscription.status = SubscriptionStatus.ACTIVE
 
                 # Add status history entry
-                subscription.status_history.append({
-                    "status": subscription.status,
-                    "timestamp": now.isoformat(),
-                    "reason": "Trial period ended, subscription now active"
-                })
+                subscription.status_history.append(
+                    {
+                        "status": subscription.status,
+                        "timestamp": now.isoformat(),
+                        "reason": "Trial period ended, subscription now active",
+                    }
+                )
 
                 # Save the subscription if storage directory is set
                 if self.storage_dir:
@@ -841,7 +864,7 @@ class SubscriptionManager:
                 self._record_event(
                     event_type="trial_ended",
                     subscription_id=subscription.id,
-                    user_id=subscription.user_id
+                    user_id=subscription.user_id,
                 )
 
                 updated_subscriptions.append(subscription)
@@ -871,11 +894,13 @@ class SubscriptionManager:
         subscription.status = SubscriptionStatus.PAUSED
 
         # Add status history entry
-        subscription.status_history.append({
-            "status": subscription.status,
-            "timestamp": datetime.now().isoformat(),
-            "reason": "Subscription paused"
-        })
+        subscription.status_history.append(
+            {
+                "status": subscription.status,
+                "timestamp": datetime.now().isoformat(),
+                "reason": "Subscription paused",
+            }
+        )
 
         # Add metadata
         subscription.add_metadata("pause_collection", True)
@@ -889,15 +914,13 @@ class SubscriptionManager:
         self._record_event(
             event_type="subscription_paused",
             subscription_id=subscription_id,
-            user_id=subscription.user_id
+            user_id=subscription.user_id,
         )
 
         return subscription
 
     def resume_subscription(
-        self,
-        subscription_id: str,
-        resume_date: Optional[datetime] = None
+        self, subscription_id: str, resume_date: Optional[datetime] = None
     ) -> Optional[Subscription]:
         """
         Resume a paused subscription.
@@ -927,17 +950,21 @@ class SubscriptionManager:
         days_paused = (resume_date - paused_at).days
 
         # Adjust current_period_end to account for the pause
-        subscription.current_period_end = subscription.current_period_end + timedelta(days=days_paused)
+        subscription.current_period_end = subscription.current_period_end + timedelta(
+            days=days_paused
+        )
 
         # Update status
         subscription.status = SubscriptionStatus.ACTIVE
 
         # Add status history entry
-        subscription.status_history.append({
-            "status": subscription.status,
-            "timestamp": resume_date.isoformat(),
-            "reason": "Subscription resumed"
-        })
+        subscription.status_history.append(
+            {
+                "status": subscription.status,
+                "timestamp": resume_date.isoformat(),
+                "reason": "Subscription resumed",
+            }
+        )
 
         # Update metadata
         subscription.add_metadata("pause_collection", False)
@@ -953,7 +980,7 @@ class SubscriptionManager:
             event_type="subscription_resumed",
             subscription_id=subscription_id,
             user_id=subscription.user_id,
-            days_paused=days_paused
+            days_paused=days_paused,
         )
 
         return subscription
@@ -972,9 +999,11 @@ class SubscriptionManager:
         check_date = as_of_date or datetime.now()
 
         for subscription in self.subscriptions.values():
-            if (subscription.is_active() and
-                not subscription.get_metadata("cancel_at_period_end", False) and
-                subscription.current_period_end <= check_date):
+            if (
+                subscription.is_active()
+                and not subscription.get_metadata("cancel_at_period_end", False)
+                and subscription.current_period_end <= check_date
+            ):
 
                 # Renew the subscription
                 renewed = self.renew_subscription(subscription.id)
@@ -1010,11 +1039,13 @@ class SubscriptionManager:
                     subscription.status = SubscriptionStatus.CANCELED
 
                     # Add status history entry
-                    subscription.status_history.append({
-                        "status": subscription.status,
-                        "timestamp": now.isoformat(),
-                        "reason": "Subscription canceled at period end"
-                    })
+                    subscription.status_history.append(
+                        {
+                            "status": subscription.status,
+                            "timestamp": now.isoformat(),
+                            "reason": "Subscription canceled at period end",
+                        }
+                    )
 
                     # Save the subscription if storage directory is set
                     if self.storage_dir:
@@ -1024,7 +1055,7 @@ class SubscriptionManager:
                     self._record_event(
                         event_type="subscription_canceled_at_period_end",
                         subscription_id=subscription.id,
-                        user_id=subscription.user_id
+                        user_id=subscription.user_id,
                     )
 
                     updated_subscriptions.append(subscription)
@@ -1089,7 +1120,7 @@ class SubscriptionManager:
             "id": str(uuid.uuid4()),
             "type": event_type,
             "timestamp": datetime.now().isoformat(),
-            "data": kwargs
+            "data": kwargs,
         }
 
         self.events.append(event)
@@ -1143,7 +1174,11 @@ class SubscriptionManager:
         # Check if the feature is in the features list
         for feature in features:
             feature_name_to_check = feature["name"] if isinstance(feature, dict) else feature.name
-            feature_value = feature.get("value", False) if isinstance(feature, dict) else getattr(feature, "value", False)
+            feature_value = (
+                feature.get("value", False)
+                if isinstance(feature, dict)
+                else getattr(feature, "value", False)
+            )
 
             if feature_name_to_check == feature_name and feature_value:
                 return True
@@ -1152,7 +1187,10 @@ class SubscriptionManager:
         if feature_name == "Basic Text Generation":
             # Basic Text Generation is available to all tiers
             return True
-        elif feature_name == "Advanced Text Generation" and subscription.tier_name in ["Pro", "Business"]:
+        elif feature_name == "Advanced Text Generation" and subscription.tier_name in [
+            "Pro",
+            "Business",
+        ]:
             # Advanced Text Generation is only available to Pro and Business tiers
             return True
         elif feature_name == "API Access" and subscription.tier_name == "Business":
@@ -1208,7 +1246,9 @@ class SubscriptionManager:
 
         return None
 
-    def upgrade_subscription(self, subscription_id: str, new_tier_name: str) -> Optional[Subscription]:
+    def upgrade_subscription(
+        self, subscription_id: str, new_tier_name: str
+    ) -> Optional[Subscription]:
         """
         Upgrade a subscription to a new tier.
 
@@ -1242,9 +1282,7 @@ class SubscriptionManager:
 
         # Change the tier
         return self.change_subscription_tier(
-            subscription_id=subscription_id,
-            new_tier_id=new_tier_id,
-            prorate=True
+            subscription_id=subscription_id, new_tier_id=new_tier_id, prorate=True
         )
 
     def get_events(
@@ -1253,7 +1291,7 @@ class SubscriptionManager:
         subscription_id: Optional[str] = None,
         user_id: Optional[str] = None,
         start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> List[Dict[str, Any]]:
         """
         Get subscription events.
@@ -1306,8 +1344,7 @@ if __name__ == "__main__":
 
     # Create a subscription plan
     plan = SubscriptionPlan(
-        name="AI Tool Subscription",
-        description="Subscription plan for an AI-powered tool"
+        name="AI Tool Subscription", description="Subscription plan for an AI-powered tool"
     )
 
     # Add features
@@ -1315,14 +1352,11 @@ if __name__ == "__main__":
         name="Content Generation",
         description="Generate content using AI",
         type="quantity",
-        category="core"
+        category="core",
     )
 
     feature2 = plan.add_feature(
-        name="API Access",
-        description="Access to the API",
-        type="boolean",
-        category="integration"
+        name="API Access", description="Access to the API", type="boolean", category="integration"
     )
 
     # Add tiers
@@ -1330,14 +1364,14 @@ if __name__ == "__main__":
         name="Basic",
         description="Essential features for individuals",
         price_monthly=9.99,
-        trial_days=14
+        trial_days=14,
     )
 
     pro_tier = plan.add_tier(
         name="Pro",
         description="Advanced features for professionals",
         price_monthly=19.99,
-        is_popular=True
+        is_popular=True,
     )
 
     # Add features to tiers
@@ -1353,19 +1387,14 @@ if __name__ == "__main__":
     # Create a subscription
     user_id = "user123"
     subscription = manager.create_subscription(
-        user_id=user_id,
-        plan_id=plan.id,
-        tier_id=basic_tier["id"],
-        billing_cycle="monthly"
+        user_id=user_id, plan_id=plan.id, tier_id=basic_tier["id"], billing_cycle="monthly"
     )
 
     print(f"Subscription created: {subscription}")
 
     # Upgrade to Pro tier
     upgraded_subscription = manager.change_subscription_tier(
-        subscription_id=subscription.id,
-        new_tier_id=pro_tier["id"],
-        prorate=True
+        subscription_id=subscription.id, new_tier_id=pro_tier["id"], prorate=True
     )
 
     print(f"Subscription upgraded: {upgraded_subscription}")
@@ -1374,9 +1403,7 @@ if __name__ == "__main__":
 
     # Change billing cycle
     annual_subscription = manager.change_billing_cycle(
-        subscription_id=subscription.id,
-        new_billing_cycle="annual",
-        prorate=True
+        subscription_id=subscription.id, new_billing_cycle="annual", prorate=True
     )
 
     print(f"Billing cycle changed: {annual_subscription}")
@@ -1384,9 +1411,7 @@ if __name__ == "__main__":
 
     # Cancel subscription
     canceled_subscription = manager.cancel_subscription(
-        subscription_id=subscription.id,
-        cancel_at_period_end=True,
-        reason="No longer needed"
+        subscription_id=subscription.id, cancel_at_period_end=True, reason="No longer needed"
     )
 
     print(f"Subscription canceled: {canceled_subscription}")
@@ -1394,9 +1419,7 @@ if __name__ == "__main__":
     print(f"Cancellation reason: {canceled_subscription.get_metadata('cancellation_reason')}")
 
     # Reactivate subscription
-    reactivated_subscription = manager.reactivate_subscription(
-        subscription_id=subscription.id
-    )
+    reactivated_subscription = manager.reactivate_subscription(subscription_id=subscription.id)
 
     print(f"Subscription reactivated: {reactivated_subscription}")
 

@@ -114,7 +114,9 @@ class DownloadTask:
             params: Additional parameters for the download
             callback: Optional callback function for progress updates
         """
-        self.id = hashlib.sha256(f"{model_id}_{source}_{destination}".encode()).hexdigest()[:32]  # Truncate to same length as MD5 for compatibility
+        self.id = hashlib.sha256(f"{model_id}_{source}_{destination}".encode()).hexdigest()[
+            :32
+        ]  # Truncate to same length as MD5 for compatibility
         self.model_id = model_id
         self.source = source
         self.url = url

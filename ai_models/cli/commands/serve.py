@@ -48,7 +48,9 @@ class ServeRESTCommand(BaseCommand):
             help="Type of the model",
         )
         # Update default host to bind to localhost for security
-        parser.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind the server to")
+        parser.add_argument(
+            "--host", type=str, default="127.0.0.1", help="Host to bind the server to"
+        )
         parser.add_argument("--port", type=int, default=8000, help="Port to bind the server to")
         parser.add_argument("--workers", type=int, default=1, help="Number of worker processes")
         parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
@@ -213,7 +215,9 @@ class ServeGRPCCommand(BaseCommand):
             help="Type of the model",
         )
         # Update default host to bind to localhost for security
-        parser.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind the server to")
+        parser.add_argument(
+            "--host", type=str, default="127.0.0.1", help="Host to bind the server to"
+        )
         parser.add_argument("--port", type=int, default=50051, help="Port to bind the server to")
         parser.add_argument("--workers", type=int, default=1, help="Number of worker processes")
         parser.add_argument(

@@ -10,42 +10,33 @@ from unittest.mock import MagicMock
 import pytest
 
 # Import our centralized mock fixtures
-from tests.mocks.fixtures import (
-    # Model provider fixtures
-    mock_openai_provider,
-    mock_ollama_provider,
-    mock_lmstudio_provider,
-    patch_model_providers,
-
-    # HTTP and external API fixtures
-    mock_http_with_common_responses,
-    mock_hf_hub_with_models,
-    patch_requests,
-    patch_huggingface_hub,
-    mock_huggingface_api,
-    mock_payment_api,
-    mock_email_api,
-    mock_storage_api,
-    patch_external_apis,
-
-    # Complete test scenario fixtures
+from tests.mocks.fixtures import (  # Model provider fixtures; HTTP and external API fixtures; Complete test scenario fixtures; Common test data fixtures
     mock_ai_model_testing_setup,
-    mock_monetization_testing_setup,
-    mock_marketing_testing_setup,
-    mock_niche_analysis_testing_setup,
-
-    # Common test data fixtures
-    mock_model_inference_result,
+    mock_email_api,
     mock_embedding_result,
-    mock_subscription_data,
+    mock_hf_hub_with_models,
+    mock_http_with_common_responses,
+    mock_huggingface_api,
+    mock_lmstudio_provider,
+    mock_marketing_campaign_data,
+    mock_marketing_testing_setup,
+    mock_model_inference_result,
+    mock_monetization_testing_setup,
     mock_niche_analysis_data,
-    mock_marketing_campaign_data
+    mock_niche_analysis_testing_setup,
+    mock_ollama_provider,
+    mock_openai_provider,
+    mock_payment_api,
+    mock_storage_api,
+    mock_subscription_data,
+    patch_external_apis,
+    patch_huggingface_hub,
+    patch_model_providers,
+    patch_requests,
 )
-
 from tests.mocks.mock_model_providers import (
     create_mock_provider,
 )
-
 
 # Keep existing mock payment APIs for backward compatibility
 try:
@@ -53,20 +44,17 @@ try:
 except ImportError:
     from tests.mocks.mock_payment_apis import create_payment_gateway
 
+
 @pytest.fixture
 def mock_stripe_gateway():
     """Create a mock Stripe payment gateway."""
     # Create gateway with network errors disabled
-    gateway = create_payment_gateway("stripe", {
-        "simulate_network_errors": False,
-        "success_rate": 1.0  # Always succeed
-    })
+    gateway = create_payment_gateway(
+        "stripe", {"simulate_network_errors": False, "success_rate": 1.0}  # Always succeed
+    )
 
     # Add some test data
-    customer = gateway.create_customer(
-        email="test@example.com",
-        name="Test Customer"
-    )
+    customer = gateway.create_customer(email="test@example.com", name="Test Customer")
 
     # Create a payment method
     payment_method = gateway.create_payment_method(
@@ -77,22 +65,15 @@ def mock_stripe_gateway():
             "exp_month": 12,
             "exp_year": datetime.now().year + 1,
             "cvc": "123",
-        }
+        },
     )
 
     # Create a plan
-    plan = gateway.create_plan(
-        name="Test Plan",
-        currency="USD",
-        interval="month",
-        amount=9.99
-    )
+    plan = gateway.create_plan(name="Test Plan", currency="USD", interval="month", amount=9.99)
 
     # Create a subscription
     subscription = gateway.create_subscription(
-        customer_id=customer["id"],
-        payment_method_id=payment_method["id"],
-        plan_id=plan["id"]
+        customer_id=customer["id"], payment_method_id=payment_method["id"], plan_id=plan["id"]
     )
 
     return gateway
