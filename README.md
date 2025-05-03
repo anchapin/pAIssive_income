@@ -48,6 +48,36 @@ The framework has identified several promising niches for AI-powered tools:
 
 ## Getting Started
 
+### Development Setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/anchapin/pAIssive_income.git
+   cd pAIssive_income
+   ```
+
+2. Create a virtual environment and install dependencies:
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   ```
+
+3. Set up pre-commit hooks to ensure code quality:
+
+   ```bash
+   # On Windows
+   setup_pre_commit.bat
+
+   # On Unix/Linux
+   python setup_pre_commit.py
+   ```
+
+   For more information about pre-commit hooks, see [Pre-commit Hooks Documentation](docs/pre-commit-hooks.md).
+
 ### Command Line Interface
 
 1. Run the niche analysis tools to identify promising market opportunities:
@@ -171,9 +201,9 @@ The project includes comprehensive API documentation that can be built from sour
    ```bash
    make html
    ```
-   
+
    On Windows, use:
-   
+
    ```bash
    make.bat html
    ```

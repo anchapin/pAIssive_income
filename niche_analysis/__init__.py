@@ -9,9 +9,7 @@ from .niche_analyzer import NicheAnalyzer
 from .opportunity_scorer import OpportunityScorer
 from .problem_identifier import ProblemIdentifier
 
-__all__ 
-
-= [
+__all__ = [
     "MarketAnalyzer",
     "ProblemIdentifier",
     "OpportunityScorer",

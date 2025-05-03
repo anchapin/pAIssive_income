@@ -45,6 +45,14 @@ pip install -r requirements-dev.txt  # Development dependencies
 4. Set up pre-commit hooks:
 
 ```bash
+# On Windows
+setup_pre_commit.bat
+
+# On Unix/Linux
+python setup_pre_commit.py
+
+# Or manually
+pip install pre-commit
 pre-commit install
 ```
 
@@ -105,7 +113,20 @@ We use Markdown for documentation. Please follow these guidelines when writing d
 
 ## Code Style
 
-We follow the PEP 8 style guide for Python code. We use flake8 and black for code linting and formatting:
+We follow the PEP 8 style guide for Python code. We use pre-commit hooks with flake8, black, isort, ruff, and mypy for code linting, formatting, and type checking:
+
+```bash
+# Run pre-commit hooks on all files
+pre-commit run --all-files
+
+# Run pre-commit hooks on staged files
+pre-commit run
+
+# Update pre-commit hooks to the latest versions
+pre-commit autoupdate
+```
+
+You can also run individual tools manually:
 
 ```bash
 # Check code style
@@ -113,6 +134,15 @@ flake8
 
 # Format code
 black .
+
+# Sort imports
+isort .
+
+# Comprehensive linting with ruff
+ruff check .
+
+# Type checking
+mypy .
 ```
 
 ## License

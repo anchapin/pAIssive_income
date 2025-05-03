@@ -7,7 +7,13 @@ for various tasks such as content generation, data analysis, and more.
 
 from .adapters import LMStudioAdapter, OllamaAdapter, OpenAICompatibleAdapter
 from .agent_integration import AgentModelProvider
-from .batch_inference import 
+from .batch_inference import (
+    BatchInferenceProcessor,
+    BatchInferenceRequest,
+    BatchInferenceResult,
+    generate_embeddings_batch,
+    generate_text_batch,
+)
 from .model_base_types import ModelInfo
 from .model_config import ModelConfig
 from .model_downloader import DownloadProgress, DownloadTask, ModelDownloader
@@ -15,30 +21,7 @@ from .model_manager import ModelManager
 
 
 from .model_types import AudioModel, ONNXModel, QuantizedModel, VisionModel
-from .performance_monitor import 
-    from .adapters import TensorRTAdapter
-
-    TENSORRT_AVAILABLE 
-from .caching.cache_integration import cache_model_result, invalidate_model_cache
-
-
-    from .caching import RedisCache
-
-    REDIS_CACHE_AVAILABLE 
-from .cli import main as cli_main
-
-
-
-# Import adapters
-(
-    BatchInferenceProcessor,
-    BatchInferenceRequest,
-    BatchInferenceResult,
-    generate_embeddings_batch,
-    generate_text_batch,
-)
-# Import specialized model types
-(
+from .performance_monitor import (
     InferenceMetrics,
     InferenceTracker,
     ModelPerformanceReport,
@@ -47,9 +30,23 @@ from .cli import main as cli_main
 
 # Import TensorRT adapter if available
 try:
-= True
+    from .adapters import TensorRTAdapter
+    TENSORRT_AVAILABLE = True
 except ImportError:
     TENSORRT_AVAILABLE = False
+
+from .caching.cache_integration import cache_model_result, invalidate_model_cache
+
+# Import Redis cache if available
+try:
+    from .caching import RedisCache
+    REDIS_CACHE_AVAILABLE = True
+except ImportError:
+    REDIS_CACHE_AVAILABLE = False
+
+from .cli import main as cli_main
+
+# These imports are already handled above
 
 # Import caching system
 from .caching import (
@@ -62,12 +59,7 @@ from .caching import (
     generate_cache_key,
 )
 
-# Import cache integration
-# Import Redis cache if available
-try:
-= True
-except ImportError:
-    REDIS_CACHE_AVAILABLE = False
+# Redis cache import is already handled above
 
 # Import benchmarking tools
 from .benchmarking import (

@@ -7,8 +7,6 @@ that collaborate on developing and monetizing niche AI tools for passive income.
 
 from .team_config import AgentTeam
 
-__all__ 
-
 from .agent_profiles import (
     AgentProfile,
     DeveloperAgent,
@@ -29,7 +27,8 @@ from .schemas import (
     TeamConfigSchema,
     WorkflowSettingsSchema,
 )
-= [
+
+__all__ = [
     # Team configuration
     "AgentTeam",
     "TeamConfigSchema",

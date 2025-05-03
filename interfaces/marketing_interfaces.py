@@ -13,9 +13,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 
-class IPersonaCreator
-
-(ABC):
+class IPersonaCreator(ABC):
     """Interface for persona creator."""
 
     @abstractmethod

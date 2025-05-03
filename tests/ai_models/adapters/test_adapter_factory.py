@@ -10,12 +10,9 @@ from errors import ModelError
 from interfaces.model_interfaces import IModelAdapter
 
 
-class MockAdapter
-    from ai_models.adapters import adapter_factory, get_adapter_factory
+from ai_models.adapters import adapter_factory, get_adapter_factory
 
-    
-
-(BaseModelAdapter):
+class MockAdapter(BaseModelAdapter):
     """Mock adapter for testing."""
 
     def __init__(self, **kwargs):
