@@ -14,9 +14,9 @@ from typing import Any, Dict, List, Optional
 from .payment_method import PaymentMethod
 
 
-class PaymentMethodManager
+class PaymentMethodManager:
 
-:
+    pass  # Added missing block
     """
     Class for managing payment methods.
 

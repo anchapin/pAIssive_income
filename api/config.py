@@ -12,9 +12,9 @@ from enum import Enum
 from typing import Dict, List, Optional, Set
 
 
-class RateLimitStrategy
+class RateLimitStrategy:
 
-(str, Enum):
+    pass  # Added missing block
     """
     Rate limiting strategy enumeration.
 

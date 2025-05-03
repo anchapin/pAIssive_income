@@ -13,9 +13,9 @@ import pytest
 from monetization.subscription_models import SubscriptionModel
 
 
-def test_subscription_model_init
+def test_subscription_model_init():
 
-():
+    pass  # Added missing block
     """Test SubscriptionModel initialization."""
     model = SubscriptionModel(
         name="Test Subscription Model", description="A test subscription model"

@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional, Union
 from .invoice import Invoice
 
 
-class InvoiceFormatter
+class InvoiceFormatter:
     from .invoice import Invoice
 
     

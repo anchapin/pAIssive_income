@@ -10,9 +10,9 @@ from typing import Any, Dict
 from .base import BaseService
 
 
-class APIKeyService
+class APIKeyService:
 
-(BaseService):
+    pass  # Added missing block
     """
     API Key service.
     """

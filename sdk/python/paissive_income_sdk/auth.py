@@ -8,9 +8,9 @@ This module provides authentication classes for the pAIssive Income API.
 from typing import Dict
 
 
-class Auth
+class Auth:
 
-:
+    pass  # Added missing block
     """
     Base authentication class.
     """

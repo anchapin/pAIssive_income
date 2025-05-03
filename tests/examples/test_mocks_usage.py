@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 
-def test_openai_provider_usage
+def test_openai_provider_usage():
         from ai_models.model_manager import get_model_provider
 
         

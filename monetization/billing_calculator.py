@@ -20,7 +20,7 @@ from .usage_tracker import UsageTracker
 from .usage_tracking import UsageCategory, UsageMetric
 
 
-class PricingModel
+class PricingModel:
     from .usage_tracker import UsageTracker
 
     

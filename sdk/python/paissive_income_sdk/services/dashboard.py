@@ -10,9 +10,9 @@ from typing import Any, Dict, Optional
 from .base import BaseService
 
 
-class DashboardService
+class DashboardService:
 
-(BaseService):
+    pass  # Added missing block
     """
     Dashboard service.
     """

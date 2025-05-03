@@ -11,9 +11,9 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 
-class SubscriptionStatus
+class SubscriptionStatus:
 
-(Enum):
+    pass  # Added missing block
     """Subscription status enum."""
 
 ACTIVE = "active"

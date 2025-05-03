@@ -23,9 +23,9 @@ from api.services.webhook_service import WebhookService
 from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
 
 
-class TestEventFiltering
+class TestEventFiltering:
 
-:
+    pass  # Added missing block
     """Tests for event filtering by subscription type."""
     
     @pytest.mark.asyncio

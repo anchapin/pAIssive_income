@@ -12,9 +12,9 @@ from typing import Any, Dict, List, Optional
 from .health_interfaces import IHealthCheckable
 
 
-class IBaseService
+class IBaseService:
 
-(IHealthCheckable):
+    pass  # Added missing block
     """Base interface for all services."""
 
 @abstractmethod

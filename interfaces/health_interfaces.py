@@ -10,9 +10,9 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict
 
 
-class IHealthCheckable
+class IHealthCheckable:
 
-(ABC):
+    pass  # Added missing block
     """Interface for services that can be health-checked."""
 
 @abstractmethod

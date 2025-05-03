@@ -19,9 +19,9 @@ from .billing_calculator import BillingCalculator, PricingModel, PricingRule
 from .usage_tracking import UsageCategory, UsageMetric
 
 
-class CustomPricingRule
+class CustomPricingRule:
 
-(PricingRule):
+    pass  # Added missing block
     """
     Base class for custom pricing rules.
 

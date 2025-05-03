@@ -12,9 +12,9 @@ from typing import Any, Dict, List, Optional
 from common_utils import to_json, write_file
 
 
-class ReceiptItem
+class ReceiptItem:
 
-:
+    pass  # Added missing block
     """
     Class representing an item on a receipt.
 

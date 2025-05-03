@@ -9,9 +9,9 @@ from pydantic import ValidationError
 from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
 
-def test_webhook_request_empty_events
+def test_webhook_request_empty_events():
 
-():
+    pass  # Added missing block
     """Test that webhook request with empty events list is rejected."""
     invalid_data = {
         "url": "https://example.com/webhook",

@@ -13,9 +13,9 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 
-class PaymentMethod
+class PaymentMethod:
 
-:
+    pass  # Added missing block
     """
     Class for managing payment methods.
 

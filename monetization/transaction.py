@@ -12,9 +12,9 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 
-class TransactionStatus
+class TransactionStatus:
 
-:
+    pass  # Added missing block
     """Enumeration of transaction statuses."""
 
 PENDING = "pending"

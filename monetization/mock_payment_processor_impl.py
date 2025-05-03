@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 from .payment_processor import PaymentProcessor
 
 
-class MockPaymentProcessorImpl
+class MockPaymentProcessorImpl:
             from .payment_processor import get_payment_gateway
 
 self.payment_gateway 

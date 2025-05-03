@@ -11,9 +11,9 @@ from typing import Dict, List, Optional
 from .interfaces import LoadBalancingStrategy, ServiceInstance, ServiceStatus
 
 
-class RandomLoadBalancer
+class RandomLoadBalancer:
 
-(LoadBalancingStrategy):
+    pass  # Added missing block
     """
     Random load balancing strategy.
 

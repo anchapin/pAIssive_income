@@ -12,9 +12,9 @@ from .mock_payment_processor import MockPaymentProcessor
 from .payment_processor import PaymentProcessor
 
 
-class PaymentProcessorFactory
+class PaymentProcessorFactory:
 
-:
+    pass  # Added missing block
     """
     Factory class for creating and managing payment processor instances.
 

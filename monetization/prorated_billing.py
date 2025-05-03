@@ -13,9 +13,9 @@ from datetime import datetime, timedelta
 from typing import Any, Dict
 
 
-class ProratedBilling
+class ProratedBilling:
 
-:
+    pass  # Added missing block
     """
     Class for calculating prorated billing.
 

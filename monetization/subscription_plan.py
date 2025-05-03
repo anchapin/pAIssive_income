@@ -12,9 +12,9 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 
-class BillingInterval
+class BillingInterval:
 
-:
+    pass  # Added missing block
     """Enumeration of billing intervals."""
 
 DAILY = "daily"

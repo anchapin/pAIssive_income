@@ -7,9 +7,9 @@ from enum import Enum
 from functools import wraps
 
 
-class Verbosity
+class Verbosity:
 
-(Enum):
+    pass  # Added missing block
     quiet = 0
     normal = 1
     verbose = 2

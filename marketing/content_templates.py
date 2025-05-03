@@ -86,7 +86,7 @@ Raises:
                     ],
                 )
 
-if not self.key_points or len(self.key_points) == 0:
+if not self.key_points or len(self.key_points) == 0:  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error
                 raise ValidationError(
                     message="Key points are required to generate an outline",
                     field="key_points",

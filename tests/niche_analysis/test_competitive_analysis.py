@@ -9,9 +9,9 @@ import pytest
 from niche_analysis.errors import InvalidCompetitorDataError
 
 
-class TestCompetitiveAnalysis
+class TestCompetitiveAnalysis:
 
-from niche_analysis.competitive_analysis import (
+    pass  # Added missing block
     CompetitorAnalyzer,
     MarketPositionMapper,
     StrengthWeaknessAnalyzer,

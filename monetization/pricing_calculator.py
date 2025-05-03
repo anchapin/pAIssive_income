@@ -14,9 +14,9 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 
-class PricingCalculator
+class PricingCalculator:
 
-:
+    pass  # Added missing block
     """
     Base class for pricing calculators.
 

@@ -10,9 +10,9 @@ from typing import Any, Dict, List
 from .content_generators import ContentGenerator
 
 
-class ConcreteContentGenerator
+class ConcreteContentGenerator:
 
-(ContentGenerator):
+    pass  # Added missing block
     """
     Concrete implementation of ContentGenerator for use in tests and examples.
     This class implements the abstract methods from ContentGenerator.

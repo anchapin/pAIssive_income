@@ -46,7 +46,7 @@ Raises:
         mode = "rb" if binary else "r"
         kwargs = {} if binary else {"encoding": encoding}
 
-with open(file_path, mode, **kwargs) as f:
+with open(file_path, mode, **kwargs) as f:  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error
             content = f.read()
 
 logger.debug(f"Successfully read file: {file_path}")

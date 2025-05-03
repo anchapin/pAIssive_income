@@ -12,9 +12,9 @@ from typing import Any, Dict, List, Optional
 from .config import APIVersion
 
 
-class ChangeType
+class ChangeType:
 
-(str, Enum):
+    pass  # Added missing block
     """
     Enum for types of API changes.
     """

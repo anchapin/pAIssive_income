@@ -13,9 +13,9 @@ from ai_models.model_manager import ModelManager
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
 
-class MockModelInfo
+class MockModelInfo:
 
-(IModelInfo):
+    pass  # Added missing block
     """Mock model info for testing."""
 
     def __init__(self, id, name, description, type, path, capabilities=None):

@@ -234,7 +234,7 @@ try:
             total_variable_costs = infrastructure_cost + marketing_cost + support_cost
             total_costs = total_fixed_costs + total_variable_costs
 
-result = {
+result = {  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error
                 "fixed_costs": {
                     "development": development_cost,
                     "total": total_fixed_costs,

@@ -14,9 +14,9 @@ from typing import Dict, List, Optional
 from .interfaces import ServiceInstance, ServiceRegistry, ServiceStatus
 
 
-class InMemoryServiceRegistry
+class InMemoryServiceRegistry:
 
-(ServiceRegistry):
+    pass  # Added missing block
     """
     In-memory implementation of ServiceRegistry.
 

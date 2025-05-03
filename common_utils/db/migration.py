@@ -26,9 +26,9 @@ logger
 
 from common_utils.db.migration import Migration
 
-class Migration
+class Migration:
 
-= logging.getLogger(__name__)
+    pass  # Added missing block
 
 
 class Migration(ABC):

@@ -16,9 +16,9 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 
-class PromotionStatus
+class PromotionStatus:
 
-:
+    pass  # Added missing block
     """Enumeration of promotion statuses."""
 
 DRAFT = "draft"

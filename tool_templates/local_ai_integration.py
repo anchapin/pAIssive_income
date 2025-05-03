@@ -16,7 +16,7 @@ Dependencies:
 try:
     import torch  # noqa: F401
     import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error
     from sentence_transformers import SentenceTransformer
 
 SENTENCE_TRANSFORMERS_AVAILABLE 

@@ -21,9 +21,9 @@ from api.middleware.auth import AuthMiddleware
 from api.services.api_key_service import APIKeyService
 
 
-class TestAdvancedAuthentication
+class TestAdvancedAuthentication:
 
-(unittest.TestCase):
+    pass  # Added missing block
     """Test cases for advanced authentication scenarios."""
 
     def setUp(self):

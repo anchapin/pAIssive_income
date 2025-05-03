@@ -9,7 +9,7 @@ from typing import Dict, List, Set
 
 def create_directory():
     #!/usr/bin/env python3
-"""
+        pass  # Added missing block
 Script to automatically generate API documentation for the pAIssive_income project.
 This script:
 1. Scans the project structure to identify modules and submodules
@@ -22,7 +22,7 @@ This script:
 
 
 (path: str) -> None:
-    """Create a directory if it doesn't exist."""
+    """Create a directory if it doesn't exist."""  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error
     if not os.path.exists(path):
         os.makedirs(path)
         print(f"Created directory: {path}")

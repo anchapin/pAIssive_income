@@ -10,9 +10,9 @@ from typing import Any, Dict, Optional
 from uuid import uuid4
 
 
-class User
+class User:
 
-:
+    pass  # Added missing block
     """User model."""
 
     def __init__(

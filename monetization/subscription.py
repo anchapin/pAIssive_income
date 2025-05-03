@@ -12,9 +12,9 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 
-class FeatureWrapper
+class FeatureWrapper:
 
-:
+    pass  # Added missing block
     """
     Wrapper class for feature dictionaries to provide attribute access.
     """

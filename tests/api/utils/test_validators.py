@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 from requests import Response
 
 
-def validate_status_code
+def validate_status_code():
     import uuid
 
 (response: Response, expected_status_code: int) -> None:

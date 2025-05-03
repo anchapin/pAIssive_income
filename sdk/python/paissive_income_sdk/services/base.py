@@ -8,9 +8,9 @@ This module provides a base service class that all other service classes inherit
 from typing import Any, Dict, Optional
 
 
-class BaseService
+class BaseService:
 
-:
+    pass  # Added missing block
     """
     Base service class.
     """

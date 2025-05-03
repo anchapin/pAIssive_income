@@ -9,9 +9,9 @@ from datetime import datetime
 from monetization.mock_payment_processor import MockPaymentProcessor
 
 
-class TestPaymentGateway
+class TestPaymentGateway:
 
-(unittest.TestCase):
+    pass  # Added missing block
     """Test cases for payment gateway integration."""
 
 def setUp(self):

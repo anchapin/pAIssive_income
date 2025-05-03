@@ -11,9 +11,9 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 
-class ServiceStatus
+class ServiceStatus:
 
-(enum.Enum):
+    pass  # Added missing block
     """Enum representing the status of a service instance."""
 
     UNKNOWN = "unknown"

@@ -34,7 +34,7 @@ try:
             "is_active": True,
         }
 
-webhook = await service.register_webhook(webhook_data)
+webhook = await service.register_webhook(webhook_data)  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error  # FIXME: Syntax error
         print(f"Registered webhook: {webhook['id']}")
 
 # List webhooks

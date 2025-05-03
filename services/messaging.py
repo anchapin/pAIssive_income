@@ -11,9 +11,9 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from services.errors import MessagePublishError, QueueConfigError
 
 
-class MessageQueue
+class MessageQueue:
 
-:
+    pass  # Added missing block
     """
     Stub class for MessageQueue to simulate a simple messaging system.
     """

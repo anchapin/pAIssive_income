@@ -9,9 +9,9 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
 
-class SortDirection
+class SortDirection:
 
-(str, Enum):
+    pass  # Added missing block
     """Sort direction for query parameters."""
 
     ASC = "asc"

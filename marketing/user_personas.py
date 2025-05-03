@@ -11,9 +11,9 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 
-class PersonaCreator
+class PersonaCreator:
 
-:
+    pass  # Added missing block
     """
     Tool for creating detailed user personas for marketing campaigns.
     """

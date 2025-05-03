@@ -10,9 +10,9 @@ from unittest.mock import patch
 from ai_models.model_base_types import ModelInfo
 
 
-def test_model_info_init
+def test_model_info_init():
 
-():
+    pass  # Added missing block
     """Test ModelInfo initialization."""
     model_info = ModelInfo(
         id="test-model",

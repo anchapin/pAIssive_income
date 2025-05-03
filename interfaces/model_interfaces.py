@@ -10,9 +10,9 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 
-class IModelConfig
+class IModelConfig:
 
-(ABC):
+    pass  # Added missing block
     """Interface for model configuration."""
 
 @property

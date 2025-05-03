@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional
 from .base import CacheBackend
 
 
-class DiskCache
+class DiskCache:
                 import logging
 
 (CacheBackend):

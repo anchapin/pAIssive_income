@@ -16,9 +16,9 @@ from services.shared.message_queue.queue_client import MessageQueueClient
 from services.shared.message_queue.queue_config import QueueConfig
 
 
-class TestMessageQueue
+class TestMessageQueue:
 
-:
+    pass  # Added missing block
     """Tests for message queue functionality."""
 
     @patch("pika.BlockingConnection")

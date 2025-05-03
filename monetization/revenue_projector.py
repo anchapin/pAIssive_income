@@ -14,7 +14,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 
-class RevenueProjector
+class RevenueProjector:
     from pricing_calculator import PricingCalculator
     from subscription_models import SubscriptionModel
 

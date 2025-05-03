@@ -10,9 +10,9 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 
-class MarketingPlan
+class MarketingPlan:
 
-:
+    pass  # Added missing block
     """Class for creating and managing marketing plans."""
 
 def __init__(self, name: str, description: str = ""):

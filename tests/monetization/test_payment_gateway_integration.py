@@ -16,9 +16,9 @@ from monetization.transaction import TransactionStatus
 from monetization.transaction_manager import TransactionManager
 
 
-class TestPaymentGatewayIntegration
+class TestPaymentGatewayIntegration:
 
-(unittest.TestCase):
+    pass  # Added missing block
     """Test cases for payment gateway integration."""
 
     def setUp(self):

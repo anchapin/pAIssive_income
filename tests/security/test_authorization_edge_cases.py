@@ -20,9 +20,9 @@ from api.config import APIConfig
 from api.middleware.auth import AuthMiddleware
 
 
-class TestAuthorizationEdgeCases
+class TestAuthorizationEdgeCases:
 
-(unittest.TestCase):
+    pass  # Added missing block
     """Test cases for authorization edge cases."""
 
     def setUp(self):

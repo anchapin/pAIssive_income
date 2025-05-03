@@ -6,9 +6,9 @@ Tests for the OpportunityScorer class.
 from niche_analysis.opportunity_scorer import OpportunityScorer
 
 
-def test_opportunity_scorer_init
+def test_opportunity_scorer_init():
 
-():
+    pass  # Added missing block
     """Test OpportunityScorer initialization."""
     scorer = OpportunityScorer()
 

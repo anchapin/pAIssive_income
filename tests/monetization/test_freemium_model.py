@@ -8,9 +8,9 @@ import os
 from monetization.subscription_models import FreemiumModel
 
 
-def test_freemium_model_init
+def test_freemium_model_init():
 
-():
+    pass  # Added missing block
     """Test FreemiumModel initialization."""
     model = FreemiumModel(
         name="Test Freemium Model", description="A test freemium model"

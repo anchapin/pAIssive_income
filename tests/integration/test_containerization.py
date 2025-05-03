@@ -14,9 +14,9 @@ import pytest
 import requests
 
 
-class TestContainerization
+class TestContainerization:
 
-:
+    pass  # Added missing block
     """Integration tests for containerization of microservices."""
 
     def setup_method(self):

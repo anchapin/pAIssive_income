@@ -17,9 +17,9 @@ from marketing.schemas import BudgetSchema, TargetAudienceSchema
 from marketing.strategy_generator import StrategyGenerator
 
 
-class DefaultStrategyGenerator
+class DefaultStrategyGenerator:
 
-(StrategyGenerator):
+    pass  # Added missing block
     """
     Concrete implementation of the StrategyGenerator class.
 

@@ -17,9 +17,9 @@ from ai_models.model_base_types import ModelInfo
 from errors import ModelError, ModelLoadError, ModelAPIError
 
 
-class TestModelFallback
+class TestModelFallback:
 
-(unittest.TestCase):
+    pass  # Added missing block
     """Test suite for model fallback mechanisms."""
 
     def setUp(self):

@@ -19,10 +19,10 @@ from api.schemas.user import UserCreate, UserRole, UserUpdate
 from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
 
-class TestSchemaValidation
+class TestSchemaValidation:
 
 # Import schemas to test
-:
+    pass  # Added missing block
     """Tests for API schema validation."""
 
     def test_webhook_schema_validation(self):

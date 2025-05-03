@@ -17,7 +17,7 @@ from .subscription_manager import SubscriptionManager
 from .user_subscription import Subscription, SubscriptionStatus
 
 
-class SubscriptionMetrics
+class SubscriptionMetrics:
     from .subscription import SubscriptionPlan
     from .subscription_manager import SubscriptionManager
     from .user_subscription import Subscription

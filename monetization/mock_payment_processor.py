@@ -15,9 +15,9 @@ from typing import Any, Dict, List, Optional
 from .payment_processor import PaymentProcessor
 
 
-class MockPaymentProcessor
+class MockPaymentProcessor:
 
-(PaymentProcessor):
+    pass  # Added missing block
     """
     Mock implementation of the payment processor interface.
 

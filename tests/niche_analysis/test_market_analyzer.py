@@ -10,9 +10,9 @@ import pytest
 from niche_analysis.market_analyzer import MarketAnalyzer
 
 
-def test_market_analyzer_init
+def test_market_analyzer_init():
 
-():
+    pass  # Added missing block
     """Test MarketAnalyzer initialization."""
     analyzer = MarketAnalyzer()
 

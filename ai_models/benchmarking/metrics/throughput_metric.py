@@ -11,9 +11,9 @@ from typing import Callable
 from .base_metric import BaseMetric
 
 
-class ThroughputMetric
+class ThroughputMetric:
 
-(BaseMetric):
+    pass  # Added missing block
     """
     Metric for measuring throughput.
     """

@@ -18,7 +18,7 @@ from .invoice import Invoice, InvoiceStatus
 from .usage_tracker import UsageTracker
 
 
-class InvoiceManager
+class InvoiceManager:
     from .billing_calculator import BillingCalculator
     from .usage_tracker import UsageTracker
 

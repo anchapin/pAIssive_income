@@ -13,9 +13,9 @@ import unittest
 from typing import Dict, List, Optional, Set
 
 
-class WebhookSignatureVerifier
+class WebhookSignatureVerifier:
 
-:
+    pass  # Added missing block
     """Webhook signature verification."""
 
 @staticmethod

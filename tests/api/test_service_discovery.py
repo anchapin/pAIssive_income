@@ -13,9 +13,9 @@ from api.config import APIConfig
 from api.service_discovery import ServiceDiscovery, ServiceRegistration
 
 
-class TestServiceDiscovery
+class TestServiceDiscovery:
 
-:
+    pass  # Added missing block
     """Tests for service discovery functionality."""
 
     @patch("consul.Consul")

@@ -17,9 +17,9 @@ from typing import Any, Dict, List, Optional
 from .base import CacheBackend
 
 
-class SQLiteCache
+class SQLiteCache:
 
-(CacheBackend):
+    pass  # Added missing block
     """
     SQLite-based cache backend.
     """

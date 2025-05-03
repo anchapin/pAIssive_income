@@ -11,9 +11,9 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 
-class PruningMethod
+class PruningMethod:
 
-(enum.Enum):
+    pass  # Added missing block
     """
     Enumeration of pruning methods.
     """

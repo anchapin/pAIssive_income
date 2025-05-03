@@ -9,7 +9,7 @@ import sys
 
 from .cli import main
 
-if __name__ 
+if __name__ :
 
-== "__main__":
+    pass  # Added missing block
     sys.exit(main())

@@ -23,9 +23,9 @@ from api.services.webhook_service import WebhookService
 from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
 
 
-class TestDeliveryConfirmation
+class TestDeliveryConfirmation:
 
-:
+    pass  # Added missing block
     """Tests for delivery confirmation and idempotency."""
     
     @pytest.mark.asyncio

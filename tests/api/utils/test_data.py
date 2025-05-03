@@ -14,9 +14,9 @@ from datetime import datetime, timedelta
 from typing import Any, Dict
 
 
-def generate_id
+def generate_id():
 
-() -> str:
+    pass  # Added missing block
     """
     Generate a random ID.
 

@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional
 from .subscription import SubscriptionPlan, SubscriptionTier
 
 
-class SubscriptionStatus
+class SubscriptionStatus:
     from .subscription import SubscriptionPlan
 
     

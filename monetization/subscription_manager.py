@@ -16,7 +16,7 @@ from .subscription import FeatureWrapper, SubscriptionPlan, TierWrapper
 from .user_subscription import Subscription, SubscriptionStatus
 
 
-class SubscriptionManager
+class SubscriptionManager:
     from .subscription import SubscriptionPlan
 
     

@@ -10,9 +10,9 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
 
-class FilterOperator
+class FilterOperator:
 
-(str, Enum):
+    pass  # Added missing block
     """Filter operator for query parameters."""
 
     EQ = "eq"  # Equal

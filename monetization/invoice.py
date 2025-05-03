@@ -16,9 +16,9 @@ from typing import Any, Dict, List, Optional
 from common_utils import add_days, format_datetime
 
 
-class InvoiceStatus
+class InvoiceStatus:
 
-:
+    pass  # Added missing block
     """Enumeration of invoice statuses."""
 
 DRAFT = "draft"

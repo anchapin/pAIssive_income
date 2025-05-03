@@ -14,7 +14,7 @@ from monetization.metered_billing import MeteredBillingPricing, MeteringInterval
 
 def test_metering_intervals():
     # Use absolute imports
-():
+        pass  # Added missing block
     """Test different metering intervals."""
     print("Testing metering intervals...")
 

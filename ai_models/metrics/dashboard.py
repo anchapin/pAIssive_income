@@ -20,7 +20,7 @@ from typing import List, Optional
 from ai_models.metrics import EnhancedPerformanceMonitor
 
 
-class MetricsDashboard
+class MetricsDashboard:
             import matplotlib
             import pandas
             import plotly

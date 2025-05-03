@@ -13,7 +13,7 @@ from api.middleware.auth import AuthMiddleware
 from api.services.api_key_service import APIKeyService
 
 
-class TestSecurity
+class TestSecurity:
         import time
 
 (unittest.TestCase):

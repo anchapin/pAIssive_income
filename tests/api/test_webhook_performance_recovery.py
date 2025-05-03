@@ -24,7 +24,7 @@ from api.services.webhook_service import WebhookService
 from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
 
 
-class TestDeliveryRecovery
+class TestDeliveryRecovery:
             import os
 
 :
