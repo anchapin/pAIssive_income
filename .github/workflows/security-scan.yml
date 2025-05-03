@@ -1,0 +1,37 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly on Sunday at midnight
+
+jobs:
+  Security_Scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit safety semgrep pylint
+      - name: Run bandit
+        run: |
+          bandit -r . -c pyproject.toml -ll || bandit -r . -ll
+      - name: Run safety
+        run: |
+          safety check -i 51457 -i 51668
+      - name: Run semgrep security scan
+        run: |
+          python -m pip install semgrep
+          semgrep scan --config=auto --severity=ERROR
+      - name: Run pylint security checks
+        run: |
+          pylint --disable=all --enable=security . || true

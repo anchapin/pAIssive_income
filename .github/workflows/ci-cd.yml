@@ -2,82 +2,124 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
+  workflow_dispatch:
 
 jobs:
   Lint_Code:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           pip install flake8 black isort mypy
+
       - name: Lint with flake8
         run: |
           flake8 . --count --statistics
+
       - name: Check formatting with black
         run: |
           black . --check
+
       - name: Check imports with isort
         run: |
-          isort . --check-only
+          isort . --check-only --skip .venv
+
       - name: Type check with mypy
         run: |
           mypy .
 
   Run_Tests:
     runs-on: ubuntu-latest
+    needs: Lint_Code
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
           pip install pytest-cov
+
+      - name: Create log directories
+        run: |
+          mkdir -p ai_models/fallbacks/logs
+          mkdir -p ai_models/logs
+
       - name: Run tests with pytest
         run: |
           pytest tests/ --cov=./ --cov-report=xml
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
 
-  Security_Scan:
+  Build_Docker_Image:
     runs-on: ubuntu-latest
+    needs: Run_Tests
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
         with:
-          python-version: '3.11'
-      - name: Install dependencies
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          tags: paissiveincome/app:test
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # Temp fix for https://github.com/docker/build-push-action/issues/252
+      - name: Move cache
         run: |
-          python -m pip install --upgrade pip
-          pip install bandit safety semgrep pylint
-      - name: Run bandit
-        run: |
-          bandit -r . -c pyproject.toml -ll || bandit -r . -ll
-      - name: Run safety
-        run: |
-          safety check -i 51457 -i 51668
-      - name: Run semgrep security scan
-        run: |
-          python -m pip install semgrep
-          semgrep scan --config=auto --severity=ERROR
-      - name: Run pylint security checks
-        run: |
-          pylint --disable=all --enable=security . || true
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache

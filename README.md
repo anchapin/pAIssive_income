@@ -1,5 +1,12 @@
 # pAIssive Income
 
+[![CI/CD](https://github.com/anchapin/pAIssive_income/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/anchapin/pAIssive_income/actions/workflows/ci-cd.yml)
+[![Security Scan](https://github.com/anchapin/pAIssive_income/actions/workflows/security-scan.yml/badge.svg)](https://github.com/anchapin/pAIssive_income/actions/workflows/security-scan.yml)
+[![Deploy](https://github.com/anchapin/pAIssive_income/actions/workflows/deploy.yml/badge.svg)](https://github.com/anchapin/pAIssive_income/actions/workflows/deploy.yml)
+[![CI/CD Monitoring](https://github.com/anchapin/pAIssive_income/actions/workflows/ci-cd-monitoring.yml/badge.svg)](https://github.com/anchapin/pAIssive_income/actions/workflows/ci-cd-monitoring.yml)
+[![Dashboard](https://github.com/anchapin/pAIssive_income/actions/workflows/generate-dashboard.yml/badge.svg)](https://github.com/anchapin/pAIssive_income/actions/workflows/generate-dashboard.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A comprehensive framework for developing and monetizing niche AI agents to generate passive income through subscription-based software tools powered by local AI.
 
 ## Overview
@@ -171,9 +178,9 @@ The project includes comprehensive API documentation that can be built from sour
    ```bash
    make html
    ```
-   
+
    On Windows, use:
-   
+
    ```bash
    make.bat html
    ```

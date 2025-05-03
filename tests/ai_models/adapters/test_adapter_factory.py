@@ -4,8 +4,8 @@ Tests for the AdapterFactory class.
 
 import pytest
 
-# Temporarily disabled due to circular import issue with llama_cpp
-# from ai_models.adapters import AdapterFactory, BaseModelAdapter
+from ai_models.adapters.base_adapter import BaseModelAdapter
+from ai_models.adapters.factory import AdapterFactory
 from errors import ModelError
 from interfaces.model_interfaces import IModelAdapter
 

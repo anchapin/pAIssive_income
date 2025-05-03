@@ -4,10 +4,17 @@ Tests for the analytics API.
 This module contains tests for the analytics API endpoints.
 """
 
+import uuid
 from typing import Any, Dict, List
 
 import pytest
 from fastapi.testclient import TestClient
+
+
+def generate_id() -> str:
+    """Generate a random ID for testing."""
+    return str(uuid.uuid4())
+
 
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_validators import (

@@ -15,9 +15,8 @@ from typing import Any, Dict, List, Optional
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from ai_models.metrics.dashboard import MetricsDashboard
-
 # Import metrics classes
+from ai_models.metrics.dashboard import MetricsDashboard
 from ai_models.metrics.enhanced_metrics import (
     EnhancedInferenceTracker,
     EnhancedPerformanceMonitor,

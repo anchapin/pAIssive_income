@@ -28,7 +28,7 @@ def test_base_mock_provider():
     assert all(x == 0.1 for x in embedding)
 
     # Test error simulation
-    assert provider._should_simulate_error() == True
+    assert provider._should_simulate_error() is True
 
 
 def test_openai_provider():

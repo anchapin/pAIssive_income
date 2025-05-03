@@ -84,7 +84,7 @@ def test_register_configuration_with_config(mock_model_config, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IModelConfig
-    assert kwargs.get("singleton") == True
+    assert kwargs.get("singleton") is True
 
 
 @patch("service_initialization.ModelConfig")
@@ -104,7 +104,7 @@ def test_register_configuration_without_config(mock_model_config, mock_container
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IModelConfig
-    assert kwargs.get("singleton") == True
+    assert kwargs.get("singleton") is True
 
 
 @patch("service_initialization.ModelManager")
@@ -132,7 +132,7 @@ def test_register_ai_models(mock_get_adapter_factory, mock_model_manager, mock_c
     )
     args, kwargs = mock_container.register.call_args
     assert args[0] == IModelManager
-    assert kwargs.get("singleton") == True
+    assert kwargs.get("singleton") is True
 
     # Verify that the container.register_instance was called for adapter_factory
     mock_container.register_instance.assert_called_once_with(
@@ -195,7 +195,7 @@ def test_register_niche_analysis(mock_niche_analyzer, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == INicheAnalyzer
-    assert kwargs.get("singleton") == True
+    assert kwargs.get("singleton") is True
 
 
 @patch("service_initialization.MonetizationCalculator")
@@ -212,7 +212,7 @@ def test_register_monetization(mock_monetization_calculator, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IMonetizationCalculator
-    assert kwargs.get("singleton") == True
+    assert kwargs.get("singleton") is True
 
 
 @patch("service_initialization.StrategyGenerator")
@@ -233,7 +233,7 @@ def test_register_marketing(mock_strategy_generator, mock_container):
     mock_container.register.assert_called_once()
     args, kwargs = mock_container.register.call_args
     assert args[0] == IMarketingStrategy
-    assert kwargs.get("singleton") == True
+    assert kwargs.get("singleton") is True
 
 
 @patch("ui.service_registry.get_container")

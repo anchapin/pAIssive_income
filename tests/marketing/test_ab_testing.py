@@ -297,8 +297,8 @@ class TestABTest:
         assert "is_better_than_control" in variant_analysis
 
         # With these numbers, both CTR and conversion rate should be significantly better
-        assert variant_analysis.get("ctr_is_significant") == True  # Use == instead of is
-        assert variant_analysis.get("conversion_is_significant") == True  # Use == instead of is
+        assert variant_analysis.get("ctr_is_significant") is True
+        assert variant_analysis.get("conversion_is_significant") is True
 
     def test_end_test(self):
         """Test the end_test method."""

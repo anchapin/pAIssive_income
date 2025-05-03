@@ -1,0 +1,64 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  Build_and_Push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: paissiveincome/app:latest,paissiveincome/app:${{ github.sha }}
+          cache-from: type=registry,ref=paissiveincome/app:latest
+          cache-to: type=inline
+
+  Deploy_to_Dev:
+    needs: Build_and_Push
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Deploy to Development Environment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.DEV_USER }}
+          key: ${{ secrets.DEV_SSH_KEY }}
+          script: |
+            docker pull paissiveincome/app:latest
+            docker-compose -f ~/paissive-income/docker-compose.yml down
+            docker-compose -f ~/paissive-income/docker-compose.yml up -d
+
+  Deploy_to_Prod:
+    needs: Build_and_Push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy to Production Environment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            docker pull paissiveincome/app:latest
+            docker-compose -f ~/paissive-income/docker-compose.yml down
+            docker-compose -f ~/paissive-income/docker-compose.yml up -d

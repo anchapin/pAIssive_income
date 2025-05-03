@@ -253,7 +253,7 @@ class BenchmarkRunner:
             latency = (end_time - start_time) * 1000
             latency_ms.append(latency)
 
-            logger.info(f"Run {i+1}/{self.config.num_runs}: {latency:.2f} ms")
+            logger.info(f"Run {i + 1}/{self.config.num_runs}: {latency:.2f} ms")
 
         # Save results
         self.result.latency_ms = latency_ms
@@ -299,7 +299,7 @@ class BenchmarkRunner:
             total_time += batch_time
 
             logger.info(
-                f"Batch {i//self.config.batch_size + 1}: {len(batch)} samples, {batch_time:.2f} seconds"
+                f"Batch {i // self.config.batch_size + 1}: {len(batch)} samples, {batch_time:.2f} seconds"
             )
 
         # Calculate throughput (tokens per second)

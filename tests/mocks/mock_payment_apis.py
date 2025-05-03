@@ -76,7 +76,7 @@ class MockPaymentGateway:
 
     def _simulate_network_error(self) -> bool:
         """Simulate a network error based on error rate."""
-        if self.config.get("simulate_network_errors", True) == False:
+        if self.config.get("simulate_network_errors", True) is False:
             return False
         return random.random() < self.network_error_rate
 

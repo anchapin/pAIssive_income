@@ -10,7 +10,10 @@ import sys
 from abc import abstractmethod
 from typing import Any, Dict, List
 
+# Add project root to path to allow imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
+# Import after path modification
 from errors import ModelError
 from interfaces.model_interfaces import IModelAdapter
 

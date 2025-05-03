@@ -262,10 +262,10 @@ class TestSocketIOIntegration:
         client.emit("authenticate", {"token": "valid_token"})
         received = client.get_received()
         assert len(received) > 0
-        assert received[0]["args"][0] == True
+        assert received[0]["args"][0] is True
 
         # Test failed authentication
         client.emit("authenticate", {"token": "invalid_token"})
         received = client.get_received()
         assert len(received) > 0
-        assert received[0]["args"][0] == False
+        assert received[0]["args"][0] is False

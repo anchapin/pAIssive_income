@@ -255,7 +255,7 @@ class InfoCommand(BaseCommand):
             print(json.dumps(model_info.to_dict(), indent=2))
         else:
             # Text output
-            print(f"Model Information:")
+            print("Model Information:")
             print(f"- ID: {model_info.id}")
             print(f"- Name: {model_info.name}")
             print(f"- Type: {model_info.type}")
@@ -525,7 +525,7 @@ class DeployCommand(BaseCommand):
 
         if config_path:
             if not os.path.exists(config_path):
-                logger.error("Configuration file {config_path} not found")
+                logger.error(f"Configuration file {config_path} not found")
                 return None
 
             try:
@@ -885,9 +885,9 @@ class VersionCommand(BaseCommand):
             )
 
             if compatible:
-                print(f"Models are compatible")
+                print("Models are compatible")
             else:
-                print(f"Models are NOT compatible")
+                print("Models are NOT compatible")
 
             return 0 if compatible else 2  # Use 2 as exit code for incompatible models
 
@@ -912,12 +912,12 @@ class VersionCommand(BaseCommand):
             logger.info(f"Successfully loaded model version {self._get_arg('version')}")
 
             # Basic info about the loaded model (type-specific)
-            print(f"Loaded model information:")
+            print("Loaded model information:")
             print(f"- Type: {type(model).__name__}")
 
             # Basic inference test
             if hasattr(model, "generate"):
-                print(f"Model supports generation. Example output:")
+                print("Model supports generation. Example output:")
                 try:
                     # Use a very short timeout to avoid long waits
                     import signal
@@ -930,7 +930,7 @@ class VersionCommand(BaseCommand):
                     signal.alarm(5)
 
                     output = model.generate("Hello, world!")[:100]  # Limit output length
-                    print(f"  Input: 'Hello, world!'")
+                    print("  Input: 'Hello, world!'")
                     print(f"  Output: '{output}'")
 
                     # Cancel the timeout
