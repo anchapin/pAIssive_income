@@ -49,7 +49,8 @@ class MockExternalAPIBase:
             }
         )
 
-    def get_call_history(self, method_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_call_history(self, method_name: Optional[str] = None) -> List[Dict[str, 
+        Any]]:
         """Get the call history, optionally filtered by method name."""
         if method_name:
             return [call for call in self.call_history if call["method"] == method_name]
@@ -104,7 +105,8 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
             ],
         )
 
-    def list_models(self, filter_criteria: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    def list_models(self, filter_criteria: Optional[Dict[str, 
+        Any]] = None) -> List[Dict[str, Any]]:
         """
         List available models with optional filtering.
 
@@ -126,7 +128,8 @@ class MockHuggingFaceAPI(MockExternalAPIBase):
                 if key == "pipeline_tag" and value != model.get(key):
                     match = False
                     break
-                if key == "tags" and not all(tag in model.get("tags", []) for tag in value):
+                if key == "tags" and not all(tag in model.get("tags", 
+                    []) for tag in value):
                     match = False
                     break
             if match:
@@ -212,7 +215,8 @@ class MockPaymentAPI:
         self._customers[customer_id] = customer
         return customer
 
-    def create_subscription(self, customer_id: str, plan_id: str, **kwargs) -> Dict[str, Any]:
+    def create_subscription(self, customer_id: str, plan_id: str, **kwargs) -> Dict[str, 
+        Any]:
         """
         Create a mock subscription.
 
@@ -294,7 +298,8 @@ class MockEmailAPI:
             }
         }
 
-    def send_email(self, to: str, subject: str, content: str, **kwargs) -> Dict[str, Any]:
+    def send_email(self, to: str, subject: str, content: str, **kwargs) -> Dict[str, 
+        Any]:
         """
         Send a mock email.
 

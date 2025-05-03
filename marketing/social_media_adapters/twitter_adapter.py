@@ -56,9 +56,11 @@ class TwitterAdapter(BaseSocialMediaAdapter):
 
         # Set up authentication if credentials are provided
         if self.bearer_token:
-            self.session.headers.update({"Authorization": f"Bearer {self.bearer_token}"})
+            self.session.headers.update(
+                {"Authorization": f"Bearer {self.bearer_token}"})
             self._connected = True
-        elif self.api_key and self.api_secret and self.access_token and self.access_token_secret:
+        elif self.api_key and \
+            self.api_secret and self.access_token and self.access_token_secret:
             # OAuth 1.0a authentication would be implemented here
             # This is a simplified version for demonstration
             self._connected = True
@@ -98,7 +100,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
 
                 # Update session with new bearer token
                 self.bearer_token = token_data.get("access_token")
-                self.session.headers.update({"Authorization": f"Bearer {self.bearer_token}"})
+                self.session.headers.update(
+                    {"Authorization": f"Bearer {self.bearer_token}"})
                 self._connected = True
 
                 # Get user information
@@ -118,7 +121,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
 
             else:
                 raise AuthenticationError(
-                    "twitter", "Missing required credentials (api_key, api_secret or bearer_token)"
+                    "twitter", "Missing required credentials (api_key, 
+                        api_secret or bearer_token)"
                 )
 
         except requests.exceptions.RequestException as e:
@@ -145,7 +149,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
         # Check text length (Twitter's current limit is 280 characters)
         if len(content["text"]) > 280:
             raise ContentValidationError(
-                "twitter", f"Tweet text exceeds 280 characters (current: {len(content['text'])})"
+                "twitter", 
+                    f"Tweet text exceeds 280 characters (current: {len(content['text'])})"
             )
 
         # Check media attachments if present
@@ -155,7 +160,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
             # Check media count (Twitter allows up to 4 media attachments)
             if len(media) > 4:
                 raise ContentValidationError(
-                    "twitter", f"Too many media attachments (max: 4, current: {len(media)})"
+                    "twitter", f"Too many media attachments (max: 4, 
+                        current: {len(media)})"
                 )
 
             # Check media types
@@ -167,7 +173,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 if item["type"] not in allowed_types:
                     raise ContentValidationError(
                         "twitter",
-                        f"Invalid media type: {item['type']}. Allowed types: {', '.join(allowed_types)}",
+                        f"Invalid media type: {item['type']}. Allowed types: {', 
+                            '.join(allowed_types)}",
                     )
 
         return True
@@ -303,7 +310,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
             # Get tweet details
             response = self.session.get(
                 f"{self.api_base_url}/tweets/{post_id}",
-                params={"tweet.fields": "created_at,public_metrics,entities,attachments"},
+                params={"tweet.fields": "created_at,public_metrics,entities,
+                    attachments"},
             )
             response.raise_for_status()
             result = response.json()
@@ -401,7 +409,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 # Get tweet details with metrics
                 response = self.session.get(
                     f"{self.api_base_url}/tweets/{post_id}",
-                    params={"tweet.fields": "public_metrics,non_public_metrics,organic_metrics"},
+                    params={"tweet.fields": "public_metrics,non_public_metrics,
+                        organic_metrics"},
                 )
                 response.raise_for_status()
                 result = response.json()
@@ -447,12 +456,14 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 "post_id": post_id,
                 "period": {
                     "start_date": start_date.strftime(" % Y-%m-%d") if start_date else None,
+                        
                     "end_date": end_date.strftime(" % Y-%m-%d") if end_date else None,
                 },
             }
 
     def get_audience_insights(
-        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, Any]] = None
+        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Get audience insights from Twitter.
@@ -485,6 +496,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                         "55 + ": 0.1,
                     },
                     "gender_distribution": {"male": 0.55, "female": 0.43, "other": 0.02},
+                        
                     "location": {
                         "United States": 0.45,
                         "United Kingdom": 0.15,
@@ -516,7 +528,8 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                         "Saturday": 0.1,
                         "Sunday": 0.1,
                     },
-                    "hours": {"morning": 0.25, "afternoon": 0.35, "evening": 0.3, "night": 0.1},
+                    "hours": {"morning": 0.25, "afternoon": 0.35, "evening": 0.3, 
+                        "night": 0.1},
                 },
             }
 

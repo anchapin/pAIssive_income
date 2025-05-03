@@ -48,7 +48,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         """
         super().__init__(app)
         self.api_key_service = api_key_service or APIKeyService()
-        self.public_paths = public_paths or [" / docs", " / redoc", " / openapi.json", " / health"]
+        self.public_paths = public_paths or [" / docs", " / redoc", " / openapi.json", 
+            " / health"]
         self.auth_header = auth_header
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
@@ -89,21 +90,24 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if not api_key_obj:
             logger.warning("Invalid API key")
             return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "Invalid API key"}
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                    content={"detail": "Invalid API key"}
             )
 
         # Check if API key is active
         if not api_key_obj.is_active:
             logger.warning(f"Inactive API key: {api_key_obj.id}")
             return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "API key is inactive"}
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                    content={"detail": "API key is inactive"}
             )
 
         # Check if API key is expired
         if not api_key_obj.is_valid():
             logger.warning(f"Expired API key: {api_key_obj.id}")
             return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "API key has expired"}
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                    content={"detail": "API key has expired"}
             )
 
         # Add API key to request state
@@ -141,15 +145,18 @@ async def get_api_key(api_key_header: str = Security(API_KEY_HEADER)) -> APIKey:
     api_key_obj = api_key_service.verify_api_key(api_key)
 
     if not api_key_obj:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Invalid API key")
 
     # Check if API key is active
     if not api_key_obj.is_active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="API key is inactive")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="API key is inactive")
 
     # Check if API key is expired
     if not api_key_obj.is_valid():
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="API key has expired")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="API key has expired")
 
     return api_key_obj
 
@@ -172,7 +179,8 @@ async def get_current_user(api_key: APIKey = Depends(get_api_key)) -> User:
 
     if not user_id:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="API key not associated with a user"
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail="API key not associated with a user"
         )
 
     # Get user from database
@@ -181,7 +189,8 @@ async def get_current_user(api_key: APIKey = Depends(get_api_key)) -> User:
     user = User(id=user_id, username="user", email="user @ example.com")
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="User not found")
 
     return user
 

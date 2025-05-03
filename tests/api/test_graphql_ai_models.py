@@ -158,7 +158,8 @@ class TestAIModelsGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -294,7 +295,8 @@ class TestAIModelsGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -356,7 +358,8 @@ class TestAIModelsGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)

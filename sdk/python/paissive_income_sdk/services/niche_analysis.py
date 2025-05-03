@@ -91,5 +91,6 @@ class NicheAnalysisService(BaseService):
             Comparison results
         """
         return self._post(
-            "niche - analysis / opportunities / compare", {"opportunity_ids": opportunity_ids}
+            "niche - analysis / opportunities / compare", 
+                {"opportunity_ids": opportunity_ids}
         )

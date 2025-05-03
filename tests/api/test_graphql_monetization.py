@@ -240,7 +240,8 @@ class TestMonetizationGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": query, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": query, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -257,7 +258,8 @@ class TestMonetizationGraphQLAPI:
                 validate_field_type(projections["periods"], list)
                 validate_field_exists(projections, "summary")
 
-    def test_create_monetization_strategy_mutation(self, api_test_client: APITestClient):
+    def test_create_monetization_strategy_mutation(self, 
+        api_test_client: APITestClient):
         """Test creating a monetization strategy using GraphQL mutation."""
         # Generate test data
         test_data = generate_monetization_strategy_data()
@@ -301,7 +303,8 @@ class TestMonetizationGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -325,7 +328,8 @@ class TestMonetizationGraphQLAPI:
                 validate_field_exists(strategy, "createdAt")
                 validate_field_exists(strategy, "updatedAt")
 
-    def test_update_monetization_strategy_mutation(self, api_test_client: APITestClient):
+    def test_update_monetization_strategy_mutation(self, 
+        api_test_client: APITestClient):
         """Test updating a monetization strategy using GraphQL mutation."""
         # Generate test data
         strategy_id = generate_id()
@@ -371,7 +375,8 @@ class TestMonetizationGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -397,7 +402,8 @@ class TestMonetizationGraphQLAPI:
                 validate_field_exists(strategy, "createdAt")
                 validate_field_exists(strategy, "updatedAt")
 
-    def test_delete_monetization_strategy_mutation(self, api_test_client: APITestClient):
+    def test_delete_monetization_strategy_mutation(self, 
+        api_test_client: APITestClient):
         """Test deleting a monetization strategy using GraphQL mutation."""
         # Generate a random ID
         strategy_id = generate_id()
@@ -476,12 +482,14 @@ class TestMonetizationGraphQLAPI:
             "input": {
                 "strategyId": strategy_id,
                 "optimizationGoal": "MAXIMIZE_REVENUE",
-                "constraints": {"minPrice": 5.0, "maxPrice": 100.0, "maxPriceChange": 25},
+                "constraints": {"minPrice": 5.0, "maxPrice": 100.0, 
+                    "maxPriceChange": 25},
             }
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)

@@ -83,10 +83,12 @@ class MockPaymentGateway:
     def record_call(self, method_name: str, **kwargs):
         """Record a method call for testing assertions."""
         self.call_history.append(
-            {"method": method_name, "timestamp": datetime.now().isoformat(), "args": kwargs}
+            {"method": method_name, "timestamp": datetime.now().isoformat(), 
+                "args": kwargs}
         )
 
-    def get_call_history(self, method_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_call_history(self, method_name: Optional[str] = None) -> List[Dict[str, 
+        Any]]:
         """Get the call history, optionally filtered by method name."""
         if method_name:
             return [call for call in self.call_history if call["method"] == method_name]
@@ -153,7 +155,8 @@ class MockPaymentGateway:
             return "mastercard"
         elif card_number.startswith(("34", "37")):
             return "amex"
-        elif card_number.startswith(("6011", "644", "645", "646", "647", "648", "649", "65")):
+        elif card_number.startswith(("6011", "644", "645", "646", "647", "648", "649", 
+            "65")):
             return "discover"
         else:
             return "unknown"
@@ -180,7 +183,8 @@ class MockPaymentGateway:
             return card_number[:4] + "X" * (len(card_number) - 8) + card_number[-4:]
 
     def create_customer(
-        self, email: str, name: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None
+        self, email: str, name: Optional[str] = None, metadata: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Create a new customer.
@@ -259,7 +263,8 @@ class MockPaymentGateway:
             Updated customer object
         """
         self.record_call(
-            "update_customer", customer_id=customer_id, email=email, name=name, metadata=metadata
+            "update_customer", customer_id=customer_id, email=email, name=name, 
+                metadata=metadata
         )
 
         # Check if a network error should be simulated
@@ -287,7 +292,8 @@ class MockPaymentGateway:
 
         return copy.deepcopy(customer)
 
-    def list_customers(self, email: Optional[str] = None, limit: int = 100) -> List[Dict[str, Any]]:
+    def list_customers(self, email: Optional[str] = None, 
+        limit: int = 100) -> List[Dict[str, Any]]:
         """
         List customers with optional filtering.
 
@@ -342,7 +348,8 @@ class MockPaymentGateway:
 
         # Check if customer has active subscriptions
         for subscription in self.subscriptions.values():
-            if subscription["customer_id"] == customer_id and subscription["status"] == "active":
+            if subscription["customer_id"] == \
+                customer_id and subscription["status"] == "active":
                 raise ValueError(f"Cannot delete customer with active subscriptions")
 
         # Delete customer
@@ -507,7 +514,8 @@ class MockPaymentGateway:
         Returns:
             List of payment method objects
         """
-        self.record_call("list_payment_methods", customer_id=customer_id, payment_type=payment_type)
+        self.record_call("list_payment_methods", customer_id=customer_id, 
+            payment_type=payment_type)
 
         # Check if a network error should be simulated
         if self._simulate_network_error():
@@ -559,7 +567,8 @@ class MockPaymentGateway:
                 subscription["payment_method_id"] == payment_method_id
                 and subscription["status"] == "active"
             ):
-                raise ValueError(f"Cannot delete payment method being used in active subscription")
+                raise ValueError(
+                    f"Cannot delete payment method being used in active subscription")
 
         # Delete payment method
         del self.payment_methods[payment_method_id]
@@ -635,7 +644,8 @@ class MockPaymentGateway:
             "metadata": metadata or {},
             "status": PaymentStatus.SUCCEEDED if success else PaymentStatus.FAILED,
             "error": (
-                None if success else {"code": "card_declined", "message": "Your card was declined."}
+                None if success else {"code": "card_declined", 
+                    "message": "Your card was declined."}
             ),
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),
@@ -747,7 +757,8 @@ class MockPaymentGateway:
         return copy.deepcopy(filtered_payments)
 
     def refund_payment(
-        self, payment_id: str, amount: Optional[float] = None, reason: Optional[str] = None
+        self, payment_id: str, amount: Optional[float] = None, 
+            reason: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Refund a payment.
@@ -760,7 +771,8 @@ class MockPaymentGateway:
         Returns:
             Refund object
         """
-        self.record_call("refund_payment", payment_id=payment_id, amount=amount, reason=reason)
+        self.record_call("refund_payment", payment_id=payment_id, amount=amount, 
+            reason=reason)
 
         # Check if a network error should be simulated
         if self._simulate_network_error():
@@ -801,7 +813,8 @@ class MockPaymentGateway:
             "error": (
                 None
                 if success
-                else {"code": "refund_failed", "message": "The refund could not be processed."}
+                else {"code": "refund_failed", 
+                    "message": "The refund could not be processed."}
             ),
             "created_at": datetime.now().isoformat(),
         }
@@ -929,7 +942,8 @@ class MockPaymentGateway:
         valid_intervals = ["day", "week", "month", "year"]
         if interval not in valid_intervals:
             raise ValueError(
-                f"Invalid interval: {interval}. Must be one of: {', '.join(valid_intervals)}"
+                f"Invalid interval: {interval}. Must be one of: {', 
+                    '.join(valid_intervals)}"
             )
 
         # Generate plan ID
@@ -1172,7 +1186,8 @@ class MockPaymentGateway:
 
         # Check if subscription is active
         if subscription["status"] not in ["active", "trialing", "past_due"]:
-            raise ValueError(f"Cannot update subscription with status: {subscription['status']}")
+            raise ValueError(
+                f"Cannot update subscription with status: {subscription['status']}")
 
         # Update plan if provided
         if plan_id is not None:
@@ -1251,7 +1266,8 @@ class MockPaymentGateway:
 
         # Check if subscription is active or trialing
         if subscription["status"] not in ["active", "trialing", "past_due"]:
-            raise ValueError(f"Cannot cancel subscription with status: {subscription['status']}")
+            raise ValueError(
+                f"Cannot cancel subscription with status: {subscription['status']}")
 
         # Update subscription
         subscription["canceled_at"] = datetime.now().isoformat()
@@ -1290,7 +1306,8 @@ class MockPaymentGateway:
         subscription = self.subscriptions[subscription_id]
 
         # Check if subscription can be resumed
-        if subscription["status"] != "canceled" and not subscription["cancel_at_period_end"]:
+        if subscription["status"] != \
+            "canceled" and not subscription["cancel_at_period_end"]:
             raise ValueError(f"Subscription is not canceled: {subscription['status']}")
 
         # Update subscription
@@ -1312,7 +1329,8 @@ class MockPaymentGateway:
             days = interval_days.get(plan["interval"], 30)
 
             subscription["current_period_start"] = now.isoformat()
-            subscription["current_period_end"] = (now + timedelta(days=days)).isoformat()
+            subscription["current_period_end"] = (now + \
+                timedelta(days=days)).isoformat()
 
         # Clear cancellation
         subscription["cancel_at_period_end"] = False
@@ -1391,7 +1409,8 @@ class MockStripeGateway(MockPaymentGateway):
         self.gateway_name = "stripe"
         self.api_version = "2023 - 10 - 16"
 
-    def create_token(self, payment_type: str, payment_details: Dict[str, Any]) -> Dict[str, Any]:
+    def create_token(self, payment_type: str, payment_details: Dict[str, 
+        Any]) -> Dict[str, Any]:
         """
         Create a payment token.
 
@@ -1402,7 +1421,8 @@ class MockStripeGateway(MockPaymentGateway):
         Returns:
             Token object
         """
-        self.record_call("create_token", payment_type=payment_type, payment_details=payment_details)
+        self.record_call("create_token", payment_type=payment_type, 
+            payment_details=payment_details)
 
         # Check if a network error should be simulated
         if self._simulate_network_error():

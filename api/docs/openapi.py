@@ -24,7 +24,8 @@ except ImportError:
     FASTAPI_AVAILABLE = False
 
 
-def get_openapi_schema(app: Any, title: str, version: str, description: str) -> Dict[str, Any]:
+def get_openapi_schema(app: Any, title: str, version: str, description: str) -> Dict[str, 
+    Any]:
     """
     Get the OpenAPI schema for the API server.
 

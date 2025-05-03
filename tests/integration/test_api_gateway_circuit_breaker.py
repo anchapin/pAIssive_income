@@ -13,7 +13,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-from services.gateway import APIGateway, AuthManager, GatewayConfig, RateLimiter, RouteManager
+from services.gateway import APIGateway, AuthManager, GatewayConfig, RateLimiter, 
+    RouteManager
 from services.resilience import (
     CircuitBreaker,
     CircuitBreakerConfig,
@@ -84,15 +85,18 @@ class TestAPIGatewayCircuitBreaker:
         # Register fallback handlers
         self.fallback_handler.register_fallback(
             "user - service",
-            lambda error: {"status": "fallback", "service": "user - service", "error": str(error)},
+            lambda error: {"status": "fallback", "service": "user - service", 
+                "error": str(error)},
         )
         self.fallback_handler.register_fallback(
             "order - service",
-            lambda error: {"status": "fallback", "service": "order - service", "error": str(error)},
+            lambda error: {"status": "fallback", "service": "order - service", 
+                "error": str(error)},
         )
         self.fallback_handler.register_fallback(
             "product - service",
-            lambda error: {"status": "fallback", "service": "product - service", "error": str(error)},
+            lambda error: {"status": "fallback", "service": "product - service", 
+                "error": str(error)},
         )
 
         # Start gateway in test mode
@@ -106,8 +110,10 @@ class TestAPIGatewayCircuitBreaker:
         """Test integration of API gateway with circuit breaker."""
         # Mock service responses
         service_responses = {
-            "user - service": {"status": 200, "data": {"users": [{"id": 1, "name": "Test User"}]}},
-            "order - service": {"status": 200, "data": {"orders": [{"id": 1, "user_id": 1}]}},
+            "user - service": {"status": 200, "data": {"users": [{"id": 1, 
+                "name": "Test User"}]}},
+            "order - service": {"status": 200, "data": {"orders": [{"id": 1, 
+                "user_id": 1}]}},
             "product - service": {
                 "status": 200,
                 "data": {"products": [{"id": 1, "name": "Test Product"}]},
@@ -115,7 +121,8 @@ class TestAPIGatewayCircuitBreaker:
         }
 
         # Mock service failures
-        service_failures = {"user - service": False, "order - service": False, "product - service": False}
+        service_failures = {"user - service": False, "order - service": False, 
+            "product - service": False}
 
         # Mock forward request method
         def mock_forward_request(request_data):
@@ -133,7 +140,8 @@ class TestAPIGatewayCircuitBreaker:
 
         # Patch the forward request method
         with patch(
-            "services.gateway.APIGateway._forward_request", side_effect=mock_forward_request
+            "services.gateway.APIGateway._forward_request", 
+                side_effect=mock_forward_request
         ):
             # Test successful requests
             response = requests.get("http://localhost:8000 / api / users", timeout=30)
@@ -155,7 +163,8 @@ class TestAPIGatewayCircuitBreaker:
                 try:
                     # Execute request through circuit breaker
                     return self.circuit_breaker.execute_with_fallback(
-                        service, lambda: mock_forward_request(request_data), self.fallback_handler
+                        service, lambda: mock_forward_request(request_data), 
+                            self.fallback_handler
                     )
                 except Exception as e:
                     # If circuit breaker fails, return error response
@@ -163,28 +172,34 @@ class TestAPIGatewayCircuitBreaker:
 
             # Replace the forward method with circuit - wrapped version
             with patch(
-                "services.gateway.APIGateway._forward_request", side_effect=circuit_wrapped_forward
+                "services.gateway.APIGateway._forward_request", 
+                    side_effect=circuit_wrapped_forward
             ):
                 # First few requests should fail but not trip the circuit
                 for _ in range(2):
-                    response = requests.get("http://localhost:8000 / api / users", timeout=30)
+                    response = requests.get("http://localhost:8000 / api / users", 
+                        timeout=30)
                     assert response.status_code in (503, 500)
 
                 # Next request should trip the circuit
-                response = requests.get("http://localhost:8000 / api / users", timeout=30)
+                response = requests.get("http://localhost:8000 / api / users", 
+                    timeout=30)
                 assert response.status_code in (503, 500)
 
                 # Verify circuit is open for user - service
-                assert self.circuit_breaker.get_state("user - service") == CircuitState.OPEN
+                assert self.circuit_breaker.get_state("user - \
+                    service") == CircuitState.OPEN
 
                 # Subsequent requests should use fallback
-                response = requests.get("http://localhost:8000 / api / users", timeout=30)
+                response = requests.get("http://localhost:8000 / api / users", 
+                    timeout=30)
                 assert response.status_code == 200
                 assert response.json()["status"] == "fallback"
                 assert response.json()["service"] == "user - service"
 
                 # Other services should still work
-                response = requests.get("http://localhost:8000 / api / orders", timeout=30)
+                response = requests.get("http://localhost:8000 / api / orders", 
+                    timeout=30)
                 assert response.status_code == 200
                 assert "orders" in response.json()
 
@@ -195,26 +210,32 @@ class TestAPIGatewayCircuitBreaker:
                 time.sleep(self.circuit_config.reset_timeout)
 
                 # Circuit should be half - open now
-                assert self.circuit_breaker.get_state("user - service") == CircuitState.HALF_OPEN
+                assert self.circuit_breaker.get_state("user - \
+                    service") == CircuitState.HALF_OPEN
 
                 # Next request should succeed and close the circuit
-                response = requests.get("http://localhost:8000 / api / users", timeout=30)
+                response = requests.get("http://localhost:8000 / api / users", 
+                    timeout=30)
                 assert response.status_code == 200
                 assert "users" in response.json()
 
                 # One more successful request to fully close the circuit
-                response = requests.get("http://localhost:8000 / api / users", timeout=30)
+                response = requests.get("http://localhost:8000 / api / users", 
+                    timeout=30)
                 assert response.status_code == 200
 
                 # Circuit should be closed now
-                assert self.circuit_breaker.get_state("user - service") == CircuitState.CLOSED
+                assert self.circuit_breaker.get_state("user - \
+                    service") == CircuitState.CLOSED
 
     def test_multiple_service_failures(self):
         """Test handling multiple service failures simultaneously."""
         # Mock service responses
         service_responses = {
-            "user - service": {"status": 200, "data": {"users": [{"id": 1, "name": "Test User"}]}},
-            "order - service": {"status": 200, "data": {"orders": [{"id": 1, "user_id": 1}]}},
+            "user - service": {"status": 200, "data": {"users": [{"id": 1, 
+                "name": "Test User"}]}},
+            "order - service": {"status": 200, "data": {"orders": [{"id": 1, 
+                "user_id": 1}]}},
             "product - service": {
                 "status": 200,
                 "data": {"products": [{"id": 1, "name": "Test Product"}]},
@@ -222,7 +243,8 @@ class TestAPIGatewayCircuitBreaker:
         }
 
         # All services start as healthy
-        service_failures = {"user - service": False, "order - service": False, "product - service": False}
+        service_failures = {"user - service": False, "order - service": False, 
+            "product - service": False}
 
         # Mock forward request method
         def mock_forward_request(request_data):
@@ -246,7 +268,8 @@ class TestAPIGatewayCircuitBreaker:
             try:
                 # Execute request through circuit breaker
                 return self.circuit_breaker.execute_with_fallback(
-                    service, lambda: mock_forward_request(request_data), self.fallback_handler
+                    service, lambda: mock_forward_request(request_data), 
+                        self.fallback_handler
                 )
             except Exception as e:
                 # If circuit breaker fails, return error response
@@ -254,7 +277,8 @@ class TestAPIGatewayCircuitBreaker:
 
         # Patch the forward request method
         with patch(
-            "services.gateway.APIGateway._forward_request", side_effect=circuit_wrapped_forward
+            "services.gateway.APIGateway._forward_request", 
+                side_effect=circuit_wrapped_forward
         ):
             # Make multiple services fail
             service_failures["user - service"] = True
@@ -267,7 +291,8 @@ class TestAPIGatewayCircuitBreaker:
 
             # Verify circuits are open
             assert self.circuit_breaker.get_state("user - service") == CircuitState.OPEN
-            assert self.circuit_breaker.get_state("order - service") == CircuitState.OPEN
+            assert self.circuit_breaker.get_state("order - \
+                service") == CircuitState.OPEN
 
             # Verify fallbacks are used
             response = requests.get("http://localhost:8000 / api / users", timeout=30)
@@ -281,7 +306,8 @@ class TestAPIGatewayCircuitBreaker:
             assert response.json()["service"] == "order - service"
 
             # Product service should still work
-            response = requests.get("http://localhost:8000 / api / products", timeout=30)
+            response = requests.get("http://localhost:8000 / api / products", 
+                timeout=30)
             assert response.status_code == 200
             assert "products" in response.json()
 
@@ -313,8 +339,10 @@ class TestAPIGatewayCircuitBreaker:
             assert "orders" in response.json()
 
             # All services should be working now
-            assert self.circuit_breaker.get_state("user - service") == CircuitState.CLOSED
-            assert self.circuit_breaker.get_state("order - service") == CircuitState.CLOSED
+            assert self.circuit_breaker.get_state("user - \
+                service") == CircuitState.CLOSED
+            assert self.circuit_breaker.get_state("order - \
+                service") == CircuitState.CLOSED
 
     def test_partial_failures(self):
         """Test handling partial failures in services."""
@@ -324,11 +352,14 @@ class TestAPIGatewayCircuitBreaker:
             """Mock product service with occasional failures."""
             # Fail every third request
             if getattr(mock_product_service, "counter", 0) % 3 == 0:
-                mock_product_service.counter = getattr(mock_product_service, "counter", 0) + 1
+                mock_product_service.counter = getattr(mock_product_service, "counter", 
+                    0) + 1
                 raise ConnectionError("Service temporarily unavailable")
 
-            mock_product_service.counter = getattr(mock_product_service, "counter", 0) + 1
-            return {"status": 200, "data": {"products": [{"id": 1, "name": "Test Product"}]}}
+            mock_product_service.counter = getattr(mock_product_service, "counter", 
+                0) + 1
+            return {"status": 200, "data": {"products": [{"id": 1, 
+                "name": "Test Product"}]}}
 
         # Mock forward request method
         def mock_forward_request(request_data):
@@ -349,7 +380,8 @@ class TestAPIGatewayCircuitBreaker:
             try:
                 # Execute request through circuit breaker
                 return self.circuit_breaker.execute_with_fallback(
-                    service, lambda: mock_forward_request(request_data), self.fallback_handler
+                    service, lambda: mock_forward_request(request_data), 
+                        self.fallback_handler
                 )
             except Exception as e:
                 # If circuit breaker fails, return error response
@@ -357,7 +389,8 @@ class TestAPIGatewayCircuitBreaker:
 
         # Patch the forward request method
         with patch(
-            "services.gateway.APIGateway._forward_request", side_effect=circuit_wrapped_forward
+            "services.gateway.APIGateway._forward_request", 
+                side_effect=circuit_wrapped_forward
         ):
             # Configure circuit breaker for higher threshold
             self.circuit_breaker = CircuitBreaker(
@@ -373,13 +406,15 @@ class TestAPIGatewayCircuitBreaker:
             # Make several requests to product service
             responses = []
             for _ in range(10):
-                response = requests.get("http://localhost:8000 / api / products", timeout=30)
+                response = requests.get("http://localhost:8000 / api / products", 
+                    timeout=30)
                 responses.append(response.status_code)
 
             # Some requests should fail, but circuit should stay closed
             assert 503 in responses or 500 in responses
             assert 200 in responses
-            assert self.circuit_breaker.get_state("product - service") != CircuitState.OPEN
+            assert self.circuit_breaker.get_state("product - \
+                service") != CircuitState.OPEN
 
             # Get circuit breaker metrics
             metrics = self.circuit_breaker.get_metrics("product - service")
@@ -404,10 +439,12 @@ class TestAPIGatewayCircuitBreaker:
                 requests.get("http://localhost:8000 / api / products", timeout=30)
 
             # Circuit should be open now
-            assert self.circuit_breaker.get_state("product - service") == CircuitState.OPEN
+            assert self.circuit_breaker.get_state("product - \
+                service") == CircuitState.OPEN
 
             # Requests should use fallback
-            response = requests.get("http://localhost:8000 / api / products", timeout=30)
+            response = requests.get("http://localhost:8000 / api / products", 
+                timeout=30)
             assert response.status_code == 200
             assert response.json()["status"] == "fallback"
             assert response.json()["service"] == "product - service"

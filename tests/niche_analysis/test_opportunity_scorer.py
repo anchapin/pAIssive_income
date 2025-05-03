@@ -126,7 +126,8 @@ def test_score_problem_severity():
     ]
 
     # Test different problem severities
-    assert scorer._score_problem_severity(high_severity_problems) > scorer._score_problem_severity(
+    assert scorer._score_problem_severity(
+        high_severity_problems) > scorer._score_problem_severity(
         medium_severity_problems
     )
     assert scorer._score_problem_severity(
@@ -151,7 +152,8 @@ def test_score_solution_feasibility():
 
     # Test different niches
     assert 0 <= scorer._score_solution_feasibility("inventory management", []) <= 1
-    assert 0 <= scorer._score_solution_feasibility("product description generation", []) <= 1
+    assert 0 <= scorer._score_solution_feasibility("product description generation", 
+        []) <= 1
     assert 0 <= scorer._score_solution_feasibility("unknown niche", []) <= 1
 
 
@@ -172,7 +174,8 @@ def test_score_monetization_potential():
     # Test different niches
     assert (
         0
-        <= scorer._score_monetization_potential("inventory management", market_data, problems)
+        <= scorer._score_monetization_potential("inventory management", market_data, 
+            problems)
         <= 1
     )
     assert (
@@ -182,7 +185,8 @@ def test_score_monetization_potential():
         )
         <= 1
     )
-    assert 0 <= scorer._score_monetization_potential("unknown niche", market_data, problems) <= 1
+    assert 0 <= scorer._score_monetization_potential("unknown niche", market_data, 
+        problems) <= 1
 
 
 def test_compare_opportunities():

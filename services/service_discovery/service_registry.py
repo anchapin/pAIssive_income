@@ -119,7 +119,8 @@ class ServiceRegistry(abc.ABC):
         Get all registered services.
 
         Returns:
-            Dict[str, List[ServiceInstance]]: A dictionary mapping service names to lists of instances
+            Dict[str, 
+                List[ServiceInstance]]: A dictionary mapping service names to lists of instances
 
         Raises:
             ServiceLookupError: If lookup fails

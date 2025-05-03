@@ -10,7 +10,8 @@ import os
 import sys
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models.serving import (
     CloudConfig,
@@ -33,7 +34,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def test_rest_server(model_path: str, host: str = "127.0.0.1", port: int = 8000) -> None:
+def test_rest_server(model_path: str, host: str = "127.0.0.1", 
+    port: int = 8000) -> None:
     """
     Test the REST API server.
 
@@ -84,7 +86,8 @@ def test_rest_server(model_path: str, host: str = "127.0.0.1", port: int = 8000)
         print(f"Error running REST API server: {e}")
 
 
-def test_grpc_server(model_path: str, host: str = "127.0.0.1", port: int = 50051) -> None:
+def test_grpc_server(model_path: str, host: str = "127.0.0.1", 
+    port: int = 50051) -> None:
     """
     Test the gRPC server.
 
@@ -303,7 +306,8 @@ def test_cloud_deployment(
             model_path=model_path,
             model_type="text - generation",
             instance_type=(
-                "ml.m5.large" if cloud_provider == CloudProvider.AWS else "n1 - standard - 2"
+                "ml.m5.large" if cloud_provider == CloudProvider.AWS else "n1 - \
+                    standard - 2"
             ),
             cpu_count=2,
             memory_gb=8,
@@ -336,7 +340,8 @@ def main():
     Main function to demonstrate the serving utilities.
     """
     parser = argparse.ArgumentParser(description="Test serving utilities")
-    parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
+    parser.add_argument("--model - path", type=str, required=True, 
+        help="Path to the model")
     parser.add_argument(
         "--output - dir",
         type=str,
@@ -350,8 +355,10 @@ def main():
         default="none",
         help="Server to run",
     )
-    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind the server to")
-    parser.add_argument("--port", type=int, default=None, help="Port to bind the server to")
+    parser.add_argument("--host", type=str, default="127.0.0.1", 
+        help="Host to bind the server to")
+    parser.add_argument("--port", type=int, default=None, 
+        help="Port to bind the server to")
     parser.add_argument(
         "--deployment",
         type=str,
@@ -367,9 +374,11 @@ def main():
 
     # Run server if requested
     if args.server == "rest":
-        test_rest_server(model_path=args.model_path, host=args.host, port=args.port or 8000)
+        test_rest_server(model_path=args.model_path, host=args.host, 
+            port=args.port or 8000)
     elif args.server == "grpc":
-        test_grpc_server(model_path=args.model_path, host=args.host, port=args.port or 50051)
+        test_grpc_server(model_path=args.model_path, host=args.host, 
+            port=args.port or 50051)
 
     # Generate deployment configuration if requested
     if args.deployment == "docker":

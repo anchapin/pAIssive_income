@@ -17,7 +17,8 @@ class MemoryCache(CacheBackend):
     In - memory cache backend.
     """
 
-    def __init__(self, max_size: Optional[int] = None, eviction_policy: str = "lru", **kwargs):
+    def __init__(self, max_size: Optional[int] = None, eviction_policy: str = "lru", 
+        **kwargs):
         """
         Initialize the memory cache.
 
@@ -67,7 +68,8 @@ class MemoryCache(CacheBackend):
                     return None
 
                 # Update access count and last access time BEFORE returning
-                self.cache[key] = (value, expiration_time, access_count + 1, current_time)
+                self.cache[key] = (value, expiration_time, access_count + 1, 
+                    current_time)
 
                 self.stats["hits"] += 1
                 return value
@@ -203,7 +205,8 @@ class MemoryCache(CacheBackend):
                 regex = re.compile(pattern)
                 return [key for key in self.cache.keys() if regex.match(key)]
             except re.error:  # If pattern is invalid, treat as literal prefix
-                return [key for key in self.cache.keys() if key.startswith(pattern.rstrip("^$"))]
+                return [key for key in self.cache.keys(
+                    ) if key.startswith(pattern.rstrip("^$"))]
 
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -279,7 +282,8 @@ class MemoryCache(CacheBackend):
         current_time = time.time()
 
         # Filter out expired items first
-        valid_items = [(k, v) for k, v in self.cache.items() if v[1] is None or v[1] > current_time]
+        valid_items = [(k, v) for k, 
+            v in self.cache.items() if v[1] is None or v[1] > current_time]
 
         if not valid_items:
             return
@@ -294,7 +298,8 @@ class MemoryCache(CacheBackend):
                 # Find least frequently used item, using access time as tiebreaker
                 key_to_evict = min(
                     valid_items,
-                    key=lambda x: (x[1][2], -x[1][3]),  # (access_count, -last_access_time)
+                    key=lambda x: (x[1][2], -x[1][3]),  # (access_count, 
+                        -last_access_time)
                 )[0]
             elif self.eviction_policy == "fifo":
                 # First in first out - take the first non - expired item

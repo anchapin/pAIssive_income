@@ -63,7 +63,8 @@ class TestGraphQLAPI:
         variables = {"id": generate_id()}
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": query, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": query, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -116,7 +117,8 @@ class TestGraphQLAPI:
         variables = {"id": generate_id()}
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": query, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": query, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -167,13 +169,15 @@ class TestGraphQLAPI:
                 "endDate": "2025 - 05 - 31",
                 "channels": ["SOCIAL_MEDIA", "EMAIL"],
                 "targetAudience": {
-                    "demographics": {"ageRanges": ["25_34", "35_44"], "locations": ["US", "UK"]}
+                    "demographics": {"ageRanges": ["25_34", "35_44"], "locations": ["US", 
+                        "UK"]}
                 },
             }
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -419,12 +423,14 @@ class TestGraphQLAPI:
                     }
                 ],
                 "goals": [
-                    {"metric": "engagement_rate", "targetValue": 0.05, "timeframe": "monthly"}
+                    {"metric": "engagement_rate", "targetValue": 0.05, 
+                        "timeframe": "monthly"}
                 ],
             }
         }
 
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
         result = validate_json_response(response)
 
         # Validate response structure
@@ -565,7 +571,8 @@ class TestGraphQLAPI:
                 "query": mutation,
                 "variables": {
                     "id": "non - existent - id",
-                    "input": {"name": "Test Strategy", "description": "Test description"},
+                    "input": {"name": "Test Strategy", 
+                        "description": "Test description"},
                 },
             },
         )

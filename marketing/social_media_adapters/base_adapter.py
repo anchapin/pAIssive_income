@@ -18,7 +18,8 @@ class BaseSocialMediaAdapter(ABC):
     Base class for social media platform adapters.
 
     This class defines the interface that all social media platform adapters must implement.
-    It provides methods for authenticating with platforms, posting content, retrieving analytics,
+    It provides methods for authenticating with platforms, posting content, 
+        retrieving analytics,
     and managing social media campaigns.
     """
 
@@ -180,7 +181,8 @@ class BaseSocialMediaAdapter(ABC):
 
     @abstractmethod
     def get_audience_insights(
-        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, Any]] = None
+        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Get audience insights from the platform.

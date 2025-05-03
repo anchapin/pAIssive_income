@@ -141,7 +141,8 @@ class Quantizer(abc.ABC):
         self.config = config
 
     @abc.abstractmethod
-    def quantize(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
+    def quantize(self, model_path: str, output_path: Optional[str] = None, 
+        **kwargs) -> str:
         """
         Quantize a model.
 

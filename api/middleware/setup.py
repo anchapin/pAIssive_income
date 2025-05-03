@@ -28,7 +28,8 @@ except ImportError:
     FASTAPI_AVAILABLE = False
 
 
-def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManager = None) -> None:
+def setup_middleware(app: Any, config: APIConfig, 
+    version_manager: VersionManager = None) -> None:
     """
     Set up middleware for the API server.
 
@@ -90,16 +91,20 @@ def setup_middleware(app: Any, config: APIConfig, version_manager: VersionManage
             "opportunity_score",
             "created_at",
         ],
-        " / api / v1 / monetization / subscription - models": ["name", "type", "created_at"],
-        " / api / v1 / marketing / campaigns": ["name", "status", "start_date", "end_date"],
+        " / api / v1 / monetization / subscription - models": ["name", "type", 
+            "created_at"],
+        " / api / v1 / marketing / campaigns": ["name", "status", "start_date", 
+            "end_date"],
         " / api / v1 / ai - models / models": ["name", "type", "size", "created_at"],
         " / api / v1 / agent - team / agents": ["name", "role", "status", "created_at"],
         " / api / v1 / users": ["username", "email", "created_at", "last_login"],
     }
 
     allowed_filter_fields = {
-        " / api / v1 / niche - analysis / niches": ["name", "market_segment", "opportunity_score"],
-        " / api / v1 / monetization / subscription - models": ["name", "type", "solution_id"],
+        " / api / v1 / niche - analysis / niches": ["name", "market_segment", 
+            "opportunity_score"],
+        " / api / v1 / monetization / subscription - models": ["name", "type", 
+            "solution_id"],
         " / api / v1 / marketing / campaigns": ["name", "status", "channel"],
         " / api / v1 / ai - models / models": ["name", "type", "provider"],
         " / api / v1 / agent - team / agents": ["name", "role", "status"],

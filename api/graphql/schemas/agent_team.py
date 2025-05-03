@@ -121,6 +121,7 @@ if STRAWBERRY_AVAILABLE:
                     role=profile.role,
                     capabilities=profile.capabilities,
                     ai_model_id=str(profile.ai_model_id) if profile.ai_model_id else None,
+                        
                     parameters=profile.parameters,
                 )
                 for profile in profiles
@@ -152,6 +153,7 @@ if STRAWBERRY_AVAILABLE:
                             role=agent.role,
                             capabilities=agent.capabilities,
                             ai_model_id=str(agent.ai_model_id) if agent.ai_model_id else None,
+                                
                             parameters=agent.parameters,
                         )
                         for agent in team.agents
@@ -193,6 +195,7 @@ if STRAWBERRY_AVAILABLE:
                         role=agent.role,
                         capabilities=agent.capabilities,
                         ai_model_id=str(agent.ai_model_id) if agent.ai_model_id else None,
+                            
                         parameters=agent.parameters,
                     )
                     for agent in team.agents
@@ -241,7 +244,8 @@ if STRAWBERRY_AVAILABLE:
             ]
 
         @strawberry.field
-        def agent_conversation(self, info: Info, id: strawberry.ID) -> Optional[AgentConversation]:
+        def agent_conversation(self, info: Info, 
+            id: strawberry.ID) -> Optional[AgentConversation]:
             """
             Get a specific agent conversation.
 
@@ -282,7 +286,8 @@ if STRAWBERRY_AVAILABLE:
         """Agent team mutation fields"""
 
         @strawberry.mutation
-        async def create_agent_team(self, info: Info, input: CreateTeamInput) -> AgentTeam:
+        async def create_agent_team(self, info: Info, 
+            input: CreateTeamInput) -> AgentTeam:
             """
             Create a new agent team.
 
@@ -311,7 +316,8 @@ if STRAWBERRY_AVAILABLE:
 
             # Create team
             team = await service.create_team(
-                name=input.name, description=input.description, agent_profiles=agent_profiles
+                name=input.name, description=input.description, 
+                    agent_profiles=agent_profiles
             )
 
             return AgentTeam(
@@ -326,6 +332,7 @@ if STRAWBERRY_AVAILABLE:
                         role=agent.role,
                         capabilities=agent.capabilities,
                         ai_model_id=str(agent.ai_model_id) if agent.ai_model_id else None,
+                            
                         parameters=agent.parameters,
                     )
                     for agent in team.agents

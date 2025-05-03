@@ -8,7 +8,8 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query, Request, 
+    status
 
 from ..middleware.auth import get_api_key, get_current_user
 from ..models.api_key import APIKey
@@ -71,7 +72,8 @@ async def register_webhook(
         user_agent = request.headers.get("user - agent")
 
         webhook = await webhook_service.register_webhook(
-            data.dict(), actor_id=current_user.id, ip_address=client_host, user_agent=user_agent
+            data.dict(), actor_id=current_user.id, ip_address=client_host, 
+                user_agent=user_agent
         )
         return webhook
     except Exception as e:
@@ -119,7 +121,8 @@ async def list_webhooks(
         404: {"model": ErrorResponse, "description": "Webhook not found"},
     },
 )
-async def get_webhook(webhook_id: str = Path(...), current_user: User = Depends(get_current_user)):
+async def get_webhook(webhook_id: str = Path(...), 
+    current_user: User = Depends(get_current_user)):
     """Get webhook details."""
     try:
         webhook = await webhook_service.get_webhook(webhook_id)
@@ -179,7 +182,8 @@ async def update_webhook(
     },
 )
 async def delete_webhook(
-    request: Request, webhook_id: str = Path(...), current_user: User = Depends(get_current_user)
+    request: Request, webhook_id: str = Path(...), 
+        current_user: User = Depends(get_current_user)
 ):
     """Delete a webhook."""
     try:
@@ -188,7 +192,8 @@ async def delete_webhook(
         user_agent = request.headers.get("user - agent")
 
         if await webhook_service.delete_webhook(
-            webhook_id, actor_id=current_user.id, ip_address=client_host, user_agent=user_agent
+            webhook_id, actor_id=current_user.id, ip_address=client_host, 
+                user_agent=user_agent
         ):
             return {"message": "Webhook deleted successfully"}
         raise HTTPException(status_code=404, detail="Webhook not found")

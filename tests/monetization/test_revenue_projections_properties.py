@@ -40,7 +40,8 @@ def tier_distributions(draw):
     percentages = []
     remaining = 1.0
     for i in range(num_tiers - 1):
-        if remaining <= 0.01:  # Ensure we don't try to draw a value smaller than min_value
+        if remaining <= \
+            0.01:  # Ensure we don't try to draw a value smaller than min_value
             percentages.append(0.0)
         else:
             # Make sure we leave at least 0.01 for the last tier
@@ -95,7 +96,8 @@ def test_revenue_projections_properties(
     )
 
     # Project revenue
-    revenue_projections = projector.project_revenue(months=months, growth_rate=growth_rate)
+    revenue_projections = projector.project_revenue(months=months, 
+        growth_rate=growth_rate)
 
     # Property 1: The projections list should have the expected length
     assert len(revenue_projections) == months
@@ -105,7 +107,8 @@ def test_revenue_projections_properties(
 
     # Property 3: Total users should be the sum of free and paid users
     for projection in revenue_projections:
-        assert projection["total_users"] == projection["free_users"] + projection["paid_users"]
+        assert projection["total_users"] == projection["free_users"] + \
+            projection["paid_users"]
 
     # Property 4: Tier users should sum to approximately paid users (or be zero if no paid users)
     for projection in revenue_projections:
@@ -132,7 +135,8 @@ def test_revenue_projections_properties(
 
     # Property 6: Cumulative revenue should increase monotonically
     cumulative_revenues = [p["cumulative_revenue"] for p in revenue_projections]
-    assert all(curr >= prev for prev, curr in zip(cumulative_revenues, cumulative_revenues[1:]))
+    assert all(curr >= prev for prev, curr in zip(cumulative_revenues, 
+        cumulative_revenues[1:]))
 
 
 @given(
@@ -178,7 +182,8 @@ def test_user_projections_properties(
 
     # Property 3: Total users should be the sum of free and paid users
     for projection in user_projections:
-        assert projection["total_users"] == projection["free_users"] + projection["paid_users"]
+        assert projection["total_users"] == projection["free_users"] + \
+            projection["paid_users"]
 
     # Property 4: With positive growth and no churn, user count should increase
     if growth_rate > 0 and churn_rate == 0:
@@ -208,7 +213,8 @@ def test_user_projections_properties(
     tier_dist=tier_distributions(),
 )
 def test_invariant_properties(
-    name, description, initial_users, user_acquisition_rate, conversion_rate, churn_rate, tier_dist
+    name, description, initial_users, user_acquisition_rate, conversion_rate, churn_rate, 
+        tier_dist
 ):
     """Test invariant properties of the RevenueProjector."""
 
@@ -258,7 +264,8 @@ def test_lifetime_value_calculation_properties(average_revenue, churn_rate):
     assert abs(ltv["average_lifetime_months"] - (1 / churn_rate)) < 0.001
 
     # Property 2: Lifetime value should be average_revenue * average_lifetime_months
-    assert abs(ltv["lifetime_value"] - (average_revenue * ltv["average_lifetime_months"])) < 0.001
+    assert abs(ltv["lifetime_value"] - \
+        (average_revenue * ltv["average_lifetime_months"])) < 0.001
 
     # Property 3: One - year value should be at most 12 * average_revenue
     assert ltv["one_year_value"] <= 12 * average_revenue
@@ -272,9 +279,11 @@ def test_lifetime_value_calculation_properties(average_revenue, churn_rate):
 
 
 @given(
-    acquisition_cost=acquisition_costs, average_revenue=average_revenues, gross_margin=gross_margins
+    acquisition_cost=acquisition_costs, average_revenue=average_revenues, 
+        gross_margin=gross_margins
 )
-def test_payback_period_calculation_properties(acquisition_cost, average_revenue, gross_margin):
+def test_payback_period_calculation_properties(acquisition_cost, average_revenue, 
+    gross_margin):
     """Test properties of payback period calculations."""
 
     # Create a RevenueProjector instance with default parameters
@@ -353,14 +362,17 @@ def test_revenue_projection_calculation_properties(
     )
 
     # Add tiers with different prices
-    basic_tier = model.add_tier(name="Basic", description="Basic tier", price_monthly=9.99)
+    basic_tier = model.add_tier(name="Basic", description="Basic tier", 
+        price_monthly=9.99)
 
     pro_tier = model.add_tier(name="Pro", description="Pro tier", price_monthly=19.99)
 
-    premium_tier = model.add_tier(name="Premium", description="Premium tier", price_monthly=49.99)
+    premium_tier = model.add_tier(name="Premium", description="Premium tier", 
+        price_monthly=49.99)
 
     # Project revenue without a model (uses default pricing)
-    revenue_projections_default = projector.project_revenue(months=months, growth_rate=growth_rate)
+    revenue_projections_default = projector.project_revenue(months=months, 
+        growth_rate=growth_rate)
 
     # Project revenue with the model and its default prices
     revenue_projections_model = projector.project_revenue(
@@ -368,10 +380,12 @@ def test_revenue_projection_calculation_properties(
     )
 
     # Project revenue with the model and custom prices
-    custom_prices = {basic_tier["id"]: 14.99, pro_tier["id"]: 29.99, premium_tier["id"]: 59.99}
+    custom_prices = {basic_tier["id"]: 14.99, pro_tier["id"]: 29.99, 
+        premium_tier["id"]: 59.99}
 
     revenue_projections_custom = projector.project_revenue(
-        months=months, growth_rate=growth_rate, subscription_model=model, prices=custom_prices
+        months=months, growth_rate=growth_rate, subscription_model=model, 
+            prices=custom_prices
     )
 
     # Property 1: All projection methods should produce the same number of projections
@@ -392,7 +406,8 @@ def test_revenue_projection_calculation_properties(
         # However, we need to be careful as some tiers might not be used in different projections
         # We'll just check a few projections to see if the trend holds
         found_valid_comparison = False
-        for month in range(min(months, 12)):  # Check first 12 months or all months if fewer
+        for month in range(min(months, 
+            12)):  # Check first 12 months or all months if fewer
             proj_model = revenue_projections_model[month]
             proj_custom = revenue_projections_custom[month]
 
@@ -402,7 +417,8 @@ def test_revenue_projection_calculation_properties(
                 proj_custom["tier_users"].keys()
             )
             if matching_tiers and all(
-                proj_model["tier_users"][t] == proj_custom["tier_users"][t] for t in matching_tiers
+                proj_model["tier_users"][t] == \
+                    proj_custom["tier_users"][t] for t in matching_tiers
             ):
                 found_valid_comparison = True
                 # The custom prices are higher, so revenue should be higher
@@ -423,7 +439,8 @@ def test_revenue_projection_calculation_properties(
     growth_rate=growth_rates,
 )
 def test_revenue_projection_monthly_to_annual_conversion(
-    initial_users, user_acquisition_rate, conversion_rate, churn_rate, months, growth_rate
+    initial_users, user_acquisition_rate, conversion_rate, churn_rate, months, 
+        growth_rate
 ):
     """Test properties of revenue projections when converting monthly to annual revenue."""
 
@@ -441,7 +458,8 @@ def test_revenue_projection_monthly_to_annual_conversion(
     assume(months >= 12)
 
     # Project revenue
-    revenue_projections = projector.project_revenue(months=months, growth_rate=growth_rate)
+    revenue_projections = projector.project_revenue(months=months, 
+        growth_rate=growth_rate)
 
     # Calculate annual revenues from monthly projections
     annual_revenues = []
@@ -477,7 +495,8 @@ def test_revenue_projection_monthly_to_annual_conversion(
             for i in range(len(annual_revenues) - 1)
             if annual_revenues[i + 1] >= annual_revenues[i]
         )
-        assert increasing_pairs >= len(annual_revenues) - 2  # Allow one potential decrease
+        assert increasing_pairs >= len(annual_revenues) - \
+            2  # Allow one potential decrease
 
     # Property 3: Annual revenue should relate to user growth in most cases
     # But with high churn rates, revenue can decrease even with user growth

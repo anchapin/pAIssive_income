@@ -50,7 +50,8 @@ def mock_agent_team():
             {
                 "name": "Enterprise",
                 "price": 299.99,
-                "features": ["Demand forecasting", "Stock optimization", "Supplier management"],
+                "features": ["Demand forecasting", "Stock optimization", 
+                    "Supplier management"],
             },
         ],
     }
@@ -189,7 +190,8 @@ class TestCLIUIIntegration:
             cli_ui.handle_command("list models")
             mock_method.assert_called_once()
 
-    def test_cli_ui_subscription_manager_integration(self, cli_ui, mock_subscription_manager):
+    def test_cli_ui_subscription_manager_integration(self, cli_ui, 
+        mock_subscription_manager):
         """Test CLI UI integration with subscription manager."""
         # Add a command to list subscription models
         with patch.object(
@@ -222,7 +224,8 @@ class TestCLIUIIntegration:
         mock_agent_team.create_marketing_plan.assert_called_once()
 
         # Step 5: Export the complete plan
-        with patch.object(cli_ui, "_handle_export", return_value="Plan exported") as mock_export:
+        with patch.object(cli_ui, "_handle_export", 
+            return_value="Plan exported") as mock_export:
             cli_ui.handle_command("export plan")
             mock_export.assert_called_once()
 

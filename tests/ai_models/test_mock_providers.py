@@ -53,11 +53,13 @@ class TestMockProviders(unittest.TestCase):
         self.assertIsInstance(onnx_provider, MockONNXProvider)
 
         # Test with custom configuration
-        custom_config = {"default_completion": "This is a custom response", "success_rate": 1.0}
+        custom_config = {"default_completion": "This is a custom response", 
+            "success_rate": 1.0}
         custom_provider = create_mock_provider("openai", config=custom_config)
         self.assertEqual(custom_provider.success_rate, 1.0)
         self.assertEqual(
             custom_provider.mock_responses["chat_completion"]["choices"][0]["message"]["content"],
+                
             "This is a custom response",
         )
 
@@ -88,7 +90,8 @@ class TestMockProviders(unittest.TestCase):
         self.assertIn("content", completion["choices"][0]["message"])
 
         # Test creating an embedding
-        embedding = provider.create_embedding("text - embedding - ada - 002", "Hello, world!")
+        embedding = provider.create_embedding("text - embedding - ada - 002", "Hello, 
+            world!")
         self.assertIsInstance(embedding, dict)
         self.assertIn("data", embedding)
         self.assertIn("embedding", embedding["data"][0])
@@ -117,7 +120,8 @@ class TestMockProviders(unittest.TestCase):
         self.assertIsInstance(embeddings, np.ndarray)
 
         # Test with multiple texts for embedding
-        multi_embeddings = provider.embedding("all - MiniLM - L6 - v2", ["Hello", "World"])
+        multi_embeddings = provider.embedding("all - MiniLM - L6 - v2", ["Hello", 
+            "World"])
         self.assertIsInstance(multi_embeddings, np.ndarray)
         self.assertEqual(multi_embeddings.shape[0], 2)  # 2 embeddings
 
@@ -136,18 +140,21 @@ class TestMockProviders(unittest.TestCase):
         provider = MockLocalModelProvider()
 
         # Test completion
-        completion = provider.generate_completion("llama - 2-7b - chat.gguf", "Hello, world!")
+        completion = provider.generate_completion("llama - 2-7b - chat.gguf", "Hello, 
+            world!")
         self.assertIsInstance(completion, dict)
         self.assertIn("text", completion)
 
         # Test chat completion
         messages = [{"role": "user", "content": "Hello, world!"}]
-        chat_completion = provider.generate_chat_completion("llama - 2-7b - chat.gguf", messages)
+        chat_completion = provider.generate_chat_completion("llama - 2-7b - chat.gguf", 
+            messages)
         self.assertIsInstance(chat_completion, dict)
         self.assertIn("text", chat_completion)
 
         # Test with streaming
-        stream = provider.generate_completion("llama - 2-7b - chat.gguf", "Hello", stream=True)
+        stream = provider.generate_completion("llama - 2-7b - chat.gguf", "Hello", 
+            stream=True)
         chunks = list(stream)
         self.assertTrue(len(chunks) > 0)
         self.assertIn("text", chunks[0])

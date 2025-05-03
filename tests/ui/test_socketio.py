@@ -185,7 +185,8 @@ class TestSocketIOIntegration:
             client.get_received()  # Clear initial messages
 
         # Broadcast a message
-        broadcast_data = {"type": "system_update", "message": "System maintenance in 5 minutes"}
+        broadcast_data = {"type": "system_update", 
+            "message": "System maintenance in 5 minutes"}
         mock_socketio.emit("broadcast", broadcast_data)
 
         # Check that all clients received the message
@@ -211,7 +212,8 @@ class TestSocketIOIntegration:
                     "capabilities": ["text", "chat", "embeddings"],
                 },
             },
-            {"name": "resource_usage", "data": {"cpu": 45.2, "memory": 1024.5, "requests": 150}},
+            {"name": "resource_usage", "data": {"cpu": 45.2, "memory": 1024.5, 
+                "requests": 150}},
         ]
 
         # Emit each custom event

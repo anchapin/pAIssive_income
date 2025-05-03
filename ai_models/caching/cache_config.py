@@ -19,14 +19,16 @@ class CacheConfig:
     ttl: Optional[int] = None  # Time to live in seconds (None for no expiration)
     max_size: Optional[int] = None  # Maximum number of items in the cache
     eviction_policy: str = "lru"  # Eviction policy (lru, lfu, fifo)
-    serialization: str = "json"  # Only JSON serialization is supported for security reasons
+    serialization: str = \
+        "json"  # Only JSON serialization is supported for security reasons
 
     # Backend - specific configuration
     backend_config: Dict[str, Any] = field(default_factory=dict)
 
     # Cache filters
     model_filters: List[str] = field(default_factory=list)  # List of model IDs to cache
-    operation_filters: List[str] = field(default_factory=list)  # List of operations to cache
+    operation_filters: List[str] = \
+        field(default_factory=list)  # List of operations to cache
 
     def should_cache(self, model_id: str, operation: str) -> bool:
         """

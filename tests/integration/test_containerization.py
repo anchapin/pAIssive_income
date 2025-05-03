@@ -81,7 +81,8 @@ class TestContainerization:
             container.status = "running"
             container.ports = {f"{config['port']}/tcp": config["port"]}
             container.image = config["image"]
-            container.labels = {"service": service_name, "version": "1.0.0", "environment": "test"}
+            container.labels = {"service": service_name, "version": "1.0.0", 
+                "environment": "test"}
 
             # Add container to mock Docker client
             self.docker_containers[service_name] = container
@@ -151,7 +152,8 @@ class TestContainerization:
             )
 
             # Test starting the container environment
-            result = subprocess.run(["docker - compose", "up", " - d"], capture_output=True, text=True)
+            result = subprocess.run(["docker - compose", "up", " - d"], 
+                capture_output=True, text=True)
             assert result.returncode == 0
 
             # Verify all containers are running
@@ -162,7 +164,8 @@ class TestContainerization:
             # Mock service discovery client
             service_discovery = MagicMock()
             service_discovery.discover_service.return_value = [
-                MagicMock(service_name=service_name, host="localhost", port=config["port"])
+                MagicMock(service_name=service_name, host="localhost", 
+                    port=config["port"])
                 for service_name, config in self.container_config.items()
             ]
 
@@ -173,7 +176,8 @@ class TestContainerization:
                 assert instances[0].service_name == service_name
 
             # Test stopping the container environment
-            result = subprocess.run(["docker - compose", "down"], capture_output=True, text=True)
+            result = subprocess.run(["docker - compose", "down"], capture_output=True, 
+                text=True)
             assert result.returncode == 0
 
             # Verify all containers are stopped
@@ -199,7 +203,8 @@ class TestContainerization:
             # Configure mock to simulate K8s scaling
             apps_api = MagicMock()
             apps_api.patch_namespaced_deployment_scale.side_effect = (
-                lambda name, namespace, body: mock_scale_deployment(name, body.spec.replicas)
+                lambda name, namespace, body: mock_scale_deployment(name, 
+                    body.spec.replicas)
             )
             apps_api.read_namespaced_deployment.side_effect = (
                 lambda name, namespace: self.k8s_deployments.get(name, MagicMock())
@@ -218,7 +223,8 @@ class TestContainerization:
             )
 
             # Verify service was scaled up
-            deployment = apps_api.read_namespaced_deployment(name=service_name, namespace="default")
+            deployment = apps_api.read_namespaced_deployment(name=service_name, 
+                namespace="default")
             assert deployment.spec.replicas == target_replicas
             assert deployment.status.available_replicas == target_replicas
 
@@ -264,14 +270,16 @@ class TestContainerization:
             )
 
             # Verify service was scaled down
-            deployment = apps_api.read_namespaced_deployment(name=service_name, namespace="default")
+            deployment = apps_api.read_namespaced_deployment(name=service_name, 
+                namespace="default")
             assert deployment.spec.replicas == target_replicas
             assert deployment.status.available_replicas == target_replicas
 
     def test_container_health_checks(self):
         """Test container health check functionality."""
         # Mock health check responses
-        health_status = {"api_gateway": True, "user_service": True, "order_service": True}
+        health_status = {"api_gateway": True, "user_service": True, 
+            "order_service": True}
 
         def mock_health_check(service_name):
             """Mock health check for a service."""
@@ -304,7 +312,8 @@ class TestContainerization:
 
                 if service_name and " / health" in url:
                     response = MagicMock()
-                    response.status_code = 200 if health_status.get(service_name, False) else 503
+                    response.status_code = 200 if health_status.get(service_name, 
+                        False) else 503
                     response.json.return_value = mock_health_check(service_name)
                     return response
 

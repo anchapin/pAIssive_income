@@ -57,8 +57,11 @@ def mock_monetization_strategy():
             ],
             "user_personas": {
                 "free_tier": "Small business owners looking for basic inventory management",
+                    
                 "pro_tier": "Growing e - commerce businesses with moderate inventory needs",
+                    
                 "business_tier": "Established businesses with complex inventory requirements",
+                    
             },
         },
         "pricing_strategy": {
@@ -67,8 +70,10 @@ def mock_monetization_strategy():
             "discount_strategy": "annual_discount",
         },
         "revenue_projections": {
-            "year_1": {"total": 250000, "by_tier": {"Free": 0, "Pro": 150000, "Business": 100000}},
-            "year_3": {"total": 1200000, "by_tier": {"Free": 0, "Pro": 500000, "Business": 700000}},
+            "year_1": {"total": 250000, "by_tier": {"Free": 0, "Pro": 150000, 
+                "Business": 100000}},
+            "year_3": {"total": 1200000, "by_tier": {"Free": 0, "Pro": 500000, 
+                "Business": 700000}},
         },
     }
 
@@ -85,6 +90,7 @@ def mock_solution():
                 "id": "feature1",
                 "name": "Demand Forecasting",
                 "description": "Predict future inventory needs based on historical data",
+                    
                 "complexity": "high",
                 "value_proposition": "Save time and reduce stockouts",
             },
@@ -170,7 +176,8 @@ def mock_agents():
 
 @patch("agent_team.team_config.MarketingAgent")
 def test_monetization_to_marketing_workflow(
-    mock_marketing_class, mock_agents, mock_monetization_strategy, mock_solution, mock_niche
+    mock_marketing_class, mock_agents, mock_monetization_strategy, mock_solution, 
+        mock_niche
 ):
     """Test the monetization - to - marketing workflow."""
     # Set up the mock agents
@@ -379,9 +386,12 @@ def test_freemium_model_to_content_strategy_integration(mock_monetization_strate
     assert len(content_generators) == len(tiers)
 
     # Check that content types are appropriate for each tier
-    assert any(ct["name"] == "Blog Posts" for ct in content_generators["Free"].content_types)
-    assert any(ct["name"] == "Case Studies" for ct in content_generators["Pro"].content_types)
-    assert any(ct["name"] == "White Papers" for ct in content_generators["Business"].content_types)
+    assert any(ct["name"] == \
+        "Blog Posts" for ct in content_generators["Free"].content_types)
+    assert any(ct["name"] == \
+        "Case Studies" for ct in content_generators["Pro"].content_types)
+    assert any(ct["name"] == \
+        "White Papers" for ct in content_generators["Business"].content_types)
 
     # Generate sample content for validation
     free_content = content_generators["Free"].generate_content(
@@ -420,7 +430,8 @@ def test_pricing_strategy_to_marketing_message_alignment(mock_monetization_strat
     # For freemium model, emphasize value of free tier and upgrade benefits
     if pricing_strategy["model_type"] == "freemium":
         marketing_messages["free_tier_headline"] = "Start Managing Inventory for Free"
-        marketing_messages["free_tier_value_prop"] = "Get basic inventory forecasting at no cost"
+        marketing_messages["free_tier_value_prop"] = \
+            "Get basic inventory forecasting at no cost"
         marketing_messages["upgrade_message"] = "Unlock Advanced Features with Pro"
 
     # For price anchoring strategy, emphasize most valuable plan
@@ -444,7 +455,8 @@ def test_pricing_strategy_to_marketing_message_alignment(mock_monetization_strat
     # For annual discounts, highlight savings
     if pricing_strategy["discount_strategy"] == "annual_discount":
         marketing_messages["annual_discount_headline"] = "Save 20% with Annual Billing"
-        marketing_messages["annual_discount_message"] = "Commit for a year and get 2 months free"
+        marketing_messages["annual_discount_message"] = \
+            "Commit for a year and get 2 months free"
 
     # Verify that marketing messages align with pricing strategy
     assert "free_tier_headline" in marketing_messages
@@ -477,18 +489,21 @@ def test_revenue_projections_to_marketing_budget_allocation(mock_monetization_st
     tier_allocations_year_1 = {}
     for tier, revenue in revenue_projections["year_1"]["by_tier"].items():
         tier_allocations_year_1[tier] = (
-            (revenue / year_1_revenue) * marketing_budget_year_1 if year_1_revenue > 0 else 0
+            (revenue / year_1_revenue) * \
+                marketing_budget_year_1 if year_1_revenue > 0 else 0
         )
 
     # Create a marketing plan with budget allocation
     marketing_plan = MarketingPlan(
         name="AI Inventory Manager Marketing Plan",
         description="Marketing plan based on monetization strategy and revenue projections",
+            
     )
 
     # Add budget
     marketing_plan.set_budget(
-        total_amount=marketing_budget_year_1, period="annual", allocation_strategy="tier_based"
+        total_amount=marketing_budget_year_1, period="annual", 
+            allocation_strategy="tier_based"
     )
 
     # Add budget allocation for each tier
@@ -497,7 +512,8 @@ def test_revenue_projections_to_marketing_budget_allocation(mock_monetization_st
             tier_name=tier,
             amount=amount,
             focus_areas=(
-                ["acquisition"] if tier == "Free" else ["acquisition", "conversion", "retention"]
+                ["acquisition"] if tier == "Free" else ["acquisition", "conversion", 
+                    "retention"]
             ),
         )
 
@@ -549,22 +565,27 @@ def test_revenue_projections_to_marketing_budget_allocation(mock_monetization_st
             else 0
         )
         actual_proportion = (
-            allocation["amount"] / marketing_budget_year_1 if marketing_budget_year_1 > 0 else 0
+            allocation["amount"] / \
+                marketing_budget_year_1 if marketing_budget_year_1 > 0 else 0
         )
         assert (
             abs(expected_proportion - actual_proportion) < 0.01
         )  # Within 1% margin for floating point comparison
 
     # Verify channel allocations
-    channel_allocation_sum = sum(c["budget_percentage"] for c in marketing_plan.channels)
+    channel_allocation_sum = \
+        sum(c["budget_percentage"] for c in marketing_plan.channels)
     assert abs(channel_allocation_sum - 1.0) < 0.01  # Should sum to approximately 1.0
 
     # Check that channels are targeting appropriate tiers
-    free_tier_channels = [c for c in marketing_plan.channels if "Free" in c["target_tiers"]]
-    business_tier_channels = [c for c in marketing_plan.channels if "Business" in c["target_tiers"]]
+    free_tier_channels = \
+        [c for c in marketing_plan.channels if "Free" in c["target_tiers"]]
+    business_tier_channels = \
+        [c for c in marketing_plan.channels if "Business" in c["target_tiers"]]
 
     assert len(free_tier_channels) >= 2  # Free tier should have at least 2 channels
-    assert len(business_tier_channels) >= 2  # Business tier should have at least 2 channels
+    assert len(business_tier_channels) >= \
+        2  # Business tier should have at least 2 channels
     assert any(
         c["name"] == "Direct Sales" for c in business_tier_channels
     )  # Business tier should include direct sales
@@ -732,7 +753,8 @@ def test_end_to_end_monetization_to_marketing_workflow(
                 "name": "White Papers",
                 "target_tiers": ["business_tier"],
                 "frequency": "quarterly",
-                "topics": ["Enterprise inventory management", "API integration strategies"],
+                "topics": ["Enterprise inventory management", 
+                    "API integration strategies"],
             },
         ],
     )
@@ -742,14 +764,17 @@ def test_end_to_end_monetization_to_marketing_workflow(
 
     # For freemium model
     if pricing_strategy["model_type"] == "freemium":
-        messaging["value_proposition"] = "Start managing inventory for free, upgrade as you grow"
+        messaging["value_proposition"] = "Start managing inventory for free, 
+            upgrade as you grow"
         messaging["free_tier"] = "Get started with basic forecasting at no cost"
         messaging["pro_tier"] = "Unlock advanced features and save time with Pro"
-        messaging["business_tier"] = "Get full functionality and dedicated support with Business"
+        messaging["business_tier"] = \
+            "Get full functionality and dedicated support with Business"
 
     # For price anchoring
     if pricing_strategy["pricing_psychology"] == "price_anchoring":
-        messaging["pricing_display"] = "Show all three tiers with Pro as the recommended option"
+        messaging["pricing_display"] = \
+            "Show all three tiers with Pro as the recommended option"
         messaging["recommended_plan"] = "Pro"
 
     # For annual discount
@@ -765,6 +790,7 @@ def test_end_to_end_monetization_to_marketing_workflow(
             target_tier=tier_name,
             stages=[
                 {"name": "Awareness", "channels": ["Content Marketing", "Social Media"]},
+                    
                 {"name": "Interest", "channels": ["Email Marketing", "Retargeting"]},
                 {"name": "Consideration", "channels": ["Case Studies", "Webinars"]},
                 {
@@ -774,7 +800,8 @@ def test_end_to_end_monetization_to_marketing_workflow(
                         "Direct Sales" if tier_name == "business_tier" else "Website",
                     ],
                 },
-                {"name": "Retention", "channels": ["Email Marketing", "Customer Success"]},
+                {"name": "Retention", "channels": ["Email Marketing", 
+                    "Customer Success"]},
             ],
         )
 

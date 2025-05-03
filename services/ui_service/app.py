@@ -131,7 +131,8 @@ async def root(request: Request):
                         for (const [name, instances] of Object.entries(data.services)) {
                             const serviceDiv = document.createElement('div');
                             serviceDiv.className = 'service - item';
-                            serviceDiv.innerHTML = `<strong>${name}</strong>: ${instances.length} instance(s)`;
+                            serviceDiv.innerHTML = \
+                                `<strong>${name}</strong>: ${instances.length} instance(s)`;
                             servicesList.appendChild(serviceDiv);
                         }
                     } else {
@@ -140,7 +141,8 @@ async def root(request: Request):
                 })
                 .catch(error => {
                     console.error('Error fetching services:', error);
-                    document.getElementById('services').innerHTML = '<p>Error loading services.</p>';
+                    document.getElementById('services').innerHTML = \
+                        '<p>Error loading services.</p>';
                 });
         </script>
     </body>
@@ -223,7 +225,8 @@ def register_with_service_registry(port: int):
         service_discovery_client = service_registration.client
     else:
         logger.warning(
-            "Failed to register with service registry, continuing without service discovery"
+            "Failed to register with service registry, 
+                continuing without service discovery"
         )
 
 

@@ -29,7 +29,8 @@ class ServiceClient:
     """
 
     def __init__(
-        self, service_name: str, api_gateway_url: Optional[str] = None, timeout: float = 30.0
+        self, service_name: str, api_gateway_url: Optional[str] = None, 
+            timeout: float = 30.0
     ):
         """
         Initialize the service client.

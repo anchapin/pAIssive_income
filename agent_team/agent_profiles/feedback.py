@@ -56,19 +56,22 @@ class FeedbackAgent:
             "recommendations": recommendations,
             "sentiment_analysis": {
                 "positive": (
-                    sum(1 for item in feedback_data if item.get("sentiment") == "positive")
+                    sum(1 for item in feedback_data if item.get("sentiment") == \
+                        "positive")
                     / len(feedback_data)
                     if feedback_data
                     else 0
                 ),
                 "neutral": (
-                    sum(1 for item in feedback_data if item.get("sentiment") == "neutral")
+                    sum(1 for item in feedback_data if item.get("sentiment") == \
+                        "neutral")
                     / len(feedback_data)
                     if feedback_data
                     else 0
                 ),
                 "negative": (
-                    sum(1 for item in feedback_data if item.get("sentiment") == "negative")
+                    sum(1 for item in feedback_data if item.get("sentiment") == \
+                        "negative")
                     / len(feedback_data)
                     if feedback_data
                     else 0
@@ -76,7 +79,8 @@ class FeedbackAgent:
             },
             "user_satisfaction": {
                 "score": (
-                    sum(item.get("satisfaction", 0) for item in feedback_data) / len(feedback_data)
+                    sum(item.get("satisfaction", 
+                        0) for item in feedback_data) / len(feedback_data)
                     if feedback_data
                     else 0
                 ),
@@ -155,6 +159,7 @@ class FeedbackAgent:
                             "id": str(uuid.uuid4()),
                             "category": category,
                             "description": (content[:50] + "..." if len(content) > 50 else content),
+                                
                             "count": len(group),
                             "items": [item["id"] for item in group if "id" in item],
                             "sentiment": group[0].get("sentiment", "neutral"),
@@ -166,7 +171,8 @@ class FeedbackAgent:
 
         return themes
 
-    def _generate_recommendations(self, themes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _generate_recommendations(self, themes: List[Dict[str, Any]]) -> List[Dict[str, 
+        Any]]:
         """
         Generate recommendations based on the identified themes.
 
@@ -190,6 +196,7 @@ class FeedbackAgent:
                     "theme_id": theme["id"],
                     "type": "feature_development",
                     "description": f"Develop new feature based on user requests: {theme['description']}",
+                        
                     "priority": (
                         "high" if theme["count"] > 5 else "medium" if theme["count"] > 2 else "low"
                     ),
@@ -206,7 +213,8 @@ class FeedbackAgent:
                     "description": f"Fix bug reported by users: {theme['description']}",
                     "priority": "high",  # Bugs are always high priority
                     "effort": "low",  # Placeholder, would be determined by AI
-                    "impact": "high",  # Fixing bugs has high impact on user satisfaction
+                    "impact": "high",  
+                        # Fixing bugs has high impact on user satisfaction
                 }
             elif category == "usability_issues":
                 recommendation = {
@@ -214,9 +222,11 @@ class FeedbackAgent:
                     "theme_id": theme["id"],
                     "type": "usability_improvement",
                     "description": f"Improve usability based on user feedback: {theme['description']}",
+                        
                     "priority": "medium",
                     "effort": "medium",  # Placeholder, would be determined by AI
-                    "impact": "high",  # Usability improvements have high impact on user satisfaction
+                    "impact": "high",  
+                        # Usability improvements have high impact on user satisfaction
                 }
             elif category == "performance_issues":
                 recommendation = {
@@ -224,9 +234,11 @@ class FeedbackAgent:
                     "theme_id": theme["id"],
                     "type": "performance_optimization",
                     "description": f"Optimize performance based on user feedback: {theme['description']}",
+                        
                     "priority": "high",  # Performance issues are high priority
                     "effort": "high",  # Placeholder, would be determined by AI
-                    "impact": "high",  # Performance improvements have high impact on user satisfaction
+                    "impact": "high",  
+                        # Performance improvements have high impact on user satisfaction
                 }
             elif category == "pricing_feedback":
                 recommendation = {
@@ -234,9 +246,11 @@ class FeedbackAgent:
                     "theme_id": theme["id"],
                     "type": "pricing_adjustment",
                     "description": f"Review pricing based on user feedback: {theme['description']}",
+                        
                     "priority": "medium",
                     "effort": "low",  # Placeholder, would be determined by AI
-                    "impact": "medium",  # Pricing adjustments have medium impact on user satisfaction
+                    "impact": "medium",  
+                        # Pricing adjustments have medium impact on user satisfaction
                 }
             else:
                 recommendation = {
@@ -246,7 +260,8 @@ class FeedbackAgent:
                     "description": f"Address user feedback: {theme['description']}",
                     "priority": "low",
                     "effort": "medium",  # Placeholder, would be determined by AI
-                    "impact": "medium",  # General improvements have medium impact on user satisfaction
+                    "impact": "medium",  
+                        # General improvements have medium impact on user satisfaction
                 }
 
             recommendations.append(recommendation)
@@ -257,7 +272,8 @@ class FeedbackAgent:
 
         return recommendations
 
-    def generate_feedback_collection_plan(self, solution: Dict[str, Any]) -> Dict[str, Any]:
+    def generate_feedback_collection_plan(self, solution: Dict[str, Any]) -> Dict[str, 
+        Any]:
         """
         Generate a plan for collecting user feedback.
 
@@ -279,6 +295,7 @@ class FeedbackAgent:
                     "name": "In - App Feedback Form",
                     "description": "A feedback form accessible within the application",
                     "implementation": "Add a feedback button in the application that opens a form",
+                        
                     "data_collected": [
                         "satisfaction",
                         "feature_requests",
@@ -291,7 +308,8 @@ class FeedbackAgent:
                     "id": str(uuid.uuid4()),
                     "name": "Email Surveys",
                     "description": "Surveys sent to users via email",
-                    "implementation": "Send surveys to users after 7 days, 30 days, and 90 days of usage",
+                    "implementation": "Send surveys to users after 7 days, 30 days, 
+                        and 90 days of usage",
                     "data_collected": [
                         "satisfaction",
                         "net_promoter_score",
@@ -305,6 +323,7 @@ class FeedbackAgent:
                     "name": "User Interviews",
                     "description": "One - on - one interviews with users",
                     "implementation": "Schedule interviews with power users and users who have reported issues",
+                        
                     "data_collected": [
                         "detailed_feedback",
                         "use_cases",
@@ -318,6 +337,7 @@ class FeedbackAgent:
                     "name": "Usage Analytics",
                     "description": "Collect and analyze usage data",
                     "implementation": "Implement analytics tracking for feature usage and user behavior",
+                        
                     "data_collected": [
                         "feature_usage",
                         "user_behavior",
@@ -332,19 +352,22 @@ class FeedbackAgent:
                     "id": str(uuid.uuid4()),
                     "name": "Sentiment Analysis",
                     "description": "Analyze the sentiment of user feedback",
-                    "implementation": "Use NLP to categorize feedback as positive, neutral, or negative",
+                    "implementation": "Use NLP to categorize feedback as positive, 
+                        neutral, or negative",
                 },
                 {
                     "id": str(uuid.uuid4()),
                     "name": "Theme Identification",
                     "description": "Identify common themes in user feedback",
                     "implementation": "Use clustering algorithms to group similar feedback",
+                        
                 },
                 {
                     "id": str(uuid.uuid4()),
                     "name": "Prioritization",
                     "description": "Prioritize feedback based on impact and effort",
-                    "implementation": "Score feedback based on user count, sentiment, and alignment with product goals",
+                    "implementation": "Score feedback based on user count, sentiment, 
+                        and alignment with product goals",
                 },
             ],
             "feedback_loop": {

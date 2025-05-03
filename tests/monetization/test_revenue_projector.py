@@ -358,7 +358,8 @@ def test_load_from_file(revenue_projector, temp_dir):
     assert loaded_projector.name == revenue_projector.name
     assert loaded_projector.description == revenue_projector.description
     assert loaded_projector.initial_users == revenue_projector.initial_users
-    assert loaded_projector.user_acquisition_rate == revenue_projector.user_acquisition_rate
+    assert loaded_projector.user_acquisition_rate == \
+        revenue_projector.user_acquisition_rate
     assert loaded_projector.conversion_rate == revenue_projector.conversion_rate
     assert loaded_projector.churn_rate == revenue_projector.churn_rate
     assert loaded_projector.tier_distribution == revenue_projector.tier_distribution

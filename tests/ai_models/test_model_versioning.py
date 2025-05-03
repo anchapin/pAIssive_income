@@ -66,7 +66,8 @@ def test_version_compatibility_different_major():
 
 def test_version_compatibility_explicit():
     """Test explicit version compatibility declarations."""
-    v1 = ModelVersion(version="1.0.0", model_id="test - model", is_compatible_with=["2.0.0"])
+    v1 = ModelVersion(version="1.0.0", model_id="test - model", 
+        is_compatible_with=["2.0.0"])
     v2 = ModelVersion(version="2.0.0", model_id="test - model")
 
     # v1 should be compatible with v2 due to explicit declaration
@@ -78,7 +79,8 @@ def test_version_compatibility_explicit():
 def test_registry_compatibility_check(version_registry, model_info):
     """Test compatibility checking through the registry."""
     # Create and register two versions
-    v1 = ModelVersion(version="1.0.0", model_id=model_info.id, is_compatible_with=["2.0.0"])
+    v1 = ModelVersion(version="1.0.0", model_id=model_info.id, 
+        is_compatible_with=["2.0.0"])
     v2 = ModelVersion(version="2.0.0", model_id=model_info.id)
 
     version_registry.register_version(v1)
@@ -249,7 +251,8 @@ def test_version_conflict_resolution(version_registry, model_info):
     """Test handling of conflicting version changes."""
     # Create conflicting versions with different hashes
     v1 = ModelVersion(
-        version="1.0.0", model_id=model_info.id, hash_value="abc123", features=["text - generation"]
+        version="1.0.0", model_id=model_info.id, hash_value="abc123", 
+            features=["text - generation"]
     )
     v2 = ModelVersion(
         version="1.0.0",
@@ -283,7 +286,8 @@ def test_version_hash_verification(version_registry, tmp_path):
     )
 
     # Create version with hash
-    version = version_registry.create_version_from_model(model_info=model_info, version_str="1.0.0")
+    version = version_registry.create_version_from_model(model_info=model_info, 
+        version_str="1.0.0")
 
     # Verify the hash was calculated and stored
     assert version.hash_value != ""
@@ -300,15 +304,18 @@ def test_version_hash_verification(version_registry, tmp_path):
 
 def test_concurrent_version_updates(version_registry, model_info):
     """Test handling of concurrent version updates."""
-    base_version = ModelVersion(version="1.0.0", model_id=model_info.id, features=["base - feature"])
+    base_version = ModelVersion(version="1.0.0", model_id=model_info.id, 
+        features=["base - feature"])
     version_registry.register_version(base_version)
 
     # Simulate two concurrent updates
     update1 = ModelVersion(
-        version="1.1.0", model_id=model_info.id, features=["base - feature", "feature - a"]
+        version="1.1.0", model_id=model_info.id, features=["base - feature", 
+            "feature - a"]
     )
     update2 = ModelVersion(
-        version="1.1.0", model_id=model_info.id, features=["base - feature", "feature - b"]
+        version="1.1.0", model_id=model_info.id, features=["base - feature", 
+            "feature - b"]
     )
 
     # First update should succeed
@@ -327,10 +334,12 @@ def test_concurrent_version_updates(version_registry, model_info):
 def test_version_metadata_conflict(version_registry, model_info):
     """Test handling of conflicts in version metadata."""
     version1 = ModelVersion(
-        version="1.0.0", model_id=model_info.id, metadata={"performance": {"accuracy": 0.95}}
+        version="1.0.0", model_id=model_info.id, 
+            metadata={"performance": {"accuracy": 0.95}}
     )
     version2 = ModelVersion(
-        version="1.0.0", model_id=model_info.id, metadata={"performance": {"accuracy": 0.90}}
+        version="1.0.0", model_id=model_info.id, 
+            metadata={"performance": {"accuracy": 0.90}}
     )
 
     # Register first version

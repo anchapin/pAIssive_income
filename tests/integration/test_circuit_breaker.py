@@ -49,7 +49,8 @@ class TestCircuitBreaker:
 
         # Test failure threshold
         for _ in range(self.config.failure_threshold):
-            self.failure_detector.record_failure(service_name, error=ValueError("Test error"))
+            self.failure_detector.record_failure(service_name, 
+                error=ValueError("Test error"))
 
         stats = self.failure_detector.get_statistics(service_name)
         assert stats["failure_count"] == self.config.failure_threshold
@@ -205,7 +206,8 @@ class TestCircuitBreaker:
             self.circuit_breaker.record_success(service_name)
 
         for _ in range(3):
-            self.circuit_breaker.record_failure(service_name, error=ValueError("Test error"))
+            self.circuit_breaker.record_failure(service_name, 
+                error=ValueError("Test error"))
 
         # Get metrics
         metrics = self.circuit_breaker.get_metrics(service_name)
@@ -223,12 +225,16 @@ class TestCircuitBreaker:
         service_name = "error - test - service"
 
         # Register error categories
-        self.failure_detector.register_error_category("timeout", [TimeoutError, ConnectionError])
-        self.failure_detector.register_error_category("validation", [ValueError, TypeError])
+        self.failure_detector.register_error_category("timeout", [TimeoutError, 
+            ConnectionError])
+        self.failure_detector.register_error_category("validation", [ValueError, 
+            TypeError])
 
         # Record different types of errors
-        self.failure_detector.record_failure(service_name, error=TimeoutError("Request timeout"))
-        self.failure_detector.record_failure(service_name, error=ValueError("Invalid input"))
+        self.failure_detector.record_failure(service_name, 
+            error=TimeoutError("Request timeout"))
+        self.failure_detector.record_failure(service_name, 
+            error=ValueError("Invalid input"))
 
         # Get error statistics
         error_stats = self.failure_detector.get_error_statistics(service_name)
@@ -238,12 +244,14 @@ class TestCircuitBreaker:
 
         # Verify error thresholds
         assert (
-            self.failure_detector.check_error_threshold(service_name, "timeout", threshold=2)
+            self.failure_detector.check_error_threshold(service_name, "timeout", 
+                threshold=2)
             is False
         )  # Below threshold
 
         assert (
-            self.failure_detector.check_error_threshold(service_name, "timeout", threshold=1)
+            self.failure_detector.check_error_threshold(service_name, "timeout", 
+                threshold=1)
             is True
         )  # At threshold
 

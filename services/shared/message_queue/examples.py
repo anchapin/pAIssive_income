@@ -58,7 +58,8 @@ def niche_analysis_service_example():
 
     try:
         # Declare a queue for the service
-        queue_name = client.declare_queue(queue_name="niche - analysis - service", durable=True)
+        queue_name = client.declare_queue(queue_name="niche - analysis - service", 
+            durable=True)
 
         # Bind the queue to the exchange with a routing key
         client.bind_queue(
@@ -80,7 +81,8 @@ def niche_analysis_service_example():
             # Create a response
             response_payload = NicheAnalysisResponse(
                 niche_name=request.niche_name,
-                problems=[{"name": "Problem 1", "description": "Description of problem 1"}],
+                problems=[{"name": "Problem 1", 
+                    "description": "Description of problem 1"}],
                 competition={"level": "medium", "competitors": 5},
                 opportunities=[{"name": "Opportunity 1", "score": 0.8}],
                 summary=f"Analysis of {request.niche_name} completed successfully.",
@@ -97,7 +99,8 @@ def niche_analysis_service_example():
             )
 
             # Publish the response
-            client.publish(message=response_message, routing_key=f"response.{message.source}")
+            client.publish(message=response_message, 
+                routing_key=f"response.{message.source}")
 
             logger.info(f"Sent niche analysis response: {response_message.id}")
 
@@ -149,12 +152,14 @@ async def ai_models_service_example():
         service_name="ai - models - service", exchange_name="paissive_income"
     ) as client:
         # Declare a queue for the service
-        queue = await client.declare_queue(queue_name="ai - models - service", durable=True)
+        queue = await client.declare_queue(queue_name="ai - models - service", 
+            durable=True)
 
         # Bind the queue to the exchange with a routing key
         await client.bind_queue(
             queue=queue,
-            routing_key="ai - models.text - generation.#",  # Listen for text generation requests
+            routing_key="ai - models.text - generation.#",  
+                # Listen for text generation requests
         )
 
         # Define a message handler
@@ -189,7 +194,8 @@ async def ai_models_service_example():
             )
 
             # Publish the response
-            await client.publish(message=response_message, routing_key=f"response.{message.source}")
+            await client.publish(message=response_message, 
+                routing_key=f"response.{message.source}")
 
             logger.info(f"Sent text generation response: {response_message.id}")
 
@@ -228,7 +234,8 @@ async def api_gateway_example():
         service_name="api - gateway", exchange_name="paissive_income"
     ) as client:
         # Create a request message
-        request_payload = NicheAnalysisRequest(niche_name="fitness - apps", force_refresh=True)
+        request_payload = NicheAnalysisRequest(niche_name="fitness - apps", 
+            force_refresh=True)
 
         request_message = request_schema.create_message(
             source="api - gateway",
@@ -242,7 +249,8 @@ async def api_gateway_example():
 
         # Send the request and wait for a response
         response = await client.request(
-            message=request_message, routing_key="niche - analysis.request", timeout=10.0
+            message=request_message, routing_key="niche - analysis.request", 
+                timeout=10.0
         )
 
         if response:
@@ -285,7 +293,8 @@ def event_driven_example():
         )
 
         # Bind the queue to the exchange with a routing key
-        subscriber.bind_queue(queue_name=queue_name, routing_key="events.niche - analysis.completed")
+        subscriber.bind_queue(queue_name=queue_name, 
+            routing_key="events.niche - analysis.completed")
 
         # Define an event handler
         def handle_niche_analysis_completed(message: Message):
@@ -300,14 +309,16 @@ def event_driven_example():
 
         # Start consuming events
         subscriber.consume(
-            queue_name=queue_name, handler=handle_niche_analysis_completed, auto_ack=True
+            queue_name=queue_name, handler=handle_niche_analysis_completed, 
+                auto_ack=True
         )
 
         logger.info("Marketing Service is listening for niche analysis events...")
 
         # Publish an event (from Niche Analysis Service)
         event_payload = NicheAnalysisCompleted(
-            niche_id="123456", niche_name="fitness - apps", timestamp=time.time(), score=0.85
+            niche_id="123456", niche_name="fitness - apps", timestamp=time.time(), 
+                score=0.85
         )
 
         event_message = event_schema.create_message(
@@ -320,7 +331,8 @@ def event_driven_example():
 
         logger.info(f"Publishing niche analysis completed event: {event_message.id}")
 
-        publisher.publish(message=event_message, routing_key="events.niche - analysis.completed")
+        publisher.publish(message=event_message, 
+            routing_key="events.niche - analysis.completed")
 
         # Keep the subscriber running
         try:

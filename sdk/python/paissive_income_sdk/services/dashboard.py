@@ -23,7 +23,8 @@ class DashboardService(BaseService):
         """
         return self._get("dashboard / overview")
 
-    def get_revenue_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def get_revenue_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, 
+        Any]:
         """
         Get revenue statistics.
 
@@ -38,7 +39,8 @@ class DashboardService(BaseService):
         """
         return self._get("dashboard / revenue", params=params)
 
-    def get_subscriber_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def get_subscriber_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, 
+        Any]:
         """
         Get subscriber statistics.
 
@@ -53,7 +55,8 @@ class DashboardService(BaseService):
         """
         return self._get("dashboard / subscribers", params=params)
 
-    def get_traffic_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def get_traffic_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, 
+        Any]:
         """
         Get website traffic statistics.
 
@@ -68,7 +71,8 @@ class DashboardService(BaseService):
         """
         return self._get("dashboard / traffic", params=params)
 
-    def get_conversion_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def get_conversion_stats(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, 
+        Any]:
         """
         Get conversion statistics.
 

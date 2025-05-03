@@ -16,7 +16,8 @@ import pytest
 from fastapi import FastAPI, Request, Response, status
 from fastapi.testclient import TestClient
 
-from api.middleware.webhook_security import WebhookIPAllowlistMiddleware, WebhookRateLimitMiddleware
+from api.middleware.webhook_security import WebhookIPAllowlistMiddleware, 
+    WebhookRateLimitMiddleware
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_security import (
     WebhookIPAllowlist,
@@ -61,7 +62,8 @@ def webhook_receiver_app():
         signature = request.headers.get("X - Webhook - Signature")
 
         # Verify the signature
-        is_valid = WebhookSignatureVerifier.verify_signature(app.webhook_secret, payload, signature)
+        is_valid = WebhookSignatureVerifier.verify_signature(app.webhook_secret, payload, 
+            signature)
 
         # Store the received webhook
         app.received_webhooks.append(
@@ -80,7 +82,8 @@ def webhook_receiver_app():
                 media_type="application / json",
             )
 
-        return {"status": "success", "received_at": datetime.now(timezone.utc).isoformat()}
+        return {"status": "success", 
+            "received_at": datetime.now(timezone.utc).isoformat()}
 
     return app
 
@@ -114,7 +117,8 @@ def webhook_sender_app(webhook_service):
 class TestWebhookEndToEnd:
     """End - to - end tests for the webhook system."""
 
-    def test_webhook_registration_and_delivery(self, webhook_sender_app, webhook_receiver_app):
+    def test_webhook_registration_and_delivery(self, webhook_sender_app, 
+        webhook_receiver_app):
         """Test the complete webhook flow from registration to delivery."""
         # Start both apps
         with (
@@ -131,7 +135,8 @@ class TestWebhookEndToEnd:
             # Register a webhook
             webhook_data = {
                 "url": receiver_url,
-                "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],
+                "events": [WebhookEventType.USER_CREATED, 
+                    WebhookEventType.PAYMENT_RECEIVED],
                 "description": "Test webhook",
                 "headers": {"Authorization": "Bearer test - token"},
                 "is_active": True,
@@ -157,7 +162,8 @@ class TestWebhookEndToEnd:
                 "event_data": TEST_EVENT_DATA,
             }
 
-            response = sender_client.post(f" / send - event/{webhook['id']}", json=event_data)
+            response = sender_client.post(f" / send - event/{webhook['id']}", 
+                json=event_data)
             assert response.status_code == 200
             delivery = response.json()
             assert delivery["status"] == WebhookDeliveryStatus.SUCCESS
@@ -169,7 +175,8 @@ class TestWebhookEndToEnd:
             assert received["payload"]["type"] == WebhookEventType.USER_CREATED
             assert received["payload"]["data"] == TEST_EVENT_DATA
 
-    def test_webhook_signature_verification(self, webhook_sender_app, webhook_receiver_app):
+    def test_webhook_signature_verification(self, webhook_sender_app, 
+        webhook_receiver_app):
         """Test that webhook signatures are properly verified."""
         # Start both apps
         with (
@@ -220,12 +227,14 @@ class TestWebhookEndToEnd:
             )
 
             # Send a request with a valid signature
-            headers = {"Content - Type": "application / json", "X - Webhook - Signature": valid_signature}
+            headers = {"Content - Type": "application / json", 
+                "X - Webhook - Signature": valid_signature}
             response = receiver_client.post(" / webhook", json=payload, headers=headers)
             assert response.status_code == 200
 
             # Send a request with an invalid signature
-            headers = {"Content - Type": "application / json", "X - Webhook - Signature": invalid_signature}
+            headers = {"Content - Type": "application / json", 
+                "X - Webhook - Signature": invalid_signature}
             response = receiver_client.post(" / webhook", json=payload, headers=headers)
             assert response.status_code == 401
 
@@ -236,7 +245,8 @@ class TestWebhookEndToEnd:
 
         # Add middleware to the sender app
         webhook_sender_app.add_middleware(
-            WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix=" / webhooks"
+            WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, 
+                webhook_path_prefix=" / webhooks"
         )
 
         # Start both apps
@@ -276,7 +286,8 @@ class TestWebhookEndToEnd:
 
         # Add middleware to the sender app
         webhook_sender_app.add_middleware(
-            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
+            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, 
+                webhook_path_prefix=" / webhooks"
         )
 
         # Start both apps

@@ -356,7 +356,8 @@ Outputs:
 
   EndpointUrl:
     Description: URL of the SageMaker endpoint
-    Value: !Sub 'https://runtime.sagemaker.${{AWS::Region}}.amazonaws.com / endpoints/${{ModelEndpoint}}'
+    Value: !Sub 'https://runtime.sagemaker.${{AWS::Region}}.amazonaws.com / \
+        endpoints/${{ModelEndpoint}}'
 """
 
     # Write CloudFormation template
@@ -387,10 +388,12 @@ echo "Building Docker image..."
 docker build -t $ECR_REPOSITORY:latest .
 
 echo "Logging in to ECR..."
-aws ecr get - login - password --region $REGION | docker login --username AWS --password - stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
+aws ecr get - \
+    login - password --region $REGION | docker login --username AWS --password - stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
 echo "Creating ECR repository if it doesn't exist..."
-aws ecr describe - repositories --repository - names $ECR_REPOSITORY --region $REGION || aws ecr create - repository --repository - name $ECR_REPOSITORY --region $REGION
+aws ecr describe - \
+    repositories --repository - names $ECR_REPOSITORY --region $REGION || aws ecr create - repository --repository - name $ECR_REPOSITORY --region $REGION
 
 echo "Pushing Docker image to ECR..."
 docker tag $ECR_REPOSITORY:latest $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_REPOSITORY:latest
@@ -414,7 +417,8 @@ aws cloudformation deploy \\
     MaxInstances={config.max_instances}
 
 echo "Deployment completed successfully!"
-echo "Endpoint URL: https://runtime.sagemaker.$REGION.amazonaws.com / endpoints/$MODEL_NAME"
+echo "Endpoint URL: https://runtime.sagemaker.$REGION.amazonaws.com / \
+    endpoints/$MODEL_NAME"
 """
 
     # Write deployment script
@@ -458,7 +462,8 @@ resource "google_cloud_run_service" "model_service" {{
   template {{
     spec {{
       containers {{
-        image = "${{google_artifact_registry_repository.model_repository.location}}-docker.pkg.dev/${{var.project_id}}/${{google_artifact_registry_repository.model_repository.repository_id}}/{config.name}:latest"
+        image = \
+            "${{google_artifact_registry_repository.model_repository.location}}-docker.pkg.dev/${{var.project_id}}/${{google_artifact_registry_repository.model_repository.repository_id}}/{config.name}:latest"
 
         resources {{
           limits = {{
@@ -576,7 +581,8 @@ echo "Configuring Docker for Artifact Registry..."
 gcloud auth configure - docker $REGION - docker.pkg.dev
 
 echo "Creating Artifact Registry repository if it doesn't exist..."
-gcloud artifacts repositories create $REPOSITORY --repository - format=docker --location=$REGION --description="Repository for $IMAGE" || true
+gcloud artifacts repositories create $REPOSITORY --repository - \
+    format=docker --location=$REGION --description="Repository for $IMAGE" || true
 
 echo "Pushing Docker image to Artifact Registry..."
 docker push $REGION - docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:latest
@@ -615,6 +621,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
     # Create ARM template content
     content = f"""{{
   "$schema": "https://schema.management.azure.com / schemas / 2019 - 04 - 01 / deploymentTemplate.json#",
+      
   "contentVersion": "1.0.0.0",
   "parameters": {{
     "containerRegistryName": {{
@@ -642,7 +649,8 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
   "variables": {{
     "containerAppEnvironmentName": "[concat(parameters('containerAppName'), ' - env')]",
     "logAnalyticsWorkspaceName": "[concat(parameters('containerAppName'), ' - logs')]",
-    "imageName": "[concat(parameters('containerRegistryName'), '.azurecr.io / ', parameters('containerAppName'), ':latest')]"
+    "imageName": "[concat(parameters('containerRegistryName'), '.azurecr.io / ', 
+        parameters('containerAppName'), ':latest')]"
   }},
   "resources": [
     {{
@@ -681,13 +689,17 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
         "appLogsConfiguration": {{
           "destination": "log - analytics",
           "logAnalyticsConfiguration": {{
-            "customerId": "[reference(resourceId('Microsoft.OperationalInsights / workspaces', variables('logAnalyticsWorkspaceName'))).customerId]",
-            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights / workspaces', variables('logAnalyticsWorkspaceName')), '2021 - 06 - 01').primarySharedKey]"
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights / workspaces', 
+                variables('logAnalyticsWorkspaceName'))).customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights / workspaces', 
+                variables('logAnalyticsWorkspaceName')), 
+                '2021 - 06 - 01').primarySharedKey]"
           }}
         }}
       }},
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights / workspaces', variables('logAnalyticsWorkspaceName'))]"
+        "[resourceId('Microsoft.OperationalInsights / workspaces', 
+            variables('logAnalyticsWorkspaceName'))]"
       ]
     }},
     {{
@@ -696,7 +708,8 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
       "name": "[parameters('containerAppName')]",
       "location": "[parameters('location')]",
       "properties": {{
-        "managedEnvironmentId": "[resourceId('Microsoft.App / managedEnvironments', variables('containerAppEnvironmentName'))]",
+        "managedEnvironmentId": "[resourceId('Microsoft.App / managedEnvironments', 
+            variables('containerAppEnvironmentName'))]",
         "configuration": {{
           "ingress": {{
             "external": true,
@@ -712,14 +725,18 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
           "registries": [
             {{
               "server": "[concat(parameters('containerRegistryName'), '.azurecr.io')]",
-              "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry / registries', parameters('containerRegistryName')), '2021 - 06 - 01 - preview').username]",
+              "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry / registries', 
+                  parameters('containerRegistryName')), 
+                  '2021 - 06 - 01 - preview').username]",
               "passwordSecretRef": "registry - password"
             }}
           ],
           "secrets": [
             {{
               "name": "registry - password",
-              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry / registries', parameters('containerRegistryName')), '2021 - 06 - 01 - preview').passwords[0].value]"
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry / registries', 
+                  parameters('containerRegistryName')), 
+                  '2021 - 06 - 01 - preview').passwords[0].value]"
             }}
           ]
         }},
@@ -772,15 +789,18 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
         }}
       }},
       "dependsOn": [
-        "[resourceId('Microsoft.App / managedEnvironments', variables('containerAppEnvironmentName'))]",
-        "[resourceId('Microsoft.ContainerRegistry / registries', parameters('containerRegistryName'))]"
+        "[resourceId('Microsoft.App / managedEnvironments', 
+            variables('containerAppEnvironmentName'))]",
+        "[resourceId('Microsoft.ContainerRegistry / registries', 
+            parameters('containerRegistryName'))]"
       ]
     }}
   ],
   "outputs": {{
     "containerAppFqdn": {{
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.App / containerApps', parameters('containerAppName'))).configuration.ingress.fqdn]"
+      "value": "[reference(resourceId('Microsoft.App / containerApps', 
+          parameters('containerAppName'))).configuration.ingress.fqdn]"
     }}
   }}
 }}"""
@@ -818,7 +838,8 @@ echo "Building Docker image..."
 docker build -t $IMAGE_NAME:latest .
 
 echo "Creating container registry if it doesn't exist..."
-az acr create --resource - group $RESOURCE_GROUP --name $REGISTRY_NAME --sku Basic --admin - enabled true
+az acr create --resource - \
+    group $RESOURCE_GROUP --name $REGISTRY_NAME --sku Basic --admin - enabled true
 
 echo "Logging in to container registry..."
 az acr login --name $REGISTRY_NAME

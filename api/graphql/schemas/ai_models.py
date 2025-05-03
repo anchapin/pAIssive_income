@@ -135,7 +135,8 @@ if STRAWBERRY_AVAILABLE:
         """AI models query fields"""
 
         @strawberry.field
-        def ai_models(self, info: Info, model_type: Optional[ModelType] = None) -> List[AIModel]:
+        def ai_models(self, info: Info, 
+            model_type: Optional[ModelType] = None) -> List[AIModel]:
             """
             Get all AI models, optionally filtered by type.
 
@@ -321,7 +322,8 @@ if STRAWBERRY_AVAILABLE:
             )
 
         @strawberry.mutation
-        async def generate_embedding(self, info: Info, input: EmbeddingInput) -> EmbeddingResult:
+        async def generate_embedding(self, info: Info, 
+            input: EmbeddingInput) -> EmbeddingResult:
             """
             Generate embedding for text using an AI model.
 
@@ -335,7 +337,8 @@ if STRAWBERRY_AVAILABLE:
             if not service:
                 raise ValueError("AI models service not available")
 
-            result = await service.generate_embedding(text=input.text, model_id=input.model_id)
+            result = await service.generate_embedding(text=input.text, 
+                model_id=input.model_id)
 
             return EmbeddingResult(
                 id=str(result.id),

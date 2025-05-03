@@ -91,7 +91,8 @@ class TestMicroservicesIntegration:
     def test_service_discovery_integration(self):
         """Test service discovery integration with other components."""
         # Create discovery client with mock registry
-        client = ServiceDiscoveryClient(service_name="test - client", auto_register=False)
+        client = ServiceDiscoveryClient(service_name="test - client", 
+            auto_register=False)
         client.registry = self.registry
 
         # Test service discovery
@@ -157,14 +158,18 @@ class TestMicroservicesIntegration:
         assert "api - gateway" in dependencies
 
         # Check that auth - service comes before user - service
-        assert dependencies.index("auth - service") < dependencies.index("user - service")
+        assert dependencies.index("auth - \
+            service") < dependencies.index("user - service")
 
         # Check that user - service and product - service come before order - service
-        assert dependencies.index("user - service") < dependencies.index("order - service")
-        assert dependencies.index("product - service") < dependencies.index("order - service")
+        assert dependencies.index("user - \
+            service") < dependencies.index("order - service")
+        assert dependencies.index("product - \
+            service") < dependencies.index("order - service")
 
         # Check that all dependencies come before api - gateway
-        for dep in ["auth - service", "user - service", "product - service", "order - service"]:
+        for dep in ["auth - service", "user - service", "product - service", 
+            "order - service"]:
             assert dependencies.index(dep) < dependencies.index("api - gateway")
 
     def test_service_health_monitoring(self):
@@ -198,7 +203,8 @@ class TestMicroservicesIntegration:
             assert not self.registry.get_service_health("health - test - service")
 
             # Create discovery client with health - aware load balancing
-            client = ServiceDiscoveryClient(service_name="test - client", auto_register=False)
+            client = ServiceDiscoveryClient(service_name="test - client", 
+                auto_register=False)
             client.registry = self.registry
 
             # Add a healthy instance
@@ -234,7 +240,8 @@ class TestMicroservicesIntegration:
             self.registry.register(instance)
 
         # Create discovery client
-        client = ServiceDiscoveryClient(service_name="test - client", auto_register=False)
+        client = ServiceDiscoveryClient(service_name="test - client", 
+            auto_register=False)
         client.registry = self.registry
 
         # Test version - specific discovery
@@ -243,7 +250,8 @@ class TestMicroservicesIntegration:
         assert v1_instances[0].version == "1.0.0"
 
         # Test version compatibility (all 1.x versions)
-        v1x_instances = client.discover_service("version - service", version_prefix="1.")
+        v1x_instances = client.discover_service("version - service", 
+            version_prefix="1.")
         assert len(v1x_instances) == 2
         assert all(i.version.startswith("1.") for i in v1x_instances)
 
@@ -254,7 +262,8 @@ class TestMicroservicesIntegration:
 
         # Find instances with feature - 1
         feature_instances = [
-            i for i in client.discover_service("version - service") if has_feature(i, "feature - 1")
+            i for i in client.discover_service("version - service") if has_feature(i, 
+                "feature - 1")
         ]
         assert len(feature_instances) == 2
         assert all(i.version in ["1.1.0", "2.0.0"] for i in feature_instances)

@@ -121,7 +121,8 @@ class APIKeyRepository:
         Returns:
             List of API keys for the user
         """
-        return [api_key for api_key in self.api_keys.values() if api_key.user_id == user_id]
+        return [api_key for api_key in self.api_keys.values() if api_key.user_id == \
+            user_id]
 
     def get_all(self) -> List[APIKey]:
         """

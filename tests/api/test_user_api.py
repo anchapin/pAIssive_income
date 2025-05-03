@@ -108,7 +108,8 @@ class TestUserAPI:
     def test_update_user_profile(self, auth_api_test_client: APITestClient):
         """Test updating the user profile."""
         # Generate test data
-        data = {"first_name": "Updated", "last_name": "User", "email": "updated @ example.com"}
+        data = {"first_name": "Updated", "last_name": "User", 
+            "email": "updated @ example.com"}
 
         # Make request
         response = auth_api_test_client.put("user / profile", data)
@@ -211,11 +212,13 @@ class TestUserAPI:
         validate_field_equals(result["settings"], "theme", data["settings"]["theme"])
         validate_field_exists(result["settings"], "notifications_enabled")
         validate_field_equals(
-            result["settings"], "notifications_enabled", data["settings"]["notifications_enabled"]
+            result["settings"], "notifications_enabled", 
+                data["settings"]["notifications_enabled"]
         )
         validate_field_exists(result["settings"], "email_notifications")
         validate_field_equals(
-            result["settings"], "email_notifications", data["settings"]["email_notifications"]
+            result["settings"], "email_notifications", 
+                data["settings"]["email_notifications"]
         )
 
     def test_update_user_preferences(self, auth_api_test_client: APITestClient):
@@ -233,7 +236,8 @@ class TestUserAPI:
                     "push_notifications": True,
                     "marketing_emails": False,
                 },
-                "display": {"theme": "dark", "compact_view": True, "show_tooltips": True},
+                "display": {"theme": "dark", "compact_view": True, 
+                    "show_tooltips": True},
             }
         }
 
@@ -246,8 +250,10 @@ class TestUserAPI:
         # Validate fields
         validate_field_exists(result, "preferences")
         validate_field_type(result, "preferences", dict)
-        validate_field_equals(result["preferences"], "language", data["preferences"]["language"])
-        validate_field_equals(result["preferences"], "timezone", data["preferences"]["timezone"])
+        validate_field_equals(result["preferences"], "language", 
+            data["preferences"]["language"])
+        validate_field_equals(result["preferences"], "timezone", 
+            data["preferences"]["timezone"])
         validate_field_equals(
             result["preferences"], "date_format", data["preferences"]["date_format"]
         )
@@ -263,7 +269,8 @@ class TestUserAPI:
             data["preferences"]["communication"]["email_frequency"],
         )
         validate_field_equals(
-            result["preferences"]["display"], "theme", data["preferences"]["display"]["theme"]
+            result["preferences"]["display"], "theme", 
+                data["preferences"]["display"]["theme"]
         )
 
         # Validate update timestamp
@@ -289,7 +296,8 @@ class TestUserAPI:
 
         # Make request
         response = auth_api_test_client.delete(
-            "user / account", headers={"Content - Type": "application / json"}, json=data
+            "user / account", headers={"Content - Type": "application / json"}, 
+                json=data
         )
 
         # Validate response
@@ -369,7 +377,8 @@ class TestUserAPI:
         # Test bulk role update with invalid data
         response = auth_api_test_client.put(
             "user / roles / bulk",
-            [{"user_id": "invalid - id"}, {"roles": ["admin"]}],  # Missing roles  # Missing user_id
+            [{"user_id": "invalid - id"}, {"roles": ["admin"]}],  
+                # Missing roles  # Missing user_id
         )
         validate_error_response(response, 422)
 

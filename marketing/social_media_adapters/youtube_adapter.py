@@ -56,7 +56,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
 
         # Set up authentication if access token is provided
         if self.access_token:
-            self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
+            self.session.headers.update(
+                {"Authorization": f"Bearer {self.access_token}"})
             self._connected = True
         elif self.api_key:
             # For read - only operations, API key can be used
@@ -77,7 +78,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             if self.access_token:
                 # Check if the token is valid by getting channel info
                 response = self.session.get(
-                    f"{self.api_base_url}/channels", params={"part": "snippet", "mine": "true"}
+                    f"{self.api_base_url}/channels", params={"part": "snippet", 
+                        "mine": "true"}
                 )
                 response.raise_for_status()
                 channel_data = response.json()
@@ -93,6 +95,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                         "title": channel["snippet"]["title"],
                         "description": channel["snippet"]["description"],
                         "thumbnail_url": channel["snippet"]["thumbnails"]["default"]["url"],
+                            
                     }
                 else:
                     raise AuthenticationError(
@@ -104,7 +107,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                 # Check if the channel exists
                 response = requests.get(
                     f"{self.api_base_url}/channels",
-                    params={"part": "snippet", "id": self.channel_id, "key": self.api_key},
+                    params={"part": "snippet", "id": self.channel_id, 
+                        "key": self.api_key},
                 )
                 response.raise_for_status()
                 channel_data = response.json()
@@ -119,6 +123,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                         "title": channel["snippet"]["title"],
                         "description": channel["snippet"]["description"],
                         "thumbnail_url": channel["snippet"]["thumbnails"]["default"]["url"],
+                            
                         "read_only": True,
                     }
                 else:
@@ -143,12 +148,14 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
 
                 # Update the access token
                 self.access_token = token_response["access_token"]
-                self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
+                self.session.headers.update(
+                    {"Authorization": f"Bearer {self.access_token}"})
                 self._connected = True
 
                 # Get channel information
                 response = self.session.get(
-                    f"{self.api_base_url}/channels", params={"part": "snippet", "mine": "true"}
+                    f"{self.api_base_url}/channels", params={"part": "snippet", 
+                        "mine": "true"}
                 )
                 response.raise_for_status()
                 channel_data = response.json()
@@ -164,6 +171,7 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                         "title": channel["snippet"]["title"],
                         "description": channel["snippet"]["description"],
                         "thumbnail_url": channel["snippet"]["thumbnails"]["default"]["url"],
+                            
                         "access_token": self.access_token,
                         "token_type": token_response["token_type"],
                         "expires_in": token_response["expires_in"],
@@ -176,7 +184,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             else:
                 raise AuthenticationError(
                     "youtube",
-                    "Missing required credentials (access_token, api_key, or refresh_token with client_id and client_secret)",
+                    "Missing required credentials (access_token, api_key, 
+                        or refresh_token with client_id and client_secret)",
                 )
 
         except requests.exceptions.RequestException as e:
@@ -198,7 +207,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
         """
         # Check if we have a video
         if "video" not in content:
-            raise ContentValidationError("youtube", "Video is required for YouTube posts")
+            raise ContentValidationError("youtube", 
+                "Video is required for YouTube posts")
 
         # Check video source
         if (
@@ -212,31 +222,37 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
 
         # Check title
         if "title" not in content:
-            raise ContentValidationError("youtube", "Title is required for YouTube videos")
+            raise ContentValidationError("youtube", 
+                "Title is required for YouTube videos")
 
         # Check title length (YouTube's limit is 100 characters)
         if len(content["title"]) > 100:
             raise ContentValidationError(
-                "youtube", f"Title exceeds 100 characters (current: {len(content['title'])})"
+                "youtube", 
+                    f"Title exceeds 100 characters (current: {len(content['title'])})"
             )
 
         # Check description length if present (YouTube's limit is 5,000 characters)
         if "description" in content and len(content["description"]) > 5000:
             raise ContentValidationError(
                 "youtube",
-                f"Description exceeds 5,000 characters (current: {len(content['description'])})",
+                f"Description exceeds 5,
+                    000 characters (current: {len(content['description'])})",
             )
 
         # Check tags if present (YouTube allows up to 500 characters total for tags)
         if "tags" in content:
             if not isinstance(content["tags"], list):
-                raise ContentValidationError("youtube", "Tags must be a list of strings")
+                raise ContentValidationError("youtube", 
+                    "Tags must be a list of strings")
 
-            total_tags_length = sum(len(tag) for tag in content["tags"]) + len(content["tags"]) - 1
+            total_tags_length = sum(len(tag) for tag in content["tags"]) + \
+                len(content["tags"]) - 1
             if total_tags_length > 500:
                 raise ContentValidationError(
                     "youtube",
                     f"Total tags length exceeds 500 characters (current: {total_tags_length})",
+                        
                 )
 
         # Check category ID if present
@@ -251,7 +267,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
         ]:
             raise ContentValidationError(
                 "youtube",
-                f"Invalid privacy status: {content['privacy_status']}. Allowed values: public, unlisted, private",
+                f"Invalid privacy status: {content['privacy_status']}. Allowed values: public, 
+                    unlisted, private",
             )
 
         return True
@@ -283,10 +300,12 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
         try:
             # Check if we have an access token (required for posting)
             if not self.access_token:
-                raise PostingError("youtube", "Access token is required for posting videos")
+                raise PostingError("youtube", 
+                    "Access token is required for posting videos")
 
             # Map visibility to YouTube privacy status
-            privacy_status = content.get("privacy_status", self._map_visibility(visibility))
+            privacy_status = content.get("privacy_status", 
+                self._map_visibility(visibility))
 
             # In a real implementation, we would:
             # 1. Upload the video file to YouTube using the resumable upload API
@@ -306,7 +325,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                     "title": content["title"],
                     "description": content.get("description", ""),
                     "tags": content.get("tags", []),
-                    "category_id": content.get("category_id", "22"),  # Default to "People & Blogs"
+                    "category_id": content.get("category_id", "22"),  
+                        # Default to "People & Blogs"
                     "privacy_status": privacy_status,
                 },
             }
@@ -363,10 +383,12 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
         try:
             # Check if we have an access token (required for posting)
             if not self.access_token:
-                raise SchedulingError("youtube", "Access token is required for scheduling videos")
+                raise SchedulingError("youtube", 
+                    "Access token is required for scheduling videos")
 
             # Map visibility to YouTube privacy status
-            privacy_status = content.get("privacy_status", self._map_visibility(visibility))
+            privacy_status = content.get("privacy_status", 
+                self._map_visibility(visibility))
 
             # In a real implementation, we would:
             # 1. Upload the video file to YouTube using the resumable upload API
@@ -374,7 +396,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             # 3. Set the publishAt parameter to schedule the video
 
             # For demonstration, we'll simulate a successful scheduling
-            video_id = f"youtube_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
+            video_id = \
+                f"youtube_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": video_id,
@@ -385,7 +408,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                     "title": content["title"],
                     "description": content.get("description", ""),
                     "tags": content.get("tags", []),
-                    "category_id": content.get("category_id", "22"),  # Default to "People & Blogs"
+                    "category_id": content.get("category_id", "22"),  
+                        # Default to "People & Blogs"
                     "privacy_status": privacy_status,
                     "publish_at": schedule_time.isoformat(),
                 },
@@ -416,13 +440,15 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
 
             if self.access_token:
                 # Use OAuth authentication
-                response = self.session.get(f"{self.api_base_url}/videos", params=params)
+                response = self.session.get(f"{self.api_base_url}/videos", 
+                    params=params)
             elif self.api_key:
                 # Use API key authentication
                 params["key"] = self.api_key
                 response = requests.get(f"{self.api_base_url}/videos", params=params)
             else:
-                raise PostingError("youtube", "Either access token or API key is required")
+                raise PostingError("youtube", 
+                    "Either access token or API key is required")
 
             response.raise_for_status()
             result = response.json()
@@ -451,7 +477,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
                 "views": int(statistics.get("viewCount", 0)),
                 "likes": int(statistics.get("likeCount", 0)),
                 "dislikes": (
-                    int(statistics.get("dislikeCount", 0)) if "dislikeCount" in statistics else 0
+                    int(statistics.get("dislikeCount", 
+                        0)) if "dislikeCount" in statistics else 0
                 ),
                 "comments": int(statistics.get("commentCount", 0)),
                 "url": f"https://www.youtube.com / watch?v={video['id']}",
@@ -481,10 +508,12 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
         try:
             # Check if we have an access token (required for deletion)
             if not self.access_token:
-                raise DeletionError("youtube", "Access token is required for deleting videos")
+                raise DeletionError("youtube", 
+                    "Access token is required for deleting videos")
 
             # Delete the video
-            response = self.session.delete(f"{self.api_base_url}/videos", params={"id": post_id})
+            response = self.session.delete(f"{self.api_base_url}/videos", 
+                params={"id": post_id})
             response.raise_for_status()
 
             # YouTube returns 204 No Content on successful deletion
@@ -594,7 +623,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
             }
 
     def get_audience_insights(
-        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, Any]] = None
+        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Get audience insights from YouTube.
@@ -609,7 +639,8 @@ class YouTubeAdapter(BaseSocialMediaAdapter):
         try:
             # Check if we have an access token (required for audience insights)
             if not self.access_token:
-                raise PostingError("youtube", "Access token is required for audience insights")
+                raise PostingError("youtube", 
+                    "Access token is required for audience insights")
 
             # Set default metrics if not provided
             if not metrics:

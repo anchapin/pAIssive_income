@@ -42,7 +42,8 @@ def test_openai_provider():
     assert "message" in response["choices"][0]
 
     # Test streaming chat completion
-    stream = provider.chat_completion([{"role": "user", "content": "Hello"}], stream=True)
+    stream = provider.chat_completion([{"role": "user", "content": "Hello"}], 
+        stream=True)
     assert isinstance(stream, Generator)
     chunks = list(stream)
     assert len(chunks) > 0

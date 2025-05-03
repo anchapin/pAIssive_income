@@ -57,7 +57,8 @@ class AnalyticsService:
         self._lock = threading.Lock()
 
         # Real - time monitoring
-        self._recent_requests = deque(maxlen=1000)  # Store recent requests for real - time analysis
+        self._recent_requests = \
+            deque(maxlen=1000)  # Store recent requests for real - time analysis
         self._alert_thresholds = {
             "error_rate": 0.05,  # 5% error rate
             "response_time": 1000,  # 1000ms response time
@@ -232,7 +233,8 @@ class AnalyticsService:
             start_date=start_date, end_date=end_date, endpoint=endpoint, version=version
         )
 
-    def get_user_metrics(self, days: int = 30, user_id: str = None) -> List[Dict[str, Any]]:
+    def get_user_metrics(self, days: int = 30, user_id: str = None) -> List[Dict[str, 
+        Any]]:
         """
         Get user metrics.
 
@@ -247,9 +249,11 @@ class AnalyticsService:
         end_date = datetime.now().strftime(" % Y-%m-%d")
         start_date = (datetime.now() - timedelta(days=days)).strftime(" % Y-%m-%d")
 
-        return self.db.get_user_metrics(start_date=start_date, end_date=end_date, user_id=user_id)
+        return self.db.get_user_metrics(start_date=start_date, end_date=end_date, 
+            user_id=user_id)
 
-    def get_api_key_metrics(self, days: int = 30, api_key_id: str = None) -> List[Dict[str, Any]]:
+    def get_api_key_metrics(self, days: int = 30, 
+        api_key_id: str = None) -> List[Dict[str, Any]]:
         """
         Get API key metrics.
 
@@ -307,7 +311,8 @@ class AnalyticsService:
             stat.get("avg_response_time", 0) * stat.get("total_requests", 0)
             for stat in endpoint_stats
         )
-        avg_response_time = total_response_time / total_requests if total_requests > 0 else 0
+        avg_response_time = total_response_time / \
+            total_requests if total_requests > 0 else 0
 
         # Get top endpoints
         top_endpoints = sorted(
@@ -324,7 +329,8 @@ class AnalyticsService:
         api_key_metrics = self.get_api_key_metrics(days)
 
         # Calculate unique API keys
-        unique_api_keys = len(set(metric.get("api_key_id") for metric in api_key_metrics))
+        unique_api_keys = \
+            len(set(metric.get("api_key_id") for metric in api_key_metrics))
 
         return {
             "total_requests": total_requests,
@@ -498,7 +504,8 @@ class AnalyticsService:
                 # Sleep for 5 minutes before retrying
                 self._stop_event.wait(300)
 
-    def register_alert_handler(self, handler: Callable[[str, Dict[str, Any]], None]) -> None:
+    def register_alert_handler(self, handler: Callable[[str, Dict[str, Any]], 
+        None]) -> None:
         """
         Register a function to be called when an alert is triggered.
 
@@ -553,7 +560,8 @@ class AnalyticsService:
 
             # Calculate metrics
             request_count = len(recent_requests)
-            error_count = sum(1 for r in recent_requests if r.get("status_code", 0) >= 400)
+            error_count = sum(1 for r in recent_requests if r.get("status_code", 
+                0) >= 400)
             error_rate = error_count / request_count if request_count > 0 else 0
 
             response_times = [
@@ -592,10 +600,12 @@ class AnalyticsService:
             # Calculate averages for endpoints
             for endpoint, data in endpoints.items():
                 data["error_rate"] = (
-                    data["error_count"] / data["request_count"] if data["request_count"] > 0 else 0
+                    data["error_count"] / \
+                        data["request_count"] if data["request_count"] > 0 else 0
                 )
                 data["avg_response_time"] = (
-                    statistics.mean(data["response_times"]) if data["response_times"] else 0
+                    statistics.mean(
+                        data["response_times"]) if data["response_times"] else 0
                 )
                 data["requests_per_minute"] = data["request_count"] / minutes
                 # Remove raw response times from result
@@ -646,6 +656,7 @@ class AnalyticsService:
                 self._trigger_alert(
                     "High API Error Rate",
                     f"Error rate of {metrics['error_rate']:.2%} exceeds threshold of {self._alert_thresholds['error_rate']:.2%}",
+                        
                     {
                         "metric": "error_rate",
                         "value": metrics["error_rate"],
@@ -664,6 +675,7 @@ class AnalyticsService:
                 self._trigger_alert(
                     "High API Response Time",
                     f"Average response time of {metrics['avg_response_time']:.2f}ms exceeds threshold of {self._alert_thresholds['response_time']}ms",
+                        
                     {
                         "metric": "response_time",
                         "value": metrics["avg_response_time"],
@@ -681,6 +693,7 @@ class AnalyticsService:
                 self._trigger_alert(
                     "High API Request Volume",
                     f"Request rate of {metrics['requests_per_minute']:.2f} requests / minute exceeds threshold of {self._alert_thresholds['requests_per_minute']} requests / minute",
+                        
                     {
                         "metric": "requests_per_minute",
                         "value": metrics["requests_per_minute"],
@@ -699,10 +712,12 @@ class AnalyticsService:
                 data["error_rate"] > self._alert_thresholds["error_rate"] * 2
             ):  # Higher threshold for individual endpoints
                 alert_key = f"error_rate_{endpoint}"
-                if alert_key not in self._alert_cooldowns or now > self._alert_cooldowns[alert_key]:
+                if alert_key not in self._alert_cooldowns or \
+                    now > self._alert_cooldowns[alert_key]:
                     self._trigger_alert(
                         f"High Error Rate for Endpoint {endpoint}",
                         f"Error rate of {data['error_rate']:.2%} for endpoint {endpoint} exceeds threshold of {self._alert_thresholds['error_rate'] * 2:.2%}",
+                            
                         {
                             "metric": "error_rate",
                             "endpoint": endpoint,
@@ -718,13 +733,16 @@ class AnalyticsService:
 
             # Check endpoint response time
             if (
-                data["avg_response_time"] > self._alert_thresholds["response_time"] * 1.5
+                data["avg_response_time"] > self._alert_thresholds["response_time"] * \
+                    1.5
             ):  # Higher threshold for individual endpoints
                 alert_key = f"response_time_{endpoint}"
-                if alert_key not in self._alert_cooldowns or now > self._alert_cooldowns[alert_key]:
+                if alert_key not in self._alert_cooldowns or \
+                    now > self._alert_cooldowns[alert_key]:
                     self._trigger_alert(
                         f"High Response Time for Endpoint {endpoint}",
                         f"Average response time of {data['avg_response_time']:.2f}ms for endpoint {endpoint} exceeds threshold of {self._alert_thresholds['response_time'] * 1.5}ms",
+                            
                         {
                             "metric": "response_time",
                             "endpoint": endpoint,

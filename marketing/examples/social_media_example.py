@@ -13,7 +13,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Add the parent directory to the path to import the marketing module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from marketing import SocialMediaIntegration, SocialMediaPlatform
 
@@ -70,7 +71,8 @@ def main():
         logger.info(f"Tweet analytics: {json.dumps(analytics, indent=2)}")
 
         # Example: Get audience insights
-        insights = social_media.get_audience_insights(platform_id=twitter_connection["id"])
+        insights = \
+            social_media.get_audience_insights(platform_id=twitter_connection["id"])
 
         logger.info(f"Audience insights: {json.dumps(insights, indent=2)}")
 
@@ -95,6 +97,7 @@ def main():
         # Example: Post to Facebook
         facebook_content = {
             "message": "This is a test post from the pAIssive Income social media integration module!",
+                
             "link": "https://github.com / anchapin / pAIssive_income",
         }
 
@@ -110,14 +113,17 @@ def main():
 
         scheduled_content = {
             "message": "This is a scheduled post from the pAIssive Income social media integration module!",
+                
             "link": "https://github.com / anchapin / pAIssive_income",
         }
 
         scheduled_result = social_media.schedule_post(
-            platform_id=facebook_connection["id"], content=scheduled_content, schedule_time=tomorrow
+            platform_id=facebook_connection["id"], content=scheduled_content, 
+                schedule_time=tomorrow
         )
 
-        logger.info(f"Scheduled post for {tomorrow.isoformat()}: {scheduled_result['id']}")
+        logger.info(
+            f"Scheduled post for {tomorrow.isoformat()}: {scheduled_result['id']}")
 
     except Exception as e:
         logger.error(f"Error in Facebook example: {e}")
@@ -141,7 +147,9 @@ def main():
         # Example: Post an image to Instagram
         instagram_content = {
             "caption": "This is a test post from the pAIssive Income social media integration module! #AITools #PassiveIncome",
-            "image": {"url": "https://example.com / image.jpg"},  # Replace with a real image URL
+                
+            "image": {"url": "https://example.com / image.jpg"},  
+                # Replace with a real image URL
         }
 
         instagram_result = social_media.post_content(
@@ -149,13 +157,15 @@ def main():
         )
 
         logger.info(f"Posted to Instagram: {instagram_result['id']}")
-        logger.info(f"Post URL: {instagram_result.get('platform_data', {}).get('permalink')}")
+        logger.info(f"Post URL: {instagram_result.get('platform_data', 
+            {}).get('permalink')}")
 
         # Example: Post a story to Instagram
         story_content = {
             "story": {
                 "type": "image",
-                "url": "https://example.com / story - image.jpg",  # Replace with a real image URL
+                "url": "https://example.com / story - image.jpg",  
+                    # Replace with a real image URL
             }
         }
 
@@ -166,7 +176,8 @@ def main():
         logger.info(f"Posted story to Instagram: {story_result['id']}")
 
         # Example: Get audience insights
-        insights = social_media.get_audience_insights(platform_id=instagram_connection["id"])
+        insights = \
+            social_media.get_audience_insights(platform_id=instagram_connection["id"])
 
         logger.info(f"Instagram audience insights: {json.dumps(insights, indent=2)}")
 
@@ -207,6 +218,7 @@ def main():
                 "title": "Generate Passive Income with AI Tools",
                 "url": "https://github.com / anchapin / pAIssive_income",
                 "description": "A comprehensive framework for creating passive income streams using AI tools.",
+                    
             },
         }
 
@@ -230,11 +242,13 @@ def main():
         )
 
         logger.info(
-            f"Scheduled post for LinkedIn on {tomorrow.isoformat()}: {linkedin_scheduled_result['id']}"
+            f"Scheduled post for LinkedIn on {tomorrow.isoformat(
+                )}: {linkedin_scheduled_result['id']}"
         )
 
         # Example: Get audience insights
-        insights = social_media.get_audience_insights(platform_id=linkedin_connection["id"])
+        insights = \
+            social_media.get_audience_insights(platform_id=linkedin_connection["id"])
 
         logger.info(f"LinkedIn audience insights: {json.dumps(insights, indent=2)}")
 
@@ -264,10 +278,12 @@ def main():
         youtube_content = {
             "title": "Test Video from pAIssive Income",
             "description": "This is a test video uploaded from the pAIssive Income social media integration module!",
+                
             "tags": ["AITools", "PassiveIncome", "Test"],
             "category_id": "22",  # People & Blogs
             "privacy_status": "private",  # Use private for testing
-            "video": {"file_path": "path / to / test - video.mp4"},  # Replace with a real video path
+            "video": {"file_path": "path / to / test - video.mp4"},  
+                # Replace with a real video path
         }
 
         youtube_result = social_media.post_content(
@@ -285,10 +301,12 @@ def main():
         youtube_scheduled_content = {
             "title": "Scheduled Test Video from pAIssive Income",
             "description": "This is a scheduled test video from the pAIssive Income social media integration module!",
+                
             "tags": ["AITools", "PassiveIncome", "Test"],
             "category_id": "22",  # People & Blogs
             "privacy_status": "private",  # Use private for testing
-            "video": {"file_path": "path / to / test - video.mp4"},  # Replace with a real video path
+            "video": {"file_path": "path / to / test - video.mp4"},  
+                # Replace with a real video path
         }
 
         youtube_scheduled_result = social_media.schedule_post(
@@ -299,7 +317,8 @@ def main():
         )
 
         logger.info(
-            f"Scheduled video for YouTube on {tomorrow.isoformat()}: {youtube_scheduled_result['id']}"
+            f"Scheduled video for YouTube on {tomorrow.isoformat(
+                )}: {youtube_scheduled_result['id']}"
         )
 
         # Example: Get analytics for a video
@@ -311,7 +330,8 @@ def main():
             logger.info(f"YouTube video analytics: {json.dumps(analytics, indent=2)}")
 
         # Example: Get audience insights
-        insights = social_media.get_audience_insights(platform_id=youtube_connection["id"])
+        insights = \
+            social_media.get_audience_insights(platform_id=youtube_connection["id"])
 
         logger.info(f"YouTube audience insights: {json.dumps(insights, indent=2)}")
 
@@ -341,10 +361,12 @@ def main():
             "pin": {
                 "title": "Test Pin from pAIssive Income",
                 "description": "This is a test pin created from the pAIssive Income social media integration module! #AITools #PassiveIncome",
+                    
                 "board_name": "AI Tools",  # Will create the board if it doesn't exist
                 "media": {
                     "source_type": "image_url",
-                    "url": "https://example.com / image.jpg",  # Replace with a real image URL
+                    "url": "https://example.com / image.jpg",  
+                        # Replace with a real image URL
                 },
                 "link": "https://github.com / anchapin / pAIssive_income",
             }
@@ -366,7 +388,8 @@ def main():
             logger.info(f"Pinterest pin analytics: {json.dumps(analytics, indent=2)}")
 
         # Example: Get audience insights
-        insights = social_media.get_audience_insights(platform_id=pinterest_connection["id"])
+        insights = \
+            social_media.get_audience_insights(platform_id=pinterest_connection["id"])
 
         logger.info(f"Pinterest audience insights: {json.dumps(insights, indent=2)}")
 
@@ -393,7 +416,8 @@ def main():
 
         # Example: Post a video to TikTok
         tiktok_content = {
-            "video": {"file_path": "path / to / test - video.mp4"},  # Replace with a real video path
+            "video": {"file_path": "path / to / test - video.mp4"},  
+                # Replace with a real video path
             "caption": "Testing the pAIssive Income social media integration module!",
             "hashtags": ["AITools", "PassiveIncome", "TikTokAPI", "Test"],
         }
@@ -416,7 +440,8 @@ def main():
             logger.info(f"TikTok video analytics: {json.dumps(analytics, indent=2)}")
 
         # Example: Get audience insights
-        insights = social_media.get_audience_insights(platform_id=tiktok_connection["id"])
+        insights = \
+            social_media.get_audience_insights(platform_id=tiktok_connection["id"])
 
         logger.info(f"TikTok audience insights: {json.dumps(insights, indent=2)}")
 
@@ -448,10 +473,12 @@ def main():
             content_items = [
                 {
                     "text": "Check out our new project on GitHub! #AITools #PassiveIncome",
+                        
                     "link": "https://github.com / anchapin / pAIssive_income",
                 },
                 {
                     "text": "Learn how to generate passive income with AI tools! #AITools #PassiveIncome",
+                        
                     "link": "https://github.com / anchapin / pAIssive_income",
                 },
             ]
@@ -476,8 +503,10 @@ def main():
             )
 
             logger.info(f"Created campaign: {campaign['id']}")
-            logger.info(f"Campaign schedule: {campaign['start_date']} to {campaign['end_date']}")
-            logger.info(f"Scheduled posts: {json.dumps(campaign['scheduled_posts'], indent=2)}")
+            logger.info(
+                f"Campaign schedule: {campaign['start_date']} to {campaign['end_date']}")
+            logger.info(f"Scheduled posts: {json.dumps(campaign['scheduled_posts'], 
+                indent=2)}")
 
     except Exception as e:
         logger.error(f"Error in campaign example: {e}")

@@ -249,7 +249,8 @@ class TestValidationUtils(unittest.TestCase):
             sanitize_html("<script>alert('XSS')</script>"),
             "&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;",
         )
-        self.assertEqual(sanitize_html("<b>Bold text</b>"), "&lt;b&gt;Bold text&lt;/b&gt;")
+        self.assertEqual(sanitize_html("<b>Bold text</b>"), 
+            "&lt;b&gt;Bold text&lt;/b&gt;")
         self.assertEqual(sanitize_html("Normal string"), "Normal string")
         self.assertEqual(sanitize_html(""), "")
         self.assertEqual(sanitize_html(None), "")
@@ -276,7 +277,8 @@ class TestValidationUtils(unittest.TestCase):
         # Test sanitization
         current_dir = os.getcwd()
         self.assertEqual(sanitize_path("."), current_dir)
-        self.assertEqual(sanitize_path("./file.txt"), os.path.join(current_dir, "file.txt"))
+        self.assertEqual(sanitize_path("./file.txt"), os.path.join(current_dir, 
+            "file.txt"))
         self.assertEqual(
             sanitize_path("../file.txt"),
             os.path.normpath(os.path.join(current_dir, "..", "file.txt")),
@@ -289,18 +291,21 @@ class TestValidationUtils(unittest.TestCase):
         # Test validation and sanitization
         # Valid input
         self.assertEqual(
-            validate_and_sanitize_input("user @ example.com", is_valid_email, sanitize_string),
+            validate_and_sanitize_input("user @ example.com", is_valid_email, 
+                sanitize_string),
             "user @ example.com",
         )
 
         # Invalid input
         with self.assertRaises(ValueError):
-            validate_and_sanitize_input("invalid - email", is_valid_email, sanitize_string)
+            validate_and_sanitize_input("invalid - email", is_valid_email, 
+                sanitize_string)
 
         # Custom error message
         with self.assertRaises(ValueError) as cm:
             validate_and_sanitize_input(
-                "invalid - email", is_valid_email, sanitize_string, "Custom error message"
+                "invalid - email", is_valid_email, sanitize_string, 
+                    "Custom error message"
             )
         self.assertEqual(str(cm.exception), "Custom error message")
 
@@ -313,7 +318,8 @@ class TestValidationUtils(unittest.TestCase):
             value: int = Field(..., ge=0)
 
         # Create a temporary config file
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, 
+            suffix=".json") as temp_file:
             # Valid config
             json.dump({"name": "test", "value": 42}, temp_file)
             temp_file_path = temp_file.name

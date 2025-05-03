@@ -73,7 +73,8 @@ class ListCommand(BaseCommand):
 
             # Apply filters
             if self.args.filter:
-                models = [m for m in models if self.args.filter.lower() in m.name.lower()]
+                models = \
+                    [m for m in models if self.args.filter.lower() in m.name.lower()]
 
             if self.args.type:
                 models = [m for m in models if m.type == self.args.type]

@@ -100,6 +100,7 @@ class ConsulServiceRegistry(ServiceRegistry):
                 http_protocol = "https" if service_instance.is_secure else "http"
                 service_def["Check"] = {
                     "HTTP": f"{http_protocol}://{service_instance.host}:{service_instance.port}{service_instance.health_check_url}",
+                        
                     "Interval": "10s",
                     "Timeout": "5s",
                     "DeregisterCriticalServiceAfter": "30s",
@@ -114,11 +115,13 @@ class ConsulServiceRegistry(ServiceRegistry):
                 )
                 return True
             else:
-                logger.error(f"Failed to register service {service_instance.service_name}")
+                logger.error(
+                    f"Failed to register service {service_instance.service_name}")
                 return False
 
         except Exception as e:
-            logger.error(f"Error registering service {service_instance.service_name}: {str(e)}")
+            logger.error(
+                f"Error registering service {service_instance.service_name}: {str(e)}")
             raise ServiceRegistrationError(f"Failed to register service: {str(e)}")
 
     def deregister(self, service_id: str) -> bool:
@@ -233,7 +236,8 @@ class ConsulServiceRegistry(ServiceRegistry):
         Get all registered services from Consul.
 
         Returns:
-            Dict[str, List[ServiceInstance]]: A dictionary mapping service names to lists of instances
+            Dict[str, 
+                List[ServiceInstance]]: A dictionary mapping service names to lists of instances
 
         Raises:
             ServiceLookupError: If lookup fails
@@ -275,7 +279,8 @@ class ConsulServiceRegistry(ServiceRegistry):
             for check in checks:
                 if check["Status"] != "passing":
                     logger.warning(
-                        f"Service {service_id} has non - passing check: {check['Name']} - {check['Status']}"
+                        f"Service {service_id} has non - \
+                            passing check: {check['Name']} - {check['Status']}"
                     )
                     return False
 

@@ -102,6 +102,7 @@ class TestPaymentGateway:
                 "currency": "USD",
                 "interval": "month",
                 "features": ["feature1", "feature2", "feature3", "feature4", "feature5"],
+                    
             },
         }
 
@@ -223,7 +224,8 @@ class TestPaymentGateway:
         plan = self.test_plans["basic"]
 
         # Test subscription creation
-        with patch.object(self.subscription_manager, "create_subscription") as mock_create:
+        with patch.object(self.subscription_manager, 
+            "create_subscription") as mock_create:
             mock_create.return_value = {
                 "subscription_id": "sub_123456",
                 "customer_id": customer_id,
@@ -231,13 +233,15 @@ class TestPaymentGateway:
                 "status": SubscriptionStatus.ACTIVE,
                 "current_period_start": datetime.utcnow().isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=30)).isoformat(),
+                    
                 "payment_method_id": payment_method["id"],
                 "created_at": datetime.utcnow().isoformat(),
             }
 
             # Create subscription
             subscription = self.payment_gateway.create_subscription(
-                customer_id=customer_id, plan_id=plan["id"], payment_method_id=payment_method["id"]
+                customer_id=customer_id, plan_id=plan["id"], 
+                    payment_method_id=payment_method["id"]
             )
 
             # Verify subscription
@@ -256,7 +260,8 @@ class TestPaymentGateway:
         # Test subscription modification
         new_plan = self.test_plans["premium"]
 
-        with patch.object(self.subscription_manager, "update_subscription") as mock_update:
+        with patch.object(self.subscription_manager, 
+            "update_subscription") as mock_update:
             mock_update.return_value = {
                 "subscription_id": "sub_123456",
                 "customer_id": customer_id,
@@ -264,6 +269,7 @@ class TestPaymentGateway:
                 "status": SubscriptionStatus.ACTIVE,
                 "current_period_start": datetime.utcnow().isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=30)).isoformat(),
+                    
                 "payment_method_id": payment_method["id"],
                 "updated_at": datetime.utcnow().isoformat(),
             }
@@ -285,7 +291,8 @@ class TestPaymentGateway:
             assert call_args["plan_id"] == new_plan["id"]
 
         # Test subscription cancellation
-        with patch.object(self.subscription_manager, "cancel_subscription") as mock_cancel:
+        with patch.object(self.subscription_manager, 
+            "cancel_subscription") as mock_cancel:
             mock_cancel.return_value = {
                 "subscription_id": "sub_123456",
                 "customer_id": customer_id,
@@ -331,7 +338,8 @@ class TestPaymentGateway:
 
             # Process refund
             refund_result = self.payment_gateway.refund(
-                transaction_id=transaction_id, amount=refund_amount, reason=refund_reason
+                transaction_id=transaction_id, amount=refund_amount, 
+                    reason=refund_reason
             )
 
             # Verify refund result
@@ -387,7 +395,8 @@ class TestPaymentGateway:
 
             # Process refund
             refund_result = self.payment_gateway.refund(
-                transaction_id=transaction_id, amount=refund_amount, reason=refund_reason
+                transaction_id=transaction_id, amount=refund_amount, 
+                    reason=refund_reason
             )
 
             # Verify refund result
@@ -411,7 +420,8 @@ class TestPaymentGateway:
 
             # Add account credit
             credit_result = self.payment_gateway.add_credit(
-                customer_id=customer_id, amount=credit_amount, description=credit_description
+                customer_id=customer_id, amount=credit_amount, 
+                    description=credit_description
             )
 
             # Verify credit result
@@ -461,7 +471,8 @@ class TestPaymentGateway:
 
         for scenario in failure_scenarios:
             # Mock payment processor
-            with patch.object(self.payment_processor, "process_payment") as mock_process:
+            with patch.object(self.payment_processor, 
+                "process_payment") as mock_process:
                 mock_process.return_value = {
                     "success": False,
                     "error_code": scenario["error_code"],

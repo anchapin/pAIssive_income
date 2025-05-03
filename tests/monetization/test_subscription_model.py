@@ -95,7 +95,8 @@ def test_get_tier_by_id():
     )
 
     # Add a tier
-    tier = model.add_tier(name="Test Tier", description="A test tier", price_monthly=9.99)
+    tier = model.add_tier(name="Test Tier", description="A test tier", 
+        price_monthly=9.99)
 
     # Get the tier by ID
     retrieved_tier = model.get_tier_by_id(tier["id"])
@@ -166,7 +167,8 @@ def test_to_dict():
     )
 
     # Add a tier
-    tier = model.add_tier(name="Test Tier", description="A test tier", price_monthly=9.99)
+    tier = model.add_tier(name="Test Tier", description="A test tier", 
+        price_monthly=9.99)
 
     # Convert to dictionary
     model_dict = model.to_dict()
@@ -218,7 +220,8 @@ def test_save_load_file(temp_dir):
     )
 
     # Add a tier
-    tier = model.add_tier(name="Test Tier", description="A test tier", price_monthly=9.99)
+    tier = model.add_tier(name="Test Tier", description="A test tier", 
+        price_monthly=9.99)
 
     # Save to file
     file_path = os.path.join(temp_dir, "test_model.json")

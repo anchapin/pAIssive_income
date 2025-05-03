@@ -12,7 +12,8 @@ import sys
 import time
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models import ModelInfo, ModelManager, PerformanceMonitor
 
@@ -85,7 +86,8 @@ def main():
             tokens = random.randint(15, 30)
             delay = random.uniform(0.3, 0.7)
 
-            print(f"  Generating {tokens} tokens with {delay:.2f}s delay to first token...")
+            print(
+                f"  Generating {tokens} tokens with {delay:.2f}s delay to first token...")
             simulate_inference(tracker, tokens=tokens, delay=delay)
 
     # Generate a performance report
@@ -125,9 +127,11 @@ def main():
     if "memory" in system_perf and "percent" in system_perf["memory"]:
         print(f"Memory Usage: {system_perf['memory']['percent']}%")
         print(f"Total Memory: {system_perf['memory'].get('total_gb', 0):.2f} GB")
-        print(f"Available Memory: {system_perf['memory'].get('available_gb', 0):.2f} GB")
+        print(f"Available Memory: {system_perf['memory'].get('available_gb', 
+            0):.2f} GB")
 
-    if "gpu" in system_perf and "devices" in system_perf["gpu"] and system_perf["gpu"]["devices"]:
+    if "gpu" in system_perf and \
+        "devices" in system_perf["gpu"] and system_perf["gpu"]["devices"]:
         gpu = system_perf["gpu"]["devices"][0]
         print(f"GPU: {gpu.get('name', 'Unknown')}")
         print(f"GPU Memory Allocated: {gpu.get('memory_allocated_mb', 0):.2f} MB")

@@ -1,7 +1,8 @@
 """
 Monetization schemas for the API server.
 
-This module provides Pydantic models for Monetization API request and response validation.
+This module provides Pydantic models for Monetization API request and \
+    response validation.
 """
 
 from datetime import datetime
@@ -48,7 +49,8 @@ class PricingTierResponse(BaseModel):
     description: str = Field(..., description="Tier description")
     price_monthly: float = Field(..., description="Monthly price")
     price_annual: Optional[float] = Field(None, description="Annual price")
-    features: List[FeatureResponse] = Field(..., description="Features included in the tier")
+    features: List[FeatureResponse] = Field(..., 
+        description="Features included in the tier")
     is_popular: bool = Field(False, description="Whether this is the popular tier")
     is_free: bool = Field(False, description="Whether this is a free tier")
     user_limit: Optional[int] = Field(None, description="Maximum number of users")
@@ -88,7 +90,8 @@ class RevenueProjectionRequest(BaseModel):
     initial_users: int = Field(..., description="Initial number of users")
     growth_rate: float = Field(..., description="Monthly growth rate (0 - 1)")
     churn_rate: float = Field(..., description="Monthly churn rate (0 - 1)")
-    conversion_rate: float = Field(..., description="Conversion rate from free to paid (0 - 1)")
+    conversion_rate: float = Field(..., 
+        description="Conversion rate from free to paid (0 - 1)")
     time_period: int = Field(..., description="Projection time period in months")
 
 
@@ -100,7 +103,8 @@ class RevenueProjectionResponse(BaseModel):
     initial_users: int = Field(..., description="Initial number of users")
     growth_rate: float = Field(..., description="Monthly growth rate (0 - 1)")
     churn_rate: float = Field(..., description="Monthly churn rate (0 - 1)")
-    conversion_rate: float = Field(..., description="Conversion rate from free to paid (0 - 1)")
+    conversion_rate: float = Field(..., 
+        description="Conversion rate from free to paid (0 - 1)")
     time_period: int = Field(..., description="Projection time period in months")
     monthly_projections: List[Dict[str, Any]] = Field(
         ..., description="Monthly revenue projections"

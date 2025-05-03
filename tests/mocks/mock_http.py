@@ -44,7 +44,8 @@ class MockResponse:
             request: Original request object
         """
         self.status_code = status_code
-        self._content = content.encode("utf - 8") if isinstance(content, str) else content
+        self._content = content.encode("utf - 8") if isinstance(content, 
+            str) else content
         self.headers = headers or {}
         self._json_data = json_data
         self.url = url
@@ -61,8 +62,10 @@ class MockResponse:
             self.headers["content - length"] = str(len(self._content))
 
         # Set encoding based on headers if not specified
-        if "content - type" in self.headers and "charset=" in self.headers["content - type"]:
-            charset_match = re.search(r"charset=([^\s;]+)", self.headers["content - type"])
+        if "content - \
+            type" in self.headers and "charset=" in self.headers["content - type"]:
+            charset_match = re.search(r"charset=([^\s;]+)", 
+                self.headers["content - type"])
             if charset_match:
                 self.encoding = charset_match.group(1)
 
@@ -267,7 +270,8 @@ class MockRequests:
             response: Response to return
             method: HTTP method to match (if not included in url_pattern)
             status_code: Status code to return (if response is not a MockResponse)
-            headers: Headers to include in the response (if response is not a MockResponse)
+            headers: Headers to include in the response (
+                if response is not a MockResponse)
         """
         # If method is provided separately, create a tuple pattern
         pattern = url_pattern

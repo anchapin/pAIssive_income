@@ -38,7 +38,8 @@ class TestRevenueAnalyticsAPI:
         """Test Monthly Recurring Revenue (MRR) calculation."""
         # Make request with time period
         response = api_test_client.get(
-            "analytics / revenue / mrr", params={"date": "2025 - 04", "include_breakdown": True}
+            "analytics / revenue / mrr", params={"date": "2025 - 04", 
+                "include_breakdown": True}
         )
 
         # Validate response
@@ -66,7 +67,8 @@ class TestRevenueAnalyticsAPI:
         """Test Annual Recurring Revenue (ARR) calculation."""
         # Make request with year
         response = api_test_client.get(
-            "analytics / revenue / arr", params={"year": "2025", "include_breakdown": True}
+            "analytics / revenue / arr", params={"year": "2025", 
+                "include_breakdown": True}
         )
 
         # Validate response
@@ -120,7 +122,8 @@ class TestRevenueAnalyticsAPI:
         """Test churn analysis and metrics."""
         # Make request with period
         response = api_test_client.get(
-            "analytics / revenue / churn", params={"period": "2025 - 04", "include_reasons": True}
+            "analytics / revenue / churn", params={"period": "2025 - 04", 
+                "include_reasons": True}
         )
 
         # Validate response

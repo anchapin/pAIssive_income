@@ -223,7 +223,8 @@ class TestFallbackManager(unittest.TestCase):
 
         # Create a fallback manager with patches for its dependencies
         with (
-            patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy),
+            patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", 
+                FallbackStrategy),
             patch("ai_models.fallbacks.fallback_strategy.FallbackEvent", FallbackEvent),
         ):
             self.fallback_manager = FallbackManager(
@@ -251,7 +252,8 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(fallback_enabled=False)
 
         # Try to find a fallback model
-        model, event = self.fallback_manager.find_fallback_model(original_model_id="offline - model")
+        model, 
+            event = self.fallback_manager.find_fallback_model(original_model_id="offline - model")
 
         # Should return None when disabled
         self.assertIsNone(model)
@@ -289,7 +291,8 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(default_strategy=FallbackStrategy.SIMILAR_MODEL)
 
         # Try to find a fallback model for gpt - 4
-        model, event = self.fallback_manager.find_fallback_model(original_model_id="gpt - 4")
+        model, 
+            event = self.fallback_manager.find_fallback_model(original_model_id="gpt - 4")
 
         # Should return gpt - 3.5 - turbo (similar capabilities)
         self.assertIsNotNone(model)
@@ -340,7 +343,8 @@ class TestFallbackManager(unittest.TestCase):
     def test_specified_list_strategy(self):
         """Test the specified list fallback strategy."""
         # Configure to use specified list strategy
-        self.fallback_manager.configure(default_strategy=FallbackStrategy.SPECIFIED_LIST)
+        self.fallback_manager.configure(
+            default_strategy=FallbackStrategy.SPECIFIED_LIST)
 
         # Try to find a fallback model for a developer
         model, event = self.fallback_manager.find_fallback_model(agent_type="developer")
@@ -361,7 +365,8 @@ class TestFallbackManager(unittest.TestCase):
 
         try:
             # Try to find a fallback model for gpt - 4 (1000MB)
-            model, event = self.fallback_manager.find_fallback_model(original_model_id="gpt - 4")
+            model, 
+                event = self.fallback_manager.find_fallback_model(original_model_id="gpt - 4")
 
             # Should return a smaller model
             self.assertIsNotNone(model)
@@ -380,7 +385,8 @@ class TestFallbackManager(unittest.TestCase):
     def test_capability_based_strategy(self):
         """Test the capability - based fallback strategy."""
         # Configure to use capability strategy
-        self.fallback_manager.configure(default_strategy=FallbackStrategy.CAPABILITY_BASED)
+        self.fallback_manager.configure(
+            default_strategy=FallbackStrategy.CAPABILITY_BASED)
 
         # Try to find a model with summarization capability
         model, event = self.fallback_manager.find_fallback_model(
@@ -420,12 +426,14 @@ class TestFallbackManager(unittest.TestCase):
         try:
             # First fallback
             model1, event1 = self.fallback_manager.find_fallback_model(
-                original_model_id="offline - model", strategy_override=FallbackStrategy.DEFAULT
+                original_model_id="offline - model", 
+                    strategy_override=FallbackStrategy.DEFAULT
             )
 
             # Second fallback
             model2, event2 = self.fallback_manager.find_fallback_model(
-                original_model_id="gpt - 4",  # Use a model that exists to avoid ModelNotFoundError
+                original_model_id="gpt - 4",  
+                    # Use a model that exists to avoid ModelNotFoundError
                 strategy_override=FallbackStrategy.ANY_AVAILABLE,
             )
 
@@ -436,7 +444,8 @@ class TestFallbackManager(unittest.TestCase):
             # Check that metrics are updated
             metrics = self.fallback_manager.get_fallback_metrics()
             self.assertEqual(metrics[FallbackStrategy.DEFAULT.value]["total_count"], 1)
-            self.assertEqual(metrics[FallbackStrategy.ANY_AVAILABLE.value]["total_count"], 1)
+            self.assertEqual(metrics[FallbackStrategy.ANY_AVAILABLE.value]["total_count"], 
+                1)
         except ModelNotFoundError:
             # If ModelNotFoundError is raised, that's also acceptable
             # Some implementations might raise an error for non - existent models
@@ -450,7 +459,8 @@ class TestFallbackManager(unittest.TestCase):
         self.fallback_manager.configure(default_strategy=FallbackStrategy.NONE)
 
         # Try to find a fallback model
-        model, event = self.fallback_manager.find_fallback_model(original_model_id="offline - model")
+        model, 
+            event = self.fallback_manager.find_fallback_model(original_model_id="offline - model")
 
         # Should return None
         self.assertIsNone(model)
@@ -500,7 +510,8 @@ class TestFallbackManager(unittest.TestCase):
 
         # First attempt - force a fallback
         model1, event1 = self.fallback_manager.find_fallback_model(
-            original_model_id="offline - model", agent_type="researcher", task_type="summarization"
+            original_model_id="offline - model", agent_type="researcher", 
+                task_type="summarization"
         )
 
         # Should get the default model
@@ -523,13 +534,15 @@ class TestFallbackManager(unittest.TestCase):
         # Check metrics were updated correctly
         metrics = self.fallback_manager.get_fallback_metrics()
         self.assertEqual(metrics[FallbackStrategy.DEFAULT.value]["total_count"], 1)
-        self.assertEqual(metrics[FallbackStrategy.CAPABILITY_BASED.value]["total_count"], 1)
+        self.assertEqual(metrics[FallbackStrategy.CAPABILITY_BASED.value]["total_count"], 
+            1)
 
         # Verify events are in history
         history = self.fallback_manager.get_fallback_history()
         self.assertEqual(len(history), 2)
         self.assertEqual(history[0]["strategy_used"], FallbackStrategy.DEFAULT.value)
-        self.assertEqual(history[1]["strategy_used"], FallbackStrategy.CAPABILITY_BASED.value)
+        self.assertEqual(history[1]["strategy_used"], 
+            FallbackStrategy.CAPABILITY_BASED.value)
 
     @patch("ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy)
     @patch("ai_models.fallbacks.fallback_strategy.FallbackEvent", FallbackEvent)
@@ -537,7 +550,8 @@ class TestFallbackManager(unittest.TestCase):
         """Test that fallback strategies cascade in the correct order."""
         # Configure a non - existent model as default to force cascading
         self.fallback_manager.configure(
-            default_strategy=FallbackStrategy.DEFAULT, default_model_id="non - existent - model"
+            default_strategy=FallbackStrategy.DEFAULT, 
+                default_model_id="non - existent - model"
         )
 
         # Try to find a fallback model which should trigger cascading fallbacks

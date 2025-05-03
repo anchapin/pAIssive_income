@@ -93,6 +93,7 @@ def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_te
     test = ab_testing.create_test(
         name=f"Landing Page Test for {selected_niche}",
         description=f"Testing landing page variants for {selected_niche} based on user segments",
+            
         content_type="landing_page",
         test_type="a_b",
         variants=variants,
@@ -116,9 +117,11 @@ def test_niche_to_ab_testing_workflow(market_analyzer, ab_testing, mock_agent_te
         # Other variants: 8 - 15% conversion depending on the variant
         # Use deterministic SHA - 256 hash instead of built - in hash() for consistent test results
         name_hash = int.from_bytes(
-            hashlib.sha256(variant["name"].encode(), usedforsecurity=False).digest(), "big"
+            hashlib.sha256(variant["name"].encode(), usedforsecurity=False).digest(), 
+                "big"
         )
-        conversion_rate = 0.1 if variant["is_control"] else (0.08 + (name_hash % 8) / 100)
+        conversion_rate = 0.1 if variant["is_control"] else (0.08 + \
+            (name_hash % 8) / 100)
         conversion_count = int(1000 * conversion_rate)
 
         for _ in range(conversion_count):
@@ -187,7 +190,8 @@ def test_niche_to_ab_testing_workflow_with_multivariate(market_analyzer, ab_test
                 variant = {
                     "name": f"{headline[:10]}... / {description[:10]}... / {cta}",
                     "is_control": control_set,  # First combination is control
-                    "content": {"headline": headline, "description": description, "cta": cta},
+                    "content": {"headline": headline, "description": description, 
+                        "cta": cta},
                 }
                 variants.append(variant)
                 control_set = False  # Only the first one is control
@@ -195,7 +199,8 @@ def test_niche_to_ab_testing_workflow_with_multivariate(market_analyzer, ab_test
     # Create the multivariate test
     test = ab_testing.create_test(
         name=f"Multivariate Landing Page Test for {selected_niche}",
-        description=f"Testing different combinations of headlines, descriptions, and CTAs for {selected_niche}",
+        description=f"Testing different combinations of headlines, descriptions, 
+            and CTAs for {selected_niche}",
         content_type="landing_page",
         test_type="multivariate",
         variants=variants,
@@ -217,8 +222,10 @@ def test_niche_to_ab_testing_workflow_with_multivariate(market_analyzer, ab_test
         # - Headlines affect conversion by up to 5%
         # - Descriptions affect conversion by up to 3%
         # - CTAs affect conversion by up to 2%
-        headline_factor = 0.08 + (headlines.index(variant["content"]["headline"]) * 0.025)
-        description_factor = 1.0 + (descriptions.index(variant["content"]["description"]) * 0.015)
+        headline_factor = 0.08 + \
+            (headlines.index(variant["content"]["headline"]) * 0.025)
+        description_factor = 1.0 + \
+            (descriptions.index(variant["content"]["description"]) * 0.015)
         cta_factor = 1.0 + (ctas.index(variant["content"]["cta"]) * 0.01)
 
         conversion_rate = headline_factor * description_factor * cta_factor

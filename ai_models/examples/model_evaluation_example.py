@@ -12,7 +12,8 @@ import sys
 from typing import Any, Dict, List, Optional
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models.fine_tuning import (
     EvaluationConfig,
@@ -136,13 +137,17 @@ def main():
     """
     Main function.
     """
-    parser = argparse.ArgumentParser(description="Evaluate and compare fine - tuned models")
+    parser = argparse.ArgumentParser(description="Evaluate and compare fine - \
+        tuned models")
 
     parser.add_argument("--model", type=str, help="Path to the model to evaluate")
-    parser.add_argument("--models", type=str, nargs=" + ", help="Paths to the models to compare")
-    parser.add_argument("--dataset", type=str, required=True, help="Path to the dataset")
+    parser.add_argument("--models", type=str, nargs=" + ", 
+        help="Paths to the models to compare")
+    parser.add_argument("--dataset", type=str, required=True, 
+        help="Path to the dataset")
     parser.add_argument(
-        "--output - dir", type=str, default="evaluation_results", help="Directory to save the results"
+        "--output - dir", type=str, default="evaluation_results", 
+            help="Directory to save the results"
     )
     parser.add_argument(
         "--metrics",
@@ -151,7 +156,8 @@ def main():
         default=["perplexity", "accuracy"],
         help="Metrics to use for evaluation",
     )
-    parser.add_argument("--num - samples", type=int, help="Number of samples to use for evaluation")
+    parser.add_argument("--num - samples", type=int, 
+        help="Number of samples to use for evaluation")
 
     args = parser.parse_args()
 

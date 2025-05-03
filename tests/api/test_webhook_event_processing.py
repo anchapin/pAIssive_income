@@ -40,6 +40,7 @@ class TestEventFiltering:
             webhook1_data = {
                 "url": "https://example.com / webhook1",
                 "events": [WebhookEventType.USER_CREATED, WebhookEventType.USER_UPDATED],
+                    
                 "description": "User events webhook",
                 "is_active": True,
             }
@@ -74,7 +75,8 @@ class TestEventFiltering:
             success_response.text = AsyncMock(return_value="OK")
 
             # Track which webhooks receive which events
-            received_events = {webhook1["id"]: [], webhook2["id"]: [], webhook3["id"]: []}
+            received_events = {webhook1["id"]: [], webhook2["id"]: [], 
+                webhook3["id"]: []}
 
             async def mock_post(*args, **kwargs):
                 # Extract the URL and payload from kwargs
@@ -115,7 +117,8 @@ class TestEventFiltering:
                 }
 
                 await service.trigger_event(
-                    event_type=WebhookEventType.PAYMENT_RECEIVED, event_data=payment_data
+                    event_type=WebhookEventType.PAYMENT_RECEIVED, 
+                        event_data=payment_data
                 )
 
                 # SUBSCRIPTION_CREATED event
@@ -127,7 +130,8 @@ class TestEventFiltering:
                 }
 
                 await service.trigger_event(
-                    event_type=WebhookEventType.SUBSCRIPTION_CREATED, event_data=subscription_data
+                    event_type=WebhookEventType.SUBSCRIPTION_CREATED, 
+                        event_data=subscription_data
                 )
 
                 # Wait for all events to be delivered
@@ -287,7 +291,8 @@ class TestEventCorrelation:
                 }
 
                 await service.trigger_event(
-                    event_type=WebhookEventType.PAYMENT_RECEIVED, event_data=payment_data
+                    event_type=WebhookEventType.PAYMENT_RECEIVED, 
+                        event_data=payment_data
                 )
 
                 # Wait for all events to be delivered
@@ -295,10 +300,12 @@ class TestEventCorrelation:
 
                 # Verify that events were delivered with the correlation ID
                 user_events = [
-                    e for e in delivered_events if e["type"] == WebhookEventType.USER_CREATED
+                    e for e in delivered_events if e["type"] == \
+                        WebhookEventType.USER_CREATED
                 ]
                 payment_events = [
-                    e for e in delivered_events if e["type"] == WebhookEventType.PAYMENT_RECEIVED
+                    e for e in delivered_events if e["type"] == \
+                        WebhookEventType.PAYMENT_RECEIVED
                 ]
 
                 assert len(user_events) == 1
@@ -432,7 +439,8 @@ class TestEventBatching:
 
                 # Verify that only the last event was delivered
                 assert len(delivered_events) == 1
-                assert delivered_events[0]["data"]["username"] == "testuser - 4"  # Last update
+                assert delivered_events[0]["data"]["username"] == "testuser - \
+                    4"  # Last update
 
         finally:
             # Stop the service
@@ -528,7 +536,8 @@ class TestCustomHeaders:
                 "url": "https://example.com / webhook",
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
-                "headers": {"X - API - Key": "test - api - key", "X - Custom - Header": "custom - value"},
+                "headers": {"X - API - Key": "test - api - key", 
+                    "X - Custom - Header": "custom - value"},
                 "is_active": True,
             }
             webhook = await service.register_webhook(webhook_data)

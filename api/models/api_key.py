@@ -101,6 +101,7 @@ class APIKey:
             "expires_at": self.expires_at.isoformat() if self.expires_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_used_at": self.last_used_at.isoformat() if self.last_used_at else None,
+                
         }
 
     @classmethod
@@ -115,10 +116,13 @@ class APIKey:
             API key instance
         """
         # Convert ISO format strings to datetime objects
-        expires_at = datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
-        created_at = datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None
+        expires_at = \
+            datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
+        created_at = \
+            datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None
         last_used_at = (
-            datetime.fromisoformat(data["last_used_at"]) if data.get("last_used_at") else None
+            datetime.fromisoformat(
+                data["last_used_at"]) if data.get("last_used_at") else None
         )
 
         return cls(

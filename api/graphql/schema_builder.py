@@ -88,7 +88,8 @@ def build_schema():
     schema = strawberry.Schema(
         query=RootQuery,
         mutation=RootMutation,
-        config=StrawberryConfig(auto_camel_case=True),  # Convert snake_case to camelCase
+        config=StrawberryConfig(auto_camel_case=True),  
+            # Convert snake_case to camelCase
     )
 
     return schema
@@ -106,7 +107,8 @@ def create_graphql_router(path: str = " / graphql", graphiql: bool = True):
         GraphQL router
     """
     if not STRAWBERRY_AVAILABLE:
-        logger.error("Cannot create GraphQL router: Strawberry GraphQL is not installed")
+        logger.error(
+            "Cannot create GraphQL router: Strawberry GraphQL is not installed")
         return None
 
     # Build schema
@@ -118,6 +120,7 @@ def create_graphql_router(path: str = " / graphql", graphiql: bool = True):
     from .context import get_context
 
     # Create router
-    router = GraphQLRouter(schema=schema, graphiql=graphiql, path=path, context_getter=get_context)
+    router = GraphQLRouter(schema=schema, graphiql=graphiql, path=path, 
+        context_getter=get_context)
 
     return router

@@ -75,7 +75,8 @@ class TestMessageQueue:
         messages = [{"id": i, "data": f"test_data_{i}"} for i in range(5)]
 
         # Test batch publishing
-        batch_result = self.publisher.publish_batch(routing_key="batch.test", messages=messages)
+        batch_result = self.publisher.publish_batch(routing_key="batch.test", 
+            messages=messages)
         assert len(batch_result["published"]) == len(messages)
 
         # Test single consumer
@@ -99,7 +100,8 @@ class TestMessageQueue:
             msg1 = self.consumer.consume(
                 queue_name="batch_test", routing_key="batch.test", timeout=500
             )
-            msg2 = consumer2.consume(queue_name="batch_test", routing_key="batch.test", timeout=500)
+            msg2 = consumer2.consume(queue_name="batch_test", routing_key="batch.test", 
+                timeout=500)
             if msg1:
                 consumed_1.append(msg1["message"])
             if msg2:
@@ -120,7 +122,8 @@ class TestMessageQueue:
             raise ValueError("Simulated processing failure")
 
         # Register message handler that will fail
-        self.consumer.register_handler(routing_key="test.failures", handler=failing_processor)
+        self.consumer.register_handler(routing_key="test.failures", 
+            handler=failing_processor)
 
         # Publish message that will fail
         self.publisher.publish(
@@ -215,7 +218,8 @@ class TestMessageQueue:
         """Test error handling scenarios."""
         # Test invalid routing key
         with pytest.raises(MessagePublishError):
-            self.publisher.publish(routing_key="", message={"test": "data"})  # Invalid routing key
+            self.publisher.publish(routing_key="", 
+                message={"test": "data"})  # Invalid routing key
 
         # Test invalid message format
         with pytest.raises(MessagePublishError):
@@ -225,7 +229,8 @@ class TestMessageQueue:
 
         # Test consumer timeout
         result = self.consumer.consume(
-            queue_name="empty_queue", routing_key="test.empty", timeout=100  # Very short timeout
+            queue_name="empty_queue", routing_key="test.empty", 
+                timeout=100  # Very short timeout
         )
         assert result is None
 
@@ -252,7 +257,8 @@ class TestMessageQueue:
 
         # Publish persistent message
         message = {"type": "persistent", "data": "test"}
-        durable_publisher.publish(routing_key="persistent.test", message=message, persistent=True)
+        durable_publisher.publish(routing_key="persistent.test", message=message, 
+            persistent=True)
 
         # Simulate broker restart
         with patch("services.messaging.MessageQueueClient.reconnect") as mock_reconnect:

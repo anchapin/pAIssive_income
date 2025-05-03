@@ -52,7 +52,8 @@ def test_payment_api():
     assert "id" in customer
 
     # Test subscription creation
-    subscription = api.create_subscription(customer_id=customer["id"], plan_id="basic_plan")
+    subscription = api.create_subscription(customer_id=customer["id"], 
+        plan_id="basic_plan")
     assert subscription["customer_id"] == customer["id"]
     assert subscription["plan_id"] == "basic_plan"
     assert subscription["status"] == "active"
@@ -74,7 +75,8 @@ def test_email_api():
     api = MockEmailAPI()
 
     # Test sending single email
-    result = api.send_email(to="user @ example.com", subject="Test Email", content="Test content")
+    result = api.send_email(to="user @ example.com", subject="Test Email", 
+        content="Test content")
     assert result["status"] == "sent"
     assert "email_id" in result
 
@@ -89,7 +91,8 @@ def test_email_api():
     # Test batch sending
     batch_result = api.send_batch(
         [
-            {"to": f"user{i}@example.com", "subject": f"Test {i}", "content": f"Content {i}"}
+            {"to": f"user{i}@example.com", "subject": f"Test {i}", 
+                "content": f"Content {i}"}
             for i in range(3)
         ]
     )

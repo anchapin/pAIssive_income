@@ -64,7 +64,8 @@ def test_create_persona():
     assert persona["demographics"]["age_range"] == "30 - 45"
     assert "Limited time for marketing" in persona["pain_points"]
     assert "Increase sales" in persona["goals"]
-    assert "Price - conscious but willing to invest in time - saving tools" in persona["behaviors"]
+    assert "Price - \
+        conscious but willing to invest in time - saving tools" in persona["behaviors"]
 
 
 def test_demographic_analyzer_init():
@@ -148,6 +149,7 @@ def test_analyze_pain_point():
         "id": "pp1",
         "name": "Limited time for marketing",
         "description": "Small business owners have limited time for marketing activities",
+            
         "severity": "high",
         "impact": "Reduced visibility and sales",
     }

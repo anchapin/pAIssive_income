@@ -318,6 +318,7 @@ def test_cross_channel_campaign_coordination():
         name="Product Launch Campaign",
         channels=["social_media", "email", "content", "paid_ads"],
         timeline={"pre_launch": "2 weeks", "launch": "1 week", "post_launch": "4 weeks"},
+            
         budget=20000,
         main_goal="product_launch",
     )
@@ -339,7 +340,8 @@ def test_cross_channel_campaign_coordination():
 
         # Check for message consistency
         messages = [action["message_theme"] for action in channel_actions]
-        assert len(set(messages)) == 1  # All channels should share the same message theme
+        assert len(set(messages)) == \
+            1  # All channels should share the same message theme
 
 
 def test_channel_performance_metrics():

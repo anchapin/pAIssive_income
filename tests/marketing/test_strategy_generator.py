@@ -27,6 +27,7 @@ def strategy_generator():
                 "occupation": "professionals, business owners",
             },
             "interests": ["productivity", "technology", "business growth", "automation"],
+                
             "pain_points": ["time management", "manual processes", "data organization"],
             "goals": ["improve efficiency", "reduce costs", "grow business"],
         },
@@ -215,7 +216,8 @@ def test_analyze_channel_metrics_effectiveness(strategy_generator):
     """Test _analyze_channel_metrics_effectiveness method."""
     # Test for a specific channel
     channel = "content_marketing"
-    metrics_effectiveness = strategy_generator._analyze_channel_metrics_effectiveness(channel)
+    metrics_effectiveness = \
+        strategy_generator._analyze_channel_metrics_effectiveness(channel)
 
     # Check that the result has the expected keys
     assert "metrics" in metrics_effectiveness
@@ -263,7 +265,8 @@ def test_calculate_channel_business_alignment(strategy_generator):
     """Test _calculate_channel_business_alignment method."""
     # Test for all channels
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        business_alignment = strategy_generator._calculate_channel_business_alignment(channel)
+        business_alignment = \
+            strategy_generator._calculate_channel_business_alignment(channel)
 
         # Check that the result is a float between 0 and 1
         assert isinstance(business_alignment, float)
@@ -272,7 +275,8 @@ def test_calculate_channel_business_alignment(strategy_generator):
     # Test with a channel that is in the typical channels for the business type
     business_type_data = strategy_generator.BUSINESS_TYPES["saas"]
     typical_channel = business_type_data["typical_channels"][0]
-    business_alignment = strategy_generator._calculate_channel_business_alignment(typical_channel)
+    business_alignment = \
+        strategy_generator._calculate_channel_business_alignment(typical_channel)
 
     # Check that the alignment is 1.0 for a typical channel
     assert business_alignment == 1.0
@@ -282,7 +286,8 @@ def test_calculate_channel_goal_alignment_score(strategy_generator):
     """Test _calculate_channel_goal_alignment_score method."""
     # Test for all channels
     for channel in strategy_generator.MARKETING_CHANNELS.keys():
-        goal_alignment = strategy_generator._calculate_channel_goal_alignment_score(channel)
+        goal_alignment = \
+            strategy_generator._calculate_channel_goal_alignment_score(channel)
 
         # Check that the result is a float between 0 and 1
         assert isinstance(goal_alignment, float)
@@ -292,7 +297,8 @@ def test_calculate_channel_goal_alignment_score(strategy_generator):
     goal = strategy_generator.goals[0]
     goal_data = strategy_generator.MARKETING_GOALS[goal]
     best_channel = goal_data["recommended_channels"][0]
-    goal_alignment = strategy_generator._calculate_channel_goal_alignment_score(best_channel)
+    goal_alignment = \
+        strategy_generator._calculate_channel_goal_alignment_score(best_channel)
 
     # Check that the alignment is high for a channel that is best for the goal
     assert goal_alignment >= 0.5
@@ -315,7 +321,8 @@ def test_calculate_time_adjustment(strategy_generator):
     assert strategy_generator._calculate_time_adjustment("low") == 1.0
     assert strategy_generator._calculate_time_adjustment("medium") == 0.8
     assert strategy_generator._calculate_time_adjustment("high") == 0.6
-    assert strategy_generator._calculate_time_adjustment("unknown") == 0.8  # Default to medium
+    assert strategy_generator._calculate_time_adjustment("unknown") == \
+        0.8  # Default to medium
 
 
 def test_adjust_metrics_for_business_type(strategy_generator):
@@ -332,7 +339,8 @@ def test_adjust_metrics_for_business_type(strategy_generator):
 
     # Test for a specific channel and business type
     channel = "content_marketing"
-    adjusted_metrics = strategy_generator._adjust_metrics_for_business_type(metrics, channel)
+    adjusted_metrics = strategy_generator._adjust_metrics_for_business_type(metrics, 
+        channel)
 
     # Check that the result is a dictionary with the same keys
     assert isinstance(adjusted_metrics, dict)
@@ -458,12 +466,15 @@ def test_analyze_channel_goal_alignment(strategy_generator):
         assert "channel" in channel_alignment
         assert "avg_alignment" in channel_alignment
         # The key might be "goal_scores" instead of "alignment_by_goal"
-        assert "goal_scores" in channel_alignment or "alignment_by_goal" in channel_alignment
-        assert "alignment_level" in channel_alignment or "overall_level" in channel_alignment
+        assert "goal_scores" in channel_alignment or \
+            "alignment_by_goal" in channel_alignment
+        assert "alignment_level" in channel_alignment or \
+            "overall_level" in channel_alignment
 
         # Check that scores are within expected ranges
         assert 0 <= channel_alignment["avg_alignment"] <= 1
-        assert channel_alignment.get("alignment_level", channel_alignment.get("overall_level")) in [
+        assert channel_alignment.get("alignment_level", 
+            channel_alignment.get("overall_level")) in [
             "low",
             "medium",
             "high",

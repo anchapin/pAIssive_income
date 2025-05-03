@@ -92,7 +92,8 @@ class GRPCServer(ModelServer):
         elif self.config.model_type == "embedding":
             from transformers import AutoModel
 
-            self.model = AutoModel.from_pretrained(self.config.model_path, device_map="auto")
+            self.model = AutoModel.from_pretrained(self.config.model_path, 
+                device_map="auto")
         else:
             raise ValueError(f"Unsupported model type: {self.config.model_type}")
 
@@ -130,7 +131,8 @@ class GRPCServer(ModelServer):
             with open(self.config.tls_cert_file, "rb") as f:
                 certificate_chain = f.read()
 
-            server_credentials = grpc.ssl_server_credentials([(private_key, certificate_chain)])
+            server_credentials = grpc.ssl_server_credentials([(private_key, 
+                certificate_chain)])
 
             # Add secure port
             server_address = f"{self.config.host}:{self.config.port}"
@@ -189,6 +191,7 @@ class GRPCServer(ModelServer):
         return {
             "version": "1.0.0",
             "model_id": self.config.model_id or os.path.basename(self.config.model_path),
+                
             "model_type": self.config.model_type,
             "uptime": time.time() - self.start_time if self.start_time else 0,
             "host": self.config.host,
@@ -215,6 +218,7 @@ class GRPCServer(ModelServer):
                 "value": self.request_count,
                 "labels": {
                     "model_id": self.config.model_id or os.path.basename(self.config.model_path),
+                        
                     "model_type": self.config.model_type,
                 },
             }
@@ -227,6 +231,7 @@ class GRPCServer(ModelServer):
                 "value": self.error_count,
                 "labels": {
                     "model_id": self.config.model_id or os.path.basename(self.config.model_path),
+                        
                     "model_type": self.config.model_type,
                 },
             }
@@ -239,6 +244,7 @@ class GRPCServer(ModelServer):
                 "value": self.token_count,
                 "labels": {
                     "model_id": self.config.model_id or os.path.basename(self.config.model_path),
+                        
                     "model_type": self.config.model_type,
                 },
             }
@@ -336,7 +342,8 @@ class GRPCServer(ModelServer):
         try:
             from .proto import model_pb2, model_pb2_grpc
         except ImportError:
-            logger.warning("Proto modules not found. Make sure to generate them from .proto files.")
+            logger.warning(
+                "Proto modules not found. Make sure to generate them from .proto files.")
             return
 
         # Create servicer

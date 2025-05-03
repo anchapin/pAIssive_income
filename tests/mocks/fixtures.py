@@ -426,8 +426,10 @@ def patch_huggingface_hub(monkeypatch):
     mock_huggingface_hub.reset()
 
     # Patch the huggingface_hub functions
-    monkeypatch.setattr("huggingface_hub.hf_hub_download", mock_huggingface_hub.hf_hub_download)
-    monkeypatch.setattr("huggingface_hub.snapshot_download", mock_huggingface_hub.snapshot_download)
+    monkeypatch.setattr("huggingface_hub.hf_hub_download", 
+        mock_huggingface_hub.hf_hub_download)
+    monkeypatch.setattr("huggingface_hub.snapshot_download", 
+        mock_huggingface_hub.snapshot_download)
     monkeypatch.setattr("huggingface_hub.list_models", mock_huggingface_hub.list_models)
     monkeypatch.setattr("huggingface_hub.login", mock_huggingface_hub.login)
 
@@ -683,7 +685,8 @@ def mock_niche_analysis_data():
                     "Privacy concerns",
                     "Technical complexity",
                 ],
-                "target_audience": ["Knowledge workers", "Small businesses", "Freelancers"],
+                "target_audience": ["Knowledge workers", "Small businesses", 
+                    "Freelancers"],
             },
             {
                 "name": "Content Creator Automation",
@@ -691,8 +694,10 @@ def mock_niche_analysis_data():
                 "market_size": "Medium",
                 "competition_level": "Low",
                 "growth_trend": "Rapidly increasing",
-                "challenges": ["Quality control", "Customization needs", "Ethical considerations"],
+                "challenges": ["Quality control", "Customization needs", 
+                    "Ethical considerations"],
                 "target_audience": ["YouTubers", "Bloggers", "Social media influencers"],
+                    
             },
             {
                 "name": "AI - powered Personal Finance",
@@ -700,7 +705,8 @@ def mock_niche_analysis_data():
                 "market_size": "Medium",
                 "competition_level": "Medium - high",
                 "growth_trend": "Steady increase",
-                "challenges": ["Regulatory compliance", "Data security", "Trust building"],
+                "challenges": ["Regulatory compliance", "Data security", 
+                    "Trust building"],
                 "target_audience": [
                     "Young professionals",
                     "Financial enthusiasts",
@@ -708,7 +714,10 @@ def mock_niche_analysis_data():
                 ],
             },
         ],
-        "analysis_summary": "The AI tools market shows significant growth potential across multiple niches. The highest opportunity scores are in productivity tools, content creation, and personal finance applications. Each niche presents unique challenges but also substantial monetization potential.",
+        "analysis_summary": "The AI tools market shows significant growth potential across multiple niches. The highest opportunity scores are in productivity tools, 
+            content creation, 
+            and personal finance applications. Each niche presents unique challenges but also substantial monetization potential.",
+            
         "recommended_focus": "AI Productivity Tools",
         "timestamp": datetime.now().isoformat(),
     }
@@ -737,13 +746,15 @@ def mock_marketing_campaign_data():
                     "Need for better organization",
                     "Information overload",
                 ],
-                "goals": ["Increase productivity", "Streamline workflows", "Reduce stress"],
+                "goals": ["Increase productivity", "Streamline workflows", 
+                    "Reduce stress"],
             }
         ],
         "channels": [
             {
                 "name": "Email",
-                "content_types": ["Product announcement", "Tutorial series", "Case studies"],
+                "content_types": ["Product announcement", "Tutorial series", 
+                    "Case studies"],
                 "frequency": "Weekly",
                 "performance_metrics": {
                     "open_rate": 0.25,
@@ -754,7 +765,8 @@ def mock_marketing_campaign_data():
             {
                 "name": "Social Media",
                 "platforms": ["Twitter", "LinkedIn", "Instagram"],
-                "content_types": ["Feature highlights", "User testimonials", "Tips and tricks"],
+                "content_types": ["Feature highlights", "User testimonials", 
+                    "Tips and tricks"],
                 "frequency": "Daily",
                 "performance_metrics": {
                     "engagement_rate": 0.04,
@@ -766,6 +778,7 @@ def mock_marketing_campaign_data():
         "content_calendar": [
             {
                 "date": (datetime.now().replace(day=1) + timedelta(days=7)).strftime(" % Y-%m-%d"),
+                    
                 "channel": "Email",
                 "title": "Introducing Our New AI - Powered Feature",
                 "content_type": "Product announcement",
@@ -773,6 +786,7 @@ def mock_marketing_campaign_data():
             },
             {
                 "date": (datetime.now().replace(day=1) + timedelta(days=9)).strftime(" % Y-%m-%d"),
+                    
                 "channel": "LinkedIn",
                 "title": "How Our Tool Saved Client X 10 Hours Per Week",
                 "content_type": "Case study",
@@ -786,7 +800,8 @@ def mock_marketing_campaign_data():
 
 
 @pytest.fixture
-def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_model_providers):
+def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, 
+    patch_model_providers):
     """
     Create a complete setup for AI model testing.
 
@@ -815,6 +830,7 @@ def mock_ai_model_testing_setup(patch_requests, patch_huggingface_hub, patch_mod
                     "message": {
                         "role": "assistant",
                         "content": "This is a mock response from the AI model testing environment.",
+                            
                     },
                     "finish_reason": "stop",
                 }
@@ -882,7 +898,9 @@ def mock_monetization_testing_setup(patch_requests, mock_subscription_data):
             "id": mock_subscription_data["subscription"]["id"],
             "status": mock_subscription_data["subscription"]["status"],
             "current_period_start": mock_subscription_data["subscription"]["current_period_start"],
+                
             "current_period_end": mock_subscription_data["subscription"]["current_period_end"],
+                
         },
         method="POST",
         status_code=200,
@@ -979,15 +997,20 @@ def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis
         "analyze market": "The market shows significant growth potential.",
         "competition analysis": "The competition level varies by niche.",
         "target audience": "The primary target audience consists of knowledge workers and small businesses.",
+            
         "analyze market trends": "Market analysis shows positive growth trends in AI inventory management.",
+            
         "identify target audience": "The target audience is primarily e - commerce businesses and retail chains.",
+            
         "evaluate competition": "Competition analysis reveals 3 major competitors with basic AI features.",
+            
     }
 
     # Add generate method to model providers if not already present
     for provider_name, provider in patch_model_providers.items():
         if not hasattr(provider, "generate"):
-            provider.generate = lambda text, **kwargs: f"This is a mock response for: {text}"
+            provider.generate = lambda text, 
+                **kwargs: f"This is a mock response for: {text}"
 
     # Create a temporary directory for file operations
     temp_dir = tempfile.mkdtemp(prefix="niche_analysis_test_")

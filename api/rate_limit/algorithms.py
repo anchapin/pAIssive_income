@@ -22,7 +22,8 @@ class RateLimiter(ABC):
     """
 
     @abstractmethod
-    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, Any]]:
+    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, 
+        Any]]:
         """
         Check if a request should be rate limited.
 
@@ -32,7 +33,8 @@ class RateLimiter(ABC):
 
         Returns:
             Tuple of (allowed, limit_info)
-            - allowed: True if the request is allowed, False if it should be rate limited
+            - allowed: True if the request is allowed, 
+                False if it should be rate limited
             - limit_info: Dictionary with rate limit information
         """
         pass
@@ -57,7 +59,8 @@ class FixedWindowRateLimiter(RateLimiter):
         self.window = window
         self.counters: Dict[str, Dict[str, Any]] = {}
 
-    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, Any]]:
+    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, 
+        Any]]:
         """
         Check if a request should be rate limited.
 
@@ -67,7 +70,8 @@ class FixedWindowRateLimiter(RateLimiter):
 
         Returns:
             Tuple of (allowed, limit_info)
-            - allowed: True if the request is allowed, False if it should be rate limited
+            - allowed: True if the request is allowed, 
+                False if it should be rate limited
             - limit_info: Dictionary with rate limit information
         """
         current_time = int(time.time())
@@ -75,7 +79,8 @@ class FixedWindowRateLimiter(RateLimiter):
         window_end = window_start + self.window
 
         # Initialize or reset counter if needed
-        if key not in self.counters or self.counters[key]["window_start"] != window_start:
+        if key not in self.counters or self.counters[key]["window_start"] != \
+            window_start:
             self.counters[key] = {"window_start": window_start, "count": 0}
 
         # Check if limit is exceeded
@@ -121,7 +126,8 @@ class TokenBucketRateLimiter(RateLimiter):
         self.burst = burst
         self.buckets: Dict[str, Dict[str, Any]] = {}
 
-    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, Any]]:
+    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, 
+        Any]]:
         """
         Check if a request should be rate limited.
 
@@ -131,7 +137,8 @@ class TokenBucketRateLimiter(RateLimiter):
 
         Returns:
             Tuple of (allowed, limit_info)
-            - allowed: True if the request is allowed, False if it should be rate limited
+            - allowed: True if the request is allowed, 
+                False if it should be rate limited
             - limit_info: Dictionary with rate limit information
         """
         current_time = time.time()
@@ -143,7 +150,8 @@ class TokenBucketRateLimiter(RateLimiter):
         # Refill tokens
         time_passed = current_time - self.buckets[key]["last_refill"]
         new_tokens = time_passed * self.rate
-        self.buckets[key]["tokens"] = min(self.burst, self.buckets[key]["tokens"] + new_tokens)
+        self.buckets[key]["tokens"] = min(self.burst, 
+            self.buckets[key]["tokens"] + new_tokens)
         self.buckets[key]["last_refill"] = current_time
 
         # Check if enough tokens are available
@@ -194,7 +202,8 @@ class LeakyBucketRateLimiter(RateLimiter):
         self.capacity = capacity
         self.buckets: Dict[str, Dict[str, Any]] = {}
 
-    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, Any]]:
+    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, 
+        Any]]:
         """
         Check if a request should be rate limited.
 
@@ -204,7 +213,8 @@ class LeakyBucketRateLimiter(RateLimiter):
 
         Returns:
             Tuple of (allowed, limit_info)
-            - allowed: True if the request is allowed, False if it should be rate limited
+            - allowed: True if the request is allowed, 
+                False if it should be rate limited
             - limit_info: Dictionary with rate limit information
         """
         current_time = time.time()
@@ -216,7 +226,8 @@ class LeakyBucketRateLimiter(RateLimiter):
         # Leak water
         time_passed = current_time - self.buckets[key]["last_leak"]
         leaked = time_passed * self.rate
-        self.buckets[key]["water_level"] = max(0, self.buckets[key]["water_level"] - leaked)
+        self.buckets[key]["water_level"] = max(0, 
+            self.buckets[key]["water_level"] - leaked)
         self.buckets[key]["last_leak"] = current_time
 
         # Check if adding water would overflow the bucket
@@ -267,7 +278,8 @@ class SlidingWindowRateLimiter(RateLimiter):
         self.window = window
         self.requests: Dict[str, List[float]] = {}
 
-    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, Any]]:
+    def check_rate_limit(self, key: str, cost: float = 1.0) -> Tuple[bool, Dict[str, 
+        Any]]:
         """
         Check if a request should be rate limited.
 
@@ -277,7 +289,8 @@ class SlidingWindowRateLimiter(RateLimiter):
 
         Returns:
             Tuple of (allowed, limit_info)
-            - allowed: True if the request is allowed, False if it should be rate limited
+            - allowed: True if the request is allowed, 
+                False if it should be rate limited
             - limit_info: Dictionary with rate limit information
         """
         current_time = time.time()

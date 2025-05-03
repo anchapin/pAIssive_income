@@ -20,7 +20,8 @@ from api.config import APIVersion
 from api.server import APIConfig, APIServer
 
 # Import test client fixtures
-from tests.api.utils.test_client import APITestClient, api_test_client, auth_api_test_client
+from tests.api.utils.test_client import APITestClient, api_test_client, 
+    auth_api_test_client
 
 # Import mock fixtures
 from tests.mocks.fixtures import (
@@ -113,7 +114,8 @@ def api_server(api_config: APIConfig) -> APIServer:
     from fastapi.responses import JSONResponse
 
     @niche_analysis_router.post(" / analyze")
-    async def analyze_niche(request: Request, response: Response, data: dict = Body(...)):
+    async def analyze_niche(request: Request, response: Response, 
+        data: dict = Body(...)):
         # Check if the request body is empty (for invalid request test)
         if not data:
             response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -133,7 +135,8 @@ def api_server(api_config: APIConfig) -> APIServer:
     async def get_analysis(analysis_id: str):
         if analysis_id.startswith("nonexistent - "):
             raise HTTPException(
-                status_code=404, detail={"error": "Analysis not found", "code": "NOT_FOUND"}
+                status_code=404, detail={"error": "Analysis not found", 
+                    "code": "NOT_FOUND"}
             )
         return {"id": analysis_id, "market_segments": []}
 
@@ -178,7 +181,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if analysis_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Analysis results not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Analysis results not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {"id": analysis_id, "status": "completed", "results": []}
 
@@ -188,7 +192,8 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     # Include the niche analysis router in the app
     server.app.include_router(
-        niche_analysis_router, prefix=" / api / v1 / niche - analysis", tags=["Niche Analysis"]
+        niche_analysis_router, prefix=" / api / v1 / niche - analysis", 
+            tags=["Niche Analysis"]
     )
 
     # Create a mock router for agent team
@@ -292,7 +297,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if workflow_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Workflow not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Workflow not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": workflow_id,
@@ -307,7 +313,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if workflow_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Workflow not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Workflow not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "task_id": "test - task - id",
@@ -330,7 +337,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         }
 
     # Include the agent team router in the app
-    server.app.include_router(agent_team_router, prefix=" / api / v1 / agent - team", tags=["Agent Team"])
+    server.app.include_router(agent_team_router, prefix=" / api / v1 / agent - team", 
+        tags=["Agent Team"])
 
     # Create a mock router for AI models
     ai_models_router = APIRouter()
@@ -365,7 +373,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if not data:
             return JSONResponse(
                 status_code=422,
-                content={"error": {"message": "Invalid request", "code": "INVALID_REQUEST"}},
+                content={"error": {"message": "Invalid request", 
+                    "code": "INVALID_REQUEST"}},
             )
         return {
             "id": "test - inference - id",
@@ -413,6 +422,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             "id": "test - batch - id",
             "task_id": "test - task - id",
             "status_url": " / api / v1 / ai - models / batch - inference / test - batch - id / status",
+                
             "model_id": data.get("model_id", ""),
             "inputs": data.get("inputs", []),
             "outputs": ["Test output 1", "Test output 2"],
@@ -420,7 +430,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         }
 
     # Include the AI models router in the app
-    server.app.include_router(ai_models_router, prefix=" / api / v1 / ai - models", tags=["AI Models"])
+    server.app.include_router(ai_models_router, prefix=" / api / v1 / ai - models", 
+        tags=["AI Models"])
 
     # Create a mock router for marketing
     marketing_router = APIRouter()
@@ -442,7 +453,8 @@ def api_server(api_config: APIConfig) -> APIServer:
             "target_audience": data.get("target_audience", {}),
             "channels": data.get("channels", []),
             "content_types": data.get(
-                "content_types", ["blog_posts", "case_studies", "webinars", "social_media_posts"]
+                "content_types", ["blog_posts", "case_studies", "webinars", 
+                    "social_media_posts"]
             ),
             "kpis": data.get(
                 "kpis",
@@ -466,7 +478,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if strategy_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Marketing strategy not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Marketing strategy not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": strategy_id,
@@ -475,7 +488,8 @@ def api_server(api_config: APIConfig) -> APIServer:
             "niche_id": "test - niche - id",
             "target_audience": {},
             "channels": [],
-            "content_types": ["blog_posts", "case_studies", "webinars", "social_media_posts"],
+            "content_types": ["blog_posts", "case_studies", "webinars", 
+                "social_media_posts"],
             "kpis": [
                 "website_traffic",
                 "lead_generation",
@@ -491,7 +505,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if strategy_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Marketing strategy not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Marketing strategy not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": strategy_id,
@@ -501,7 +516,8 @@ def api_server(api_config: APIConfig) -> APIServer:
             "target_audience": data.get("target_audience", {}),
             "channels": data.get("channels", []),
             "content_types": data.get(
-                "content_types", ["blog_posts", "case_studies", "webinars", "social_media_posts"]
+                "content_types", ["blog_posts", "case_studies", "webinars", 
+                    "social_media_posts"]
             ),
             "kpis": data.get(
                 "kpis",
@@ -521,7 +537,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if strategy_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Marketing strategy not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Marketing strategy not found", 
+                    "code": "NOT_FOUND"}},
             )
         response.status_code = status.HTTP_204_NO_CONTENT
         return {}
@@ -567,7 +584,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if campaign_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Campaign not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Campaign not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": campaign_id,
@@ -597,7 +615,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if campaign_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Campaign not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Campaign not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": campaign_id,
@@ -617,7 +636,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if campaign_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Campaign not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Campaign not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "campaign_id": campaign_id,
@@ -647,7 +667,8 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     # Add bulk create endpoint for marketing strategies
     @marketing_router.post(" / strategies / bulk")
-    async def bulk_create_marketing_strategies(response: Response, data: dict = Body(...)):
+    async def bulk_create_marketing_strategies(response: Response, 
+        data: dict = Body(...)):
         response.status_code = status.HTTP_201_CREATED
         # Extract items from the request data
         items = data.get("items", [])
@@ -660,7 +681,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         }
 
     # Include the marketing router in the app
-    server.app.include_router(marketing_router, prefix=" / api / v1 / marketing", tags=["Marketing"])
+    server.app.include_router(marketing_router, prefix=" / api / v1 / marketing", 
+        tags=["Marketing"])
 
     # Create a mock router for webhooks
     webhook_router = APIRouter()
@@ -689,9 +711,11 @@ def api_server(api_config: APIConfig) -> APIServer:
     @webhook_router.get("")
     async def get_webhooks(request: Request):
         # Check for authentication header for the unauthorized access test
-        if "Authorization" not in request.headers and "X - API - Key" not in request.headers:
+        if "Authorization" not in request.headers and "X - \
+            API - Key" not in request.headers:
             return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "Unauthorized"}
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                    content={"detail": "Unauthorized"}
             )
         return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
@@ -701,6 +725,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Webhook not found", "code": "NOT_FOUND"}},
+                    
             )
         return {
             "id": webhook_id,
@@ -720,6 +745,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Webhook not found", "code": "NOT_FOUND"}},
+                    
             )
         return {
             "id": webhook_id,
@@ -739,6 +765,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Webhook not found", "code": "NOT_FOUND"}},
+                    
             )
         response.status_code = status.HTTP_204_NO_CONTENT
         return {}
@@ -749,15 +776,18 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Webhook not found", "code": "NOT_FOUND"}},
+                    
             )
         return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
     @webhook_router.get("/{webhook_id}/deliveries/{delivery_id}")
     async def get_webhook_delivery(webhook_id: str, delivery_id: str):
-        if webhook_id.startswith("nonexistent - ") or delivery_id.startswith("nonexistent - "):
+        if webhook_id.startswith("nonexistent - \
+            ") or delivery_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Webhook delivery not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Webhook delivery not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": delivery_id,
@@ -777,10 +807,12 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     @webhook_router.post("/{webhook_id}/deliveries/{delivery_id}/redeliver")
     async def redeliver_webhook(webhook_id: str, delivery_id: str, response: Response):
-        if webhook_id.startswith("nonexistent - ") or delivery_id.startswith("nonexistent - "):
+        if webhook_id.startswith("nonexistent - \
+            ") or delivery_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Webhook delivery not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Webhook delivery not found", 
+                    "code": "NOT_FOUND"}},
             )
         response.status_code = status.HTTP_202_ACCEPTED
         return {
@@ -799,6 +831,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "Webhook not found", "code": "NOT_FOUND"}},
+                    
             )
         return {
             "id": webhook_id,
@@ -818,7 +851,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         }
 
     # Include the webhook router in the app
-    server.app.include_router(webhook_router, prefix=" / api / v1 / webhooks", tags=["Webhooks"])
+    server.app.include_router(webhook_router, prefix=" / api / v1 / webhooks", 
+        tags=["Webhooks"])
 
     # Create a mock router for API keys
     api_key_router = APIRouter()
@@ -846,9 +880,11 @@ def api_server(api_config: APIConfig) -> APIServer:
     @api_key_router.get("")
     async def get_api_keys(request: Request):
         # Check for authentication header for the unauthorized access test
-        if "Authorization" not in request.headers and "X - API - Key" not in request.headers:
+        if "Authorization" not in request.headers and "X - \
+            API - Key" not in request.headers:
             return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "Unauthorized"}
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                    content={"detail": "Unauthorized"}
             )
         return {"items": [], "total": 0, "page": 1, "page_size": 10}
 
@@ -858,6 +894,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "API key not found", "code": "NOT_FOUND"}},
+                    
             )
         return {
             "id": api_key_id,
@@ -875,6 +912,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "API key not found", "code": "NOT_FOUND"}},
+                    
             )
         return {
             "id": api_key_id,
@@ -892,6 +930,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "API key not found", "code": "NOT_FOUND"}},
+                    
             )
         response.status_code = status.HTTP_204_NO_CONTENT
         return {}
@@ -902,8 +941,10 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "API key not found", "code": "NOT_FOUND"}},
+                    
             )
-        return {"id": api_key_id, "revoked": True, "revoked_at": "2025 - 04 - 29T21:35:00Z"}
+        return {"id": api_key_id, "revoked": True, 
+            "revoked_at": "2025 - 04 - 29T21:35:00Z"}
 
     @api_key_router.post("/{api_key_id}/regenerate")
     async def regenerate_api_key(api_key_id: str):
@@ -911,8 +952,10 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "API key not found", "code": "NOT_FOUND"}},
+                    
             )
-        return {"id": api_key_id, "key": "new - api - key - value", "updated_at": "2025 - 04 - 29T21:35:00Z"}
+        return {"id": api_key_id, "key": "new - api - key - value", 
+            "updated_at": "2025 - 04 - 29T21:35:00Z"}
 
     @api_key_router.get("/{api_key_id}/usage")
     async def get_api_key_usage(api_key_id: str):
@@ -920,6 +963,7 @@ def api_server(api_config: APIConfig) -> APIServer:
             return JSONResponse(
                 status_code=404,
                 content={"error": {"message": "API key not found", "code": "NOT_FOUND"}},
+                    
             )
         return {
             "id": api_key_id,
@@ -929,7 +973,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         }
 
     # Include the API key router in the app
-    server.app.include_router(api_key_router, prefix=" / api / v1 / api - keys", tags=["API Keys"])
+    server.app.include_router(api_key_router, prefix=" / api / v1 / api - keys", 
+        tags=["API Keys"])
 
     # Create a mock GraphQL router
     graphql_router = APIRouter()
@@ -993,6 +1038,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                                         "type": "blog",
                                         "title": "Test Title",
                                         "performance": {"views": 500, "engagement": 0.2},
+                                            
                                     }
                                 ],
                             }
@@ -1036,6 +1082,7 @@ def api_server(api_config: APIConfig) -> APIServer:
                 "errors": [
                     {
                         "message": "Cannot query field 'nonexistentField' on type 'Query'",
+                            
                         "locations": [{"line": 3, "column": 13}],
                     }
                 ]
@@ -1050,11 +1097,13 @@ def api_server(api_config: APIConfig) -> APIServer:
                                 "fields": [
                                     {
                                         "name": "nicheAnalysis",
-                                        "type": {"name": "NicheAnalysis", "kind": "OBJECT"},
+                                        "type": {"name": "NicheAnalysis", 
+                                            "kind": "OBJECT"},
                                     },
                                     {
                                         "name": "marketingStrategy",
-                                        "type": {"name": "MarketingStrategy", "kind": "OBJECT"},
+                                        "type": {"name": "MarketingStrategy", 
+                                            "kind": "OBJECT"},
                                     },
                                 ],
                             },
@@ -1063,7 +1112,8 @@ def api_server(api_config: APIConfig) -> APIServer:
                                 "fields": [
                                     {
                                         "name": "createCampaign",
-                                        "type": {"name": "CreateCampaignPayload", "kind": "OBJECT"},
+                                        "type": {"name": "CreateCampaignPayload", 
+                                            "kind": "OBJECT"},
                                     }
                                 ],
                             },
@@ -1074,11 +1124,13 @@ def api_server(api_config: APIConfig) -> APIServer:
         else:
             return {
                 "data": None,
-                "errors": [{"message": "Unknown query", "locations": [{"line": 1, "column": 1}]}],
+                "errors": [{"message": "Unknown query", "locations": [{"line": 1, 
+                    "column": 1}]}],
             }
 
     # Include the GraphQL router in the app
-    server.app.include_router(graphql_router, prefix=" / api / v1 / graphql", tags=["GraphQL"])
+    server.app.include_router(graphql_router, prefix=" / api / v1 / graphql", 
+        tags=["GraphQL"])
 
     # Create a mock router for monetization
     monetization_router = APIRouter()
@@ -1114,7 +1166,8 @@ def api_server(api_config: APIConfig) -> APIServer:
             # Return the error in the format expected by the test
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Subscription model not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Subscription model not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": model_id,
@@ -1171,7 +1224,8 @@ def api_server(api_config: APIConfig) -> APIServer:
             "churn_rate": data.get("churn_rate", 0.0),
             "conversion_rate": data.get("conversion_rate", 0.0),
             "time_period_months": data.get("time_period_months", 12),
-            "projections": [],  # Renamed from monthly_projections to match test expectations
+            "projections": [],  
+                # Renamed from monthly_projections to match test expectations
             "total_revenue": 0,
             "total_users": 0,
         }
@@ -1186,7 +1240,8 @@ def api_server(api_config: APIConfig) -> APIServer:
             # Return the error in the format expected by the test
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Revenue projection not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Revenue projection not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": projection_id,
@@ -1196,13 +1251,15 @@ def api_server(api_config: APIConfig) -> APIServer:
             "churn_rate": 0.05,
             "conversion_rate": 0.2,
             "time_period_months": 12,
-            "projections": [],  # Renamed from monthly_projections to match test expectations
+            "projections": [],  
+                # Renamed from monthly_projections to match test expectations
             "total_revenue": 0,
             "total_users": 0,
         }
 
     @monetization_router.post(" / subscription - models / bulk")
-    async def bulk_create_subscription_models(response: Response, data: dict = Body(...)):
+    async def bulk_create_subscription_models(response: Response, 
+        data: dict = Body(...)):
         response.status_code = status.HTTP_201_CREATED
         # Extract items from the request data
         items = data.get("items", [])
@@ -1420,7 +1477,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         """Force reset the rate limit counters for testing."""
         app = request.app
         app.rate_limit_reset_test_force_reset = True
-        return {"status": "ok", "message": "Rate limit counters will be reset on next request"}
+        return {"status": "ok", 
+            "message": "Rate limit counters will be reset on next request"}
 
     # Include the user router in the app
     server.app.include_router(user_router, prefix=" / api / v1 / user", tags=["User"])
@@ -1431,14 +1489,16 @@ def api_server(api_config: APIConfig) -> APIServer:
     @public_router.get(" / status")
     async def get_status(request: Request, response: Response):
         # Add rate limit headers for testing
-        response.headers["X - RateLimit - Limit"] = "200"  # Higher limit for public endpoint
+        response.headers["X - \
+            RateLimit - Limit"] = "200"  # Higher limit for public endpoint
         response.headers["X - RateLimit - Remaining"] = "199"
         response.headers["X - RateLimit - Reset"] = str(int(time.time()) + 60)
 
         return {"status": "ok", "version": "1.0.0"}
 
     # Include the public router in the app
-    server.app.include_router(public_router, prefix=" / api / v1 / public", tags=["Public"])
+    server.app.include_router(public_router, prefix=" / api / v1 / public", 
+        tags=["Public"])
 
     # Create a mock router for analytics
     analytics_router = APIRouter()
@@ -1550,7 +1610,8 @@ def api_server(api_config: APIConfig) -> APIServer:
             "trends": {
                 "requests": [{"timestamp": "2025 - 04 - 01T00:00:00Z", "value": 100}],
                 "errors": [{"timestamp": "2025 - 04 - 01T00:00:00Z", "value": 5}],
-                "response_time": [{"timestamp": "2025 - 04 - 01T00:00:00Z", "value": 150.0}],
+                "response_time": [{"timestamp": "2025 - 04 - 01T00:00:00Z", 
+                    "value": 150.0}],
             },
         }
 
@@ -1571,12 +1632,14 @@ def api_server(api_config: APIConfig) -> APIServer:
         # For the test_unauthorized_access test, always return 401
         if "test_unauthorized_access" in str(request.url):
             return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "Unauthorized"}
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                    content={"detail": "Unauthorized"}
             )
         return {"status": "authorized"}
 
     # Include the analytics router in the app
-    server.app.include_router(analytics_router, prefix=" / api / v1 / analytics", tags=["Analytics"])
+    server.app.include_router(analytics_router, prefix=" / api / v1 / analytics", 
+        tags=["Analytics"])
 
     # Create a mock router for dashboard
     dashboard_router = APIRouter()
@@ -1584,13 +1647,16 @@ def api_server(api_config: APIConfig) -> APIServer:
     # Add routes to the mock dashboard router
     @dashboard_router.get(" / overview")
     async def get_dashboard_overview(
-        request: Request, start_date: Optional[str] = None, end_date: Optional[str] = None
+        request: Request, start_date: Optional[str] = None, 
+            end_date: Optional[str] = None
     ):
         """Get dashboard overview."""
         # Check for authentication header for the unauthorized access test
-        if "Authorization" not in request.headers and "X - API - Key" not in request.headers:
+        if "Authorization" not in request.headers and "X - \
+            API - Key" not in request.headers:
             return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "Unauthorized"}
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                    content={"detail": "Unauthorized"}
             )
 
         return {
@@ -1616,7 +1682,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         }
 
     @dashboard_router.get(" / revenue")
-    async def get_revenue_statistics(model_id: Optional[str] = None, period: Optional[str] = None):
+    async def get_revenue_statistics(model_id: Optional[str] = None, 
+        period: Optional[str] = None):
         """Get revenue statistics."""
         return {
             "total_revenue": 5000.0,
@@ -1641,7 +1708,8 @@ def api_server(api_config: APIConfig) -> APIServer:
             "total_subscribers": 100,
             "new_subscribers": 15,
             "churn_rate": 0.05,
-            "subscribers_by_plan": [{"plan": "Basic", "count": 70}, {"plan": "Pro", "count": 30}],
+            "subscribers_by_plan": [{"plan": "Basic", "count": 70}, {"plan": "Pro", 
+                "count": 30}],
             "subscribers_over_time": [
                 {"date": "2025 - 01", "count": 70},
                 {"date": "2025 - 02", "count": 80},
@@ -1700,7 +1768,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         )
 
     # Include the dashboard router in the app
-    server.app.include_router(dashboard_router, prefix=" / api / v1 / dashboard", tags=["Dashboard"])
+    server.app.include_router(dashboard_router, prefix=" / api / v1 / dashboard", 
+        tags=["Dashboard"])
 
     # Create a rate limiting router for testing
     from tests.api.utils.rate_limiting_router import create_rate_limiting_router
@@ -1709,7 +1778,8 @@ def api_server(api_config: APIConfig) -> APIServer:
 
     # Include the rate limiting router in the app
     server.app.include_router(
-        rate_limiting_router, prefix=" / api / v1 / rate - limiting", tags=["Rate Limiting"]
+        rate_limiting_router, prefix=" / api / v1 / rate - limiting", 
+            tags=["Rate Limiting"]
     )
 
     # Create a mock router for developer
@@ -1725,7 +1795,9 @@ def api_server(api_config: APIConfig) -> APIServer:
                     "id": "niche - 1",
                     "name": "AI Chatbots",
                     "description": "Conversational AI applications for customer service and support",
-                    "technical_requirements": ["NLP", "Machine Learning", "API Integration"],
+                        
+                    "technical_requirements": ["NLP", "Machine Learning", 
+                        "API Integration"],
                 },
                 {
                     "id": "niche - 2",
@@ -1753,14 +1825,16 @@ def api_server(api_config: APIConfig) -> APIServer:
                     "name": "FastAPI Web Service",
                     "description": "RESTful API service using FastAPI and PostgreSQL",
                     "technology_stack": ["Python", "FastAPI", "PostgreSQL", "Docker"],
-                    "features": ["Authentication", "Rate Limiting", "Swagger Documentation"],
+                    "features": ["Authentication", "Rate Limiting", 
+                        "Swagger Documentation"],
                 },
                 {
                     "id": "template - 2",
                     "name": "React Dashboard",
                     "description": "Interactive dashboard using React and D3.js",
                     "technology_stack": ["JavaScript", "React", "D3.js", "Material UI"],
-                    "features": ["Data Visualization", "Responsive Design", "Theme Customization"],
+                    "features": ["Data Visualization", "Responsive Design", 
+                        "Theme Customization"],
                 },
             ],
             "total": 2,
@@ -1787,7 +1861,8 @@ def api_server(api_config: APIConfig) -> APIServer:
                 "technology_stack", ["Python", "FastAPI", "TensorFlow", "Docker"]
             ),
             "features": data.get(
-                "features", ["Intent Recognition", "Entity Extraction", "Conversation Management"]
+                "features", ["Intent Recognition", "Entity Extraction", 
+                    "Conversation Management"]
             ),
             "status": "created",
             "created_at": "2025 - 04 - 29T21:30:00Z",
@@ -1812,7 +1887,8 @@ def api_server(api_config: APIConfig) -> APIServer:
                 "niche_id": "niche - 1",
                 "template_id": "template - 1",
                 "technology_stack": ["Python", "FastAPI", "TensorFlow", "Docker"],
-                "features": ["Intent Recognition", "Entity Extraction", "Conversation Management"],
+                "features": ["Intent Recognition", "Entity Extraction", 
+                    "Conversation Management"],
                 "status": "in_progress",
                 "created_at": "2025 - 04 - 29T21:30:00Z",
                 "updated_at": "2025 - 04 - 29T21:35:00Z",
@@ -1824,7 +1900,8 @@ def api_server(api_config: APIConfig) -> APIServer:
                 "niche_id": "niche - 2",
                 "template_id": "template - 2",
                 "technology_stack": ["JavaScript", "React", "D3.js", "Material UI"],
-                "features": ["Sales Trends", "Customer Segmentation", "Revenue Forecasting"],
+                "features": ["Sales Trends", "Customer Segmentation", 
+                    "Revenue Forecasting"],
                 "status": "completed",
                 "created_at": "2025 - 04 - 28T21:30:00Z",
                 "updated_at": "2025 - 04 - 29T21:35:00Z",
@@ -1836,7 +1913,8 @@ def api_server(api_config: APIConfig) -> APIServer:
                 "niche_id": "niche - 2",
                 "template_id": "template - 1",
                 "technology_stack": ["python", "pandas", "numpy", "matplotlib"],
-                "features": ["Data Cleaning", "Data Transformation", "Data Visualization"],
+                "features": ["Data Cleaning", "Data Transformation", 
+                    "Data Visualization"],
                 "status": "in_progress",
                 "created_at": "2025 - 04 - 27T21:30:00Z",
                 "updated_at": "2025 - 04 - 29T21:35:00Z",
@@ -1847,13 +1925,15 @@ def api_server(api_config: APIConfig) -> APIServer:
         filtered_solutions = all_solutions
 
         if status:
-            filtered_solutions = [s for s in filtered_solutions if s["status"] == status]
+            filtered_solutions = \
+                [s for s in filtered_solutions if s["status"] == status]
 
         if technology:
             filtered_solutions = [
                 s
                 for s in filtered_solutions
-                if any(tech.lower() == technology.lower() for tech in s["technology_stack"])
+                if any(tech.lower() == \
+                    technology.lower() for tech in s["technology_stack"])
             ]
 
         # Apply sorting
@@ -1870,7 +1950,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         end_idx = start_idx + page_size
         paginated_solutions = filtered_solutions[start_idx:end_idx]
 
-        return {"items": paginated_solutions, "total": total, "page": page, "page_size": page_size}
+        return {"items": paginated_solutions, "total": total, "page": page, 
+            "page_size": page_size}
 
     @developer_router.get(" / solutions/{solution_id}")
     async def get_developer_solution(solution_id: str):
@@ -1878,7 +1959,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if solution_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Solution not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Solution not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": solution_id,
@@ -1887,7 +1969,8 @@ def api_server(api_config: APIConfig) -> APIServer:
             "niche_id": "niche - 1",
             "template_id": "template - 1",
             "technology_stack": ["Python", "FastAPI", "TensorFlow", "Docker"],
-            "features": ["Intent Recognition", "Entity Extraction", "Conversation Management"],
+            "features": ["Intent Recognition", "Entity Extraction", 
+                "Conversation Management"],
             "status": "in_progress",
             "created_at": "2025 - 04 - 29T21:30:00Z",
             "updated_at": "2025 - 04 - 29T21:35:00Z",
@@ -1899,7 +1982,8 @@ def api_server(api_config: APIConfig) -> APIServer:
         if solution_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Solution not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Solution not found", 
+                    "code": "NOT_FOUND"}},
             )
         return {
             "id": solution_id,
@@ -1911,7 +1995,8 @@ def api_server(api_config: APIConfig) -> APIServer:
                 "technology_stack", ["Python", "FastAPI", "TensorFlow", "Docker"]
             ),
             "features": data.get(
-                "features", ["Intent Recognition", "Entity Extraction", "Conversation Management"]
+                "features", ["Intent Recognition", "Entity Extraction", 
+                    "Conversation Management"]
             ),
             "status": data.get("status", "in_progress"),
             "created_at": "2025 - 04 - 29T21:30:00Z",
@@ -1924,13 +2009,15 @@ def api_server(api_config: APIConfig) -> APIServer:
         if solution_id.startswith("nonexistent - "):
             return JSONResponse(
                 status_code=404,
-                content={"error": {"message": "Solution not found", "code": "NOT_FOUND"}},
+                content={"error": {"message": "Solution not found", 
+                    "code": "NOT_FOUND"}},
             )
         response.status_code = status.HTTP_204_NO_CONTENT
         return {}
 
     # Include the developer router in the app
-    server.app.include_router(developer_router, prefix=" / api / v1 / developer", tags=["Developer"])
+    server.app.include_router(developer_router, prefix=" / api / v1 / developer", 
+        tags=["Developer"])
 
     return server
 

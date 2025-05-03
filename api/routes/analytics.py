@@ -126,7 +126,8 @@ async def get_requests(
     summary="Get endpoint statistics",
     description="Get statistics for each API endpoint",
 )
-async def get_endpoint_stats(days: int = Query(30, description="Number of days to include")):
+async def get_endpoint_stats(days: int = Query(30, 
+    description="Number of days to include")):
     """
     Get statistics for each API endpoint.
 
@@ -227,7 +228,8 @@ async def export_requests_csv(
     """
     try:
         csv_data = analytics_service.export_requests_csv(
-            days=days, endpoint=endpoint, version=version, user_id=user_id, api_key_id=api_key_id
+            days=days, endpoint=endpoint, version=version, user_id=user_id, 
+                api_key_id=api_key_id
         )
 
         # Generate filename
@@ -250,7 +252,8 @@ async def export_requests_csv(
     summary="Export daily metrics to CSV",
     description="Export daily aggregated metrics to CSV format",
 )
-async def export_metrics_csv(days: int = Query(30, description="Number of days to include")):
+async def export_metrics_csv(days: int = Query(30, 
+    description="Number of days to include")):
     """
     Export daily aggregated metrics to CSV format.
 
@@ -311,6 +314,7 @@ async def get_real_time_metrics(
     response_model=AlertThresholdResponse,
     summary="Set alert threshold",
     description="Set a threshold for a specific metric that will trigger alerts when exceeded",
+        
 )
 async def set_alert_threshold(threshold: AlertThresholdRequest):
     """
@@ -328,6 +332,7 @@ async def set_alert_threshold(threshold: AlertThresholdRequest):
             "metric": threshold.metric,
             "threshold": threshold.threshold,
             "message": f"Alert threshold for {threshold.metric} set to {threshold.threshold}",
+                
         }
     except Exception as e:
         logger.error(f"Error setting alert threshold: {e}")
@@ -352,7 +357,8 @@ async def cleanup_data(days: int = Query(365, description="Number of days to kee
     """
     try:
         count = analytics_service.cleanup_old_data(days)
-        return {"success": True, "message": f"Removed {count} records older than {days} days"}
+        return {"success": True, 
+            "message": f"Removed {count} records older than {days} days"}
     except Exception as e:
         logger.error(f"Error cleaning up analytics data: {e}")
         raise HTTPException(status_code=500, detail=str(e))

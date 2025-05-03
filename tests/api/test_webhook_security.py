@@ -142,10 +142,12 @@ class TestWebhookSignatureVerifier:
         assert signature == signature2
 
         # Different inputs should produce different signatures
-        signature3 = WebhookSignatureVerifier.create_signature(secret, payload + "modified")
+        signature3 = WebhookSignatureVerifier.create_signature(secret, 
+            payload + "modified")
         assert signature != signature3
 
-        signature4 = WebhookSignatureVerifier.create_signature("different - secret", payload)
+        signature4 = WebhookSignatureVerifier.create_signature("different - secret", 
+            payload)
         assert signature != signature4
 
     def test_verify_signature(self):
@@ -157,19 +159,23 @@ class TestWebhookSignatureVerifier:
         signature = WebhookSignatureVerifier.create_signature(secret, payload)
 
         # Verify valid signature
-        assert WebhookSignatureVerifier.verify_signature(secret, payload, signature) is True
+        assert WebhookSignatureVerifier.verify_signature(secret, payload, 
+            signature) is True
 
         # Verify invalid signatures
         assert (
-            WebhookSignatureVerifier.verify_signature(secret, payload + "modified", signature)
+            WebhookSignatureVerifier.verify_signature(secret, payload + "modified", 
+                signature)
             is False
         )
         assert (
-            WebhookSignatureVerifier.verify_signature("different - secret", payload, signature)
+            WebhookSignatureVerifier.verify_signature("different - secret", payload, 
+                signature)
             is False
         )
         assert (
-            WebhookSignatureVerifier.verify_signature(secret, payload, signature + "modified")
+            WebhookSignatureVerifier.verify_signature(secret, payload, 
+                signature + "modified")
             is False
         )
 
@@ -182,13 +188,16 @@ class TestWebhookSignatureVerifier:
         signature = WebhookSignatureVerifier.create_signature(secret, payload)
 
         # Create headers with signature
-        headers = {"Content - Type": "application / json", "X - Webhook - Signature": signature}
+        headers = {"Content - Type": "application / json", 
+            "X - Webhook - Signature": signature}
 
         # Verify valid signature
-        assert WebhookSignatureVerifier.verify_request_signature(secret, payload, headers) is True
+        assert WebhookSignatureVerifier.verify_request_signature(secret, payload, 
+            headers) is True
 
         # Verify with custom header name
-        headers_custom = {"Content - Type": "application / json", "X - Custom - Signature": signature}
+        headers_custom = {"Content - Type": "application / json", 
+            "X - Custom - Signature": signature}
         assert (
             WebhookSignatureVerifier.verify_request_signature(
                 secret, payload, headers_custom, "X - Custom - Signature"
@@ -199,7 +208,8 @@ class TestWebhookSignatureVerifier:
         # Verify with missing signature header
         headers_missing = {"Content - Type": "application / json"}
         assert (
-            WebhookSignatureVerifier.verify_request_signature(secret, payload, headers_missing)
+            WebhookSignatureVerifier.verify_request_signature(secret, payload, 
+                headers_missing)
             is False
         )
 
@@ -209,7 +219,8 @@ class TestWebhookSignatureVerifier:
             "X - Webhook - Signature": "invalid - signature",
         }
         assert (
-            WebhookSignatureVerifier.verify_request_signature(secret, payload, headers_invalid)
+            WebhookSignatureVerifier.verify_request_signature(secret, payload, 
+                headers_invalid)
             is False
         )
 
@@ -290,4 +301,5 @@ class TestWebhookRateLimiter:
         # Reset time should be approximately 1 second from now
         reset_time = rate_limiter.get_reset_time("test - key")
         assert reset_time is not None
-        assert abs((reset_time - current_time) - 1.0) < 0.1  # Within 0.1 seconds of expected
+        assert abs((reset_time - \
+            current_time) - 1.0) < 0.1  # Within 0.1 seconds of expected

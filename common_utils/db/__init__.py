@@ -16,7 +16,8 @@ Usage examples:
 
     # Use the database
     db_with_monitoring.connect()
-    db_with_monitoring.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)')
+    db_with_monitoring.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, 
+        name TEXT)')
     db_with_monitoring.insert('users', {'name': 'John Doe'})
     users = db_with_monitoring.fetch_all('SELECT * FROM users')
 

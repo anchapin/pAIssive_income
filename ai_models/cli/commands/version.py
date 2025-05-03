@@ -35,14 +35,16 @@ class VersionCommand(BaseCommand):
             parser: Argument parser
         """
         # Add subcommands
-        subparsers = parser.add_subparsers(dest="subcommand", help="Subcommand to execute")
+        subparsers = parser.add_subparsers(dest="subcommand", 
+            help="Subcommand to execute")
 
         # List versions subcommand
         list_parser = subparsers.add_parser("list", help="List versions of a model")
         list_parser.add_argument("model_id", help="ID of the model")
 
         # Create version subcommand
-        create_parser = subparsers.add_parser("create", help="Create a new version of a model")
+        create_parser = subparsers.add_parser("create", 
+            help="Create a new version of a model")
         create_parser.add_argument("model_id", help="ID of the model")
         create_parser.add_argument("version", help="Version string (e.g., '1.0.0')")
         create_parser.add_argument(
@@ -50,12 +52,14 @@ class VersionCommand(BaseCommand):
         )
 
         # Get version subcommand
-        get_parser = subparsers.add_parser("get", help="Get information about a specific version")
+        get_parser = subparsers.add_parser("get", 
+            help="Get information about a specific version")
         get_parser.add_argument("model_id", help="ID of the model")
         get_parser.add_argument("version", help="Version string (e.g., '1.0.0')")
 
         # Check compatibility subcommand
-        check_parser = subparsers.add_parser("check", help="Check compatibility between versions")
+        check_parser = subparsers.add_parser("check", 
+            help="Check compatibility between versions")
         check_parser.add_argument("model_id1", help="ID of the first model")
         check_parser.add_argument("version1", help="Version of the first model")
         check_parser.add_argument("model_id2", help="ID of the second model")
@@ -137,7 +141,8 @@ class VersionCommand(BaseCommand):
         # Create version
         try:
             version = model_manager.create_model_version(
-                model_id=self.args.model_id, version=self.args.version, features=self.args.features
+                model_id=self.args.model_id, version=self.args.version, 
+                    features=self.args.features
             )
 
             print(f"Created version {version.version} for model {model_info.name}")
@@ -169,17 +174,21 @@ class VersionCommand(BaseCommand):
         )
 
         if not version:
-            logger.error(f"Version {self.args.version} of model {self.args.model_id} not found")
+            logger.error(
+                f"Version {self.args.version} of model {self.args.model_id} not found")
             return 1
 
         # Print version info
-        print(f"Version {version.version} of model {model_info.name} ({self.args.model_id}):")
+        print(
+            f"Version {version.version} of model {model_info.name} ({self.args.model_id}):")
         print(f"  Timestamp: {version.timestamp}")
         print(f"  Hash: {version.hash_value}")
-        print(f"  Features: {', '.join(version.features) if version.features else 'None'}")
+        print(f"  Features: {', 
+            '.join(version.features) if version.features else 'None'}")
         print(f"  Dependencies: {version.dependencies}")
         print(
-            f"  Compatible with: {', '.join(version.is_compatible_with) if version.is_compatible_with else 'None'}"
+            f"  Compatible with: {', 
+                '.join(version.is_compatible_with) if version.is_compatible_with else 'None'}"
         )
 
         return 0
@@ -196,7 +205,8 @@ class VersionCommand(BaseCommand):
         """
         # Check compatibility
         compatible = model_manager.check_version_compatibility(
-            self.args.model_id1, self.args.version1, self.args.model_id2, self.args.version2
+            self.args.model_id1, self.args.version1, self.args.model_id2, 
+                self.args.version2
         )
 
         if compatible:

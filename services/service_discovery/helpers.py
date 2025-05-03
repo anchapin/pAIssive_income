@@ -41,7 +41,8 @@ def setup_service_discovery(
         tags: List of tags for this service (optional)
         metadata: Additional metadata for this service (optional)
         health_check_url: URL path for health checks (default: " / health")
-        registry_host: Hostname of the registry service (default: from environment variable)
+        registry_host: Hostname of the registry service (
+            default: from environment variable)
         registry_port: Port of the registry service (default: from environment variable)
         auto_deregister: Whether to automatically deregister on shutdown (default: True)
         is_secure: Whether this service uses HTTPS (default: False)
@@ -105,7 +106,8 @@ def setup_service_discovery(
     except Exception as e:
         logger.error(f"Failed to set up service discovery: {str(e)}")
         # Return disabled client when service discovery is not available
-        return ServiceDiscoveryClient(service_name=service_name, port=port, auto_register=False)
+        return ServiceDiscoveryClient(service_name=service_name, port=port, 
+            auto_register=False)
 
 
 def create_health_check_handler(
@@ -194,11 +196,13 @@ def register_health_check_endpoint(app, url_path: str = " / health", **kwargs):
             return JSONResponse(content=result, status_code=status_code)
 
     else:
-        logger.warning(f"Unknown web framework type, health check not registered at {url_path}")
+        logger.warning(f"Unknown web framework type, 
+            health check not registered at {url_path}")
 
 
 def get_service_url(
-    service_name: str, path: str = " / ", client: Optional[ServiceDiscoveryClient] = None
+    service_name: str, path: str = " / ", 
+        client: Optional[ServiceDiscoveryClient] = None
 ) -> Optional[str]:
     """
     Get the URL for a service by name.
@@ -206,7 +210,8 @@ def get_service_url(
     Args:
         service_name: Name of the service to look up
         path: Path to append to the URL (default: " / ")
-        client: ServiceDiscoveryClient to use (optional, creates a temporary one if not provided)
+        client: ServiceDiscoveryClient to use (optional, 
+            creates a temporary one if not provided)
 
     Returns:
         Optional[str]: The URL for the service, or None if not found

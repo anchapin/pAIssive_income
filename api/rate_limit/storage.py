@@ -47,7 +47,8 @@ class RateLimitStorage(ABC):
         pass
 
     @abstractmethod
-    def increment(self, key: str, amount: float = 1.0, expiry: Optional[int] = None) -> float:
+    def increment(self, key: str, amount: float = 1.0, 
+        expiry: Optional[int] = None) -> float:
         """
         Increment a counter for a key.
 
@@ -127,7 +128,8 @@ class InMemoryStorage(RateLimitStorage):
         if expiry is not None:
             self.expiry[key] = time.time() + expiry
 
-    def increment(self, key: str, amount: float = 1.0, expiry: Optional[int] = None) -> float:
+    def increment(self, key: str, amount: float = 1.0, 
+        expiry: Optional[int] = None) -> float:
         """
         Increment a counter for a key.
 
@@ -198,11 +200,13 @@ class RedisStorage(RateLimitStorage):
             self.redis = redis.from_url(redis_url)
             logger.info("Connected to Redis")
         except ImportError:
-            logger.warning("Redis package not installed, falling back to in - memory storage")
+            logger.warning("Redis package not installed, 
+                falling back to in - memory storage")
             self.fallback = InMemoryStorage()
         except Exception as e:
             logger.warning(
-                f"Failed to connect to Redis: {str(e)}, falling back to in - memory storage"
+                f"Failed to connect to Redis: {str(e)}, 
+                    falling back to in - memory storage"
             )
             self.fallback = InMemoryStorage()
 
@@ -277,7 +281,8 @@ class RedisStorage(RateLimitStorage):
         if expiry is not None:
             self.redis.expire(redis_key, expiry)
 
-    def increment(self, key: str, amount: float = 1.0, expiry: Optional[int] = None) -> float:
+    def increment(self, key: str, amount: float = 1.0, 
+        expiry: Optional[int] = None) -> float:
         """
         Increment a counter for a key.
 

@@ -98,7 +98,8 @@ class TestAnalyticsDataCollection:
 
         # Step 3: Create a monetization strategy for the solution
         monetization_data = generate_monetization_data(solution_id=solution_id)
-        response = auth_api_test_client.post("monetization / strategies", monetization_data)
+        response = auth_api_test_client.post("monetization / strategies", 
+            monetization_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -121,7 +122,8 @@ class TestAnalyticsDataCollection:
         # Find our journey
         our_journey = None
         for journey in journey_data["journeys"]:
-            if journey.get("niche_id") == niche_id and journey.get("solution_id") == solution_id:
+            if journey.get("niche_id") == \
+                niche_id and journey.get("solution_id") == solution_id:
                 our_journey = journey
                 break
 
@@ -210,7 +212,8 @@ class TestAnalyticsDataCollection:
         niche_endpoint = next(
             (e for e in endpoints if e["endpoint"] == "niche - analysis / niches"), None
         )
-        solution_endpoint = next((e for e in endpoints if e["endpoint"] == "solutions"), None)
+        solution_endpoint = next((e for e in endpoints if e["endpoint"] == "solutions"), 
+            None)
 
         if niche_endpoint and solution_endpoint:
             assert solution_endpoint["avg_response_time"] > niche_endpoint["avg_response_time"]

@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 # Common patterns that might indicate hardcoded secrets
 SECRET_PATTERNS = [
     # API keys
-    r'(?i)(?:api|access|auth|app|secret|private)[-_]?key\s*=\s * [\'"`]([^\'"`\s]{10,})[\'"`]',
+    r'(?i)(?:api|access|auth|app|secret|private)[-_]?key\s*=\s * [\'"`]([^\'"`\s]{10,
+        })[\'"`]',
     # Passwords
     r'(?i)(?:password|passwd|pwd|auth)[-_]?\s*=\s * [\'"`]([^\'"`\s]{4,})[\'"`]',
     # Tokens
@@ -31,7 +32,8 @@ SECRET_PATTERNS = [
     r"(?i)mongodb(?:\+srv)?:\/\/[^:]+:([^@]+) @ ",
     r"(?i)(?:postgres|mysql|postgresql):\/\/[^:]+:([^@]+) @ ",
     # AWS
-    r'(?i)(?:aws)?_?(?:access|secret|account)_?(?:key|token|id)\s*=\s * [\'"`]([^\'"`\s]{10,})[\'"`]',
+    r'(?i)(?:aws)?_?(?:access|secret|account)_?(?:key|token|id)\s*=\s * [\'"`]([^\'"`\s]{10,
+        })[\'"`]',
     # OAuth
     r'(?i)(?:oauth|client)[-_]?(?:token|secret)\s*=\s * [\'"`]([^\'"`\s]{10,})[\'"`]',
 ]
@@ -123,7 +125,8 @@ def is_likely_secret(value: str) -> bool:
     return entropy_score >= 2
 
 
-def find_secrets_in_file(filepath: str, compiled_patterns: List[Pattern]) -> List[Dict[str, Any]]:
+def find_secrets_in_file(filepath: str, 
+    compiled_patterns: List[Pattern]) -> List[Dict[str, Any]]:
     """
     Scan a file for potential secrets.
 
@@ -170,7 +173,8 @@ def find_secrets_in_file(filepath: str, compiled_patterns: List[Pattern]) -> Lis
         return []
 
 
-def scan_directory(directory: str, exclude_dirs: List[str] = None) -> List[Dict[str, Any]]:
+def scan_directory(directory: str, exclude_dirs: List[str] = None) -> List[Dict[str, 
+    Any]]:
     """
     Recursively scan a directory for files containing potential secrets.
 
@@ -237,14 +241,16 @@ def main() -> int:
     Returns:
         Exit code (0 for success, non - zero for error)
     """
-    parser = argparse.ArgumentParser(description="Scan codebase for potential hardcoded secrets.")
+    parser = \
+        argparse.ArgumentParser(description="Scan codebase for potential hardcoded secrets.")
     parser.add_argument(
         "directory",
         nargs="?",
         default=".",
         help="Directory to scan (default: current directory)",
     )
-    parser.add_argument("--output", help="Output file for the report (default: print to console)")
+    parser.add_argument("--output", 
+        help="Output file for the report (default: print to console)")
     parser.add_argument("--json", action="store_true", help="Output in JSON format")
     parser.add_argument(
         "--exclude", nargs=" + ", default=[], help="Additional directories to exclude"

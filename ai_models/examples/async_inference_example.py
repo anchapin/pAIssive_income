@@ -72,7 +72,8 @@ async def example_batch_text_generation():
         "Renewable energy sources that will dominate are",
     ]
 
-    print(f"Processing {len(prompts)} prompts in parallel using model ID: {text_model_id}")
+    print(
+        f"Processing {len(prompts)} prompts in parallel using model ID: {text_model_id}")
 
     # Generate text for all prompts in parallel
     start_time = time.time()
@@ -143,7 +144,8 @@ async def example_batch_embeddings():
         "Transformers have advanced natural language processing",
     ]
 
-    print(f"Generating embeddings for {len(texts)} texts using model ID: {embedding_model_id}")
+    print(
+        f"Generating embeddings for {len(texts)} texts using model ID: {embedding_model_id}")
 
     try:
         # Generate embeddings for all texts in parallel

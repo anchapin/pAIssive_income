@@ -465,7 +465,8 @@ class TestABTesting:
 
         # Record a valid interaction
         interaction = ab_testing.record_interaction(
-            test_id=test_id, variant_id=variant_id, interaction_type="impression", user_id="user1"
+            test_id=test_id, variant_id=variant_id, interaction_type="impression", 
+                user_id="user1"
         )
 
         assert interaction["test_id"] == test_id
@@ -476,7 +477,8 @@ class TestABTesting:
         # Test with invalid test ID
         with pytest.raises(TestNotFoundError):
             ab_testing.record_interaction(
-                test_id="nonexistent", variant_id=variant_id, interaction_type="impression"
+                test_id="nonexistent", variant_id=variant_id, 
+                    interaction_type="impression"
             )
 
         # Test with invalid variant ID

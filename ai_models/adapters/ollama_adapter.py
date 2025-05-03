@@ -42,7 +42,8 @@ class OllamaAdapter(BaseModelAdapter):
     Adapter for connecting to Ollama.
     """
 
-    def __init__(self, base_url: str = "http://localhost:11434", timeout: int = 60, **kwargs):
+    def __init__(self, base_url: str = "http://localhost:11434", timeout: int = 60, 
+        **kwargs):
         """
         Initialize the Ollama adapter.
 
@@ -135,7 +136,8 @@ class OllamaAdapter(BaseModelAdapter):
             List of model information dictionaries
         """
         try:
-            response = self.session.get(f"{self.base_url}/api / tags", timeout=self.timeout)
+            response = self.session.get(f"{self.base_url}/api / tags", 
+                timeout=self.timeout)
             response.raise_for_status()
 
             data = response.json()
@@ -173,7 +175,8 @@ class OllamaAdapter(BaseModelAdapter):
             return standardized_models
 
         except Exception as e:
-            self._handle_error(e, "Failed to get models from Ollama", operation="get_models")
+            self._handle_error(e, "Failed to get models from Ollama", 
+                operation="get_models")
             return []
 
     def get_model_info(self, model_name: str) -> Dict[str, Any]:
@@ -283,7 +286,8 @@ class OllamaAdapter(BaseModelAdapter):
         data = response.json()
         return data.get("response", "")
 
-    def _generate_text_stream(self, request_data: Dict[str, Any]) -> Generator[str, None, None]:
+    def _generate_text_stream(self, request_data: Dict[str, Any]) -> Generator[str, None, 
+        None]:
         """
         Generate text as a stream.
 
@@ -342,7 +346,8 @@ class OllamaAdapter(BaseModelAdapter):
             **kwargs: Additional parameters for chat
 
         Returns:
-            Response dictionary or a generator yielding response dictionaries if streaming
+            Response dictionary or \
+                a generator yielding response dictionaries if streaming
         """
         # Prepare request data
         request_data = {
@@ -391,7 +396,8 @@ class OllamaAdapter(BaseModelAdapter):
 
         return response.json()
 
-    def _chat_stream(self, request_data: Dict[str, Any]) -> Generator[Dict[str, Any], None, None]:
+    def _chat_stream(self, request_data: Dict[str, Any]) -> Generator[Dict[str, Any], 
+        None, None]:
         """
         Chat as a stream.
 
@@ -735,7 +741,8 @@ class OllamaAdapter(BaseModelAdapter):
             True if successful, False otherwise
         """
         if not AIOHTTP_AVAILABLE:
-            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
+            raise ImportError(
+                "aiohttp not available. Please install it with: pip install aiohttp")
 
         try:
             # Create async session if needed
@@ -743,7 +750,8 @@ class OllamaAdapter(BaseModelAdapter):
                 self._async_session = aiohttp.ClientSession()
 
             # Try to connect to the Ollama API
-            async with self._async_session.get(f"{self.base_url}", timeout=5) as response:
+            async with self._async_session.get(f"{self.base_url}", 
+                timeout=5) as response:
                 if response.status != 200:
                     logger.warning(f"Ollama returned status code {response.status}")
                     self._connected = False
@@ -781,7 +789,8 @@ class OllamaAdapter(BaseModelAdapter):
             List of model information dictionaries
         """
         if not AIOHTTP_AVAILABLE:
-            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
+            raise ImportError(
+                "aiohttp not available. Please install it with: pip install aiohttp")
 
         # Create async session if needed
         if self._async_session is None:
@@ -841,7 +850,8 @@ class OllamaAdapter(BaseModelAdapter):
             Dictionary with model information
         """
         if not AIOHTTP_AVAILABLE:
-            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
+            raise ImportError(
+                "aiohttp not available. Please install it with: pip install aiohttp")
 
         # Create async session if needed
         if self._async_session is None:
@@ -857,7 +867,8 @@ class OllamaAdapter(BaseModelAdapter):
                 return await response.json()
 
         except aiohttp.ClientError as e:
-            logger.error(f"Error getting model info for {model_name} asynchronously: {e}")
+            logger.error(
+                f"Error getting model info for {model_name} asynchronously: {e}")
             raise
 
     async def generate_text_async(
@@ -892,7 +903,8 @@ class OllamaAdapter(BaseModelAdapter):
             Generated text or an async generator yielding text chunks if streaming
         """
         if not AIOHTTP_AVAILABLE:
-            raise ImportError("aiohttp not available. Please install it with: pip install aiohttp")
+            raise ImportError(
+                "aiohttp not available. Please install it with: pip install aiohttp")
 
         # Create async session if needed
         if self._async_session is None:
@@ -1016,7 +1028,8 @@ class OllamaAdapter(BaseModelAdapter):
             **kwargs: Additional parameters for chat
 
         Returns:
-            Response dictionary or an async generator yielding response dictionaries if streaming
+            Response dictionary or \
+                an async generator yielding response dictionaries if streaming
         """
         # Prepare request data
         request_data = {
@@ -1103,7 +1116,8 @@ class OllamaAdapter(BaseModelAdapter):
                     except json.JSONDecodeError:
                         logger.warning(f"Could not decode JSON: {line}")
 
-    async def create_embedding_async(self, model_name: str, prompt: str, **kwargs) -> List[float]:
+    async def create_embedding_async(self, model_name: str, prompt: str, 
+        **kwargs) -> List[float]:
         """
         Create an embedding for a text asynchronously.
 
@@ -1134,7 +1148,8 @@ class OllamaAdapter(BaseModelAdapter):
                 return data.get("embedding", [])
 
         except aiohttp.ClientError as e:
-            logger.error(f"Error creating embedding with {model_name} asynchronously: {e}")
+            logger.error(
+                f"Error creating embedding with {model_name} asynchronously: {e}")
             raise
 
     async def pull_model_async(

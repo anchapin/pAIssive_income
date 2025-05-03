@@ -26,7 +26,8 @@ def temp_cache_dir():
 def disk_cache(temp_cache_dir):
     """Create a DiskCache instance for testing."""
     cache = DiskCache(
-        cache_dir=temp_cache_dir, max_size=3, eviction_policy="lru"  # Small size to test eviction
+        cache_dir=temp_cache_dir, max_size=3, 
+            eviction_policy="lru"  # Small size to test eviction
     )
     return cache
 
@@ -121,7 +122,8 @@ def test_clear_cache(disk_cache):
 def test_serialization_formats(temp_cache_dir):
     """Test different serialization formats."""
     # Test JSON serialization
-    json_cache = DiskCache(cache_dir=os.path.join(temp_cache_dir, "json"), serialization="json")
+    json_cache = DiskCache(cache_dir=os.path.join(temp_cache_dir, "json"), 
+        serialization="json")
 
     # Test pickle serialization
     pickle_cache = DiskCache(
@@ -170,7 +172,8 @@ def test_eviction_policies(temp_cache_dir):
     for policy, access_pattern in test_cases:
         # Create cache with specific eviction policy
         cache = DiskCache(
-            cache_dir=os.path.join(temp_cache_dir, policy), max_size=3, eviction_policy=policy
+            cache_dir=os.path.join(temp_cache_dir, policy), max_size=3, 
+                eviction_policy=policy
         )
 
         # Add items

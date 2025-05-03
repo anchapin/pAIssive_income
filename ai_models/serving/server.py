@@ -155,7 +155,8 @@ class ModelServer(abc.ABC):
         if self.config.log_file:
             file_handler = logging.FileHandler(self.config.log_file)
             file_handler.setLevel(log_level)
-            formatter = logging.Formatter(" % (asctime)s - %(name)s - %(levelname)s - %(message)s")
+            formatter = logging.Formatter(" % (asctime)s - \
+                %(name)s - %(levelname)s - %(message)s")
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
 

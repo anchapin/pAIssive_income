@@ -33,7 +33,8 @@ class ServeRESTCommand(BaseCommand):
         Args:
             parser: Argument parser
         """
-        parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
+        parser.add_argument("--model - path", type=str, required=True, 
+            help="Path to the model")
         parser.add_argument(
             "--model - type",
             type=str,
@@ -51,17 +52,22 @@ class ServeRESTCommand(BaseCommand):
         parser.add_argument(
             "--host", type=str, default="127.0.0.1", help="Host to bind the server to"
         )
-        parser.add_argument("--port", type=int, default=8000, help="Port to bind the server to")
-        parser.add_argument("--workers", type=int, default=1, help="Number of worker processes")
-        parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
+        parser.add_argument("--port", type=int, default=8000, 
+            help="Port to bind the server to")
+        parser.add_argument("--workers", type=int, default=1, 
+            help="Number of worker processes")
+        parser.add_argument("--timeout", type=int, default=60, 
+            help="Timeout in seconds")
         parser.add_argument(
             "--max - batch - size",
             type=int,
             default=4,
             help="Maximum batch size for inference",
         )
-        parser.add_argument("--enable - auth", action="store_true", help="Enable authentication")
-        parser.add_argument("--api - keys", type=str, help="Comma - separated list of API keys")
+        parser.add_argument("--enable - auth", action="store_true", 
+            help="Enable authentication")
+        parser.add_argument("--api - keys", type=str, 
+            help="Comma - separated list of API keys")
         parser.add_argument("--enable - cors", action="store_true", help="Enable CORS")
         parser.add_argument(
             "--cors - origins",
@@ -69,24 +75,29 @@ class ServeRESTCommand(BaseCommand):
             default=" * ",
             help="Comma - separated list of allowed origins for CORS",
         )
-        parser.add_argument("--enable - rate - limit", action="store_true", help="Enable rate limiting")
+        parser.add_argument("--enable - rate - limit", action="store_true", 
+            help="Enable rate limiting")
         parser.add_argument(
             "--rate - limit",
             type=int,
             default=60,
             help="Maximum number of requests per minute",
         )
-        parser.add_argument("--enable - https", action="store_true", help="Enable HTTPS")
+        parser.add_argument("--enable - https", action="store_true", 
+            help="Enable HTTPS")
         parser.add_argument("--ssl - keyfile", type=str, help="Path to SSL key file")
-        parser.add_argument("--ssl - certfile", type=str, help="Path to SSL certificate file")
-        parser.add_argument("--enable - docs", action="store_true", help="Enable API documentation")
+        parser.add_argument("--ssl - certfile", type=str, 
+            help="Path to SSL certificate file")
+        parser.add_argument("--enable - docs", action="store_true", 
+            help="Enable API documentation")
         parser.add_argument(
             "--docs - url",
             type=str,
             default=" / docs",
             help="URL path for API documentation",
         )
-        parser.add_argument("--enable - metrics", action="store_true", help="Enable metrics endpoint")
+        parser.add_argument("--enable - metrics", action="store_true", 
+            help="Enable metrics endpoint")
         parser.add_argument(
             "--metrics - path",
             type=str,
@@ -94,7 +105,8 @@ class ServeRESTCommand(BaseCommand):
             help="URL path for metrics endpoint",
         )
         parser.add_argument("--log - file", type=str, help="Path to log file")
-        parser.add_argument("--config - file", type=str, help="Path to configuration file")
+        parser.add_argument("--config - file", type=str, 
+            help="Path to configuration file")
 
     def run(self) -> int:
         """
@@ -146,7 +158,8 @@ class ServeRESTCommand(BaseCommand):
 
             # Parse API keys
             if self.args.api_keys:
-                config_dict["api_keys"] = [key.strip() for key in self.args.api_keys.split(",")]
+                config_dict["api_keys"] = [key.strip() for key in self.args.api_keys.split(",
+                    ")]
 
             # Parse CORS origins
             if self.args.cors_origins:
@@ -200,7 +213,8 @@ class ServeGRPCCommand(BaseCommand):
         Args:
             parser: Argument parser
         """
-        parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
+        parser.add_argument("--model - path", type=str, required=True, 
+            help="Path to the model")
         parser.add_argument(
             "--model - type",
             type=str,
@@ -218,8 +232,10 @@ class ServeGRPCCommand(BaseCommand):
         parser.add_argument(
             "--host", type=str, default="127.0.0.1", help="Host to bind the server to"
         )
-        parser.add_argument("--port", type=int, default=50051, help="Port to bind the server to")
-        parser.add_argument("--workers", type=int, default=1, help="Number of worker processes")
+        parser.add_argument("--port", type=int, default=50051, 
+            help="Port to bind the server to")
+        parser.add_argument("--workers", type=int, default=1, 
+            help="Number of worker processes")
         parser.add_argument(
             "--max - message - length",
             type=int,
@@ -242,9 +258,11 @@ class ServeGRPCCommand(BaseCommand):
         )
         parser.add_argument("--enable - tls", action="store_true", help="Enable TLS")
         parser.add_argument("--tls - key - file", type=str, help="Path to TLS key file")
-        parser.add_argument("--tls - cert - file", type=str, help="Path to TLS certificate file")
+        parser.add_argument("--tls - cert - file", type=str, 
+            help="Path to TLS certificate file")
         parser.add_argument("--log - file", type=str, help="Path to log file")
-        parser.add_argument("--config - file", type=str, help="Path to configuration file")
+        parser.add_argument("--config - file", type=str, 
+            help="Path to configuration file")
 
     def run(self) -> int:
         """

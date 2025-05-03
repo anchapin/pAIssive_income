@@ -111,7 +111,8 @@ class TestCrossAPIWorkflows:
 
         # Step 3: Create a monetization strategy for the solution
         monetization_data = generate_monetization_data(solution_id=solution_id)
-        response = auth_api_test_client.post("monetization / strategies", monetization_data)
+        response = auth_api_test_client.post("monetization / strategies", 
+            monetization_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):
@@ -123,7 +124,8 @@ class TestCrossAPIWorkflows:
         monetization_id = monetization_result["id"]
 
         # Step 4: Get monetization details
-        response = auth_api_test_client.get(f"monetization / strategies/{monetization_id}")
+        response = auth_api_test_client.get(f"monetization / \
+            strategies/{monetization_id}")
         monetization_details = self.validate_success_response(response)
         self.validate_field_exists(monetization_details, "model")
         self.validate_field_exists(monetization_details, "tiers")
@@ -159,7 +161,8 @@ class TestCrossAPIWorkflows:
 
         # Step 3: Create a monetization strategy for the solution
         monetization_data = generate_monetization_data(solution_id=solution_id)
-        response = auth_api_test_client.post("monetization / strategies", monetization_data)
+        response = auth_api_test_client.post("monetization / strategies", 
+            monetization_data)
 
         # If the endpoint returns 404 or 501, skip the test
         if response.status_code in (404, 501):

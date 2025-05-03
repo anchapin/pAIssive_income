@@ -206,7 +206,8 @@ def test_model_downloader_download_from_url(mock_get, temp_models_dir):
     assert isinstance(progress_updates[0], DownloadProgress)
 
     # Check that the mock was called correctly
-    mock_get.assert_called_once_with("https://example.com / test - model.bin", stream=True, timeout=30)
+    mock_get.assert_called_once_with("https://example.com / test - model.bin", 
+        stream=True, timeout=30)
     mock_response.iter_content.assert_called_once_with(chunk_size=1024)
 
 
@@ -250,7 +251,8 @@ def test_model_downloader_download_model(mock_download_from_url, temp_models_dir
 
 
 @patch("ai_models.model_downloader.ModelDownloader.download_from_url")
-def test_model_downloader_download_model_failure(mock_download_from_url, temp_models_dir):
+def test_model_downloader_download_model_failure(mock_download_from_url, 
+    temp_models_dir):
     """Test download_model method of ModelDownloader with a failure."""
     # Mock the download_from_url method to fail
     mock_download_from_url.side_effect = Exception("Download failed")
@@ -260,7 +262,8 @@ def test_model_downloader_download_model_failure(mock_download_from_url, temp_mo
 
     # Download a model
     task = downloader.download_model(
-        model_id="test - model", source="direct", url="https://example.com / test - model.bin"
+        model_id="test - model", source="direct", 
+            url="https://example.com / test - model.bin"
     )
 
     # Check that a task was returned with failure status
@@ -281,7 +284,8 @@ def test_model_downloader_get_task(mock_download_from_url, temp_models_dir):
 
     # Download a model
     task = downloader.download_model(
-        model_id="test - model", source="direct", url="https://example.com / test - model.bin"
+        model_id="test - model", source="direct", 
+            url="https://example.com / test - model.bin"
     )
 
     # Get the task

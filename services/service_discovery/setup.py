@@ -32,7 +32,8 @@ class ServiceDiscoverySetup:
             bool: True if Consul is running, False otherwise
         """
         try:
-            response = requests.get(f"http://{host}:{port}/v1 / status / leader", timeout=2)
+            response = requests.get(f"http://{host}:{port}/v1 / status / leader", 
+                timeout=2)
             return response.status_code == 200
         except requests.exceptions.RequestException:
             return False
@@ -94,7 +95,8 @@ class ServiceDiscoverySetup:
                     break
 
                 logger.info(
-                    f"Waiting for Consul to start (attempt {attempt + 1}/{max_attempts})..."
+                    f"Waiting for Consul to start (attempt {attempt + \
+                        1}/{max_attempts})..."
                 )
                 time.sleep(1)
                 attempt += 1
@@ -154,7 +156,8 @@ class ServiceDiscoverySetup:
         # Write service configurations if provided
         if services:
             for service_name, service_config in services.items():
-                with open(os.path.join(config_dir, f"service-{service_name}.json"), "w") as f:
+                with open(os.path.join(config_dir, f"service-{service_name}.json"), 
+                    "w") as f:
                     json.dump({"service": service_config}, f, indent=2)
 
         logger.info(f"Generated Consul configuration in {config_dir}")
@@ -200,7 +203,8 @@ class ServiceDiscoverySetup:
             },
         }
 
-        ServiceDiscoverySetup.generate_consul_config(config_dir=config_dir, services=services)
+        ServiceDiscoverySetup.generate_consul_config(config_dir=config_dir, 
+            services=services)
 
 
 # Command - line interface
@@ -210,7 +214,8 @@ if __name__ == "__main__":
 
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO, format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
+        level=logging.INFO, 
+            format=" % (asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     # Parse arguments
@@ -219,9 +224,12 @@ if __name__ == "__main__":
 
     # Start Consul command
     start_parser = subparsers.add_parser("start - consul", help="Start Consul")
-    start_parser.add_argument("--data - dir", default="./consul_data", help="Data directory")
-    start_parser.add_argument("--config - dir", default=None, help="Configuration directory")
-    start_parser.add_argument("--no - ui", action="store_false", dest="ui", help="Disable UI")
+    start_parser.add_argument("--data - dir", default="./consul_data", 
+        help="Data directory")
+    start_parser.add_argument("--config - dir", default=None, 
+        help="Configuration directory")
+    start_parser.add_argument("--no - ui", action="store_false", dest="ui", 
+        help="Disable UI")
     start_parser.add_argument(
         "--no - server", action="store_false", dest="server", help="Disable server mode"
     )
@@ -230,22 +238,30 @@ if __name__ == "__main__":
     )
 
     # Generate config command
-    config_parser = subparsers.add_parser("generate - config", help="Generate Consul configuration")
-    config_parser.add_argument("--config - dir", required=True, help="Configuration directory")
+    config_parser = subparsers.add_parser("generate - config", 
+        help="Generate Consul configuration")
+    config_parser.add_argument("--config - dir", required=True, 
+        help="Configuration directory")
     config_parser.add_argument("--datacenter", default="dc1", help="Datacenter name")
-    config_parser.add_argument("--bind - addr", default="127.0.0.1", help="Bind address")
-    config_parser.add_argument("--client - addr", default="127.0.0.1", help="Client address")
+    config_parser.add_argument("--bind - addr", default="127.0.0.1", 
+        help="Bind address")
+    config_parser.add_argument("--client - addr", default="127.0.0.1", 
+        help="Client address")
     config_parser.add_argument(
         "--no - server", action="store_false", dest="server", help="Disable server mode"
     )
     config_parser.add_argument(
-        "--no - bootstrap", action="store_false", dest="bootstrap", help="Disable bootstrap mode"
+        "--no - bootstrap", action="store_false", dest="bootstrap", 
+            help="Disable bootstrap mode"
     )
-    config_parser.add_argument("--no - ui", action="store_false", dest="ui", help="Disable UI")
+    config_parser.add_argument("--no - ui", action="store_false", dest="ui", 
+        help="Disable UI")
 
     # Create demo services command
-    demo_parser = subparsers.add_parser("create - demo", help="Create demo service configurations")
-    demo_parser.add_argument("--config - dir", required=True, help="Configuration directory")
+    demo_parser = subparsers.add_parser("create - demo", 
+        help="Create demo service configurations")
+    demo_parser.add_argument("--config - dir", required=True, 
+        help="Configuration directory")
 
     # Check status command
     check_parser = subparsers.add_parser("check", help="Check if Consul is running")
@@ -302,7 +318,8 @@ if __name__ == "__main__":
             sys.exit(1)
 
     elif args.command == "check":
-        running = ServiceDiscoverySetup.check_consul_running(host=args.host, port=args.port)
+        running = ServiceDiscoverySetup.check_consul_running(host=args.host, 
+            port=args.port)
         if running:
             logger.info("Consul is running.")
         else:

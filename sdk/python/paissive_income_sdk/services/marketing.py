@@ -61,7 +61,8 @@ class MarketingService(BaseService):
         """
         return self._get(f"marketing / strategies/{strategy_id}")
 
-    def update_marketing_strategy(self, strategy_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    def update_marketing_strategy(self, strategy_id: str, data: Dict[str, 
+        Any]) -> Dict[str, Any]:
         """
         Update a marketing strategy.
 

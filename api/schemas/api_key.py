@@ -13,7 +13,8 @@ class APIKeyBase(BaseModel):
 
     name: str = Field(..., description="Name of the API key")
     description: Optional[str] = Field(None, description="Description of the API key")
-    scopes: List[str] = Field(default=["read"], description="Scopes the API key has access to")
+    scopes: List[str] = Field(default=["read"], 
+        description="Scopes the API key has access to")
 
 
 class APIKeyCreate(APIKeyBase):
@@ -26,8 +27,10 @@ class APIKeyUpdate(BaseModel):
     """Schema for updating an API key."""
 
     name: Optional[str] = Field(None, description="New name of the API key")
-    description: Optional[str] = Field(None, description="New description of the API key")
-    scopes: Optional[List[str]] = Field(None, description="New scopes the API key has access to")
+    description: Optional[str] = Field(None, 
+        description="New description of the API key")
+    scopes: Optional[List[str]] = Field(None, 
+        description="New scopes the API key has access to")
     expires_at: Optional[datetime] = Field(None, description="New expiration timestamp")
     is_active: Optional[bool] = Field(None, description="New active status")
 
@@ -37,7 +40,8 @@ class APIKeyResponse(APIKeyBase):
 
     id: str = Field(..., description="API key ID")
     key: str = Field(..., description="API key value")
-    user_id: Optional[str] = Field(None, description="ID of the user who owns the API key")
+    user_id: Optional[str] = Field(None, 
+        description="ID of the user who owns the API key")
     is_active: bool = Field(True, description="Whether the API key is active")
     expires_at: Optional[datetime] = Field(None, description="Expiration timestamp")
     created_at: datetime = Field(..., description="Creation timestamp")

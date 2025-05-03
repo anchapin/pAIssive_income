@@ -71,7 +71,9 @@ if STRAWBERRY_AVAILABLE:
                         growth_rate=niche.growth_rate,
                         competition_level=niche.competition_level,
                         created_at=niche.created_at.isoformat() if niche.created_at else None,
+                            
                         updated_at=niche.updated_at.isoformat() if niche.updated_at else None,
+                            
                     )
                     for niche in niches
                 ]
@@ -111,7 +113,9 @@ if STRAWBERRY_AVAILABLE:
                     growth_rate=niche.growth_rate,
                     competition_level=niche.competition_level,
                     created_at=niche.created_at.isoformat() if niche.created_at else None,
+                        
                     updated_at=niche.updated_at.isoformat() if niche.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error getting niche: {str(e)}")
@@ -161,7 +165,9 @@ if STRAWBERRY_AVAILABLE:
                         feasibility=opp.feasibility,
                         profitability=opp.profitability,
                         created_at=opp.created_at.isoformat() if opp.created_at else None,
+                            
                         updated_at=opp.updated_at.isoformat() if opp.updated_at else None,
+                            
                     )
                     for opp in opportunities
                 ]
@@ -211,14 +217,17 @@ if STRAWBERRY_AVAILABLE:
                     growth_rate=niche.growth_rate,
                     competition_level=niche.competition_level,
                     created_at=niche.created_at.isoformat() if niche.created_at else None,
+                        
                     updated_at=niche.updated_at.isoformat() if niche.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error creating niche analysis: {str(e)}")
                 return None
 
         @strawberry.mutation
-        async def update_niche(self, info: Info, id: str, input: NicheInput) -> Optional[NicheType]:
+        async def update_niche(self, info: Info, id: str, 
+            input: NicheInput) -> Optional[NicheType]:
             """
             Update a niche.
 
@@ -258,7 +267,9 @@ if STRAWBERRY_AVAILABLE:
                     growth_rate=niche.growth_rate,
                     competition_level=niche.competition_level,
                     created_at=niche.created_at.isoformat() if niche.created_at else None,
+                        
                     updated_at=niche.updated_at.isoformat() if niche.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error updating niche: {str(e)}")

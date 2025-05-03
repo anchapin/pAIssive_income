@@ -23,10 +23,12 @@ class MonetizationAgent:
         """
         self.team = team
         self.name = "Monetization Agent"
-        self.description = "Specializes in designing subscription models and pricing strategies"
+        self.description = \
+            "Specializes in designing subscription models and pricing strategies"
         self.model_settings = team.config["model_settings"]["monetization"]
 
-    def create_strategy(self, niche: Dict[str, Any], solution: Dict[str, Any]) -> Dict[str, Any]:
+    def create_strategy(self, niche: Dict[str, Any], solution: Dict[str, 
+        Any]) -> Dict[str, Any]:
         """
         Create a monetization strategy for a specific solution.
 
@@ -64,12 +66,15 @@ class MonetizationAgent:
         # Generate subscription tiers based on the solution features
         features = solution["features"]
 
-        basic_features = [feature["id"] for feature in features if feature["priority"] > 0.8]
-        pro_features = [feature["id"] for feature in features if feature["priority"] > 0.5]
+        basic_features = \
+            [feature["id"] for feature in features if feature["priority"] > 0.8]
+        pro_features = \
+            [feature["id"] for feature in features if feature["priority"] > 0.5]
         premium_features = [feature["id"] for feature in features]
 
         # Generate pricing based on the niche and solution
-        base_price = 10 + int(niche["opportunity_score"] * 20)  # Base price between $10 and $30
+        base_price = 10 + \
+            int(niche["opportunity_score"] * 20)  # Base price between $10 and $30
 
         subscription_tiers = [
             {
@@ -88,6 +93,7 @@ class MonetizationAgent:
                 "price_yearly": int(base_price * 2 * 10),  # 2 months free for yearly
                 "features": pro_features,
                 "description": f"Advanced features for professional {niche['name']} users",
+                    
                 "target_users": "Professional users and medium - sized businesses",
             },
             {
@@ -110,6 +116,7 @@ class MonetizationAgent:
                     "id": str(uuid.uuid4()),
                     "name": "Custom Integration Services",
                     "description": f"Custom integration with existing {niche['name']} tools",
+                        
                     "pricing_model": "one - time fee",
                     "price_range": "$500 - $2,000",
                     "target_users": "Enterprise users",
@@ -141,7 +148,8 @@ class MonetizationAgent:
             )
 
         # Generate revenue projections
-        target_users_year_1 = int(100 + hash(niche["name"]) % 200)  # Between 100 and 300
+        target_users_year_1 = int(100 + \
+            hash(niche["name"]) % 200)  # Between 100 and 300
         target_users_year_2 = target_users_year_1 * 2
         target_users_year_3 = target_users_year_1 * 4
 
@@ -149,12 +157,17 @@ class MonetizationAgent:
         # Assume 70% monthly, 30% yearly
 
         def calculate_revenue(users):
-            basic_monthly = int(users * 0.5 * 0.7) * subscription_tiers[0]["price_monthly"] * 12
-            basic_yearly = int(users * 0.5 * 0.3) * subscription_tiers[0]["price_yearly"]
-            pro_monthly = int(users * 0.3 * 0.7) * subscription_tiers[1]["price_monthly"] * 12
+            basic_monthly = int(users * \
+                0.5 * 0.7) * subscription_tiers[0]["price_monthly"] * 12
+            basic_yearly = int(users * \
+                0.5 * 0.3) * subscription_tiers[0]["price_yearly"]
+            pro_monthly = int(users * \
+                0.3 * 0.7) * subscription_tiers[1]["price_monthly"] * 12
             pro_yearly = int(users * 0.3 * 0.3) * subscription_tiers[1]["price_yearly"]
-            premium_monthly = int(users * 0.2 * 0.7) * subscription_tiers[2]["price_monthly"] * 12
-            premium_yearly = int(users * 0.2 * 0.3) * subscription_tiers[2]["price_yearly"]
+            premium_monthly = int(users * \
+                0.2 * 0.7) * subscription_tiers[2]["price_monthly"] * 12
+            premium_yearly = int(users * \
+                0.2 * 0.3) * subscription_tiers[2]["price_yearly"]
 
             return (
                 basic_monthly
@@ -246,6 +259,7 @@ class MonetizationAgent:
             },
             "competitor_analysis": {
                 "lowest_competitor_price": strategy["subscription_tiers"][0]["price_monthly"] * 0.7,
+                    
                 "highest_competitor_price": strategy["subscription_tiers"][2]["price_monthly"]
                 * 1.3,
                 "average_competitor_price": strategy["subscription_tiers"][1]["price_monthly"]

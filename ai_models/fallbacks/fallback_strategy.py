@@ -180,10 +180,12 @@ class FallbackManager:
         """Initialize metrics securely."""
         self.fallback_history: List[FallbackEvent] = []
         self.fallback_metrics: Dict[FallbackStrategy, Dict[str, int]] = {
-            strategy: {"success_count": 0, "total_count": 0} for strategy in FallbackStrategy
+            strategy: {"success_count": 0, 
+                "total_count": 0} for strategy in FallbackStrategy
         }
 
-    def _validate_preferences(self, preferences: Dict[str, List[str]]) -> Dict[str, List[str]]:
+    def _validate_preferences(self, preferences: Dict[str, List[str]]) -> Dict[str, 
+        List[str]]:
         """Validate fallback preferences."""
         validated = {}
         allowed_types = {"huggingface", "llama", "openai", "general - purpose"}
@@ -195,7 +197,8 @@ class FallbackManager:
 
             # Validate and filter model types
             safe_types = [
-                mt for mt in model_types if isinstance(mt, str) and mt.lower() in allowed_types
+                mt for mt in model_types if isinstance(mt, 
+                    str) and mt.lower() in allowed_types
             ]
             if safe_types:
                 validated[agent_type] = safe_types
@@ -244,7 +247,8 @@ class FallbackManager:
             original_model_info = None
             if original_model_id:
                 try:
-                    original_model_info = self.model_manager.get_model_info(original_model_id)
+                    original_model_info = \
+                        self.model_manager.get_model_info(original_model_id)
                 except ModelNotFoundError:
                     pass
 
@@ -259,7 +263,8 @@ class FallbackManager:
             ]
 
             # Use override or cascade
-            strategies_to_try = [strategy_override] if strategy_override else cascade_order
+            strategies_to_try = \
+                [strategy_override] if strategy_override else cascade_order
 
             reason = "Primary model selection failed"
             attempts = 0
@@ -270,7 +275,8 @@ class FallbackManager:
                     break
 
                 attempts += 1
-                self.logger.info(f"Trying fallback strategy: {strategy.value} (attempt {attempts})")
+                self.logger.info(
+                    f"Trying fallback strategy: {strategy.value} (attempt {attempts})")
 
                 fallback_model = None
                 try:
@@ -279,7 +285,8 @@ class FallbackManager:
                     elif strategy == FallbackStrategy.DEFAULT:
                         fallback_model = self._apply_default_model_strategy()
                     elif strategy == FallbackStrategy.SIMILAR_MODEL:
-                        fallback_model = self._apply_similar_model_strategy(original_model_info)
+                        fallback_model = \
+                            self._apply_similar_model_strategy(original_model_info)
                     elif strategy == FallbackStrategy.MODEL_TYPE:
                         fallback_model = self._apply_model_type_strategy(
                             original_model_info, agent_type, task_type
@@ -289,9 +296,11 @@ class FallbackManager:
                     elif strategy == FallbackStrategy.SPECIFIED_LIST:
                         fallback_model = self._apply_specified_list_strategy(agent_type)
                     elif strategy == FallbackStrategy.SIZE_TIER:
-                        fallback_model = self._apply_size_tier_strategy(original_model_info)
+                        fallback_model = \
+                            self._apply_size_tier_strategy(original_model_info)
                     elif strategy == FallbackStrategy.CAPABILITY_BASED:
-                        fallback_model = self._apply_capability_strategy(required_capabilities)
+                        fallback_model = \
+                            self._apply_capability_strategy(required_capabilities)
 
                 except Exception as e:
                     self.logger.error(f"Error in strategy {strategy.value}: {e}")
@@ -302,7 +311,8 @@ class FallbackManager:
                     try:
                         self._validate_fallback_model(fallback_model)
                     except SecurityError as e:
-                        self.logger.error(f"Security validation failed for fallback model: {e}")
+                        self.logger.error(
+                            f"Security validation failed for fallback model: {e}")
                         continue
 
                     event = FallbackEvent(
@@ -354,7 +364,8 @@ class FallbackManager:
 
     def _validate_fallback_model(self, model: IModelInfo) -> None:
         """Validate fallback model security requirements."""
-        if not model or not hasattr(model, "id") or not self._is_safe_model_id(model.id):
+        if not model or not hasattr(model, 
+            "id") or not self._is_safe_model_id(model.id):
             raise SecurityError("Invalid fallback model ID")
 
         if not hasattr(model, "type") or not self._is_safe_type_name(model.type):

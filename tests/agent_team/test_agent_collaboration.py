@@ -133,7 +133,8 @@ def test_agent_conflict_resolution(mock_team):
         return adjusted
 
     # Assign our mock function
-    developer.adjust_solution_priority = MagicMock(side_effect=mock_adjust_solution_priority)
+    developer.adjust_solution_priority = \
+        MagicMock(side_effect=mock_adjust_solution_priority)
 
     # Test conflict resolution through priority alignment
     mock_team.developer = developer
@@ -299,7 +300,8 @@ def test_agent_cross_domain_problem_solving(mock_team):
 
     # Mock cross - domain analysis
     developer.analyze_technical_aspect = MagicMock(
-        return_value={"bottleneck": "database_queries", "solution": "query_optimization"}
+        return_value={"bottleneck": "database_queries", 
+            "solution": "query_optimization"}
     )
 
     marketing.analyze_user_impact = MagicMock(

@@ -24,7 +24,8 @@ import pytest
 from fastapi import FastAPI, Request, Response, status
 from fastapi.testclient import TestClient
 
-from api.middleware.webhook_security import WebhookIPAllowlistMiddleware, WebhookRateLimitMiddleware
+from api.middleware.webhook_security import WebhookIPAllowlistMiddleware, 
+    WebhookRateLimitMiddleware
 from api.services.webhook_security import (
     WebhookIPAllowlist,
     WebhookRateLimiter,
@@ -95,7 +96,8 @@ class TestReplayedSignatures:
         assert ts_verifier.verify_signature(secret, payload_str, signature) is True
 
         # Verify the old signature (should fail due to timestamp)
-        assert ts_verifier.verify_signature(secret, old_payload_str, old_signature) is False
+        assert ts_verifier.verify_signature(secret, old_payload_str, 
+            old_signature) is False
 
     def test_replay_protection_with_nonce(self):
         """Test protection against replayed signatures using nonces."""
@@ -121,7 +123,8 @@ class TestReplayedSignatures:
 
         # Create a nonce - aware verifier
         class NonceAwareVerifier(WebhookSignatureVerifier):
-            def verify_signature_with_nonce(self, secret, payload, signature, nonce_store):
+            def verify_signature_with_nonce(self, secret, payload, signature, 
+                nonce_store):
                 # First verify the signature itself
                 if not super().verify_signature(secret, payload, signature):
                     return False
@@ -150,14 +153,16 @@ class TestReplayedSignatures:
 
         # Verify the signature (should pass and add nonce to store)
         assert (
-            nonce_verifier.verify_signature_with_nonce(secret, payload_str, signature, used_nonces)
+            nonce_verifier.verify_signature_with_nonce(secret, payload_str, signature, 
+                used_nonces)
             is True
         )
         assert nonce in used_nonces
 
         # Try to verify the same signature again (should fail due to used nonce)
         assert (
-            nonce_verifier.verify_signature_with_nonce(secret, payload_str, signature, used_nonces)
+            nonce_verifier.verify_signature_with_nonce(secret, payload_str, signature, 
+                used_nonces)
             is False
         )
 
@@ -202,7 +207,8 @@ class TestRateLimitBehavior:
 
                     # Remove requests outside the time window
                     self.requests[key] = [
-                        t for t in self.requests[key] if current_time - t <= self.window_seconds
+                        t for t in self.requests[key] if current_time - \
+                            t <= self.window_seconds
                     ]
 
                     # Update storage
@@ -219,7 +225,8 @@ class TestRateLimitBehavior:
 
                     # Remove requests outside the time window
                     self.local_cache[key] = [
-                        t for t in self.local_cache[key] if current_time - t <= self.window_seconds
+                        t for t in self.local_cache[key] if current_time - \
+                            t <= self.window_seconds
                     ]
 
                     # Use a more conservative limit during outage
@@ -240,7 +247,8 @@ class TestRateLimitBehavior:
 
                     # Remove requests outside the time window
                     self.requests[key] = [
-                        t for t in self.requests[key] if current_time - t <= self.window_seconds
+                        t for t in self.requests[key] if current_time - \
+                            t <= self.window_seconds
                     ]
 
                     # Update storage
@@ -255,7 +263,8 @@ class TestRateLimitBehavior:
 
                     # Remove requests outside the time window
                     self.local_cache[key] = [
-                        t for t in self.local_cache[key] if current_time - t <= self.window_seconds
+                        t for t in self.local_cache[key] if current_time - \
+                            t <= self.window_seconds
                     ]
 
         # Test with working storage
@@ -311,7 +320,8 @@ class TestIPAllowlistUpdates:
         # Create a FastAPI app with the allowlist middleware
         app = FastAPI()
         app.add_middleware(
-            WebhookIPAllowlistMiddleware, allowlist=allowlist, webhook_path_prefix=" / webhooks"
+            WebhookIPAllowlistMiddleware, allowlist=allowlist, 
+                webhook_path_prefix=" / webhooks"
         )
 
         # Add a test route
@@ -392,13 +402,15 @@ class TestSignatureVerification:
         tampered_payload_str = json.dumps(tampered_payload)
 
         # Verify the signature with tampered payload (should fail)
-        assert verifier.verify_signature(secret, tampered_payload_str, signature) is False
+        assert verifier.verify_signature(secret, tampered_payload_str, 
+            signature) is False
 
         # Test with minimal tampering (just whitespace changes)
         whitespace_payload_str = json.dumps(payload, indent=2)
 
         # Verify the signature with whitespace changes (should fail)
-        assert verifier.verify_signature(secret, whitespace_payload_str, signature) is False
+        assert verifier.verify_signature(secret, whitespace_payload_str, 
+            signature) is False
 
     def test_expired_timestamps(self):
         """Test signature verification with expired timestamps."""
@@ -456,14 +468,17 @@ class TestSignatureVerification:
         current_signature = verifier.create_signature_with_timestamp(secret, payload)
 
         # Verify the signature (should pass)
-        assert verifier.verify_signature_with_timestamp(secret, payload, current_signature) is True
+        assert verifier.verify_signature_with_timestamp(secret, payload, 
+            current_signature) is True
 
         # Create a signature with old timestamp
         old_timestamp = int(time.time()) - 600  # 10 minutes old
-        old_signature = verifier.create_signature_with_timestamp(secret, payload, old_timestamp)
+        old_signature = verifier.create_signature_with_timestamp(secret, payload, 
+            old_timestamp)
 
         # Verify the signature with old timestamp (should fail)
-        assert verifier.verify_signature_with_timestamp(secret, payload, old_signature) is False
+        assert verifier.verify_signature_with_timestamp(secret, payload, 
+            old_signature) is False
 
         # Verify with a custom max age that allows the old timestamp
         assert (
@@ -552,8 +567,10 @@ class TestIPAllowlistCIDR:
         # Test IPs after removal
         assert allowlist.is_allowed("10.0.0.0") is False
         assert allowlist.is_allowed("10.0.0.127") is False
-        assert allowlist.is_allowed("10.0.0.128") is True  # Still allowed by the other range
-        assert allowlist.is_allowed("10.0.0.255") is True  # Still allowed by the other range
+        assert allowlist.is_allowed(
+            "10.0.0.128") is True  # Still allowed by the other range
+        assert allowlist.is_allowed(
+            "10.0.0.255") is True  # Still allowed by the other range
 
 
 class TestRateLimitingConcurrent:
@@ -568,7 +585,8 @@ class TestRateLimitingConcurrent:
         # Create a FastAPI app with the rate limit middleware
         app = FastAPI()
         app.add_middleware(
-            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
+            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, 
+                webhook_path_prefix=" / webhooks"
         )
 
         # Add a test route
@@ -625,7 +643,8 @@ class TestRateLimitingHeaders:
         # Create a FastAPI app with the rate limit middleware
         app = FastAPI()
         app.add_middleware(
-            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
+            WebhookRateLimitMiddleware, rate_limiter=rate_limiter, 
+                webhook_path_prefix=" / webhooks"
         )
 
         # Add a test route

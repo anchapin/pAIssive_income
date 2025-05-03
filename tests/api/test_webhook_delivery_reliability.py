@@ -66,7 +66,8 @@ class TestDeliveryConfirmation:
                 # Verify that delivery was successful
                 assert delivery["status"] == WebhookDeliveryStatus.SUCCESS
                 assert len(delivery["attempts"]) == 1
-                assert delivery["attempts"][0]["status"] == WebhookDeliveryStatus.SUCCESS
+                assert delivery["attempts"][0]["status"] == \
+                    WebhookDeliveryStatus.SUCCESS
                 assert delivery["attempts"][0]["response_code"] == 200
 
                 # Get the delivery from the service
@@ -264,10 +265,12 @@ class TestIntermittentFailures:
 
                 # Verify that delivery eventually succeeded
                 assert delivery["status"] == WebhookDeliveryStatus.SUCCESS
-                assert len(delivery["attempts"]) == 3  # Initial + 2 retries before success
+                assert len(delivery["attempts"]) == 3  # Initial + \
+                    2 retries before success
                 assert delivery["attempts"][0]["status"] == WebhookDeliveryStatus.FAILED
                 assert delivery["attempts"][1]["status"] == WebhookDeliveryStatus.FAILED
-                assert delivery["attempts"][2]["status"] == WebhookDeliveryStatus.SUCCESS
+                assert delivery["attempts"][2]["status"] == \
+                    WebhookDeliveryStatus.SUCCESS
 
         finally:
             # Stop the service

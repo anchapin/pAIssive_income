@@ -37,6 +37,7 @@ class FallbackPreferences(BaseModel):
             "default": ["huggingface", "general - purpose"],
         },
         description="Mapping of agent types to their preferred model types for fallbacks",
+            
     )
 
     model_config = ConfigDict(
@@ -59,7 +60,8 @@ class FallbackPreferences(BaseModel):
 
             # Validate and filter model types
             safe_types = [
-                mt for mt in model_types if isinstance(mt, str) and mt.lower() in allowed_types
+                mt for mt in model_types if isinstance(mt, 
+                    str) and mt.lower() in allowed_types
             ]
             if safe_types:
                 validated[agent_type] = safe_types
@@ -79,7 +81,8 @@ class FallbackPreferences(BaseModel):
 class FallbackConfig(BaseModel):
     """Configuration model for fallback behavior with security features."""
 
-    enabled: bool = Field(default=True, description="Whether fallback mechanisms are enabled")
+    enabled: bool = Field(default=True, 
+        description="Whether fallback mechanisms are enabled")
 
     default_strategy: FallbackStrategyEnum = Field(
         default=FallbackStrategyEnum.DEFAULT,
@@ -105,7 +108,8 @@ class FallbackConfig(BaseModel):
     logging_level: str = Field(
         default="INFO",
         description="Logging level for fallback events",
-        pattern=r"^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",  # Security: validate log levels
+        pattern=r"^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",  
+            # Security: validate log levels
     )
 
     use_general_purpose_fallback: bool = Field(
@@ -150,7 +154,8 @@ class FallbackConfig(BaseModel):
     @classmethod
     def validate_model_id(cls, v: Optional[str]) -> Optional[str]:
         """Validate model ID format."""
-        if v is not None and not re.match(r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$", v):
+        if v is not None and not re.match(r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$", 
+            v):
             raise ValueError("Invalid model ID format")
         return v
 
@@ -159,7 +164,8 @@ class FallbackConfig(BaseModel):
     def validate_allowed_types(cls, v: List[str]) -> List[str]:
         """Validate allowed model types."""
         allowed_types = {"huggingface", "llama", "openai", "general - purpose"}
-        validated = [mt for mt in v if isinstance(mt, str) and mt.lower() in allowed_types]
+        validated = [mt for mt in v if isinstance(mt, 
+            str) and mt.lower() in allowed_types]
         if not validated:
             raise ValueError("Must specify at least one valid model type")
         return validated
@@ -171,16 +177,19 @@ class FallbackEventSchema(BaseModel):
     original_model_id: Optional[str] = Field(
         default=None,
         description="ID of the original model that failed",
-        pattern=r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$",  # Security: validate model ID format
+        pattern=r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$",  
+            # Security: validate model ID format
     )
 
     fallback_model_id: str = Field(
         description="ID of the fallback model that was selected",
-        pattern=r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$",  # Security: validate model ID format
+        pattern=r"^[a - zA - Z0 - 9][a - zA - Z0 - 9_\-\.]+$",  
+            # Security: validate model ID format
     )
 
     reason: str = Field(
-        description="Reason for the fallback", max_length=1000  # Security: limit reason length
+        description="Reason for the fallback", 
+            max_length=1000  # Security: limit reason length
     )
 
     agent_type: Optional[str] = Field(
@@ -201,7 +210,8 @@ class FallbackEventSchema(BaseModel):
     )
 
     timestamp: float = Field(
-        description="Timestamp of the fallback event", ge=0  # Security: ensure positive timestamp
+        description="Timestamp of the fallback event", 
+            ge=0  # Security: ensure positive timestamp
     )
 
     details: Dict[str, Any] = Field(

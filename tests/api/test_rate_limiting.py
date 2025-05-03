@@ -51,13 +51,15 @@ class TestRateLimiting:
     def test_exceeding_rate_limit(self, api_test_client: APITestClient):
         """Test requests exceeding rate limit."""
         # Configure a test rate limiter with low limit
-        config = APIConfig(enable_rate_limit=True, rate_limit_requests=5, rate_limit_period=60)
+        config = APIConfig(enable_rate_limit=True, rate_limit_requests=5, 
+            rate_limit_period=60)
         rate_limiter = RateLimitMiddleware(config)
 
         # Make requests until rate limited
         responses = []
         for _ in range(7):  # Exceed the limit of 5
-            response = api_test_client.get("user / profile", headers={"X - Test - Rate - Limit": "true"})
+            response = api_test_client.get("user / profile", 
+                headers={"X - Test - Rate - Limit": "true"})
             responses.append(response)
 
         # Verify rate limit was hit
@@ -79,7 +81,8 @@ class TestRateLimiting:
     def test_rate_limit_reset(self, mock_time, api_test_client: APITestClient):
         """Test rate limit reset behavior."""
         # Configure test rate limiter
-        config = APIConfig(enable_rate_limit=True, rate_limit_requests=3, rate_limit_period=60)
+        config = APIConfig(enable_rate_limit=True, rate_limit_requests=3, 
+            rate_limit_period=60)
         rate_limiter = RateLimitMiddleware(config)
 
         # Set initial time
@@ -132,7 +135,8 @@ class TestRateLimiting:
         limit1 = int(response1.headers["X - RateLimit - Limit"])
 
         # Test high - throughput endpoint
-        response2 = api_test_client.get("public / status")  # Assuming this has different limits
+        response2 = api_test_client.get("public / \
+            status")  # Assuming this has different limits
         limit2 = int(response2.headers["X - RateLimit - Limit"])
 
         # Verify limits can be different
@@ -156,7 +160,8 @@ class TestRateLimiting:
         assert rate_limited_count > 0
 
         # Verify rate limit headers remained consistent
-        limits = [int(r.headers["X - RateLimit - Limit"]) for r in responses if r.status_code != 429]
+        limits = [int(r.headers["X - \
+            RateLimit - Limit"]) for r in responses if r.status_code != 429]
         assert len(set(limits)) == 1  # All successful requests should have same limit
 
     def test_rate_limit_persistence(self, api_test_client: APITestClient):
@@ -228,9 +233,11 @@ class TestRateLimiting:
         assert response.status_code == 200
         assert int(response.headers["X - RateLimit - Remaining"]) == 2  # 3 - 1 = 2
 
-    def test_rate_limit_header_accuracy(self, mock_time, api_test_client: APITestClient):
+    def test_rate_limit_header_accuracy(self, mock_time, 
+        api_test_client: APITestClient):
         """Test accuracy of rate limit headers across multiple requests."""
-        config = APIConfig(enable_rate_limit=True, rate_limit_requests=5, rate_limit_period=60)
+        config = APIConfig(enable_rate_limit=True, rate_limit_requests=5, 
+            rate_limit_period=60)
         rate_limiter = RateLimitMiddleware(config)
 
         # Set initial time
@@ -290,7 +297,8 @@ class TestRateLimiting:
             enable_rate_limit=True,
             rate_limit_requests=10,
             rate_limit_period=60,
-            rate_limit_strategy=RateLimitStrategy.SLIDING_WINDOW,  # Sliding window for gradual reset
+            rate_limit_strategy=RateLimitStrategy.SLIDING_WINDOW,  
+                # Sliding window for gradual reset
         )
         rate_limiter = RateLimitMiddleware(config)
 

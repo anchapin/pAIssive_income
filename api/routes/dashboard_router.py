@@ -45,9 +45,12 @@ if FASTAPI_AVAILABLE:
     class RevenueStatisticsResponse(BaseModel):
         """Revenue statistics response schema."""
 
-        daily_revenue: List[Dict[str, Any]] = Field(..., description="Daily revenue data")
-        monthly_revenue: List[Dict[str, Any]] = Field(..., description="Monthly revenue data")
-        revenue_by_product: List[Dict[str, Any]] = Field(..., description="Revenue by product")
+        daily_revenue: List[Dict[str, Any]] = Field(..., 
+            description="Daily revenue data")
+        monthly_revenue: List[Dict[str, Any]] = Field(..., 
+            description="Monthly revenue data")
+        revenue_by_product: List[Dict[str, Any]] = Field(..., 
+            description="Revenue by product")
         mrr: float = Field(..., description="Monthly recurring revenue")
         arr: float = Field(..., description="Annual recurring revenue")
 
@@ -60,7 +63,8 @@ if FASTAPI_AVAILABLE:
         subscriber_growth: List[Dict[str, Any]] = Field(
             ..., description="Subscriber growth over time"
         )
-        subscribers_by_plan: List[Dict[str, Any]] = Field(..., description="Subscribers by plan")
+        subscribers_by_plan: List[Dict[str, Any]] = Field(..., 
+            description="Subscribers by plan")
 
     class MarketingStatisticsResponse(BaseModel):
         """Marketing statistics response schema."""
@@ -68,13 +72,15 @@ if FASTAPI_AVAILABLE:
         campaigns: List[Dict[str, Any]] = Field(..., description="Marketing campaigns")
         conversion_rate: float = Field(..., description="Conversion rate")
         cost_per_acquisition: float = Field(..., description="Cost per acquisition")
-        channel_performance: List[Dict[str, Any]] = Field(..., description="Channel performance")
+        channel_performance: List[Dict[str, Any]] = Field(..., 
+            description="Channel performance")
 
     class ModelUsageStatisticsResponse(BaseModel):
         """Model usage statistics response schema."""
 
         total_requests: int = Field(..., description="Total requests")
-        requests_by_model: List[Dict[str, Any]] = Field(..., description="Requests by model")
+        requests_by_model: List[Dict[str, Any]] = Field(..., 
+            description="Requests by model")
         token_usage: Dict[str, Any] = Field(..., description="Token usage")
         average_latency: float = Field(..., description="Average latency")
         error_rate: float = Field(..., description="Error rate")
@@ -94,7 +100,8 @@ if FASTAPI_AVAILABLE:
         return {
             "message": "Dashboard API is available",
             "status": "active",
-            "endpoints": [" / overview", " / revenue", " / subscribers", " / marketing", " / model - usage"],
+            "endpoints": [" / overview", " / revenue", " / subscribers", " / marketing", 
+                " / model - usage"],
         }
 
     @router.get(
@@ -191,7 +198,8 @@ if FASTAPI_AVAILABLE:
             for i in range(days):
                 date = end_date - timedelta(days=i)
                 daily_revenue.append(
-                    {"date": date.strftime(" % Y-%m-%d"), "revenue": 1000 + (i % 10) * 100}
+                    {"date": date.strftime(" % Y-%m-%d"), 
+                        "revenue": 1000 + (i % 10) * 100}
                 )
 
             # Generate monthly revenue data
@@ -251,7 +259,8 @@ if FASTAPI_AVAILABLE:
             for i in range(days):
                 date = end_date - timedelta(days=i)
                 total = max(0, total - (i % 3))
-                subscriber_growth.append({"date": date.strftime(" % Y-%m-%d"), "subscribers": total})
+                subscriber_growth.append({"date": date.strftime(" % Y-%m-%d"), 
+                    "subscribers": total})
 
             # Generate subscribers by plan
             subscribers_by_plan = [
@@ -324,7 +333,9 @@ if FASTAPI_AVAILABLE:
             channel_performance = [
                 {"channel": "Email", "conversions": 15, "cost": 100.0, "roi": 3.5},
                 {"channel": "Social Media", "conversions": 8, "cost": 300.0, "roi": 1.8},
-                {"channel": "Content Marketing", "conversions": 12, "cost": 200.0, "roi": 2.2},
+                    
+                {"channel": "Content Marketing", "conversions": 12, "cost": 200.0, 
+                    "roi": 2.2},
                 {"channel": "SEO", "conversions": 5, "cost": 150.0, "roi": 1.5},
             ]
 
@@ -423,6 +434,7 @@ if FASTAPI_AVAILABLE:
             return JSONResponse(
                 status_code=status.HTTP_501_NOT_IMPLEMENTED,
                 content={"message": f"Export to {format} format is not implemented yet"},
+                    
             )
         except Exception as e:
             logger.error(f"Error exporting dashboard data: {str(e)}")

@@ -124,7 +124,8 @@ class Pruner(abc.ABC):
         self.config = config
 
     @abc.abstractmethod
-    def prune(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
+    def prune(self, model_path: str, output_path: Optional[str] = None, 
+        **kwargs) -> str:
         """
         Prune a model.
 

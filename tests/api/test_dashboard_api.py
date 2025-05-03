@@ -139,7 +139,8 @@ class TestDashboardAPI:
         """Test getting dashboard data with a date range."""
         # Make request with date range
         response = auth_api_test_client.get(
-            "dashboard / overview", params={"start_date": "2023 - 01 - 01", "end_date": "2023 - 12 - 31"}
+            "dashboard / overview", params={"start_date": "2023 - 01 - 01", 
+                "end_date": "2023 - 12 - 31"}
         )
 
         # Validate response
@@ -149,7 +150,8 @@ class TestDashboardAPI:
         """Test getting dashboard data with filters."""
         # Make request with filters
         response = auth_api_test_client.get(
-            "dashboard / revenue", params={"model_id": "model - 123", "period": "monthly"}
+            "dashboard / revenue", params={"model_id": "model - 123", 
+                "period": "monthly"}
         )
 
         # Validate response

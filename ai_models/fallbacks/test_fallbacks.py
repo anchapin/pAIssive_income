@@ -93,7 +93,8 @@ def test_basic_fallback(manager: ModelManager):
     # Assign a non - existent model to the researcher agent
     try:
         # Force a fallback by trying to use a non - existent model
-        provider.agent_models["researcher"] = {"text - generation": "non_existent_model"}
+        provider.agent_models["researcher"] = {"text - \
+            generation": "non_existent_model"}
 
         # Try to get a model for the researcher agent
         model = provider.get_model_for_agent("researcher", "text - generation")
@@ -104,7 +105,8 @@ def test_basic_fallback(manager: ModelManager):
         model_info = manager.get_model_info(model_id)
 
         print(
-            f"Successfully fell back to model: {model_info.name} ({model_info.id}) - Type: {model_info.type}"
+            f"Successfully fell back to model: {model_info.name} ({model_info.id}) - \
+                Type: {model_info.type}"
         )
         print("Basic fallback test PASSED")
     except ValueError as e:
@@ -145,7 +147,8 @@ def test_fallback_strategies(manager: ModelManager):
         )
 
         if fallback_model:
-            print(f"✅ Strategy {strategy.value} found fallback model: {fallback_model.name}")
+            print(
+                f"✅ Strategy {strategy.value} found fallback model: {fallback_model.name}")
         else:
             print(f"❌ Strategy {strategy.value} failed to find a fallback model")
 
@@ -199,7 +202,8 @@ def test_fallback_metrics(manager: ModelManager):
             success_rate = stats["success_count"] / stats["total_count"]
             print(f"Strategy: {strategy}")
             print(
-                f"  Success rate: {success_rate:.2f} ({stats['success_count']}/{stats['total_count']})"
+                f"  Success rate: {success_rate:.2f} (
+                    {stats['success_count']}/{stats['total_count']})"
             )
 
 

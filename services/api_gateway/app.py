@@ -65,7 +65,8 @@ app.add_middleware(
         " / redoc",
         " / openapi.json",
     ],
-    require_auth=False,  # Don't require auth for all requests, only for service - to - service communication
+    require_auth=False,  # Don't require auth for all requests, 
+        only for service - to - service communication
 )
 
 # Add rate limiting middleware
@@ -73,7 +74,8 @@ app.add_middleware(
     RateLimitMiddleware,
     rate_limit=100,  # 100 requests per minute
     window_size=60,  # 1 minute window
-    exclude_paths=[" / ", " / api / status", " / health", " / docs", " / redoc", " / openapi.json"],
+    exclude_paths=[" / ", " / api / status", " / health", " / docs", " / redoc", 
+        " / openapi.json"],
 )
 
 # Global variables
@@ -105,7 +107,8 @@ async def list_services():
         services = service_registration.client.discover_all_services()
         return {
             "services": {
-                name: [s.dict() for s in instances] for name, instances in services.items()
+                name: [s.dict() for s in instances] for name, 
+                    instances in services.items()
             }
         }
     except Exception as e:
@@ -137,6 +140,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service_discovery": "available" if service_discovery_available else "unavailable",
+            
         "services_available": services_available,
         "timestamp": time.time(),
     }
@@ -146,11 +150,14 @@ async def health_check():
 class ServiceTokenRequest(BaseModel):
     """Request model for service token generation."""
 
-    service_name: str = Field(..., description="Name of the service requesting the token")
+    service_name: str = Field(..., 
+        description="Name of the service requesting the token")
     target_service: str = Field(..., description="Name of the target service")
     token_id: Optional[str] = Field(None, description="Unique token ID")
-    expiration: Optional[int] = Field(None, description="Token expiration time in seconds")
-    claims: Optional[Dict[str, Any]] = Field(None, description="Additional service - specific claims")
+    expiration: Optional[int] = Field(None, 
+        description="Token expiration time in seconds")
+    claims: Optional[Dict[str, Any]] = Field(None, 
+        description="Additional service - specific claims")
 
 
 class ServiceTokenResponse(BaseModel):
@@ -202,7 +209,8 @@ async def create_service_token_endpoint(request: ServiceTokenRequest):
 
 
 @app.post(" / api / auth / validate - token")
-async def validate_service_token_endpoint(request: Request, audience: Optional[str] = None):
+async def validate_service_token_endpoint(request: Request, 
+    audience: Optional[str] = None):
     """
     Validate a JWT token for service - to - service authentication.
 
@@ -285,7 +293,8 @@ async def route_requests(request: Request, call_next):
         if service_registration and service_registration.client:
             try:
                 # Get service URL
-                service_url = service_registration.client.get_service_url(target_service)
+                service_url = \
+                    service_registration.client.get_service_url(target_service)
                 if not service_url:
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
@@ -312,11 +321,13 @@ async def route_requests(request: Request, call_next):
                 # Create a token for the API Gateway to authenticate with the target service
                 try:
                     service_token = create_service_token(
-                        issuer="api - gateway", audience=target_service, expiration=300  # 5 minutes
+                        issuer="api - gateway", audience=target_service, 
+                            expiration=300  # 5 minutes
                     )
                     headers["X - Service - Token"] = service_token
                 except Exception as e:
-                    logger.warning(f"Failed to create service token for {target_service}: {str(e)}")
+                    logger.warning(
+                        f"Failed to create service token for {target_service}: {str(e)}")
 
                 # Create httpx client
                 async with httpx.AsyncClient(timeout=30.0) as client:
@@ -348,7 +359,8 @@ async def route_requests(request: Request, call_next):
                         )
                     except httpx.RequestError as e:
                         # Handle request errors (connection errors, timeouts, etc.)
-                        logger.error(f"Error forwarding request to {target_service}: {str(e)}")
+                        logger.error(
+                            f"Error forwarding request to {target_service}: {str(e)}")
                         return JSONResponse(
                             content={"detail": f"Service unavailable: {str(e)}"},
                             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -409,7 +421,8 @@ def register_with_service_registry(port: int):
         logger.info("Successfully registered API Gateway with service registry")
     else:
         logger.warning(
-            "Failed to register with service registry, continuing without service discovery"
+            "Failed to register with service registry, 
+                continuing without service discovery"
         )
 
 

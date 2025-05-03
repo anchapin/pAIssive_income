@@ -149,7 +149,8 @@ class QueryParams:
                     try:
                         filter_operators[field] = FilterOperator(operator)
                     except ValueError:
-                        logger.warning(f"Invalid filter operator: {operator}. Using default (eq).")
+                        logger.warning(
+                            f"Invalid filter operator: {operator}. Using default (eq).")
                         filter_operators[field] = FilterOperator.EQ
                 else:
                     filter_operators[field] = FilterOperator.EQ
@@ -202,7 +203,8 @@ def apply_pagination(items: List[T], query_params: QueryParams) -> Tuple[List[T]
 
 
 def apply_filtering(
-    items: List[T], query_params: QueryParams, field_getter: Callable[[T, str], Any] = None
+    items: List[T], query_params: QueryParams, field_getter: Callable[[T, str], 
+        Any] = None
 ) -> List[T]:
     """
     Apply filtering to a list of items.
@@ -210,7 +212,8 @@ def apply_filtering(
     Args:
         items: List of items to filter
         query_params: Query parameters
-        field_getter: Function to get field value from item (defaults to getattr or dict access)
+        field_getter: Function to get field value from item (defaults to getattr or \
+            dict access)
 
     Returns:
         Filtered list of items
@@ -340,7 +343,8 @@ def apply_filtering(
 
 
 def apply_sorting(
-    items: List[T], query_params: QueryParams, field_getter: Callable[[T, str], Any] = None
+    items: List[T], query_params: QueryParams, field_getter: Callable[[T, str], 
+        Any] = None
 ) -> List[T]:
     """
     Apply sorting to a list of items.
@@ -348,7 +352,8 @@ def apply_sorting(
     Args:
         items: List of items to sort
         query_params: Query parameters
-        field_getter: Function to get field value from item (defaults to getattr or dict access)
+        field_getter: Function to get field value from item (defaults to getattr or \
+            dict access)
 
     Returns:
         Sorted list of items
@@ -420,10 +425,12 @@ def apply_sorting(
     # For descending sort with None values, we need to move them to the beginning
     if query_params.sort_dir == SortDirection.DESC:
         none_items = [
-            item for item in sorted_items if field_getter(item, query_params.sort_by) is None
+            item for item in sorted_items if field_getter(item, 
+                query_params.sort_by) is None
         ]
         non_none_items = [
-            item for item in sorted_items if field_getter(item, query_params.sort_by) is not None
+            item for item in sorted_items if field_getter(item, 
+                query_params.sort_by) is not None
         ]
         sorted_items = none_items + non_none_items
 

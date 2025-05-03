@@ -46,6 +46,7 @@ class ConsulServiceRegistry(ServiceRegistry):
                 protocol = "https" if service_instance.is_secure else "http"
                 check = {
                     "http": f"{protocol}://{service_instance.host}:{service_instance.port}{service_instance.health_check_url}",
+                        
                     "interval": "10s",
                     "timeout": "5s",
                 }
@@ -67,7 +68,8 @@ class ConsulServiceRegistry(ServiceRegistry):
             return result
 
         except Exception as e:
-            error_msg = f"Failed to register service {service_instance.service_name}: {str(e)}"
+            error_msg = \
+                f"Failed to register service {service_instance.service_name}: {str(e)}"
             logger.error(error_msg)
             raise ServiceRegistrationError(error_msg) from e
 

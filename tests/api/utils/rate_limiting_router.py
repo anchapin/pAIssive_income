@@ -73,7 +73,8 @@ def create_rate_limiting_router() -> APIRouter:
     quota_usage = {}
 
     @router.get("/{endpoint}")
-    async def rate_limited_endpoint(endpoint: str, request: Request, response: Response):
+    async def rate_limited_endpoint(endpoint: str, request: Request, 
+        response: Response):
         """
         Generic rate - limited endpoint.
 
@@ -116,7 +117,8 @@ def create_rate_limiting_router() -> APIRouter:
         # Return 429 if rate limited
         if not allowed:
             response.status_code = 429
-            return {"error": {"message": "Rate limit exceeded", "retry_after": info["retry_after"]}}
+            return {"error": {"message": "Rate limit exceeded", 
+                "retry_after": info["retry_after"]}}
 
         # Return success response
         return {"status": "ok", "endpoint": endpoint, "client_id": client_id}
@@ -217,7 +219,8 @@ def create_rate_limiting_router() -> APIRouter:
 
             if active_count >= throttle_config["max_concurrent_requests"]:
                 response.status_code = 429
-                response.headers["Retry - After"] = str(throttle_config["timeout_seconds"])
+                response.headers["Retry - \
+                    After"] = str(throttle_config["timeout_seconds"])
                 return {
                     "error": {
                         "message": "Too many concurrent requests",
@@ -237,9 +240,11 @@ def create_rate_limiting_router() -> APIRouter:
         finally:
             # Decrement active request count
             with active_requests_lock:
-                active_requests[client_id] = max(0, active_requests.get(client_id, 1) - 1)
+                active_requests[client_id] = max(0, active_requests.get(client_id, 
+                    1) - 1)
 
-    async def handle_degradation(request: Request, response: Response) -> Dict[str, Any]:
+    async def handle_degradation(request: Request, response: Response) -> Dict[str, 
+        Any]:
         """
         Handle degradation testing.
 
@@ -293,7 +298,8 @@ def create_rate_limiting_router() -> APIRouter:
         """
         # Get the customer ID from the request headers or use a default
         # In a real implementation, this would come from authentication
-        customer_id = list(quota_config.keys())[0] if quota_config else "test - customer"
+        customer_id = list(quota_config.keys())[0] if quota_config else "test - \
+            customer"
 
         # If no quota is configured, create a default one for testing
         if customer_id not in quota_config:
@@ -326,7 +332,8 @@ def create_rate_limiting_router() -> APIRouter:
             }
 
         # Check if monthly quota is exceeded
-        if usage["monthly"] >= config["monthly_limit"] and not config["overage_allowed"]:
+        if usage["monthly"] >= \
+            config["monthly_limit"] and not config["overage_allowed"]:
             response.status_code = 429
             return {
                 "error": {
@@ -352,7 +359,8 @@ def create_rate_limiting_router() -> APIRouter:
         )
 
         # Return success response
-        return {"status": "ok", "daily_usage": usage["daily"], "monthly_usage": usage["monthly"]}
+        return {"status": "ok", "daily_usage": usage["daily"], 
+            "monthly_usage": usage["monthly"]}
 
     def get_client_id(request: Request) -> str:
         """
@@ -367,7 +375,8 @@ def create_rate_limiting_router() -> APIRouter:
         # Use client IP as identifier
         return request.client.host if request.client else "unknown"
 
-    def check_rate_limit(client_id: str, endpoint: str, config: Dict[str, Any]) -> tuple:
+    def check_rate_limit(client_id: str, endpoint: str, config: Dict[str, 
+        Any]) -> tuple:
         """
         Check if a request should be rate limited.
 
@@ -390,7 +399,8 @@ def create_rate_limiting_router() -> APIRouter:
         # Remove requests older than the window
         window = config["window"]
         request_history[key] = [
-            timestamp for timestamp in request_history[key] if current_time - timestamp < window
+            timestamp for timestamp in request_history[key] if current_time - \
+                timestamp < window
         ]
 
         # Check if rate limit is exceeded
@@ -427,9 +437,11 @@ def create_rate_limiting_router() -> APIRouter:
         """
         response.headers["X - RateLimit - Limit"] = str(info["limit"])
         response.headers["X - RateLimit - Remaining"] = str(info["remaining"])
-        response.headers["X - RateLimit - Reset"] = str(int(info["reset"]))  # Convert to integer
+        response.headers["X - \
+            RateLimit - Reset"] = str(int(info["reset"]))  # Convert to integer
 
         if info["retry_after"] > 0:
-            response.headers["Retry - After"] = str(int(info["retry_after"]))  # Convert to integer
+            response.headers["Retry - \
+                After"] = str(int(info["retry_after"]))  # Convert to integer
 
     return router

@@ -136,7 +136,8 @@ class Client:
         else:
             return {"data": response.text}
 
-    def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, 
+        Any]:
         """
         Make a GET request.
 

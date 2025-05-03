@@ -66,7 +66,8 @@ class TestTargetUserAnalysis:
         """Test user needs prioritization."""
         # Test data
         needs_data = [
-            {"need": "code quality", "frequency": 0.8, "impact": 0.9, "current_solutions": 0.5},
+            {"need": "code quality", "frequency": 0.8, "impact": 0.9, 
+                "current_solutions": 0.5},
             {
                 "need": "testing automation",
                 "frequency": 0.7,
@@ -84,7 +85,8 @@ class TestTargetUserAnalysis:
         assert "opportunity_index" in prioritized_needs
         assert isinstance(prioritized_needs["prioritized_list"], list)
         assert isinstance(prioritized_needs["priority_scores"], dict)
-        assert all(0 <= score <= 1 for score in prioritized_needs["priority_scores"].values())
+        assert all(0 <= \
+            score <= 1 for score in prioritized_needs["priority_scores"].values())
 
         # Validate need categorization
         categories = self.needs_prioritizer.categorize_needs(needs_data)
@@ -157,7 +159,8 @@ class TestTargetUserAnalysis:
         """Test user journey mapping."""
         # Test data
         journey_data = {
-            "awareness": {"channels": ["search", "social_media"], "pain_points": ["discovery"]},
+            "awareness": {"channels": ["search", "social_media"], 
+                "pain_points": ["discovery"]},
             "consideration": {
                 "evaluation_criteria": ["features", "price"],
                 "information_needs": ["documentation", "reviews"],

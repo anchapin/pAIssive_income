@@ -26,7 +26,8 @@ class SQLiteCache(CacheBackend):
 
         Args:
             db_path: Path to the SQLite database file
-            serialization: Serialization format (only json is supported for security reasons)
+            serialization: Serialization format (
+                only json is supported for security reasons)
             **kwargs: Additional parameters for the cache
         """
         self.db_path = os.path.abspath(db_path)
@@ -69,7 +70,8 @@ class SQLiteCache(CacheBackend):
                 cursor = conn.cursor()
 
                 # Get the item
-                cursor.execute("SELECT value, expiration_time FROM cache WHERE key = ?", (key,))
+                cursor.execute("SELECT value, expiration_time FROM cache WHERE key = ?", 
+                    (key,))
                 row = cursor.fetchone()
 
                 if row is None:
@@ -91,7 +93,8 @@ class SQLiteCache(CacheBackend):
 
                 # Update access statistics
                 cursor.execute(
-                    "UPDATE cache SET access_count = access_count + 1, last_access_time = ? WHERE key = ?",
+                    "UPDATE cache SET access_count = access_count + 1, 
+                        last_access_time = ? WHERE key = ?",
                     (time.time(), key),
                 )
                 conn.commit()
@@ -230,7 +233,8 @@ class SQLiteCache(CacheBackend):
                 cursor = conn.cursor()
 
                 # Get the item
-                cursor.execute("SELECT expiration_time FROM cache WHERE key = ?", (key,))
+                cursor.execute("SELECT expiration_time FROM cache WHERE key = ?", (key,
+                    ))
                 row = cursor.fetchone()
 
                 if row is None:
@@ -377,7 +381,8 @@ class SQLiteCache(CacheBackend):
                 cursor = conn.cursor()
 
                 # Get expiration time
-                cursor.execute("SELECT expiration_time FROM cache WHERE key = ?", (key,))
+                cursor.execute("SELECT expiration_time FROM cache WHERE key = ?", (key,
+                    ))
                 row = cursor.fetchone()
 
                 if row is None:
@@ -566,6 +571,7 @@ class SQLiteCache(CacheBackend):
             # Delete expired items
             cursor.execute(
                 "DELETE FROM cache WHERE expiration_time IS NOT NULL AND expiration_time < ?",
+                    
                 (time.time(),),
             )
 

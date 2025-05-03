@@ -11,7 +11,8 @@ import sys
 import time
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models import DownloadProgress, ModelDownloader, ModelManager
 
@@ -49,7 +50,8 @@ def main():
 
         if progress.status == "downloading":
             print(
-                f"\r{emoji} Status: {progress.status}, Progress: {progress.percentage:.1f}%, "
+                f"\r{emoji} Status: {progress.status}, 
+                    Progress: {progress.percentage:.1f}%, "
                 f"Speed: {progress.speed / 1024 / 1024:.2f} MB / s, "
                 f"ETA: {progress.eta:.1f}s",
                 end="",
@@ -68,12 +70,14 @@ def main():
         print("\nSearch Results:")
         for i, model in enumerate(models):
             print(
-                f"{i + 1}. {model['id']} (Downloads: {model['downloads']}, Likes: {model['likes']})"
+                f"{i + 1}. {model['id']} (Downloads: {model['downloads']}, 
+                    Likes: {model['likes']})"
             )
 
         # Ask the user which model to download
         if models:
-            print("\nDownloading a small file from the first model for demonstration...")
+            print(
+                "\nDownloading a small file from the first model for demonstration...")
             model_to_download = models[0]
 
             # Download just the config file for demonstration
@@ -97,7 +101,8 @@ def main():
                 all_models = manager.get_all_models()
                 print(f"\nAll registered models after download ({len(all_models)}):")
                 for model in all_models:
-                    print(f"- {model.name} (Type: {model.type}, Format: {model.format})")
+                    print(f"- {model.name} (Type: {model.type}, 
+                        Format: {model.format})")
             else:
                 print(f"\nDownload failed: {task.progress.error}")
 
@@ -108,13 +113,15 @@ def main():
     print("\nDownloading a file from a URL...")
     try:
         # Use a small file for demonstration
-        url = "https://raw.githubusercontent.com / huggingface / transformers / main / README.md"
+        url = "https://raw.githubusercontent.com / \
+            huggingface / transformers / main / README.md"
 
         task = downloader.download_from_url(
             url=url,
             model_id="example - url - download",
             model_type="other",
-            destination=os.path.join(downloader.config.models_dir, "example - url - download.md"),
+            destination=os.path.join(downloader.config.models_dir, 
+                "example - url - download.md"),
             callback=progress_callback,
             auto_register=True,
             description="Example URL download (auto - registered)",

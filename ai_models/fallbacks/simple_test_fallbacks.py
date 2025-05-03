@@ -139,7 +139,8 @@ def test_fallback_strategies(manager):
         )
 
         if fallback_model:
-            print(f"✅ Strategy {strategy.value} found fallback model: {fallback_model.name}")
+            print(
+                f"✅ Strategy {strategy.value} found fallback model: {fallback_model.name}")
         else:
             print(f"❌ Strategy {strategy.value} failed to find a fallback model")
 
@@ -192,7 +193,8 @@ def test_fallback_metrics(manager):
             success_rate = stats["success_count"] / stats["total_count"]
             print(f"Strategy: {strategy}")
             print(
-                f"  Success rate: {success_rate:.2f} ({stats['success_count']}/{stats['total_count']})"
+                f"  Success rate: {success_rate:.2f} (
+                    {stats['success_count']}/{stats['total_count']})"
             )
 
     # Get fallback history

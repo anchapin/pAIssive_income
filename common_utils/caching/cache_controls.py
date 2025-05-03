@@ -219,7 +219,8 @@ class CacheControls:
                 logger.warning(f"Unknown cache category: {category}")
                 return
 
-        namespaces = [ns for ns, cat in self.namespace_categories.items() if cat == category]
+        namespaces = [ns for ns, 
+            cat in self.namespace_categories.items() if cat == category]
         for namespace in namespaces:
             default_cache.clear(namespace=namespace)
 

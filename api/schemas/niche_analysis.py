@@ -1,7 +1,8 @@
 """
 Niche Analysis schemas for the API server.
 
-This module provides Pydantic models for Niche Analysis API request and response validation.
+This module provides Pydantic models for Niche Analysis API request and \
+    response validation.
 """
 
 from datetime import datetime
@@ -44,7 +45,8 @@ class MarketSegmentResponse(BaseModel):
     growth_rate: float = Field(..., description="Market segment growth rate")
     competition_level: str = Field(..., description="Market segment competition level")
     barriers_to_entry: str = Field(..., description="Market segment barriers to entry")
-    target_audience: Dict[str, Any] = Field(..., description="Target audience information")
+    target_audience: Dict[str, Any] = Field(..., 
+        description="Target audience information")
 
 
 class OpportunityResponse(BaseModel):
@@ -70,7 +72,8 @@ class NicheResponse(BaseModel):
     market_segment: str = Field(..., description="Market segment")
     opportunity_score: float = Field(..., description="Opportunity score (0 - 1)")
     problems: List[ProblemResponse] = Field(..., description="Problems in the niche")
-    opportunities: List[OpportunityResponse] = Field(..., description="Opportunities in the niche")
+    opportunities: List[OpportunityResponse] = Field(..., 
+        description="Opportunities in the niche")
     created_at: datetime = Field(..., description="Creation timestamp")
 
 
@@ -79,7 +82,8 @@ class NicheAnalysisRequest(BaseModel):
 
     segments: List[str] = Field(..., description="Market segments to analyze")
     force_refresh: bool = Field(False, description="Force refresh of analysis data")
-    max_results: Optional[int] = Field(None, description="Maximum number of results to return")
+    max_results: Optional[int] = Field(None, 
+        description="Maximum number of results to return")
 
 
 class NicheAnalysisResponse(BaseModel):
@@ -125,7 +129,8 @@ class NicheUpdateRequest(BaseModel):
     name: Optional[str] = Field(None, description="Niche name")
     description: Optional[str] = Field(None, description="Niche description")
     market_segment: Optional[str] = Field(None, description="Market segment")
-    problems: Optional[List[Dict[str, Any]]] = Field(None, description="Problems in the niche")
+    problems: Optional[List[Dict[str, Any]]] = Field(None, 
+        description="Problems in the niche")
     opportunities: Optional[List[Dict[str, Any]]] = Field(
         None, description="Opportunities in the niche"
     )

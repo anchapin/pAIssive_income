@@ -123,7 +123,8 @@ def test_database_metrics_get_slow_queries(db_metrics):
 
     # Record some queries, some slow and some not
     db_metrics.record_query(
-        query="SELECT * FROM users", params=None, duration=0.1, operation="select"  # Not slow
+        query="SELECT * FROM users", params=None, duration=0.1, 
+            operation="select"  # Not slow
     )
 
     db_metrics.record_query(
@@ -157,7 +158,8 @@ def test_database_metrics_get_summary(db_metrics):
     )
 
     db_metrics.record_query(
-        query="SELECT * FROM users WHERE id = ?", params={"id": 1}, duration=0.3, operation="select"
+        query="SELECT * FROM users WHERE id = ?", params={"id": 1}, duration=0.3, 
+            operation="select"
     )
 
     db_metrics.record_query(
@@ -200,7 +202,8 @@ def test_monitoring_database_proxy_fetch_one(monitoring_db, mock_db):
     result = monitoring_db.fetch_one("SELECT * FROM users WHERE id = ?", {"id": 1})
 
     # Verify that the underlying database was called
-    mock_db.fetch_one.assert_called_once_with("SELECT * FROM users WHERE id = ?", {"id": 1})
+    mock_db.fetch_one.assert_called_once_with("SELECT * FROM users WHERE id = ?", 
+        {"id": 1})
 
     # Verify that the result is correct
     assert result == {"id": 1, "name": "Test"}
@@ -256,7 +259,8 @@ def test_monitoring_database_proxy_update(monitoring_db, mock_db):
     result = monitoring_db.update("users", {"name": "Updated"}, "id = ?", {"id": 1})
 
     # Verify that the underlying database was called
-    mock_db.update.assert_called_once_with("users", {"name": "Updated"}, "id = ?", {"id": 1})
+    mock_db.update.assert_called_once_with("users", {"name": "Updated"}, "id = ?", 
+        {"id": 1})
 
     # Verify that the result is correct
     assert result == 1

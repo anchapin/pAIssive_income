@@ -31,7 +31,8 @@ def initialize_ui_services(register_mock_services):
 
 
 @pytest.fixture
-def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initialize_ui_services):
+def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, 
+    initialize_ui_services):
     """Create a WebUI instance with mock dependencies."""
     ui = WebUI(
         agent_team=mock_agent_team,
@@ -42,7 +43,8 @@ def web_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initi
 
 
 @pytest.fixture
-def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, initialize_ui_services):
+def cli_ui(mock_agent_team, mock_model_manager, mock_subscription_manager, 
+    initialize_ui_services):
     """Create a CommandLineInterface instance with mock dependencies."""
     ui = CommandLineInterface(
         agent_team=mock_agent_team,
@@ -104,6 +106,7 @@ def test_web_ui_monetization_strategy_integration(web_ui, mock_agent_team):
         "id": "solution1",
         "name": "AI Inventory Optimizer",
         "description": "An AI tool that helps e - commerce businesses optimize inventory levels.",
+            
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
             {"id": "feature2", "name": "Reorder Alerts"},
@@ -115,7 +118,8 @@ def test_web_ui_monetization_strategy_integration(web_ui, mock_agent_team):
     monetization = web_ui.create_monetization_strategy()
 
     # Check that the agent team's method was called with the right parameters
-    mock_agent_team.create_monetization_strategy.assert_called_once_with(selected_solution)
+    mock_agent_team.create_monetization_strategy.assert_called_once_with(
+        selected_solution)
 
     # Check that the UI returned the expected results
     assert monetization["name"] == "Freemium Strategy"
@@ -139,6 +143,7 @@ def test_web_ui_marketing_plan_integration(web_ui, mock_agent_team):
         "id": "solution1",
         "name": "AI Inventory Optimizer",
         "description": "An AI tool that helps e - commerce businesses optimize inventory levels.",
+            
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
             {"id": "feature2", "name": "Reorder Alerts"},
@@ -183,7 +188,8 @@ def test_cli_ui_full_workflow_integration(cli_ui, mock_agent_team):
 
     # Step 1: Run niche analysis
     cli_ui.handle_command("analyze e - commerce digital - marketing")
-    mock_agent_team.run_niche_analysis.assert_called_once_with(["e - commerce", "digital - marketing"])
+    mock_agent_team.run_niche_analysis.assert_called_once_with(["e - commerce", 
+        "digital - marketing"])
 
     # Step 2: Select a niche and develop a solution
     cli_ui.handle_command("select niche 0")  # Select the first niche

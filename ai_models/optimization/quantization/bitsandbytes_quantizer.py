@@ -31,7 +31,8 @@ try:
 
     BNB_AVAILABLE = True
 except ImportError:
-    logger.warning("BitsAndBytes not available. Please install it with: pip install bitsandbytes")
+    logger.warning(
+        "BitsAndBytes not available. Please install it with: pip install bitsandbytes")
     BNB_AVAILABLE = False
 
 try:
@@ -60,7 +61,8 @@ class BitsAndBytesQuantizer(Quantizer):
         super().__init__(config)
 
         if not TORCH_AVAILABLE:
-            raise ImportError("PyTorch not available. Please install it with: pip install torch")
+            raise ImportError(
+                "PyTorch not available. Please install it with: pip install torch")
 
         if not BNB_AVAILABLE:
             raise ImportError(
@@ -92,11 +94,13 @@ class BitsAndBytesQuantizer(Quantizer):
         if self.config.method == QuantizationMethod.BITS_AND_BYTES_4BIT:
             if self.config.bnb_4bit_quant_type not in ["nf4", "fp4"]:
                 raise ValueError(
-                    f"Unsupported 4 - bit quantization type: {self.config.bnb_4bit_quant_type}. "
+                    f"Unsupported 4 - \
+                        bit quantization type: {self.config.bnb_4bit_quant_type}. "
                     f"Supported types: nf4, fp4"
                 )
 
-    def quantize(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
+    def quantize(self, model_path: str, output_path: Optional[str] = None, 
+        **kwargs) -> str:
         """
         Quantize a model using BitsAndBytes.
 
@@ -147,10 +151,12 @@ class BitsAndBytesQuantizer(Quantizer):
                 load_in_4bit=True,
                 bnb_4bit_quant_type=self.config.bnb_4bit_quant_type,
                 bnb_4bit_use_double_quant=self.config.bnb_4bit_use_double_quant,
-                bnb_4bit_compute_dtype=getattr(torch, self.config.bnb_4bit_compute_dtype),
+                bnb_4bit_compute_dtype=getattr(torch, 
+                    self.config.bnb_4bit_compute_dtype),
             )
         elif self.config.method == QuantizationMethod.BITS_AND_BYTES_8BIT:
-            return BitsAndBytesConfig(load_in_8bit=True, llm_int8_enable_fp32_cpu_offload=True)
+            return BitsAndBytesConfig(load_in_8bit=True, 
+                llm_int8_enable_fp32_cpu_offload=True)
         else:
             raise ValueError(f"Unsupported quantization method: {self.config.method}")
 
@@ -212,6 +218,7 @@ class BitsAndBytesQuantizer(Quantizer):
             "quantizer": "BitsAndBytes",
             "method": self.config.method.value,
             "bits": (4 if self.config.method == QuantizationMethod.BITS_AND_BYTES_4BIT else 8),
+                
         }
 
         if self.config.method == QuantizationMethod.BITS_AND_BYTES_4BIT:

@@ -97,7 +97,9 @@ if STRAWBERRY_AVAILABLE:
                         full_name=user.full_name,
                         role=UserRoleEnum(user.role),
                         created_at=user.created_at.isoformat() if user.created_at else None,
+                            
                         updated_at=user.updated_at.isoformat() if user.updated_at else None,
+                            
                     )
                     for user in users
                 ]
@@ -170,7 +172,8 @@ if STRAWBERRY_AVAILABLE:
 
             # Get projects from service
             try:
-                projects = await service.get_projects(user_id=user_id, limit=limit, offset=offset)
+                projects = await service.get_projects(user_id=user_id, limit=limit, 
+                    offset=offset)
 
                 return [
                     ProjectType(
@@ -180,7 +183,9 @@ if STRAWBERRY_AVAILABLE:
                         description=project.description,
                         is_public=project.is_public,
                         created_at=project.created_at.isoformat() if project.created_at else None,
+                            
                         updated_at=project.updated_at.isoformat() if project.updated_at else None,
+                            
                     )
                     for project in projects
                 ]
@@ -234,7 +239,8 @@ if STRAWBERRY_AVAILABLE:
                 return None
 
         @strawberry.mutation
-        async def update_user(self, info: Info, id: str, input: UserInput) -> Optional[UserType]:
+        async def update_user(self, info: Info, id: str, 
+            input: UserInput) -> Optional[UserType]:
             """
             Update a user.
 
@@ -306,7 +312,8 @@ if STRAWBERRY_AVAILABLE:
                 return False
 
         @strawberry.mutation
-        async def create_project(self, info: Info, input: ProjectInput) -> Optional[ProjectType]:
+        async def create_project(self, info: Info, 
+            input: ProjectInput) -> Optional[ProjectType]:
             """
             Create a new project.
 
@@ -345,7 +352,9 @@ if STRAWBERRY_AVAILABLE:
                     description=project.description,
                     is_public=project.is_public,
                     created_at=project.created_at.isoformat() if project.created_at else None,
+                        
                     updated_at=project.updated_at.isoformat() if project.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error creating project: {str(e)}")
@@ -385,10 +394,12 @@ if STRAWBERRY_AVAILABLE:
                     user_id=str(collaboration.user_id),
                     role=UserRoleEnum(collaboration.role),
                     created_at=(
-                        collaboration.created_at.isoformat() if collaboration.created_at else None
+                        collaboration.created_at.isoformat(
+                            ) if collaboration.created_at else None
                     ),
                     updated_at=(
-                        collaboration.updated_at.isoformat() if collaboration.updated_at else None
+                        collaboration.updated_at.isoformat(
+                            ) if collaboration.updated_at else None
                     ),
                 )
             except Exception as e:

@@ -69,7 +69,8 @@ def test_parallel_updates_consistency(sqlite_db):
         """Update counter in a separate thread."""
         for i in range(updates_per_thread):
             # Read current value
-            result = sqlite_db.fetch_one("SELECT counter FROM test_concurrent WHERE id = ?", (1,))
+            result = sqlite_db.fetch_one("SELECT counter FROM test_concurrent WHERE id = ?", 
+                (1,))
             current_counter = result["counter"]
 
             # Simulate some processing time
@@ -77,7 +78,8 @@ def test_parallel_updates_consistency(sqlite_db):
 
             # Update with incremented value
             sqlite_db.execute(
-                "UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?",
+                "UPDATE test_concurrent SET counter = ?, 
+                    last_updated_by = ? WHERE id = ?",
                 (current_counter + 1, f"thread-{thread_id}-update-{i}", 1),
             )
 
@@ -93,7 +95,8 @@ def test_parallel_updates_consistency(sqlite_db):
         thread.join()
 
     # Check final counter value
-    result = sqlite_db.fetch_one("SELECT counter FROM test_concurrent WHERE id = ?", (1,))
+    result = sqlite_db.fetch_one("SELECT counter FROM test_concurrent WHERE id = ?", (1,
+        ))
     final_counter = result["counter"]
 
     # Without proper concurrency control, the final counter will likely be less than
@@ -106,7 +109,8 @@ def test_parallel_updates_consistency(sqlite_db):
         final_counter <= expected_counter
     ), f"Final counter: {final_counter}, Expected: {expected_counter}"
     print(f"Final counter: {final_counter}, Expected: {expected_counter}")
-    print("Note: This test demonstrates race conditions without proper concurrency control")
+    print(
+        "Note: This test demonstrates race conditions without proper concurrency control")
 
 
 def test_transaction_prevents_race_conditions(sqlite_db, sqlite_uow):
@@ -134,14 +138,16 @@ def test_transaction_prevents_race_conditions(sqlite_db, sqlite_uow):
 
                 # Update with incremented value within same transaction
                 sqlite_db.execute(
-                    "UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?",
+                    "UPDATE test_concurrent SET counter = ?, 
+                        last_updated_by = ? WHERE id = ?",
                     (current_counter + 1, f"thread-{thread_id}-update-{i}", 1),
                 )
                 # Transaction is committed at the end of the with block
 
     # Reset counter
     sqlite_db.execute(
-        "UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?", (0, "init", 1)
+        "UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?", (0, 
+            "init", 1)
     )
 
     # Create and start threads
@@ -156,7 +162,8 @@ def test_transaction_prevents_race_conditions(sqlite_db, sqlite_uow):
         thread.join()
 
     # Check final counter value
-    result = sqlite_db.fetch_one("SELECT counter FROM test_concurrent WHERE id = ?", (1,))
+    result = sqlite_db.fetch_one("SELECT counter FROM test_concurrent WHERE id = ?", (1,
+        ))
     final_counter = result["counter"]
     expected_counter = num_threads * updates_per_thread
 
@@ -178,7 +185,8 @@ def test_transaction_isolation_levels(sqlite_db):
     """
     # Reset counter
     sqlite_db.execute(
-        "UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?", (0, "init", 1)
+        "UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?", (0, 
+            "init", 1)
     )
 
     # Test with different isolation levels
@@ -189,7 +197,8 @@ def test_transaction_isolation_levels(sqlite_db):
         sqlite_db.execute(f"BEGIN {level} TRANSACTION")
 
         # Read current value
-        result = sqlite_db.fetch_one("SELECT counter FROM test_concurrent WHERE id = ?", (1,))
+        result = sqlite_db.fetch_one("SELECT counter FROM test_concurrent WHERE id = ?", 
+            (1,))
         current_counter = result["counter"]
 
         # Update with incremented value
@@ -235,7 +244,8 @@ def test_deadlock_prevention(sqlite_db):
 
     # Reset first table counter
     sqlite_db.execute(
-        "UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?", (0, "init", 1)
+        "UPDATE test_concurrent SET counter = ?, last_updated_by = ? WHERE id = ?", (0, 
+            "init", 1)
     )
 
     # Flag to track if deadlock was detected
@@ -249,7 +259,8 @@ def test_deadlock_prevention(sqlite_db):
 
             # Update first table
             sqlite_db.execute(
-                "UPDATE test_concurrent SET counter = counter + 1, last_updated_by = ? WHERE id = ?",
+                "UPDATE test_concurrent SET counter = counter + 1, 
+                    last_updated_by = ? WHERE id = ?",
                 ("tx1", 1),
             )
 
@@ -258,7 +269,8 @@ def test_deadlock_prevention(sqlite_db):
 
             # Update second table
             sqlite_db.execute(
-                "UPDATE test_concurrent_2 SET counter = counter + 1, last_updated_by = ? WHERE id = ?",
+                "UPDATE test_concurrent_2 SET counter = counter + 1, 
+                    last_updated_by = ? WHERE id = ?",
                 ("tx1", 1),
             )
 
@@ -281,7 +293,8 @@ def test_deadlock_prevention(sqlite_db):
 
             # Update second table
             sqlite_db.execute(
-                "UPDATE test_concurrent_2 SET counter = counter + 1, last_updated_by = ? WHERE id = ?",
+                "UPDATE test_concurrent_2 SET counter = counter + 1, 
+                    last_updated_by = ? WHERE id = ?",
                 ("tx2", 1),
             )
 
@@ -290,7 +303,8 @@ def test_deadlock_prevention(sqlite_db):
 
             # Update first table
             sqlite_db.execute(
-                "UPDATE test_concurrent SET counter = counter + 1, last_updated_by = ? WHERE id = ?",
+                "UPDATE test_concurrent SET counter = counter + 1, 
+                    last_updated_by = ? WHERE id = ?",
                 ("tx2", 1),
             )
 
@@ -386,7 +400,8 @@ def test_concurrent_batch_operations(sqlite_db):
     # Check records per thread
     for i in range(num_threads):
         result = sqlite_db.fetch_one(
-            "SELECT COUNT(*) as count FROM test_batch WHERE created_by = ?", (f"thread-{i}",)
+            "SELECT COUNT(*) as count FROM test_batch WHERE created_by = ?", 
+                (f"thread-{i}",)
         )
         thread_records = result["count"]
         assert (

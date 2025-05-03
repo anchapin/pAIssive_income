@@ -70,7 +70,8 @@ class TestStatisticalFramework:
         total_b = 1000
 
         # Run z - test
-        result = self.test_runner.run_z_test_proportions(success_a, total_a, success_b, total_b)
+        result = self.test_runner.run_z_test_proportions(success_a, total_a, success_b, 
+            total_b)
 
         # Validate results
         assert "z_statistic" in result
@@ -156,14 +157,16 @@ class TestStatisticalFramework:
     def test_power_analysis(self):
         """Test power analysis calculations."""
         # Calculate required sample size
-        sample_size = self.test_runner.calculate_sample_size(effect_size=0.2, alpha=0.05, power=0.8)
+        sample_size = self.test_runner.calculate_sample_size(effect_size=0.2, alpha=0.05, 
+            power=0.8)
 
         # Validate sample size calculation
         assert isinstance(sample_size, int)
         assert sample_size > 0
 
         # Calculate achieved power
-        power = self.test_runner.calculate_power(effect_size=0.2, sample_size=1000, alpha=0.05)
+        power = self.test_runner.calculate_power(effect_size=0.2, sample_size=1000, 
+            alpha=0.05)
 
         # Validate power calculation
         assert 0 <= power <= 1
@@ -175,7 +178,8 @@ class TestStatisticalFramework:
         success_count = 20
 
         # Check sample size assumption
-        result = self.test_runner.check_sample_size_assumption(sample_size, success_count)
+        result = self.test_runner.check_sample_size_assumption(sample_size, 
+            success_count)
         assert isinstance(result, bool)
 
         # Check normality assumption
@@ -200,7 +204,8 @@ class TestStatisticalFramework:
         # Test with invalid confidence level
         with pytest.raises(ValueError):
             self.ci_calculator.calculate_proportion_ci(
-                successes=10, total=100, confidence_level=1.5  # Invalid confidence level > 1
+                successes=10, total=100, 
+                    confidence_level=1.5  # Invalid confidence level > 1
             )
 
     def test_test_selection(self):
@@ -219,7 +224,8 @@ class TestStatisticalFramework:
         test_type = self.test_runner.select_appropriate_test(
             sample_a=large_sample, sample_b=large_sample
         )
-        assert test_type in ["chi_square", "z_test"]  # Should select chi - square or z - test
+        assert test_type in ["chi_square", 
+            "z_test"]  # Should select chi - square or z - test
 
 
 if __name__ == "__main__":

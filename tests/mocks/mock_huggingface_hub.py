@@ -95,7 +95,8 @@ class MockHuggingFaceHub:
 
         # Automatically add to models or datasets
         if repo_info.pipeline_tag or any(
-            tag in repo_info.tags for tag in ["model", "text - generation", "fill - mask"]
+            tag in repo_info.tags for tag in ["model", "text - generation", 
+                "fill - mask"]
         ):
             self.models[repo_info.id] = repo_info
         elif "dataset" in repo_info.tags:
@@ -316,11 +317,13 @@ class MockHuggingFaceHub:
 
                 # Check patterns
                 if allow_patterns and not any(
-                    self._match_pattern(file_path, pattern) for pattern in allow_patterns
+                    self._match_pattern(file_path, 
+                        pattern) for pattern in allow_patterns
                 ):
                     continue
                 if ignore_patterns and any(
-                    self._match_pattern(file_path, pattern) for pattern in ignore_patterns
+                    self._match_pattern(file_path, 
+                        pattern) for pattern in ignore_patterns
                 ):
                     continue
 
@@ -333,11 +336,13 @@ class MockHuggingFaceHub:
 
                 # Check patterns
                 if allow_patterns and not any(
-                    self._match_pattern(file_path, pattern) for pattern in allow_patterns
+                    self._match_pattern(file_path, 
+                        pattern) for pattern in allow_patterns
                 ):
                     continue
                 if ignore_patterns and any(
-                    self._match_pattern(file_path, pattern) for pattern in ignore_patterns
+                    self._match_pattern(file_path, 
+                        pattern) for pattern in ignore_patterns
                 ):
                     continue
 

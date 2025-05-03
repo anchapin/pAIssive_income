@@ -52,7 +52,8 @@ class ServiceTokenPayload(BaseModel):
     iat: int = Field(..., description="Issued at time (Unix timestamp)")
 
     # Service - specific claims
-    claims: Dict[str, Any] = Field(default_factory=dict, description="Service - specific claims")
+    claims: Dict[str, Any] = Field(default_factory=dict, 
+        description="Service - specific claims")
 
 
 def get_service_secret_key() -> str:
@@ -133,7 +134,8 @@ def create_service_token(
         secret_key = get_service_secret_key()
 
         # Create JWT token
-        token = jwt.encode(payload=payload_dict, key=secret_key, algorithm=JWT_ALGORITHM)
+        token = jwt.encode(payload=payload_dict, key=secret_key, 
+            algorithm=JWT_ALGORITHM)
 
         return token
 
@@ -186,7 +188,8 @@ def validate_service_token(
 
     except jwt.InvalidAudienceError:
         logger.warning(f"Service token has invalid audience (expected: {audience})")
-        raise ServiceTokenError(f"Service token has invalid audience (expected: {audience})")
+        raise ServiceTokenError(
+            f"Service token has invalid audience (expected: {audience})")
 
     except jwt.PyJWTError as e:
         logger.warning(f"Invalid service token: {str(e)}")

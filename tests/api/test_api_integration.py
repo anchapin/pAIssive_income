@@ -51,7 +51,8 @@ class TestAPIIntegration:
             pytest.skip("Niche analysis endpoint not implemented")
 
         # Validate response
-        niche_result = validate_success_response(response, 202)  # Accepted (async operation)
+        niche_result = validate_success_response(response, 
+            202)  # Accepted (async operation)
         validate_field_exists(niche_result, "task_id")
 
         # Step 2: Check the status of the niche analysis task
@@ -96,7 +97,8 @@ class TestAPIIntegration:
         monetization_data = generate_monetization_data()
         monetization_data["solution_id"] = solution_id
 
-        response = auth_api_test_client.post("monetization / subscription - models", monetization_data)
+        response = auth_api_test_client.post("monetization / subscription - models", 
+            monetization_data)
 
         # If the endpoint returns 404 or 501, skip the monetization strategy
         if response.status_code in (404, 501):
@@ -146,14 +148,16 @@ class TestAPIIntegration:
             },
         }
 
-        response = auth_api_test_client.post(f"agent - team / teams/{team_id}/run", workflow_data)
+        response = auth_api_test_client.post(f"agent - team / teams/{team_id}/run", 
+            workflow_data)
 
         # If the endpoint returns 404 or 501, skip the workflow
         if response.status_code in (404, 501):
             pytest.skip("Team workflow endpoint not implemented")
 
         # Validate response
-        workflow_result = validate_success_response(response, 202)  # Accepted (async operation)
+        workflow_result = validate_success_response(response, 
+            202)  # Accepted (async operation)
         validate_field_exists(workflow_result, "task_id")
 
         # Step 3: Check the status of the workflow task

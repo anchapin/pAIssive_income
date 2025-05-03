@@ -108,7 +108,8 @@ class EventEmitter:
 
         return unsubscribe
 
-    async def emit(self, event: Union[str, WebhookEventType], data: Dict[str, Any]) -> int:
+    async def emit(self, event: Union[str, WebhookEventType], data: Dict[str, 
+        Any]) -> int:
         """
         Emit an event.
 
@@ -128,7 +129,8 @@ class EventEmitter:
         # Log event
         log_level = logging.DEBUG if len(listeners) == 0 else logging.INFO
         if self.debug or log_level == logging.INFO:
-            logger.log(log_level, f"Emitting event {event_name} to {len(listeners)} listeners")
+            logger.log(log_level, 
+                f"Emitting event {event_name} to {len(listeners)} listeners")
 
         # Notify listeners
         for listener in listeners:
@@ -201,10 +203,12 @@ class EventEmitter:
         """
         return await self.emit(
             WebhookEventType.OPPORTUNITY_SCORED,
-            {"opportunity_id": opportunity_id, "score": score, "opportunity": opportunity_data},
+            {"opportunity_id": opportunity_id, "score": score, 
+                "opportunity": opportunity_data},
         )
 
-    async def emit_monetization_plan_created(self, plan_id: str, plan_data: Dict[str, Any]) -> int:
+    async def emit_monetization_plan_created(self, plan_id: str, plan_data: Dict[str, 
+        Any]) -> int:
         """
         Emit monetization plan created event.
 
@@ -216,7 +220,8 @@ class EventEmitter:
             Number of listeners notified
         """
         return await self.emit(
-            WebhookEventType.MONETIZATION_PLAN_CREATED, {"plan_id": plan_id, "plan": plan_data}
+            WebhookEventType.MONETIZATION_PLAN_CREATED, {"plan_id": plan_id, 
+                "plan": plan_data}
         )
 
     async def emit_marketing_campaign_created(
@@ -287,7 +292,8 @@ class EventEmitter:
         """
         return await self.emit(
             WebhookEventType.PROJECT_SHARED,
-            {"project_id": project_id, "shared_with": shared_with, "project": project_data},
+            {"project_id": project_id, "shared_with": shared_with, 
+                "project": project_data},
         )
 
     async def emit_agent_task_completed(
@@ -310,7 +316,8 @@ class EventEmitter:
         )
 
     async def emit_model_inference_completed(
-        self, model_id: str, inference_id: str, results: Dict[str, Any], stats: Dict[str, Any]
+        self, model_id: str, inference_id: str, results: Dict[str, Any], stats: Dict[str, 
+            Any]
     ) -> int:
         """
         Emit model inference completed event.

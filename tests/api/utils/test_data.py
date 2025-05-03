@@ -121,7 +121,8 @@ def generate_monetization_data() -> Dict[str, Any]:
             {
                 "name": "Enterprise",
                 "price": random.uniform(70, 150),
-                "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5"],
+                "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4", 
+                    "Feature 5"],
             },
         ],
     }
@@ -163,7 +164,8 @@ def generate_marketing_strategy_data() -> Dict[str, Any]:
             "psychographics": {
                 "interests": ["technology", "business", "productivity"],
                 "values": ["efficiency", "innovation", "cost - effectiveness"],
-                "pain_points": ["time management", "resource allocation", "cost control"],
+                "pain_points": ["time management", "resource allocation", 
+                    "cost control"],
             },
         },
         "channels": [
@@ -183,7 +185,8 @@ def generate_marketing_strategy_data() -> Dict[str, Any]:
                 "description": "Newsletter, drip campaigns",
             },
         ],
-        "content_types": ["blog_posts", "case_studies", "webinars", "social_media_posts"],
+        "content_types": ["blog_posts", "case_studies", "webinars", 
+            "social_media_posts"],
         "kpis": [
             "website_traffic",
             "lead_generation",
@@ -205,10 +208,12 @@ def generate_ai_model_data() -> Dict[str, Any]:
         "name": f"Model-{generate_string(6)}",
         "description": f"An AI model for {generate_string(12)}",
         "model_type": random.choice(
-            ["text - generation", "text - classification", "embedding", "image", "audio"]
+            ["text - generation", "text - classification", "embedding", "image", 
+                "audio"]
         ),
         "provider": random.choice(["openai", "ollama", "lmstudio", "huggingface"]),
-        "version": f"{random.randint(1, 5)}.{random.randint(0, 9)}.{random.randint(0, 9)}",
+        "version": f"{random.randint(1, 5)}.{random.randint(0, 9)}.{random.randint(0, 
+            9)}",
         "capabilities": [
             random.choice(
                 [
@@ -243,7 +248,8 @@ def generate_agent_team_data() -> Dict[str, Any]:
             {
                 "id": generate_id(),
                 "name": f"Agent-{generate_string(4)}",
-                "role": random.choice(["researcher", "developer", "monetization", "marketing"]),
+                "role": random.choice(["researcher", "developer", "monetization", 
+                    "marketing"]),
                 "model_id": generate_id(),
                 "capabilities": [
                     random.choice(
@@ -295,7 +301,8 @@ def generate_api_key_data() -> Dict[str, Any]:
         "name": f"Key-{generate_string(6)}",
         "description": f"API key for {generate_string(12)}",
         "permissions": [
-            random.choice(["read", "write", "admin"]) for _ in range(random.randint(1, 3))
+            random.choice(["read", "write", "admin"]) for _ in range(random.randint(1, 
+                3))
         ],
         "expires_at": generate_date(-random.randint(30, 365)),
     }
@@ -312,7 +319,8 @@ def generate_webhook_data() -> Dict[str, Any]:
         "url": f"https://example.com / webhook/{generate_string(8)}",
         "event_types": [
             random.choice(
-                ["niche.created", "solution.created", "monetization.created", "marketing.created"]
+                ["niche.created", "solution.created", "monetization.created", 
+                    "marketing.created"]
             )
             for _ in range(random.randint(1, 4))
         ],

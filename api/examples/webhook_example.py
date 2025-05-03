@@ -82,10 +82,12 @@ async def verify_webhook_signature_example():
     """Example of verifying a webhook signature."""
 
     # This would be the raw payload received by your webhook endpoint
-    raw_payload = '{"event":"niche_analysis.created","timestamp":"2025 - 04 - 28T12:00:00Z","data":{"analysis_id":"na_12345"}}'
+    raw_payload = '{"event":"niche_analysis.created",
+        "timestamp":"2025 - 04 - 28T12:00:00Z","data":{"analysis_id":"na_12345"}}'
 
     # The signature from the X - Webhook - Signature header
-    signature = "abcdef1234567890"  # This would be the actual signature from the request
+    signature = \
+        "abcdef1234567890"  # This would be the actual signature from the request
 
     # Your webhook secret
     secret = "your - webhook - secret"

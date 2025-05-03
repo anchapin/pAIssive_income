@@ -13,7 +13,8 @@ class AdapterFactory:
         """Initialize the adapter factory."""
         self._adapter_registry = {}
 
-    def register_adapter(self, adapter_type: str, adapter_class: Type[BaseModelAdapter]) -> None:
+    def register_adapter(self, adapter_type: str, 
+        adapter_class: Type[BaseModelAdapter]) -> None:
         """Register an adapter class with the factory.
 
         Args:

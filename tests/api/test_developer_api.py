@@ -220,8 +220,10 @@ class TestDeveloperAPI:
                 validate_list_contains(result["technology_stack"], tech)
             validate_field_exists(result, "metadata")
             validate_field_type(result, "metadata", dict)
-            validate_field_equals(result["metadata"], "version", data["metadata"]["version"])
-            validate_field_equals(result["metadata"], "priority", data["metadata"]["priority"])
+            validate_field_equals(result["metadata"], "version", 
+                data["metadata"]["version"])
+            validate_field_equals(result["metadata"], "priority", 
+                data["metadata"]["priority"])
 
             # Validate timestamps
             validate_field_exists(result, "updated_at")
@@ -266,10 +268,12 @@ class TestDeveloperAPI:
             for item in result["items"]:
                 validate_field_equals(item, "status", "in_progress")
                 # Check if any technology in the stack matches 'python' case - insensitively
-                tech_match = any(tech.lower() == "python" for tech in item["technology_stack"])
+                tech_match = \
+                    any(tech.lower() == "python" for tech in item["technology_stack"])
                 assert (
                     tech_match
-                ), f"Technology stack {item['technology_stack']} does not contain 'python' (case - insensitive)"
+                ), 
+                    f"Technology stack {item['technology_stack']} does not contain 'python' (case - insensitive)"
 
     def test_invalid_solution_request(self, api_test_client: APITestClient):
         """Test invalid solution request."""
@@ -315,7 +319,8 @@ class TestDeveloperAPI:
     def test_delete_solution_errors(self, api_test_client: APITestClient):
         """Test error cases for deleting a solution."""
         # Test deleting with invalid ID format
-        response = api_test_client.delete("developer / solutions / invalid - id - format")
+        response = api_test_client.delete("developer / solutions / invalid - \
+            id - format")
         validate_error_response(response, 422)  # Unprocessable Entity
 
         # Test deleting already deleted solution
@@ -383,7 +388,8 @@ class TestDeveloperAPI:
         validate_field_equals(result["stats"], "total", len(solution_ids))
         validate_field_exists(result["stats"], "deleted")
         validate_field_exists(result["stats"], "failed")
-        assert result["stats"]["deleted"] + result["stats"]["failed"] == len(solution_ids)
+        assert result["stats"]["deleted"] + \
+            result["stats"]["failed"] == len(solution_ids)
 
         # Validate results for each ID
         validate_field_exists(result, "items")
@@ -404,7 +410,8 @@ class TestDeveloperAPI:
         # Test bulk update with invalid data
         response = api_test_client.bulk_update(
             "developer / solutions",
-            [{"id": "invalid - id"}, {"name": "No ID"}],  # Missing required fields  # Missing ID
+            [{"id": "invalid - id"}, {"name": "No ID"}],  
+                # Missing required fields  # Missing ID
         )
         validate_error_response(response, 422)
 

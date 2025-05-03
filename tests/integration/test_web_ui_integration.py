@@ -50,7 +50,8 @@ def mock_agent_team():
             {
                 "name": "Enterprise",
                 "price": 299.99,
-                "features": ["Demand forecasting", "Stock optimization", "Supplier management"],
+                "features": ["Demand forecasting", "Stock optimization", 
+                    "Supplier management"],
             },
         ],
     }
@@ -117,7 +118,8 @@ class TestWebUIIntegration:
         assert web_ui.subscription_manager is not None
 
     @patch("ui.web_ui.WebUI.render_template")
-    def test_web_ui_niche_analysis_integration(self, mock_render_template, web_ui, mock_agent_team):
+    def test_web_ui_niche_analysis_integration(self, mock_render_template, web_ui, 
+        mock_agent_team):
         """Test Web UI integration with niche analysis service."""
         # Set up the mock to return a tuple
         mock_render_template.return_value = (
@@ -162,7 +164,8 @@ class TestWebUIIntegration:
         assert web_ui.current_solution["name"] == "AI Inventory Optimizer"
 
     @patch("ui.web_ui.WebUI.render_template")
-    def test_web_ui_monetization_integration(self, mock_render_template, web_ui, mock_agent_team):
+    def test_web_ui_monetization_integration(self, mock_render_template, web_ui, 
+        mock_agent_team):
         """Test Web UI integration with monetization service."""
         # Set up the mock to return a tuple
         mock_render_template.return_value = (
@@ -186,7 +189,8 @@ class TestWebUIIntegration:
         assert len(web_ui.current_monetization["tiers"]) == 3
 
     @patch("ui.web_ui.WebUI.render_template")
-    def test_web_ui_marketing_integration(self, mock_render_template, web_ui, mock_agent_team):
+    def test_web_ui_marketing_integration(self, mock_render_template, web_ui, 
+        mock_agent_team):
         """Test Web UI integration with marketing service."""
         # Set up the mock to return a tuple
         mock_render_template.return_value = (
@@ -197,7 +201,8 @@ class TestWebUIIntegration:
         # Set up the state for marketing
         web_ui.current_niches = mock_agent_team.run_niche_analysis.return_value
         web_ui.current_solution = mock_agent_team.develop_solution.return_value
-        web_ui.current_monetization = mock_agent_team.create_monetization_strategy.return_value
+        web_ui.current_monetization = \
+            mock_agent_team.create_monetization_strategy.return_value
 
         # Create marketing plan
         web_ui.create_marketing_plan()
@@ -212,13 +217,16 @@ class TestWebUIIntegration:
         assert "email" in web_ui.current_marketing_plan["channels"]
 
     @patch("ui.web_ui.WebUI.render_template")
-    def test_web_ui_render_integration(self, mock_render_template, web_ui, mock_agent_team):
+    def test_web_ui_render_integration(self, mock_render_template, web_ui, 
+        mock_agent_team):
         """Test the WebUI template rendering integration."""
         # Set up some data
         web_ui.current_niches = mock_agent_team.run_niche_analysis.return_value
         web_ui.current_solution = mock_agent_team.develop_solution.return_value
-        web_ui.current_monetization = mock_agent_team.create_monetization_strategy.return_value
-        web_ui.current_marketing_plan = mock_agent_team.create_marketing_plan.return_value
+        web_ui.current_monetization = \
+            mock_agent_team.create_monetization_strategy.return_value
+        web_ui.current_marketing_plan = \
+            mock_agent_team.create_marketing_plan.return_value
 
         # Set up the mock to return a tuple
         mock_render_template.return_value = (
@@ -257,7 +265,8 @@ class TestWebUIIntegration:
         assert models[0]["name"] == "GPT - 4"
         assert models[1]["name"] == "DALL - E 3"
 
-    def test_web_ui_subscription_manager_integration(self, web_ui, mock_subscription_manager):
+    def test_web_ui_subscription_manager_integration(self, web_ui, 
+        mock_subscription_manager):
         """Test the WebUI integration with subscription manager."""
         # Simulate a request to list subscription models
         subscription_models = web_ui.list_subscription_models()
@@ -271,7 +280,8 @@ class TestWebUIIntegration:
         assert subscription_models[1]["name"] == "Premium"
 
     @patch("ui.event_handlers.handle_niche_selected")
-    def test_web_ui_event_handling_integration(self, mock_handle_niche_selected, web_ui):
+    def test_web_ui_event_handling_integration(self, mock_handle_niche_selected, 
+        web_ui):
         """Test the WebUI integration with event handlers."""
         # Set up some data
         niches = [

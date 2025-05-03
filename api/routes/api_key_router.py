@@ -30,7 +30,8 @@ router = APIRouter()
         401: {"model": ErrorResponse, "description": "Not authenticated"},
     },
 )
-async def create_api_key(data: APIKeyCreate = Body(...), user: dict = Depends(get_current_user)):
+async def create_api_key(data: APIKeyCreate = Body(...), 
+    user: dict = Depends(get_current_user)):
     """Create a new API key."""
     try:
         # TODO: Implement API key creation
@@ -62,7 +63,8 @@ async def list_api_keys(
 ):
     """List all API keys for the current user."""
     try:
-        return {"items": [], "total": 0, "page": page, "page_size": page_size, "pages": 0}
+        return {"items": [], "total": 0, "page": page, "page_size": page_size, 
+            "pages": 0}
     except Exception as e:
         logger.error(f"Error listing API keys: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -78,7 +80,8 @@ async def list_api_keys(
     },
 )
 async def update_api_key(
-    api_key_id: str, data: APIKeyUpdate = Body(...), user: dict = Depends(get_current_user)
+    api_key_id: str, data: APIKeyUpdate = Body(...), 
+        user: dict = Depends(get_current_user)
 ):
     """Update an API key."""
     try:

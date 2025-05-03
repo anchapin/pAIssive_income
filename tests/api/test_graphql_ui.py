@@ -258,7 +258,8 @@ class TestUIGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -277,7 +278,8 @@ class TestUIGraphQLAPI:
                 validate_field_exists(component, "type")
                 validate_field_equals(component, "type", test_data["type"])
                 validate_field_exists(component, "description")
-                validate_field_equals(component, "description", test_data["description"])
+                validate_field_equals(component, "description", 
+                    test_data["description"])
                 validate_field_exists(component, "configuration")
                 validate_field_exists(component, "metadata")
                 validate_field_exists(component, "accessibility")
@@ -333,7 +335,8 @@ class TestUIGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -354,7 +357,8 @@ class TestUIGraphQLAPI:
                 validate_field_exists(component, "type")
                 validate_field_equals(component, "type", test_data["type"])
                 validate_field_exists(component, "description")
-                validate_field_equals(component, "description", test_data["description"])
+                validate_field_equals(component, "description", 
+                    test_data["description"])
                 validate_field_exists(component, "configuration")
                 validate_field_exists(component, "metadata")
                 validate_field_exists(component, "accessibility")
@@ -431,7 +435,8 @@ class TestUIGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)

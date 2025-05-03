@@ -10,7 +10,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import generate_id, generate_niche_analysis_data, generate_niche_data
+from tests.api.utils.test_data import generate_id, generate_niche_analysis_data, 
+    generate_niche_data
 from tests.api.utils.test_validators import (
     validate_bulk_response,
     validate_error_response,
@@ -264,7 +265,8 @@ class TestNicheAnalysisAPI:
         # Make request with filters
         response = api_test_client.get(
             "niche - analysis / results",
-            params={"status": "completed", "sort": "created_at:desc", "page": 1, "page_size": 10},
+            params={"status": "completed", "sort": "created_at:desc", "page": 1, 
+                "page_size": 10},
         )
 
         # Validate response
@@ -296,7 +298,8 @@ class TestNicheAnalysisAPI:
         data = {
             "name": "Updated AI Assistant Niche",
             "description": "Updated description for AI assistant tools",
-            "market_segments": ["productivity", "software - development", "content - creation"],
+            "market_segments": ["productivity", "software - development", 
+                "content - creation"],
             "target_audience": ["developers", "content creators", "knowledge workers"],
             "opportunity_score_threshold": 0.8,
             "metadata": {
@@ -429,7 +432,8 @@ class TestNicheAnalysisAPI:
         niche_id = generate_id()
         response = api_test_client.put(
             f"niche - analysis / niches/{niche_id}",
-            {"name": "", "market_segments": "invalid"},  # Empty name  # Should be a list
+            {"name": "", "market_segments": "invalid"},  
+                # Empty name  # Should be a list
         )
         validate_error_response(response, 422)  # Unprocessable Entity
 
@@ -450,7 +454,8 @@ class TestNicheAnalysisAPI:
         # Test bulk operations with invalid data
         response = api_test_client.bulk_update(
             "niche - analysis / niches",
-            [{"id": "invalid - id"}, {"name": "No ID"}],  # Missing required fields  # Missing ID
+            [{"id": "invalid - id"}, {"name": "No ID"}],  
+                # Missing required fields  # Missing ID
         )
         validate_error_response(response, 422)
 

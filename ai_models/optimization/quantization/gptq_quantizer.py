@@ -31,7 +31,8 @@ try:
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
-    logger.warning("Transformers not available. GPTQ quantizer will have limited functionality.")
+    logger.warning(
+        "Transformers not available. GPTQ quantizer will have limited functionality.")
     TRANSFORMERS_AVAILABLE = False
 
 # Check if GPTQ is available
@@ -40,7 +41,8 @@ try:
 
     GPTQ_AVAILABLE = True
 except ImportError:
-    logger.warning("AutoGPTQ not available. Please install it with: pip install auto - gptq")
+    logger.warning(
+        "AutoGPTQ not available. Please install it with: pip install auto - gptq")
     GPTQ_AVAILABLE = False
 
 
@@ -59,7 +61,8 @@ class GPTQQuantizer(Quantizer):
         super().__init__(config)
 
         if not TORCH_AVAILABLE:
-            raise ImportError("PyTorch not available. Please install it with: pip install torch")
+            raise ImportError(
+                "PyTorch not available. Please install it with: pip install torch")
 
         if not TRANSFORMERS_AVAILABLE:
             raise ImportError(
@@ -68,7 +71,8 @@ class GPTQQuantizer(Quantizer):
 
         if not GPTQ_AVAILABLE:
             raise ImportError(
-                "AutoGPTQ not available. Please install it with: pip install auto - gptq"
+                "AutoGPTQ not available. Please install it with: pip install auto - \
+                    gptq"
             )
 
         # Validate configuration
@@ -90,10 +94,12 @@ class GPTQQuantizer(Quantizer):
 
         if self.config.gptq_bits not in [2, 3, 4, 8]:
             raise ValueError(
-                f"Unsupported bits: {self.config.gptq_bits}. " f"Supported bits: 2, 3, 4, 8"
+                f"Unsupported bits: {self.config.gptq_bits}. " f"Supported bits: 2, 3, 4, 
+                    8"
             )
 
-    def quantize(self, model_path: str, output_path: Optional[str] = None, **kwargs) -> str:
+    def quantize(self, model_path: str, output_path: Optional[str] = None, 
+        **kwargs) -> str:
         """
         Quantize a model using GPTQ.
 
@@ -129,7 +135,8 @@ class GPTQQuantizer(Quantizer):
             # Use default dataset (WikiText - 2)
             from datasets import load_dataset
 
-            calibration_dataset = load_dataset("wikitext", "wikitext - 2-raw - v1", split="train")
+            calibration_dataset = load_dataset("wikitext", "wikitext - 2-raw - v1", 
+                split="train")
 
             # Process dataset
             def preprocess_function(examples):
@@ -141,14 +148,16 @@ class GPTQQuantizer(Quantizer):
 
         # Create examples for calibration
         examples = []
-        for i in range(min(self.config.calibration_num_samples, len(calibration_dataset))):
+        for i in range(min(self.config.calibration_num_samples, 
+            len(calibration_dataset))):
             example = calibration_dataset[i]["input_ids"]
             if len(example) > self.config.calibration_seqlen:
                 example = example[: self.config.calibration_seqlen]
             examples.append(example)
 
         # Create GPTQ model
-        model = AutoGPTQForCausalLM.from_pretrained(model_path, quantize_config=quantize_config)
+        model = AutoGPTQForCausalLM.from_pretrained(model_path, 
+            quantize_config=quantize_config)
 
         # Quantize model
         model.quantize(examples=examples, batch_size=1)

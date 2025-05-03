@@ -88,7 +88,8 @@ class MetricsAPI:
         }
 
         # Register cost rates with the monitor
-        self.monitor.set_model_cost_rates(model_id, prompt_cost_per_1k, completion_cost_per_1k)
+        self.monitor.set_model_cost_rates(model_id, prompt_cost_per_1k, 
+            completion_cost_per_1k)
 
         logger.info(
             f"Registered model {model_id} with prompt cost: ${prompt_cost_per_1k}/1k, "
@@ -141,7 +142,8 @@ class MetricsAPI:
 
         # Add request context
         if user_id or session_id or tags:
-            tracker.add_request_context(user_id=user_id, session_id=session_id, tags=tags)
+            tracker.add_request_context(user_id=user_id, session_id=session_id, 
+                tags=tags)
 
         # Add system context
         if deployment_env:
@@ -233,7 +235,8 @@ class MetricsAPI:
         Returns:
             MetricsDashboard instance
         """
-        if self._dashboard is None or (output_dir and output_dir != self._dashboard.output_dir):
+        if self._dashboard is None or (output_dir and output_dir != \
+            self._dashboard.output_dir):
             self._dashboard = MetricsDashboard(
                 performance_monitor=self.monitor, output_dir=output_dir
             )
@@ -276,7 +279,8 @@ class MetricsAPI:
         model_names = []
         for model_id in model_ids:
             if model_id in self.registered_models:
-                model_names.append(self.registered_models[model_id].get("model_name", model_id))
+                model_names.append(self.registered_models[model_id].get("model_name", 
+                    model_id))
             else:
                 model_names.append(model_id)
 
@@ -342,7 +346,8 @@ class MetricsAPI:
 
             # Extract token usage from metadata if available
             token_usage = {}
-            if isinstance(metric.get("metadata"), dict) and "token_usage" in metric["metadata"]:
+            if isinstance(metric.get("metadata"), 
+                dict) and "token_usage" in metric["metadata"]:
                 token_usage = metric["metadata"]["token_usage"]
 
             # Get token counts
@@ -359,7 +364,8 @@ class MetricsAPI:
             # Update model - specific token counts
             model_usage[current_model_id]["prompt_tokens"] += prompt_tokens
             model_usage[current_model_id]["completion_tokens"] += completion_tokens
-            model_usage[current_model_id]["total_tokens"] += prompt_tokens + completion_tokens
+            model_usage[current_model_id]["total_tokens"] += prompt_tokens + \
+                completion_tokens
             model_usage[current_model_id]["num_requests"] += 1
 
             # Update token costs
@@ -375,13 +381,15 @@ class MetricsAPI:
                     and current_model_id in self.registered_models
                 ):
                     rates = self.registered_models[current_model_id]
-                    prompt_cost = (prompt_tokens / 1000) * rates.get("prompt_cost_per_1k", 0.0)
+                    prompt_cost = (prompt_tokens / 1000) * rates.get("prompt_cost_per_1k", 
+                        0.0)
                     completion_cost = (completion_tokens / 1000) * rates.get(
                         "completion_cost_per_1k", 0.0
                     )
 
                 # Fall back to estimated_cost if needed
-                if prompt_cost == 0.0 and completion_cost == 0.0 and "estimated_cost" in metric:
+                if prompt_cost == \
+                    0.0 and completion_cost == 0.0 and "estimated_cost" in metric:
                     # Split estimated cost proportionally between prompt and completion
                     total = prompt_tokens + completion_tokens
                     if total > 0:
@@ -392,7 +400,8 @@ class MetricsAPI:
 
                 model_usage[current_model_id]["prompt_cost"] += prompt_cost
                 model_usage[current_model_id]["completion_cost"] += completion_cost
-                model_usage[current_model_id]["total_cost"] += prompt_cost + completion_cost
+                model_usage[current_model_id]["total_cost"] += prompt_cost + \
+                    completion_cost
 
             # Update totals
             total_prompt_tokens += prompt_tokens
@@ -439,7 +448,8 @@ class MetricsAPI:
 
         Args:
             model_id: ID of the model
-            metric_name: Name of the metric to monitor (e.g., "latency_ms", "tokens_per_second")
+            metric_name: Name of the metric to monitor (e.g., "latency_ms", 
+                "tokens_per_second")
             threshold_value: Value to trigger alert
             is_upper_bound: If True, alert when value > threshold
                           If False, alert when value < threshold

@@ -27,7 +27,8 @@ class DatabaseMetrics:
         self.slow_threshold = 0.5  # seconds
         self._lock = threading.RLock()  # Thread - safe metrics updates
 
-    def record_query(self, query: str, params: Optional[Dict[str, Any]], duration: float) -> None:
+    def record_query(self, query: str, params: Optional[Dict[str, Any]], 
+        duration: float) -> None:
         """
         Record information about an executed query.
 
@@ -182,9 +183,11 @@ class MonitoringDatabaseProxy(DatabaseInterface):
         params: Optional[Dict[str, Any]] = None,
     ) -> int:
         """Update records in the database with monitoring."""
-        return self._time_method("update", self.db.update, table, data, condition, params)
+        return self._time_method("update", self.db.update, table, data, condition, 
+            params)
 
-    def delete(self, table: str, condition: str, params: Optional[Dict[str, Any]] = None) -> int:
+    def delete(self, table: str, condition: str, params: Optional[Dict[str, 
+        Any]] = None) -> int:
         """Delete records from the database with monitoring."""
         return self._time_method("delete", self.db.delete, table, condition, params)
 

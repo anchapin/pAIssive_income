@@ -44,11 +44,13 @@ class SecurityLogFilter(logging.Filter):
             True if the record should be logged, False otherwise
         """
         # Check if the record has a security level
-        if hasattr(record, "security_level") and record.security_level in self.security_levels:
+        if hasattr(record, 
+            "security_level") and record.security_level in self.security_levels:
             return True
 
         # Check if the record has security in the message
-        if any(level.lower() in record.getMessage().lower() for level in self.security_levels):
+        if any(
+            level.lower() in record.getMessage().lower() for level in self.security_levels):
             return True
 
         return False
@@ -185,7 +187,8 @@ class LoggingService:
         if self.json_format:
             formatter = JsonFormatter()
         else:
-            formatter = logging.Formatter(" % (asctime)s - %(name)s - %(levelname)s - %(message)s")
+            formatter = logging.Formatter(" % (asctime)s - \
+                %(name)s - %(levelname)s - %(message)s")
 
         # Add console handler if enabled
         if self.console_output:
@@ -377,7 +380,8 @@ class LoggingService:
         log_level = logging.INFO if success else logging.WARNING
 
         # Create message
-        message = f"Webhook delivery {'succeeded' if success else 'failed'}: {delivery_id} to {url}"
+        message = \
+            f"Webhook delivery {'succeeded' if success else 'failed'}: {delivery_id} to {url}"
 
         # Create extra fields
         extra = {

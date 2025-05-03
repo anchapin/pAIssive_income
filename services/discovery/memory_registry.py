@@ -117,7 +117,8 @@ class InMemoryServiceRegistry(ServiceRegistry):
         return [
             instance
             for instance in self._services.values()
-            if instance.service_id == service_id and instance.status == ServiceStatus.HEALTHY
+            if instance.service_id == \
+                service_id and instance.status == ServiceStatus.HEALTHY
         ]
 
     def get_all_instances(self) -> Dict[str, List[ServiceInstance]]:

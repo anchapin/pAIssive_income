@@ -26,7 +26,8 @@ from ai_models.caching import (
 def memory_cache_config():
     """Fixture for memory cache configuration."""
     return CacheConfig(
-        enabled=True, backend="memory", ttl=60, max_size=100, eviction_policy="lru"  # 60 seconds
+        enabled=True, backend="memory", ttl=60, max_size=100, 
+            eviction_policy="lru"  # 60 seconds
     )
 
 

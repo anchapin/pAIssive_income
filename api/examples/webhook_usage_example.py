@@ -138,7 +138,8 @@ class MonetizationService:
 
         return subscription
 
-    async def process_payment(self, payment_id: str, amount: float, user_id: str) -> Dict[str, Any]:
+    async def process_payment(self, payment_id: str, amount: float, 
+        user_id: str) -> Dict[str, Any]:
         """
         Process a payment with webhook notifications.
 

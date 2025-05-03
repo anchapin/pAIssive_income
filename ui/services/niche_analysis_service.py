@@ -229,6 +229,7 @@ class NicheAnalysisService(BaseService, INicheAnalysisService):
         # Mock descriptions for different niches
         descriptions = {
             "e - commerce": "AI tools for inventory management and product descriptions",
+                
             "content creation": "AI tools for generating and optimizing content",
             "freelancing": "AI tools for proposal writing and client management",
             "education": "AI tools for study note generation and personalized learning",

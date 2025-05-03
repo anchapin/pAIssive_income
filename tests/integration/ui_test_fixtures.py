@@ -39,6 +39,7 @@ def mock_agent_team():
         "id": "solution1",
         "name": "AI Inventory Optimizer",
         "description": "An AI tool that helps e - commerce businesses optimize inventory levels.",
+            
         "features": [
             {"id": "feature1", "name": "Demand Forecasting"},
             {"id": "feature2", "name": "Reorder Alerts"},
@@ -127,7 +128,8 @@ def mock_agent_team_service():
 
 @pytest.fixture
 def register_mock_services(
-    mock_agent_team_service, mock_agent_team, mock_model_manager, mock_subscription_manager
+    mock_agent_team_service, mock_agent_team, mock_model_manager, 
+        mock_subscription_manager
 ):
     """Register mock services in the dependency container."""
     from interfaces.agent_interfaces import IAgentTeam
@@ -145,7 +147,8 @@ def register_mock_services(
     container = get_container()
 
     # Register mock services
-    container.register(IAgentTeamService, lambda: mock_agent_team_service, singleton=True)
+    container.register(IAgentTeamService, lambda: mock_agent_team_service, 
+        singleton=True)
     container.register(INicheAnalysisService, lambda: MagicMock(), singleton=True)
     container.register(IDeveloperService, lambda: MagicMock(), singleton=True)
     container.register(IMonetizationService, lambda: MagicMock(), singleton=True)
@@ -154,6 +157,7 @@ def register_mock_services(
     # Register mock dependencies
     container.register(IAgentTeam, lambda: mock_agent_team, singleton=True)
     container.register(IModelManager, lambda: mock_model_manager, singleton=True)
-    container.register(ISubscriptionManager, lambda: mock_subscription_manager, singleton=True)
+    container.register(ISubscriptionManager, lambda: mock_subscription_manager, 
+        singleton=True)
 
     return container

@@ -93,7 +93,8 @@ class TestMarketTrendAnalysis:
         ]
 
         # Analyze seasonal patterns
-        seasonal_patterns = self.historical_analyzer.analyze_seasonality(historical_data)
+        seasonal_patterns = \
+            self.historical_analyzer.analyze_seasonality(historical_data)
 
         # Validate seasonal analysis
         assert "has_seasonality" in seasonal_patterns
@@ -104,12 +105,14 @@ class TestMarketTrendAnalysis:
         assert isinstance(seasonal_patterns["seasonal_troughs"], list)
 
         # Analyze long - term trends
-        long_term_trends = self.historical_analyzer.analyze_long_term_trends(historical_data)
+        long_term_trends = \
+            self.historical_analyzer.analyze_long_term_trends(historical_data)
 
         # Validate long - term trend analysis
         assert "trend_type" in long_term_trends
         assert "growth_rate" in long_term_trends
-        assert long_term_trends["trend_type"] in ["linear", "exponential", "cyclical", "random"]
+        assert long_term_trends["trend_type"] in ["linear", "exponential", "cyclical", 
+            "random"]
         assert isinstance(long_term_trends["growth_rate"], float)
 
     def test_market_cycle_detection(self):
@@ -139,8 +142,10 @@ class TestMarketTrendAnalysis:
     def test_trend_correlation(self):
         """Test trend correlation analysis."""
         # Test data for multiple related trends
-        trend1 = [{"date": "2025 - 01 - 01", "value": 100}, {"date": "2025 - 02 - 01", "value": 120}]
-        trend2 = [{"date": "2025 - 01 - 01", "value": 50}, {"date": "2025 - 02 - 01", "value": 55}]
+        trend1 = [{"date": "2025 - 01 - 01", "value": 100}, {"date": "2025 - 02 - 01", 
+            "value": 120}]
+        trend2 = [{"date": "2025 - 01 - 01", "value": 50}, {"date": "2025 - 02 - 01", 
+            "value": 55}]
 
         # Analyze correlation between trends
         correlation = self.trend_analyzer.analyze_trend_correlation(trend1, trend2)
@@ -178,11 +183,13 @@ class TestMarketTrendAnalysis:
         """Test handling of invalid trend data."""
         # Test with insufficient data points
         with pytest.raises(InsufficientDataError):
-            self.trend_identifier.identify_trends([{"date": "2025 - 01 - 01", "value": 100}])
+            self.trend_identifier.identify_trends([{"date": "2025 - 01 - 01", 
+                "value": 100}])
 
         # Test with invalid date format
         with pytest.raises(ValueError):
-            self.trend_identifier.identify_trends([{"date": "invalid_date", "value": 100}])
+            self.trend_identifier.identify_trends([{"date": "invalid_date", 
+                "value": 100}])
 
         # Test with missing values
         with pytest.raises(ValueError):
@@ -304,7 +311,8 @@ class TestMarketTrendAnalysis:
         assert first_result == second_result
 
         # Force refresh should bypass cache
-        fresh_result = market_analyzer.analyze_trends("e - commerce", force_refresh=True)
+        fresh_result = market_analyzer.analyze_trends("e - commerce", 
+            force_refresh=True)
 
         # Verify timestamp is updated in fresh result
         assert fresh_result != first_result

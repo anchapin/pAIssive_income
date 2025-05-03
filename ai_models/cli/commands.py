@@ -40,7 +40,8 @@ class DownloadCommand(BaseCommand):
         """
         Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model - id", required=True, help="ID or name of the model to download")
+        parser.add_argument("--model - id", required=True, 
+            help="ID or name of the model to download")
         parser.add_argument(
             "--source",
             choices=["huggingface", "local", "url"],
@@ -50,6 +51,7 @@ class DownloadCommand(BaseCommand):
         parser.add_argument(
             "--output - dir",
             help="Directory to save the model to (default: models directory from config)",
+                
         )
         parser.add_argument("--config", help="Path to a configuration file")
 
@@ -92,8 +94,10 @@ class DownloadCommand(BaseCommand):
             logger.info(f"Successfully downloaded model to {result.destination}")
 
             # Register the downloaded model
-            model_type = "huggingface" if self._get_arg("source") == "huggingface" else "unknown"
-            description = f"Downloaded {self._get_arg('model_id')} from {self._get_arg('source')}"
+            model_type = \
+                "huggingface" if self._get_arg("source") == "huggingface" else "unknown"
+            description = \
+                f"Downloaded {self._get_arg('model_id')} from {self._get_arg('source')}"
 
             model_info = model_manager.register_downloaded_model(
                 download_task=download_task,
@@ -177,7 +181,8 @@ class ListCommand(BaseCommand):
             print(f"Found {len(models)} models:")
             for model in models:
                 print(
-                    f"- {model.name} (ID: {model.id}, Type: {model.type}, Format: {model.format})"
+                    f"- {model.name} (ID: {model.id}, Type: {model.type}, 
+                        Format: {model.format})"
                 )
                 if model.version != "0.0.0":
                     print(f"  Version: {model.version}")
@@ -266,7 +271,8 @@ class InfoCommand(BaseCommand):
             print(f"- Path: {model_info.path}")
             print(f"- Size: {model_info.size_mb:.2f} MB")
             print(
-                f"- Capabilities: {', '.join(model_info.capabilities) if model_info.capabilities else 'None'}"
+                f"- Capabilities: {', 
+                    '.join(model_info.capabilities) if model_info.capabilities else 'None'}"
             )
             print(f"- Created At: {model_info.created_at}")
             print(f"- Last Updated: {model_info.updated_at}")
@@ -315,7 +321,8 @@ class ServeRESTCommand(BaseCommand):
         parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
         parser.add_argument(
             "--model - id",
-            help="ID of the model to serve (if not specified, all models will be available)",
+            help="ID of the model to serve (if not specified, 
+                all models will be available)",
         )
         parser.add_argument("--config", help="Path to a configuration file")
 
@@ -362,7 +369,8 @@ class ServeGRPCCommand(BaseCommand):
         parser.add_argument("--port", type=int, default=50051, help="Port to bind to")
         parser.add_argument(
             "--model - id",
-            help="ID of the model to serve (if not specified, all models will be available)",
+            help="ID of the model to serve (if not specified, 
+                all models will be available)",
         )
         parser.add_argument("--config", help="Path to a configuration file")
 
@@ -405,14 +413,16 @@ class OptimizeCommand(BaseCommand):
         """
         Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model - id", required=True, help="ID of the model to optimize")
+        parser.add_argument("--model - id", required=True, 
+            help="ID of the model to optimize")
         parser.add_argument(
             "--method",
             choices=["quantize", "prune", "distill"],
             default="quantize",
             help="Optimization method",
         )
-        parser.add_argument("--output - dir", help="Directory to save the optimized model")
+        parser.add_argument("--output - dir", 
+            help="Directory to save the optimized model")
         parser.add_argument("--config", help="Path to a configuration file")
 
     def run(self) -> int:
@@ -454,10 +464,13 @@ class BenchmarkCommand(BaseCommand):
         """
         Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model - id", required=True, help="ID of the model to benchmark")
-        parser.add_argument("--iterations", type=int, default=10, help="Number of iterations")
+        parser.add_argument("--model - id", required=True, 
+            help="ID of the model to benchmark")
+        parser.add_argument("--iterations", type=int, default=10, 
+            help="Number of iterations")
         parser.add_argument(
-            "--input - text", default="Hello, world!", help="Input text for benchmarking"
+            "--input - text", default="Hello, world!", 
+                help="Input text for benchmarking"
         )
         parser.add_argument("--config", help="Path to a configuration file")
 
@@ -500,14 +513,16 @@ class DeployCommand(BaseCommand):
         """
         Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model - id", required=True, help="ID of the model to deploy")
+        parser.add_argument("--model - id", required=True, 
+            help="ID of the model to deploy")
         parser.add_argument(
             "--target",
             choices=["docker", "kubernetes", "aws", "azure", "gcp"],
             default="docker",
             help="Deployment target",
         )
-        parser.add_argument("--output - dir", help="Directory to save deployment artifacts")
+        parser.add_argument("--output - dir", 
+            help="Directory to save deployment artifacts")
         parser.add_argument("--config", help="Path to a configuration file")
 
     def run(self) -> int:
@@ -549,7 +564,8 @@ class ValidateCommand(BaseCommand):
         """
         Add command - specific arguments to the parser.
         """
-        parser.add_argument("--model - id", required=True, help="ID of the model to validate")
+        parser.add_argument("--model - id", required=True, 
+            help="ID of the model to validate")
         parser.add_argument("--test - data", help="Path to test data")
         parser.add_argument("--config", help="Path to a configuration file")
 
@@ -597,8 +613,10 @@ class VersionCommand(BaseCommand):
         )
 
         # Create a new version
-        create_parser = subparsers.add_parser("create", help="Create a new version for a model")
-        create_parser.add_argument("--model - id", required=True, help="ID of the model")
+        create_parser = subparsers.add_parser("create", 
+            help="Create a new version for a model")
+        create_parser.add_argument("--model - id", required=True, 
+            help="ID of the model")
         create_parser.add_argument(
             "--version",
             required=True,
@@ -631,7 +649,8 @@ class VersionCommand(BaseCommand):
         list_parser.add_argument("--config", help="Path to a configuration file")
 
         # Get version info
-        info_parser = subparsers.add_parser("info", help="Get information about a specific version")
+        info_parser = subparsers.add_parser("info", 
+            help="Get information about a specific version")
         info_parser.add_argument("--model - id", required=True, help="ID of the model")
         info_parser.add_argument("--version", required=True, help="Version string")
         info_parser.add_argument(
@@ -643,14 +662,19 @@ class VersionCommand(BaseCommand):
         check_parser = subparsers.add_parser(
             "check - compatibility", help="Check if two model versions are compatible"
         )
-        check_parser.add_argument("--model - id1", required=True, help="ID of the first model")
-        check_parser.add_argument("--version1", required=True, help="Version of the first model")
-        check_parser.add_argument("--model - id2", required=True, help="ID of the second model")
-        check_parser.add_argument("--version2", required=True, help="Version of the second model")
+        check_parser.add_argument("--model - id1", required=True, 
+            help="ID of the first model")
+        check_parser.add_argument("--version1", required=True, 
+            help="Version of the first model")
+        check_parser.add_argument("--model - id2", required=True, 
+            help="ID of the second model")
+        check_parser.add_argument("--version2", required=True, 
+            help="Version of the second model")
         check_parser.add_argument("--config", help="Path to a configuration file")
 
         # Load a specific version
-        load_parser = subparsers.add_parser("load", help="Load a specific version of a model")
+        load_parser = subparsers.add_parser("load", 
+            help="Load a specific version of a model")
         load_parser.add_argument("--model - id", required=True, help="ID of the model")
         load_parser.add_argument("--version", required=True, help="Version string")
         load_parser.add_argument("--config", help="Path to a configuration file")
@@ -777,11 +801,13 @@ class VersionCommand(BaseCommand):
                 else:
                     # Get latest version
                     latest_version = model_manager.get_latest_version(model_id)
-                    latest_version_str = latest_version.version if latest_version else None
+                    latest_version_str = \
+                        latest_version.version if latest_version else None
 
                     for version in versions:
                         # Mark latest version
-                        latest_marker = " (latest)" if version.version == latest_version_str else ""
+                        latest_marker = \
+                            " (latest)" if version.version == latest_version_str else ""
                         print(f"- {version.version}{latest_marker}")
                         print(f"  Timestamp: {version.timestamp}")
 
@@ -791,7 +817,8 @@ class VersionCommand(BaseCommand):
 
                         # Print hash
                         if version.hash_value:
-                            print(f"  Hash: {version.hash_value[:8]}...")  # Show first 8 chars
+                            print(
+                                f"  Hash: {version.hash_value[:8]}...")  # Show first 8 chars
 
             return 0
 
@@ -822,7 +849,8 @@ class VersionCommand(BaseCommand):
             )
 
             if not version:
-                logger.error(f"Version {self._get_arg('version')} not found for model {model_id}")
+                logger.error(
+                    f"Version {self._get_arg('version')} not found for model {model_id}")
                 return 1
 
             # Format output
@@ -929,7 +957,8 @@ class VersionCommand(BaseCommand):
                     signal.signal(signal.SIGALRM, timeout_handler)
                     signal.alarm(5)
 
-                    output = model.generate("Hello, world!")[:100]  # Limit output length
+                    output = model.generate("Hello, 
+                        world!")[:100]  # Limit output length
                     print("  Input: 'Hello, world!'")
                     print(f"  Output: '{output}'")
 
@@ -984,7 +1013,8 @@ class PerformanceCommand(BaseCommand):
         report_parser = subparsers.add_parser(
             "report", help="Generate a performance report for a model"
         )
-        report_parser.add_argument("--model - id", required=True, help="ID of the model")
+        report_parser.add_argument("--model - id", required=True, 
+            help="ID of the model")
         report_parser.add_argument(
             "--model - name",
             help="Name of the model (defaults to model ID if not provided)",
@@ -1009,7 +1039,8 @@ class PerformanceCommand(BaseCommand):
             "compare", help="Compare the performance of multiple models"
         )
         compare_parser.add_argument(
-            "--model - ids", required=True, nargs=" + ", help="IDs of the models to compare"
+            "--model - ids", required=True, nargs=" + ", 
+                help="IDs of the models to compare"
         )
         compare_parser.add_argument(
             "--model - names",
@@ -1029,7 +1060,8 @@ class PerformanceCommand(BaseCommand):
         visualize_parser = subparsers.add_parser(
             "visualize", help="Generate visualizations of model performance metrics"
         )
-        visualize_parser.add_argument("--model - id", required=True, help="ID of the model")
+        visualize_parser.add_argument("--model - id", required=True, 
+            help="ID of the model")
         visualize_parser.add_argument(
             "--metrics",
             nargs=" + ",
@@ -1053,8 +1085,10 @@ class PerformanceCommand(BaseCommand):
         visualize_parser.add_argument("--config", help="Path to a configuration file")
 
         # Export metrics to CSV
-        export_parser = subparsers.add_parser("export", help="Export performance metrics to CSV")
-        export_parser.add_argument("--model - id", required=True, help="ID of the model")
+        export_parser = subparsers.add_parser("export", 
+            help="Export performance metrics to CSV")
+        export_parser.add_argument("--model - id", required=True, 
+            help="ID of the model")
         export_parser.add_argument("--output", help="Path to save the CSV file to")
         export_parser.add_argument("--config", help="Path to a configuration file")
 
@@ -1076,11 +1110,13 @@ class PerformanceCommand(BaseCommand):
             ],
             help="Metric to set alert for",
         )
-        alert_parser.add_argument("--threshold", required=True, type=float, help="Threshold value")
+        alert_parser.add_argument("--threshold", required=True, type=float, 
+            help="Threshold value")
         alert_parser.add_argument(
             "--upper - bound",
             action="store_true",
-            help="If set, alert when value exceeds threshold; otherwise alert when below",
+            help="If set, 
+                alert when value exceeds threshold; otherwise alert when below",
         )
         alert_parser.add_argument("--config", help="Path to a configuration file")
 
@@ -1090,7 +1126,8 @@ class PerformanceCommand(BaseCommand):
             help="Track a simple inference run for performance monitoring",
         )
         track_parser.add_argument("--model - id", required=True, help="ID of the model")
-        track_parser.add_argument("--input", required=True, help="Input text for inference")
+        track_parser.add_argument("--input", required=True, 
+            help="Input text for inference")
         track_parser.add_argument(
             "--show - metrics", action="store_true", help="Show the resulting metrics"
         )
@@ -1186,7 +1223,8 @@ class PerformanceCommand(BaseCommand):
 
             elif output_format == "csv":
                 if not output_path:
-                    output_path = f"performance_report_{model_id}_{int(time.time())}.csv"
+                    output_path = \
+                        f"performance_report_{model_id}_{int(time.time())}.csv"
 
                 with open(output_path, "w", newline="") as f:
                     writer = csv.writer(f)
@@ -1203,11 +1241,16 @@ class PerformanceCommand(BaseCommand):
                     # Write time metrics
                     writer.writerow([])
                     writer.writerow(["Time Metrics", ""])
-                    writer.writerow(["Average Inference Time (s)", report.avg_inference_time])
-                    writer.writerow(["Min Inference Time (s)", report.min_inference_time])
-                    writer.writerow(["Max Inference Time (s)", report.max_inference_time])
-                    writer.writerow(["Median Inference Time (s)", report.median_inference_time])
-                    writer.writerow(["Standard Deviation (s)", report.stddev_inference_time])
+                    writer.writerow(["Average Inference Time (s)", 
+                        report.avg_inference_time])
+                    writer.writerow(["Min Inference Time (s)", 
+                        report.min_inference_time])
+                    writer.writerow(["Max Inference Time (s)", 
+                        report.max_inference_time])
+                    writer.writerow(["Median Inference Time (s)", 
+                        report.median_inference_time])
+                    writer.writerow(["Standard Deviation (s)", 
+                        report.stddev_inference_time])
                     writer.writerow(["90th Percentile (s)", report.p90_inference_time])
                     writer.writerow(["95th Percentile (s)", report.p95_inference_time])
                     writer.writerow(["99th Percentile (s)", report.p99_inference_time])
@@ -1226,15 +1269,20 @@ class PerformanceCommand(BaseCommand):
                     writer.writerow(["Total Output Tokens", report.total_output_tokens])
                     writer.writerow(["Average Input Tokens", report.avg_input_tokens])
                     writer.writerow(["Average Output Tokens", report.avg_output_tokens])
-                    writer.writerow(["Average Tokens per Second", report.avg_tokens_per_second])
+                    writer.writerow(["Average Tokens per Second", 
+                        report.avg_tokens_per_second])
 
                     # Write memory metrics
                     writer.writerow([])
                     writer.writerow(["Memory Metrics", ""])
-                    writer.writerow(["Average Memory Usage (MB)", report.avg_memory_usage_mb])
-                    writer.writerow(["Max Memory Usage (MB)", report.max_memory_usage_mb])
-                    writer.writerow(["Average Peak CPU Memory (MB)", report.avg_peak_cpu_memory_mb])
-                    writer.writerow(["Average Peak GPU Memory (MB)", report.avg_peak_gpu_memory_mb])
+                    writer.writerow(["Average Memory Usage (MB)", 
+                        report.avg_memory_usage_mb])
+                    writer.writerow(["Max Memory Usage (MB)", 
+                        report.max_memory_usage_mb])
+                    writer.writerow(["Average Peak CPU Memory (MB)", 
+                        report.avg_peak_cpu_memory_mb])
+                    writer.writerow(["Average Peak GPU Memory (MB)", 
+                        report.avg_peak_gpu_memory_mb])
 
                     # Write system metrics
                     writer.writerow([])
@@ -1251,11 +1299,14 @@ class PerformanceCommand(BaseCommand):
                         writer.writerow([])
                         writer.writerow(["Quality Metrics", ""])
                         if report.avg_perplexity > 0:
-                            writer.writerow(["Average Perplexity", report.avg_perplexity])
+                            writer.writerow(["Average Perplexity", 
+                                report.avg_perplexity])
                         if report.avg_bleu_score > 0:
-                            writer.writerow(["Average BLEU Score", report.avg_bleu_score])
+                            writer.writerow(["Average BLEU Score", 
+                                report.avg_bleu_score])
                         if report.avg_rouge_score > 0:
-                            writer.writerow(["Average ROUGE Score", report.avg_rouge_score])
+                            writer.writerow(["Average ROUGE Score", 
+                                report.avg_rouge_score])
 
                     # Write cost metrics
                     if report.total_estimated_cost > 0:
@@ -1271,23 +1322,28 @@ class PerformanceCommand(BaseCommand):
                             [
                                 "Average Cost per Inference",
                                 f"{report.avg_cost_per_inference:.6f} {report.currency}",
+                                    
                             ]
                         )
 
                 logger.info(f"Saved report to {output_path}")
 
             else:  # text format
-                print(f"Performance Report for {report.model_name} (ID: {report.model_id})")
+                print(
+                    f"Performance Report for {report.model_name} (ID: {report.model_id})")
                 print(f"Report Generated: {report.timestamp}")
                 print(f"Number of Inferences: {report.num_inferences}")
                 print("")
 
                 print("Time Metrics:")
-                print(f"- Average Inference Time: {report.avg_inference_time:.4f} seconds")
+                print(
+                    f"- Average Inference Time: {report.avg_inference_time:.4f} seconds")
                 print(f"- Min Inference Time: {report.min_inference_time:.4f} seconds")
                 print(f"- Max Inference Time: {report.max_inference_time:.4f} seconds")
-                print(f"- Median Inference Time: {report.median_inference_time:.4f} seconds")
-                print(f"- Standard Deviation: {report.stddev_inference_time:.4f} seconds")
+                print(
+                    f"- Median Inference Time: {report.median_inference_time:.4f} seconds")
+                print(
+                    f"- Standard Deviation: {report.stddev_inference_time:.4f} seconds")
                 print(f"- 90th Percentile: {report.p90_inference_time:.4f} seconds")
                 print(f"- 95th Percentile: {report.p95_inference_time:.4f} seconds")
                 print(f"- 99th Percentile: {report.p99_inference_time:.4f} seconds")
@@ -1302,14 +1358,17 @@ class PerformanceCommand(BaseCommand):
                 print(f"- Total Output Tokens: {report.total_output_tokens}")
                 print(f"- Average Input Tokens: {report.avg_input_tokens:.2f}")
                 print(f"- Average Output Tokens: {report.avg_output_tokens:.2f}")
-                print(f"- Average Tokens per Second: {report.avg_tokens_per_second:.2f}")
+                print(
+                    f"- Average Tokens per Second: {report.avg_tokens_per_second:.2f}")
                 print("")
 
                 print("Memory Metrics:")
                 print(f"- Average Memory Usage: {report.avg_memory_usage_mb:.2f} MB")
                 print(f"- Max Memory Usage: {report.max_memory_usage_mb:.2f} MB")
-                print(f"- Average Peak CPU Memory: {report.avg_peak_cpu_memory_mb:.2f} MB")
-                print(f"- Average Peak GPU Memory: {report.avg_peak_gpu_memory_mb:.2f} MB")
+                print(
+                    f"- Average Peak CPU Memory: {report.avg_peak_cpu_memory_mb:.2f} MB")
+                print(
+                    f"- Average Peak GPU Memory: {report.avg_peak_gpu_memory_mb:.2f} MB")
                 print("")
 
                 print("System Metrics:")
@@ -1424,7 +1483,8 @@ class PerformanceCommand(BaseCommand):
                     for metric in metrics:
                         row = [metric]
                         for model_key in comparison.comparison_metrics:
-                            value = comparison.comparison_metrics[model_key].get(metric, 0)
+                            value = comparison.comparison_metrics[model_key].get(metric, 
+                                0)
                             row.append(value)
                         writer.writerow(row)
 
@@ -1436,7 +1496,8 @@ class PerformanceCommand(BaseCommand):
                         diff_metric = f"{metric}_percent_diff"
                         row = [f"{metric} % diff"]
                         for model_key in comparison.comparison_metrics:
-                            value = comparison.comparison_metrics[model_key].get(diff_metric, 0)
+                            value = comparison.comparison_metrics[model_key].get(diff_metric, 
+                                0)
                             row.append(f"{value:.2f}%")
                         writer.writerow(row)
 
@@ -1486,16 +1547,19 @@ class PerformanceCommand(BaseCommand):
                     diff_metric = f"{metric}_percent_diff"
                     print(f"{display_name + ' % diff':<25}", end="")
                     for model_key in comparison.comparison_metrics:
-                        value = comparison.comparison_metrics[model_key].get(diff_metric, 0)
+                        value = comparison.comparison_metrics[model_key].get(diff_metric, 
+                            0)
                         print(f"{value:+.2f}%".ljust(20), end="")
                     print("")
 
                 print("")
                 print(
-                    "Note: For time metrics, lower values are better (negative % diff means faster)."
+                    "Note: For time metrics, 
+                        lower values are better (negative % diff means faster)."
                 )
                 print(
-                    "      For tokens / sec, higher values are better (negative % diff means slower)."
+                    "      For tokens / sec, 
+                        higher values are better (negative % diff means slower)."
                 )
 
             return 0
@@ -1516,7 +1580,8 @@ class PerformanceCommand(BaseCommand):
             VISUALIZATION_AVAILABLE = True
         except ImportError:
             logger.error(
-                "Visualization requires matplotlib and pandas. Install with: pip install matplotlib pandas"
+                "Visualization requires matplotlib and \
+                    pandas. Install with: pip install matplotlib pandas"
             )
             return 1
 
@@ -1630,7 +1695,8 @@ class PerformanceCommand(BaseCommand):
             )
 
             bound_type = "above" if is_upper_bound else "below"
-            logger.info(f"Set alert for {metric} {bound_type} {threshold} for model {model_id}")
+            logger.info(
+                f"Set alert for {metric} {bound_type} {threshold} for model {model_id}")
             print(f"Alert set: {model_id} - {metric} {bound_type} {threshold}")
 
             return 0
@@ -1693,7 +1759,8 @@ class PerformanceCommand(BaseCommand):
 
             # Show the result
             print(f"Input:  {input_text}")
-            print(f"Output: {output_text[:100]}..." if len(output_text) > 100 else output_text)
+            print(
+                f"Output: {output_text[:100]}..." if len(output_text) > 100 else output_text)
             print("")
 
             if self._get_arg("show_metrics"):

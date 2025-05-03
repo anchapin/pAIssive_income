@@ -153,7 +153,8 @@ def test_develop_solution(mock_developer_class):
         "market_segment": "e - commerce",
         "description": "A niche in e - commerce",
         "opportunity_score": 0.8,
-        "market_data": {"market_size": "medium", "growth_rate": "high", "competition": "low"},
+        "market_data": {"market_size": "medium", "growth_rate": "high", 
+            "competition": "low"},
         "problems": [
             {
                 "id": "problem1",

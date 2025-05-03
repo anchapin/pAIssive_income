@@ -18,7 +18,8 @@ WEBHOOK_DELIVERY_DURATION = Histogram(
 
 # Queue metrics
 WEBHOOK_QUEUE_SIZE = Gauge(
-    "webhook_queue_size", "Current number of webhooks waiting to be delivered", ["priority"]
+    "webhook_queue_size", "Current number of webhooks waiting to be delivered", 
+        ["priority"]
 )
 
 WEBHOOK_QUEUE_LATENCY = Histogram(
@@ -55,17 +56,20 @@ WEBHOOK_HEALTH = Gauge(
 
 # Rate limiting metrics
 WEBHOOK_RATE_LIMIT_REMAINING = Gauge(
-    "webhook_rate_limit_remaining", "Remaining rate limit for webhook endpoints", ["webhook_id"]
+    "webhook_rate_limit_remaining", "Remaining rate limit for webhook endpoints", 
+        ["webhook_id"]
 )
 
 
-def track_webhook_delivery(webhook_id: str, event_type: str, duration: float, status: str):
+def track_webhook_delivery(webhook_id: str, event_type: str, duration: float, 
+    status: str):
     """Track a webhook delivery attempt."""
     WEBHOOK_DELIVERIES_TOTAL.labels(
         webhook_id=webhook_id, event_type=event_type, status=status
     ).inc()
 
-    WEBHOOK_DELIVERY_DURATION.labels(webhook_id=webhook_id, event_type=event_type).observe(duration)
+    WEBHOOK_DELIVERY_DURATION.labels(webhook_id=webhook_id, 
+        event_type=event_type).observe(duration)
 
 
 def track_webhook_error(webhook_id: str, event_type: str, error_type: str):

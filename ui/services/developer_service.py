@@ -162,6 +162,7 @@ class DeveloperService(BaseService, IDeveloperService):
                     "id": str(uuid.uuid4()),
                     "name": f"Feature {i + 1}: {problem['name']} Solver",
                     "description": f"Solves {problem['name']} by using AI to analyze and process data",
+                        
                     "priority": "high" if problem["severity"] == "high" else "medium",
                     "status": "planned",
                 }
@@ -193,6 +194,7 @@ class DeveloperService(BaseService, IDeveloperService):
             "id": str(uuid.uuid4()),
             "name": f"{niche['name']} AI Assistant",
             "description": f"An AI - powered tool that helps with {niche['name'].lower()} tasks",
+                
             "niche_id": niche["id"],
             "features": features,
             "architecture": {
@@ -225,7 +227,8 @@ class DeveloperService(BaseService, IDeveloperService):
                         "name": "Beta",
                         "duration": "6 weeks",
                         "features": [
-                            feature["id"] for feature in features[2:5] if len(features) > 2
+                            feature["id"] for feature in features[2:5] if len(
+                                features) > 2
                         ],
                         "milestones": [
                             "Additional features implementation",
@@ -238,7 +241,8 @@ class DeveloperService(BaseService, IDeveloperService):
                         "name": "Release",
                         "duration": "4 weeks",
                         "features": [
-                            feature["id"] for feature in features[5:] if len(features) > 5
+                            feature["id"] for feature in features[5:] if len(
+                                features) > 5
                         ],
                         "milestones": [
                             "Final features implementation",

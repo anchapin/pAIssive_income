@@ -61,7 +61,8 @@ def test_metric_accuracy(metrics_api):
     metrics_api.monitor.save_enhanced_metrics(test_metrics)
 
     # Retrieve metrics
-    retrieved_metrics = metrics_api.monitor.metrics_db.get_metrics(model_id="test - model", limit=1)[
+    retrieved_metrics = metrics_api.monitor.metrics_db.get_metrics(model_id="test - model", 
+        limit=1)[
         0
     ]
 
@@ -315,7 +316,8 @@ def test_metric_collection_over_time(metrics_api):
     # Test time - based aggregation
     daily_reports = []
     for day in range(5):
-        day_start = (now - timedelta(days=day)).replace(hour=0, minute=0, second=0, microsecond=0)
+        day_start = (now - timedelta(days=day)).replace(hour=0, minute=0, second=0, 
+            microsecond=0)
         day_end = day_start + timedelta(days=1) - timedelta(microseconds=1)
 
         day_metrics = metrics_api.monitor.metrics_db.get_metrics(
@@ -351,8 +353,10 @@ def test_custom_metric_validation(metrics_api):
     class ValidatedMetrics(EnhancedInferenceMetrics):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
-            self.custom_metric1 = self._validate_metric1(kwargs.get("custom_metric1", 0))
-            self.custom_metric2 = self._validate_metric2(kwargs.get("custom_metric2", 0))
+            self.custom_metric1 = self._validate_metric1(kwargs.get("custom_metric1", 
+                0))
+            self.custom_metric2 = self._validate_metric2(kwargs.get("custom_metric2", 
+                0))
 
         def _validate_metric1(self, value):
             """Validate custom_metric1 is within acceptable range."""
@@ -407,14 +411,16 @@ def test_custom_metric_validation(metrics_api):
     # Test invalid metric1 value
     with pytest.raises(ValueError) as exc_info:
         ValidatedMetrics(
-            model_id="validated - model", latency_ms=100.0, custom_metric1=150  # Invalid: > 100
+            model_id="validated - model", latency_ms=100.0, 
+                custom_metric1=150  # Invalid: > 100
         )
     assert "custom_metric1 must be between 0 and 100" in str(exc_info.value)
 
     # Test invalid metric2 value
     with pytest.raises(ValueError) as exc_info:
         ValidatedMetrics(
-            model_id="validated - model", latency_ms=100.0, custom_metric2=1500  # Invalid: > 1000
+            model_id="validated - model", latency_ms=100.0, 
+                custom_metric2=1500  # Invalid: > 1000
         )
     assert "custom_metric2 must be between 0 and 1000" in str(exc_info.value)
 

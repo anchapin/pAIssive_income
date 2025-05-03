@@ -142,7 +142,8 @@ class TestRateLimitingAPI:
             responses = []
 
             for _ in range(5):
-                response = api_test_client.get(f"rate - limiting/{endpoint}", headers=headers)
+                response = api_test_client.get(f"rate - limiting/{endpoint}", 
+                    headers=headers)
                 responses.append(response)
 
             # Validate rate limits are tracked separately per IP
@@ -201,7 +202,8 @@ class TestRateLimitingAPI:
 
                 for response in successful_responses:
                     assert "X - Response - Time" in response.headers
-                    response_times.append(float(response.headers["X - Response - Time"]))
+                    response_times.append(float(response.headers["X - \
+                        Response - Time"]))
 
         # Validate graceful degradation
         # Response times should increase gradually, not exponentially
@@ -241,6 +243,7 @@ class TestRateLimitingAPI:
                     {
                         "daily": int(response.headers["X - Daily - Quota - Remaining"]),
                         "monthly": int(response.headers["X - Monthly - Quota - Remaining"]),
+                            
                     }
                 )
 

@@ -33,7 +33,8 @@ class BenchmarkCommand(BaseCommand):
         Args:
             parser: Argument parser
         """
-        parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
+        parser.add_argument("--model - path", type=str, required=True, 
+            help="Path to the model")
         parser.add_argument(
             "--model - type",
             type=str,
@@ -98,7 +99,8 @@ class BenchmarkCommand(BaseCommand):
             choices=["cpu", "cuda"],
             help="Device to use for benchmarking",
         )
-        parser.add_argument("--input - file", type=str, help="Path to input file for benchmarking")
+        parser.add_argument("--input - file", type=str, 
+            help="Path to input file for benchmarking")
         parser.add_argument(
             "--compare - models",
             type=str,
@@ -114,7 +116,8 @@ class BenchmarkCommand(BaseCommand):
             choices=["png", "pdf", "svg"],
             help="Format for benchmark plots",
         )
-        parser.add_argument("--config - file", type=str, help="Path to configuration file")
+        parser.add_argument("--config - file", type=str, 
+            help="Path to configuration file")
 
     def run(self) -> int:
         """
@@ -157,13 +160,15 @@ class BenchmarkCommand(BaseCommand):
                 "perplexity": BenchmarkType.PERPLEXITY,
                 "rouge": BenchmarkType.ROUGE,
             }
-            benchmark_type = benchmark_type_map.get(self.args.benchmark_type, BenchmarkType.LATENCY)
+            benchmark_type = benchmark_type_map.get(self.args.benchmark_type, 
+                BenchmarkType.LATENCY)
 
             # Check if we need to compare models
             if self.args.compare_models:
                 # Get list of models to compare
                 model_paths = [self.args.model_path]
-                model_paths.extend([path.strip() for path in self.args.compare_models.split(",")])
+                model_paths.extend([path.strip() for path in self.args.compare_models.split(",
+                    ")])
 
                 # Run comparison
                 logger.info(f"Comparing {len(model_paths)} models")
@@ -217,21 +222,28 @@ class BenchmarkCommand(BaseCommand):
 
                     if benchmark_type == BenchmarkType.LATENCY and result.latency_ms:
                         latency_stats = result.get_latency_stats()
-                        print(f"{i + 1}. {model_name}: {latency_stats.get('mean', 0):.2f} ms (mean)")
+                        print(f"{i + 1}. {model_name}: {latency_stats.get('mean', 
+                            0):.2f} ms (mean)")
 
-                    elif benchmark_type == BenchmarkType.THROUGHPUT and result.throughput:
-                        print(f"{i + 1}. {model_name}: {result.throughput:.2f} tokens / second")
+                    elif benchmark_type == \
+                        BenchmarkType.THROUGHPUT and result.throughput:
+                        print(f"{i + \
+                            1}. {model_name}: {result.throughput:.2f} tokens / second")
 
-                    elif benchmark_type == BenchmarkType.MEMORY and result.memory_usage_mb:
+                    elif benchmark_type == \
+                        BenchmarkType.MEMORY and result.memory_usage_mb:
                         print(
-                            f"{i + 1}. {model_name}: {result.memory_usage_mb.get('total_mb', 0):.2f} MB"
+                            f"{i + 1}. {model_name}: {result.memory_usage_mb.get('total_mb', 
+                                0):.2f} MB"
                         )
 
                     elif benchmark_type == BenchmarkType.ACCURACY and result.accuracy:
                         print(f"{i + 1}. {model_name}: {result.accuracy:.4f} accuracy")
 
-                    elif benchmark_type == BenchmarkType.PERPLEXITY and result.perplexity:
-                        print(f"{i + 1}. {model_name}: {result.perplexity:.4f} perplexity")
+                    elif benchmark_type == \
+                        BenchmarkType.PERPLEXITY and result.perplexity:
+                        print(f"{i + \
+                            1}. {model_name}: {result.perplexity:.4f} perplexity")
 
                     elif benchmark_type == BenchmarkType.ROUGE and result.rouge_scores:
                         rouge_l = result.rouge_scores.get("rougeL", 0)
@@ -242,6 +254,7 @@ class BenchmarkCommand(BaseCommand):
                     plot_path = os.path.join(
                         self.args.output_dir,
                         f"model_comparison_{self.args.benchmark_type}.{self.args.plot_format}",
+                            
                     )
                     plot_comparison(
                         results,
@@ -314,9 +327,11 @@ class BenchmarkCommand(BaseCommand):
 
                 elif benchmark_type == BenchmarkType.MEMORY and result.memory_usage_mb:
                     print("\nMemory Usage:")
-                    print(f"Tokenizer: {result.memory_usage_mb.get('tokenizer_mb', 0):.2f} MB")
+                    print(f"Tokenizer: {result.memory_usage_mb.get('tokenizer_mb', 
+                        0):.2f} MB")
                     print(f"Model: {result.memory_usage_mb.get('model_mb', 0):.2f} MB")
-                    print(f"Inference: {result.memory_usage_mb.get('inference_mb', 0):.2f} MB")
+                    print(f"Inference: {result.memory_usage_mb.get('inference_mb', 
+                        0):.2f} MB")
                     print(f"Total: {result.memory_usage_mb.get('total_mb', 0):.2f} MB")
 
                 elif benchmark_type == BenchmarkType.ACCURACY and result.accuracy:
@@ -338,6 +353,7 @@ class BenchmarkCommand(BaseCommand):
                     plot_path = os.path.join(
                         self.args.output_dir,
                         f"{os.path.basename(self.args.model_path)}_{self.args.benchmark_type}.{self.args.plot_format}",
+                            
                     )
                     plot_benchmark_results(result, output_path=plot_path, show=False)
                     logger.info(f"Benchmark plot saved to {plot_path}")
@@ -347,17 +363,23 @@ class BenchmarkCommand(BaseCommand):
                         dist_plot_path = os.path.join(
                             self.args.output_dir,
                             f"{os.path.basename(self.args.model_path)}_latency_dist.{self.args.plot_format}",
+                                
                         )
-                        plot_latency_distribution(result, output_path=dist_plot_path, show=False)
-                        logger.info(f"Latency distribution plot saved to {dist_plot_path}")
+                        plot_latency_distribution(result, output_path=dist_plot_path, 
+                            show=False)
+                        logger.info(
+                            f"Latency distribution plot saved to {dist_plot_path}")
 
                     elif benchmark_type == BenchmarkType.MEMORY:
                         memory_plot_path = os.path.join(
                             self.args.output_dir,
                             f"{os.path.basename(self.args.model_path)}_memory_breakdown.{self.args.plot_format}",
+                                
                         )
-                        plot_memory_usage(result, output_path=memory_plot_path, show=False)
-                        logger.info(f"Memory breakdown plot saved to {memory_plot_path}")
+                        plot_memory_usage(result, output_path=memory_plot_path, 
+                            show=False)
+                        logger.info(
+                            f"Memory breakdown plot saved to {memory_plot_path}")
 
             return 0
 

@@ -73,7 +73,8 @@ class MetricsDashboard:
 
         if missing_deps:
             logger.warning(
-                f"Missing packages for full dashboard functionality: {', '.join(missing_deps)}. "
+                f"Missing packages for full dashboard functionality: {', 
+                    '.join(missing_deps)}. "
                 f"Install with: pip install {' '.join(missing_deps)}"
             )
 
@@ -123,7 +124,8 @@ class MetricsDashboard:
         )
 
         if not metrics_data:
-            logger.warning(f"No metrics found for model {model_id} in the last {days} days")
+            logger.warning(
+                f"No metrics found for model {model_id} in the last {days} days")
             return ""
 
         # Generate report
@@ -221,7 +223,8 @@ class MetricsDashboard:
                 yaxis_title="Tokens",
                 barmode="stack",
             )
-            plots["token_usage_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
+            plots["token_usage_plot"] = fig.to_html(full_html=False, 
+                include_plotlyjs=False)
 
         # 3. Cost over time
         if include_cost and len(token_df) > 0 and token_df["total_cost"].sum() > 0:
@@ -273,7 +276,8 @@ class MetricsDashboard:
                 labels={"cumulative_cost": "Cumulative Cost (USD)", "date": "Date"},
                 color_discrete_sequence=["green"],
             )
-            plots["cumulative_cost_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
+            plots["cumulative_cost_plot"] = fig.to_html(full_html=False, 
+                include_plotlyjs=False)
 
         # 4. Inference time distributions
         if "total_time" in df.columns and not df["total_time"].isnull().all():
@@ -284,17 +288,20 @@ class MetricsDashboard:
                 labels={"total_time": "Inference Time (s)"},
                 color_discrete_sequence=["purple"],
             )
-            plots["inference_time_hist"] = fig.to_html(full_html=False, include_plotlyjs=False)
+            plots["inference_time_hist"] = fig.to_html(full_html=False, 
+                include_plotlyjs=False)
 
         # 5. Error rate over time
         if include_errors and "error_occurred" in df.columns:
             # Group by date and calculate error rate
             df["date"] = df["timestamp"].dt.date
             daily_errors = (
-                df.groupby("date").agg({"error_occurred": "sum", "model_id": "count"}).reset_index()
+                df.groupby("date").agg({"error_occurred": "sum", 
+                    "model_id": "count"}).reset_index()
             )
             daily_errors["date"] = pd.to_datetime(daily_errors["date"])
-            daily_errors["error_rate"] = daily_errors["error_occurred"] / daily_errors["model_id"]
+            daily_errors["error_rate"] = daily_errors["error_occurred"] / \
+                daily_errors["model_id"]
 
             if (
                 not daily_errors["error_occurred"].isnull().all()
@@ -308,7 +315,8 @@ class MetricsDashboard:
                     labels={"error_rate": "Error Rate", "date": "Date"},
                     color_discrete_sequence=["red"],
                 )
-                plots["error_rate_plot"] = fig.to_html(full_html=False, include_plotlyjs=False)
+                plots["error_rate_plot"] = fig.to_html(full_html=False, 
+                    include_plotlyjs=False)
 
         # Generate HTML dashboard using Jinja2
         env = jinja2.Environment(loader=jinja2.FileSystemLoader("."), autoescape=True)
@@ -320,7 +328,8 @@ class MetricsDashboard:
         <head>
             <title>{{ model_id }} - Performance Dashboard</title>
             <script src="https://cdn.plot.ly / plotly - latest.min.js"></script>
-            <link href="https://cdn.jsdelivr.net / npm / bootstrap @ 5.1.3 / dist / css / bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.jsdelivr.net / \
+                npm / bootstrap @ 5.1.3 / dist / css / bootstrap.min.css" rel="stylesheet">
             <style>
                 body { padding: 20px; }
                 .card { margin - bottom: 20px; }
@@ -331,16 +340,20 @@ class MetricsDashboard:
         <body>
             <div class="container">
                 <h1>{{ model_id }} - Performance Dashboard</h1>
-                <p class="text - muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
+                <p class="text - \
+                    muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
 
                 <div class="row">
                     <div class="col - md - 4">
                         <div class="card summary - card">
                             <div class="card - body">
                                 <h5 class="card - title">Usage Summary</h5>
-                                <p class="card - text">Inferences: {{ report.num_inferences }}</p>
-                                <p class="card - text">Total Tokens: {{ total_tokens }}</p>
-                                <p class="card - text">Avg. Latency: {{ "%.2f"|format(report.avg_latency_ms) }} ms</p>
+                                <p class="card - \
+                                    text">Inferences: {{ report.num_inferences }}</p>
+                                <p class="card - \
+                                    text">Total Tokens: {{ total_tokens }}</p>
+                                <p class="card - \
+                                    text">Avg. Latency: {{ "%.2f"|format(report.avg_latency_ms) }} ms</p>
                             </div>
                         </div>
                     </div>
@@ -348,9 +361,12 @@ class MetricsDashboard:
                         <div class="card summary - card">
                             <div class="card - body">
                                 <h5 class="card - title">Cost Summary</h5>
-                                <p class="card - text">Total Cost: ${{ "%.2f"|format(total_cost) }}</p>
-                                <p class="card - text">Average Cost: ${{ "%.4f"|format(avg_cost_per_inference) }}</p>
-                                <p class="card - text">Cost per 1K Tokens: ${{ "%.4f"|format(report.cost_per_1k_tokens or 0) }}</p>
+                                <p class="card - \
+                                    text">Total Cost: ${{ "%.2f"|format(total_cost) }}</p>
+                                <p class="card - \
+                                    text">Average Cost: ${{ "%.4f"|format(avg_cost_per_inference) }}</p>
+                                <p class="card - \
+                                    text">Cost per 1K Tokens: ${{ "%.4f"|format(report.cost_per_1k_tokens or 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -358,9 +374,12 @@ class MetricsDashboard:
                         <div class="card summary - card">
                             <div class="card - body">
                                 <h5 class="card - title">Performance Summary</h5>
-                                <p class="card - text">Avg. Inference Time: {{ "%.2f"|format(report.avg_inference_time) }} s</p>
-                                <p class="card - text">Tokens per Second: {{ "%.2f"|format(report.avg_tokens_per_second) }}</p>
-                                <p class="card - text">Error Rate: {{ "%.2f"|format(error_rate * 100) }}%</p>
+                                <p class="card - \
+                                    text">Avg. Inference Time: {{ "%.2f"|format(report.avg_inference_time) }} s</p>
+                                <p class="card - \
+                                    text">Tokens per Second: {{ "%.2f"|format(report.avg_tokens_per_second) }}</p>
+                                <p class="card - \
+                                    text">Error Rate: {{ "%.2f"|format(error_rate * 100) }}%</p>
                             </div>
                         </div>
                     </div>
@@ -578,7 +597,8 @@ class MetricsDashboard:
                             {
                                 "model": model_name,
                                 "value": model_data[metric],
-                                "percent_diff": model_data.get(f"{metric}_percent_diff", 0),
+                                "percent_diff": model_data.get(f"{metric}_percent_diff", 
+                                    0),
                             }
                         )
 
@@ -592,7 +612,8 @@ class MetricsDashboard:
                     labels={"value": title, "model": "Model"},
                     color="model",
                 )
-                plots[f"{metric}_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
+                plots[f"{metric}_comparison"] = fig.to_html(full_html=False, 
+                    include_plotlyjs=False)
 
         # 2. Cost comparison if available
         cost_data = []
@@ -611,6 +632,7 @@ class MetricsDashboard:
                             "prompt_cost": report.total_prompt_cost,
                             "completion_cost": report.total_completion_cost,
                             "total_cost": report.total_prompt_cost + report.total_completion_cost,
+                                
                         }
                     )
 
@@ -624,7 +646,8 @@ class MetricsDashboard:
                 labels={"value": "Cost ($)", "model": "Model", "variable": "Cost Type"},
                 barmode="stack",
             )
-            plots["cost_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
+            plots["cost_comparison"] = fig.to_html(full_html=False, 
+                include_plotlyjs=False)
 
         # 3. Token usage comparison
         token_data = []
@@ -657,7 +680,8 @@ class MetricsDashboard:
                 labels={"value": "Tokens", "model": "Model", "variable": "Token Type"},
                 barmode="stack",
             )
-            plots["token_comparison"] = fig.to_html(full_html=False, include_plotlyjs=False)
+            plots["token_comparison"] = fig.to_html(full_html=False, 
+                include_plotlyjs=False)
 
         # Generate HTML dashboard using Jinja2
         env = jinja2.Environment(loader=jinja2.FileSystemLoader("."), autoescape=True)
@@ -669,7 +693,8 @@ class MetricsDashboard:
         <head>
             <title>Model Comparison Dashboard</title>
             <script src="https://cdn.plot.ly / plotly - latest.min.js"></script>
-            <link href="https://cdn.jsdelivr.net / npm / bootstrap @ 5.1.3 / dist / css / bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.jsdelivr.net / \
+                npm / bootstrap @ 5.1.3 / dist / css / bootstrap.min.css" rel="stylesheet">
             <style>
                 body { padding: 20px; }
                 .card { margin - bottom: 20px; }
@@ -680,7 +705,8 @@ class MetricsDashboard:
         <body>
             <div class="container">
                 <h1>Model Performance Comparison</h1>
-                <p class="text - muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
+                <p class="text - \
+                    muted">Report generated on {{ generation_time }} | Data range: {{ start_date }} to {{ end_date }}</p>
 
                 <div class="row">
                     <div class="col - md - 12">
@@ -689,7 +715,8 @@ class MetricsDashboard:
                                 <h5 class="card - title">Models Included</h5>
                                 <ul class="list - group">
                                     {% for model_id, model_name in models %}
-                                    <li class="list - group - item">{{ model_name }} ({{ model_id }})</li>
+                                    <li class="list - \
+                                        group - item">{{ model_name }} ({{ model_id }})</li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -777,7 +804,8 @@ class MetricsDashboard:
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for metric_name, metric_label in metrics_list.items() %}
+                                    {% for metric_name, 
+                                        metric_label in metrics_list.items() %}
                                     <tr>
                                         <td>{{ metric_label }}</td>
                                         {% for model_id, _ in models %}
@@ -806,7 +834,8 @@ class MetricsDashboard:
         # Prepare model names
         models_list = []
         for idx, model_id in enumerate(model_ids):
-            model_name = model_names[idx] if model_names and idx < len(model_names) else model_id
+            model_name = \
+                model_names[idx] if model_names and idx < len(model_names) else model_id
             models_list.append((model_id, model_name))
 
         # Prepare metrics list

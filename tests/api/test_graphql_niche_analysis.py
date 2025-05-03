@@ -10,7 +10,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import generate_id, generate_niche_analysis_data, generate_niche_data
+from tests.api.utils.test_data import generate_id, generate_niche_analysis_data, 
+    generate_niche_data
 from tests.api.utils.test_validators import (
     validate_field_equals,
     validate_field_exists,
@@ -108,7 +109,8 @@ class TestNicheAnalysisGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -316,7 +318,8 @@ class TestNicheAnalysisGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -339,7 +342,8 @@ class TestNicheAnalysisGraphQLAPI:
                 validate_field_exists(niche, "growthRate")
                 validate_field_equals(niche, "growthRate", test_data["growth_rate"])
                 validate_field_exists(niche, "competitionLevel")
-                validate_field_equals(niche, "competitionLevel", test_data["competition_level"])
+                validate_field_equals(niche, "competitionLevel", 
+                    test_data["competition_level"])
                 validate_field_exists(niche, "createdAt")
                 validate_field_exists(niche, "updatedAt")
 
@@ -378,7 +382,8 @@ class TestNicheAnalysisGraphQLAPI:
         }
 
         # Make request
-        response = api_test_client.post("graphql", json={"query": mutation, "variables": variables})
+        response = api_test_client.post("graphql", json={"query": mutation, 
+            "variables": variables})
 
         # Validate response structure
         result = validate_json_response(response)
@@ -403,7 +408,8 @@ class TestNicheAnalysisGraphQLAPI:
                 validate_field_exists(niche, "growthRate")
                 validate_field_equals(niche, "growthRate", test_data["growth_rate"])
                 validate_field_exists(niche, "competitionLevel")
-                validate_field_equals(niche, "competitionLevel", test_data["competition_level"])
+                validate_field_equals(niche, "competitionLevel", 
+                    test_data["competition_level"])
                 validate_field_exists(niche, "createdAt")
                 validate_field_exists(niche, "updatedAt")
 

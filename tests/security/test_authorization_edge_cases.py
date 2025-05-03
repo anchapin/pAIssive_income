@@ -38,7 +38,8 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         self.auth_middleware.permission_service = self.permission_service
 
         # Set up role hierarchy
-        self.role_hierarchy = {"admin": ["manager", "user"], "manager": ["user"], "user": []}
+        self.role_hierarchy = {"admin": ["manager", "user"], "manager": ["user"], 
+            "user": []}
 
         # Set up role permissions
         self.role_permissions = {
@@ -49,7 +50,8 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
 
         # Mock permission methods
         self.permission_service.get_role_hierarchy.return_value = self.role_hierarchy
-        self.permission_service.get_role_permissions.side_effect = self._get_role_permissions
+        self.permission_service.get_role_permissions.side_effect = \
+            self._get_role_permissions
         self.permission_service.has_permission.side_effect = self._has_permission
 
     def _get_role_permissions(self, role: str) -> Set[str]:
@@ -98,7 +100,8 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         new_payload = self.auth_middleware.verify_token(new_token)
         self.assertTrue(self.permission_service.has_permission(new_payload, "read"))
         self.assertTrue(self.permission_service.has_permission(new_payload, "write"))
-        self.assertTrue(self.permission_service.has_permission(new_payload, "manage_team"))
+        self.assertTrue(self.permission_service.has_permission(new_payload, 
+            "manage_team"))
 
     def test_role_transition_with_active_sessions(self):
         """Test role transition with active sessions."""
@@ -135,13 +138,15 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         user_data = mock_verify_token("token1")
         self.assertTrue(self.permission_service.has_permission(user_data, "read"))
         self.assertFalse(self.permission_service.has_permission(user_data, "write"))
-        self.assertFalse(self.permission_service.has_permission(user_data, "manage_team"))
+        self.assertFalse(self.permission_service.has_permission(user_data, 
+            "manage_team"))
 
         # Check access with manager role (token2)
         manager_data = mock_verify_token("token2")
         self.assertTrue(self.permission_service.has_permission(manager_data, "read"))
         self.assertTrue(self.permission_service.has_permission(manager_data, "write"))
-        self.assertTrue(self.permission_service.has_permission(manager_data, "manage_team"))
+        self.assertTrue(self.permission_service.has_permission(manager_data, 
+            "manage_team"))
 
     def test_resource_access_during_role_transition(self):
         """Test resource access during role transition process."""
@@ -207,7 +212,8 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         # Should now have new role permissions
         self.assertTrue(self.permission_service.has_permission(user_data, "read"))
         self.assertTrue(self.permission_service.has_permission(user_data, "write"))
-        self.assertTrue(self.permission_service.has_permission(user_data, "manage_team"))
+        self.assertTrue(self.permission_service.has_permission(user_data, 
+            "manage_team"))
 
     def test_inherited_permissions_basic(self):
         """Test basic inherited permissions scenario."""
@@ -254,7 +260,8 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
     def test_inherited_permissions_with_overrides(self):
         """Test inherited permissions with overrides."""
         # Create custom role hierarchy with overrides
-        custom_hierarchy = {"admin": ["manager", "user"], "manager": ["user"], "user": []}
+        custom_hierarchy = {"admin": ["manager", "user"], "manager": ["user"], 
+            "user": []}
 
         # Create custom permissions with overrides
         custom_permissions = {
@@ -338,6 +345,7 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
                     self.assertTrue(
                         self.permission_service.has_permission(user_data, permission),
                         f"User with role '{role}' should have permission '{permission}' from role '{test_role}'",
+                            
                     )
 
             # User should not have permissions from roles above them
@@ -347,6 +355,7 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
                     self.assertFalse(
                         self.permission_service.has_permission(user_data, permission),
                         f"User with role '{role}' should not have permission '{permission}' from role '{test_role}'",
+                            
                     )
 
     def test_temporary_permission_elevation_basic(self):
@@ -365,15 +374,19 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         # Elevate permissions temporarily
         elevated_data = dict(payload)
         elevated_data["permissions"] = ["write", "temporary_admin"]
-        elevated_data["elevated_until"] = (datetime.now() + timedelta(minutes=30)).isoformat()
+        elevated_data["elevated_until"] = (datetime.now() + \
+            timedelta(minutes=30)).isoformat()
 
         elevated_token = self.auth_middleware.create_token(elevated_data)
         elevated_payload = self.auth_middleware.verify_token(elevated_token)
 
         # Verify elevated permissions
-        self.assertTrue(self.permission_service.has_permission(elevated_payload, "read"))
-        self.assertTrue(self.permission_service.has_permission(elevated_payload, "write"))
-        self.assertTrue(self.permission_service.has_permission(elevated_payload, "temporary_admin"))
+        self.assertTrue(self.permission_service.has_permission(elevated_payload, 
+            "read"))
+        self.assertTrue(self.permission_service.has_permission(elevated_payload, 
+            "write"))
+        self.assertTrue(self.permission_service.has_permission(elevated_payload, 
+            "temporary_admin"))
 
     def test_temporary_permission_elevation_expiry(self):
         """Test expiration of temporary elevated permissions."""
@@ -407,8 +420,10 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         }
 
         # Verify elevated permissions are active
-        self.assertTrue(self.permission_service.has_permission(user_data, "read"))  # from role
-        self.assertTrue(self.permission_service.has_permission(user_data, "write"))  # elevated
+        self.assertTrue(self.permission_service.has_permission(user_data, 
+            "read"))  # from role
+        self.assertTrue(self.permission_service.has_permission(user_data, 
+            "write"))  # elevated
         self.assertTrue(
             self.permission_service.has_permission(user_data, "temporary_admin")
         )  # elevated
@@ -420,7 +435,8 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         self.assertTrue(
             self.permission_service.has_permission(user_data, "read")
         )  # still from role
-        self.assertFalse(self.permission_service.has_permission(user_data, "write"))  # expired
+        self.assertFalse(self.permission_service.has_permission(user_data, 
+            "write"))  # expired
         self.assertFalse(
             self.permission_service.has_permission(user_data, "temporary_admin")
         )  # expired
@@ -491,8 +507,10 @@ class TestAuthorizationEdgeCases(unittest.TestCase):
         elevated_data["elevation_approved_by"] = approved_request["approved_by"]
 
         # Verify elevated permissions
-        self.assertTrue(self.permission_service.has_permission(elevated_data, "read"))  # from role
-        self.assertTrue(self.permission_service.has_permission(elevated_data, "write"))  # elevated
+        self.assertTrue(self.permission_service.has_permission(elevated_data, 
+            "read"))  # from role
+        self.assertTrue(self.permission_service.has_permission(elevated_data, 
+            "write"))  # elevated
         self.assertTrue(
             self.permission_service.has_permission(elevated_data, "temporary_admin")
         )  # elevated

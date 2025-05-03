@@ -56,7 +56,8 @@ class PinterestAdapter(BaseSocialMediaAdapter):
         # Set up authentication if access token is provided
         if self.access_token:
             self.session.headers.update(
-                {"Authorization": f"Bearer {self.access_token}", "Content - Type": "application / json"}
+                {"Authorization": f"Bearer {self.access_token}", 
+                    "Content - Type": "application / json"}
             )
             self._connected = True
 
@@ -106,7 +107,8 @@ class PinterestAdapter(BaseSocialMediaAdapter):
 
                 # Update the access token
                 self.access_token = token_response["access_token"]
-                self.refresh_token = token_response.get("refresh_token", self.refresh_token)
+                self.refresh_token = token_response.get("refresh_token", 
+                    self.refresh_token)
                 self.session.headers.update(
                     {
                         "Authorization": f"Bearer {self.access_token}",
@@ -138,6 +140,7 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 raise AuthenticationError(
                     "pinterest",
                     "Missing required credentials (access_token or refresh_token with client_id and client_secret)",
+                        
                 )
 
         except requests.exceptions.RequestException as e:
@@ -159,57 +162,67 @@ class PinterestAdapter(BaseSocialMediaAdapter):
         """
         # Check if we have a pin
         if "pin" not in content:
-            raise ContentValidationError("pinterest", "Pin data is required for Pinterest posts")
+            raise ContentValidationError("pinterest", 
+                "Pin data is required for Pinterest posts")
 
         pin = content["pin"]
 
         # Check if we have a title
         if "title" not in pin:
-            raise ContentValidationError("pinterest", "Title is required for Pinterest pins")
+            raise ContentValidationError("pinterest", 
+                "Title is required for Pinterest pins")
 
         # Check title length (Pinterest's limit is 100 characters)
         if len(pin["title"]) > 100:
             raise ContentValidationError(
-                "pinterest", f"Title exceeds 100 characters (current: {len(pin['title'])})"
+                "pinterest", 
+                    f"Title exceeds 100 characters (current: {len(pin['title'])})"
             )
 
         # Check if we have a description
         if "description" not in pin:
-            raise ContentValidationError("pinterest", "Description is required for Pinterest pins")
+            raise ContentValidationError("pinterest", 
+                "Description is required for Pinterest pins")
 
         # Check description length (Pinterest's limit is 500 characters)
         if len(pin["description"]) > 500:
             raise ContentValidationError(
                 "pinterest",
                 f"Description exceeds 500 characters (current: {len(pin['description'])})",
+                    
             )
 
         # Check if we have a board ID or name
         if "board_id" not in pin and "board_name" not in pin:
             raise ContentValidationError(
-                "pinterest", "Either board_id or board_name is required for Pinterest pins"
+                "pinterest", 
+                    "Either board_id or board_name is required for Pinterest pins"
             )
 
         # Check if we have media
         if "media" not in pin:
-            raise ContentValidationError("pinterest", "Media is required for Pinterest pins")
+            raise ContentValidationError("pinterest", 
+                "Media is required for Pinterest pins")
 
         # Check media source
         if "source_type" not in pin["media"]:
             raise ContentValidationError(
-                "pinterest", "Media source_type is required (image_url, image_base64, video_url)"
+                "pinterest", "Media source_type is required (image_url, image_base64, 
+                    video_url)"
             )
 
         source_type = pin["media"]["source_type"]
         if source_type not in ["image_url", "image_base64", "video_url"]:
             raise ContentValidationError(
                 "pinterest",
-                f"Invalid media source_type: {source_type}. Allowed values: image_url, image_base64, video_url",
+                f"Invalid media source_type: {source_type}. Allowed values: image_url, 
+                    image_base64, video_url",
             )
 
         # Check media source data
         if source_type == "image_url" and "url" not in pin["media"]:
-            raise ContentValidationError("pinterest", "URL is required for image_url source type")
+            raise ContentValidationError("pinterest", 
+                "URL is required for image_url source type")
 
         if source_type == "image_base64" and "base64" not in pin["media"]:
             raise ContentValidationError(
@@ -217,11 +230,13 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             )
 
         if source_type == "video_url" and "url" not in pin["media"]:
-            raise ContentValidationError("pinterest", "URL is required for video_url source type")
+            raise ContentValidationError("pinterest", 
+                "URL is required for video_url source type")
 
         # Check link if present
         if "link" in pin and not pin["link"].startswith(("http://", "https://")):
-            raise ContentValidationError("pinterest", "Link must start with http:// or https://")
+            raise ContentValidationError("pinterest", 
+                "Link must start with http:// or https://")
 
         return True
 
@@ -252,7 +267,8 @@ class PinterestAdapter(BaseSocialMediaAdapter):
         try:
             # Check if we have an access token (required for posting)
             if not self.access_token:
-                raise PostingError("pinterest", "Access token is required for posting pins")
+                raise PostingError("pinterest", 
+                    "Access token is required for posting pins")
 
             pin_data = content["pin"]
 
@@ -281,7 +297,8 @@ class PinterestAdapter(BaseSocialMediaAdapter):
             source_type = media["source_type"]
 
             if source_type == "image_url":
-                create_pin_data["media_source"] = {"source_type": "image_url", "url": media["url"]}
+                create_pin_data["media_source"] = {"source_type": "image_url", 
+                    "url": media["url"]}
             elif source_type == "image_base64":
                 create_pin_data["media_source"] = {
                     "source_type": "image_base64",
@@ -296,7 +313,8 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                 }
 
             # Create the pin
-            response = self.session.post(f"{self.api_base_url}/pins", json=create_pin_data)
+            response = self.session.post(f"{self.api_base_url}/pins", 
+                json=create_pin_data)
             response.raise_for_status()
             result = response.json()
 
@@ -332,7 +350,8 @@ class PinterestAdapter(BaseSocialMediaAdapter):
         """
         try:
             # List all boards
-            response = self.session.get(f"{self.api_base_url}/boards", params={"page_size": 100})
+            response = self.session.get(f"{self.api_base_url}/boards", 
+                params={"page_size": 100})
             response.raise_for_status()
             boards = response.json().get("items", [])
 
@@ -342,7 +361,8 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                     return board["id"]
 
             # If not found, create a new board
-            response = self.session.post(f"{self.api_base_url}/boards", json={"name": board_name})
+            response = self.session.post(f"{self.api_base_url}/boards", 
+                json={"name": board_name})
             response.raise_for_status()
             new_board = response.json()
 
@@ -384,14 +404,16 @@ class PinterestAdapter(BaseSocialMediaAdapter):
         try:
             # Check if we have an access token (required for posting)
             if not self.access_token:
-                raise SchedulingError("pinterest", "Access token is required for scheduling pins")
+                raise SchedulingError("pinterest", 
+                    "Access token is required for scheduling pins")
 
             # Note: Pinterest API v5 doesn't directly support scheduling pins
             # In a real implementation, we would use a third - party service or
             # store the pin locally and post it at the scheduled time
 
             # For demonstration, we'll return a mock scheduled pin
-            scheduled_id = f"pinterest_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
+            scheduled_id = \
+                f"pinterest_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": scheduled_id,
@@ -605,7 +627,8 @@ class PinterestAdapter(BaseSocialMediaAdapter):
         return formatted_data
 
     def get_audience_insights(
-        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, Any]] = None
+        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Get audience insights from Pinterest.
@@ -658,10 +681,14 @@ class PinterestAdapter(BaseSocialMediaAdapter):
                         "Other": 0.23,
                     },
                     "cities": [
-                        {"name": "New York", "country": "United States", "percentage": 0.08},
-                        {"name": "Los Angeles", "country": "United States", "percentage": 0.06},
-                        {"name": "London", "country": "United Kingdom", "percentage": 0.05},
-                        {"name": "Chicago", "country": "United States", "percentage": 0.04},
+                        {"name": "New York", "country": "United States", 
+                            "percentage": 0.08},
+                        {"name": "Los Angeles", "country": "United States", 
+                            "percentage": 0.06},
+                        {"name": "London", "country": "United Kingdom", 
+                            "percentage": 0.05},
+                        {"name": "Chicago", "country": "United States", 
+                            "percentage": 0.04},
                         {"name": "Toronto", "country": "Canada", "percentage": 0.03},
                     ],
                 },
@@ -686,4 +713,5 @@ class PinterestAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"Pinterest audience insights error: {e}")
-            return {"error": str(e), "user_id": self.user_id, "segment": segment or "all_audience"}
+            return {"error": str(e), "user_id": self.user_id, 
+                "segment": segment or "all_audience"}

@@ -1,7 +1,8 @@
 """
 Integration tests for webhook security features.
 
-This module tests the integration between webhook security features and the webhook service.
+This module tests the integration between webhook security features and \
+    the webhook service.
 """
 
 import asyncio
@@ -15,7 +16,8 @@ import pytest
 from fastapi import FastAPI, Request, Response
 from fastapi.testclient import TestClient
 
-from api.middleware.webhook_security import WebhookIPAllowlistMiddleware, WebhookRateLimitMiddleware
+from api.middleware.webhook_security import WebhookIPAllowlistMiddleware, 
+    WebhookRateLimitMiddleware
 from api.schemas.webhook import WebhookDeliveryStatus, WebhookEventType
 from api.services.webhook_security import (
     WebhookIPAllowlist,
@@ -79,10 +81,12 @@ def app(webhook_service, ip_allowlist, rate_limiter):
 
     # Add middleware
     app.add_middleware(
-        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix=" / webhooks"
+        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, 
+            webhook_path_prefix=" / webhooks"
     )
     app.add_middleware(
-        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
+        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, 
+            webhook_path_prefix=" / webhooks"
     )
 
     # Add test routes
@@ -171,7 +175,8 @@ class TestWebhookSecurityIntegration:
         }
 
         # Mock the register_webhook method to return a test webhook
-        with patch.object(webhook_service, "register_webhook", return_value=TEST_WEBHOOK):
+        with patch.object(webhook_service, "register_webhook", 
+            return_value=TEST_WEBHOOK):
             webhook = asyncio.run(webhook_service.register_webhook(webhook_data))
 
         # Create a payload
@@ -185,13 +190,16 @@ class TestWebhookSecurityIntegration:
         )
 
         # Create a signature
-        signature = WebhookSignatureVerifier.create_signature(webhook["secret"], payload)
+        signature = WebhookSignatureVerifier.create_signature(webhook["secret"], 
+            payload)
 
         # Verify the signature
-        assert WebhookSignatureVerifier.verify_signature(webhook["secret"], payload, signature)
+        assert WebhookSignatureVerifier.verify_signature(webhook["secret"], payload, 
+            signature)
 
         # Verify with headers
-        headers = {"Content - Type": "application / json", "X - Webhook - Signature": signature}
+        headers = {"Content - Type": "application / json", 
+            "X - Webhook - Signature": signature}
         assert WebhookSignatureVerifier.verify_request_signature(
             webhook["secret"], payload, headers
         )
@@ -225,7 +233,8 @@ class TestWebhookSecurityIntegration:
         # Patch the httpx.AsyncClient.post method
         with patch("httpx.AsyncClient.post", mock_post):
             # Patch the get_webhook method to return our test webhook
-            with patch.object(webhook_service, "get_webhook", return_value=TEST_WEBHOOK):
+            with patch.object(webhook_service, "get_webhook", 
+                return_value=TEST_WEBHOOK):
                 # Deliver an event
                 delivery = asyncio.run(
                     webhook_service.deliver_event(
@@ -238,7 +247,8 @@ class TestWebhookSecurityIntegration:
                 # Check delivery status
                 assert delivery["status"] == WebhookDeliveryStatus.SUCCESS
                 assert len(delivery["attempts"]) == 1
-                assert delivery["attempts"][0]["status"] == WebhookDeliveryStatus.SUCCESS
+                assert delivery["attempts"][0]["status"] == \
+                    WebhookDeliveryStatus.SUCCESS
 
     def test_end_to_end_webhook_flow(self, webhook_service, ip_allowlist, rate_limiter):
         """Test the end - to - end webhook flow with security features."""
@@ -256,7 +266,8 @@ class TestWebhookSecurityIntegration:
 
             # Store the received webhook
             received_webhooks.append(
-                {"payload": payload, "signature": signature, "headers": dict(request.headers)}
+                {"payload": payload, "signature": signature, 
+                    "headers": dict(request.headers)}
             )
 
             return {"status": "success"}
@@ -266,6 +277,7 @@ class TestWebhookSecurityIntegration:
             # Create a webhook pointing to the receiver
             webhook_data = {
                 "url": f"http://{receiver_client.base_url.host}:{receiver_client.base_url.port}/webhook",
+                    
                 "events": [WebhookEventType.USER_CREATED],
                 "description": "Test webhook",
                 "headers": {"Authorization": "Bearer test - token"},
@@ -273,14 +285,16 @@ class TestWebhookSecurityIntegration:
             }
 
             # Register the webhook
-            with patch.object(webhook_service, "register_webhook", return_value=TEST_WEBHOOK):
+            with patch.object(webhook_service, "register_webhook", 
+                return_value=TEST_WEBHOOK):
                 webhook = asyncio.run(webhook_service.register_webhook(webhook_data))
 
             # Allow the receiver's IP
             ip_allowlist.add_ip(receiver_client.base_url.host)
 
             # Deliver an event
-            with patch.object(webhook_service, "get_webhook", return_value=TEST_WEBHOOK):
+            with patch.object(webhook_service, "get_webhook", 
+                return_value=TEST_WEBHOOK):
                 # Use the real httpx.AsyncClient.post to make an actual HTTP request
                 delivery = asyncio.run(
                     webhook_service.deliver_event(

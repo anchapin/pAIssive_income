@@ -46,7 +46,8 @@ async def test_webhook_connection_error():
     # Patch the get_webhook method to return our test webhook
     with patch.object(service, "get_webhook", return_value=TEST_WEBHOOK):
         # Patch httpx.AsyncClient.post to raise a connection error
-        with patch("httpx.AsyncClient.post", side_effect=httpx.ConnectError("Connection refused")):
+        with patch("httpx.AsyncClient.post", 
+            side_effect=httpx.ConnectError("Connection refused")):
             # Deliver an event
             delivery = await service.deliver_event(
                 webhook_id=TEST_WEBHOOK_ID,
@@ -74,7 +75,8 @@ async def test_webhook_timeout_error():
     with patch.object(service, "get_webhook", return_value=TEST_WEBHOOK):
         # Patch httpx.AsyncClient.post to raise a timeout error
         with patch(
-            "httpx.AsyncClient.post", side_effect=httpx.TimeoutException("Request timed out")
+            "httpx.AsyncClient.post", 
+                side_effect=httpx.TimeoutException("Request timed out")
         ):
             # Deliver an event
             delivery = await service.deliver_event(
@@ -189,7 +191,8 @@ async def test_webhook_event_not_subscribed():
         with pytest.raises(ValueError) as excinfo:
             await service.deliver_event(
                 webhook_id=TEST_WEBHOOK_ID,
-                event_type=WebhookEventType.USER_CREATED,  # Not subscribed to this event
+                event_type=WebhookEventType.USER_CREATED,  
+                    # Not subscribed to this event
                 event_data=TEST_EVENT["data"],
             )
 

@@ -2,7 +2,9 @@
 Tests for payment gateway integration.
 
 This module tests the payment gateway integration functionality in the monetization module,
-including payment processing, subscription lifecycle, refund handling, and error scenarios.
+    
+including payment processing, subscription lifecycle, refund handling, 
+    and error scenarios.
 """
 
 import os
@@ -102,7 +104,8 @@ class TestPaymentGatewayIntegration(unittest.TestCase):
         self.assertEqual(transaction.status, TransactionStatus.PENDING)
 
         # Process the transaction
-        processed_transaction = self.transaction_manager.process_transaction(transaction.id)
+        processed_transaction = \
+            self.transaction_manager.process_transaction(transaction.id)
 
         # Verify processed transaction
         self.assertEqual(processed_transaction.status, TransactionStatus.COMPLETED)
@@ -275,9 +278,11 @@ class TestPaymentGatewayIntegration(unittest.TestCase):
         self.assertFalse(retry_result)  # Should return False for failed retry
 
         # Verify transaction status after retry
-        retried_transaction = failing_transaction_manager.get_transaction(transaction.id)
+        retried_transaction = \
+            failing_transaction_manager.get_transaction(transaction.id)
         self.assertEqual(retried_transaction.status, TransactionStatus.FAILED)
-        self.assertEqual(retried_transaction.retry_count, 4)  # Should have tried 4 times total
+        self.assertEqual(retried_transaction.retry_count, 
+            4)  # Should have tried 4 times total
 
         # Now test with a processor that succeeds on retry
         retry_processor = MockPaymentProcessor(
@@ -334,7 +339,8 @@ class TestPaymentGatewayIntegration(unittest.TestCase):
         self.assertTrue(retry_result)  # Should return True for successful retry
 
         # Verify transaction status after successful retry
-        successful_transaction = retry_transaction_manager.get_transaction(retry_transaction.id)
+        successful_transaction = \
+            retry_transaction_manager.get_transaction(retry_transaction.id)
         self.assertEqual(successful_transaction.status, TransactionStatus.COMPLETED)
 
 

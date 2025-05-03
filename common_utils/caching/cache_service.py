@@ -14,7 +14,8 @@ from typing import Any, Callable, Dict, Optional, Tuple, TypeVar
 
 # Import the caching system from AI models module
 from ai_models.caching import CacheConfig, CacheManager
-from ai_models.caching.cache_backends import DiskCache, MemoryCache, RedisCache, SQLiteCache
+from ai_models.caching.cache_backends import DiskCache, MemoryCache, RedisCache, 
+    SQLiteCache
 
 # Type variable for the decorator
 T = TypeVar("T")
@@ -42,7 +43,8 @@ class CacheService:
         Initialize a new cache service.
 
         Args:
-            backend_type: Type of cache backend to use ('memory', 'disk', 'sqlite', 'redis')
+            backend_type: Type of cache backend to use ('memory', 'disk', 'sqlite', 
+                'redis')
             ttl: Default time - to - live in seconds (default: 1 hour)
             max_size: Maximum size of the cache (for memory backend)
             cache_dir: Directory for disk cache
@@ -51,7 +53,8 @@ class CacheService:
         """
         # Create cache config with secure defaults
         config = CacheConfig(
-            enabled=True, backend=backend_type, ttl=ttl, max_size=max_size, backend_config={}
+            enabled=True, backend=backend_type, ttl=ttl, max_size=max_size, 
+                backend_config={}
         )
 
         # Add backend - specific configuration
@@ -64,7 +67,8 @@ class CacheService:
             try:
                 # Only match valid redis:// URLs
                 match = re.match(
-                    r"redis://(?:([^:@]+)(?::([^@]+))?@)?([^:]+)(?::(\d+))?(?:/(\d+))?", redis_url
+                    r"redis://(?:([^:@]+)(?::([^@]+))?@)?([^:]+)(?::(\d+))?(?:/(\d+))?", 
+                        redis_url
                 )
                 if match:
                     username, password, host, port, db = match.groups()
@@ -110,7 +114,8 @@ class CacheService:
             True if the value was set successfully, False otherwise
         """
         # Check if caching is enabled for this namespace
-        if self.is_namespace_enabled_hook and not self.is_namespace_enabled_hook(namespace):
+        if self.is_namespace_enabled_hook and \
+            not self.is_namespace_enabled_hook(namespace):
             return False
 
         # Initialize stats for this namespace if not exists
@@ -126,7 +131,8 @@ class CacheService:
 
             # Cache the value using model_id as namespace
             success = self.cache_manager.set(
-                model_id=namespace, operation="set", inputs=key, value=wrapped_value, ttl=actual_ttl
+                model_id=namespace, operation="set", inputs=key, value=wrapped_value, 
+                    ttl=actual_ttl
             )
 
             # Update stats
@@ -153,7 +159,8 @@ class CacheService:
             The cached value, or None if not found
         """
         # Check if caching is enabled for this namespace
-        if self.is_namespace_enabled_hook and not self.is_namespace_enabled_hook(namespace):
+        if self.is_namespace_enabled_hook and \
+            not self.is_namespace_enabled_hook(namespace):
             return None
 
         # Initialize stats for this namespace if not exists
@@ -162,7 +169,8 @@ class CacheService:
 
         try:
             # Get the value from the cache
-            result = self.cache_manager.get(model_id=namespace, operation="set", inputs=key)
+            result = self.cache_manager.get(model_id=namespace, operation="set", 
+                inputs=key)
 
             # Extract the value from the result
             value = result.get("value") if result else None
@@ -194,7 +202,8 @@ class CacheService:
             True if the value was deleted, False otherwise
         """
         try:
-            return self.cache_manager.delete(model_id=namespace, operation="set", inputs=key)
+            return self.cache_manager.delete(model_id=namespace, operation="set", 
+                inputs=key)
         except Exception as e:
             # Log error but don't raise
             import logging

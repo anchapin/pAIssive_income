@@ -30,7 +30,8 @@ class APIKeyService:
         """
         self.repository = repository or APIKeyRepository()
 
-    def create_api_key(self, data: APIKeyCreate, user_id: Optional[str] = None) -> APIKey:
+    def create_api_key(self, data: APIKeyCreate, 
+        user_id: Optional[str] = None) -> APIKey:
         """
         Create a new API key.
 
@@ -166,7 +167,8 @@ class APIKeyService:
         # Update API key in repository
         return self.repository.update(api_key)
 
-    def check_api_key_permissions(self, api_key: APIKey, required_scopes: List[str]) -> bool:
+    def check_api_key_permissions(self, api_key: APIKey, 
+        required_scopes: List[str]) -> bool:
         """
         Check if an API key has the required permissions.
 

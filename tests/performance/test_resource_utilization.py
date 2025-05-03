@@ -115,11 +115,13 @@ class ResourceMonitor:
             return {"error": "No metrics collected"}
 
         # Calculate statistics
-        avg_cpu = sum(self.cpu_samples) / len(self.cpu_samples) if self.cpu_samples else 0
+        avg_cpu = sum(self.cpu_samples) / \
+            len(self.cpu_samples) if self.cpu_samples else 0
         max_cpu = max(self.cpu_samples) if self.cpu_samples else 0
 
         avg_memory = (
-            sum(self.memory_samples) / len(self.memory_samples) if self.memory_samples else 0
+            sum(self.memory_samples) / \
+                len(self.memory_samples) if self.memory_samples else 0
         )
         max_memory = max(self.memory_samples) if self.memory_samples else 0
 
@@ -129,10 +131,12 @@ class ResourceMonitor:
             time_diff = self.timestamps[i] - self.timestamps[i - 1]
             if time_diff > 0:
                 read_rate = (
-                    self.io_samples[i]["read_bytes"] - self.io_samples[i - 1]["read_bytes"]
+                    self.io_samples[i]["read_bytes"] - \
+                        self.io_samples[i - 1]["read_bytes"]
                 ) / time_diff
                 write_rate = (
-                    self.io_samples[i]["write_bytes"] - self.io_samples[i - 1]["write_bytes"]
+                    self.io_samples[i]["write_bytes"] - \
+                        self.io_samples[i - 1]["write_bytes"]
                 ) / time_diff
                 io_rates.append(
                     {
@@ -142,13 +146,16 @@ class ResourceMonitor:
                     }
                 )
 
-        avg_read_rate = sum(r["read_rate"] for r in io_rates) / len(io_rates) if io_rates else 0
-        avg_write_rate = sum(r["write_rate"] for r in io_rates) / len(io_rates) if io_rates else 0
+        avg_read_rate = sum(r["read_rate"] for r in io_rates) / \
+            len(io_rates) if io_rates else 0
+        avg_write_rate = sum(r["write_rate"] for r in io_rates) / \
+            len(io_rates) if io_rates else 0
         max_read_rate = max(r["read_rate"] for r in io_rates) if io_rates else 0
         max_write_rate = max(r["write_rate"] for r in io_rates) if io_rates else 0
 
         return {
             "duration": self.timestamps[-1] - self.timestamps[0] if len(self.timestamps) > 1 else 0,
+                
             "samples": len(self.timestamps),
             "cpu": {"average": avg_cpu, "max": max_cpu, "samples": self.cpu_samples},
             "memory": {
@@ -180,7 +187,8 @@ class MemoryLeakTester:
         self.monitor = ResourceMonitor(interval=0.5)
 
     async def run_memory_test(
-        self, iterations: int, operation_func: callable, cleanup_func: Optional[callable] = None
+        self, iterations: int, operation_func: callable, 
+            cleanup_func: Optional[callable] = None
     ) -> Dict[str, Any]:
         """
         Run a memory leak test.
@@ -281,7 +289,8 @@ class CPUUtilizationTester:
 
         Args:
             concurrency_levels: List of concurrency levels to test
-            operation_func: Async function that takes concurrency level and returns a coroutine
+            operation_func: Async function that takes concurrency level and \
+                returns a coroutine
             operations_per_level: Number of operations to perform at each concurrency level
 
         Returns:
@@ -306,7 +315,8 @@ class CPUUtilizationTester:
                 tasks = []
                 for i in range(concurrency):
                     task = asyncio.create_task(
-                        operation_func(concurrency, i, operations_per_level // concurrency)
+                        operation_func(concurrency, i, 
+                            operations_per_level // concurrency)
                     )
                     tasks.append(task)
 
@@ -355,7 +365,8 @@ class IOBottleneckTester:
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     async def run_io_test(
-        self, file_sizes: List[int], concurrency_levels: List[int], operations_per_test: int = 100
+        self, file_sizes: List[int], concurrency_levels: List[int], 
+            operations_per_test: int = 100
     ) -> Dict[str, Any]:
         """
         Run an I / O bottleneck test.
@@ -376,7 +387,8 @@ class IOBottleneckTester:
         try:
             for file_size in file_sizes:
                 for concurrency in concurrency_levels:
-                    print(f"\nTesting with file size: {file_size}KB, concurrency: {concurrency}")
+                    print(f"\nTesting with file size: {file_size}KB, 
+                        concurrency: {concurrency}")
 
                     # Start monitoring
                     self.monitor.start()
@@ -424,9 +436,11 @@ class IOBottleneckTester:
                     results.append(result)
 
                     print(f"  Completed in {duration:.2f}s")
-                    print(f"  Throughput: {result['throughput_mb_per_second']:.2f} MB / s")
                     print(
-                        f"  Average read rate: {metrics['io']['average_read_rate'] / (1024 * 1024):.2f} MB / s"
+                        f"  Throughput: {result['throughput_mb_per_second']:.2f} MB / s")
+                    print(
+                        f"  Average read rate: {metrics['io']['average_read_rate'] / \
+                            (1024 * 1024):.2f} MB / s"
                     )
                     print(
                         f"  Average write rate: {metrics['io']['average_write_rate'] / (1024 * 1024):.2f} MB / s"
@@ -536,7 +550,8 @@ async def test_memory_usage_patterns():
         print(
             f"Memory growth rate: {results['metrics']['memory']['growth_rate_mb_per_hour']:.2f} MB / hour"
         )
-        print(f"Potential memory leak: {results['metrics']['memory']['potential_leak_detected']}")
+        print(
+            f"Potential memory leak: {results['metrics']['memory']['potential_leak_detected']}")
 
     # Save results to file
     with open("memory_usage_results.json", "w") as f:
@@ -629,13 +644,16 @@ async def test_io_bottleneck():
     # Print results
     print("\nI / O Bottleneck Test Results:")
     for result in results["results"]:
-        print(f"File size: {result['file_size_kb']}KB, Concurrency: {result['concurrency']}")
+        print(f"File size: {result['file_size_kb']}KB, 
+            Concurrency: {result['concurrency']}")
         print(f"  Throughput: {result['throughput_mb_per_second']:.2f} MB / s")
         print(
-            f"  Average read rate: {result['metrics']['io']['average_read_rate'] / (1024 * 1024):.2f} MB / s"
+            f"  Average read rate: {result['metrics']['io']['average_read_rate'] / \
+                (1024 * 1024):.2f} MB / s"
         )
         print(
-            f"  Average write rate: {result['metrics']['io']['average_write_rate'] / (1024 * 1024):.2f} MB / s"
+            f"  Average write rate: {result['metrics']['io']['average_write_rate'] / \
+                (1024 * 1024):.2f} MB / s"
         )
 
     # Save results to file

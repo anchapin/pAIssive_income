@@ -64,7 +64,8 @@ class MonetizationService(BaseService):
             self._handle_error(e, "Failed to list pricing models")
             return []
 
-    def update_pricing_model(self, model_id: str, model_data: Dict) -> Optional[PricingModel]:
+    def update_pricing_model(self, model_id: str, 
+        model_data: Dict) -> Optional[PricingModel]:
         """
         Update a pricing model.
 

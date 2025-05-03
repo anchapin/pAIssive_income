@@ -56,7 +56,8 @@ try:
 
     ONNX_AVAILABLE = True
 except ImportError:
-    logger.warning("ONNX Runtime not available. ONNX audio model support will be limited.")
+    logger.warning(
+        "ONNX Runtime not available. ONNX audio model support will be limited.")
     ONNX_AVAILABLE = False
 
 
@@ -78,7 +79,8 @@ class AudioModel:
 
         Args:
             model_path: Path to the model file or directory
-            model_type: Type of model (speech - recognition, text - to - speech, audio - classification)
+            model_type: Type of model (speech - recognition, text - to - speech, 
+                audio - classification)
             processor_path: Optional path to the audio processor
             device: Device to run the model on (auto, cpu, cuda, etc.)
             **kwargs: Additional parameters for model initialization
@@ -155,7 +157,8 @@ class AudioModel:
             )
 
         if not TORCH_AVAILABLE:
-            raise ImportError("PyTorch not available. Please install it with: pip install torch")
+            raise ImportError(
+                "PyTorch not available. Please install it with: pip install torch")
 
         logger.info(f"Loading Hugging Face audio model: {self.model_path}")
 
@@ -183,7 +186,8 @@ class AudioModel:
                     AutoModelForAudioClassification,
                 )
 
-                self.processor = AutoFeatureExtractor.from_pretrained(self.processor_path)
+                self.processor = \
+                    AutoFeatureExtractor.from_pretrained(self.processor_path)
                 self.model = AutoModelForAudioClassification.from_pretrained(
                     self.model_path, **self.kwargs
                 )
@@ -194,7 +198,8 @@ class AudioModel:
             # Move model to device
             self.model.to(self.device)
 
-            logger.info(f"Successfully loaded Hugging Face audio model: {self.model_path}")
+            logger.info(
+                f"Successfully loaded Hugging Face audio model: {self.model_path}")
 
         except Exception as e:
             logger.error(f"Error loading Hugging Face audio model: {e}")
@@ -214,10 +219,12 @@ class AudioModel:
         try:
             # Configure session options
             session_options = ort.SessionOptions()
-            session_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+            session_options.graph_optimization_level = \
+                ort.GraphOptimizationLevel.ORT_ENABLE_ALL
 
             # Determine providers
-            if self.device == "cuda" and "CUDAExecutionProvider" in ort.get_available_providers():
+            if self.device == \
+                "cuda" and "CUDAExecutionProvider" in ort.get_available_providers():
                 providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
             else:
                 providers = ["CPUExecutionProvider"]
@@ -247,7 +254,8 @@ class AudioModel:
         Load a processor for an ONNX model.
         """
         if not TRANSFORMERS_AVAILABLE:
-            logger.warning("Transformers not available. Cannot load processor for ONNX model.")
+            logger.warning(
+                "Transformers not available. Cannot load processor for ONNX model.")
             return
 
         try:
@@ -266,7 +274,8 @@ class AudioModel:
                 elif self.model_type == "audio - classification":
                     from transformers import AutoFeatureExtractor
 
-                    self.processor = AutoFeatureExtractor.from_pretrained(self.processor_path)
+                    self.processor = \
+                        AutoFeatureExtractor.from_pretrained(self.processor_path)
 
                 logger.info(f"Loaded processor from {self.processor_path}")
             else:
@@ -280,13 +289,15 @@ class AudioModel:
         Load a PyTorch audio model.
         """
         if not TORCH_AVAILABLE:
-            raise ImportError("PyTorch not available. Please install it with: pip install torch")
+            raise ImportError(
+                "PyTorch not available. Please install it with: pip install torch")
 
         logger.info(f"Loading PyTorch audio model: {self.model_path}")
 
         try:
             # Load model with safe_load to prevent arbitrary code execution
-            self.model = torch.load(self.model_path, map_location=self.device, weights_only=True)
+            self.model = torch.load(self.model_path, map_location=self.device, 
+                weights_only=True)
 
             # If it's a state dict, try to load it into a model
             if isinstance(self.model, dict):
@@ -296,7 +307,8 @@ class AudioModel:
                     if model_type == "wav2vec2":
                         from transformers import Wav2Vec2ForCTC
 
-                        self.model = Wav2Vec2ForCTC.from_pretrained("facebook / wav2vec2 - base - 960h")
+                        self.model = Wav2Vec2ForCTC.from_pretrained("facebook / \
+                            wav2vec2 - base - 960h")
                     elif model_type == "whisper":
                         from transformers import WhisperForConditionalGeneration
 
@@ -335,7 +347,8 @@ class AudioModel:
         Load a processor for a PyTorch model.
         """
         if not TRANSFORMERS_AVAILABLE:
-            logger.warning("Transformers not available. Cannot load processor for PyTorch model.")
+            logger.warning(
+                "Transformers not available. Cannot load processor for PyTorch model.")
             return
 
         try:
@@ -354,7 +367,8 @@ class AudioModel:
                 elif self.model_type == "audio - classification":
                     from transformers import AutoFeatureExtractor
 
-                    self.processor = AutoFeatureExtractor.from_pretrained(self.processor_path)
+                    self.processor = \
+                        AutoFeatureExtractor.from_pretrained(self.processor_path)
 
                 logger.info(f"Loaded processor from {self.processor_path}")
             else:
@@ -374,7 +388,8 @@ class AudioModel:
             Tuple of (audio_array, sample_rate)
         """
         if not LIBROSA_AVAILABLE:
-            raise ImportError("Librosa not available. Please install it with: pip install librosa")
+            raise ImportError(
+                "Librosa not available. Please install it with: pip install librosa")
 
         try:
             # Load audio file
@@ -404,18 +419,22 @@ class AudioModel:
             self.load()
 
         if self.model_type != "speech - recognition":
-            raise ValueError(f"Model type {self.model_type} does not support speech recognition")
+            raise ValueError(
+                f"Model type {self.model_type} does not support speech recognition")
 
         try:
             # Load audio
             audio_array, sample_rate = self._load_audio(audio_path)
 
             if self.model_format == "huggingface":
-                return self._transcribe_huggingface(audio_array, sample_rate, language, **kwargs)
+                return self._transcribe_huggingface(audio_array, sample_rate, language, 
+                    **kwargs)
             elif self.model_format == "onnx":
-                return self._transcribe_onnx(audio_array, sample_rate, language, **kwargs)
+                return self._transcribe_onnx(audio_array, sample_rate, language, 
+                    **kwargs)
             elif self.model_format == "pytorch":
-                return self._transcribe_pytorch(audio_array, sample_rate, language, **kwargs)
+                return self._transcribe_pytorch(audio_array, sample_rate, language, 
+                    **kwargs)
             else:
                 raise ValueError(f"Unsupported model format: {self.model_format}")
 
@@ -444,21 +463,25 @@ class AudioModel:
         """
         try:
             # Check if we need to resample
-            model_sample_rate = getattr(self.processor.feature_extractor, "sampling_rate", 16000)
+            model_sample_rate = getattr(self.processor.feature_extractor, 
+                "sampling_rate", 16000)
             if sample_rate != model_sample_rate:
                 if LIBROSA_AVAILABLE:
-                    logger.info(f"Resampling audio from {sample_rate} Hz to {model_sample_rate} Hz")
+                    logger.info(
+                        f"Resampling audio from {sample_rate} Hz to {model_sample_rate} Hz")
                     audio_array = librosa.resample(
                         audio_array, orig_sr=sample_rate, target_sr=model_sample_rate
                     )
                     sample_rate = model_sample_rate
                 else:
                     logger.warning(
-                        f"Audio sample rate ({sample_rate} Hz) doesn't match model sample rate ({model_sample_rate} Hz), but librosa is not available for resampling"
+                        f"Audio sample rate ({sample_rate} Hz) doesn't match model sample rate ({model_sample_rate} Hz), 
+                            but librosa is not available for resampling"
                     )
 
             # Process audio
-            inputs = self.processor(audio_array, sampling_rate=sample_rate, return_tensors="pt").to(
+            inputs = self.processor(audio_array, sampling_rate=sample_rate, 
+                return_tensors="pt").to(
                 self.device
             )
 
@@ -470,7 +493,8 @@ class AudioModel:
                 and hasattr(self.processor.tokenizer, "language_codes")
             ):
                 if language in self.processor.tokenizer.language_codes:
-                    forced_decoder_ids = self.processor.tokenizer.get_decoder_prompt_ids(
+                    forced_decoder_ids = \
+                        self.processor.tokenizer.get_decoder_prompt_ids(
                         language=language
                     )
                     generation_kwargs["forced_decoder_ids"] = forced_decoder_ids
@@ -482,10 +506,12 @@ class AudioModel:
 
             # Generate transcription
             with torch.no_grad():
-                outputs = self.model.generate(inputs.input_features, **generation_kwargs)
+                outputs = self.model.generate(inputs.input_features, 
+                    **generation_kwargs)
 
             # Decode output
-            transcription = self.processor.batch_decode(outputs, skip_special_tokens=True)[0]
+            transcription = self.processor.batch_decode(outputs, 
+                skip_special_tokens=True)[0]
 
             # Create result
             result = {"text": transcription, "language": language}
@@ -521,7 +547,8 @@ class AudioModel:
             # Check if we have a processor
             if self.processor:
                 # Use the processor to prepare inputs
-                inputs = self.processor(audio_array, sampling_rate=sample_rate, return_tensors="np")
+                inputs = self.processor(audio_array, sampling_rate=sample_rate, 
+                    return_tensors="np")
 
                 # Extract the input features
                 if "input_features" in inputs:
@@ -534,13 +561,15 @@ class AudioModel:
                 # Resample if needed (assuming 16kHz is common for speech models)
                 if sample_rate != 16000:
                     if LIBROSA_AVAILABLE:
-                        logger.info(f"Resampling audio from {sample_rate} Hz to 16000 Hz")
+                        logger.info(
+                            f"Resampling audio from {sample_rate} Hz to 16000 Hz")
                         audio_array = librosa.resample(
                             audio_array, orig_sr=sample_rate, target_sr=16000
                         )
                     else:
                         logger.warning(
-                            "Audio sample rate doesn't match 16000 Hz, but librosa is not available for resampling"
+                            "Audio sample rate doesn't match 16000 Hz, 
+                                but librosa is not available for resampling"
                         )
 
                 # Convert to float32 and normalize
@@ -576,7 +605,8 @@ class AudioModel:
 
             # Try to decode the output if we have a processor
             if self.processor and hasattr(self.processor, "batch_decode"):
-                transcription = self.processor.batch_decode(outputs[0], skip_special_tokens=True)[0]
+                transcription = self.processor.batch_decode(outputs[0], 
+                    skip_special_tokens=True)[0]
             else:
                 # Return raw output as string
                 transcription = str(outputs)
@@ -633,9 +663,11 @@ class AudioModel:
                                         language=language
                                     )
                                 )
-                                generation_kwargs["forced_decoder_ids"] = forced_decoder_ids
+                                generation_kwargs["forced_decoder_ids"] = \
+                                    forced_decoder_ids
                             else:
-                                logger.warning(f"Language {language} not supported by the model")
+                                logger.warning(
+                                    f"Language {language} not supported by the model")
 
                         # Add any additional kwargs
                         generation_kwargs.update(kwargs)
@@ -662,7 +694,8 @@ class AudioModel:
 
                             # Decode output
                             if hasattr(self.processor, "batch_decode"):
-                                transcription = self.processor.batch_decode(predictions)[0]
+                                transcription = \
+                                    self.processor.batch_decode(predictions)[0]
                             else:
                                 transcription = str(predictions.cpu().numpy())
                         else:
@@ -671,7 +704,8 @@ class AudioModel:
                 # Basic inference without a processor
                 # Convert to tensor
                 audio_tensor = (
-                    torch.tensor(audio_array, dtype=torch.float32).unsqueeze(0).to(self.device)
+                    torch.tensor(audio_array, 
+                        dtype=torch.float32).unsqueeze(0).to(self.device)
                 )
 
                 # Run inference
@@ -715,7 +749,8 @@ class AudioModel:
             self.load()
 
         if self.model_type != "text - to - speech":
-            raise ValueError(f"Model type {self.model_type} does not support text - to - speech")
+            raise ValueError(f"Model type {self.model_type} does not support text - \
+                to - speech")
 
         try:
             if self.model_format == "huggingface":
@@ -723,7 +758,8 @@ class AudioModel:
                     text, output_path, voice_id, language, **kwargs
                 )
             elif self.model_format == "onnx":
-                return self._synthesize_speech_onnx(text, output_path, voice_id, language, **kwargs)
+                return self._synthesize_speech_onnx(text, output_path, voice_id, 
+                    language, **kwargs)
             elif self.model_format == "pytorch":
                 return self._synthesize_speech_pytorch(
                     text, output_path, voice_id, language, **kwargs
@@ -860,14 +896,16 @@ class AudioModel:
                         speaker_embeddings = np.array(speaker_embeddings).reshape(1, -1)
                         inputs["speaker_embeddings"] = speaker_embeddings
                     else:
-                        logger.warning(f"Voice ID {voice_id} not found in available voices")
+                        logger.warning(
+                            f"Voice ID {voice_id} not found in available voices")
 
                 # Add language information if provided
                 if language and hasattr(self.processor, "languages"):
                     if language in self.processor.languages:
                         inputs["language"] = language
                     else:
-                        logger.warning(f"Language {language} not supported by the model")
+                        logger.warning(
+                            f"Language {language} not supported by the model")
             else:
                 # Basic preprocessing without a processor
                 # Convert text to token IDs (this is a placeholder and needs to be adapted)
@@ -960,18 +998,21 @@ class AudioModel:
                     if voice_id in self.processor.speakers:
                         speaker_embeddings = self.processor.speakers[voice_id]
                         speaker_embeddings = (
-                            torch.tensor(speaker_embeddings).unsqueeze(0).to(self.device)
+                            torch.tensor(
+                                speaker_embeddings).unsqueeze(0).to(self.device)
                         )
                         inputs["speaker_embeddings"] = speaker_embeddings
                     else:
-                        logger.warning(f"Voice ID {voice_id} not found in available voices")
+                        logger.warning(
+                            f"Voice ID {voice_id} not found in available voices")
 
                 # Add language information if provided
                 if language and hasattr(self.processor, "languages"):
                     if language in self.processor.languages:
                         inputs["language"] = language
                     else:
-                        logger.warning(f"Language {language} not supported by the model")
+                        logger.warning(
+                            f"Language {language} not supported by the model")
 
                 # Generate speech
                 with torch.no_grad():
@@ -1045,7 +1086,8 @@ class AudioModel:
             self.load()
 
         if self.model_type != "text - to - speech":
-            raise ValueError(f"Model type {self.model_type} does not support text - to - speech")
+            raise ValueError(f"Model type {self.model_type} does not support text - \
+                to - speech")
 
         voices = []
 
@@ -1057,7 +1099,8 @@ class AudioModel:
                     voices.append(voice_info)
 
             # Check if the model config has speaker information
-            elif hasattr(self.model, "config") and hasattr(self.model.config, "speaker_ids"):
+            elif hasattr(self.model, "config") and hasattr(self.model.config, 
+                "speaker_ids"):
                 for speaker_id, speaker_name in self.model.config.speaker_ids.items():
                     voice_info = {"id": speaker_id, "name": speaker_name}
                     voices.append(voice_info)
@@ -1083,14 +1126,16 @@ class AudioModel:
             self.load()
 
         if self.model_type != "audio - classification":
-            raise ValueError(f"Model type {self.model_type} does not support audio classification")
+            raise ValueError(
+                f"Model type {self.model_type} does not support audio classification")
 
         try:
             # Load audio
             audio_array, sample_rate = self._load_audio(audio_path)
 
             if self.model_format == "huggingface":
-                return self._classify_audio_huggingface(audio_array, sample_rate, **kwargs)
+                return self._classify_audio_huggingface(audio_array, sample_rate, 
+                    **kwargs)
             elif self.model_format == "onnx":
                 return self._classify_audio_onnx(audio_array, sample_rate, **kwargs)
             elif self.model_format == "pytorch":
@@ -1121,18 +1166,21 @@ class AudioModel:
             model_sample_rate = getattr(self.processor, "sampling_rate", 16000)
             if sample_rate != model_sample_rate:
                 if LIBROSA_AVAILABLE:
-                    logger.info(f"Resampling audio from {sample_rate} Hz to {model_sample_rate} Hz")
+                    logger.info(
+                        f"Resampling audio from {sample_rate} Hz to {model_sample_rate} Hz")
                     audio_array = librosa.resample(
                         audio_array, orig_sr=sample_rate, target_sr=model_sample_rate
                     )
                     sample_rate = model_sample_rate
                 else:
                     logger.warning(
-                        f"Audio sample rate ({sample_rate} Hz) doesn't match model sample rate ({model_sample_rate} Hz), but librosa is not available for resampling"
+                        f"Audio sample rate ({sample_rate} Hz) doesn't match model sample rate ({model_sample_rate} Hz), 
+                            but librosa is not available for resampling"
                     )
 
             # Process audio
-            inputs = self.processor(audio_array, sampling_rate=sample_rate, return_tensors="pt").to(
+            inputs = self.processor(audio_array, sampling_rate=sample_rate, 
+                return_tensors="pt").to(
                 self.device
             )
 
@@ -1181,7 +1229,8 @@ class AudioModel:
             # Check if we have a processor
             if self.processor:
                 # Use the processor to prepare inputs
-                inputs = self.processor(audio_array, sampling_rate=sample_rate, return_tensors="np")
+                inputs = self.processor(audio_array, sampling_rate=sample_rate, 
+                    return_tensors="np")
 
                 # Extract the input features
                 if "input_features" in inputs:
@@ -1196,13 +1245,15 @@ class AudioModel:
                 # Resample if needed (assuming 16kHz is common for audio models)
                 if sample_rate != 16000:
                     if LIBROSA_AVAILABLE:
-                        logger.info(f"Resampling audio from {sample_rate} Hz to 16000 Hz")
+                        logger.info(
+                            f"Resampling audio from {sample_rate} Hz to 16000 Hz")
                         audio_array = librosa.resample(
                             audio_array, orig_sr=sample_rate, target_sr=16000
                         )
                     else:
                         logger.warning(
-                            "Audio sample rate doesn't match 16000 Hz, but librosa is not available for resampling"
+                            "Audio sample rate doesn't match 16000 Hz, 
+                                but librosa is not available for resampling"
                         )
 
                 # Convert to float32 and normalize
@@ -1255,9 +1306,11 @@ class AudioModel:
                     if metadata and metadata.custom_metadata_map:
                         if "id2label" in metadata.custom_metadata_map:
                             try:
-                                id2label = json.loads(metadata.custom_metadata_map["id2label"])
+                                id2label = \
+                                    json.loads(metadata.custom_metadata_map["id2label"])
                                 labels = [
-                                    id2label.get(str(i), f"Class {i}") for i in range(len(probs))
+                                    id2label.get(str(i), 
+                                        f"Class {i}") for i in range(len(probs))
                                 ]
                             except:
                                 pass
@@ -1311,7 +1364,8 @@ class AudioModel:
                 # Basic inference without a processor
                 # Convert to tensor
                 audio_tensor = (
-                    torch.tensor(audio_array, dtype=torch.float32).unsqueeze(0).to(self.device)
+                    torch.tensor(audio_array, 
+                        dtype=torch.float32).unsqueeze(0).to(self.device)
                 )
 
                 # Run inference
@@ -1368,8 +1422,10 @@ class AudioModel:
         if not self.model:
             self.load()
 
-        if self.model_type != "audio - classification" and self.model_type != "sound - event - detection":
-            raise ValueError(f"Model type {self.model_type} does not support sound event detection")
+        if self.model_type != "audio - \
+            classification" and self.model_type != "sound - event - detection":
+            raise ValueError(
+                f"Model type {self.model_type} does not support sound event detection")
 
         try:
             # Load audio
@@ -1396,11 +1452,13 @@ class AudioModel:
 
                 # Classify window
                 if self.model_format == "huggingface":
-                    results = self._classify_audio_huggingface(window, sample_rate, **kwargs)
+                    results = self._classify_audio_huggingface(window, sample_rate, 
+                        **kwargs)
                 elif self.model_format == "onnx":
                     results = self._classify_audio_onnx(window, sample_rate, **kwargs)
                 elif self.model_format == "pytorch":
-                    results = self._classify_audio_pytorch(window, sample_rate, **kwargs)
+                    results = self._classify_audio_pytorch(window, sample_rate, 
+                        **kwargs)
                 else:
                     raise ValueError(f"Unsupported model format: {self.model_format}")
 

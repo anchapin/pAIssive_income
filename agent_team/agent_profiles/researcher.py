@@ -224,6 +224,7 @@ class ResearchAgent(IResearchAgent):
                 self._create_niche(
                     "Client Communication Assistant",
                     "Freelancers need to maintain professional communication with clients",
+                        
                     ["response time", "professionalism", "clarity"],
                     0.75,
                 ),
@@ -246,7 +247,8 @@ class ResearchAgent(IResearchAgent):
                 self._create_niche(
                     "Property Description Generator",
                     "Real estate agents need compelling property descriptions",
-                    ["time - consuming", "highlighting key features", "emotional appeal"],
+                    ["time - consuming", "highlighting key features", 
+                        "emotional appeal"],
                     0.86,
                 ),
                 self._create_niche(
@@ -330,16 +332,19 @@ class ResearchAgent(IResearchAgent):
         4. Return the prioritized list of user problems
 
         This algorithm differs from analyze_problems() by:
-        - Using problem areas specifically identified for the niche rather than generic ones
+        - \
+            Using problem areas specifically identified for the niche rather than generic ones
         - Providing deeper context by leveraging the full niche information
         - Focusing more directly on user pain points rather than market problems
 
         Performance considerations:
         -------------------------
-        - Time complexity: O(p log p), where p is the number of problem areas in the niche
+        - Time complexity: O(p log p), 
+            where p is the number of problem areas in the niche
           (dominated by the sorting operation)
         - Space complexity: O(p) to store all identified problems
-        - More efficient than analyze_problems() when niche - specific problems are already known
+        - \
+            More efficient than analyze_problems() when niche - specific problems are already known
 
         Args:
             niche: Niche dictionary from identify_niches_in_segment
@@ -376,6 +381,7 @@ class ResearchAgent(IResearchAgent):
             "id": str(uuid.uuid4()),
             "name": problem_name,
             "description": f"Users in the {niche_name} niche struggle with {problem_name}",
+                
             "priority": round(
                 0.5 + 0.5 * hash(problem_name) % 100 / 100, 2
             ),  # Random priority between 0.5 and 1.0

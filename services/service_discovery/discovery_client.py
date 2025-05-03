@@ -87,7 +87,8 @@ class ServiceDiscoveryClient:
             self.load_balancer = LoadBalancer(strategy=RoundRobinStrategy())
 
         # Add a filter function that only selects healthy instances
-        self.load_balancer.filter_function = lambda instance: self.registry.get_service_health(
+        self.load_balancer.filter_function = \
+            lambda instance: self.registry.get_service_health(
             instance.service_id
         )
 
@@ -143,7 +144,8 @@ class ServiceDiscoveryClient:
             # If lookup fails but we have a cached version, use it
             if service_name in self._service_cache:
                 logger.warning(
-                    f"Service lookup failed for {service_name}, using cached data: {str(e)}"
+                    f"Service lookup failed for {service_name}, 
+                        using cached data: {str(e)}"
                 )
                 return self._service_cache[service_name][1]
             raise

@@ -54,6 +54,7 @@ class TestRevenueAnalytics:
                 "status": "active",
                 "start_date": (datetime.utcnow() - timedelta(days=100)).isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=30)).isoformat(),
+                    
                 "canceled_at": None,
             },
             {
@@ -65,6 +66,7 @@ class TestRevenueAnalytics:
                 "status": "active",
                 "start_date": (datetime.utcnow() - timedelta(days=90)).isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=20)).isoformat(),
+                    
                 "canceled_at": None,
             },
             {
@@ -76,6 +78,7 @@ class TestRevenueAnalytics:
                 "status": "active",
                 "start_date": (datetime.utcnow() - timedelta(days=80)).isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=10)).isoformat(),
+                    
                 "canceled_at": None,
             },
             # Canceled subscriptions
@@ -88,6 +91,7 @@ class TestRevenueAnalytics:
                 "status": "canceled",
                 "start_date": (datetime.utcnow() - timedelta(days=70)).isoformat(),
                 "current_period_end": (datetime.utcnow() - timedelta(days=40)).isoformat(),
+                    
                 "canceled_at": (datetime.utcnow() - timedelta(days=45)).isoformat(),
             },
             {
@@ -99,6 +103,7 @@ class TestRevenueAnalytics:
                 "status": "canceled",
                 "start_date": (datetime.utcnow() - timedelta(days=60)).isoformat(),
                 "current_period_end": (datetime.utcnow() - timedelta(days=30)).isoformat(),
+                    
                 "canceled_at": (datetime.utcnow() - timedelta(days=35)).isoformat(),
             },
             # Upgraded subscriptions
@@ -111,6 +116,7 @@ class TestRevenueAnalytics:
                 "status": "canceled",
                 "start_date": (datetime.utcnow() - timedelta(days=50)).isoformat(),
                 "current_period_end": (datetime.utcnow() - timedelta(days=20)).isoformat(),
+                    
                 "canceled_at": (datetime.utcnow() - timedelta(days=25)).isoformat(),
             },
             {
@@ -122,6 +128,7 @@ class TestRevenueAnalytics:
                 "status": "active",
                 "start_date": (datetime.utcnow() - timedelta(days=25)).isoformat(),
                 "current_period_end": (datetime.utcnow() + timedelta(days=5)).isoformat(),
+                    
                 "canceled_at": None,
             },
         ]
@@ -199,8 +206,10 @@ class TestRevenueAnalytics:
     def test_mrr_arr_calculation(self):
         """Test MRR / ARR calculation."""
         # Mock subscription data
-        with patch.object(self.revenue_analytics, "get_active_subscriptions") as mock_subs:
-            mock_subs.return_value = [s for s in self.subscription_data if s["status"] == "active"]
+        with patch.object(self.revenue_analytics, 
+            "get_active_subscriptions") as mock_subs:
+            mock_subs.return_value = \
+                [s for s in self.subscription_data if s["status"] == "active"]
 
             # Calculate MRR
             mrr = self.revenue_analytics.calculate_mrr()
@@ -230,7 +239,8 @@ class TestRevenueAnalytics:
     def test_mrr_movements(self):
         """Test MRR movements (new, churn, expansion, contraction)."""
         # Mock subscription events
-        with patch.object(self.revenue_analytics, "get_subscription_events") as mock_events:
+        with patch.object(self.revenue_analytics, 
+            "get_subscription_events") as mock_events:
             # Set up events for a specific time period
             start_date = datetime.utcnow() - timedelta(days=30)
             end_date = datetime.utcnow()
@@ -304,7 +314,8 @@ class TestRevenueAnalytics:
         with patch.object(self.clv_calculator, "get_customer_data") as mock_customers:
             mock_customers.return_value = customer_data
 
-            with patch.object(self.churn_analyzer, "calculate_churn_rate") as mock_churn:
+            with patch.object(self.churn_analyzer, 
+                "calculate_churn_rate") as mock_churn:
                 mock_churn.return_value = churn_rate
 
                 # Calculate CLV for each customer
@@ -382,13 +393,15 @@ class TestRevenueAnalytics:
                 "cust_003": 0.1,  # Low risk
             }
 
-            with patch.object(self.churn_analyzer, "predict_churn_risk") as mock_predict:
+            with patch.object(self.churn_analyzer, 
+                "predict_churn_risk") as mock_predict:
                 mock_predict.side_effect = lambda customer_id: churn_risk_factors.get(
                     customer_id, 0.0
                 )
 
                 # Get at - risk customers
-                at_risk_customers = self.churn_analyzer.get_at_risk_customers(risk_threshold=0.5)
+                at_risk_customers = \
+                    self.churn_analyzer.get_at_risk_customers(risk_threshold=0.5)
 
                 # Only cust_002 should be at risk
                 assert len(at_risk_customers) == 1
@@ -406,12 +419,14 @@ class TestRevenueAnalytics:
                 with patch.object(
                     self.churn_analyzer, "get_prevention_strategies"
                 ) as mock_strategies:
-                    mock_strategies.side_effect = lambda customer_id: prevention_strategies.get(
+                    mock_strategies.side_effect = \
+                        lambda customer_id: prevention_strategies.get(
                         customer_id, []
                     )
 
                     # Get prevention strategies for at - risk customer
-                    strategies = self.churn_analyzer.get_prevention_strategies("cust_002")
+                    strategies = \
+                        self.churn_analyzer.get_prevention_strategies("cust_002")
 
                     # Verify strategies
                     assert len(strategies) == 3
@@ -429,10 +444,12 @@ class TestRevenueAnalytics:
         with patch.object(self.revenue_analytics, "calculate_mrr") as mock_mrr:
             mock_mrr.return_value = current_mrr
 
-            with patch.object(self.revenue_analytics, "calculate_growth_rate") as mock_growth:
+            with patch.object(self.revenue_analytics, 
+                "calculate_growth_rate") as mock_growth:
                 mock_growth.return_value = monthly_growth_rate
 
-                with patch.object(self.churn_analyzer, "calculate_churn_rate") as mock_churn:
+                with patch.object(self.churn_analyzer, 
+                    "calculate_churn_rate") as mock_churn:
                     mock_churn.return_value = churn_rate
 
                     # Project revenue for 12 months
@@ -460,11 +477,13 @@ class TestRevenueAnalytics:
                         "plan_enterprise": 0.6,  # 60% of revenue
                     }
 
-                    with patch.object(self.revenue_analytics, "get_plan_distribution") as mock_dist:
+                    with patch.object(self.revenue_analytics, 
+                        "get_plan_distribution") as mock_dist:
                         mock_dist.return_value = plan_distribution
 
                         # Project revenue by plan
-                        plan_projection = self.revenue_projector.project_revenue_by_plan(
+                        plan_projection = \
+                            self.revenue_projector.project_revenue_by_plan(
                             months=12,
                             current_mrr=current_mrr,
                             growth_rate=monthly_growth_rate,
@@ -475,9 +494,12 @@ class TestRevenueAnalytics:
                         assert len(plan_projection) == 12
 
                         # Check first month
-                        assert plan_projection[0]["plan_basic"] == current_mrr * Decimal("0.1")
-                        assert plan_projection[0]["plan_premium"] == current_mrr * Decimal("0.3")
-                        assert plan_projection[0]["plan_enterprise"] == current_mrr * Decimal("0.6")
+                        assert plan_projection[0]["plan_basic"] == current_mrr * \
+                            Decimal("0.1")
+                        assert plan_projection[0]["plan_premium"] == current_mrr * \
+                            Decimal("0.3")
+                        assert plan_projection[0]["plan_enterprise"] == current_mrr * \
+                            Decimal("0.6")
 
                         # Check last month
                         total_last_month = sum(plan_projection[11].values())

@@ -41,10 +41,14 @@ class DailyMetricsResponse(BaseModel):
     version: Optional[str] = Field(None, description="API version")
     request_count: int = Field(..., description="Number of requests")
     error_count: int = Field(..., description="Number of errors")
-    avg_response_time: float = Field(..., description="Average response time in seconds")
-    min_response_time: float = Field(..., description="Minimum response time in seconds")
-    max_response_time: float = Field(..., description="Maximum response time in seconds")
-    p95_response_time: float = Field(..., description="95th percentile response time in seconds")
+    avg_response_time: float = Field(..., 
+        description="Average response time in seconds")
+    min_response_time: float = Field(..., 
+        description="Minimum response time in seconds")
+    max_response_time: float = Field(..., 
+        description="Maximum response time in seconds")
+    p95_response_time: float = Field(..., 
+        description="95th percentile response time in seconds")
     total_request_size: int = Field(..., description="Total request size in bytes")
     total_response_size: int = Field(..., description="Total response size in bytes")
     unique_users: int = Field(..., description="Number of unique users")
@@ -58,13 +62,17 @@ class EndpointStatsResponse(BaseModel):
     version: Optional[str] = Field(None, description="API version")
     total_requests: int = Field(..., description="Total number of requests")
     total_errors: int = Field(..., description="Total number of errors")
-    avg_response_time: float = Field(..., description="Average response time in seconds")
-    min_response_time: float = Field(..., description="Minimum response time in seconds")
-    max_response_time: float = Field(..., description="Maximum response time in seconds")
+    avg_response_time: float = Field(..., 
+        description="Average response time in seconds")
+    min_response_time: float = Field(..., 
+        description="Minimum response time in seconds")
+    max_response_time: float = Field(..., 
+        description="Maximum response time in seconds")
     total_request_size: int = Field(..., description="Total request size in bytes")
     total_response_size: int = Field(..., description="Total response size in bytes")
     total_unique_users: int = Field(..., description="Total number of unique users")
-    total_unique_api_keys: int = Field(..., description="Total number of unique API keys")
+    total_unique_api_keys: int = Field(..., 
+        description="Total number of unique API keys")
 
 
 class UserStatsResponse(BaseModel):
@@ -74,7 +82,8 @@ class UserStatsResponse(BaseModel):
     user_id: str = Field(..., description="User ID")
     request_count: int = Field(..., description="Number of requests")
     error_count: int = Field(..., description="Number of errors")
-    total_response_time: float = Field(..., description="Total response time in seconds")
+    total_response_time: float = Field(..., 
+        description="Total response time in seconds")
     endpoints_used: List[str] = Field(..., description="List of endpoints used")
 
 
@@ -85,7 +94,8 @@ class ApiKeyStatsResponse(BaseModel):
     api_key_id: str = Field(..., description="API key ID")
     request_count: int = Field(..., description="Number of requests")
     error_count: int = Field(..., description="Number of errors")
-    total_response_time: float = Field(..., description="Total response time in seconds")
+    total_response_time: float = Field(..., 
+        description="Total response time in seconds")
     endpoints_used: List[str] = Field(..., description="List of endpoints used")
 
 
@@ -95,7 +105,8 @@ class AnalyticsSummaryResponse(BaseModel):
     total_requests: int = Field(..., description="Total number of requests")
     total_errors: int = Field(..., description="Total number of errors")
     error_rate: float = Field(..., description="Error rate (errors / total requests)")
-    avg_response_time: float = Field(..., description="Average response time in seconds")
+    avg_response_time: float = Field(..., 
+        description="Average response time in seconds")
     unique_users: int = Field(..., description="Number of unique users")
     unique_api_keys: int = Field(..., description="Number of unique API keys")
     top_endpoints: List[EndpointStatsResponse] = Field(
@@ -109,7 +120,8 @@ class EndpointRealTimeMetrics(BaseModel):
     request_count: int = Field(..., description="Number of requests")
     error_count: int = Field(..., description="Number of errors")
     error_rate: float = Field(..., description="Error rate")
-    avg_response_time: float = Field(..., description="Average response time in milliseconds")
+    avg_response_time: float = Field(..., 
+        description="Average response time in milliseconds")
     requests_per_minute: float = Field(..., description="Requests per minute")
 
 
@@ -119,12 +131,14 @@ class RealTimeMetricsResponse(BaseModel):
     request_count: int = Field(..., description="Total number of requests")
     error_count: int = Field(..., description="Total number of errors")
     error_rate: float = Field(..., description="Error rate")
-    avg_response_time: float = Field(..., description="Average response time in milliseconds")
+    avg_response_time: float = Field(..., 
+        description="Average response time in milliseconds")
     p95_response_time: float = Field(
         ..., description="95th percentile response time in milliseconds"
     )
     requests_per_minute: float = Field(..., description="Requests per minute")
-    endpoints: Dict[str, EndpointRealTimeMetrics] = Field(..., description="Metrics by endpoint")
+    endpoints: Dict[str, EndpointRealTimeMetrics] = Field(..., 
+        description="Metrics by endpoint")
     timestamp: str = Field(..., description="Timestamp of the metrics")
 
 

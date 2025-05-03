@@ -197,7 +197,8 @@ class TestWebhookAPI:
         delivery_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.get(f"webhooks/{webhook_id}/deliveries/{delivery_id}")
+        response = \
+            auth_api_test_client.get(f"webhooks/{webhook_id}/deliveries/{delivery_id}")
 
         # This might return 404 if the webhook or delivery doesn't exist, which is fine for testing
         if response.status_code == 404:
@@ -259,7 +260,8 @@ class TestWebhookAPI:
         webhook_id = generate_id()
 
         # Make request
-        response = auth_api_test_client.post(f"webhooks/{webhook_id}/regenerate - secret")
+        response = auth_api_test_client.post(f"webhooks/{webhook_id}/regenerate - \
+            secret")
 
         # This might return 404 if the webhook doesn't exist, which is fine for testing
         if response.status_code == 404:

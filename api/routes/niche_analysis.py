@@ -78,7 +78,8 @@ else:
 
 # Try to import niche analysis module
 try:
-    from niche_analysis import MarketAnalyzer, NicheAnalyzer, OpportunityScorer, ProblemIdentifier
+    from niche_analysis import MarketAnalyzer, NicheAnalyzer, OpportunityScorer, 
+        ProblemIdentifier
 
     NICHE_ANALYSIS_AVAILABLE = True
 except ImportError:
@@ -169,7 +170,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Niche Analysis module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Niche Analysis module not available")
 
             # Here we would get the actual analyses
             # For now, return mock data
@@ -188,7 +190,8 @@ if FASTAPI_AVAILABLE:
 
         except Exception as e:
             logger.error(f"Error getting niche analyses: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error getting niche analyses: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error getting niche analyses: {str(e)}")
 
     @router.get(
         " / analyses/{analysis_id}",
@@ -214,13 +217,15 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Niche Analysis module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Niche Analysis module not available")
 
             # Here we would get the actual analysis
             # For now, check if the ID matches our mock data
 
             if analysis_id != "analysis123":
-                raise HTTPException(status_code=404, detail=f"Analysis not found: {analysis_id}")
+                raise HTTPException(status_code=404, 
+                    detail=f"Analysis not found: {analysis_id}")
 
             # Create mock analysis
             analysis = NicheAnalysisResponse(
@@ -237,7 +242,8 @@ if FASTAPI_AVAILABLE:
 
         except Exception as e:
             logger.error(f"Error getting niche analysis: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error getting niche analysis: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error getting niche analysis: {str(e)}")
 
     @router.get(
         " / niches",
@@ -255,6 +261,7 @@ if FASTAPI_AVAILABLE:
         page_size: int = Query(10, description="Page size", ge=1, le=100),
         sort_by: Optional[str] = Query(None, description="Field to sort by"),
         sort_dir: SortDirection = Query(SortDirection.ASC, description="Sort direction"),
+            
         segment: Optional[str] = Query(None, description="Filter by market segment"),
         name: Optional[str] = Query(None, description="Filter by name (contains)"),
         min_score: Optional[float] = Query(
@@ -284,7 +291,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Niche Analysis module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Niche Analysis module not available")
 
             # Here we would get the actual niches
             # For now, return mock data
@@ -401,7 +409,8 @@ if FASTAPI_AVAILABLE:
 
         except Exception as e:
             logger.error(f"Error getting niches: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error getting niches: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error getting niches: {str(e)}")
 
     @router.get(
         " / niches/{niche_id}",
@@ -522,7 +531,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Niche Analysis module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Niche Analysis module not available")
 
             # Here we would get the actual market segments
             # For now, return mock data
@@ -537,7 +547,8 @@ if FASTAPI_AVAILABLE:
                     growth_rate=0.15,
                     competition_level="Medium",
                     barriers_to_entry="Medium",
-                    target_audience={"primary": "Content creators", "secondary": "Marketers"},
+                    target_audience={"primary": "Content creators", 
+                        "secondary": "Marketers"},
                 ),
                 MarketSegmentResponse(
                     id="2",
@@ -547,7 +558,8 @@ if FASTAPI_AVAILABLE:
                     growth_rate=0.12,
                     competition_level="High",
                     barriers_to_entry="High",
-                    target_audience={"primary": "Developers", "secondary": "IT professionals"},
+                    target_audience={"primary": "Developers", 
+                        "secondary": "IT professionals"},
                 ),
                 MarketSegmentResponse(
                     id="3",
@@ -557,7 +569,8 @@ if FASTAPI_AVAILABLE:
                     growth_rate=0.08,
                     competition_level="High",
                     barriers_to_entry="High",
-                    target_audience={"primary": "Financial analysts", "secondary": "Investors"},
+                    target_audience={"primary": "Financial analysts", 
+                        "secondary": "Investors"},
                 ),
             ]
 
@@ -571,7 +584,8 @@ if FASTAPI_AVAILABLE:
 
         except Exception as e:
             logger.error(f"Error getting market segments: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error getting market segments: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error getting market segments: {str(e)}")
 
     # Bulk operation endpoints
     @router.post(
@@ -584,6 +598,7 @@ if FASTAPI_AVAILABLE:
         },
         summary="Create multiple niches in bulk",
         description="Create multiple niches in a single request for improved performance",
+            
         status_code=201,
     )
     async def create_niches_bulk(request: BulkNicheCreateRequest):
@@ -599,7 +614,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Niche Analysis module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Niche Analysis module not available")
 
             # Start timing the operation
             start_time = time.time()
@@ -617,7 +633,8 @@ if FASTAPI_AVAILABLE:
                     market_segment=item.market_segment,
                     opportunity_score=0.85,  # Mock score
                     problems=[],  # Would process item.problems in real implementation
-                    opportunities=[],  # Would process item.opportunities in real implementation
+                    opportunities=[],  
+                        # Would process item.opportunities in real implementation
                     created_at=datetime.now(),
                 )
 
@@ -647,12 +664,14 @@ if FASTAPI_AVAILABLE:
 
             # Return response
             return BulkNicheCreateResponse(
-                items=created_niches, errors=errors, stats=stats, operation_id=str(uuid.uuid4())
+                items=created_niches, errors=errors, stats=stats, 
+                    operation_id=str(uuid.uuid4())
             )
 
         except Exception as e:
             logger.error(f"Error in bulk niche creation: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Bulk operation failed: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Bulk operation failed: {str(e)}")
 
     @router.put(
         " / niches / bulk",
@@ -664,6 +683,7 @@ if FASTAPI_AVAILABLE:
         },
         summary="Update multiple niches in bulk",
         description="Update multiple niches in a single request for improved performance",
+            
     )
     async def update_niches_bulk(request: BulkNicheUpdateRequest):
         """
@@ -678,7 +698,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Niche Analysis module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Niche Analysis module not available")
 
             # Start timing the operation
             start_time = time.time()
@@ -689,7 +710,8 @@ if FASTAPI_AVAILABLE:
                 # For now, check if the ID exists in our mock data
                 niche_id = item.get("id")
                 if niche_id not in ["1", "2", "3"]:
-                    raise HTTPException(status_code=404, detail=f"Niche not found: {niche_id}")
+                    raise HTTPException(status_code=404, 
+                        detail=f"Niche not found: {niche_id}")
 
                 # Create a mock updated niche
                 return NicheResponse(
@@ -734,12 +756,14 @@ if FASTAPI_AVAILABLE:
 
             # Return response
             return BulkNicheUpdateResponse(
-                items=updated_niches, errors=errors, stats=stats, operation_id=str(uuid.uuid4())
+                items=updated_niches, errors=errors, stats=stats, 
+                    operation_id=str(uuid.uuid4())
             )
 
         except Exception as e:
             logger.error(f"Error in bulk niche update: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Bulk operation failed: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Bulk operation failed: {str(e)}")
 
     @router.delete(
         " / niches / bulk",
@@ -751,6 +775,7 @@ if FASTAPI_AVAILABLE:
         },
         summary="Delete multiple niches in bulk",
         description="Delete multiple niches in a single request for improved performance",
+            
     )
     async def delete_niches_bulk(request: BulkNicheDeleteRequest):
         """
@@ -765,7 +790,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if niche analysis module is available
             if not NICHE_ANALYSIS_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Niche Analysis module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Niche Analysis module not available")
 
             # Start timing the operation
             start_time = time.time()
@@ -775,7 +801,8 @@ if FASTAPI_AVAILABLE:
                 # In a real implementation, this would call the niche analysis service
                 # For now, check if the ID exists in our mock data
                 if niche_id not in ["1", "2", "3"]:
-                    raise HTTPException(status_code=404, detail=f"Niche not found: {niche_id}")
+                    raise HTTPException(status_code=404, 
+                        detail=f"Niche not found: {niche_id}")
 
                 # Return the ID of the deleted niche
                 return niche_id
@@ -809,9 +836,11 @@ if FASTAPI_AVAILABLE:
 
             # Return response
             return BulkNicheDeleteResponse(
-                deleted_ids=deleted_ids, errors=errors, stats=stats, operation_id=str(uuid.uuid4())
+                deleted_ids=deleted_ids, errors=errors, stats=stats, 
+                    operation_id=str(uuid.uuid4())
             )
 
         except Exception as e:
             logger.error(f"Error in bulk niche deletion: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Bulk operation failed: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Bulk operation failed: {str(e)}")

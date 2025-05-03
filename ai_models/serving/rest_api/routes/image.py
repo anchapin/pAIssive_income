@@ -48,7 +48,8 @@ if FASTAPI_AVAILABLE:
         prompt: str = Field(..., description="Input prompt for image generation")
         n: int = Field(1, description="Number of images to generate")
         size: str = Field("512x512", description="Size of the generated images")
-        response_format: str = Field("url", description="Format of the response (url or b64_json)")
+        response_format: str = Field("url", 
+            description="Format of the response (url or b64_json)")
 
     class ImageGenerationResponse(BaseModel):
         """
@@ -63,7 +64,8 @@ if FASTAPI_AVAILABLE:
         Response model for image classification.
         """
 
-        labels: List[Dict[str, Union[str, float]]] = Field(..., description="Classification labels")
+        labels: List[Dict[str, Union[str, float]]] = Field(..., 
+            description="Classification labels")
         top_label: str = Field(..., description="Top classification label")
 
 
@@ -93,7 +95,8 @@ if FASTAPI_AVAILABLE:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    @router.post(" / images / classifications", response_model=ImageClassificationResponse)
+    @router.post(" / images / classifications", 
+        response_model=ImageClassificationResponse)
     async def classify_image(file: UploadFile = File(...), model=None):
         """
         Classify an image.
@@ -158,7 +161,8 @@ async def _generate_images(model, request):
         Generated images
     """
     # Generate images
-    images = model.generate_images(prompt=request.prompt, n=request.n, size=request.size)
+    images = model.generate_images(prompt=request.prompt, n=request.n, 
+        size=request.size)
 
     # Create response
     data = []

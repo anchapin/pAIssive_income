@@ -15,7 +15,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from datasets import Dataset, DatasetDict
 
-from .data_collector import DataCollectionConfig, DataCollector, collect_data, prepare_dataset
+from .data_collector import DataCollectionConfig, DataCollector, collect_data, 
+    prepare_dataset
 from .evaluator import EvaluationConfig, ModelEvaluator, compare_models, evaluate_model
 from .fine_tuner import FineTuner, FineTuningConfig, fine_tune_model, resume_fine_tuning
 
@@ -188,7 +189,8 @@ class FineTuningWorkflow:
             logger.info("Fine - tuning model")
 
             # Update fine - tuning configuration with dataset if available
-            if self.dataset is not None and self.config.fine_tuning_config.dataset is None:
+            if self.dataset is not None and \
+                self.config.fine_tuning_config.dataset is None:
                 self.config.fine_tuning_config.dataset = self.dataset
 
             # Create fine - tuner
@@ -241,7 +243,8 @@ class FineTuningWorkflow:
             self.config.evaluation_config.model_path = self.model_path
 
             # Update evaluation configuration with dataset if available
-            if self.dataset is not None and self.config.evaluation_config.dataset is None:
+            if self.dataset is not None and \
+                self.config.evaluation_config.dataset is None:
                 self.config.evaluation_config.dataset = self.dataset
 
             # Create evaluator
@@ -329,7 +332,8 @@ class FineTuningWorkflow:
             )
 
             # Store results
-            self.results["comparison"] = {"results": comparison_results, "report_path": report_path}
+            self.results["comparison"] = {"results": comparison_results, 
+                "report_path": report_path}
 
             logger.info("Comparison completed")
 

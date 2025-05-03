@@ -46,8 +46,10 @@ router = APIRouter()
     },
 )
 async def list_audit_events(
-    event_type: Optional[AuditEventType] = Query(None, description="Filter by event type"),
-    resource_type: Optional[AuditResourceType] = Query(None, description="Filter by resource type"),
+    event_type: Optional[AuditEventType] = Query(None, 
+        description="Filter by event type"),
+    resource_type: Optional[AuditResourceType] = Query(None, 
+        description="Filter by resource type"),
     resource_id: Optional[str] = Query(None, description="Filter by resource ID"),
     action: Optional[AuditAction] = Query(None, description="Filter by action"),
     actor_id: Optional[str] = Query(None, description="Filter by actor ID"),
@@ -132,6 +134,7 @@ async def get_audit_event(
 
     # Check if event exists
     if not event:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Audit event not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Audit event not found")
 
     return event

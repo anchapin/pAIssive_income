@@ -36,7 +36,8 @@ class DiskCache(CacheBackend):
             cache_dir: Directory to store cache files
             max_size: Maximum number of items in the cache (None for unlimited)
             eviction_policy: Eviction policy (lru, lfu, fifo)
-            serialization: Serialization format (only json is supported for security reasons)
+            serialization: Serialization format (
+                only json is supported for security reasons)
             **kwargs: Additional parameters for the cache
         """
         self.cache_dir = os.path.abspath(cache_dir)
@@ -406,7 +407,8 @@ class DiskCache(CacheBackend):
         """
         # Hash the key to create a valid filename - using SHA - 256 with usedforsecurity=False
         # This is not used for security purposes, just for filename generation
-        hashed_key = hashlib.sha256(key.encode("utf - 8"), usedforsecurity=False).hexdigest()
+        hashed_key = hashlib.sha256(key.encode("utf - 8"), 
+            usedforsecurity=False).hexdigest()
         return os.path.join(self.cache_dir, hashed_key)
 
     def _get_metadata_path(self, key: str) -> str:
@@ -421,7 +423,8 @@ class DiskCache(CacheBackend):
         """
         # Hash the key to create a valid filename - using SHA - 256 with usedforsecurity=False
         # This is not used for security purposes, just for filename generation
-        hashed_key = hashlib.sha256(key.encode("utf - 8"), usedforsecurity=False).hexdigest()
+        hashed_key = hashlib.sha256(key.encode("utf - 8"), 
+            usedforsecurity=False).hexdigest()
         return os.path.join(self.metadata_dir, f"{hashed_key}.json")
 
     def _save_value(self, key: str, value: Dict[str, Any]) -> None:
@@ -560,7 +563,8 @@ class DiskCache(CacheBackend):
                 elif self.eviction_policy == "fifo":
                     # First In First Out
                     key_to_evict = min(
-                        metadata_map.keys(), key=lambda k: metadata_map[k].get("creation_time", 0)
+                        metadata_map.keys(), 
+                            key=lambda k: metadata_map[k].get("creation_time", 0)
                     )
 
                 else:

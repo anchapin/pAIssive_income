@@ -69,6 +69,7 @@ class MockBaseModelProvider:
             {
                 "rate_limit": "Rate limit exceeded. Please try again later.",
                 "invalid_model": "The model does not exist or you don't have access to it.",
+                    
                 "invalid_request": "The request is not valid for this model.",
                 "context_length": "The context length exceeds the model's limit.",
             },
@@ -80,10 +81,12 @@ class MockBaseModelProvider:
     def record_call(self, method_name: str, **kwargs):
         """Record a method call for testing assertions."""
         self.call_history.append(
-            {"method": method_name, "timestamp": datetime.now().isoformat(), "args": kwargs}
+            {"method": method_name, "timestamp": datetime.now().isoformat(), 
+                "args": kwargs}
         )
 
-    def get_call_history(self, method_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_call_history(self, method_name: Optional[str] = None) -> List[Dict[str, 
+        Any]]:
         """Get the call history, optionally filtered by method name."""
         if method_name:
             return [call for call in self.call_history if call["method"] == method_name]
@@ -148,6 +151,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
             "custom_responses",
             {
                 "analyze market trends": "Market analysis shows positive growth trends.",
+                    
                 "market trends": "Market analysis shows positive growth trends.",
             },
         )
@@ -165,13 +169,15 @@ class MockOpenAIProvider(MockBaseModelProvider):
                         "message": {
                             "role": "assistant",
                             "content": self.config.get(
-                                "default_completion", "This is a mock response from the AI model."
+                                "default_completion", 
+                                    "This is a mock response from the AI model."
                             ),
                         },
                         "finish_reason": "stop",
                     }
                 ],
-                "usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
+                "usage": {"prompt_tokens": 10, "completion_tokens": 20, 
+                    "total_tokens": 30},
             },
             "text_completion": {
                 "id": "cmpl - mock - id",
@@ -181,13 +187,15 @@ class MockOpenAIProvider(MockBaseModelProvider):
                 "choices": [
                     {
                         "text": self.config.get(
-                            "default_completion", "This is a mock response from the AI model."
+                            "default_completion", 
+                                "This is a mock response from the AI model."
                         ),
                         "index": 0,
                         "finish_reason": "stop",
                     }
                 ],
-                "usage": {"prompt_tokens": 10, "completion_tokens": 15, "total_tokens": 25},
+                "usage": {"prompt_tokens": 10, "completion_tokens": 15, 
+                    "total_tokens": 25},
             },
             "embeddings": {
                 "object": "list",
@@ -203,7 +211,8 @@ class MockOpenAIProvider(MockBaseModelProvider):
             },
             "images": {
                 "created": int(datetime.now().timestamp()),
-                "data": [{"url": "https://mock - url.com / image.png", "b64_json": None}],
+                "data": [{"url": "https://mock - url.com / image.png", 
+                    "b64_json": None}],
             },
         }
 
@@ -275,6 +284,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
                                 "text": word + " ",
                                 "index": 0,
                                 "finish_reason": "stop" if i == len(words) - 1 else None,
+                                    
                             }
                         ],
                     }
@@ -342,6 +352,7 @@ class MockOpenAIProvider(MockBaseModelProvider):
                                 "index": 0,
                                 "delta": {"content": word + " "},
                                 "finish_reason": "stop" if i == len(words) - 1 else None,
+                                    
                             }
                         ],
                     }
@@ -376,7 +387,8 @@ class MockOpenAIProvider(MockBaseModelProvider):
                         "index": i,
                     }
                 )
-            response["usage"]["prompt_tokens"] = sum(len(text.split()) for text in input)
+            response["usage"]["prompt_tokens"] = \
+                sum(len(text.split()) for text in input)
             response["usage"]["total_tokens"] = response["usage"]["prompt_tokens"]
 
         return response
@@ -390,14 +402,16 @@ class MockOpenAIProvider(MockBaseModelProvider):
         **kwargs,
     ) -> Dict[str, Any]:
         """Create images from a prompt."""
-        self.record_call("create_image", prompt=prompt, model=model, size=size, n=n, **kwargs)
+        self.record_call("create_image", prompt=prompt, model=model, size=size, n=n, 
+            **kwargs)
 
         # Use DALL - E 3 as default model if none specified
         model = model or "dall - e-3"
 
         # Check if model exists and has image generation capability
         model_info = self.get_model_info(model)
-        if not model_info or "image - generation" not in model_info.get("capabilities", []):
+        if not model_info or "image - generation" not in model_info.get("capabilities", 
+            []):
             raise ValueError(self.error_messages["invalid_model"])
 
         response = self.mock_responses["images"].copy()
@@ -454,7 +468,8 @@ class MockOllamaProvider(MockBaseModelProvider):
                 "model": "llama2",
                 "created_at": datetime.now().isoformat(),
                 "response": self.config.get(
-                    "default_completion", "This is a mock response from the Ollama model."
+                    "default_completion", 
+                        "This is a mock response from the Ollama model."
                 ),
                 "done": True,
                 "context": [1, 2, 3, 4, 5],
@@ -625,7 +640,8 @@ class MockLMStudioProvider(MockBaseModelProvider):
                 "choices": [
                     {
                         "text": self.config.get(
-                            "default_completion", "This is a mock response from LM Studio."
+                            "default_completion", 
+                                "This is a mock response from LM Studio."
                         ),
                         "index": 0,
                         "finish_reason": "stop",
@@ -643,7 +659,8 @@ class MockLMStudioProvider(MockBaseModelProvider):
                         "message": {
                             "role": "assistant",
                             "content": self.config.get(
-                                "default_completion", "This is a mock response from LM Studio."
+                                "default_completion", 
+                                    "This is a mock response from LM Studio."
                             ),
                         },
                         "finish_reason": "stop",
@@ -705,6 +722,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
                                 "text": word + " ",
                                 "index": 0,
                                 "finish_reason": "stop" if i == len(words) - 1 else None,
+                                    
                             }
                         ],
                     }
@@ -768,6 +786,7 @@ class MockLMStudioProvider(MockBaseModelProvider):
                                 "index": 0,
                                 "delta": {"content": word + " "},
                                 "finish_reason": "stop" if i == len(words) - 1 else None,
+                                    
                             }
                         ],
                     }
@@ -798,7 +817,8 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                 {
                     "id": "t5 - small",
                     "name": "T5 Small",
-                    "capabilities": ["text2text - generation", "summarization", "translation"],
+                    "capabilities": ["text2text - generation", "summarization", 
+                        "translation"],
                     "created": int(datetime.now().timestamp()),
                     "pipeline_tag": "text2text - generation",
                 },
@@ -823,7 +843,8 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         self.mock_responses = {
             "text_generation": {
                 "generated_text": self.config.get(
-                    "default_completion", "This is a mock response from the Hugging Face model."
+                    "default_completion", 
+                        "This is a mock response from the Hugging Face model."
                 )
             },
             "text2text_generation": {
@@ -832,7 +853,8 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                 )
             },
             "summarization": {
-                "summary_text": self.config.get("default_summary", "This is a mock summary.")
+                "summary_text": self.config.get("default_summary", 
+                    "This is a mock summary.")
             },
             "translation": {
                 "translation_text": self.config.get(
@@ -844,10 +866,13 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
                 {"label": "NEGATIVE", "score": 0.05},
             ],
             "token_classification": [
-                {"entity": "B - PER", "score": 0.98, "word": "John", "start": 0, "end": 4},
-                {"entity": "I - PER", "score": 0.92, "word": "Doe", "start": 5, "end": 8},
+                {"entity": "B - PER", "score": 0.98, "word": "John", "start": 0, 
+                    "end": 4},
+                {"entity": "I - PER", "score": 0.92, "word": "Doe", "start": 5, 
+                    "end": 8},
             ],
-            "embeddings": np.random.rand(1, 384).tolist(),  # Common embedding size for MiniLM
+            "embeddings": np.random.rand(1, 384).tolist(),  
+                # Common embedding size for MiniLM
         }
 
     def list_models(self) -> List[Dict[str, Any]]:
@@ -867,7 +892,8 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         return None
 
     def text_generation(
-        self, model_id: str, text: str, max_length: int = 100, temperature: float = 0.7, **kwargs
+        self, model_id: str, text: str, max_length: int = 100, temperature: float = 0.7, 
+            **kwargs
     ) -> Dict[str, Any]:
         """Generate text with a text generation model."""
         self.record_call(
@@ -881,8 +907,10 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         # Check if model exists and has text generation capability
         model_info = self.get_model_info(model_id)
-        if not model_info or "text - generation" not in model_info.get("capabilities", []):
-            raise ValueError(f"Model {model_id} not found or does not support text generation")
+        if not model_info or "text - generation" not in model_info.get("capabilities", 
+            []):
+            raise ValueError(f"Model {model_id} not found or \
+                does not support text generation")
 
         response = self.mock_responses["text_generation"].copy()
 
@@ -900,13 +928,16 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
     ) -> Dict[str, Any]:
         """Generate text from text with a text2text generation model."""
         self.record_call(
-            "text2text_generation", model_id=model_id, text=text, max_length=max_length, **kwargs
+            "text2text_generation", model_id=model_id, text=text, max_length=max_length, 
+                **kwargs
         )
 
         # Check if model exists and has text2text generation capability
         model_info = self.get_model_info(model_id)
-        if not model_info or "text2text - generation" not in model_info.get("capabilities", []):
-            raise ValueError(f"Model {model_id} not found or does not support text2text generation")
+        if not model_info or "text2text - generation" not in model_info.get("capabilities", 
+            []):
+            raise ValueError(f"Model {model_id} not found or \
+                does not support text2text generation")
 
         response = self.mock_responses["text2text_generation"].copy()
 
@@ -920,7 +951,8 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         return [response]
 
     def summarization(
-        self, model_id: str, text: str, max_length: int = 100, min_length: int = 10, **kwargs
+        self, model_id: str, text: str, max_length: int = 100, min_length: int = 10, 
+            **kwargs
     ) -> Dict[str, Any]:
         """Generate a summary with a summarization model."""
         self.record_call(
@@ -935,7 +967,8 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         # Check if model exists and has summarization capability
         model_info = self.get_model_info(model_id)
         if not model_info or "summarization" not in model_info.get("capabilities", []):
-            raise ValueError(f"Model {model_id} not found or does not support summarization")
+            raise ValueError(f"Model {model_id} not found or \
+                does not support summarization")
 
         response = self.mock_responses["summarization"].copy()
 
@@ -949,7 +982,8 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         return [response]
 
     def translation(
-        self, model_id: str, text: str, src_lang: str = "en", tgt_lang: str = "fr", **kwargs
+        self, model_id: str, text: str, src_lang: str = "en", tgt_lang: str = "fr", 
+            **kwargs
     ) -> Dict[str, Any]:
         """Translate text with a translation model."""
         self.record_call(
@@ -964,7 +998,8 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
         # Check if model exists and has translation capability
         model_info = self.get_model_info(model_id)
         if not model_info or "translation" not in model_info.get("capabilities", []):
-            raise ValueError(f"Model {model_id} not found or does not support translation")
+            raise ValueError(f"Model {model_id} not found or \
+                does not support translation")
 
         response = self.mock_responses["translation"].copy()
 
@@ -977,40 +1012,48 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
 
         return [response]
 
-    def text_classification(self, model_id: str, text: str, **kwargs) -> List[Dict[str, Any]]:
+    def text_classification(self, model_id: str, text: str, **kwargs) -> List[Dict[str, 
+        Any]]:
         """Classify text with a text classification model."""
         self.record_call("text_classification", model_id=model_id, text=text, **kwargs)
 
         # Check if model exists and has text classification capability
         model_info = self.get_model_info(model_id)
-        if not model_info or "text - classification" not in model_info.get("capabilities", []):
-            raise ValueError(f"Model {model_id} not found or does not support text classification")
+        if not model_info or "text - classification" not in model_info.get("capabilities", 
+            []):
+            raise ValueError(f"Model {model_id} not found or \
+                does not support text classification")
 
         response = self.mock_responses["text_classification"].copy()
 
         return response
 
-    def token_classification(self, model_id: str, text: str, **kwargs) -> List[Dict[str, Any]]:
+    def token_classification(self, model_id: str, text: str, **kwargs) -> List[Dict[str, 
+        Any]]:
         """Classify tokens with a token classification model."""
         self.record_call("token_classification", model_id=model_id, text=text, **kwargs)
 
         # Check if model exists and has token classification capability
         model_info = self.get_model_info(model_id)
-        if not model_info or "token - classification" not in model_info.get("capabilities", []):
-            raise ValueError(f"Model {model_id} not found or does not support token classification")
+        if not model_info or "token - classification" not in model_info.get("capabilities", 
+            []):
+            raise ValueError(f"Model {model_id} not found or \
+                does not support token classification")
 
         response = self.mock_responses["token_classification"].copy()
 
         return response
 
-    def embedding(self, model_id: str, text: Union[str, List[str]], **kwargs) -> np.ndarray:
+    def embedding(self, model_id: str, text: Union[str, List[str]], 
+        **kwargs) -> np.ndarray:
         """Generate embeddings with an embedding model."""
         self.record_call("embedding", model_id=model_id, text=text, **kwargs)
 
         # Check if model exists and has embedding capability
         model_info = self.get_model_info(model_id)
         if not model_info or "embedding" not in model_info.get("capabilities", []):
-            raise ValueError(f"Model {model_id} not found or does not support embeddings")
+            raise ValueError(f"Model {model_id} not found or \
+                does not support embeddings")
 
         # Get base embedding from mock responses
         base_embedding = np.array(self.mock_responses["embeddings"])
@@ -1021,12 +1064,14 @@ class MockHuggingFaceProvider(MockBaseModelProvider):
             embeddings = []
             for i, t in enumerate(text):
                 # Add a small offset based on the index for deterministic but different vectors
-                offset = np.random.RandomState(hash(t) % 2** 32).rand(*base_embedding.shape) * 0.1
+                offset = \
+                    np.random.RandomState(hash(t) % 2** 32).rand(*base_embedding.shape) * 0.1
                 embeddings.append(base_embedding + offset)
             return np.vstack(embeddings)
         else:
             # Add a small random offset for determinism based on text hash
-            offset = np.random.RandomState(hash(text) % 2** 32).rand(*base_embedding.shape) * 0.1
+            offset = \
+                np.random.RandomState(hash(text) % 2** 32).rand(*base_embedding.shape) * 0.1
             return base_embedding + offset
 
 
@@ -1088,13 +1133,16 @@ class MockLocalModelProvider(MockBaseModelProvider):
         self.mock_responses = {
             "completion": {
                 "text": self.config.get(
-                    "default_completion", "This is a mock response from the local GGUF model."
+                    "default_completion", 
+                        "This is a mock response from the local GGUF model."
                 ),
-                "usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
+                "usage": {"prompt_tokens": 10, "completion_tokens": 20, 
+                    "total_tokens": 30},
                 "timings": {"prompt_ms": 100, "completion_ms": 500},
             },
             "embeddings": {
-                "embedding": list(np.random.rand(4096)),  # Common size for GGUF embeddings
+                "embedding": list(np.random.rand(4096)),  
+                    # Common size for GGUF embeddings
                 "usage": {"prompt_tokens": 8, "total_tokens": 8},
             },
         }
@@ -1261,9 +1309,12 @@ class MockONNXProvider(MockBaseModelProvider):
 
         # Mock responses
         self.mock_responses = {
-            "text_classification": {"label_scores": [["positive", 0.95], ["negative", 0.05]]},
-            "feature_extraction": {"features": list(np.random.rand(768))},  # BERT hidden size
-            "image_classification": {"label_scores": [["cat", 0.8], ["dog", 0.15], ["bird", 0.05]]},
+            "text_classification": {"label_scores": [["positive", 0.95], ["negative", 
+                0.05]]},
+            "feature_extraction": {"features": list(np.random.rand(768))},  
+                # BERT hidden size
+            "image_classification": {"label_scores": [["cat", 0.8], ["dog", 0.15], 
+                ["bird", 0.05]]},
             "text_generation": {
                 "generated_text": self.config.get(
                     "default_completion", "This is a mock response from the ONNX model."
@@ -1287,7 +1338,8 @@ class MockONNXProvider(MockBaseModelProvider):
 
         return None
 
-    def run_inference(self, model_id: str, inputs: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+    def run_inference(self, model_id: str, inputs: Dict[str, Any], **kwargs) -> Dict[str, 
+        Any]:
         """Run inference with an ONNX model."""
         self.record_call("run_inference", model_id=model_id, inputs=inputs, **kwargs)
 
@@ -1312,7 +1364,8 @@ class MockONNXProvider(MockBaseModelProvider):
 
 
 # Helper function to create the appropriate mock provider
-def create_mock_provider(provider_type: str, config: Optional[Dict[str, Any]] = None) -> Union[
+def create_mock_provider(provider_type: str, config: Optional[Dict[str, 
+    Any]] = None) -> Union[
     MockOpenAIProvider,
     MockOllamaProvider,
     MockLMStudioProvider,

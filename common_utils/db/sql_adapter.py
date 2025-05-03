@@ -191,7 +191,8 @@ class SQLiteAdapter(DatabaseInterface):
             logger.error(f"Error updating data: {e}")
             raise
 
-    def delete(self, table: str, condition: str, params: Optional[Dict[str, Any]] = None) -> int:
+    def delete(self, table: str, condition: str, params: Optional[Dict[str, 
+        Any]] = None) -> int:
         """
         Delete records from the SQLite database.
 

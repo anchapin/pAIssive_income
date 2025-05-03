@@ -93,7 +93,8 @@ def cached(
 
             # Log caching metrics
             logger.debug(
-                f"Cached result for {func.__qualname__} " f"(execution time: {execution_time:.3f}s)"
+                f"Cached result for {func.__qualname__} " f"(
+                    execution time: {execution_time:.3f}s)"
             )
 
             return result
@@ -218,6 +219,7 @@ def method_cached(
                 a,
                 kw,
                 (f"{namespace}.instance_{id(slf)}" if slf and instance_aware else namespace),
+                    
                 version_with_code,
             )
         )

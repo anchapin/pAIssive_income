@@ -306,14 +306,16 @@ class TestMeteredBilling:
         """Test custom billing periods and proration."""
         # Test monthly billing
         monthly_customer = "customer1"
-        monthly_period = self.billing_service.get_billing_period(customer_id=monthly_customer)
+        monthly_period = \
+            self.billing_service.get_billing_period(customer_id=monthly_customer)
 
         assert monthly_period["type"] == BillingPeriod.MONTHLY
         assert monthly_period["billing_day"] == 1
 
         # Test quarterly billing
         quarterly_customer = "customer3"
-        quarterly_period = self.billing_service.get_billing_period(customer_id=quarterly_customer)
+        quarterly_period = \
+            self.billing_service.get_billing_period(customer_id=quarterly_customer)
 
         assert quarterly_period["type"] == BillingPeriod.QUARTERLY
         assert quarterly_period["billing_day"] == 1
@@ -393,10 +395,14 @@ class TestMeteredBilling:
         # Record usage
         usage_data = [
             {"metric": "api_calls", "quantity": 1000, "timestamp": datetime(2023, 7, 5)},
-            {"metric": "api_calls", "quantity": 2000, "timestamp": datetime(2023, 7, 15)},
-            {"metric": "api_calls", "quantity": 3000, "timestamp": datetime(2023, 7, 25)},
+                
+            {"metric": "api_calls", "quantity": 2000, "timestamp": datetime(2023, 7, 
+                15)},
+            {"metric": "api_calls", "quantity": 3000, "timestamp": datetime(2023, 7, 
+                25)},
             {"metric": "storage_gb", "quantity": 5, "timestamp": datetime(2023, 7, 10)},
-            {"metric": "compute_hours", "quantity": 25, "timestamp": datetime(2023, 7, 20)},
+            {"metric": "compute_hours", "quantity": 25, "timestamp": datetime(2023, 7, 
+                20)},
         ]
 
         # Record usage

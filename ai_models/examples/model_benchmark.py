@@ -14,7 +14,8 @@ import time
 from typing import Any, Dict, List, Optional
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models import ModelConfig, ModelInfo, ModelManager, PerformanceMonitor
 
@@ -39,7 +40,8 @@ class ModelBenchmark:
         """
         self.config = config or ModelConfig.get_default()
         self.monitor = PerformanceMonitor(self.config)
-        self.manager = ModelManager(config=self.config, performance_monitor=self.monitor)
+        self.manager = ModelManager(config=self.config, 
+            performance_monitor=self.monitor)
 
         # Discover models
         self.manager.discover_models()
@@ -166,7 +168,8 @@ class ModelBenchmark:
         elif model_info.type == "llama":
             generation_method = self._generate_text_llama
         else:
-            raise ValueError(f"Unsupported model type for benchmarking: {model_info.type}")
+            raise ValueError(
+                f"Unsupported model type for benchmarking: {model_info.type}")
 
         # Run the benchmark multiple times
         for i in range(num_runs):
@@ -365,7 +368,8 @@ class ModelBenchmark:
 
             if comparison["fastest_inference"]["time"] > 0:
                 score += 0.3 * (
-                    results["avg_inference_time"] / comparison["fastest_inference"]["time"]
+                    results["avg_inference_time"] / \
+                        comparison["fastest_inference"]["time"]
                 )
 
             if comparison["highest_throughput"]["tokens_per_second"] > 0:
@@ -413,7 +417,8 @@ def main():
     Main function for the model benchmark tool.
     """
     parser = argparse.ArgumentParser(description="Benchmark AI models")
-    parser.add_argument("--models", type=str, nargs=" + ", help="Model IDs to benchmark")
+    parser.add_argument("--models", type=str, nargs=" + ", 
+        help="Model IDs to benchmark")
     parser.add_argument(
         "--prompt",
         type=str,
@@ -452,7 +457,8 @@ def main():
         selection = input("\nEnter model numbers to benchmark (comma - separated): ")
         selected_indices = [int(i.strip()) - 1 for i in selection.split(",")]
 
-        args.models = [all_models[i].id for i in selected_indices if 0 <= i < len(all_models)]
+        args.models = \
+            [all_models[i].id for i in selected_indices if 0 <= i < len(all_models)]
 
     if not args.models:
         print("No models selected for benchmarking.")
@@ -489,17 +495,21 @@ def main():
             print(f"  Quantization: {data['quantization']}")
 
         results_data = data["results"]
-        print(f"  Average inference time: {results_data['avg_inference_time']:.4f} seconds")
-        print(f"  Average tokens per second: {results_data['avg_tokens_per_second']:.2f}")
+        print(
+            f"  Average inference time: {results_data['avg_inference_time']:.4f} seconds")
+        print(
+            f"  Average tokens per second: {results_data['avg_tokens_per_second']:.2f}")
         print(
             f"  Average time to first token: {results_data['avg_time_to_first_token']:.4f} seconds"
         )
 
         if results_data["avg_peak_cpu_memory_mb"] > 0:
-            print(f"  Average peak CPU memory: {results_data['avg_peak_cpu_memory_mb']:.2f} MB")
+            print(
+                f"  Average peak CPU memory: {results_data['avg_peak_cpu_memory_mb']:.2f} MB")
 
         if results_data["avg_peak_gpu_memory_mb"] > 0:
-            print(f"  Average peak GPU memory: {results_data['avg_peak_gpu_memory_mb']:.2f} MB")
+            print(
+                f"  Average peak GPU memory: {results_data['avg_peak_gpu_memory_mb']:.2f} MB")
 
     # Print comparison
     comparison = results["comparison"]
@@ -507,22 +517,26 @@ def main():
     print("\nComparison:")
     if comparison["fastest_inference"]["model"]:
         print(
-            f"Fastest inference: {comparison['fastest_inference']['model']} ({comparison['fastest_inference']['time']:.4f} seconds)"
+            f"Fastest inference: {comparison['fastest_inference']['model']} (
+                {comparison['fastest_inference']['time']:.4f} seconds)"
         )
 
     if comparison["highest_throughput"]["model"]:
         print(
-            f"Highest throughput: {comparison['highest_throughput']['model']} ({comparison['highest_throughput']['tokens_per_second']:.2f} tokens / second)"
+            f"Highest throughput: {comparison['highest_throughput']['model']} (
+                {comparison['highest_throughput']['tokens_per_second']:.2f} tokens / second)"
         )
 
     if comparison["lowest_latency"]["model"]:
         print(
-            f"Lowest latency: {comparison['lowest_latency']['model']} ({comparison['lowest_latency']['time_to_first_token']:.4f} seconds)"
+            f"Lowest latency: {comparison['lowest_latency']['model']} (
+                {comparison['lowest_latency']['time_to_first_token']:.4f} seconds)"
         )
 
     if comparison["lowest_memory"]["model"]:
         print(
-            f"Lowest memory usage: {comparison['lowest_memory']['model']} ({comparison['lowest_memory']['memory_mb']:.2f} MB)"
+            f"Lowest memory usage: {comparison['lowest_memory']['model']} (
+                {comparison['lowest_memory']['memory_mb']:.2f} MB)"
         )
 
     print("\nRanking (best to worst):")

@@ -25,7 +25,8 @@ except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
 
-from ..schemas.common import ErrorResponse, IdResponse, PaginatedResponse, SuccessResponse
+from ..schemas.common import ErrorResponse, IdResponse, PaginatedResponse, 
+    SuccessResponse
 
 # Import schemas
 from ..schemas.monetization import (
@@ -88,7 +89,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if monetization module is available
             if not MONETIZATION_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Monetization module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Monetization module not available")
 
             # Generate model ID
             model_id = str(uuid.uuid4())
@@ -133,7 +135,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if monetization module is available
             if not MONETIZATION_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Monetization module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Monetization module not available")
 
             # Here we would get the actual subscription models
             # For now, return mock data
@@ -245,6 +248,7 @@ if FASTAPI_AVAILABLE:
         responses={
             200: {"description": "Subscription model details"},
             404: {"model": ErrorResponse, "description": "Subscription model not found"},
+                
             500: {"model": ErrorResponse, "description": "Internal server error"},
         },
         summary="Get subscription model details",
@@ -265,7 +269,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if monetization module is available
             if not MONETIZATION_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Monetization module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Monetization module not available")
 
             # Here we would get the actual subscription model
             # For now, check if the ID matches our mock data
@@ -391,7 +396,8 @@ if FASTAPI_AVAILABLE:
         try:
             # Check if monetization module is available
             if not MONETIZATION_AVAILABLE:
-                raise HTTPException(status_code=500, detail="Monetization module not available")
+                raise HTTPException(status_code=500, 
+                    detail="Monetization module not available")
 
             # Generate projection ID
             projection_id = str(uuid.uuid4())

@@ -65,7 +65,8 @@ def channel_strategy():
 
 
 def test_persona_to_content_to_ab_testing_workflow(
-    persona_creator, content_generator, style_adjuster, tone_analyzer, ab_testing, market_analyzer
+    persona_creator, content_generator, style_adjuster, tone_analyzer, ab_testing, 
+        market_analyzer
 ):
     """
     Test the complete workflow from user persona to A / B testing.
@@ -188,18 +189,22 @@ def test_persona_to_content_to_ab_testing_workflow(
     for persona in personas:
         # Get the original content for this persona
         original_content = next(
-            piece["content"] for piece in content_pieces if piece["persona_id"] == persona["id"]
+            piece["content"] for piece in content_pieces if piece["persona_id"] == \
+                persona["id"]
         )
 
         # Get variations for this persona
-        persona_variations = [var for var in variations if var["persona_id"] == persona["id"]]
+        persona_variations = \
+            [var for var in variations if var["persona_id"] == persona["id"]]
 
         # Create variants for the A / B test
-        variants = [{"name": "Control", "is_control": True, "content": original_content}]
+        variants = [{"name": "Control", "is_control": True, 
+            "content": original_content}]
 
         for var in persona_variations:
             variant = {
                 "name": f"{var['variation_type'].capitalize()} - {var['variation_value']}",
+                    
                 "is_control": False,
                 "content": var["content"],
             }
@@ -272,12 +277,14 @@ def test_persona_to_content_to_ab_testing_workflow(
                 elif "Style" in variant_name:
                     style = variant_name.split(" - ")[1]
                     # Adjust conversion rate based on persona - style match
-                    if "direct" in persona.get("psychographics", {}).get("decision_making", ""):
+                    if "direct" in persona.get("psychographics", 
+                        {}).get("decision_making", ""):
                         if style == "direct":
                             base_conversion_rate *= 1.2
                         else:
                             base_conversion_rate *= 0.95
-                    elif "story" in persona.get("psychographics", {}).get("decision_making", ""):
+                    elif "story" in persona.get("psychographics", 
+                        {}).get("decision_making", ""):
                         if style == "storytelling":
                             base_conversion_rate *= 1.2
                         else:
@@ -342,7 +349,8 @@ def test_persona_to_multichannel_content_strategy(
         channels = channel_strategy.analyze_channels_for_persona(persona)
 
         # Select top 3 channels
-        top_channels = sorted(channels, key=lambda c: c["effectiveness_score"], reverse=True)[:3]
+        top_channels = sorted(channels, key=lambda c: c["effectiveness_score"], 
+            reverse=True)[:3]
 
         persona_channels[persona["id"]] = top_channels
 

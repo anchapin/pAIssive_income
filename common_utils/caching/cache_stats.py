@@ -180,7 +180,8 @@ class CacheStatsDashboard:
             total_hits = sum(stats.hits for stats in self._namespace_stats.values())
             total_misses = sum(stats.misses for stats in self._namespace_stats.values())
             total_sets = sum(stats.sets for stats in self._namespace_stats.values())
-            total_deletes = sum(stats.deletes for stats in self._namespace_stats.values())
+            total_deletes = \
+                sum(stats.deletes for stats in self._namespace_stats.values())
             total_clears = sum(stats.clears for stats in self._namespace_stats.values())
             total_size_bytes = sum(
                 stats.cache_size_bytes for stats in self._namespace_stats.values()
@@ -198,6 +199,7 @@ class CacheStatsDashboard:
                 "total_clears": total_clears,
                 "total_gets": total_gets,
                 "total_operations": total_gets + total_sets + total_deletes + total_clears,
+                    
                 "overall_hit_rate": hit_rate,
                 "total_size_bytes": total_size_bytes,
                 "total_size_mb": total_size_bytes / (1024 * 1024),
@@ -217,14 +219,16 @@ class CacheStatsDashboard:
 
             # Check namespaces with low hit rates
             for namespace, stats in self._namespace_stats.items():
-                if stats.hits + stats.misses > 10:  # Only consider namespaces with enough data
+                if stats.hits + \
+                    stats.misses > 10:  # Only consider namespaces with enough data
                     if stats.hit_rate < 0.3:
                         recommendations.append(
                             {
                                 "namespace": namespace,
                                 "issue": "low_hit_rate",
                                 "message": (
-                                    f"Low hit rate ({stats.hit_rate:.2%}) for namespace '{namespace}'. "
+                                    f"Low hit rate (
+                                        {stats.hit_rate:.2%}) for namespace '{namespace}'. "
                                     f"Consider adjusting TTL or caching strategy."
                                 ),
                                 "hit_rate": stats.hit_rate,
@@ -236,7 +240,8 @@ class CacheStatsDashboard:
                                 "namespace": namespace,
                                 "issue": "high_hit_rate",
                                 "message": (
-                                    f"Very high hit rate ({stats.hit_rate:.2%}) for namespace '{namespace}'. "
+                                    f"Very high hit rate (
+                                        {stats.hit_rate:.2%}) for namespace '{namespace}'. "
                                     f"Consider increasing TTL to improve performance."
                                 ),
                                 "hit_rate": stats.hit_rate,
@@ -278,8 +283,10 @@ class CacheStatsDashboard:
                     report = self.generate_report()
                     summary = report["summary"]
                     logger.info(
-                        f"Cache stats: {summary['total_gets']} gets (hit rate: {summary['overall_hit_rate']:.2%}), "
-                        f"{summary['total_sets']} sets, {summary['total_size_mb']:.2f} MB"
+                        f"Cache stats: {summary['total_gets']} gets (hit rate: {summary['overall_hit_rate']:.2%}), 
+                            "
+                        f"{summary['total_sets']} sets, 
+                            {summary['total_size_mb']:.2f} MB"
                     )
 
                     # Log recommendations

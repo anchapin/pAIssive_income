@@ -20,7 +20,8 @@ user_ids = st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")
 tier_names = st.text(min_size=1, max_size=50).filter(lambda x: x.strip() != "")
 tier_prices = st.floats(min_value=0.01, max_value=999.99)
 billing_cycles = st.sampled_from(["monthly", "annual"])
-start_dates = st.datetimes(min_value=datetime(2020, 1, 1), max_value=datetime(2030, 1, 1))
+start_dates = st.datetimes(min_value=datetime(2020, 1, 1), max_value=datetime(2030, 1, 
+    1))
 
 
 @st.composite
@@ -48,7 +49,8 @@ def subscription_plans(draw):
             name=f"Tier {i + 1}",
             description=f"Test tier {i + 1}",
             price_monthly=draw(tier_prices),
-            price_annual=draw(tier_prices) * 10,  # Annual price typically lower than 12x monthly
+            price_annual=draw(tier_prices) * 10,  
+                # Annual price typically lower than 12x monthly
         )
 
         # Add all features to this tier with random limits
@@ -58,7 +60,8 @@ def subscription_plans(draw):
                 feature["id"],
                 value=True,
                 limit=(
-                    draw(st.integers(min_value=10, max_value=1000)) if draw(st.booleans()) else None
+                    draw(st.integers(min_value=10, 
+                        max_value=1000)) if draw(st.booleans()) else None
                 ),
             )
 
@@ -152,7 +155,8 @@ def test_subscription_manager_properties(subscription_list):
                 assert retrieved.plan_id == subscription.plan_id
                 break
 
-        assert found, f"Subscription {subscription.id} not found in user's subscriptions"
+        assert found, 
+            f"Subscription {subscription.id} not found in user's subscriptions"
 
     # Property 3: Cancel operation should change subscription status to CANCELED
     # Pick the first subscription to cancel
@@ -258,7 +262,8 @@ def test_pause_resume_properties(subscription, pause_days):
     assert resumed_sub.current_period_end > original_next_billing
 
 
-@given(subscription=subscriptions(), new_billing_cycle=st.sampled_from(["monthly", "annual"]))
+@given(subscription=subscriptions(), new_billing_cycle=st.sampled_from(["monthly", 
+    "annual"]))
 @settings(suppress_health_check=[HealthCheck.filter_too_much])
 def test_change_billing_cycle_properties(subscription, new_billing_cycle):
     """Test properties of changing billing cycles."""
@@ -310,10 +315,12 @@ def test_change_billing_cycle_properties(subscription, new_billing_cycle):
     # Property 3: The current_period_end should be adjusted according to the new billing cycle
     if new_billing_cycle == "monthly":
         # A monthly period is shorter than an annual period
-        assert (updated_sub.current_period_end - updated_sub.current_period_start).days <= 31
+        assert (updated_sub.current_period_end - \
+            updated_sub.current_period_start).days <= 31
     else:  # annual
         # An annual period is longer than a monthly period
-        assert (updated_sub.current_period_end - updated_sub.current_period_start).days >= 364
+        assert (updated_sub.current_period_end - \
+            updated_sub.current_period_start).days >= 364
 
 
 @given(subscription=subscriptions())
@@ -330,12 +337,14 @@ def test_feature_access_properties(subscription):
     # Property 1: The subscription should have access to all features in its tier
     for feature in tier_features:
         if (
-            isinstance(feature, dict) and feature.get("value") is True and "name" in feature
+            isinstance(feature, 
+                dict) and feature.get("value") is True and "name" in feature
         ):  # Only check features that are enabled
             assert manager.has_feature_access(subscription.id, feature["name"]) is True
 
     # Property 2: Subscription should not have access to non - existent features
-    assert manager.has_feature_access(subscription.id, "Non - existent Feature") is False
+    assert manager.has_feature_access(subscription.id, 
+        "Non - existent Feature") is False
 
     # Property 3: Features with limits should respect those limits
     for feature in tier_features:
@@ -392,11 +401,13 @@ def test_subscription_state_transitions(subscription):
     if subscription.status == SubscriptionStatus.CANCELED:
         manager.reactivate_subscription(subscription.id)
         updated_sub = manager.get_subscription(subscription.id)
-        assert updated_sub.status in [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]
+        assert updated_sub.status in [SubscriptionStatus.ACTIVE, 
+            SubscriptionStatus.TRIAL]
 
     # Property 3: Updating subscription status directly should work
     new_status = SubscriptionStatus.PAST_DUE
-    manager.update_subscription_status(subscription.id, new_status, "Testing status change")
+    manager.update_subscription_status(subscription.id, new_status, 
+        "Testing status change")
     updated_sub = manager.get_subscription(subscription.id)
     assert updated_sub.status == new_status
 
@@ -411,7 +422,8 @@ def test_trial_expiration_properties(subscription):
     """Test properties of trial expirations."""
     # Force the subscription into trial mode
     subscription.status = SubscriptionStatus.TRIAL
-    subscription.trial_end_date = datetime.now() - timedelta(days=1)  # Trial ended yesterday
+    subscription.trial_end_date = datetime.now() - \
+        timedelta(days=1)  # Trial ended yesterday
 
     # Create a SubscriptionManager instance with our generated subscription
     manager = SubscriptionManager()
@@ -462,7 +474,8 @@ def test_tier_upgrade_downgrade_properties(subscription):
             if isinstance(current_tier, dict)
             else current_tier.price_monthly
         )
-        tier_monthly_price = tier["price_monthly"] if isinstance(tier, dict) else tier.price_monthly
+        tier_monthly_price = tier["price_monthly"] if isinstance(tier, 
+            dict) else tier.price_monthly
 
         if tier_monthly_price > current_monthly_price:
             upgrade_tier = tier
@@ -479,7 +492,8 @@ def test_tier_upgrade_downgrade_properties(subscription):
 
         # Upgrade to the higher tier
         result = manager.change_subscription_tier(
-            subscription_id=subscription.id, new_tier_id=upgrade_tier["id"], prorate=True
+            subscription_id=subscription.id, new_tier_id=upgrade_tier["id"], 
+                prorate=True
         )
 
         # Print the result
@@ -519,7 +533,8 @@ def test_tier_upgrade_downgrade_properties(subscription):
             if isinstance(current_tier, dict)
             else current_tier.price_monthly
         )
-        tier_monthly_price = tier["price_monthly"] if isinstance(tier, dict) else tier.price_monthly
+        tier_monthly_price = tier["price_monthly"] if isinstance(tier, 
+            dict) else tier.price_monthly
 
         if tier_monthly_price < current_monthly_price:
             downgrade_tier = tier
@@ -538,7 +553,8 @@ def test_tier_upgrade_downgrade_properties(subscription):
 
         # Downgrade to the lower tier
         manager.change_subscription_tier(
-            subscription_id=subscription.id, new_tier_id=downgrade_tier["id"], prorate=True
+            subscription_id=subscription.id, new_tier_id=downgrade_tier["id"], 
+                prorate=True
         )
 
         # Check the updated subscription
@@ -567,7 +583,8 @@ def test_tier_upgrade_downgrade_properties(subscription):
         assert tier_change["new_tier_id"] == downgraded_sub.tier_id
 
 
-@given(subscription=subscriptions(), proration_days=st.integers(min_value=1, max_value=29))
+@given(subscription=subscriptions(), proration_days=st.integers(min_value=1, 
+    max_value=29))
 @settings(suppress_health_check=[HealthCheck.filter_too_much])
 def test_subscription_proration_properties(subscription, proration_days):
     """Test properties of subscription proration when changing tiers or billing cycles."""
@@ -707,7 +724,8 @@ def add_subscription(manager, plan):
 
     # Create and add subscription
     sub = Subscription(
-        user_id="test_user", plan=plan, tier_id=plan.tiers[0]["id"], billing_cycle="monthly"
+        user_id="test_user", plan=plan, tier_id=plan.tiers[0]["id"], 
+            billing_cycle="monthly"
     )
     manager.add_subscription(sub)
     return sub

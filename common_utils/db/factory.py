@@ -21,7 +21,8 @@ class DatabaseFactory:
     @staticmethod
     def create_database(db_type: str, config: Dict[str, Any]) -> DatabaseInterface:
         """
-        Create and return a database instance based on the provided type and configuration.
+        Create and \
+            return a database instance based on the provided type and configuration.
 
         Args:
             db_type: The type of database ('sqlite', 'mongodb', etc.)
@@ -41,9 +42,11 @@ class DatabaseFactory:
             return SQLiteAdapter(db_path)
 
         elif db_type == "mongodb":
-            connection_string = config.get("connection_string", "mongodb://localhost:27017")
+            connection_string = config.get("connection_string", 
+                "mongodb://localhost:27017")
             db_name = config.get("db_name", "default")
-            logger.info(f"Creating MongoDB connection to {connection_string}, database: {db_name}")
+            logger.info(f"Creating MongoDB connection to {connection_string}, 
+                database: {db_name}")
             return MongoDBAdapter(connection_string, db_name)
 
         else:

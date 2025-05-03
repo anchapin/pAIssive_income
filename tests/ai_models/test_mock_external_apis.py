@@ -185,7 +185,8 @@ class TestMockExternalAPIs(unittest.TestCase):
             status_code=201,
         )
 
-        response = mock_requests.post("https://api.example.com / create", json={"name": "Test"})
+        response = mock_requests.post("https://api.example.com / create", 
+            json={"name": "Test"})
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["id"], 123)
 
@@ -196,9 +197,11 @@ class TestMockExternalAPIs(unittest.TestCase):
         # Verify request history
         self.assertEqual(len(mock_requests.request_history), 3)
         self.assertEqual(mock_requests.request_history[0]["method"], "GET")
-        self.assertEqual(mock_requests.request_history[0]["url"], "https://api.example.com / data")
+        self.assertEqual(mock_requests.request_history[0]["url"], 
+            "https://api.example.com / data")
         self.assertEqual(mock_requests.request_history[1]["method"], "POST")
-        self.assertEqual(mock_requests.request_history[1]["url"], "https://api.example.com / create")
+        self.assertEqual(mock_requests.request_history[1]["url"], 
+            "https://api.example.com / create")
 
     def test_mock_openai_api(self):
         """Test mock OpenAI API."""
@@ -262,7 +265,8 @@ class TestMockExternalAPIs(unittest.TestCase):
     def test_mock_huggingface_hub(self):
         """Test mock Hugging Face Hub."""
         # Test downloading a file
-        file_path = mock_huggingface_hub.hf_hub_download(repo_id="gpt2", filename="config.json")
+        file_path = mock_huggingface_hub.hf_hub_download(repo_id="gpt2", 
+            filename="config.json")
 
         self.assertTrue(os.path.exists(file_path))
 
@@ -290,7 +294,8 @@ class TestMockExternalAPIs(unittest.TestCase):
 
         # Test downloading without authentication
         with self.assertRaises(ValueError):
-            mock_huggingface_hub.hf_hub_download(repo_id="private / model", filename="config.json")
+            mock_huggingface_hub.hf_hub_download(repo_id="private / model", 
+                filename="config.json")
 
         # Test downloading with authentication
         mock_huggingface_hub.login(token="valid_token")
@@ -367,7 +372,8 @@ def test_with_pytest_fixtures(mock_http, mock_hf_hub):
         json={"messages": [{"role": "user", "content": "Hello"}]},
     )
     assert response.status_code == 200
-    assert response.json()["choices"][0]["message"]["content"] == "Hello! How can I help you today?"
+    assert response.json()["choices"][0]["message"]["content"] == \
+        "Hello! How can I help you today?"
 
     # Test Hugging Face Hub download
     file_path = mock_hf_hub.hf_hub_download(repo_id="gpt2", filename="config.json")

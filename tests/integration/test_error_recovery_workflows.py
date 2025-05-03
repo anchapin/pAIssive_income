@@ -60,7 +60,8 @@ def mock_agent_team():
         yield team
 
 
-def test_partial_failure_recovery_in_workflow(market_analyzer, ab_testing, mock_agent_team):
+def test_partial_failure_recovery_in_workflow(market_analyzer, ab_testing, 
+    mock_agent_team):
     """
     Test recovery from partial failures in a multi - step workflow.
 
@@ -166,7 +167,8 @@ def test_data_consistency_after_interruption(subscription_model, pricing_calcula
     def update_pricing_with_interruption(model, calculator, interrupt_probability=0.5):
         # Store original prices for verification and recovery
         original_prices = {
-            tier["id"]: {"monthly": tier["price_monthly"], "yearly": tier["price_yearly"]}
+            tier["id"]: {"monthly": tier["price_monthly"], 
+                "yearly": tier["price_yearly"]}
             for tier in model.tiers
         }
 
@@ -268,7 +270,8 @@ def test_transaction_rollback_scenarios(ab_testing):
             return False, recorded, e
 
     # Step 3: Run successful and failing transactions
-    success_result, success_count, _ = record_interactions_in_transaction(test_id, control_id, 100)
+    success_result, success_count, _ = record_interactions_in_transaction(test_id, 
+        control_id, 100)
     fail_result, fail_count, fail_error = record_interactions_in_transaction(
         test_id, variant_id, 100, fail_at=50
     )
@@ -351,11 +354,13 @@ def test_workflow_with_compensating_actions(mock_agent_team):
         try:
             # Step 1: Develop solution
             audit_trail.append(
-                {"action": "develop_solution", "status": "started", "niche_id": niche_id}
+                {"action": "develop_solution", "status": "started", 
+                    "niche_id": niche_id}
             )
             solution = team.develop_solution(niche_id)
             audit_trail.append(
-                {"action": "develop_solution", "status": "completed", "solution_id": solution["id"]}
+                {"action": "develop_solution", "status": "completed", 
+                    "solution_id": solution["id"]}
             )
 
             # Step 2: Create monetization strategy
@@ -384,7 +389,8 @@ def test_workflow_with_compensating_actions(mock_agent_team):
                     "monetization_id": monetization["id"],
                 }
             )
-            marketing = team.create_marketing_plan(niche_id, solution["id"], monetization["id"])
+            marketing = team.create_marketing_plan(niche_id, solution["id"], 
+                monetization["id"])
             audit_trail.append(
                 {
                     "action": "create_marketing_plan",
@@ -395,7 +401,8 @@ def test_workflow_with_compensating_actions(mock_agent_team):
 
             return (
                 True,
-                {"solution": solution, "monetization": monetization, "marketing": marketing},
+                {"solution": solution, "monetization": monetization, 
+                    "marketing": marketing},
                 audit_trail,
             )
 
@@ -418,9 +425,11 @@ def test_workflow_with_compensating_actions(mock_agent_team):
                             "monetization_id": last_completed_action["monetization_id"],
                         }
                     )
-                    team.archive_monetization_strategy(last_completed_action["monetization_id"])
+                    team.archive_monetization_strategy(
+                        last_completed_action["monetization_id"])
                     audit_trail.append(
-                        {"action": "compensate_monetization_strategy", "status": "completed"}
+                        {"action": "compensate_monetization_strategy", 
+                            "status": "completed"}
                     )
 
                 elif last_completed_action["action"] == "develop_solution":
@@ -441,7 +450,8 @@ def test_workflow_with_compensating_actions(mock_agent_team):
             return False, None, audit_trail
 
     # Step 3: Run the workflow and verify it fails the first time
-    success, result, audit_trail = complete_workflow_with_compensation(mock_agent_team, "niche - 123")
+    success, result, audit_trail = complete_workflow_with_compensation(mock_agent_team, 
+        "niche - 123")
 
     # Verify the workflow failed and recorded the error
     assert success is False
@@ -450,7 +460,8 @@ def test_workflow_with_compensating_actions(mock_agent_team):
     assert mock_agent_team.develop_solution.call_count == 1
 
     # Step 4: Run the workflow again and verify it succeeds
-    success, result, audit_trail = complete_workflow_with_compensation(mock_agent_team, "niche - 123")
+    success, result, audit_trail = complete_workflow_with_compensation(mock_agent_team, 
+        "niche - 123")
 
     # Verify the workflow succeeded
     assert success is True

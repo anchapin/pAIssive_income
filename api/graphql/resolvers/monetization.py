@@ -63,7 +63,8 @@ if STRAWBERRY_AVAILABLE:
 
             # Get subscription models from service
             try:
-                models = await service.get_subscription_models(limit=limit, offset=offset)
+                models = await service.get_subscription_models(limit=limit, 
+                    offset=offset)
                 return [
                     SubscriptionModelType(
                         id=str(model.id),
@@ -71,7 +72,9 @@ if STRAWBERRY_AVAILABLE:
                         description=model.description,
                         subscription_type=SubscriptionTypeEnum(model.subscription_type),
                         created_at=model.created_at.isoformat() if model.created_at else None,
+                            
                         updated_at=model.updated_at.isoformat() if model.updated_at else None,
+                            
                     )
                     for model in models
                 ]
@@ -80,7 +83,8 @@ if STRAWBERRY_AVAILABLE:
                 return []
 
         @strawberry.field
-        async def subscription_model(self, info: Info, id: str) -> Optional[SubscriptionModelType]:
+        async def subscription_model(self, info: Info, 
+            id: str) -> Optional[SubscriptionModelType]:
             """
             Get a subscription model by ID.
 
@@ -109,7 +113,9 @@ if STRAWBERRY_AVAILABLE:
                     description=model.description,
                     subscription_type=SubscriptionTypeEnum(model.subscription_type),
                     created_at=model.created_at.isoformat() if model.created_at else None,
+                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error getting subscription model: {str(e)}")
@@ -201,7 +207,9 @@ if STRAWBERRY_AVAILABLE:
                     description=model.description,
                     subscription_type=SubscriptionTypeEnum(model.subscription_type),
                     created_at=model.created_at.isoformat() if model.created_at else None,
+                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error creating subscription model: {str(e)}")
@@ -246,7 +254,9 @@ if STRAWBERRY_AVAILABLE:
                     description=model.description,
                     subscription_type=SubscriptionTypeEnum(model.subscription_type),
                     created_at=model.created_at.isoformat() if model.created_at else None,
+                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error updating subscription model: {str(e)}")
@@ -318,7 +328,9 @@ if STRAWBERRY_AVAILABLE:
                     description=model.description,
                     subscription_type=SubscriptionTypeEnum(model.subscription_type),
                     created_at=model.created_at.isoformat() if model.created_at else None,
+                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error adding pricing tier: {str(e)}")

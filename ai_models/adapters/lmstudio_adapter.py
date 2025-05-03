@@ -73,7 +73,8 @@ class LMStudioAdapter:
             ConnectionError: If LM Studio is not running
         """
         try:
-            response = self.session.get(f"{self.base_url}/models", headers=self.headers, timeout=5)
+            response = self.session.get(f"{self.base_url}/models", headers=self.headers, 
+                timeout=5)
             if response.status_code != 200:
                 logger.warning(f"LM Studio returned status code {response.status_code}")
         except requests.exceptions.RequestException as e:
@@ -153,7 +154,8 @@ class LMStudioAdapter:
             **kwargs: Additional parameters for generation
 
         Returns:
-            Response dictionary or a generator yielding response dictionaries if streaming
+            Response dictionary or \
+                a generator yielding response dictionaries if streaming
         """
         # Prepare request data
         request_data = {
@@ -188,7 +190,8 @@ class LMStudioAdapter:
             logger.error(f"Error generating completions with {model}: {e}")
             raise
 
-    def _generate_completions_sync(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_completions_sync(self, request_data: Dict[str, Any]) -> Dict[str, 
+        Any]:
         """
         Generate completions synchronously.
 
@@ -279,7 +282,8 @@ class LMStudioAdapter:
             **kwargs: Additional parameters for chat
 
         Returns:
-            Response dictionary or a generator yielding response dictionaries if streaming
+            Response dictionary or \
+                a generator yielding response dictionaries if streaming
         """
         # Prepare request data
         request_data = {
@@ -314,7 +318,8 @@ class LMStudioAdapter:
             logger.error(f"Error generating chat completions with {model}: {e}")
             raise
 
-    def _generate_chat_completions_sync(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_chat_completions_sync(self, request_data: Dict[str, Any]) -> Dict[str, 
+        Any]:
         """
         Generate chat completions synchronously.
 
@@ -439,7 +444,8 @@ class LMStudioAdapter:
             logger.error(f"Error getting model parameters for {model}: {e}")
             raise
 
-    def set_model_parameters(self, model: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
+    def set_model_parameters(self, model: str, parameters: Dict[str, Any]) -> Dict[str, 
+        Any]:
         """
         Set parameters for a model.
 
@@ -496,7 +502,8 @@ if __name__ == "__main__":
             print(f"\nGenerating chat completions with {model_id}")
             response = adapter.generate_chat_completions(model_id, messages)
             print(
-                f"Response: {response.get('choices', [{}])[0].get('message', {}).get('content', '')}"
+                f"Response: {response.get('choices', [{}])[0].get('message', 
+                    {}).get('content', '')}"
             )
 
     except Exception as e:

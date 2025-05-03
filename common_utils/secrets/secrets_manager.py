@@ -1,8 +1,10 @@
 """
 Core Secrets Manager Implementation
 
-This module provides the core functionality for secrets management, with support for multiple
-backend storage options like environment variables, encrypted files, and external secret services.
+This module provides the core functionality for secrets management, 
+    with support for multiple
+backend storage options like environment variables, encrypted files, 
+    and external secret services.
 """
 
 import base64

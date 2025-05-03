@@ -190,7 +190,8 @@ class TestCeleryIntegration:
         @mock_celery.task(bind=True)
         def progress_task(self):
             # Simulate progress updates
-            self.update_state(state="PROGRESS", meta={"progress": 50, "message": "Halfway done"})
+            self.update_state(state="PROGRESS", meta={"progress": 50, 
+                "message": "Halfway done"})
             return "Completed"
 
         # Execute task

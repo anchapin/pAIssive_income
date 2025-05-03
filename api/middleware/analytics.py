@@ -45,7 +45,8 @@ class AnalyticsMiddleware:
 
         # Register middleware
         @app.middleware("http")
-        async def analytics_middleware(request: Request, call_next: Callable) -> Response:
+        async def analytics_middleware(request: Request, 
+            call_next: Callable) -> Response:
             return await self.dispatch(request, call_next)
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:

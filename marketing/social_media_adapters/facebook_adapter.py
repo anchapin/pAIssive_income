@@ -2,6 +2,7 @@
 Facebook adapter for social media integration.
 
 This module provides an adapter for connecting to the Facebook Graph API for posting content,
+    
 retrieving analytics, and managing social media campaigns.
 """
 
@@ -45,7 +46,8 @@ class FacebookAdapter(BaseSocialMediaAdapter):
             connection_data: Connection data including credentials and settings
         """
         super().__init__(connection_id, connection_data)
-        self.api_base_url = "https://graph.facebook.com / v18.0"  # Using latest version as of 2023
+        self.api_base_url = "https://graph.facebook.com / \
+            v18.0"  # Using latest version as of 2023
         self.app_id = self.credentials.get("app_id")
         self.app_secret = self.credentials.get("app_secret")
         self.access_token = self.credentials.get("access_token")
@@ -78,7 +80,8 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 # If we have a page ID, get page details
                 page_data = {}
                 if self.page_id:
-                    page_response = self.session.get(f"{self.api_base_url}/{self.page_id}")
+                    page_response = \
+                        self.session.get(f"{self.api_base_url}/{self.page_id}")
                     if page_response.status_code == 200:
                         page_data = page_response.json()
 
@@ -119,6 +122,7 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 raise AuthenticationError(
                     "facebook",
                     "Missing required credentials (access_token or app_id and app_secret)",
+                        
                 )
 
         except requests.exceptions.RequestException as e:
@@ -141,20 +145,23 @@ class FacebookAdapter(BaseSocialMediaAdapter):
         # Check if we have at least one content type
         if not any(key in content for key in ["message", "link", "photo", "video"]):
             raise ContentValidationError(
-                "facebook", "At least one content type (message, link, photo, video) is required"
+                "facebook", "At least one content type (message, link, photo, 
+                    video) is required"
             )
 
         # Check message length if present (Facebook's limit is 63,206 characters)
         if "message" in content and len(content["message"]) > 63206:
             raise ContentValidationError(
                 "facebook",
-                f"Message exceeds 63,206 characters (current: {len(content['message'])})",
+                f"Message exceeds 63,
+                    206 characters (current: {len(content['message'])})",
             )
 
         # Check link if present
         if "link" in content:
             if not content["link"].startswith(("http://", "https://")):
-                raise ContentValidationError("facebook", "Link must start with http:// or https://")
+                raise ContentValidationError("facebook", 
+                    "Link must start with http:// or https://")
 
         # Check photo if present
         if "photo" in content:
@@ -295,7 +302,8 @@ class FacebookAdapter(BaseSocialMediaAdapter):
         try:
             # Check if we have a page ID (required for posting)
             if not self.page_id:
-                raise SchedulingError("facebook", "Page ID is required for scheduling posts")
+                raise SchedulingError("facebook", 
+                    "Page ID is required for scheduling posts")
 
             # Prepare post data
             post_data = {}
@@ -386,7 +394,9 @@ class FacebookAdapter(BaseSocialMediaAdapter):
             response = self.session.get(
                 f"{self.api_base_url}/{post_id}",
                 params={
-                    "fields": "id,message,created_time,permalink_url,type,attachments,insights.metric(post_impressions,post_engagements,post_reactions_by_type)"
+                    "fields": "id,message,created_time,permalink_url,type,attachments,
+                        insights.metric(post_impressions,post_engagements,
+                        post_reactions_by_type)"
                 },
             )
             response.raise_for_status()
@@ -488,13 +498,15 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 # Get post insights
                 response = self.session.get(
                     f"{self.api_base_url}/{post_id}/insights",
-                    params={"metric": "post_impressions,post_engagements,post_reactions_by_type"},
+                    params={"metric": "post_impressions,post_engagements,
+                        post_reactions_by_type"},
                 )
                 response.raise_for_status()
                 result = response.json()
 
                 # Extract metrics
-                analytics = {"post_id": post_id, "metrics": self._extract_insights(result)}
+                analytics = {"post_id": post_id, 
+                    "metrics": self._extract_insights(result)}
 
                 return analytics
 
@@ -538,7 +550,8 @@ class FacebookAdapter(BaseSocialMediaAdapter):
             }
 
     def get_audience_insights(
-        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, Any]] = None
+        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Get audience insights from Facebook.
@@ -607,10 +620,14 @@ class FacebookAdapter(BaseSocialMediaAdapter):
                 ],
                 "page_likes": [
                     {"name": "Technology News", "category": "News", "affinity": 0.85},
-                    {"name": "Gadget Reviews", "category": "Technology", "affinity": 0.78},
-                    {"name": "Digital Marketing", "category": "Business", "affinity": 0.72},
-                    {"name": "Startup Culture", "category": "Business", "affinity": 0.65},
-                    {"name": "Travel Destinations", "category": "Travel", "affinity": 0.45},
+                    {"name": "Gadget Reviews", "category": "Technology", 
+                        "affinity": 0.78},
+                    {"name": "Digital Marketing", "category": "Business", 
+                        "affinity": 0.72},
+                    {"name": "Startup Culture", "category": "Business", 
+                        "affinity": 0.65},
+                    {"name": "Travel Destinations", "category": "Travel", 
+                        "affinity": 0.45},
                 ],
                 "activity": {
                     "frequency": {
@@ -624,7 +641,8 @@ class FacebookAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"Facebook audience insights error: {e}")
-            return {"error": str(e), "page_id": self.page_id, "segment": segment or "all_fans"}
+            return {"error": str(e), "page_id": self.page_id, 
+                "segment": segment or "all_fans"}
 
     def _extract_insights(self, insights_data: Dict[str, Any]) -> Dict[str, Any]:
         """

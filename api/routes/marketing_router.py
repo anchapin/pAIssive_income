@@ -25,7 +25,8 @@ except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
 
-from ..schemas.common import ErrorResponse, IdResponse, PaginatedResponse, SuccessResponse
+from ..schemas.common import ErrorResponse, IdResponse, PaginatedResponse, 
+    SuccessResponse
 
 # Import schemas
 from ..schemas.marketing import (
@@ -125,7 +126,8 @@ if FASTAPI_AVAILABLE:
             ]
         except Exception as e:
             logger.error(f"Error getting personas: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error getting personas: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error getting personas: {str(e)}")
 
     @router.get(" / channels", response_model=List[ChannelResponse])
     async def get_channels():
@@ -141,7 +143,8 @@ if FASTAPI_AVAILABLE:
             ]
         except Exception as e:
             logger.error(f"Error getting channels: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error getting channels: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error getting channels: {str(e)}")
 
     @router.post(
         " / strategies/{strategy_id}/content",
@@ -163,7 +166,8 @@ if FASTAPI_AVAILABLE:
             return {"task_id": task_id, "status_url": f" / api / tasks/{task_id}"}
         except Exception as e:
             logger.error(f"Error generating content: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error generating content: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error generating content: {str(e)}")
 
     @router.post(
         " / strategies / bulk",
@@ -184,7 +188,8 @@ if FASTAPI_AVAILABLE:
         except Exception as e:
             logger.error(f"Error bulk creating marketing strategies: {str(e)}")
             raise HTTPException(
-                status_code=500, detail=f"Error bulk creating marketing strategies: {str(e)}"
+                status_code=500, 
+                    detail=f"Error bulk creating marketing strategies: {str(e)}"
             )
 
     @router.post(
@@ -216,7 +221,8 @@ if FASTAPI_AVAILABLE:
             }
         except Exception as e:
             logger.error(f"Error creating campaign: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error creating campaign: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error creating campaign: {str(e)}")
 
     @router.get(
         " / campaigns/{campaign_id}",
@@ -240,7 +246,8 @@ if FASTAPI_AVAILABLE:
             }
         except Exception as e:
             logger.error(f"Error getting campaign: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error getting campaign: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error getting campaign: {str(e)}")
 
     @router.patch(
         " / campaigns/{campaign_id}/status",
@@ -252,7 +259,8 @@ if FASTAPI_AVAILABLE:
         },
     )
     async def update_campaign_status(
-        campaign_id: str = Path(..., description="Campaign ID"), data: Dict[str, Any] = Body(...)
+        campaign_id: str = Path(..., description="Campaign ID"), data: Dict[str, 
+            Any] = Body(...)
     ):
         """Update a campaign's status."""
         try:
@@ -264,7 +272,8 @@ if FASTAPI_AVAILABLE:
             }
         except Exception as e:
             logger.error(f"Error updating campaign status: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error updating campaign status: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error updating campaign status: {str(e)}")
 
     @router.get(
         " / campaigns/{campaign_id}/metrics",
@@ -295,4 +304,5 @@ if FASTAPI_AVAILABLE:
             }
         except Exception as e:
             logger.error(f"Error getting campaign metrics: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error getting campaign metrics: {str(e)}")
+            raise HTTPException(status_code=500, 
+                detail=f"Error getting campaign metrics: {str(e)}")

@@ -34,7 +34,8 @@ class DeployCommand(BaseCommand):
         Args:
             parser: Argument parser
         """
-        parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
+        parser.add_argument("--model - path", type=str, required=True, 
+            help="Path to the model")
         parser.add_argument(
             "--model - type",
             type=str,
@@ -79,7 +80,8 @@ class DeployCommand(BaseCommand):
             default="4Gi",
             help="Memory limit for the deployment",
         )
-        parser.add_argument("--gpu - count", type=int, default=0, help="Number of GPUs to use")
+        parser.add_argument("--gpu - count", type=int, default=0, 
+            help="Number of GPUs to use")
         parser.add_argument(
             "--replicas",
             type=int,
@@ -92,10 +94,14 @@ class DeployCommand(BaseCommand):
             default="us - west - 2",
             help="Region for cloud deployment",
         )
-        parser.add_argument("--instance - type", type=str, help="Instance type for cloud deployment")
-        parser.add_argument("--enable - auth", action="store_true", help="Enable authentication")
-        parser.add_argument("--enable - https", action="store_true", help="Enable HTTPS")
-        parser.add_argument("--config - file", type=str, help="Path to configuration file")
+        parser.add_argument("--instance - type", type=str, 
+            help="Instance type for cloud deployment")
+        parser.add_argument("--enable - auth", action="store_true", 
+            help="Enable authentication")
+        parser.add_argument("--enable - https", action="store_true", 
+            help="Enable HTTPS")
+        parser.add_argument("--config - file", type=str, 
+            help="Path to configuration file")
 
     def run(self) -> int:
         """
@@ -126,11 +132,13 @@ class DeployCommand(BaseCommand):
             elif self.args.deployment_type in ["aws", "gcp", "azure"]:
                 return self._generate_cloud_config(config_dict)
             else:
-                logger.error(f"Unsupported deployment type: {self.args.deployment_type}")
+                logger.error(
+                    f"Unsupported deployment type: {self.args.deployment_type}")
                 return 1
 
         except Exception as e:
-            logger.error(f"Error generating deployment configuration: {e}", exc_info=True)
+            logger.error(f"Error generating deployment configuration: {e}", 
+                exc_info=True)
             return 1
 
     def _generate_docker_config(self, config_dict: Dict[str, Any]) -> int:

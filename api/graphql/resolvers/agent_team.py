@@ -69,7 +69,8 @@ if STRAWBERRY_AVAILABLE:
 
             # Get agents from service
             try:
-                agents = await service.get_agents(team_id=team_id, limit=limit, offset=offset)
+                agents = await service.get_agents(team_id=team_id, limit=limit, 
+                    offset=offset)
 
                 return [
                     AgentType(
@@ -80,7 +81,9 @@ if STRAWBERRY_AVAILABLE:
                         capabilities=agent.capabilities,
                         model_id=str(agent.model_id) if agent.model_id else None,
                         created_at=agent.created_at.isoformat() if agent.created_at else None,
+                            
                         updated_at=agent.updated_at.isoformat() if agent.updated_at else None,
+                            
                     )
                     for agent in agents
                 ]
@@ -120,7 +123,9 @@ if STRAWBERRY_AVAILABLE:
                     capabilities=agent.capabilities,
                     model_id=str(agent.model_id) if agent.model_id else None,
                     created_at=agent.created_at.isoformat() if agent.created_at else None,
+                        
                     updated_at=agent.updated_at.isoformat() if agent.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error getting agent: {str(e)}")
@@ -157,7 +162,9 @@ if STRAWBERRY_AVAILABLE:
                         name=team.name,
                         description=team.description,
                         created_at=team.created_at.isoformat() if team.created_at else None,
+                            
                         updated_at=team.updated_at.isoformat() if team.updated_at else None,
+                            
                     )
                     for team in teams
                 ]
@@ -216,7 +223,9 @@ if STRAWBERRY_AVAILABLE:
                         priority=TaskPriorityEnum(task.priority),
                         due_date=task.due_date.isoformat() if task.due_date else None,
                         created_at=task.created_at.isoformat() if task.created_at else None,
+                            
                         updated_at=task.updated_at.isoformat() if task.updated_at else None,
+                            
                     )
                     for task in tasks
                 ]
@@ -229,7 +238,8 @@ if STRAWBERRY_AVAILABLE:
         """Agent team mutation resolvers."""
 
         @strawberry.mutation
-        async def create_agent(self, info: Info, input: AgentInput) -> Optional[AgentType]:
+        async def create_agent(self, info: Info, 
+            input: AgentInput) -> Optional[AgentType]:
             """
             Create a new agent.
 
@@ -264,14 +274,17 @@ if STRAWBERRY_AVAILABLE:
                     capabilities=agent.capabilities,
                     model_id=str(agent.model_id) if agent.model_id else None,
                     created_at=agent.created_at.isoformat() if agent.created_at else None,
+                        
                     updated_at=agent.updated_at.isoformat() if agent.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error creating agent: {str(e)}")
                 return None
 
         @strawberry.mutation
-        async def update_agent(self, info: Info, id: str, input: AgentInput) -> Optional[AgentType]:
+        async def update_agent(self, info: Info, id: str, 
+            input: AgentInput) -> Optional[AgentType]:
             """
             Update an agent.
 
@@ -311,7 +324,9 @@ if STRAWBERRY_AVAILABLE:
                     capabilities=agent.capabilities,
                     model_id=str(agent.model_id) if agent.model_id else None,
                     created_at=agent.created_at.isoformat() if agent.created_at else None,
+                        
                     updated_at=agent.updated_at.isoformat() if agent.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error updating agent: {str(e)}")
@@ -364,7 +379,8 @@ if STRAWBERRY_AVAILABLE:
             # Create team
             try:
                 team = await service.create_team(
-                    name=input.name, description=input.description, agent_ids=input.agent_ids
+                    name=input.name, description=input.description, 
+                        agent_ids=input.agent_ids
                 )
 
                 return TeamType(

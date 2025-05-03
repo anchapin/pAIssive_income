@@ -76,6 +76,7 @@ def plot_benchmark_results(
     # Add title
     plt.suptitle(
         f"{result.benchmark_type.value.capitalize()} Benchmark: {os.path.basename(result.model_path)}",
+            
         fontsize=16,
     )
 
@@ -336,7 +337,8 @@ def _plot_latency_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) ->
         **kwargs: Additional parameters for plotting
     """
     if not result.latency_ms:
-        plt.text(0.5, 0.5, "No latency data available", ha="center", va="center", fontsize=14)
+        plt.text(0.5, 0.5, "No latency data available", ha="center", va="center", 
+            fontsize=14)
         return
 
     # Create subplots
@@ -402,7 +404,8 @@ def _plot_latency_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) ->
         )
 
 
-def _plot_throughput_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -> None:
+def _plot_throughput_results(fig: plt.Figure, result: BenchmarkResult, 
+    **kwargs) -> None:
     """
     Plot throughput benchmark results.
 
@@ -460,7 +463,8 @@ def _plot_memory_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -> 
         **kwargs: Additional parameters for plotting
     """
     if not result.memory_usage_mb:
-        plt.text(0.5, 0.5, "No memory data available", ha="center", va="center", fontsize=14)
+        plt.text(0.5, 0.5, "No memory data available", ha="center", va="center", 
+            fontsize=14)
         return
 
     # Create subplot
@@ -549,7 +553,8 @@ def _plot_accuracy_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -
     ax.set_ylim(0, 100)
 
 
-def _plot_perplexity_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -> None:
+def _plot_perplexity_results(fig: plt.Figure, result: BenchmarkResult, 
+    **kwargs) -> None:
     """
     Plot perplexity benchmark results.
 
@@ -602,7 +607,8 @@ def _plot_rouge_results(fig: plt.Figure, result: BenchmarkResult, **kwargs) -> N
         **kwargs: Additional parameters for plotting
     """
     if not result.rouge_scores:
-        plt.text(0.5, 0.5, "No ROUGE data available", ha="center", va="center", fontsize=14)
+        plt.text(0.5, 0.5, "No ROUGE data available", ha="center", va="center", 
+            fontsize=14)
         return
 
     # Create subplot

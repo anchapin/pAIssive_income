@@ -91,7 +91,8 @@ class MockRegionalEndpoint:
             "request_count": self.request_count,
             "failed_requests": self.failed_requests,
             "failure_rate": (
-                self.failed_requests / self.request_count if self.request_count > 0 else 0
+                self.failed_requests / \
+                    self.request_count if self.request_count > 0 else 0
             ),
             "average_latency": (
                 self.total_latency / self.request_count if self.request_count > 0 else 0
@@ -139,7 +140,8 @@ class GeoDistributedLoadTester:
             requests_per_region: Number of requests to send to each region
             concurrency: Maximum number of concurrent requests
             request_distribution: Optional distribution of requests across regions
-                                 (e.g., {"us - east": 0.4, "eu - west": 0.3, "ap - southeast": 0.3})
+                                 (e.g., {"us - east": 0.4, "eu - west": 0.3, 
+                                     "ap - southeast": 0.3})
 
         Returns:
             Test results
@@ -158,12 +160,14 @@ class GeoDistributedLoadTester:
         # Create request distribution if not provided
         if request_distribution is None:
             # Equal distribution across all regions
-            request_distribution = {region: 1.0 / len(self.endpoints) for region in self.endpoints}
+            request_distribution = {region: 1.0 / \
+                len(self.endpoints) for region in self.endpoints}
 
         # Calculate number of requests per region based on distribution
         total_requests = requests_per_region * len(self.endpoints)
         region_requests = {
-            region: int(total_requests * weight) for region, weight in request_distribution.items()
+            region: int(total_requests * weight) for region, 
+                weight in request_distribution.items()
         }
 
         # Ensure we're not missing any requests due to rounding
@@ -184,7 +188,8 @@ class GeoDistributedLoadTester:
 
         # Start worker tasks
         workers = [
-            asyncio.create_task(self._process_request(request_queue)) for _ in range(concurrency)
+            asyncio.create_task(
+                self._process_request(request_queue)) for _ in range(concurrency)
         ]
 
         # Wait for all requests to be processed
@@ -196,22 +201,26 @@ class GeoDistributedLoadTester:
 
         # Calculate final results
         self.results["end_time"] = time.time()
-        self.results["total_duration"] = self.results["end_time"] - self.results["start_time"]
+        self.results["total_duration"] = self.results["end_time"] - \
+            self.results["start_time"]
 
         # Get regional metrics
         for region, endpoint in self.endpoints.items():
             self.results["regional_metrics"][region] = endpoint.get_metrics()
 
         # Calculate overall metrics
-        self.results["total_requests"] = sum(e.request_count for e in self.endpoints.values())
-        self.results["failed_requests"] = sum(e.failed_requests for e in self.endpoints.values())
+        self.results["total_requests"] = \
+            sum(e.request_count for e in self.endpoints.values())
+        self.results["failed_requests"] = \
+            sum(e.failed_requests for e in self.endpoints.values())
         self.results["successful_requests"] = (
             self.results["total_requests"] - self.results["failed_requests"]
         )
 
         total_latency = sum(e.total_latency for e in self.endpoints.values())
         if self.results["total_requests"] > 0:
-            self.results["average_latency"] = total_latency / self.results["total_requests"]
+            self.results["average_latency"] = total_latency / \
+                self.results["total_requests"]
 
         return self.results
 
@@ -271,7 +280,8 @@ async def test_geographically_distributed_load():
     tester = GeoDistributedLoadTester()
 
     # Run a distributed load test with equal distribution
-    results = await tester.run_distributed_load_test(requests_per_region=100, concurrency=20)
+    results = await tester.run_distributed_load_test(requests_per_region=100, 
+        concurrency=20)
 
     # Verify results
     assert results["total_requests"] == 600  # 100 requests * 6 regions
@@ -285,14 +295,18 @@ async def test_geographically_distributed_load():
     }
 
     results = await tester.run_distributed_load_test(
-        requests_per_region=100, concurrency=20, request_distribution=custom_distribution
+        requests_per_region=100, concurrency=20, 
+            request_distribution=custom_distribution
     )
 
     # Verify results
     assert results["total_requests"] == 600  # 100 requests * 6 regions
-    assert results["regional_metrics"]["us - east"]["request_count"] > 200  # ~40% of 600
-    assert results["regional_metrics"]["eu - west"]["request_count"] > 150  # ~30% of 600
-    assert results["regional_metrics"]["ap - southeast"]["request_count"] > 150  # ~30% of 600
+    assert results["regional_metrics"]["us - \
+        east"]["request_count"] > 200  # ~40% of 600
+    assert results["regional_metrics"]["eu - \
+        west"]["request_count"] > 150  # ~30% of 600
+    assert results["regional_metrics"]["ap - \
+        southeast"]["request_count"] > 150  # ~30% of 600
 
     # Print results
     print(json.dumps(results, indent=2))
@@ -314,7 +328,8 @@ async def test_regional_failover():
     }
 
     # Start a background task to simulate a regional failure after 1 second
-    failover_task = asyncio.create_task(tester.simulate_regional_failure("us - east", duration=2.0))
+    failover_task = asyncio.create_task(tester.simulate_regional_failure("us - east", 
+        duration=2.0))
 
     # Run a distributed load test
     results = await tester.run_distributed_load_test(
@@ -339,7 +354,8 @@ async def test_load_balancing_optimization():
 
     # Register services in different regions
     services = []
-    for i, region in enumerate(["us - east", "us - west", "eu - west", "ap - southeast"]):
+    for i, region in enumerate(["us - east", "us - west", "eu - west", 
+        "ap - southeast"]):
         service = {
             "service_id": f"api - service-{i + 1}",
             "service_name": "api - service",
@@ -377,7 +393,8 @@ async def test_load_balancing_optimization():
     weighted = WeightedRandomLoadBalancer(weight_function=capacity_weight)
 
     # Select instances multiple times
-    region_counts = {"us - east": 0, "us - west": 0, "eu - west": 0, "ap - southeast": 0}
+    region_counts = {"us - east": 0, "us - west": 0, "eu - west": 0, 
+        "ap - southeast": 0}
     for _ in range(1000):
         instance = weighted.get_instance(registry.get_services("api - service"))
         region_counts[instance["region"]] += 1
@@ -404,7 +421,8 @@ async def test_load_balancing_optimization():
 
     # Select an instance - should be the one with fewest connections
     instance = least_conn.get_instance(registry.get_services("api - service"))
-    assert instance["region"] == "ap - southeast"  # Should be the one with fewest connections
+    assert instance["region"] == "ap - \
+        southeast"  # Should be the one with fewest connections
 
     # Print results
     print(f"Round - robin distribution: {selected_regions}")

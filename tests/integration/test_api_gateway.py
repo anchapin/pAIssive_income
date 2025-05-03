@@ -11,7 +11,8 @@ import pytest
 import requests
 
 from services.errors import AuthenticationError, RateLimitExceededError, RoutingError
-from services.gateway import APIGateway, AuthManager, GatewayConfig, RateLimiter, RouteManager
+from services.gateway import APIGateway, AuthManager, GatewayConfig, RateLimiter, 
+    RouteManager
 
 
 class TestAPIGateway:
@@ -63,22 +64,26 @@ class TestAPIGateway:
             self.route_manager.register_route(**route)
 
         # Test route resolution
-        resolved = self.route_manager.resolve_route(path=" / api / v1 / users", method="GET")
+        resolved = self.route_manager.resolve_route(path=" / api / v1 / users", 
+            method="GET")
         assert resolved["service"] == "user - service"
         assert "GET" in resolved["methods"]
 
         # Test version - based routing
         self.route_manager.register_route(
-            path=" / api / v2 / users", service="user - service - v2", methods=["GET"], version="2.0"
+            path=" / api / v2 / users", service="user - service - v2", methods=["GET"], 
+                version="2.0"
         )
 
-        v2_route = self.route_manager.resolve_route(path=" / api / v2 / users", method="GET")
+        v2_route = self.route_manager.resolve_route(path=" / api / v2 / users", 
+            method="GET")
         assert v2_route["service"] == "user - service - v2"
         assert v2_route["version"] == "2.0"
 
         # Test method not allowed
         with pytest.raises(RoutingError) as exc:
-            self.route_manager.resolve_route(path=" / api / v1 / users", method="DELETE")
+            self.route_manager.resolve_route(path=" / api / v1 / users", 
+                method="DELETE")
         assert "Method not allowed" in str(exc.value)
 
         # Test route not found
@@ -108,7 +113,8 @@ class TestAPIGateway:
             "roles": ["user"],
             "exp": datetime.utcnow() - timedelta(hours=1),
         }
-        expired_token = jwt.encode(expired_payload, self.config.jwt_secret, algorithm="HS256")
+        expired_token = jwt.encode(expired_payload, self.config.jwt_secret, 
+            algorithm="HS256")
 
         with pytest.raises(AuthenticationError) as exc:
             self.auth_manager.authenticate(expired_token)
@@ -124,7 +130,8 @@ class TestAPIGateway:
             "roles": ["admin"],
             "exp": datetime.utcnow() + timedelta(hours=1),
         }
-        admin_token = jwt.encode(admin_payload, self.config.jwt_secret, algorithm="HS256")
+        admin_token = jwt.encode(admin_payload, self.config.jwt_secret, 
+            algorithm="HS256")
 
         # Admin can access admin routes
         assert self.auth_manager.authorize(admin_token, required_role="admin")
@@ -177,12 +184,14 @@ class TestAPIGateway:
         """Test complete request lifecycle through gateway."""
         # Setup test route
         self.route_manager.register_route(
-            path=" / api / test", service="test - service", methods=["GET"], version="1.0"
+            path=" / api / test", service="test - service", methods=["GET"], 
+                version="1.0"
         )
 
         # Create auth token
         token = jwt.encode(
-            {"user_id": "123", "roles": ["user"], "exp": datetime.utcnow() + timedelta(hours=1)},
+            {"user_id": "123", "roles": ["user"], 
+                "exp": datetime.utcnow() + timedelta(hours=1)},
             self.config.jwt_secret,
             algorithm="HS256",
         )

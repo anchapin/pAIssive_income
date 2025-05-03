@@ -52,6 +52,7 @@ class ValidationError(Exception):
             String representation
         """
         if self.validation_errors:
-            error_details = ", ".join(f"{e['field']}: {e['error']}" for e in self.validation_errors)
+            error_details = ", 
+                ".join(f"{e['field']}: {e['error']}" for e in self.validation_errors)
             return f"{self.message}: {error_details}"
         return self.message

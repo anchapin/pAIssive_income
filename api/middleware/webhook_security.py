@@ -88,7 +88,8 @@ class WebhookIPAllowlistMiddleware(BaseHTTPMiddleware):
                 )
 
             return JSONResponse(
-                status_code=status.HTTP_403_FORBIDDEN, content={"detail": "IP address not allowed"}
+                status_code=status.HTTP_403_FORBIDDEN, 
+                    content={"detail": "IP address not allowed"}
             )
 
         # Continue processing
@@ -179,7 +180,8 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
             # Add rate limit headers
             response.headers["X - RateLimit - Limit"] = str(self.rate_limiter.limit)
             response.headers["X - RateLimit - Remaining"] = "0"
-            response.headers["X - RateLimit - Reset"] = str(int(reset_time)) if reset_time else ""
+            response.headers["X - \
+                RateLimit - Reset"] = str(int(reset_time)) if reset_time else ""
             response.headers["Retry - After"] = str(reset_seconds)
 
             return response
@@ -196,6 +198,7 @@ class WebhookRateLimitMiddleware(BaseHTTPMiddleware):
 
         response.headers["X - RateLimit - Limit"] = str(self.rate_limiter.limit)
         response.headers["X - RateLimit - Remaining"] = str(remaining)
-        response.headers["X - RateLimit - Reset"] = str(int(reset_time)) if reset_time else ""
+        response.headers["X - \
+            RateLimit - Reset"] = str(int(reset_time)) if reset_time else ""
 
         return response

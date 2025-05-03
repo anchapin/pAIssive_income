@@ -40,7 +40,8 @@ if FASTAPI_AVAILABLE:
         Request model for embeddings.
         """
 
-        input: Union[str, List[str]] = Field(..., description="Input text(s) for embedding")
+        input: Union[str, List[str]] = Field(..., 
+            description="Input text(s) for embedding")
         model: Optional[str] = Field(None, description="Model to use for embedding")
 
     class EmbeddingData(BaseModel):

@@ -43,12 +43,14 @@ class TestAdvancedAuthentication(unittest.TestCase):
         self.active_sessions = {}
         self.session_store.get_active_sessions.return_value = self.active_sessions
         self.session_store.add_session.side_effect = self._mock_add_session
-        self.session_store.invalidate_session.side_effect = self._mock_invalidate_session
+        self.session_store.invalidate_session.side_effect = \
+            self._mock_invalidate_session
         self.session_store.invalidate_all_user_sessions.side_effect = (
             self._mock_invalidate_all_user_sessions
         )
 
-    def _mock_add_session(self, user_id: str, session_id: str, metadata: Dict[str, Any]) -> None:
+    def _mock_add_session(self, user_id: str, session_id: str, metadata: Dict[str, 
+        Any]) -> None:
         """Mock adding a session to the store."""
         if user_id not in self.active_sessions:
             self.active_sessions[user_id] = {}
@@ -189,7 +191,8 @@ class TestAdvancedAuthentication(unittest.TestCase):
                 return {"user_id": "123", "username": username, "role": "user"}
             return None
 
-        self.auth_middleware.authenticate_user = MagicMock(side_effect=mock_authenticate)
+        self.auth_middleware.authenticate_user = \
+            MagicMock(side_effect=mock_authenticate)
 
         # Set up concurrent authentication tracking
         auth_results = []
@@ -220,7 +223,8 @@ class TestAdvancedAuthentication(unittest.TestCase):
         self.assertEqual(len(auth_tokens), 5)
 
         # Verify all tokens are valid but different
-        token_payloads = [self.auth_middleware.verify_token(token) for token in auth_tokens]
+        token_payloads = \
+            [self.auth_middleware.verify_token(token) for token in auth_tokens]
         for payload in token_payloads:
             self.assertEqual(payload["user_id"], "123")
             self.assertEqual(payload["username"], "testuser")
@@ -247,7 +251,8 @@ class TestAdvancedAuthentication(unittest.TestCase):
 
             # Clean up old attempts
             ip_attempts[ip_address] = [
-                t for t in ip_attempts[ip_address] if current_time - t < rate_limit_window
+                t for t in ip_attempts[ip_address] if current_time - \
+                    t < rate_limit_window
             ]
 
             # Check if rate limited
@@ -258,7 +263,8 @@ class TestAdvancedAuthentication(unittest.TestCase):
             ip_attempts[ip_address].append(current_time)
             return True
 
-        self.auth_middleware.check_auth_rate_limit = MagicMock(side_effect=mock_check_rate_limit)
+        self.auth_middleware.check_auth_rate_limit = \
+            MagicMock(side_effect=mock_check_rate_limit)
 
         # Test IP address
         test_ip = "192.168.1.1"
@@ -306,7 +312,8 @@ class TestAdvancedAuthentication(unittest.TestCase):
     def test_session_invalidation_all_user_sessions(self):
         """Test invalidation of all sessions for a user."""
         # Create multiple users with sessions
-        users = {"123": ["session1", "session2", "session3"], "456": ["session4", "session5"]}
+        users = {"123": ["session1", "session2", "session3"], "456": ["session4", 
+            "session5"]}
 
         for user_id, session_ids in users.items():
             for session_id in session_ids:

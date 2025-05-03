@@ -16,7 +16,8 @@ def test_market_analyzer_init():
 
     # Check that the analyzer has the expected attributes
     assert analyzer.name == "Market Analyzer"
-    assert analyzer.description == "Analyzes market segments to identify potential niches"
+    assert analyzer.description == \
+        "Analyzes market segments to identify potential niches"
 
 
 def test_analyze_market():

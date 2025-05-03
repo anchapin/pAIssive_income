@@ -75,7 +75,8 @@ class TestCompetitiveAnalysis:
         assert "vulnerability_points" in analysis
         assert isinstance(analysis["strengths"], list)
         assert isinstance(analysis["weaknesses"], list)
-        assert all(isinstance(score, float) for score in analysis["strength_scores"].values())
+        assert all(isinstance(score, 
+            float) for score in analysis["strength_scores"].values())
         assert all(0 <= score <= 1 for score in analysis["strength_scores"].values())
 
     def test_market_position_mapping(self):
@@ -121,7 +122,8 @@ class TestCompetitiveAnalysis:
         ]
 
         # Analyze gaps
-        gaps = self.competitor_analyzer.analyze_market_gaps(market_needs, competitor_offerings)
+        gaps = self.competitor_analyzer.analyze_market_gaps(market_needs, 
+            competitor_offerings)
 
         # Validate gap analysis
         assert "unmet_needs" in gaps
@@ -169,7 +171,8 @@ class TestCompetitiveAnalysis:
         """Test competitor trend tracking."""
         # Test data
         competitor_history = [
-            {"date": "2025 - 01 - 01", "features": ["code completion"], "pricing": {"monthly": 29.99}},
+            {"date": "2025 - 01 - 01", "features": ["code completion"], 
+                "pricing": {"monthly": 29.99}},
             {
                 "date": "2025 - 04 - 01",
                 "features": ["code completion", "test generation"],
@@ -199,7 +202,8 @@ class TestCompetitiveAnalysis:
         }
 
         # Analyze market concentration
-        concentration = self.competitor_analyzer.analyze_market_concentration(market_shares)
+        concentration = \
+            self.competitor_analyzer.analyze_market_concentration(market_shares)
 
         # Validate concentration analysis
         assert "herfindahl_index" in concentration

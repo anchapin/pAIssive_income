@@ -132,7 +132,8 @@ def setup_query_params_middleware(
         max_page_size: Maximum allowed page size
     """
     if not FASTAPI_AVAILABLE:
-        logger.warning("FastAPI is not available. QueryParamsMiddleware will not be added.")
+        logger.warning(
+            "FastAPI is not available. QueryParamsMiddleware will not be added.")
         return
 
     app.add_middleware(

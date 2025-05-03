@@ -63,7 +63,8 @@ if FASTAPI_AVAILABLE:
 
         text: str = Field(..., description="Text to convert to speech")
         voice: Optional[str] = Field("default", description="Voice to use")
-        response_format: str = Field("mp3", description="Format of the response (mp3 or wav)")
+        response_format: str = Field("mp3", 
+            description="Format of the response (mp3 or wav)")
 
     class TextToSpeechResponse(BaseModel):
         """
@@ -173,7 +174,8 @@ async def _transcribe_audio(model, audio_data, model_name=None, language=None):
         Transcribed text
     """
     # Transcribe audio
-    result = model.transcribe_audio(audio_data=audio_data, model=model_name, language=language)
+    result = model.transcribe_audio(audio_data=audio_data, model=model_name, 
+        language=language)
 
     # Create response
     return {"text": result["text"]}

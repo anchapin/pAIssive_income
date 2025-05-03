@@ -11,7 +11,8 @@ import os
 import threading
 import time
 import uuid
-from typing import Any, Callable, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, List, Optional, Tuple, Type, TypeVar, 
+    Union
 
 import aio_pika
 import pika
@@ -125,7 +126,8 @@ class MessageQueueClient:
 
             # Declare the exchange
             self.channel.exchange_declare(
-                exchange=self.exchange_name, exchange_type=self.exchange_type, durable=True
+                exchange=self.exchange_name, exchange_type=self.exchange_type, 
+                    durable=True
             )
 
             logger.info(f"Connected to RabbitMQ at {self.host}:{self.port}")
@@ -199,7 +201,8 @@ class MessageQueueClient:
             properties = pika.BasicProperties(
                 content_type="application / json",
                 content_encoding="utf - 8",
-                delivery_mode=2 if persistent else 1,  # 2 = persistent, 1 = non - persistent
+                delivery_mode=2 if persistent else 1,  # 2 = persistent, 
+                    1 = non - persistent
                 priority=message.priority.value,
                 message_id=message.id,
                 correlation_id=message.correlation_id,
@@ -270,7 +273,8 @@ class MessageQueueClient:
             logger.error(f"Failed to declare queue {queue_name}: {str(e)}")
             raise ConnectionError(f"Failed to declare queue {queue_name}: {str(e)}")
 
-    def bind_queue(self, queue_name: str, routing_key: str, exchange_name: Optional[str] = None):
+    def bind_queue(self, queue_name: str, routing_key: str, 
+        exchange_name: Optional[str] = None):
         """
         Bind a queue to an exchange with a routing key.
 
@@ -297,8 +301,10 @@ class MessageQueueClient:
             )
 
         except AMQPError as e:
-            logger.error(f"Failed to bind queue {queue_name} to {routing_key}: {str(e)}")
-            raise ConnectionError(f"Failed to bind queue {queue_name} to {routing_key}: {str(e)}")
+            logger.error(
+                f"Failed to bind queue {queue_name} to {routing_key}: {str(e)}")
+            raise ConnectionError(
+                f"Failed to bind queue {queue_name} to {routing_key}: {str(e)}")
 
     def consume(
         self,
@@ -391,7 +397,8 @@ class MessageQueueClient:
 
         except AMQPError as e:
             logger.error(f"Failed to start consuming from queue {queue_name}: {str(e)}")
-            raise ConsumeError(f"Failed to start consuming from queue {queue_name}: {str(e)}")
+            raise ConsumeError(
+                f"Failed to start consuming from queue {queue_name}: {str(e)}")
 
     def stop_consuming(self, consumer_tag: str):
         """
@@ -468,7 +475,8 @@ class MessageQueueClient:
 
         # Start consuming from the response queue
         consumer_tag = self.consume(
-            queue_name=queue_name, handler=handle_response, auto_ack=True, exclusive=True
+            queue_name=queue_name, handler=handle_response, auto_ack=True, 
+                exclusive=True
         )
 
         try:
@@ -482,7 +490,8 @@ class MessageQueueClient:
 
             # Check if we got a response
             if not response["received"]:
-                logger.warning(f"Request {message.id} timed out after {timeout} seconds")
+                logger.warning(
+                    f"Request {message.id} timed out after {timeout} seconds")
                 return None
 
             return response["message"]
@@ -566,11 +575,13 @@ class AsyncMessageQueueClient:
         """
         try:
             # Create connection URL
-            connection_url = f"amqp://{self.username}:{self.password}@{self.host}:{self.port}/{self.virtual_host}"
+            connection_url = \
+                f"amqp://{self.username}:{self.password}@{self.host}:{self.port}/{self.virtual_host}"
 
             # Connect to RabbitMQ
             self.connection = await aio_pika.connect_robust(
-                connection_url, reconnect_interval=self.retry_delay, heartbeat=self.heartbeat
+                connection_url, reconnect_interval=self.retry_delay, 
+                    heartbeat=self.heartbeat
             )
 
             # Create a channel
@@ -674,7 +685,8 @@ class AsyncMessageQueueClient:
             )
 
             # Publish the message
-            await exchange.publish(message=properties, routing_key=routing_key, mandatory=mandatory)
+            await exchange.publish(message=properties, routing_key=routing_key, 
+                mandatory=mandatory)
 
             logger.info(f"Published message {message.id} to {routing_key}")
 
@@ -725,7 +737,8 @@ class AsyncMessageQueueClient:
             raise ConnectionError(f"Failed to declare queue {queue_name}: {str(e)}")
 
     async def bind_queue(
-        self, queue: aio_pika.Queue, routing_key: str, exchange_name: Optional[str] = None
+        self, queue: aio_pika.Queue, routing_key: str, 
+            exchange_name: Optional[str] = None
     ):
         """
         Bind a queue to an exchange with a routing key asynchronously.
@@ -754,8 +767,10 @@ class AsyncMessageQueueClient:
             )
 
         except aio_pika.exceptions.AMQPException as e:
-            logger.error(f"Failed to bind queue {queue.name} to {routing_key}: {str(e)}")
-            raise ConnectionError(f"Failed to bind queue {queue.name} to {routing_key}: {str(e)}")
+            logger.error(
+                f"Failed to bind queue {queue.name} to {routing_key}: {str(e)}")
+            raise ConnectionError(
+                f"Failed to bind queue {queue.name} to {routing_key}: {str(e)}")
 
     async def consume(
         self,
@@ -823,15 +838,18 @@ class AsyncMessageQueueClient:
                             await message.reject(requeue=True)
 
             # Start consuming
-            consumer_tag = await queue.consume(callback=on_message, consumer_tag=consumer_tag)
+            consumer_tag = await queue.consume(callback=on_message, 
+                consumer_tag=consumer_tag)
 
-            logger.info(f"Started consuming from queue {queue_name} with tag {consumer_tag}")
+            logger.info(
+                f"Started consuming from queue {queue_name} with tag {consumer_tag}")
 
             return consumer_tag
 
         except aio_pika.exceptions.AMQPException as e:
             logger.error(f"Failed to start consuming from queue {queue_name}: {str(e)}")
-            raise ConsumeError(f"Failed to start consuming from queue {queue_name}: {str(e)}")
+            raise ConsumeError(
+                f"Failed to start consuming from queue {queue_name}: {str(e)}")
 
     async def stop_consuming(self, consumer_tag: str):
         """
@@ -920,7 +938,8 @@ class AsyncMessageQueueClient:
                 response = await asyncio.wait_for(future, timeout=timeout)
                 return response
             except asyncio.TimeoutError:
-                logger.warning(f"Request {message.id} timed out after {timeout} seconds")
+                logger.warning(
+                    f"Request {message.id} timed out after {timeout} seconds")
                 return None
 
         finally:

@@ -55,7 +55,8 @@ if FASTAPI_AVAILABLE:
         Response model for text classification.
         """
 
-        labels: List[ClassificationLabel] = Field(..., description="Classification labels")
+        labels: List[ClassificationLabel] = Field(..., 
+            description="Classification labels")
         top_label: str = Field(..., description="Top classification label")
         tokens: int = Field(..., description="Number of tokens in the input")
 

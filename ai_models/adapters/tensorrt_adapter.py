@@ -22,7 +22,8 @@ try:
 
     TORCH_AVAILABLE = True
 except ImportError:
-    logger.warning("PyTorch not available. TensorRT adapter will have limited functionality.")
+    logger.warning(
+        "PyTorch not available. TensorRT adapter will have limited functionality.")
     TORCH_AVAILABLE = False
 
 try:
@@ -30,7 +31,8 @@ try:
 
     TENSORRT_AVAILABLE = True
 except ImportError:
-    logger.warning("TensorRT not available. Please install it to use the TensorRT adapter.")
+    logger.warning(
+        "TensorRT not available. Please install it to use the TensorRT adapter.")
     TENSORRT_AVAILABLE = False
 
 try:
@@ -38,7 +40,8 @@ try:
 
     PYCUDA_AVAILABLE = True
 except ImportError:
-    logger.warning("PyCUDA not available. Please install it to use the TensorRT adapter.")
+    logger.warning(
+        "PyCUDA not available. Please install it to use the TensorRT adapter.")
     PYCUDA_AVAILABLE = False
 
 try:
@@ -104,7 +107,8 @@ class TensorRTAdapter:
 
         # Load the tokenizer if needed
         if (
-            self.model_type in ["text - generation", "text - classification", "embedding"]
+            self.model_type in ["text - generation", "text - classification", 
+                "embedding"]
             and self.tokenizer_path
         ):
             self._load_tokenizer()
@@ -128,7 +132,8 @@ class TensorRTAdapter:
             self.engine = runtime.deserialize_cuda_engine(engine_data)
 
             if not self.engine:
-                raise ValueError(f"Failed to load TensorRT engine from {self.engine_path}")
+                raise ValueError(
+                    f"Failed to load TensorRT engine from {self.engine_path}")
 
             # Create execution context
             self.context = self.engine.create_execution_context()
@@ -175,7 +180,8 @@ class TensorRTAdapter:
             logger.error(f"Error loading tokenizer: {e}")
             raise
 
-    def _allocate_buffers(self, input_shapes: Dict[str, Tuple]) -> Tuple[List, List, List]:
+    def _allocate_buffers(self, input_shapes: Dict[str, Tuple]) -> Tuple[List, List, 
+        List]:
         """
         Allocate device buffers for inputs and outputs.
 
@@ -236,16 +242,19 @@ class TensorRTAdapter:
         for name, array in inputs.items():
             index = self.engine.get_binding_index(name)
             host_buffers[index] = np.ascontiguousarray(array)
-            cuda.memcpy_htod_async(device_buffers[index], host_buffers[index], self.stream)
+            cuda.memcpy_htod_async(device_buffers[index], host_buffers[index], 
+                self.stream)
 
         # Run inference
-        self.context.execute_async_v2(bindings=bindings, stream_handle=self.stream.handle)
+        self.context.execute_async_v2(bindings=bindings, 
+            stream_handle=self.stream.handle)
 
         # Copy outputs from device to host
         outputs = {}
         for i, name in enumerate(self.output_names):
             index = self.engine.get_binding_index(name)
-            cuda.memcpy_dtoh_async(host_buffers[index], device_buffers[index], self.stream)
+            cuda.memcpy_dtoh_async(host_buffers[index], device_buffers[index], 
+                self.stream)
 
         # Synchronize
         self.stream.synchronize()
@@ -282,7 +291,8 @@ class TensorRTAdapter:
             Generated text
         """
         if self.model_type != "text - generation":
-            raise ValueError(f"Model type {self.model_type} does not support text generation")
+            raise ValueError(
+                f"Model type {self.model_type} does not support text generation")
 
         if not self.tokenizer:
             raise ValueError("Tokenizer not available. Cannot generate text.")
@@ -320,9 +330,11 @@ class TensorRTAdapter:
 
                 # Decode output
                 if output_ids.ndim > 1:
-                    output_text = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+                    output_text = self.tokenizer.decode(output_ids[0], 
+                        skip_special_tokens=True)
                 else:
-                    output_text = self.tokenizer.decode(output_ids, skip_special_tokens=True)
+                    output_text = self.tokenizer.decode(output_ids, 
+                        skip_special_tokens=True)
 
                 return output_text
             else:
@@ -331,9 +343,11 @@ class TensorRTAdapter:
                     if "output" in name.lower() or "ids" in name.lower():
                         # Decode output
                         if tensor.ndim > 1:
-                            output_text = self.tokenizer.decode(tensor[0], skip_special_tokens=True)
+                            output_text = self.tokenizer.decode(tensor[0], 
+                                skip_special_tokens=True)
                         else:
-                            output_text = self.tokenizer.decode(tensor, skip_special_tokens=True)
+                            output_text = self.tokenizer.decode(tensor, 
+                                skip_special_tokens=True)
 
                         return output_text
 
@@ -356,7 +370,8 @@ class TensorRTAdapter:
             Dictionary of class labels and scores
         """
         if self.model_type != "text - classification":
-            raise ValueError(f"Model type {self.model_type} does not support text classification")
+            raise ValueError(
+                f"Model type {self.model_type} does not support text classification")
 
         if not self.tokenizer:
             raise ValueError("Tokenizer not available. Cannot classify text.")
@@ -440,7 +455,8 @@ class TensorRTAdapter:
                 texts = text
 
             # Tokenize input
-            inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="np")
+            inputs = self.tokenizer(texts, padding=True, truncation=True, 
+                return_tensors="np")
 
             # Prepare inputs for the model
             model_inputs = {}
@@ -465,7 +481,8 @@ class TensorRTAdapter:
                         embeddings = tensor
                         break
                 else:
-                    raise ValueError("Could not find embeddings tensor in model outputs")
+                    raise ValueError(
+                        "Could not find embeddings tensor in model outputs")
 
             # Normalize embeddings if requested
             if kwargs.get("normalize", True):
@@ -497,7 +514,8 @@ class TensorRTAdapter:
             Dictionary of class labels and scores
         """
         if self.model_type != "image - classification":
-            raise ValueError(f"Model type {self.model_type} does not support image classification")
+            raise ValueError(
+                f"Model type {self.model_type} does not support image classification")
 
         try:
             # Load and preprocess image
@@ -545,7 +563,8 @@ class TensorRTAdapter:
                 probs = exp_logits / np.sum(exp_logits, axis=-1, keepdims=True)
 
             # Get class labels
-            labels = kwargs.get("labels", [f"Class {i}" for i in range(probs.shape[-1])])
+            labels = kwargs.get("labels", 
+                [f"Class {i}" for i in range(probs.shape[-1])])
 
             # Create result dictionary
             result = {label: float(prob) for label, prob in zip(labels, probs[0])}
@@ -617,8 +636,10 @@ class TensorRTAdapter:
             "max_batch_size": self.max_batch_size,
             "input_names": self.input_names,
             "output_names": self.output_names,
-            "binding_shapes": {name: list(shape) for name, shape in self.binding_shapes.items()},
-            "binding_dtypes": {name: str(dtype) for name, dtype in self.binding_dtypes.items()},
+            "binding_shapes": {name: list(shape) for name, 
+                shape in self.binding_shapes.items()},
+            "binding_dtypes": {name: str(dtype) for name, 
+                dtype in self.binding_dtypes.items()},
         }
 
         return metadata
@@ -628,7 +649,8 @@ class TensorRTAdapter:
 if __name__ == "__main__":
     # Check if TensorRT is available
     if not TENSORRT_AVAILABLE or not PYCUDA_AVAILABLE:
-        print("TensorRT or PyCUDA not available. Please install them to use the TensorRT adapter.")
+        print("TensorRT or \
+            PyCUDA not available. Please install them to use the TensorRT adapter.")
         exit(1)
 
     # Example engine path (replace with an actual TensorRT engine path)

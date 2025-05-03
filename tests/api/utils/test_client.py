@@ -143,7 +143,8 @@ class APITestClient:
         return self.client.delete(url, headers=request_headers)
 
     def bulk_create(
-        self, path: str, items: List[Dict[str, Any]], headers: Optional[Dict[str, str]] = None
+        self, path: str, items: List[Dict[str, Any]], headers: Optional[Dict[str, 
+            str]] = None
     ) -> Any:
         """
         Make a bulk create request to the API.
@@ -161,7 +162,8 @@ class APITestClient:
         return self.client.post(url, json={"items": items}, headers=request_headers)
 
     def bulk_update(
-        self, path: str, items: List[Dict[str, Any]], headers: Optional[Dict[str, str]] = None
+        self, path: str, items: List[Dict[str, Any]], headers: Optional[Dict[str, 
+            str]] = None
     ) -> Any:
         """
         Make a bulk update request to the API.
@@ -198,7 +200,8 @@ class APITestClient:
 
 
 @pytest.fixture
-def api_test_client(api_client: TestClient, api_unauth_headers: Dict[str, str]) -> APITestClient:
+def api_test_client(api_client: TestClient, api_unauth_headers: Dict[str, 
+    str]) -> APITestClient:
     """
     Create an unauthenticated API test client.
 
@@ -213,7 +216,8 @@ def api_test_client(api_client: TestClient, api_unauth_headers: Dict[str, str]) 
 
 
 @pytest.fixture
-def auth_api_test_client(api_client: TestClient, api_auth_headers: Dict[str, str]) -> APITestClient:
+def auth_api_test_client(api_client: TestClient, api_auth_headers: Dict[str, 
+    str]) -> APITestClient:
     """
     Create an authenticated API test client.
 

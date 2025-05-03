@@ -13,7 +13,8 @@ from services.discovery import (
     ServiceDiscoveryClient,
     ServiceRegistry,
 )
-from services.errors import LoadBalancingError, ServiceNotFoundError, ServiceRegistrationError
+from services.errors import LoadBalancingError, ServiceNotFoundError, 
+    ServiceRegistrationError
 
 
 class TestServiceDiscovery:
@@ -22,7 +23,8 @@ class TestServiceDiscovery:
     def setup_method(self):
         """Set up test fixtures."""
         self.config = DiscoveryConfig(
-            registry_host="localhost", registry_port=8500, service_ttl=30, check_interval=5
+            registry_host="localhost", registry_port=8500, service_ttl=30, 
+                check_interval=5
         )
         self.registry = ServiceRegistry(self.config)
         self.client = ServiceDiscoveryClient(self.config)
@@ -80,7 +82,8 @@ class TestServiceDiscovery:
             assert "check_output" in health
 
             # Simulate failing health check
-            with patch("services.discovery.ServiceRegistry._check_health") as mock_check:
+            with patch(
+                "services.discovery.ServiceRegistry._check_health") as mock_check:
                 mock_check.return_value = False
                 time.sleep(self.config.check_interval + 1)
                 health = self.registry.get_service_health(service_id)
@@ -123,12 +126,14 @@ class TestServiceDiscovery:
             # Collect weighted distribution
             port_counts = {5010: 0, 5011: 0, 5012: 0}
             for _ in range(100):
-                instance = self.load_balancer.get_instance("api - service", algorithm="weighted")
+                instance = self.load_balancer.get_instance("api - service", 
+                    algorithm="weighted")
                 port_counts[instance["port"]] += 1
 
             # Verify weighted distribution
             assert port_counts[5010] > port_counts[5011]  # Higher weight instance used more
-            assert port_counts[5011] == port_counts[5012]  # Equal weight instances used equally
+            assert port_counts[5011] == \
+                port_counts[5012]  # Equal weight instances used equally
 
         finally:
             # Clean up
@@ -155,7 +160,8 @@ class TestServiceDiscovery:
         """Test service updates and deregistration."""
         # Register service
         service_id = self.registry.register_service(
-            name="update - test - service", host="localhost", port=5020, metadata={"version": "1.0"}
+            name="update - test - service", host="localhost", port=5020, 
+                metadata={"version": "1.0"}
         )["service_id"]
 
         try:
@@ -187,7 +193,8 @@ class TestServiceDiscovery:
         """Test bulk service operations."""
         # Bulk registration
         services = [
-            {"name": "bulk - service", "host": "localhost", "port": port, "tags": [f"instance-{i}"]}
+            {"name": "bulk - service", "host": "localhost", "port": port, 
+                "tags": [f"instance-{i}"]}
             for i, port in enumerate(range(5030, 5033))
         ]
 
@@ -201,7 +208,8 @@ class TestServiceDiscovery:
             assert len(service_ids) == len(services)
 
             # Test bulk service discovery
-            discovered = self.client.get_services(service_names=["bulk - service"], tag="instance - 1")
+            discovered = self.client.get_services(service_names=["bulk - service"], 
+                tag="instance - 1")
             assert len(discovered) == 1
             assert discovered[0]["port"] == 5031
 
@@ -219,7 +227,8 @@ class TestServiceDiscovery:
         """Test service dependency resolution."""
         dependencies = {
             "auth - service": {"host": "localhost", "port": 5040, "dependencies": []},
-            "user - service": {"host": "localhost", "port": 5041, "dependencies": ["auth - service"]},
+            "user - service": {"host": "localhost", "port": 5041, 
+                "dependencies": ["auth - service"]},
             "api - gateway": {
                 "host": "localhost",
                 "port": 5042,
@@ -244,7 +253,8 @@ class TestServiceDiscovery:
 
             # Verify dependency resolution
             assert len(resolved) == 3
-            assert resolved[0]["name"] == "auth - service"  # Should be first (no dependencies)
+            assert resolved[0]["name"] == "auth - \
+                service"  # Should be first (no dependencies)
             assert resolved[1]["name"] == "user - service"
             assert resolved[2]["name"] == "api - gateway"
 

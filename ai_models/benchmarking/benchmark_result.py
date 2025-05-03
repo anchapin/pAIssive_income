@@ -196,6 +196,7 @@ class BenchmarkResult:
             "p95": self._percentile(self.latency_ms, 95),
             "p99": self._percentile(self.latency_ms, 99),
             "std_dev": (statistics.stdev(self.latency_ms) if len(self.latency_ms) > 1 else 0),
+                
         }
 
     def _percentile(self, data: List[float], percentile: float) -> float:

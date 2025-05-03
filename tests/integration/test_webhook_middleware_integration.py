@@ -10,7 +10,8 @@ import pytest
 from fastapi import FastAPI, Request, Response, status
 from fastapi.testclient import TestClient
 
-from api.middleware.webhook_security import WebhookIPAllowlistMiddleware, WebhookRateLimitMiddleware
+from api.middleware.webhook_security import WebhookIPAllowlistMiddleware, 
+    WebhookRateLimitMiddleware
 from api.services.webhook_security import WebhookIPAllowlist, WebhookRateLimiter
 
 
@@ -38,7 +39,8 @@ def app_with_ip_allowlist(ip_allowlist):
 
     # Add middleware
     app.add_middleware(
-        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix=" / webhooks"
+        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, 
+            webhook_path_prefix=" / webhooks"
     )
 
     # Add test routes
@@ -60,7 +62,8 @@ def app_with_rate_limit(rate_limiter):
 
     # Add middleware
     app.add_middleware(
-        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
+        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, 
+            webhook_path_prefix=" / webhooks"
     )
 
     # Add test routes
@@ -82,10 +85,12 @@ def app_with_both_middleware(ip_allowlist, rate_limiter):
 
     # Add middleware (order matters - IP allowlist should be first)
     app.add_middleware(
-        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, webhook_path_prefix=" / webhooks"
+        WebhookRateLimitMiddleware, rate_limiter=rate_limiter, 
+            webhook_path_prefix=" / webhooks"
     )
     app.add_middleware(
-        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, webhook_path_prefix=" / webhooks"
+        WebhookIPAllowlistMiddleware, allowlist=ip_allowlist, 
+            webhook_path_prefix=" / webhooks"
     )
 
     # Add test routes
@@ -240,7 +245,8 @@ class TestCombinedMiddleware:
 
         # Remove IP from allowlist
         app_with_both_middleware.user_middleware[0].allowlist.allowlisted_ips.clear()
-        app_with_both_middleware.user_middleware[0].allowlist.add_ip("192.168.1.1")  # Different IP
+        app_with_both_middleware.user_middleware[0].allowlist.add_ip(
+            "192.168.1.1")  # Different IP
 
         # Try to access webhook endpoint
         response = client.get(" / webhooks / test")

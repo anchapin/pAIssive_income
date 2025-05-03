@@ -21,7 +21,8 @@ try:
 
     TORCH_AVAILABLE = True
 except ImportError:
-    logger.warning("PyTorch not available. Some quantized model features will be limited.")
+    logger.warning(
+        "PyTorch not available. Some quantized model features will be limited.")
     TORCH_AVAILABLE = False
 
 try:
@@ -40,7 +41,8 @@ try:
 
     BITSANDBYTES_AVAILABLE = True
 except ImportError:
-    logger.warning("BitsAndBytes not available. 4 - bit and 8 - bit quantization will be limited.")
+    logger.warning("BitsAndBytes not available. 4 - \
+        bit and 8 - bit quantization will be limited.")
     BITSANDBYTES_AVAILABLE = False
 
 try:
@@ -48,7 +50,8 @@ try:
 
     LLAMA_CPP_AVAILABLE = True
 except ImportError:
-    logger.warning("llama - cpp - python not available. GGUF model support will be limited.")
+    logger.warning("llama - \
+        cpp - python not available. GGUF model support will be limited.")
     LLAMA_CPP_AVAILABLE = False
 
 
@@ -143,7 +146,8 @@ class QuantizedModel:
             )
 
         if not TORCH_AVAILABLE:
-            raise ImportError("PyTorch not available. Please install it with: pip install torch")
+            raise ImportError(
+                "PyTorch not available. Please install it with: pip install torch")
 
         logger.info(f"Loading quantized Hugging Face model: {self.model_path}")
 
@@ -189,7 +193,8 @@ class QuantizedModel:
                 **self.kwargs,
             )
 
-            logger.info(f"Successfully loaded quantized Hugging Face model: {self.model_path}")
+            logger.info(
+                f"Successfully loaded quantized Hugging Face model: {self.model_path}")
 
         except Exception as e:
             logger.error(f"Error loading quantized Hugging Face model: {e}")
@@ -201,7 +206,8 @@ class QuantizedModel:
         """
         if not LLAMA_CPP_AVAILABLE:
             raise ImportError(
-                "llama - cpp - python not available. Please install it with: pip install llama - cpp - python"
+                "llama - \
+                    cpp - python not available. Please install it with: pip install llama - cpp - python"
             )
 
         logger.info(f"Loading quantized GGUF model: {self.model_path}")
@@ -258,7 +264,8 @@ class QuantizedModel:
                 prompt, max_tokens, temperature, top_p, top_k, **kwargs
             )
         elif self.model_format == "gguf":
-            return self._generate_text_gguf(prompt, max_tokens, temperature, top_p, top_k, **kwargs)
+            return self._generate_text_gguf(prompt, max_tokens, temperature, top_p, 
+                top_k, **kwargs)
         else:
             raise ValueError(f"Unsupported model format: {self.model_format}")
 

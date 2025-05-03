@@ -15,7 +15,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from ai_models.metrics.api import MetricsAPI
-from ai_models.metrics.enhanced_metrics import EnhancedInferenceMetrics, EnhancedPerformanceMonitor
+from ai_models.metrics.enhanced_metrics import EnhancedInferenceMetrics, 
+    EnhancedPerformanceMonitor
 from ai_models.performance_monitor import AlertConfig
 
 
@@ -450,7 +451,8 @@ def test_alert_suppression_with_severity(metrics_api):
                 severity_levels = {"low": 1, "medium": 2, "high": 3, "critical": 4}
 
                 # Only allow if current severity is higher than previous
-                if severity_levels.get(severity, 0) <= severity_levels.get(last_alert_severity, 0):
+                if severity_levels.get(severity, 
+                    0) <= severity_levels.get(last_alert_severity, 0):
                     should_suppress = True
 
         if not should_suppress:

@@ -29,7 +29,8 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
     This middleware validates JWT tokens for service - to - service communication.
     """
 
-    def __init__(self, app, exclude_paths: Optional[List[str]] = None, require_auth: bool = True):
+    def __init__(self, app, exclude_paths: Optional[List[str]] = None, 
+        require_auth: bool = True):
         """
         Initialize the service authentication middleware.
 
@@ -75,7 +76,8 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
         try:
             # Validate the service token
             # The audience is "api - gateway" since we're validating tokens sent to the API Gateway
-            token_payload = validate_service_token(token=service_token, audience="api - gateway")
+            token_payload = validate_service_token(token=service_token, 
+                audience="api - gateway")
 
             # Add the token payload to the request state
             request.state.service_token = token_payload

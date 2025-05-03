@@ -24,7 +24,8 @@ class ThroughputMetric(BaseMetric):
         """
         super().__init__(name="throughput", unit="tokens / s", **kwargs)
 
-    def measure(self, func: Callable, token_counter: Callable, *args, **kwargs) -> float:
+    def measure(self, func: Callable, token_counter: Callable, *args, 
+        **kwargs) -> float:
         """
         Measure the throughput of a function call.
 

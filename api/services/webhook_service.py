@@ -283,7 +283,8 @@ class WebhookService:
 
         return True
 
-    async def trigger_event(self, event_type: str, event_data: Dict[str, Any]) -> List[str]:
+    async def trigger_event(self, event_type: str, event_data: Dict[str, 
+        Any]) -> List[str]:
         """
         Trigger an event and deliver it to subscribed webhooks.
 
@@ -321,7 +322,8 @@ class WebhookService:
 
                 # Queue delivery
                 await self.delivery_queue.put(delivery_id)
-                logger.info(f"Event queued for delivery: {event_type} to webhook {webhook['id']}")
+                logger.info(
+                    f"Event queued for delivery: {event_type} to webhook {webhook['id']}")
 
         return delivery_ids
 
@@ -376,12 +378,14 @@ class WebhookService:
 
                 if not success and delivery["attempts"] < delivery["max_attempts"]:
                     # Track retry attempt
-                    track_webhook_retry(webhook_id=webhook["id"], event_type=delivery["event_type"])
+                    track_webhook_retry(webhook_id=webhook["id"], 
+                        event_type=delivery["event_type"])
 
                     # Calculate next attempt time (exponential backoff)
                     backoff = min(2 ** delivery["attempts"], 60)  # Max 60 minutes
                     next_attempt = datetime.utcnow().timestamp() + backoff * 60
-                    delivery["next_attempt_at"] = datetime.fromtimestamp(next_attempt).isoformat()
+                    delivery["next_attempt_at"] = \
+                        datetime.fromtimestamp(next_attempt).isoformat()
 
                     # Record retry audit event
                     self.audit_service.create_event(
@@ -419,7 +423,8 @@ class WebhookService:
                 logger.error(f"Error in delivery worker: {str(e)}")
                 await asyncio.sleep(1)  # Small delay to avoid tight loop
 
-    async def _deliver_webhook(self, webhook: Dict[str, Any], delivery: Dict[str, Any]) -> bool:
+    async def _deliver_webhook(self, webhook: Dict[str, Any], delivery: Dict[str, 
+        Any]) -> bool:
         """
         Deliver a webhook.
 
@@ -440,7 +445,8 @@ class WebhookService:
         update_queue_size(self.delivery_queue.qsize())
 
         # Track queue latency
-        queued_time = start_time - datetime.fromisoformat(delivery["created_at"]).timestamp()
+        queued_time = start_time - \
+            datetime.fromisoformat(delivery["created_at"]).timestamp()
         track_queue_latency(queued_time)
 
         # Prepare payload
@@ -455,7 +461,8 @@ class WebhookService:
         payload_json = json.dumps(payload)
 
         # Generate signature
-        signature = WebhookSignatureVerifier.create_signature(webhook["secret"], payload_json)
+        signature = WebhookSignatureVerifier.create_signature(webhook["secret"], 
+            payload_json)
 
         # Prepare headers
         headers = {

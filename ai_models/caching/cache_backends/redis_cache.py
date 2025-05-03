@@ -44,11 +44,13 @@ class RedisCache(CacheBackend):
             db: Redis database number
             password: Redis password
             prefix: Key prefix for cache items
-            serialization: Serialization format (only json is supported for security reasons)
+            serialization: Serialization format (
+                only json is supported for security reasons)
             **kwargs: Additional parameters for the Redis client
         """
         if not REDIS_AVAILABLE:
-            raise ImportError("Redis not available. Please install it with: pip install redis")
+            raise ImportError(
+                "Redis not available. Please install it with: pip install redis")
 
         self.host = host
         self.port = port

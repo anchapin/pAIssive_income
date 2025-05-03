@@ -9,7 +9,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from services.dependency import CircularDependencyError, DependencyGraph, DependencyResolver
+from services.dependency import CircularDependencyError, DependencyGraph, 
+    DependencyResolver
 from services.discovery import (
     InMemoryServiceRegistry,
     ServiceDiscoveryClient,
@@ -25,7 +26,8 @@ def in_memory_registry():
 
     # Register test services
     services = {
-        "auth - service": {"host": "localhost", "port": 8001, "version": "1.0.0", "dependencies": []},
+        "auth - service": {"host": "localhost", "port": 8001, "version": "1.0.0", 
+            "dependencies": []},
         "user - service": {
             "host": "localhost",
             "port": 8002,
@@ -48,7 +50,8 @@ def in_memory_registry():
             "host": "localhost",
             "port": 8000,
             "version": "1.0.0",
-            "dependencies": ["auth - service", "user - service", "product - service", "order - service"],
+            "dependencies": ["auth - service", "user - service", "product - service", 
+                "order - service"],
         },
     }
 
@@ -93,14 +96,18 @@ class TestServiceDependencyResolution:
         assert "api - gateway" in dependencies
 
         # Check that auth - service comes before user - service
-        assert dependencies.index("auth - service") < dependencies.index("user - service")
+        assert dependencies.index("auth - \
+            service") < dependencies.index("user - service")
 
         # Check that user - service and product - service come before order - service
-        assert dependencies.index("user - service") < dependencies.index("order - service")
-        assert dependencies.index("product - service") < dependencies.index("order - service")
+        assert dependencies.index("user - \
+            service") < dependencies.index("order - service")
+        assert dependencies.index("product - \
+            service") < dependencies.index("order - service")
 
         # Check that all dependencies come before api - gateway
-        for dep in ["auth - service", "user - service", "product - service", "order - service"]:
+        for dep in ["auth - service", "user - service", "product - service", 
+            "order - service"]:
             assert dependencies.index(dep) < dependencies.index("api - gateway")
 
     def test_circular_dependency_detection(self, in_memory_registry):
@@ -200,11 +207,14 @@ class TestServiceDependencyResolution:
         assert "api - gateway" not in dependencies
 
         # Check that auth - service comes before user - service
-        assert dependencies.index("auth - service") < dependencies.index("user - service")
+        assert dependencies.index("auth - \
+            service") < dependencies.index("user - service")
 
         # Check that user - service and product - service come before order - service
-        assert dependencies.index("user - service") < dependencies.index("order - service")
-        assert dependencies.index("product - service") < dependencies.index("order - service")
+        assert dependencies.index("user - \
+            service") < dependencies.index("order - service")
+        assert dependencies.index("product - \
+            service") < dependencies.index("order - service")
 
 
 if __name__ == "__main__":

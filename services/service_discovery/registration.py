@@ -64,7 +64,8 @@ class ServiceRegistration:
         self.is_secure = is_secure
 
         # Get registry host and port from environment variables if not provided
-        self.registry_host = registry_host or os.environ.get("SERVICE_REGISTRY_HOST", "localhost")
+        self.registry_host = registry_host or os.environ.get("SERVICE_REGISTRY_HOST", 
+            "localhost")
 
         try:
             self.registry_port = registry_port or int(
@@ -119,7 +120,8 @@ class ServiceRegistration:
                 logger.info(f"Deregistering service {self.service_name}")
                 self.client.deregister_self()
             except Exception as e:
-                logger.error(f"Error deregistering service {self.service_name}: {str(e)}")
+                logger.error(
+                    f"Error deregistering service {self.service_name}: {str(e)}")
 
     def _signal_handler(self, sig, frame) -> None:
         """Handle termination signals."""

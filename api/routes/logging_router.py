@@ -43,7 +43,8 @@ async def get_api_logs(
     path: Optional[str] = Query(None, description="Filter by path"),
     method: Optional[str] = Query(None, description="Filter by HTTP method"),
     status_code: Optional[int] = Query(None, description="Filter by status code"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
+    limit: int = Query(100, ge=1, le=1000, 
+        description="Maximum number of logs to return"),
     offset: int = Query(0, ge=0, description="Number of logs to skip"),
     current_user: User = Depends(get_current_user),
 ):
@@ -96,7 +97,8 @@ async def get_security_logs(
     resource_type: Optional[str] = Query(None, description="Filter by resource type"),
     action: Optional[str] = Query(None, description="Filter by action"),
     status: Optional[str] = Query(None, description="Filter by status"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
+    limit: int = Query(100, ge=1, le=1000, 
+        description="Maximum number of logs to return"),
     offset: int = Query(0, ge=0, description="Number of logs to skip"),
     current_user: User = Depends(get_current_user),
 ):
@@ -158,7 +160,8 @@ async def get_webhook_logs(
     success: Optional[bool] = Query(None, description="Filter by success"),
     start_time: Optional[datetime] = Query(None, description="Filter by start time"),
     end_time: Optional[datetime] = Query(None, description="Filter by end time"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of logs to return"),
+    limit: int = Query(100, ge=1, le=1000, 
+        description="Maximum number of logs to return"),
     offset: int = Query(0, ge=0, description="Number of logs to skip"),
     current_user: User = Depends(get_current_user),
 ):

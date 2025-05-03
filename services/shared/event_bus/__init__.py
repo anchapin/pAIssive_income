@@ -5,8 +5,10 @@ This package provides utilities for event - driven architecture in the
 pAIssive income microservices platform.
 """
 
-from .bus import AsyncEventBus, EventBus, EventPublisher, EventSubscriber, EventSubscription
-from .event import AsyncEventHandler, Event, EventHandler, EventMetadata, EventSchema, EventType
+from .bus import AsyncEventBus, EventBus, EventPublisher, EventSubscriber, 
+    EventSubscription
+from .event import AsyncEventHandler, Event, EventHandler, EventMetadata, EventSchema, 
+    EventType
 from .exceptions import (
     EventBusError,
     EventHandlingError,

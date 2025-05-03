@@ -60,7 +60,8 @@ class AnalyticsDatabase:
         user_version = cursor.fetchone()[0]
 
         if user_version == 0:
-            logger.info(f"Initializing API analytics database schema v{DB_SCHEMA_VERSION}")
+            logger.info(
+                f"Initializing API analytics database schema v{DB_SCHEMA_VERSION}")
 
             # Create tables
             cursor.execute(
@@ -89,12 +90,18 @@ class AnalyticsDatabase:
             )
 
             # Create indexes
-            cursor.execute("CREATE INDEX idx_api_requests_timestamp ON api_requests(timestamp)")
-            cursor.execute("CREATE INDEX idx_api_requests_endpoint ON api_requests(endpoint)")
-            cursor.execute("CREATE INDEX idx_api_requests_version ON api_requests(version)")
-            cursor.execute("CREATE INDEX idx_api_requests_status_code ON api_requests(status_code)")
-            cursor.execute("CREATE INDEX idx_api_requests_user_id ON api_requests(user_id)")
-            cursor.execute("CREATE INDEX idx_api_requests_api_key_id ON api_requests(api_key_id)")
+            cursor.execute(
+                "CREATE INDEX idx_api_requests_timestamp ON api_requests(timestamp)")
+            cursor.execute(
+                "CREATE INDEX idx_api_requests_endpoint ON api_requests(endpoint)")
+            cursor.execute(
+                "CREATE INDEX idx_api_requests_version ON api_requests(version)")
+            cursor.execute(
+                "CREATE INDEX idx_api_requests_status_code ON api_requests(status_code)")
+            cursor.execute(
+                "CREATE INDEX idx_api_requests_user_id ON api_requests(user_id)")
+            cursor.execute(
+                "CREATE INDEX idx_api_requests_api_key_id ON api_requests(api_key_id)")
 
             # Create daily aggregated metrics table
             cursor.execute(
@@ -257,6 +264,7 @@ class AnalyticsDatabase:
                      OFFSET (SELECT COUNT(*) FROM api_requests r3
                              WHERE r3.endpoint = r1.endpoint AND r3.version = r1.version
                              AND r3.timestamp BETWEEN ? AND ?) * 95 / 100) as p95_response_time,
+                                 
                     SUM(request_size) as total_request_size,
                     SUM(response_size) as total_response_size,
                     COUNT(DISTINCT user_id) as unique_users,
@@ -637,11 +645,13 @@ class AnalyticsDatabase:
             threshold_date = (datetime.now() - timedelta(days=days)).isoformat()
 
             # Delete old API requests
-            cursor.execute("DELETE FROM api_requests WHERE timestamp < ?", (threshold_date,))
+            cursor.execute("DELETE FROM api_requests WHERE timestamp < ?", 
+                (threshold_date,))
             request_count = cursor.rowcount
 
             # Delete old daily metrics
-            threshold_day = (datetime.now() - timedelta(days=days)).strftime(" % Y-%m-%d")
+            threshold_day = (datetime.now() - \
+                timedelta(days=days)).strftime(" % Y-%m-%d")
             cursor.execute("DELETE FROM daily_metrics WHERE date < ?", (threshold_day,))
             metrics_count = cursor.rowcount
 
@@ -650,7 +660,8 @@ class AnalyticsDatabase:
             user_count = cursor.rowcount
 
             # Delete old API key metrics
-            cursor.execute("DELETE FROM api_key_metrics WHERE date < ?", (threshold_day,))
+            cursor.execute("DELETE FROM api_key_metrics WHERE date < ?", (threshold_day,
+                ))
             api_key_count = cursor.rowcount
 
             self.conn.commit()

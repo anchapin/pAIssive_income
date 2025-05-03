@@ -23,7 +23,8 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """Middleware for request logging."""
 
     def __init__(
-        self, app, logging_service: Optional[LoggingService] = None, exclude_paths: list = None
+        self, app, logging_service: Optional[LoggingService] = None, 
+            exclude_paths: list = None
     ):
         """
         Initialize the middleware.

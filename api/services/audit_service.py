@@ -98,7 +98,8 @@ class AuditEvent:
             Audit event instance
         """
         # Convert ISO format string to datetime object
-        timestamp = datetime.fromisoformat(data["timestamp"]) if data.get("timestamp") else None
+        timestamp = \
+            datetime.fromisoformat(data["timestamp"]) if data.get("timestamp") else None
 
         return cls(
             id=data.get("id"),
@@ -178,7 +179,8 @@ class AuditService:
 
         # Log the event
         logger.info(
-            f"Audit event recorded: {event.event_type} - {event.action} - {event.resource_type}/{event.resource_id}"
+            f"Audit event recorded: {event.event_type} - \
+                {event.action} - {event.resource_type}/{event.resource_id}"
         )
 
         return event
@@ -269,10 +271,12 @@ class AuditService:
             filtered_events = [e for e in filtered_events if e.event_type == event_type]
 
         if resource_type:
-            filtered_events = [e for e in filtered_events if e.resource_type == resource_type]
+            filtered_events = \
+                [e for e in filtered_events if e.resource_type == resource_type]
 
         if resource_id:
-            filtered_events = [e for e in filtered_events if e.resource_id == resource_id]
+            filtered_events = \
+                [e for e in filtered_events if e.resource_id == resource_id]
 
         if action:
             filtered_events = [e for e in filtered_events if e.action == action]

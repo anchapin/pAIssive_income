@@ -30,7 +30,8 @@ class TestModelProviderMocks:
         provider = MockOpenAIProvider()
 
         # Test chat completion
-        chat_response = provider.chat_completion(messages=[{"role": "user", "content": "Hello"}])
+        chat_response = provider.chat_completion(messages=[{"role": "user", 
+            "content": "Hello"}])
         assert isinstance(chat_response, dict)
         assert "choices" in chat_response
         assert len(chat_response["choices"]) > 0
@@ -71,7 +72,8 @@ class TestModelProviderMocks:
         provider = MockLMStudioProvider()
 
         # Test chat completion
-        response = provider.chat_completion(messages=[{"role": "user", "content": "Hello"}])
+        response = provider.chat_completion(messages=[{"role": "user", 
+            "content": "Hello"}])
         assert isinstance(response, dict)
         assert "choices" in response
         assert len(response["choices"]) > 0
@@ -148,14 +150,16 @@ class TestExternalAPIMocks:
         assert customer["email"] == "test @ example.com"
 
         # Test subscription creation
-        subscription = api.create_subscription(customer_id=customer["id"], plan_id="plan_monthly")
+        subscription = api.create_subscription(customer_id=customer["id"], 
+            plan_id="plan_monthly")
         assert isinstance(subscription, dict)
         assert "id" in subscription
         assert "status" in subscription
         assert subscription["status"] == "active"
 
         # Test payment processing
-        payment = api.process_payment(amount=1000, currency="usd", payment_method="card")
+        payment = api.process_payment(amount=1000, currency="usd", 
+            payment_method="card")
         assert isinstance(payment, dict)
         assert "id" in payment
         assert "status" in payment
@@ -175,7 +179,8 @@ class TestExternalAPIMocks:
 
         # Test template sending
         template_response = api.send_template(
-            template_id="welcome_email", to="recipient @ example.com", variables={"name": "Test User"}
+            template_id="welcome_email", to="recipient @ example.com", 
+                variables={"name": "Test User"}
         )
         assert isinstance(template_response, dict)
         assert "status" in template_response
@@ -184,8 +189,10 @@ class TestExternalAPIMocks:
         # Test batch sending
         batch_response = api.send_batch(
             [
-                {"to": "user1 @ example.com", "subject": "Test 1", "content": "Content 1"},
-                {"to": "user2 @ example.com", "subject": "Test 2", "content": "Content 2"},
+                {"to": "user1 @ example.com", "subject": "Test 1", 
+                    "content": "Content 1"},
+                {"to": "user2 @ example.com", "subject": "Test 2", 
+                    "content": "Content 2"},
             ]
         )
         assert isinstance(batch_response, dict)
@@ -228,7 +235,8 @@ def mock_model_responses():
     return {
         "chat": {
             "choices": [
-                {"message": {"role": "assistant", "content": "This is a mock chat response."}}
+                {"message": {"role": "assistant", 
+                    "content": "This is a mock chat response."}}
             ]
         },
         "completion": {"choices": [{"text": "This is a mock completion response."}]},
@@ -247,7 +255,8 @@ class TestMockResponses:
 
         # Create provider and test
         provider = MockOpenAIProvider()
-        response = provider.chat_completion(messages=[{"role": "user", "content": "Hello"}])
+        response = provider.chat_completion(messages=[{"role": "user", 
+            "content": "Hello"}])
 
         assert response == mock_model_responses["chat"]
         mock_chat.assert_called_once()
@@ -269,14 +278,16 @@ class TestMockResponses:
         provider = MockOpenAIProvider({"simulate_errors": True})
 
         with pytest.raises(Exception):
-            provider.chat_completion(messages=[{"role": "user", "content": "Error test"}])
+            provider.chat_completion(messages=[{"role": "user", 
+                "content": "Error test"}])
 
     def test_rate_limit_simulation(self):
         """Test rate limit error simulation."""
         provider = MockOpenAIProvider({"simulate_rate_limits": True})
 
         with pytest.raises(Exception) as exc_info:
-            provider.chat_completion(messages=[{"role": "user", "content": "Rate limit test"}])
+            provider.chat_completion(messages=[{"role": "user", 
+                "content": "Rate limit test"}])
         assert "rate limit" in str(exc_info.value).lower()
 
     def test_timeout_simulation(self):
@@ -284,15 +295,18 @@ class TestMockResponses:
         provider = MockOpenAIProvider({"simulate_timeouts": True})
 
         with pytest.raises(Exception) as exc_info:
-            provider.chat_completion(messages=[{"role": "user", "content": "Timeout test"}])
+            provider.chat_completion(messages=[{"role": "user", 
+                "content": "Timeout test"}])
         assert "timeout" in str(exc_info.value).lower()
 
     def test_custom_model_config(self):
         """Test custom model configuration."""
-        config = {"model_name": "custom - model", "max_tokens": 1000, "temperature": 0.8}
+        config = {"model_name": "custom - model", "max_tokens": 1000, 
+            "temperature": 0.8}
         provider = MockOpenAIProvider(config)
 
-        response = provider.chat_completion(messages=[{"role": "user", "content": "Test"}])
+        response = provider.chat_completion(messages=[{"role": "user", 
+            "content": "Test"}])
         assert isinstance(response, dict)
         assert "choices" in response
 
@@ -335,7 +349,8 @@ class TestMockResponses:
 
         # Verify response structures can be converted
         assert isinstance(
-            openai_response.get("choices", [{}])[0].get("message", {}).get("content"), str
+            openai_response.get("choices", [{}])[0].get("message", {}).get("content"), 
+                str
         )
         assert isinstance(hf_response[0].get("generated_text"), str)
 

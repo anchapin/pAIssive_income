@@ -112,7 +112,8 @@ def niche_analysis_service_example():
             opportunity_data = NicheOpportunityIdentified(niche_id="niche - 123", **opp)
 
             opportunity_event = opportunity_identified_schema.create_event(
-                source="niche - analysis - service", data=opportunity_data, event_type=EventType.DOMAIN
+                source="niche - analysis - service", data=opportunity_data, 
+                    event_type=EventType.DOMAIN
             )
 
             # Publish the event
@@ -172,9 +173,11 @@ def marketing_service_example():
                 f"Marketing Service: Received niche analysis completed event for {analysis_data.niche_name}"
             )
             logger.info(
-                f"Niche score: {analysis_data.score}, Competition: {analysis_data.competition_level}"
+                f"Niche score: {analysis_data.score}, 
+                    Competition: {analysis_data.competition_level}"
             )
-            logger.info(f"Starting marketing research for {analysis_data.niche_name}...")
+            logger.info(
+                f"Starting marketing research for {analysis_data.niche_name}...")
 
         def handle_opportunity_identified(event: Event):
             # Parse the event data
@@ -184,17 +187,21 @@ def marketing_service_example():
                 f"Marketing Service: Received opportunity identified event: {opportunity_data.opportunity_name}"
             )
             logger.info(
-                f"Opportunity score: {opportunity_data.opportunity_score}, Difficulty: {opportunity_data.difficulty}"
+                f"Opportunity score: {opportunity_data.opportunity_score}, 
+                    Difficulty: {opportunity_data.difficulty}"
             )
-            logger.info(f"Analyzing marketing channels for {opportunity_data.opportunity_name}...")
+            logger.info(
+                f"Analyzing marketing channels for {opportunity_data.opportunity_name}...")
 
         # Subscribe to events
         event_bus.subscribe(
-            event_pattern="niche.analysis.completed", handler=handle_niche_analysis_completed
+            event_pattern="niche.analysis.completed", 
+                handler=handle_niche_analysis_completed
         )
 
         event_bus.subscribe(
-            event_pattern="niche.opportunity.identified", handler=handle_opportunity_identified
+            event_pattern="niche.opportunity.identified", 
+                handler=handle_opportunity_identified
         )
 
         # Start the event bus
@@ -228,11 +235,13 @@ async def async_event_handling_example():
         registration_time: float
 
     # Create event schemas
-    user_registered_schema = EventSchema(data_model=UserRegistered, event_name="user.registered")
+    user_registered_schema = EventSchema(data_model=UserRegistered, 
+        event_name="user.registered")
 
     # Create async event buses for publisher and subscriber
     async with AsyncEventBus(service_name="auth - service") as publisher_bus:
-        async with AsyncEventBus(service_name="notification - service") as subscriber_bus:
+        async with AsyncEventBus(service_name="notification - \
+            service") as subscriber_bus:
             # Define an async event handler
             async def handle_user_registered(event: Event):
                 # Parse the event data
@@ -318,7 +327,8 @@ def event_driven_workflow_example():
     )
 
     marketing_plan_schema = EventSchema(
-        data_model=MarketingPlanGenerated, event_name="workflow.marketing.plan.generated"
+        data_model=MarketingPlanGenerated, 
+            event_name="workflow.marketing.plan.generated"
     )
 
     # Create event buses for each service
@@ -365,7 +375,8 @@ def event_driven_workflow_example():
             logger.info(
                 f"Marketing Service: Received solution created event for {solution_data.solution_name}"
             )
-            logger.info(f"Generating marketing plan for {solution_data.solution_name}...")
+            logger.info(
+                f"Generating marketing plan for {solution_data.solution_name}...")
 
             # Simulate marketing plan generation
             time.sleep(1)
@@ -393,7 +404,8 @@ def event_driven_workflow_example():
             plan_data = marketing_plan_schema.parse_event(event)
 
             logger.info(f"UI Service: Received marketing plan generated event")
-            logger.info(f"Updating UI with marketing plan for solution {plan_data.solution_id}")
+            logger.info(
+                f"Updating UI with marketing plan for solution {plan_data.solution_id}")
             logger.info(f"Marketing channels: {', '.join(plan_data.channels)}")
 
         # Subscribe to events

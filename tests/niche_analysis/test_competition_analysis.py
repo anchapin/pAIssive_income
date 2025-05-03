@@ -54,7 +54,8 @@ class TestCompetitionAnalysis:
         result = market_analyzer.analyze_competition("inventory management")
 
         # Get market shares as numbers for comparison
-        shares = [float(c["market_share"].strip(" % ")) for c in result["top_competitors"]]
+        shares = \
+            [float(c["market_share"].strip(" % ")) for c in result["top_competitors"]]
 
         # Verify competitors are ordered by market share
         assert shares == sorted(shares, reverse=True)
@@ -89,7 +90,8 @@ class TestCompetitionAnalysis:
             assert len(competitor["weaknesses"]) > 0
 
             # Verify strengths and weaknesses are different
-            assert set(competitor["strengths"]).isdisjoint(set(competitor["weaknesses"]))
+            assert set(
+                competitor["strengths"]).isdisjoint(set(competitor["weaknesses"]))
 
             # Verify pricing information exists and has expected format
             assert "$" in competitor["pricing"]

@@ -136,7 +136,8 @@ class DataCollector:
 
     def prepare(self) -> DatasetDict:
         """
-        Prepare the dataset for fine - tuning, including train / validation / test splits.
+        Prepare the dataset for fine - tuning, 
+            including train / validation / test splits.
 
         Returns:
             Prepared dataset with train, validation, and test splits
@@ -166,7 +167,8 @@ class DataCollector:
             test_dataset = Dataset.from_dict({})
 
         logger.info(
-            f"Dataset split: {len(train_dataset)} train, {len(valid_dataset)} validation, {len(test_dataset)} test"
+            f"Dataset split: {len(train_dataset)} train, {len(valid_dataset)} validation, 
+                {len(test_dataset)} test"
         )
 
         return DatasetDict(
@@ -254,10 +256,12 @@ class DataCollector:
 
                 text_length = len(example[text_field])
 
-                if self.config.min_length is not None and text_length < self.config.min_length:
+                if self.config.min_length is not None and \
+                    text_length < self.config.min_length:
                     return False
 
-                if self.config.max_length is not None and text_length > self.config.max_length:
+                if self.config.max_length is not None and \
+                    text_length > self.config.max_length:
                     return False
 
                 return True
@@ -285,7 +289,8 @@ class DataCollector:
 
         return dataset
 
-    def _export_jsonl(self, dataset: Union[Dataset, DatasetDict], output_path: str) -> str:
+    def _export_jsonl(self, dataset: Union[Dataset, DatasetDict], 
+        output_path: str) -> str:
         """
         Export the dataset to JSONL format.
 
@@ -308,7 +313,8 @@ class DataCollector:
             metadata_path = f"{output_path}_metadata.json"
             with open(metadata_path, "w", encoding="utf - 8") as f:
                 json.dump(
-                    {"format": "jsonl", "splits": paths, "metadata": self.config.metadata},
+                    {"format": "jsonl", "splits": paths, 
+                        "metadata": self.config.metadata},
                     f,
                     indent=2,
                 )
@@ -320,7 +326,8 @@ class DataCollector:
             dataset.to_json(output_path)
             return output_path
 
-    def _export_csv(self, dataset: Union[Dataset, DatasetDict], output_path: str) -> str:
+    def _export_csv(self, dataset: Union[Dataset, DatasetDict], 
+        output_path: str) -> str:
         """
         Export the dataset to CSV format.
 
@@ -344,6 +351,7 @@ class DataCollector:
             with open(metadata_path, "w", encoding="utf - 8") as f:
                 json.dump(
                     {"format": "csv", "splits": paths, "metadata": self.config.metadata},
+                        
                     f,
                     indent=2,
                 )
@@ -355,7 +363,8 @@ class DataCollector:
             dataset.to_csv(output_path, index=False)
             return output_path
 
-    def _export_parquet(self, dataset: Union[Dataset, DatasetDict], output_path: str) -> str:
+    def _export_parquet(self, dataset: Union[Dataset, DatasetDict], 
+        output_path: str) -> str:
         """
         Export the dataset to Parquet format.
 
@@ -378,7 +387,8 @@ class DataCollector:
             metadata_path = f"{output_path}_metadata.json"
             with open(metadata_path, "w", encoding="utf - 8") as f:
                 json.dump(
-                    {"format": "parquet", "splits": paths, "metadata": self.config.metadata},
+                    {"format": "parquet", "splits": paths, 
+                        "metadata": self.config.metadata},
                     f,
                     indent=2,
                 )
@@ -390,7 +400,8 @@ class DataCollector:
             dataset.to_parquet(output_path)
             return output_path
 
-    def _export_huggingface(self, dataset: Union[Dataset, DatasetDict], output_path: str) -> str:
+    def _export_huggingface(self, dataset: Union[Dataset, DatasetDict], 
+        output_path: str) -> str:
         """
         Export the dataset to Hugging Face format.
 

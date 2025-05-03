@@ -99,7 +99,8 @@ class AuditEventBase(BaseModel):
     actor_id: Optional[str] = Field(None, description="ID of the actor")
     actor_type: AuditActorType = Field(AuditActorType.USER, description="Type of actor")
     status: AuditStatus = Field(AuditStatus.SUCCESS, description="Status of the event")
-    details: Dict[str, Any] = Field(default_factory=dict, description="Additional details")
+    details: Dict[str, Any] = Field(default_factory=dict, 
+        description="Additional details")
     ip_address: Optional[str] = Field(None, description="IP address of the actor")
     user_agent: Optional[str] = Field(None, description="User agent of the actor")
 
@@ -135,8 +136,10 @@ class AuditEventList(BaseModel):
 class AuditEventFilter(BaseModel):
     """Schema for filtering audit events."""
 
-    event_type: Optional[AuditEventType] = Field(None, description="Filter by event type")
-    resource_type: Optional[AuditResourceType] = Field(None, description="Filter by resource type")
+    event_type: Optional[AuditEventType] = Field(None, 
+        description="Filter by event type")
+    resource_type: Optional[AuditResourceType] = Field(None, 
+        description="Filter by resource type")
     resource_id: Optional[str] = Field(None, description="Filter by resource ID")
     action: Optional[AuditAction] = Field(None, description="Filter by action")
     actor_id: Optional[str] = Field(None, description="Filter by actor ID")

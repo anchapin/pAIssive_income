@@ -41,7 +41,8 @@ class TestModelVersionCompatibility(unittest.TestCase):
         models_dir = self.temp_dir.name
 
         # Patch the VersionedModelManager to use our test registry and migration tool
-        with patch("ai_models.model_versioning.ModelVersionRegistry") as mock_registry_class:
+        with patch(
+            "ai_models.model_versioning.ModelVersionRegistry") as mock_registry_class:
             with patch(
                 "ai_models.model_versioning.ModelMigrationTool"
             ) as mock_migration_tool_class:
@@ -58,7 +59,8 @@ class TestModelVersionCompatibility(unittest.TestCase):
             timestamp="2023 - 01 - 01T00:00:00",
             metadata={
                 "description": "Initial release",
-                "api_schema": {"input": {"text": "string"}, "output": {"text": "string"}},
+                "api_schema": {"input": {"text": "string"}, 
+                    "output": {"text": "string"}},
             },
         )
 
@@ -216,7 +218,8 @@ class TestModelVersionCompatibility(unittest.TestCase):
         )
 
         v1_enhanced = ModelVersion(
-            version="1.1.0", model_id="feature - model", features=["text - generation", "summarization"]
+            version="1.1.0", model_id="feature - model", features=["text - generation", 
+                "summarization"]
         )
 
         v2_advanced = ModelVersion(
@@ -238,15 +241,19 @@ class TestModelVersionCompatibility(unittest.TestCase):
                 elif version == "1.1.0":
                     return MagicMock(features=["text - generation", "summarization"])
                 elif version == "2.0.0":
-                    return MagicMock(features=["text - generation", "summarization", "translation"])
+                    return MagicMock(features=["text - generation", "summarization", 
+                        "translation"])
             return None
 
         self.model_manager.get_model_with_version.side_effect = get_model_with_version
 
         # Test feature availability in different versions
-        model_v1_0 = self.model_manager.get_model_with_version("feature - model", "1.0.0")
-        model_v1_1 = self.model_manager.get_model_with_version("feature - model", "1.1.0")
-        model_v2_0 = self.model_manager.get_model_with_version("feature - model", "2.0.0")
+        model_v1_0 = self.model_manager.get_model_with_version("feature - model", 
+            "1.0.0")
+        model_v1_1 = self.model_manager.get_model_with_version("feature - model", 
+            "1.1.0")
+        model_v2_0 = self.model_manager.get_model_with_version("feature - model", 
+            "2.0.0")
 
         # Check features
         self.assertIn("text - generation", model_v1_0.features)

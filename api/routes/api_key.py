@@ -29,9 +29,11 @@ router = APIRouter(prefix=" / api - keys", tags=["API Keys"])
 api_key_service = APIKeyService()
 
 
-@router.post(" / ", response_model=APIKeyCreatedResponse, status_code=status.HTTP_201_CREATED)
+@router.post(" / ", response_model=APIKeyCreatedResponse, 
+    status_code=status.HTTP_201_CREATED)
 async def create_api_key(
-    data: APIKeyCreate = Body(...), current_user: Dict[str, Any] = Depends(get_current_user)
+    data: APIKeyCreate = Body(...), current_user: Dict[str, 
+        Any] = Depends(get_current_user)
 ):
     """Create a new API key."""
     try:
@@ -75,7 +77,8 @@ async def list_api_keys(
 
 @router.get("/{api_key_id}", response_model=APIKeyResponse)
 async def get_api_key(
-    api_key_id: str = Path(...), current_user: Dict[str, Any] = Depends(get_current_user)
+    api_key_id: str = Path(...), current_user: Dict[str, 
+        Any] = Depends(get_current_user)
 ):
     """Get a specific API key."""
     try:
@@ -84,7 +87,8 @@ async def get_api_key(
             raise HTTPException(status_code=404, detail="API key not found")
 
         if api_key.user_id != current_user.get("id"):
-            raise HTTPException(status_code=403, detail="Not authorized to access this API key")
+            raise HTTPException(status_code=403, 
+                detail="Not authorized to access this API key")
 
         return APIKeyResponse(
             id=api_key.id,
@@ -121,7 +125,8 @@ async def update_api_key(
 
         # Check if API key belongs to the current user
         if api_key.user_id != current_user.get("id"):
-            raise HTTPException(status_code=403, detail="Not authorized to update this API key")
+            raise HTTPException(status_code=403, 
+                detail="Not authorized to update this API key")
 
         # Update API key
         updated_key = api_key_service.update_api_key(api_key_id, data)
@@ -146,7 +151,8 @@ async def update_api_key(
 
 @router.delete("/{api_key_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_api_key(
-    api_key_id: str = Path(...), current_user: Dict[str, Any] = Depends(get_current_user)
+    api_key_id: str = Path(...), current_user: Dict[str, 
+        Any] = Depends(get_current_user)
 ):
     """Delete an API key."""
     try:
@@ -159,7 +165,8 @@ async def delete_api_key(
 
         # Check if API key belongs to the current user
         if api_key.user_id != current_user.get("id"):
-            raise HTTPException(status_code=403, detail="Not authorized to delete this API key")
+            raise HTTPException(status_code=403, 
+                detail="Not authorized to delete this API key")
 
         # Delete API key
         if not api_key_service.delete_api_key(api_key_id):
@@ -173,7 +180,8 @@ async def delete_api_key(
 
 @router.post("/{api_key_id}/revoke", response_model=APIKeyResponse)
 async def revoke_api_key(
-    api_key_id: str = Path(...), current_user: Dict[str, Any] = Depends(get_current_user)
+    api_key_id: str = Path(...), current_user: Dict[str, 
+        Any] = Depends(get_current_user)
 ):
     """Revoke an API key."""
     try:
@@ -186,7 +194,8 @@ async def revoke_api_key(
 
         # Check if API key belongs to the current user
         if api_key.user_id != current_user.get("id"):
-            raise HTTPException(status_code=403, detail="Not authorized to revoke this API key")
+            raise HTTPException(status_code=403, 
+                detail="Not authorized to revoke this API key")
 
         # Revoke API key
         revoked_key = api_key_service.revoke_api_key(api_key_id)
@@ -211,7 +220,8 @@ async def revoke_api_key(
 
 @router.post("/{api_key_id}/regenerate", response_model=APIKeyCreatedResponse)
 async def regenerate_api_key(
-    api_key_id: str = Path(...), current_user: Dict[str, Any] = Depends(get_current_user)
+    api_key_id: str = Path(...), current_user: Dict[str, 
+        Any] = Depends(get_current_user)
 ):
     """Regenerate an API key."""
     try:
@@ -224,7 +234,8 @@ async def regenerate_api_key(
 
         # Check if API key belongs to the current user
         if api_key.user_id != current_user.get("id"):
-            raise HTTPException(status_code=403, detail="Not authorized to regenerate this API key")
+            raise HTTPException(status_code=403, 
+                detail="Not authorized to regenerate this API key")
 
         # Regenerate API key
         regenerated_key = api_key_service.regenerate_api_key(api_key_id)

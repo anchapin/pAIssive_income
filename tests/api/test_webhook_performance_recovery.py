@@ -52,7 +52,8 @@ class TestDeliveryRecovery:
             # Patch the httpx.AsyncClient.post method to simulate slow responses
             with patch(
                 "httpx.AsyncClient.post",
-                side_effect=lambda *args, **kwargs: asyncio.sleep(0.5).then(lambda: slow_response),
+                side_effect=lambda *args, 
+                    **kwargs: asyncio.sleep(0.5).then(lambda: slow_response),
             ):
                 # Generate many events to overload the queue
                 events = []
@@ -158,7 +159,8 @@ class TestBackpressureHandling:
             # Patch the httpx.AsyncClient.post method to simulate slow responses
             with patch(
                 "httpx.AsyncClient.post",
-                side_effect=lambda *args, **kwargs: asyncio.sleep(1).then(lambda: slow_response),
+                side_effect=lambda *args, 
+                    **kwargs: asyncio.sleep(1).then(lambda: slow_response),
             ):
                 # Fill the queue
                 for i in range(5):
@@ -332,7 +334,8 @@ class TestExponentialBackoff:
                     await asyncio.sleep(5)
 
                     # Verify that delivery failed after max attempts
-                    assert delivery["status"] == WebhookDeliveryStatus.MAX_RETRIES_EXCEEDED
+                    assert delivery["status"] == \
+                        WebhookDeliveryStatus.MAX_RETRIES_EXCEEDED
                     assert len(delivery["attempts"]) == 4
 
                     # Calculate time differences between retries
@@ -441,7 +444,8 @@ class TestQueuePersistence:
 
                 # Patch the _deliver_webhook method to prevent immediate delivery
                 with patch.object(
-                    service, "_deliver_webhook", side_effect=Exception("Simulated failure")
+                    service, "_deliver_webhook", 
+                        side_effect=Exception("Simulated failure")
                 ):
                     delivery = await service.queue_event(
                         webhook_id=webhook["id"],
@@ -454,7 +458,8 @@ class TestQueuePersistence:
             await service.stop()
 
             # Start a new service instance that should load the persisted queue
-            new_service = WebhookService(persist_queue=True, queue_file="test_queue.json")
+            new_service = WebhookService(persist_queue=True, 
+                queue_file="test_queue.json")
             await new_service.start()
 
             try:
@@ -534,7 +539,8 @@ class TestDeadLetterQueue:
                 assert len(dead_letter_items) == 1
                 assert dead_letter_items[0]["delivery_id"] == delivery["id"]
                 assert dead_letter_items[0]["webhook_id"] == webhook["id"]
-                assert dead_letter_items[0]["event_type"] == WebhookEventType.USER_CREATED
+                assert dead_letter_items[0]["event_type"] == \
+                    WebhookEventType.USER_CREATED
 
                 # Test reprocessing from dead letter queue with a successful response
                 success_response = AsyncMock()

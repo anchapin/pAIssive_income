@@ -67,7 +67,8 @@ if STRAWBERRY_AVAILABLE:
             # Get models from service
             try:
                 models = await service.get_models(
-                    model_type=model_type.value if model_type else None, limit=limit, offset=offset
+                    model_type=model_type.value if model_type else None, limit=limit, 
+                        offset=offset
                 )
 
                 return [
@@ -79,7 +80,9 @@ if STRAWBERRY_AVAILABLE:
                         provider=model.provider,
                         capabilities=model.capabilities,
                         created_at=model.created_at.isoformat() if model.created_at else None,
+                            
                         updated_at=model.updated_at.isoformat() if model.updated_at else None,
+                            
                     )
                     for model in models
                 ]
@@ -119,14 +122,17 @@ if STRAWBERRY_AVAILABLE:
                     provider=model.provider,
                     capabilities=model.capabilities,
                     created_at=model.created_at.isoformat() if model.created_at else None,
+                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error getting model: {str(e)}")
                 return None
 
         @strawberry.field
-        async def model_versions(self, info: Info, model_id: str) -> List[ModelVersionType]:
+        async def model_versions(self, info: Info, 
+            model_id: str) -> List[ModelVersionType]:
             """
             Get versions of an AI model.
 
@@ -155,6 +161,7 @@ if STRAWBERRY_AVAILABLE:
                         description=version.description,
                         changes=version.changes,
                         created_at=version.created_at.isoformat() if version.created_at else None,
+                            
                     )
                     for version in versions
                 ]
@@ -163,7 +170,8 @@ if STRAWBERRY_AVAILABLE:
                 return []
 
         @strawberry.field
-        async def model_metrics(self, info: Info, model_id: str) -> Optional[ModelMetricsType]:
+        async def model_metrics(self, info: Info, 
+            model_id: str) -> Optional[ModelMetricsType]:
             """
             Get metrics for an AI model.
 
@@ -205,7 +213,8 @@ if STRAWBERRY_AVAILABLE:
         """AI models mutation resolvers."""
 
         @strawberry.mutation
-        async def create_model(self, info: Info, input: ModelInput) -> Optional[ModelType]:
+        async def create_model(self, info: Info, 
+            input: ModelInput) -> Optional[ModelType]:
             """
             Create a new AI model.
 
@@ -240,14 +249,17 @@ if STRAWBERRY_AVAILABLE:
                     provider=model.provider,
                     capabilities=model.capabilities,
                     created_at=model.created_at.isoformat() if model.created_at else None,
+                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error creating model: {str(e)}")
                 return None
 
         @strawberry.mutation
-        async def update_model(self, info: Info, id: str, input: ModelInput) -> Optional[ModelType]:
+        async def update_model(self, info: Info, id: str, 
+            input: ModelInput) -> Optional[ModelType]:
             """
             Update an AI model.
 
@@ -287,7 +299,9 @@ if STRAWBERRY_AVAILABLE:
                     provider=model.provider,
                     capabilities=model.capabilities,
                     created_at=model.created_at.isoformat() if model.created_at else None,
+                        
                     updated_at=model.updated_at.isoformat() if model.updated_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error updating model: {str(e)}")
@@ -357,6 +371,7 @@ if STRAWBERRY_AVAILABLE:
                     latency=response.latency,
                     token_usage=response.token_usage,
                     created_at=response.created_at.isoformat() if response.created_at else None,
+                        
                 )
             except Exception as e:
                 logger.error(f"Error running inference: {str(e)}")

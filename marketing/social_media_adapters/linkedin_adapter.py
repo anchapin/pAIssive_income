@@ -49,7 +49,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
         self.access_token = self.credentials.get("access_token")
         self.client_id = self.credentials.get("client_id")
         self.client_secret = self.credentials.get("client_secret")
-        self.organization_id = self.credentials.get("organization_id")  # For company pages
+        self.organization_id = \
+            self.credentials.get("organization_id")  # For company pages
         self.person_id = self.credentials.get("person_id")  # For personal profiles
         self.session = requests.Session()
 
@@ -95,12 +96,14 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 raise AuthenticationError(
                     "linkedin",
                     "OAuth flow not implemented in this adapter. Please obtain an access token externally.",
+                        
                 )
 
             else:
                 raise AuthenticationError(
                     "linkedin",
                     "Missing required credentials (access_token or client_id and client_secret)",
+                        
                 )
 
         except requests.exceptions.RequestException as e:
@@ -121,16 +124,19 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             ContentValidationError: If content validation fails with specific reason
         """
         # Check if we have at least one content type
-        if not any(key in content for key in ["text", "article", "image", "video", "document"]):
+        if not any(key in content for key in ["text", "article", "image", "video", 
+            "document"]):
             raise ContentValidationError(
                 "linkedin",
-                "At least one content type (text, article, image, video, document) is required",
+                "At least one content type (text, article, image, video, 
+                    document) is required",
             )
 
         # Check text length if present (LinkedIn's limit is 3,000 characters)
         if "text" in content and len(content["text"]) > 3000:
             raise ContentValidationError(
-                "linkedin", f"Text exceeds 3,000 characters (current: {len(content['text'])})"
+                "linkedin", f"Text exceeds 3,
+                    000 characters (current: {len(content['text'])})"
             )
 
         # Check article if present
@@ -145,6 +151,7 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 raise ContentValidationError(
                     "linkedin",
                     f"Article title exceeds 150 characters (current: {len(content['article']['title'])})",
+                        
                 )
 
         # Check image if present
@@ -244,7 +251,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             return f"urn:li:person:{self.person_id}"
         else:
             raise PostingError(
-                "linkedin", "Neither organization ID nor person ID is available for posting"
+                "linkedin", 
+                    "Neither organization ID nor person ID is available for posting"
             )
 
     def _get_visibility_setting(self, visibility: str) -> Dict[str, str]:
@@ -298,7 +306,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 post_data["targetAudience"] = targeting
 
             # Post to LinkedIn
-            response = self.session.post(f"{self.api_base_url}/ugcPosts", json=post_data)
+            response = self.session.post(f"{self.api_base_url}/ugcPosts", 
+                json=post_data)
             response.raise_for_status()
 
             # LinkedIn returns the post URN in the response headers
@@ -363,7 +372,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 post_data["targetAudience"] = targeting
 
             # Post to LinkedIn
-            response = self.session.post(f"{self.api_base_url}/ugcPosts", json=post_data)
+            response = self.session.post(f"{self.api_base_url}/ugcPosts", 
+                json=post_data)
             response.raise_for_status()
 
             # LinkedIn returns the post URN in the response headers
@@ -548,11 +558,13 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
                 "author": author,
                 "lifecycleState": "PUBLISHED",
                 "visibility": self._get_visibility_setting(visibility),
-                "scheduledAt": int(schedule_time.timestamp() * 1000),  # LinkedIn uses milliseconds
+                "scheduledAt": int(schedule_time.timestamp() * 1000),  
+                    # LinkedIn uses milliseconds
             }
 
             # For demonstration, we'll simulate a successful scheduling
-            scheduled_id = f"linkedin_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
+            scheduled_id = \
+                f"linkedin_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": scheduled_id,
@@ -596,7 +608,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
         """
         try:
             # Convert post ID to URN if needed
-            post_urn = post_id if post_id.startswith("urn:li:") else f"urn:li:share:{post_id}"
+            post_urn = \
+                post_id if post_id.startswith("urn:li:") else f"urn:li:share:{post_id}"
 
             # Get post details
             response = self.session.get(f"{self.api_base_url}/socialActions/{post_urn}")
@@ -636,7 +649,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
         """
         try:
             # Convert post ID to URN if needed
-            post_urn = post_id if post_id.startswith("urn:li:") else f"urn:li:share:{post_id}"
+            post_urn = \
+                post_id if post_id.startswith("urn:li:") else f"urn:li:share:{post_id}"
 
             # Delete the post
             response = self.session.delete(f"{self.api_base_url}/ugcPosts/{post_urn}")
@@ -696,7 +710,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             # If post_id is provided, get analytics for a specific post
             if post_id:
                 # Convert post ID to URN if needed
-                post_urn = post_id if post_id.startswith("urn:li:") else f"urn:li:share:{post_id}"
+                post_urn = \
+                    post_id if post_id.startswith("urn:li:") else f"urn:li:share:{post_id}"
 
                 # For demonstration, we'll return mock analytics data
                 return {
@@ -745,7 +760,8 @@ class LinkedInAdapter(BaseSocialMediaAdapter):
             }
 
     def get_audience_insights(
-        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, Any]] = None
+        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Get audience insights from LinkedIn.

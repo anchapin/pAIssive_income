@@ -110,7 +110,8 @@ class MongoDBAdapter(DatabaseInterface):
                 parts = query.split(":", 1)
                 if len(parts) != 2 or not all(parts):
                     raise ValueError(
-                        "Query format should be 'collection:operation' with non - empty parts"
+                        "Query format should be 'collection:operation' with non - \
+                            empty parts"
                     )
 
                 collection_name, operation = parts
@@ -128,7 +129,8 @@ class MongoDBAdapter(DatabaseInterface):
                     raise ValueError("Parameters required for insert operation")
                 elif operation == "update":
                     if params and "filter" in params and "update" in params:
-                        return collection.update_many(params["filter"], {"$set": params["update"]})
+                        return collection.update_many(params["filter"], 
+                            {"$set": params["update"]})
                     raise ValueError(
                         "'filter' and 'update' required in params for update operation"
                     )
@@ -284,7 +286,8 @@ class MongoDBAdapter(DatabaseInterface):
             logger.error(f"Error updating documents in MongoDB: {e}")
             raise
 
-    def delete(self, table: str, condition: str, params: Optional[Dict[str, Any]] = None) -> int:
+    def delete(self, table: str, condition: str, params: Optional[Dict[str, 
+        Any]] = None) -> int:
         """
         Delete documents from MongoDB.
 

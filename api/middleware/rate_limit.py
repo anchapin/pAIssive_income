@@ -43,15 +43,18 @@ class RateLimitMiddleware:
         self.config = config
 
         # Create rate limit manager
-        storage_type = "redis" if hasattr(config, "redis_url") and config.redis_url else "memory"
+        storage_type = "redis" if hasattr(config, 
+            "redis_url") and config.redis_url else "memory"
         storage_kwargs = {}
         if storage_type == "redis":
             storage_kwargs["redis_url"] = config.redis_url
 
-        self.rate_limit_manager = RateLimitManager(config, storage_type, **storage_kwargs)
+        self.rate_limit_manager = RateLimitManager(config, storage_type, 
+            **storage_kwargs)
 
     def check_rate_limit(
-        self, client_id: str, endpoint: Optional[str] = None, api_key: Optional[str] = None
+        self, client_id: str, endpoint: Optional[str] = None, 
+            api_key: Optional[str] = None
     ) -> Tuple[bool, Dict[str, Any]]:
         """
         Check if a request should be rate limited.
@@ -63,7 +66,8 @@ class RateLimitMiddleware:
 
         Returns:
             Tuple of (allowed, limit_info)
-            - allowed: True if the request is allowed, False if it should be rate limited
+            - allowed: True if the request is allowed, 
+                False if it should be rate limited
             - limit_info: Dictionary with rate limit information
         """
         return self.rate_limit_manager.check_rate_limit(client_id, endpoint, api_key)
@@ -102,7 +106,8 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
     rate_limit_middleware = RateLimitMiddleware(config)
 
     @app.middleware("http")
-    async def rate_limit_middleware_func(request: Request, call_next: Callable) -> Response:
+    async def rate_limit_middleware_func(request: Request, 
+        call_next: Callable) -> Response:
         """
         Rate limiting middleware function.
 
@@ -134,7 +139,8 @@ def setup_rate_limit_middleware(app: Any, config: APIConfig) -> None:
         endpoint = request.url.path
 
         # Check rate limit
-        allowed, limit_info = rate_limit_middleware.check_rate_limit(client_id, endpoint, api_key)
+        allowed, limit_info = rate_limit_middleware.check_rate_limit(client_id, endpoint, 
+            api_key)
 
         if not allowed:
             # Return rate limit exceeded response

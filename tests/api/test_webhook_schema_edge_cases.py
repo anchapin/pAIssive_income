@@ -10,7 +10,8 @@ from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
 def test_webhook_request_empty_events():
     """Test that webhook request with empty events list is rejected."""
-    invalid_data = {"url": "https://example.com / webhook", "events": [], "is_active": True}
+    invalid_data = {"url": "https://example.com / webhook", "events": [], 
+        "is_active": True}
     with pytest.raises(ValidationError) as excinfo:
         WebhookRequest(**invalid_data)
     assert "events list cannot be empty" in str(excinfo.value)

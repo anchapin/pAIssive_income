@@ -141,7 +141,8 @@ class LoadBalancingStrategy(ABC):
     """
 
     @abstractmethod
-    def select_instance(self, instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
+    def select_instance(self, 
+        instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
         """
         Select an instance from the list of available instances.
 

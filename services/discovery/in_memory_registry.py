@@ -18,7 +18,8 @@ class InMemoryServiceRegistry(ServiceRegistry):
     In - memory implementation of ServiceRegistry.
 
     This implementation stores all service information in memory and is suitable for
-    development, testing, or small - scale deployments where persistence is not required.
+    development, testing, 
+        or small - scale deployments where persistence is not required.
     """
 
     def __init__(self, ttl_seconds: int = 30):
@@ -26,7 +27,8 @@ class InMemoryServiceRegistry(ServiceRegistry):
         Initialize a new InMemoryServiceRegistry.
 
         Args:
-            ttl_seconds: Time - to - live in seconds for service registrations before they expire
+            ttl_seconds: Time - \
+                to - live in seconds for service registrations before they expire
         """
         self._services: Dict[str, ServiceInstance] = {}
         self._last_renewal: Dict[str, float] = {}
@@ -35,7 +37,8 @@ class InMemoryServiceRegistry(ServiceRegistry):
 
         # Start a background thread to remove expired services
         self._running = True
-        self._cleanup_thread = threading.Thread(target=self._cleanup_expired_services, daemon=True)
+        self._cleanup_thread = threading.Thread(target=self._cleanup_expired_services, 
+            daemon=True)
         self._cleanup_thread.start()
 
     def __del__(self):
@@ -137,7 +140,8 @@ class InMemoryServiceRegistry(ServiceRegistry):
         """
         with self._lock:
             return [
-                service for service in self._services.values() if service.service_id == service_id
+                service for service in self._services.values(
+                    ) if service.service_id == service_id
             ]
 
     def get_all_instances(self) -> Dict[str, List[ServiceInstance]]:

@@ -25,7 +25,8 @@ class RateLimitManager:
     Manager for rate limiting.
     """
 
-    def __init__(self, config: APIConfig, storage_type: str = "memory", **storage_kwargs):
+    def __init__(self, config: APIConfig, storage_type: str = "memory", 
+        **storage_kwargs):
         """
         Initialize the rate limit manager.
 
@@ -55,7 +56,8 @@ class RateLimitManager:
                 burst=self.config.rate_limit_burst,
             )
 
-    def get_rate_limit_key(self, identifier: str, endpoint: Optional[str] = None) -> str:
+    def get_rate_limit_key(self, identifier: str, 
+        endpoint: Optional[str] = None) -> str:
         """
         Get the rate limit key for an identifier.
 
@@ -115,11 +117,13 @@ class RateLimitManager:
             Rate limit for the tier
         """
         if api_key is None:
-            return self.config.rate_limit_tiers.get("default", self.config.rate_limit_requests)
+            return self.config.rate_limit_tiers.get("default", 
+                self.config.rate_limit_requests)
 
         # In a real implementation, you would look up the tier for the API key
         # For now, we'll just return the default tier
-        return self.config.rate_limit_tiers.get("default", self.config.rate_limit_requests)
+        return self.config.rate_limit_tiers.get("default", 
+            self.config.rate_limit_requests)
 
     def get_endpoint_cost(self, endpoint: str) -> float:
         """
@@ -136,7 +140,8 @@ class RateLimitManager:
         return self.config.rate_limit_cost_factor
 
     def check_rate_limit(
-        self, identifier: str, endpoint: Optional[str] = None, api_key: Optional[str] = None
+        self, identifier: str, endpoint: Optional[str] = None, 
+            api_key: Optional[str] = None
     ) -> Tuple[bool, Dict[str, Any]]:
         """
         Check if a request should be rate limited.
@@ -148,7 +153,8 @@ class RateLimitManager:
 
         Returns:
             Tuple of (allowed, limit_info)
-            - allowed: True if the request is allowed, False if it should be rate limited
+            - allowed: True if the request is allowed, 
+                False if it should be rate limited
             - limit_info: Dictionary with rate limit information
         """
         # Check if exempt
@@ -169,7 +175,8 @@ class RateLimitManager:
         # Check endpoint - specific rate limit if applicable
         if endpoint and endpoint in self.endpoint_rate_limiters:
             endpoint_key = f"{key}:{endpoint}"
-            allowed, limit_info = self.endpoint_rate_limiters[endpoint].check_rate_limit(
+            allowed, 
+                limit_info = self.endpoint_rate_limiters[endpoint].check_rate_limit(
                 endpoint_key, cost
             )
 
@@ -199,13 +206,15 @@ class RateLimitManager:
             headers[self.config.rate_limit_limit_header] = str(int(limit_info["limit"]))
 
         if "remaining" in limit_info:
-            headers[self.config.rate_limit_remaining_header] = str(int(limit_info["remaining"]))
+            headers[self.config.rate_limit_remaining_header] = \
+                str(int(limit_info["remaining"]))
 
         if "reset" in limit_info:
             headers[self.config.rate_limit_reset_header] = str(int(limit_info["reset"]))
 
         # Add retry - after header if rate limited
         if "retry_after" in limit_info and limit_info["retry_after"] > 0:
-            headers[self.config.rate_limit_retry_after_header] = str(int(limit_info["retry_after"]))
+            headers[self.config.rate_limit_retry_after_header] = \
+                str(int(limit_info["retry_after"]))
 
         return headers

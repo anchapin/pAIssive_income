@@ -134,6 +134,7 @@ def save_benchmark_results(
         output_path = os.path.join(
             output_dir,
             f"{os.path.basename(result.model_path)}_{result.benchmark_type.value}_{int(result.timestamp)}.json",
+                
         )
 
         # Save result

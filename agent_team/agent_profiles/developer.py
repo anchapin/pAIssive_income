@@ -23,7 +23,8 @@ class DeveloperAgent:
         """
         self.team = team
         self.name = "Developer Agent"
-        self.description = "Specializes in designing and developing AI - powered software solutions"
+        self.description = "Specializes in designing and developing AI - \
+            powered software solutions"
         self.model_settings = team.config["model_settings"]["developer"]
 
     def design_solution(self, niche: Dict[str, Any]) -> Dict[str, Any]:
@@ -67,7 +68,8 @@ class DeveloperAgent:
         # For now, we'll return a placeholder implementation based on the niche
 
         # Generate a solution name based on the niche
-        solution_name = f"AI {niche['name'].replace(' for ', ' ').title().replace(' ', '')}"
+        solution_name = f"AI {niche['name'].replace(' for ', ' ').title().replace(' ', 
+            '')}"
 
         # Generate features based on user problems
         features = []
@@ -76,8 +78,10 @@ class DeveloperAgent:
                 "id": str(uuid.uuid4()),
                 "name": f"{problem['name'].title()} Solver",
                 "description": f"Solves the problem of {problem['name']} for users in the {niche['name']} niche",
+                    
                 "priority": problem["priority"],
-                "technical_complexity": "medium",  # Placeholder, would be determined by AI
+                "technical_complexity": "medium",  # Placeholder, 
+                    would be determined by AI
                 "development_time": "2 weeks",  # Placeholder, would be determined by AI
                 "ai_models_required": [
                     "gpt - 4",
@@ -94,16 +98,19 @@ class DeveloperAgent:
             "type": (
                 "desktop_application"
                 if hash(niche["name"]) % 3 == 0
-                else ("web_application" if hash(niche["name"]) % 3 == 1 else "mobile_application")
+                else ("web_application" if hash(niche["name"]) % 3 == \
+                    1 else "mobile_application")
             ),
             "frontend": "react" if hash(niche["name"]) % 2 == 0 else "vue",
             "backend": ("python_flask" if hash(niche["name"]) % 2 == 0 else "node_express"),
+                
             "database": (
                 "sqlite"
                 if hash(niche["name"]) % 3 == 0
                 else "postgresql" if hash(niche["name"]) % 3 == 1 else "mongodb"
             ),
             "ai_integration": ("local_models" if hash(niche["name"]) % 2 == 0 else "api_based"),
+                
             "deployment": (
                 "electron"
                 if hash(niche["name"]) % 3 == 0
@@ -116,7 +123,8 @@ class DeveloperAgent:
             {
                 "phase": "MVP",
                 "duration": "4 weeks",
-                "features": [feature["id"] for feature in features[:2]],  # Top 2 priority features
+                "features": [feature["id"] for feature in features[:2]],  
+                    # Top 2 priority features
                 "milestones": [
                     "Architecture setup",
                     "Core functionality implementation",

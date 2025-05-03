@@ -175,7 +175,8 @@ class WebhookRepository:
             "url": url,
             "description": description,
             "events": [
-                event.value if isinstance(event, WebhookEventType) else event for event in events
+                event.value if isinstance(event, 
+                    WebhookEventType) else event for event in events
             ],
             "active": active,
             "created_at": now,
@@ -244,7 +245,8 @@ class WebhookRepository:
 
         if events is not None:
             webhook["events"] = [
-                event.value if isinstance(event, WebhookEventType) else event for event in events
+                event.value if isinstance(event, 
+                    WebhookEventType) else event for event in events
             ]
 
             # Update event to webhook mapping
@@ -374,7 +376,8 @@ class WebhookRepository:
         self._save_delivery(delivery_id, delivery)
 
         logger.info(
-            f"Created delivery {delivery_id} for webhook {webhook_id} and event {event_type}"
+            f"Created delivery {delivery_id} for webhook {webhook_id} and \
+                event {event_type}"
         )
         return delivery
 
@@ -456,7 +459,8 @@ class WebhookRepository:
         attempt = self.attempts[attempt_id]
 
         # Update attempt fields
-        attempt["status"] = status.value if isinstance(status, WebhookDeliveryStatus) else status
+        attempt["status"] = status.value if isinstance(status, 
+            WebhookDeliveryStatus) else status
 
         if response_code is not None:
             attempt["response_code"] = response_code
@@ -546,7 +550,8 @@ class WebhookRepository:
         return deliveries[offset : offset + limit]
 
     def count_deliveries(
-        self, webhook_id: Optional[str] = None, status: Optional[WebhookDeliveryStatus] = None
+        self, webhook_id: Optional[str] = None, 
+            status: Optional[WebhookDeliveryStatus] = None
     ) -> int:
         """
         Count webhook deliveries.
@@ -597,7 +602,8 @@ class WebhookRepository:
         payload_str = json.dumps(payload, sort_keys=True)
 
         # Sign payload
-        signature = hmac.new(secret_hash.encode(), payload_str.encode(), hashlib.sha256).hexdigest()
+        signature = hmac.new(secret_hash.encode(), payload_str.encode(), 
+            hashlib.sha256).hexdigest()
 
         return signature
 

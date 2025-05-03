@@ -98,7 +98,8 @@ def cache_model_result(
                     parameters[arg_name] = arg_value
 
             # Check if result is already cached
-            cached_result = cache.get_model_output(model_id, operation, inputs, parameters)
+            cached_result = cache.get_model_output(model_id, operation, inputs, 
+                parameters)
 
             if cached_result is not None:
                 logger.debug(f"Cache hit for {operation} with model {model_id}")
@@ -109,7 +110,8 @@ def cache_model_result(
             result = f(*args, **kwargs)
 
             # Cache the result
-            cache.cache_model_output(model_id, operation, inputs, result, parameters, ttl)
+            cache.cache_model_output(model_id, operation, inputs, result, parameters, 
+                ttl)
 
             return result
 
@@ -127,7 +129,8 @@ def invalidate_model_cache(model_id: str, operation: Optional[str] = None) -> bo
 
     Args:
         model_id: ID of the model
-        operation: Optional operation to invalidate. If None, all operations are invalidated.
+        operation: Optional operation to invalidate. If None, 
+            all operations are invalidated.
 
     Returns:
         True if successful, False otherwise

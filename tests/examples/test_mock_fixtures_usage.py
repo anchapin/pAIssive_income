@@ -35,7 +35,8 @@ def test_openai_api_interaction(mock_http_with_common_responses):
     # Verify the response
     assert response.status_code == 200
     data = response.json()
-    assert data["choices"][0]["message"]["content"] == "This is a mock response from the AI."
+    assert data["choices"][0]["message"]["content"] == \
+        "This is a mock response from the AI."
 
     # We can also add new mock responses on the fly
     http.add_response(
@@ -112,10 +113,12 @@ def test_huggingface_hub_interaction(mock_hf_hub_with_models):
     # Add a new model
     hf_hub.add_repo({"id": "my - custom - model", "tags": ["text - generation"]})
 
-    hf_hub.add_file(repo_id="my - custom - model", file_path="model.bin", content=b"CUSTOM_MODEL_DATA")
+    hf_hub.add_file(repo_id="my - custom - model", file_path="model.bin", 
+        content=b"CUSTOM_MODEL_DATA")
 
     # Download the new model
-    file_path = hf_hub.hf_hub_download(repo_id="my - custom - model", filename="model.bin")
+    file_path = hf_hub.hf_hub_download(repo_id="my - custom - model", 
+        filename="model.bin")
 
     # Verify the file exists
     assert os.path.exists(file_path)
@@ -137,7 +140,8 @@ def test_with_patched_huggingface_hub(patch_huggingface_hub):
     from huggingface_hub import hf_hub_download, list_models
 
     # Add a model to the mock hub
-    patch_huggingface_hub.add_repo({"id": "bert - base - uncased", "pipeline_tag": "fill - mask"})
+    patch_huggingface_hub.add_repo({"id": "bert - base - uncased", 
+        "pipeline_tag": "fill - mask"})
 
     patch_huggingface_hub.add_file(
         repo_id="bert - base - uncased",
@@ -181,11 +185,13 @@ def test_ai_model_complete_scenario(mock_ai_model_testing_setup):
     # Use the HTTP mock
     response = http.post(
         "https://api.openai.com / v1 / chat / completions",
-        json={"model": "gpt - 3.5 - turbo", "messages": [{"role": "user", "content": "Hello!"}]},
+        json={"model": "gpt - 3.5 - turbo", "messages": [{"role": "user", 
+            "content": "Hello!"}]},
     )
 
     assert response.status_code == 200
-    assert "This is a mock response" in response.json()["choices"][0]["message"]["content"]
+    assert "This is a mock response" in response.json(
+        )["choices"][0]["message"]["content"]
 
     # Use the Hugging Face Hub mock
     file_path = hf_hub.hf_hub_download(repo_id="gpt2", filename="config.json")

@@ -126,7 +126,8 @@ def test_calculate_optimal_price(pricing_calculator):
 def test_analyze_price_sensitivity(pricing_calculator):
     """Test analyze_price_sensitivity method."""
     # Test with required parameters
-    analysis = pricing_calculator.analyze_price_sensitivity(base_price=19.99, market_size=10000)
+    analysis = pricing_calculator.analyze_price_sensitivity(base_price=19.99, 
+        market_size=10000)
 
     # Check that the analysis has the expected keys
     assert "base_price" in analysis

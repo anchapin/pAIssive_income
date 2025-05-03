@@ -83,7 +83,8 @@ class CacheVersionManager:
         # Update version
         self._namespace_versions[namespace] = new_version
         logger.info(
-            f"Updated cache namespace {namespace} from {current} to {new_version} ({reason})"
+            f"Updated cache namespace {namespace} from {current} to {new_version} (
+                {reason})"
         )
 
     def clear_namespace_on_restart(self, namespace: str) -> None:
@@ -94,7 +95,8 @@ class CacheVersionManager:
             namespace: Cache namespace to clear on restart
         """
         self._clear_on_restart.add(namespace)
-        logger.debug(f"Namespace {namespace} will be cleared on next application restart")
+        logger.debug(
+            f"Namespace {namespace} will be cleared on next application restart")
 
     def get_namespaces_to_clear(self) -> Set[str]:
         """
@@ -292,7 +294,8 @@ def clear_namespace_on_code_change(namespace: str, func_or_class: Any = None) ->
         try:
             func_or_class = frame.f_locals.get("self", None).__class__
         except (AttributeError, KeyError):
-            logger.warning(f"Could not automatically determine caller for namespace {namespace}")
+            logger.warning(
+                f"Could not automatically determine caller for namespace {namespace}")
             return
 
     # Generate new version based on function / class source
@@ -301,7 +304,8 @@ def clear_namespace_on_code_change(namespace: str, func_or_class: Any = None) ->
     elif inspect.isclass(func_or_class):
         new_version = version_manager.get_class_version_hash(func_or_class)
     else:
-        logger.warning(f"Unsupported object type for code change monitoring: {type(func_or_class)}")
+        logger.warning(
+            f"Unsupported object type for code change monitoring: {type(func_or_class)}")
         return
 
     # Update the namespace version

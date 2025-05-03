@@ -86,9 +86,12 @@ class User:
             User instance
         """
         # Convert ISO format strings to datetime objects
-        created_at = datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None
-        updated_at = datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else None
-        last_login = datetime.fromisoformat(data["last_login"]) if data.get("last_login") else None
+        created_at = \
+            datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None
+        updated_at = \
+            datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else None
+        last_login = \
+            datetime.fromisoformat(data["last_login"]) if data.get("last_login") else None
 
         return cls(
             id=data.get("id"),

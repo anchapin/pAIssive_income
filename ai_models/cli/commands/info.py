@@ -33,7 +33,8 @@ class InfoCommand(BaseCommand):
         Args:
             parser: Argument parser
         """
-        parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
+        parser.add_argument("--model - path", type=str, required=True, 
+            help="Path to the model")
         parser.add_argument(
             "--format", choices=["text", "json"], default="text", help="Output format"
         )
@@ -79,7 +80,8 @@ class InfoCommand(BaseCommand):
             model_info = manager.get_model_info(self.args.model_path)
 
             if not model_info:
-                logger.error(f"Failed to get information for model: {self.args.model_path}")
+                logger.error(
+                    f"Failed to get information for model: {self.args.model_path}")
                 return 1
 
             # Format output

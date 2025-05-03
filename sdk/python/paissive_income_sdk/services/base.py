@@ -21,7 +21,8 @@ class BaseService:
         """
         self.client = client
 
-    def _get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, 
+        Any]:
         """
         Make a GET request.
 

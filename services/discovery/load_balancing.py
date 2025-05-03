@@ -18,7 +18,8 @@ class RandomLoadBalancer(LoadBalancingStrategy):
     Selects a service instance randomly from the available healthy instances.
     """
 
-    def select_instance(self, instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
+    def select_instance(self, 
+        instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
         """
         Select an instance randomly from the list of healthy instances.
 
@@ -29,7 +30,8 @@ class RandomLoadBalancer(LoadBalancingStrategy):
             The selected instance, or None if no instances are available
         """
         healthy_instances = [
-            instance for instance in instances if instance.status == ServiceStatus.HEALTHY
+            instance for instance in instances if instance.status == \
+                ServiceStatus.HEALTHY
         ]
 
         if not healthy_instances:
@@ -37,7 +39,8 @@ class RandomLoadBalancer(LoadBalancingStrategy):
             healthy_instances = [
                 instance
                 for instance in instances
-                if instance.status not in (ServiceStatus.UNHEALTHY, ServiceStatus.STOPPED)
+                if instance.status not in (ServiceStatus.UNHEALTHY, 
+                    ServiceStatus.STOPPED)
             ]
 
         if not healthy_instances:
@@ -57,7 +60,8 @@ class RoundRobinLoadBalancer(LoadBalancingStrategy):
         """Initialize a new RoundRobinLoadBalancer."""
         self._last_index: Dict[str, int] = {}
 
-    def select_instance(self, instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
+    def select_instance(self, 
+        instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
         """
         Select an instance in round - robin fashion from the list of healthy instances.
 
@@ -72,7 +76,8 @@ class RoundRobinLoadBalancer(LoadBalancingStrategy):
 
         # Filter to only get healthy instances
         healthy_instances = [
-            instance for instance in instances if instance.status == ServiceStatus.HEALTHY
+            instance for instance in instances if instance.status == \
+                ServiceStatus.HEALTHY
         ]
 
         if not healthy_instances:
@@ -80,7 +85,8 @@ class RoundRobinLoadBalancer(LoadBalancingStrategy):
             healthy_instances = [
                 instance
                 for instance in instances
-                if instance.status not in (ServiceStatus.UNHEALTHY, ServiceStatus.STOPPED)
+                if instance.status not in (ServiceStatus.UNHEALTHY, 
+                    ServiceStatus.STOPPED)
             ]
 
         if not healthy_instances:
@@ -113,7 +119,8 @@ class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
         """Initialize a new LeastConnectionsLoadBalancer."""
         self._connections: Dict[str, int] = {}
 
-    def select_instance(self, instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
+    def select_instance(self, 
+        instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
         """
         Select the instance with the fewest active connections.
 
@@ -128,7 +135,8 @@ class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
 
         # Filter to only get healthy instances
         healthy_instances = [
-            instance for instance in instances if instance.status == ServiceStatus.HEALTHY
+            instance for instance in instances if instance.status == \
+                ServiceStatus.HEALTHY
         ]
 
         if not healthy_instances:
@@ -136,7 +144,8 @@ class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
             healthy_instances = [
                 instance
                 for instance in instances
-                if instance.status not in (ServiceStatus.UNHEALTHY, ServiceStatus.STOPPED)
+                if instance.status not in (ServiceStatus.UNHEALTHY, 
+                    ServiceStatus.STOPPED)
             ]
 
         if not healthy_instances:
@@ -177,7 +186,8 @@ class WeightedLoadBalancer(LoadBalancingStrategy):
     Selects service instances based on weights specified in instance metadata.
     """
 
-    def select_instance(self, instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
+    def select_instance(self, 
+        instances: List[ServiceInstance]) -> Optional[ServiceInstance]:
         """
         Select an instance based on weights from the list of healthy instances.
 
@@ -192,7 +202,8 @@ class WeightedLoadBalancer(LoadBalancingStrategy):
 
         # Filter to only get healthy instances
         healthy_instances = [
-            instance for instance in instances if instance.status == ServiceStatus.HEALTHY
+            instance for instance in instances if instance.status == \
+                ServiceStatus.HEALTHY
         ]
 
         if not healthy_instances:
@@ -200,7 +211,8 @@ class WeightedLoadBalancer(LoadBalancingStrategy):
             healthy_instances = [
                 instance
                 for instance in instances
-                if instance.status not in (ServiceStatus.UNHEALTHY, ServiceStatus.STOPPED)
+                if instance.status not in (ServiceStatus.UNHEALTHY, 
+                    ServiceStatus.STOPPED)
             ]
 
         if not healthy_instances:

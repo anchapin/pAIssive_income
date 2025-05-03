@@ -67,14 +67,17 @@ class PerplexityMetric(BaseMetric):
         # Calculate perplexity
         if TORCH_AVAILABLE and isinstance(total_loss, torch.Tensor):
             perplexity = (
-                torch.exp(total_loss / total_tokens).item() if total_tokens > 0 else float("inf")
+                torch.exp(total_loss / \
+                    total_tokens).item() if total_tokens > 0 else float("inf")
             )
         elif NUMPY_AVAILABLE and isinstance(total_loss, np.ndarray):
             perplexity = (
-                float(np.exp(total_loss / total_tokens)) if total_tokens > 0 else float("inf")
+                float(np.exp(total_loss / \
+                    total_tokens)) if total_tokens > 0 else float("inf")
             )
         else:
-            perplexity = math.exp(total_loss / total_tokens) if total_tokens > 0 else float("inf")
+            perplexity = math.exp(total_loss / \
+                total_tokens) if total_tokens > 0 else float("inf")
 
         # Update counters
         self.total_loss += total_loss

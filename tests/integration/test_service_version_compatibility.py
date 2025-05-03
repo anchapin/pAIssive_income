@@ -59,7 +59,8 @@ def in_memory_registry():
             "port": 8101,
             "version": "1.0.0",
             "api_version": "v1",
-            "dependencies": {"auth - service": "^1.0.0"},  # Compatible with auth - service 1.x.x
+            "dependencies": {"auth - service": "^1.0.0"},  
+                # Compatible with auth - service 1.x.x
         },
         {
             "service_name": "user - service",
@@ -67,7 +68,8 @@ def in_memory_registry():
             "port": 8102,
             "version": "2.0.0",
             "api_version": "v2",
-            "dependencies": {"auth - service": "^2.0.0"},  # Compatible with auth - service 2.x.x
+            "dependencies": {"auth - service": "^2.0.0"},  
+                # Compatible with auth - service 2.x.x
         },
         # Product service versions
         {
@@ -163,12 +165,14 @@ class TestServiceVersionCompatibility:
     def test_version_prefix_discovery(self, discovery_client):
         """Test version prefix service discovery."""
         # Discover auth - service v1.x.x
-        instances = discovery_client.discover_service("auth - service", version_prefix="1.")
+        instances = discovery_client.discover_service("auth - service", 
+            version_prefix="1.")
         assert len(instances) == 2
         assert all(instance.version.startswith("1.") for instance in instances)
 
         # Discover auth - service v2.x.x
-        instances = discovery_client.discover_service("auth - service", version_prefix="2.")
+        instances = discovery_client.discover_service("auth - service", 
+            version_prefix="2.")
         assert len(instances) == 1
         assert instances[0].version == "2.0.0"
 
@@ -192,15 +196,18 @@ class TestServiceVersionCompatibility:
     def test_service_dependency_compatibility(self, compatibility_checker):
         """Test service dependency compatibility."""
         # Check compatibility for API Gateway
-        compatibility = compatibility_checker.check_service_compatibility("api - gateway", "1.0.0")
+        compatibility = compatibility_checker.check_service_compatibility("api - gateway", 
+            "1.0.0")
         assert compatibility["compatible"] is True
         assert len(compatibility["compatible_dependencies"]) == 3
 
         # Check compatibility for user - service v2.0.0 (requires auth - service v2.x.x)
-        compatibility = compatibility_checker.check_service_compatibility("user - service", "2.0.0")
+        compatibility = compatibility_checker.check_service_compatibility("user - service", 
+            "2.0.0")
         assert compatibility["compatible"] is True
         assert len(compatibility["compatible_dependencies"]) == 1
-        assert compatibility["compatible_dependencies"][0]["service_name"] == "auth - service"
+        assert compatibility["compatible_dependencies"][0]["service_name"] == "auth - \
+            service"
         assert compatibility["compatible_dependencies"][0]["version"] == "2.0.0"
 
     def test_feature_based_version_selection(self, discovery_client):
@@ -248,14 +255,16 @@ class TestServiceVersionCompatibility:
     def test_version_upgrade_path(self, version_manager):
         """Test version upgrade path."""
         # Get upgrade path for auth - service from 1.0.0 to 2.0.0
-        upgrade_path = version_manager.get_upgrade_path("auth - service", "1.0.0", "2.0.0")
+        upgrade_path = version_manager.get_upgrade_path("auth - service", "1.0.0", 
+            "2.0.0")
         assert len(upgrade_path) == 3
         assert upgrade_path[0] == "1.0.0"
         assert upgrade_path[1] == "1.1.0"
         assert upgrade_path[2] == "2.0.0"
 
         # Get upgrade path for product - service from 1.0.0 to 1.5.0
-        upgrade_path = version_manager.get_upgrade_path("product - service", "1.0.0", "1.5.0")
+        upgrade_path = version_manager.get_upgrade_path("product - service", "1.0.0", 
+            "1.5.0")
         assert len(upgrade_path) == 2
         assert upgrade_path[0] == "1.0.0"
         assert upgrade_path[1] == "1.5.0"

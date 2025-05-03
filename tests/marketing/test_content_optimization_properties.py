@@ -2,7 +2,8 @@
 Property - based tests for content optimization algorithms.
 
 This module tests properties that should hold true for content optimization algorithms
-in the marketing.content_optimization module, using the Hypothesis framework for property - based testing.
+in the marketing.content_optimization module, 
+    using the Hypothesis framework for property - based testing.
 """
 
 import uuid
@@ -13,7 +14,8 @@ import pytest
 from hypothesis import assume, example, given, settings
 from hypothesis import strategies as st
 from hypothesis.strategies import composite
-from marketing.content_optimization import KeywordAnalyzer, ReadabilityAnalyzer, SEOAnalyzer
+from marketing.content_optimization import KeywordAnalyzer, ReadabilityAnalyzer, 
+    SEOAnalyzer
 
 # Constants for generating test content
 SAMPLE_WORDS = [
@@ -206,7 +208,8 @@ def content_dict_strategy(draw, with_keywords=True):
                 sentence_words = draw(
                     st.lists(
                         st.sampled_from(
-                            word_pool + keyword_candidates if include_keyword else word_pool
+                            word_pool + \
+                                keyword_candidates if include_keyword else word_pool
                         ),
                         min_size=3,
                         max_size=20,
@@ -247,7 +250,8 @@ def content_dict_strategy(draw, with_keywords=True):
     conclusion_sentences = []
     for _ in range(draw(st.integers(min_value=2, max_value=4))):
         conclusion_words = draw(
-            st.lists(st.sampled_from(SAMPLE_WORDS + SIMPLE_WORDS), min_size=5, max_size=15)
+            st.lists(st.sampled_from(SAMPLE_WORDS + SIMPLE_WORDS), min_size=5, 
+                max_size=15)
         )
         sentence = " ".join(conclusion_words).capitalize() + "."
         conclusion_sentences.append(sentence)
@@ -258,7 +262,8 @@ def content_dict_strategy(draw, with_keywords=True):
     seo_data = None
     if with_keywords and draw(st.booleans()):
         slug_words = draw(
-            st.lists(st.sampled_from(SAMPLE_WORDS + keyword_candidates), min_size=2, max_size=6)
+            st.lists(st.sampled_from(SAMPLE_WORDS + keyword_candidates), min_size=2, 
+                max_size=6)
         )
         seo_data = {
             "slug": " - ".join(slug_words).lower(),
@@ -295,7 +300,8 @@ def keywords_strategy(draw):
         keyword_length = draw(st.integers(min_value=1, max_value=3))
         keyword_words = draw(
             st.lists(
-                st.sampled_from(SAMPLE_WORDS), min_size=keyword_length, max_size=keyword_length
+                st.sampled_from(SAMPLE_WORDS), min_size=keyword_length, 
+                    max_size=keyword_length
             )
         )
         keyword = " ".join(keyword_words)
@@ -321,7 +327,8 @@ def keyword_analyzer_config_strategy(draw):
 
     # Generate min / max meta description length with min <= max
     min_meta_desc_length = draw(st.integers(min_value=50, max_value=120))
-    max_meta_desc_length = draw(st.integers(min_value=min_meta_desc_length, max_value=160))
+    max_meta_desc_length = draw(st.integers(min_value=min_meta_desc_length, 
+        max_value=160))
 
     return {
         "min_keyword_density": min_density,
@@ -352,11 +359,13 @@ def readability_analyzer_config_strategy(draw):
 
     # Generate min / max sentence lengths
     min_sentence_length = draw(st.integers(min_value=3, max_value=8))
-    max_sentence_length = draw(st.integers(min_value=min_sentence_length + 5, max_value=35))
+    max_sentence_length = draw(st.integers(min_value=min_sentence_length + 5, 
+        max_value=35))
 
     # Generate min / max paragraph lengths
     min_paragraph_length = draw(st.integers(min_value=20, max_value=50))
-    max_paragraph_length = draw(st.integers(min_value=min_paragraph_length + 30, max_value=200))
+    max_paragraph_length = draw(st.integers(min_value=min_paragraph_length + 30, 
+        max_value=200))
 
     # Generate maximum percentages
     max_passive_voice = draw(st.floats(min_value=0.05, max_value=0.3))
@@ -445,7 +454,8 @@ class TestKeywordAnalyzerProperties:
                     assert keyword.lower() in content["title"].lower()
 
                 # If keyword is in meta description, it should be in the meta description
-                if placement["locations"]["meta_description"] and "meta_description" in content:
+                if placement["locations"]["meta_description"] and \
+                    "meta_description" in content:
                     assert keyword.lower() in content["meta_description"].lower()
 
                 # If keyword is in URL, it should be in the slug
@@ -454,7 +464,8 @@ class TestKeywordAnalyzerProperties:
                     and "seo_data" in content
                     and "slug" in content["seo_data"]
                 ):
-                    assert keyword.lower().replace(" ", " - ") in content["seo_data"]["slug"].lower()
+                    assert keyword.lower().replace(" ", 
+                        " - ") in content["seo_data"]["slug"].lower()
 
                 # Verify placement_score is calculated correctly based on locations
                 # The actual calculation is more complex in the implementation,
@@ -497,7 +508,8 @@ class TestKeywordAnalyzerProperties:
                     assert all(keyword in r["message"] for r in density_recommendations)
 
                     # The recommendation should include a suggestion
-                    assert all(len(r["suggestion"]) > 0 for r in density_recommendations)
+                    assert all(
+                        len(r["suggestion"]) > 0 for r in density_recommendations)
 
             # Check that recommendations are provided for suboptimal keyword placement
             for keyword, placement in results["keyword_placement"].items():
@@ -555,7 +567,8 @@ class TestKeywordAnalyzerProperties:
                         # Score based on how close to max_density
                         density_scores.append(max_density / density)
 
-            density_score = sum(density_scores) / len(density_scores) if density_scores else 0
+            density_score = sum(density_scores) / \
+                len(density_scores) if density_scores else 0
 
             placement_scores = [
                 data["placement_score"] / 100.0
@@ -588,7 +601,8 @@ class TestKeywordAnalyzerProperties:
 class TestReadabilityAnalyzerProperties:
     """Property - based tests for the ReadabilityAnalyzer class."""
 
-    @given(content=content_dict_strategy(), config=readability_analyzer_config_strategy())
+    @given(content=content_dict_strategy(), 
+        config=readability_analyzer_config_strategy())
     def test_readability_score_bounds(self, content, config):
         """Test that readability scores are bounded appropriately."""
         analyzer = ReadabilityAnalyzer(content, config)
@@ -624,7 +638,8 @@ class TestReadabilityAnalyzerProperties:
             # If content is not valid, skip the test
             assume(False)
 
-    @given(content=content_dict_strategy(), config=readability_analyzer_config_strategy())
+    @given(content=content_dict_strategy(), 
+        config=readability_analyzer_config_strategy())
     def test_reading_level_consistency(self, content, config):
         """Test that reading level is consistent with Flesch Reading Ease score."""
         analyzer = ReadabilityAnalyzer(content, config)
@@ -653,7 +668,8 @@ class TestReadabilityAnalyzerProperties:
             # If content is not valid, skip the test
             assume(False)
 
-    @given(content=content_dict_strategy(), config=readability_analyzer_config_strategy())
+    @given(content=content_dict_strategy(), 
+        config=readability_analyzer_config_strategy())
     def test_text_statistics_consistency(self, content, config):
         """Test that text statistics are internally consistent."""
         analyzer = ReadabilityAnalyzer(content, config)
@@ -674,13 +690,16 @@ class TestReadabilityAnalyzerProperties:
 
             # Check that complex_word_percentage = num_complex_words / num_words
             expected_percentage = (
-                stats["num_complex_words"] / stats["num_words"] if stats["num_words"] > 0 else 0
+                stats["num_complex_words"] / \
+                    stats["num_words"] if stats["num_words"] > 0 else 0
             )
-            assert stats["complex_word_percentage"] == pytest.approx(expected_percentage)
+            assert stats["complex_word_percentage"] == \
+                pytest.approx(expected_percentage)
 
             # Check that avg_words_per_sentence = num_words / num_sentences
             expected_avg = (
-                stats["num_words"] / stats["num_sentences"] if stats["num_sentences"] > 0 else 0
+                stats["num_words"] / \
+                    stats["num_sentences"] if stats["num_sentences"] > 0 else 0
             )
             assert stats["avg_words_per_sentence"] == pytest.approx(expected_avg)
 
@@ -688,7 +707,8 @@ class TestReadabilityAnalyzerProperties:
             # If content is not valid, skip the test
             assume(False)
 
-    @given(content=content_dict_strategy(), config=readability_analyzer_config_strategy())
+    @given(content=content_dict_strategy(), 
+        config=readability_analyzer_config_strategy())
     def test_sentence_analysis_consistency(self, content, config):
         """Test that sentence analysis is internally consistent."""
         analyzer = ReadabilityAnalyzer(content, config)
@@ -723,7 +743,8 @@ class TestReadabilityAnalyzerProperties:
             # If content is not valid, skip the test
             assume(False)
 
-    @given(content=content_dict_strategy(), config=readability_analyzer_config_strategy())
+    @given(content=content_dict_strategy(), 
+        config=readability_analyzer_config_strategy())
     def test_recommendations_consistency(self, content, config):
         """Test that recommendations are consistent with analysis results."""
         analyzer = ReadabilityAnalyzer(content, config)
@@ -739,7 +760,8 @@ class TestReadabilityAnalyzerProperties:
             # Check that recommendations exist for non - optimal Flesch Reading Ease
             if not results["readability_scores"]["flesch_reading_ease"]["is_optimal"]:
                 flesch_recommendations = [
-                    r for r in results["recommendations"] if r["type"] == "readability_score"
+                    r for r in results["recommendations"] if r["type"] == \
+                        "readability_score"
                 ]
                 assert len(flesch_recommendations) > 0
 
@@ -753,14 +775,16 @@ class TestReadabilityAnalyzerProperties:
             # Check that recommendations exist for non - optimal sentence length
             if not results["sentence_analysis"]["sentence_length"]["is_optimal"]:
                 sentence_recommendations = [
-                    r for r in results["recommendations"] if r["type"] == "sentence_length"
+                    r for r in results["recommendations"] if r["type"] == \
+                        "sentence_length"
                 ]
                 assert len(sentence_recommendations) > 0
 
             # Check that recommendations exist for non - optimal paragraph length
             if not results["paragraph_analysis"]["paragraph_length"]["is_optimal"]:
                 paragraph_recommendations = [
-                    r for r in results["recommendations"] if r["type"] == "paragraph_length"
+                    r for r in results["recommendations"] if r["type"] == \
+                        "paragraph_length"
                 ]
                 assert len(paragraph_recommendations) > 0
 
@@ -768,7 +792,8 @@ class TestReadabilityAnalyzerProperties:
             # If content is not valid, skip the test
             assume(False)
 
-    @given(content=content_dict_strategy(), config=readability_analyzer_config_strategy())
+    @given(content=content_dict_strategy(), 
+        config=readability_analyzer_config_strategy())
     def test_readability_score_calculation(self, content, config):
         """Test that the overall readability score is calculated correctly."""
         analyzer = ReadabilityAnalyzer(content, config)
@@ -789,9 +814,11 @@ class TestReadabilityAnalyzerProperties:
                 readability_score += 0.2
             else:
                 # Calculate partial score based on how close to optimal
-                flesch_score = results["readability_scores"]["flesch_reading_ease"]["score"]
+                flesch_score = \
+                    results["readability_scores"]["flesch_reading_ease"]["score"]
                 min_flesch = config["min_flesch_reading_ease"]
-                readability_score += 0.2 * (flesch_score / min_flesch) if min_flesch > 0 else 0
+                readability_score += 0.2 * \
+                    (flesch_score / min_flesch) if min_flesch > 0 else 0
 
             # Score based on grade level
             target_grade = config["max_flesch_kincaid_grade"]
@@ -801,7 +828,8 @@ class TestReadabilityAnalyzerProperties:
                 readability_score += 0.2
             else:
                 # Calculate partial score based on how close to target
-                readability_score += 0.2 * (target_grade / actual_grade) if actual_grade > 0 else 0
+                readability_score += 0.2 * \
+                    (target_grade / actual_grade) if actual_grade > 0 else 0
 
             # Score based on sentence structure
             sentence_score = 0.0

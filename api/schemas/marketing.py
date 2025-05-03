@@ -99,7 +99,8 @@ class MarketingCampaignResponse(BaseModel):
     status: str = Field(..., description="Campaign status")
     budget: Optional[float] = Field(None, description="Campaign budget")
     channels: Optional[List[str]] = Field(None, description="Marketing channels")
-    target_audience: Optional[Dict[str, Any]] = Field(None, description="Target audience details")
+    target_audience: Optional[Dict[str, Any]] = Field(None, 
+        description="Target audience details")
     goals: Optional[CampaignGoals] = Field(None, description="Campaign goals")
     metrics: Optional[Dict[str, Any]] = Field(None, description="Campaign metrics")
     activation_date: Optional[str] = Field(None, description="Campaign activation date")

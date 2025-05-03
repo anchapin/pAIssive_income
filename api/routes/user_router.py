@@ -122,7 +122,8 @@ async def get_user_profile(token: str = Depends(verify_token)):
         401: {"model": ErrorResponse, "description": "Not authenticated"},
     },
 )
-async def update_user_profile(data: UserProfileUpdateRequest, token: str = Depends(verify_token)):
+async def update_user_profile(data: UserProfileUpdateRequest, 
+    token: str = Depends(verify_token)):
     """Update the user profile."""
     try:
         return {
@@ -147,7 +148,8 @@ async def update_user_profile(data: UserProfileUpdateRequest, token: str = Depen
         401: {"model": ErrorResponse, "description": "Not authenticated"},
     },
 )
-async def change_password(data: PasswordChangeRequest, token: str = Depends(verify_token)):
+async def change_password(data: PasswordChangeRequest, 
+    token: str = Depends(verify_token)):
     """Change the user password."""
     try:
         return {"message": "Password changed successfully"}
@@ -171,7 +173,8 @@ async def get_user_projects(
 ):
     """Get the user's projects."""
     try:
-        return {"items": [], "total": 0, "page": page, "page_size": page_size, "pages": 0}
+        return {"items": [], "total": 0, "page": page, "page_size": page_size, 
+            "pages": 0}
     except Exception as e:
         logger.error(f"Error getting user projects: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -192,7 +195,8 @@ async def get_user_teams(
 ):
     """Get the user's teams."""
     try:
-        return {"items": [], "total": 0, "page": page, "page_size": page_size, "pages": 0}
+        return {"items": [], "total": 0, "page": page, "page_size": page_size, 
+            "pages": 0}
     except Exception as e:
         logger.error(f"Error getting user teams: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -213,7 +217,8 @@ async def get_user_activity(
 ):
     """Get the user's activity."""
     try:
-        return {"items": [], "total": 0, "page": page, "page_size": page_size, "pages": 0}
+        return {"items": [], "total": 0, "page": page, "page_size": page_size, 
+            "pages": 0}
     except Exception as e:
         logger.error(f"Error getting user activity: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -250,7 +255,8 @@ async def get_user_settings(token: str = Depends(verify_token)):
         401: {"model": ErrorResponse, "description": "Not authenticated"},
     },
 )
-async def update_user_settings(data: UserSettingsUpdateRequest, token: str = Depends(verify_token)):
+async def update_user_settings(data: UserSettingsUpdateRequest, 
+    token: str = Depends(verify_token)):
     """Update the user's settings."""
     try:
         return {"settings": data.settings}

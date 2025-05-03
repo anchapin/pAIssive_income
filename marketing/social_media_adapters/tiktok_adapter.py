@@ -56,7 +56,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
         # Set up authentication if access token is provided
         if self.access_token:
             self.session.headers.update(
-                {"Authorization": f"Bearer {self.access_token}", "Content - Type": "application / json"}
+                {"Authorization": f"Bearer {self.access_token}", 
+                    "Content - Type": "application / json"}
             )
             self._connected = True
 
@@ -76,7 +77,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 # Check if the token is valid by getting user info
                 response = self.session.get(
                     f"{self.api_base_url}/user / info / ",
-                    params={"fields": "open_id,union_id,avatar_url,display_name,bio_description"},
+                    params={"fields": "open_id,union_id,avatar_url,display_name,
+                        bio_description"},
                 )
                 response.raise_for_status()
                 user_data = response.json().get("data", {})
@@ -120,7 +122,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 # Get user information
                 response = self.session.get(
                     f"{self.api_base_url}/user / info / ",
-                    params={"fields": "open_id,union_id,avatar_url,display_name,bio_description"},
+                    params={"fields": "open_id,union_id,avatar_url,display_name,
+                        bio_description"},
                 )
                 response.raise_for_status()
                 user_data = response.json().get("data", {})
@@ -140,7 +143,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             else:
                 raise AuthenticationError(
                     "tiktok",
-                    "Missing required credentials (access_token and open_id, or refresh_token with client_key and client_secret)",
+                    "Missing required credentials (access_token and open_id, 
+                        or refresh_token with client_key and client_secret)",
                 )
 
         except requests.exceptions.RequestException as e:
@@ -166,23 +170,27 @@ class TikTokAdapter(BaseSocialMediaAdapter):
 
         # Check video source
         if "file_path" not in content["video"] and "url" not in content["video"]:
-            raise ContentValidationError("tiktok", "Video must have either a file_path or url")
+            raise ContentValidationError("tiktok", 
+                "Video must have either a file_path or url")
 
         # Check caption if present (TikTok's limit is 2200 characters)
         if "caption" in content and len(content["caption"]) > 2200:
             raise ContentValidationError(
-                "tiktok", f"Caption exceeds 2,200 characters (current: {len(content['caption'])})"
+                "tiktok", f"Caption exceeds 2,
+                    200 characters (current: {len(content['caption'])})"
             )
 
         # Check hashtags if present
         if "hashtags" in content:
             if not isinstance(content["hashtags"], list):
-                raise ContentValidationError("tiktok", "Hashtags must be a list of strings")
+                raise ContentValidationError("tiktok", 
+                    "Hashtags must be a list of strings")
 
             # TikTok allows up to 30 hashtags
             if len(content["hashtags"]) > 30:
                 raise ContentValidationError(
-                    "tiktok", f"Too many hashtags (max: 30, current: {len(content['hashtags'])})"
+                    "tiktok", f"Too many hashtags (max: 30, 
+                        current: {len(content['hashtags'])})"
                 )
 
         return True
@@ -304,7 +312,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             # Check if we have an access token (required for posting)
             if not self.access_token or not self.open_id:
                 raise SchedulingError(
-                    "tiktok", "Access token and open_id are required for scheduling videos"
+                    "tiktok", 
+                        "Access token and open_id are required for scheduling videos"
                 )
 
             # Note: TikTok API doesn't directly support scheduling posts
@@ -312,7 +321,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             # store the video locally and post it at the scheduled time
 
             # For demonstration, we'll return a mock scheduled video
-            scheduled_id = f"tiktok_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
+            scheduled_id = \
+                f"tiktok_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             # Format hashtags if present
             hashtags = content.get("hashtags", [])
@@ -359,7 +369,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             # Check if we have an access token (required for getting video details)
             if not self.access_token or not self.open_id:
                 raise PostingError(
-                    "tiktok", "Access token and open_id are required for getting video details"
+                    "tiktok", 
+                        "Access token and open_id are required for getting video details"
                 )
 
             # In a real implementation, we would use the TikTok API to get video details
@@ -376,6 +387,7 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                 "cover_image_url": "https://example.com / cover.jpg",
                 "share_url": f"https://www.tiktok.com/@{self.open_id}/video/{post_id}",
                 "video_description": "This is a test video created with the pAIssive Income social media integration module.",
+                    
                 "duration": 15,  # seconds
                 "height": 1920,
                 "width": 1080,
@@ -412,7 +424,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             # Check if we have an access token (required for deleting videos)
             if not self.access_token or not self.open_id:
                 raise DeletionError(
-                    "tiktok", "Access token and open_id are required for deleting videos"
+                    "tiktok", 
+                        "Access token and open_id are required for deleting videos"
                 )
 
             # In a real implementation, we would use the TikTok API to delete the video
@@ -452,7 +465,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
         try:
             # Check if we have an access token (required for analytics)
             if not self.access_token or not self.open_id:
-                raise PostingError("tiktok", "Access token and open_id are required for analytics")
+                raise PostingError("tiktok", 
+                    "Access token and open_id are required for analytics")
 
             # Set default metrics if not provided
             if not metrics:
@@ -526,7 +540,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             }
 
     def get_audience_insights(
-        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, Any]] = None
+        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Get audience insights from TikTok.
@@ -542,7 +557,8 @@ class TikTokAdapter(BaseSocialMediaAdapter):
             # Check if we have an access token (required for audience insights)
             if not self.access_token or not self.open_id:
                 raise PostingError(
-                    "tiktok", "Access token and open_id are required for audience insights"
+                    "tiktok", 
+                        "Access token and open_id are required for audience insights"
                 )
 
             # Set default metrics if not provided
@@ -576,9 +592,12 @@ class TikTokAdapter(BaseSocialMediaAdapter):
                         "Other": 0.34,
                     },
                     "cities": [
-                        {"name": "New York", "country": "United States", "percentage": 0.07},
-                        {"name": "Los Angeles", "country": "United States", "percentage": 0.05},
-                        {"name": "London", "country": "United Kingdom", "percentage": 0.04},
+                        {"name": "New York", "country": "United States", 
+                            "percentage": 0.07},
+                        {"name": "Los Angeles", "country": "United States", 
+                            "percentage": 0.05},
+                        {"name": "London", "country": "United Kingdom", 
+                            "percentage": 0.04},
                         {"name": "Toronto", "country": "Canada", "percentage": 0.03},
                         {"name": "Sydney", "country": "Australia", "percentage": 0.02},
                     ],
@@ -611,4 +630,5 @@ class TikTokAdapter(BaseSocialMediaAdapter):
 
         except Exception as e:
             logger.error(f"TikTok audience insights error: {e}")
-            return {"error": str(e), "open_id": self.open_id, "segment": segment or "all_followers"}
+            return {"error": str(e), "open_id": self.open_id, 
+                "segment": segment or "all_followers"}

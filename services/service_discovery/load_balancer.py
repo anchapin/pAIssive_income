@@ -88,7 +88,8 @@ class LeastConnectionsStrategy(LoadBalancerStrategy[T]):
         Initialize the least connections strategy.
 
         Args:
-            get_connections_function: Function that takes an instance and returns its connection count
+            get_connections_function: Function that takes an instance and \
+                returns its connection count
         """
         self.get_connections = get_connections_function
 

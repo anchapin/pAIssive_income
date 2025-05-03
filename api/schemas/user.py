@@ -40,7 +40,8 @@ class UserResponse(BaseModel):
     first_name: str = Field(..., description="First name")
     last_name: str = Field(..., description="Last name")
     created_at: str = Field(..., description="Timestamp when user was created")
-    updated_at: Optional[str] = Field(None, description="Timestamp when user was last updated")
+    updated_at: Optional[str] = Field(None, 
+        description="Timestamp when user was last updated")
 
 
 class UserProfileUpdateRequest(BaseModel):
@@ -65,7 +66,8 @@ class Project(BaseModel):
     name: str = Field(..., description="Project name")
     description: Optional[str] = Field(None, description="Project description")
     created_at: str = Field(..., description="Timestamp when project was created")
-    updated_at: Optional[str] = Field(None, description="Timestamp when project was last updated")
+    updated_at: Optional[str] = Field(None, 
+        description="Timestamp when project was last updated")
 
 
 class Team(BaseModel):
@@ -75,7 +77,8 @@ class Team(BaseModel):
     name: str = Field(..., description="Team name")
     description: Optional[str] = Field(None, description="Team description")
     created_at: str = Field(..., description="Timestamp when team was created")
-    updated_at: Optional[str] = Field(None, description="Timestamp when team was last updated")
+    updated_at: Optional[str] = Field(None, 
+        description="Timestamp when team was last updated")
 
 
 class Activity(BaseModel):
@@ -94,8 +97,10 @@ class UserSettings(BaseModel):
     """Model for user settings."""
 
     theme: str = Field("light", description="UI theme preference")
-    notifications_enabled: bool = Field(True, description="Whether notifications are enabled")
-    email_notifications: bool = Field(True, description="Whether email notifications are enabled")
+    notifications_enabled: bool = Field(True, 
+        description="Whether notifications are enabled")
+    email_notifications: bool = Field(True, 
+        description="Whether email notifications are enabled")
 
 
 class UserSettingsResponse(BaseModel):

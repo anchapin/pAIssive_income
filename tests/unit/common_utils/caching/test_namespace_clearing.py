@@ -38,7 +38,8 @@ class TestNamespaceClearing(unittest.TestCase):
 
         # Debug: Check the actual values in the cache
         for key in all_keys:
-            logger.debug(f"Key: {key}, Value: {self.cache_service.cache_manager.backend.get(key)}")
+            logger.debug(f"Key: {key}, 
+                Value: {self.cache_service.cache_manager.backend.get(key)}")
 
         # Clear only namespace1
         result = self.cache_service.clear(namespace="namespace1")
@@ -51,7 +52,8 @@ class TestNamespaceClearing(unittest.TestCase):
         # Debug: Check the actual values in the cache after clearing
         for key in all_keys_after:
             logger.debug(
-                f"Key after clearing: {key}, Value: {self.cache_service.cache_manager.backend.get(key)}"
+                f"Key after clearing: {key}, 
+                    Value: {self.cache_service.cache_manager.backend.get(key)}"
             )
 
         # Verify namespace1 keys are cleared
@@ -77,7 +79,8 @@ class TestNamespaceClearing(unittest.TestCase):
 
         # Debug: Check the actual values in the cache
         for key in all_keys:
-            logger.debug(f"Key: {key}, Value: {self.cache_service.cache_manager.backend.get(key)}")
+            logger.debug(f"Key: {key}, 
+                Value: {self.cache_service.cache_manager.backend.get(key)}")
 
         # Clear an empty namespace
         result = self.cache_service.clear(namespace="empty_namespace")
@@ -90,7 +93,8 @@ class TestNamespaceClearing(unittest.TestCase):
         # Debug: Check the actual values in the cache after clearing
         for key in all_keys_after:
             logger.debug(
-                f"Key after clearing: {key}, Value: {self.cache_service.cache_manager.backend.get(key)}"
+                f"Key after clearing: {key}, 
+                    Value: {self.cache_service.cache_manager.backend.get(key)}"
             )
 
         # Verify the operation was successful
@@ -132,7 +136,8 @@ class TestNamespaceClearing(unittest.TestCase):
 
         # Create a patch for the parse_cache_key function
         with patch(
-            "ai_models.caching.cache_manager.parse_cache_key", side_effect=mock_parse_cache_key
+            "ai_models.caching.cache_manager.parse_cache_key", 
+                side_effect=mock_parse_cache_key
         ):
             cache_manager = CacheManager()
 

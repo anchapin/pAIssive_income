@@ -2,6 +2,7 @@
 Instagram adapter for social media integration.
 
 This module provides an adapter for connecting to the Instagram Graph API for posting content,
+    
 retrieving analytics, and managing social media campaigns.
 """
 
@@ -45,7 +46,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             connection_data: Connection data including credentials and settings
         """
         super().__init__(connection_id, connection_data)
-        self.api_base_url = "https://graph.facebook.com / v18.0"  # Instagram uses Facebook Graph API
+        self.api_base_url = "https://graph.facebook.com / \
+            v18.0"  # Instagram uses Facebook Graph API
         self.access_token = self.credentials.get("access_token")
         self.instagram_account_id = self.credentials.get("instagram_account_id")
         self.facebook_page_id = self.credentials.get(
@@ -72,7 +74,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # If we already have an access token, verify it
             if self.access_token and self.instagram_account_id:
                 # Check if the token is valid by getting basic account info
-                response = self.session.get(f"{self.api_base_url}/{self.instagram_account_id}")
+                response = \
+                    self.session.get(f"{self.api_base_url}/{self.instagram_account_id}")
                 response.raise_for_status()
                 account_data = response.json()
 
@@ -88,6 +91,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
                 raise AuthenticationError(
                     "instagram",
                     "Missing required credentials (access_token and instagram_account_id)",
+                        
                 )
 
         except requests.exceptions.RequestException as e:
@@ -110,7 +114,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
         # Check if we have at least one content type
         if not any(key in content for key in ["image", "video", "carousel", "story"]):
             raise ContentValidationError(
-                "instagram", "At least one content type (image, video, carousel, story) is required"
+                "instagram", "At least one content type (image, video, carousel, 
+                    story) is required"
             )
 
         # Check caption length if present (Instagram's limit is 2,200 characters)
@@ -118,6 +123,7 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             raise ContentValidationError(
                 "instagram",
                 f"Caption exceeds 2,200 characters (current: {len(content['caption'])})",
+                    
             )
 
         # Check image if present
@@ -136,7 +142,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
 
         # Check carousel if present
         if "carousel" in content:
-            if not isinstance(content["carousel"], list) or len(content["carousel"]) < 2:
+            if not isinstance(content["carousel"], 
+                list) or len(content["carousel"]) < 2:
                 raise ContentValidationError(
                     "instagram", "Carousel must be a list with at least 2 items"
                 )
@@ -144,21 +151,25 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             for item in content["carousel"]:
                 if "type" not in item:
                     raise ContentValidationError(
-                        "instagram", "Each carousel item must have a 'type' field (image or video)"
+                        "instagram", 
+                            "Each carousel item must have a 'type' field (image or video)"
                     )
 
                 if item["type"] not in ["image", "video"]:
                     raise ContentValidationError(
                         "instagram",
-                        f"Invalid carousel item type: {item['type']}. Allowed types: image, video",
+                        f"Invalid carousel item type: {item['type']}. Allowed types: image, 
+                            video",
                     )
 
-                if item["type"] == "image" and "url" not in item and "source" not in item:
+                if item["type"] == \
+                    "image" and "url" not in item and "source" not in item:
                     raise ContentValidationError(
                         "instagram", "Carousel image must have either a URL or source"
                     )
 
-                if item["type"] == "video" and "url" not in item and "source" not in item:
+                if item["type"] == \
+                    "video" and "url" not in item and "source" not in item:
                     raise ContentValidationError(
                         "instagram", "Carousel video must have either a URL or source"
                     )
@@ -173,7 +184,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             if content["story"]["type"] not in ["image", "video"]:
                 raise ContentValidationError(
                     "instagram",
-                    f"Invalid story type: {content['story']['type']}. Allowed types: image, video",
+                    f"Invalid story type: {content['story']['type']}. Allowed types: image, 
+                        video",
                 )
 
             if (
@@ -223,7 +235,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
         try:
             # Check if we have an Instagram account ID (required for posting)
             if not self.instagram_account_id:
-                raise PostingError("instagram", "Instagram account ID is required for posting")
+                raise PostingError("instagram", 
+                    "Instagram account ID is required for posting")
 
             # Prepare post data
             post_data = {}
@@ -250,7 +263,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             logger.error(f"Instagram posting error: {e}")
             raise PostingError("instagram", str(e))
 
-    def _post_image(self, image: Dict[str, Any], post_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _post_image(self, image: Dict[str, Any], post_data: Dict[str, Any]) -> Dict[str, 
+        Any]:
         """
         Post an image to Instagram.
 
@@ -288,7 +302,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             logger.error(f"Instagram image posting error: {e}")
             raise PostingError("instagram", str(e))
 
-    def _post_video(self, video: Dict[str, Any], post_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _post_video(self, video: Dict[str, Any], post_data: Dict[str, Any]) -> Dict[str, 
+        Any]:
         """
         Post a video to Instagram.
 
@@ -388,7 +403,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             # 3. Publish the story
 
             # For demonstration, we'll simulate a successful post
-            story_id = f"instagram_story_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
+            story_id = \
+                f"instagram_story_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": story_id,
@@ -438,10 +454,12 @@ class InstagramAdapter(BaseSocialMediaAdapter):
 
             # Check if the content type is supported for scheduling
             if "story" in content:
-                raise NotSupportedError("instagram", "Scheduling stories is not supported")
+                raise NotSupportedError("instagram", 
+                    "Scheduling stories is not supported")
 
             # For demonstration, we'll simulate a successful scheduling
-            scheduled_id = f"instagram_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
+            scheduled_id = \
+                f"instagram_scheduled_{datetime.now().strftime(' % Y%m % d%H % M%S')}"
 
             return {
                 "id": scheduled_id,
@@ -483,7 +501,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             response = self.session.get(
                 f"{self.api_base_url}/{post_id}",
                 params={
-                    "fields": "id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,username,children{media_type,media_url,thumbnail_url}"
+                    "fields": "id,caption,media_type,media_url,permalink,thumbnail_url,
+                        timestamp,username,children{media_type,media_url,thumbnail_url}"
                 },
             )
             response.raise_for_status()
@@ -591,13 +610,15 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             if post_id:
                 # Get post insights
                 response = self.session.get(
-                    f"{self.api_base_url}/{post_id}/insights", params={"metric": ",".join(metrics)}
+                    f"{self.api_base_url}/{post_id}/insights", params={"metric": ",
+                        ".join(metrics)}
                 )
                 response.raise_for_status()
                 result = response.json()
 
                 # Extract metrics
-                analytics = {"post_id": post_id, "metrics": self._extract_insights(result)}
+                analytics = {"post_id": post_id, 
+                    "metrics": self._extract_insights(result)}
 
                 return analytics
 
@@ -638,7 +659,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
             }
 
     def get_audience_insights(
-        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, Any]] = None
+        self, metrics: Optional[List[str]] = None, segment: Optional[Dict[str, 
+            Any]] = None
     ) -> Dict[str, Any]:
         """
         Get audience insights from Instagram.
@@ -653,7 +675,8 @@ class InstagramAdapter(BaseSocialMediaAdapter):
         try:
             # Set default metrics if not provided
             if not metrics:
-                metrics = ["audience_demographics", "audience_interests", "audience_locations"]
+                metrics = ["audience_demographics", "audience_interests", 
+                    "audience_locations"]
 
             # Check if we have an Instagram account ID
             if not self.instagram_account_id:

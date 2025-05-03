@@ -159,7 +159,8 @@ if STRAWBERRY_AVAILABLE:
             return [self._format_campaign(campaign) for campaign in campaigns]
 
         @strawberry.field
-        def marketing_campaign(self, info: Info, id: strawberry.ID) -> Optional[MarketingCampaign]:
+        def marketing_campaign(self, info: Info, 
+            id: strawberry.ID) -> Optional[MarketingCampaign]:
             """
             Get a specific marketing campaign.
 

@@ -301,11 +301,14 @@ class FineTuner:
                     ext = ext.lower()
 
                     if ext == ".jsonl" or ext == ".json":
-                        self.dataset = load_dataset("json", data_files=self.config.dataset_path)
+                        self.dataset = load_dataset("json", 
+                            data_files=self.config.dataset_path)
                     elif ext == ".csv":
-                        self.dataset = load_dataset("csv", data_files=self.config.dataset_path)
+                        self.dataset = load_dataset("csv", 
+                            data_files=self.config.dataset_path)
                     elif ext == ".parquet":
-                        self.dataset = load_dataset("parquet", data_files=self.config.dataset_path)
+                        self.dataset = load_dataset("parquet", 
+                            data_files=self.config.dataset_path)
                     else:
                         raise ValueError(f"Unsupported file format: {ext}")
             else:
@@ -338,20 +341,23 @@ class FineTuner:
         Prepare the dataset for fine - tuning.
         """
         if self.dataset is None or self.tokenizer is None:
-            raise ValueError("Dataset and tokenizer must be loaded before preparing the dataset")
+            raise ValueError("Dataset and \
+                tokenizer must be loaded before preparing the dataset")
 
         # Convert to DatasetDict if it's not already
         if not isinstance(self.dataset, DatasetDict):
             # Check if it has train / validation splits
             if "train" in self.dataset and "validation" in self.dataset:
                 self.dataset = DatasetDict(
-                    {"train": self.dataset["train"], "validation": self.dataset["validation"]}
+                    {"train": self.dataset["train"], 
+                        "validation": self.dataset["validation"]}
                 )
             else:
                 # Create a validation split
                 train_val_split = self.dataset["train"].train_test_split(test_size=0.1)
                 self.dataset = DatasetDict(
-                    {"train": train_val_split["train"], "validation": train_val_split["test"]}
+                    {"train": train_val_split["train"], 
+                        "validation": train_val_split["test"]}
                 )
 
         # Tokenize the dataset
@@ -383,7 +389,8 @@ class FineTuner:
 
         # Apply tokenization
         tokenized_dataset = self.dataset.map(
-            tokenize_function, batched=True, remove_columns=self.dataset["train"].column_names
+            tokenize_function, batched=True, 
+                remove_columns=self.dataset["train"].column_names
         )
 
         self.dataset = tokenized_dataset
@@ -406,7 +413,8 @@ class FineTuner:
             elif self.config.method == FineTuningMethod.PROMPT_TUNING:
                 self._load_prompt_tuning_model()
             else:
-                raise ValueError(f"Unsupported fine - tuning method: {self.config.method}")
+                raise ValueError(f"Unsupported fine - \
+                    tuning method: {self.config.method}")
 
             logger.info(
                 f"Loaded model from {self.config.model_path} using {self.config.method.value} method"
@@ -516,7 +524,8 @@ class FineTuner:
         Create the trainer for fine - tuning.
         """
         if self.model is None or self.dataset is None:
-            raise ValueError("Model and dataset must be loaded before creating the trainer")
+            raise ValueError("Model and \
+                dataset must be loaded before creating the trainer")
 
         # Create training arguments
         training_args = TrainingArguments(
@@ -540,7 +549,8 @@ class FineTuner:
         )
 
         # Create data collator
-        data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm=False)
+        data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, 
+            mlm=False)
 
         # Create callbacks
         callbacks = []
@@ -548,7 +558,8 @@ class FineTuner:
         # Add early stopping if configured
         if self.config.early_stopping_patience is not None:
             callbacks.append(
-                EarlyStoppingCallback(early_stopping_patience=self.config.early_stopping_patience)
+                EarlyStoppingCallback(
+                    early_stopping_patience=self.config.early_stopping_patience)
             )
 
         # Create trainer
@@ -687,6 +698,7 @@ def resume_fine_tuning(output_dir: str, checkpoint_dir: Optional[str] = None) ->
         lora_alpha=config_dict.get("lora_alpha", 16),
         lora_dropout=config_dict.get("lora_dropout", 0.05),
         lora_target_modules=config_dict.get("lora_target_modules", ["q_proj", "v_proj"]),
+            
         quantization_bits=config_dict.get("quantization_bits", 4),
         prefix_length=config_dict.get("prefix_length", 10),
         prompt_length=config_dict.get("prompt_length", 10),

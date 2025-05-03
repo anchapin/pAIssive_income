@@ -87,7 +87,8 @@ class RequestLoggingMiddleware:
             log_data["user_id"] = g.user_id
 
         # Log the request
-        logger.info(f"HTTP {method} {path} {status_code} {duration:.3f}s", extra=log_data)
+        logger.info(f"HTTP {method} {path} {status_code} {duration:.3f}s", 
+            extra=log_data)
 
     def _get_status_code(self, response):
         """

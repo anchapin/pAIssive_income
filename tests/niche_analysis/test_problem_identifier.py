@@ -14,7 +14,8 @@ def test_problem_identifier_init():
 
     # Check that the identifier has the expected attributes
     assert identifier.name == "Problem Identifier"
-    assert identifier.description == "Identifies user problems and pain points in specific niches"
+    assert identifier.description == \
+        "Identifies user problems and pain points in specific niches"
 
 
 def test_identify_problems():
@@ -202,5 +203,6 @@ def test_str_representation():
     # Check the string representation
     assert (
         str(identifier)
-        == "Problem Identifier: Identifies user problems and pain points in specific niches"
+        == \
+            "Problem Identifier: Identifies user problems and pain points in specific niches"
     )

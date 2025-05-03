@@ -57,7 +57,8 @@ class EventSubscription:
         self.is_async = is_async
 
         # Convert the event pattern to a regex pattern
-        pattern = event_pattern.replace(".", r"\.").replace(" * ", r"[^.] + ").replace("#", r".+")
+        pattern = event_pattern.replace(".", r"\.").replace(" * ", 
+            r"[^.] + ").replace("#", r".+")
         self.pattern = re.compile(f"^{pattern}$")
 
     def matches(self, event_name: str) -> bool:
@@ -168,7 +169,8 @@ class EventSubscriber:
         self.consumer_tag = None
 
     def subscribe(
-        self, event_pattern: str, handler: EventHandler, subscription_id: Optional[str] = None
+        self, event_pattern: str, handler: EventHandler, 
+            subscription_id: Optional[str] = None
     ) -> EventSubscription:
         """
         Subscribe to events matching a pattern.
@@ -187,7 +189,8 @@ class EventSubscriber:
         try:
             # Create a subscription
             subscription = EventSubscription(
-                event_pattern=event_pattern, handler=handler, subscription_id=subscription_id
+                event_pattern=event_pattern, handler=handler, 
+                    subscription_id=subscription_id
             )
 
             # Store the subscription
@@ -200,7 +203,8 @@ class EventSubscriber:
             return subscription
 
         except Exception as e:
-            logger.error(f"Failed to create subscription for pattern {event_pattern}: {str(e)}")
+            logger.error(
+                f"Failed to create subscription for pattern {event_pattern}: {str(e)}")
             raise EventSubscribeError(f"Failed to create subscription: {str(e)}")
 
     def unsubscribe(self, subscription_id: str) -> bool:
@@ -233,11 +237,13 @@ class EventSubscriber:
         """
         try:
             # Declare a queue for this service
-            self.message_queue_client.declare_queue(queue_name=self.queue_name, durable=True)
+            self.message_queue_client.declare_queue(queue_name=self.queue_name, 
+                durable=True)
 
             # Bind the queue to the events exchange with a wildcard routing key
             self.message_queue_client.bind_queue(
-                queue_name=self.queue_name, routing_key="events.#"  # Listen for all events
+                queue_name=self.queue_name, 
+                    routing_key="events.#"  # Listen for all events
             )
 
             # Define the message handler
@@ -374,7 +380,8 @@ class EventBus:
         return self.publisher.publish(event, routing_key)
 
     def subscribe(
-        self, event_pattern: str, handler: EventHandler, subscription_id: Optional[str] = None
+        self, event_pattern: str, handler: EventHandler, 
+            subscription_id: Optional[str] = None
     ) -> EventSubscription:
         """
         Subscribe to events matching a pattern.
@@ -425,7 +432,8 @@ class AsyncEventBus:
     """
     Asynchronous event bus for event - driven architecture.
 
-    This class provides a unified interface for publishing and subscribing to events asynchronously.
+    This class provides a unified interface for publishing and \
+        subscribing to events asynchronously.
     """
 
     def __init__(
@@ -537,7 +545,8 @@ class AsyncEventBus:
             )
 
             # Publish the message
-            await self.message_queue_client.publish(message=message, routing_key=routing_key)
+            await self.message_queue_client.publish(message=message, 
+                routing_key=routing_key)
 
             logger.info(f"Published event {event.name} with ID {event.metadata.id}")
 
@@ -551,7 +560,8 @@ class AsyncEventBus:
             raise EventPublishError(f"Error publishing event: {str(e)}")
 
     async def subscribe(
-        self, event_pattern: str, handler: AsyncEventHandler, subscription_id: Optional[str] = None
+        self, event_pattern: str, handler: AsyncEventHandler, 
+            subscription_id: Optional[str] = None
     ) -> EventSubscription:
         """
         Subscribe to events matching a pattern asynchronously.
@@ -586,7 +596,8 @@ class AsyncEventBus:
             return subscription
 
         except Exception as e:
-            logger.error(f"Failed to create subscription for pattern {event_pattern}: {str(e)}")
+            logger.error(
+                f"Failed to create subscription for pattern {event_pattern}: {str(e)}")
             raise EventSubscribeError(f"Failed to create subscription: {str(e)}")
 
     def unsubscribe(self, subscription_id: str) -> bool:

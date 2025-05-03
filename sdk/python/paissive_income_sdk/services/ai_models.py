@@ -92,7 +92,8 @@ class AIModelsService(BaseService):
         """
         return self._post("ai - models / models / compare", data)
 
-    def create_model_version(self, model_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    def create_model_version(self, model_id: str, data: Dict[str, Any]) -> Dict[str, 
+        Any]:
         """
         Create a new version of an AI model.
 

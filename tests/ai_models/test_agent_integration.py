@@ -163,7 +163,8 @@ def test_agent_model_provider_init(mock_model_manager):
 
 
 @patch("ai_models.agent_integration.get_container")
-def test_agent_model_provider_init_with_container(mock_get_container, mock_model_manager):
+def test_agent_model_provider_init_with_container(mock_get_container, 
+    mock_model_manager):
     """Test initializing with a model manager from the container."""
     # Mock the container
     container = MagicMock()
@@ -252,7 +253,8 @@ def test_assign_model_to_agent_invalid_model(mock_model_manager):
 
     # Try to assign an invalid model to the researcher agent
     with pytest.raises(ValueError):
-        provider.assign_model_to_agent("researcher", "invalid_model", "text - generation")
+        provider.assign_model_to_agent("researcher", "invalid_model", 
+            "text - generation")
 
 
 def test_get_agent_model_assignments(mock_model_manager):

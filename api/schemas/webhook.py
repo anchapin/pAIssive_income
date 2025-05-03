@@ -91,7 +91,8 @@ class WebhookResponse(BaseModel):
     headers: Dict[str, str] = Field(default_factory=dict, description="Custom headers")
     is_active: bool = Field(True, description="Whether the webhook is active")
     created_at: datetime = Field(..., description="Creation timestamp")
-    last_called_at: Optional[datetime] = Field(None, description="Last delivery timestamp")
+    last_called_at: Optional[datetime] = Field(None, 
+        description="Last delivery timestamp")
     secret: str = Field(..., description="Webhook secret for signature verification")
 
     @validator("events")
@@ -155,7 +156,8 @@ class WebhookDeliveryList(BaseModel):
 class IPAllowlistConfig(BaseModel):
     """Request / Response model for IP allowlist configuration."""
 
-    allowed_ips: List[str] = Field(..., description="List of allowed IP addresses or CIDR ranges")
+    allowed_ips: List[str] = Field(..., 
+        description="List of allowed IP addresses or CIDR ranges")
     enabled: bool = Field(True, description="Whether IP allowlisting is enabled")
 
     @validator("allowed_ips")
@@ -175,7 +177,8 @@ class IPAllowlistResponse(BaseModel):
     """Response model for IP allowlist configuration."""
 
     webhook_id: str = Field(..., description="Webhook ID")
-    allowed_ips: List[str] = Field(..., description="List of allowed IP addresses or CIDR ranges")
+    allowed_ips: List[str] = Field(..., 
+        description="List of allowed IP addresses or CIDR ranges")
     enabled: bool = Field(..., description="Whether IP allowlisting is enabled")
     updated_at: datetime = Field(..., description="Last update timestamp")
 
@@ -185,20 +188,23 @@ class SecretRotationResponse(BaseModel):
 
     webhook_id: str = Field(..., description="Webhook ID")
     new_secret: str = Field(..., description="New webhook secret")
-    old_secret_expiry: datetime = Field(..., description="Expiration timestamp for the old secret")
+    old_secret_expiry: datetime = Field(..., 
+        description="Expiration timestamp for the old secret")
 
 
 class RateLimitConfig(BaseModel):
     """Request / Response model for rate limit configuration."""
 
-    per_minute: int = Field(..., ge=1, le=1000, description="Maximum requests per minute")
+    per_minute: int = Field(..., ge=1, le=1000, 
+        description="Maximum requests per minute")
     per_hour: int = Field(..., ge=1, le=10000, description="Maximum requests per hour")
 
     @validator("per_hour")
     def validate_hourly_limit(cls, v, values):
         """Validate that hourly limit is greater than per - minute limit * 60."""
         if "per_minute" in values and v < values["per_minute"] * 60:
-            raise ValueError("Hourly limit must be greater than per - minute limit * 60")
+            raise ValueError("Hourly limit must be greater than per - \
+                minute limit * 60")
         return v
 
 

@@ -33,8 +33,10 @@ extensions = [
 napoleon_google_docstring = True  # Enable Google style docstrings
 napoleon_numpy_docstring = False  # Disable NumPy style docstrings
 napoleon_include_init_with_doc = True  # Include __init__ method documentation
-napoleon_include_private_with_doc = True  # Include _private methods if they have docstrings
-napoleon_include_special_with_doc = True  # Include __special__ methods if they have docstrings
+napoleon_include_private_with_doc = \
+    True  # Include _private methods if they have docstrings
+napoleon_include_special_with_doc = \
+    True  # Include __special__ methods if they have docstrings
 napoleon_use_admonition_for_examples = True  # Use admonition for examples
 napoleon_use_admonition_for_notes = True  # Use admonition for notes
 napoleon_use_admonition_for_references = True  # Use admonition for references

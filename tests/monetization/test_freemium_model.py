@@ -9,7 +9,8 @@ from monetization.subscription_models import FreemiumModel
 
 def test_freemium_model_init():
     """Test FreemiumModel initialization."""
-    model = FreemiumModel(name="Test Freemium Model", description="A test freemium model")
+    model = FreemiumModel(name="Test Freemium Model", 
+        description="A test freemium model")
 
     # Check that the model has the expected attributes
     assert model.name == "Test Freemium Model"
@@ -51,7 +52,8 @@ def test_freemium_model_custom_free_tier():
 
 def test_add_paid_tier():
     """Test adding a paid tier to a FreemiumModel."""
-    model = FreemiumModel(name="Test Freemium Model", description="A test freemium model")
+    model = FreemiumModel(name="Test Freemium Model", 
+        description="A test freemium model")
 
     # Add a paid tier
     tier = model.add_tier(
@@ -81,7 +83,8 @@ def test_add_paid_tier():
 
 def test_get_free_tier():
     """Test get_free_tier method."""
-    model = FreemiumModel(name="Test Freemium Model", description="A test freemium model")
+    model = FreemiumModel(name="Test Freemium Model", 
+        description="A test freemium model")
 
     # Get the free tier
     free_tier = model.get_free_tier()
@@ -94,7 +97,8 @@ def test_get_free_tier():
 
 def test_update_free_tier_limits():
     """Test updating the free tier limits."""
-    model = FreemiumModel(name="Test Freemium Model", description="A test freemium model")
+    model = FreemiumModel(name="Test Freemium Model", 
+        description="A test freemium model")
 
     # Get the free tier ID
     free_tier_id = model.get_free_tier()["id"]
@@ -109,7 +113,8 @@ def test_update_free_tier_limits():
 
 def test_to_dict():
     """Test to_dict method for FreemiumModel."""
-    model = FreemiumModel(name="Test Freemium Model", description="A test freemium model")
+    model = FreemiumModel(name="Test Freemium Model", 
+        description="A test freemium model")
 
     # Add a feature
     feature = model.add_feature(
@@ -144,7 +149,8 @@ def test_to_dict():
 
 def test_save_load_file(temp_dir):
     """Test save_to_file and load_from_file methods for FreemiumModel."""
-    model = FreemiumModel(name="Test Freemium Model", description="A test freemium model")
+    model = FreemiumModel(name="Test Freemium Model", 
+        description="A test freemium model")
 
     # Add a feature
     feature = model.add_feature(

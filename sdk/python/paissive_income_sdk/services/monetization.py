@@ -60,7 +60,8 @@ class MonetizationService(BaseService):
         """
         return self._get(f"monetization / subscription - models/{model_id}")
 
-    def update_subscription_model(self, model_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    def update_subscription_model(self, model_id: str, data: Dict[str, Any]) -> Dict[str, 
+        Any]:
         """
         Update a subscription model.
 

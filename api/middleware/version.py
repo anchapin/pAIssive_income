@@ -60,7 +60,8 @@ class VersionMiddleware:
 
             # Check if this version has any deprecated endpoints
             is_deprecated = any(
-                change.get("from_version") == version.value for change in deprecated_endpoints
+                change.get("from_version") == \
+                    version.value for change in deprecated_endpoints
             )
 
             if is_deprecated:
@@ -70,14 +71,16 @@ class VersionMiddleware:
                 sunset_dates = [
                     change.get("sunset_date")
                     for change in deprecated_endpoints
-                    if change.get("from_version") == version.value and change.get("sunset_date")
+                    if change.get("from_version") == \
+                        version.value and change.get("sunset_date")
                 ]
 
                 if sunset_dates:
                     response.headers[self.config.sunset_header_name] = min(sunset_dates)
 
 
-def setup_version_middleware(app: Any, config: APIConfig, version_manager: VersionManager) -> None:
+def setup_version_middleware(app: Any, config: APIConfig, 
+    version_manager: VersionManager) -> None:
     """
     Set up version middleware for the API server.
 
@@ -94,7 +97,8 @@ def setup_version_middleware(app: Any, config: APIConfig, version_manager: Versi
     version_middleware = VersionMiddleware(config, version_manager)
 
     @app.middleware("http")
-    async def version_middleware_func(request: Request, call_next: Callable) -> Response:
+    async def version_middleware_func(request: Request, 
+        call_next: Callable) -> Response:
         """
         Version middleware function.
 

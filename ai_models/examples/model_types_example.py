@@ -11,7 +11,8 @@ import os
 import sys
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models.model_types import AudioModel, ONNXModel, QuantizedModel, VisionModel
 
@@ -127,7 +128,8 @@ def test_vision_model(model_path: str, image_path: str) -> None:
 
             # Print top 5 results
             print("Top 5 results:")
-            for label, score in sorted(results.items(), key=lambda x: x[1], reverse=True)[:5]:
+            for label, score in sorted(results.items(), key=lambda x: x[1], 
+                reverse=True)[:5]:
                 print(f"  {label}: {score:.4f}")
         else:
             print(f"\nImage file not found: {image_path}")
@@ -136,7 +138,8 @@ def test_vision_model(model_path: str, image_path: str) -> None:
         print(f"Error testing vision model: {e}")
 
 
-def test_audio_model(model_path: str, audio_path: str, output_path: str, text: str) -> None:
+def test_audio_model(model_path: str, audio_path: str, output_path: str, 
+    text: str) -> None:
     """
     Test an audio model.
 
@@ -203,7 +206,8 @@ def test_audio_model(model_path: str, audio_path: str, output_path: str, text: s
         # Synthesize speech
         print(f"\nSynthesizing speech for text: {text}")
         try:
-            result = model.synthesize_speech(text=text, output_path=output_path, voice_id=voice_id)
+            result = model.synthesize_speech(text=text, output_path=output_path, 
+                voice_id=voice_id)
             print(f"Speech synthesized and saved to: {result['output_path']}")
             print(f"Duration: {result['duration']:.2f} seconds")
         except Exception as e:
@@ -214,7 +218,8 @@ def test_audio_model(model_path: str, audio_path: str, output_path: str, text: s
             print("\nTesting Audio Classification:")
 
             # Create audio model for audio classification
-            model = AudioModel(model_path=model_path, model_type="audio - classification")
+            model = AudioModel(model_path=model_path, 
+                model_type="audio - classification")
 
             # Load the model
             model.load()
@@ -226,7 +231,8 @@ def test_audio_model(model_path: str, audio_path: str, output_path: str, text: s
 
                 # Print top 5 results
                 print("Top 5 results:")
-                for label, score in sorted(results.items(), key=lambda x: x[1], reverse=True)[:5]:
+                for label, score in sorted(results.items(), key=lambda x: x[1], 
+                    reverse=True)[:5]:
                     print(f"  {label}: {score:.4f}")
             except Exception as e:
                 print(f"Error classifying audio: {e}")
@@ -239,7 +245,8 @@ def test_audio_model(model_path: str, audio_path: str, output_path: str, text: s
                 print(f"Detected {len(events)} events:")
                 for event in events[:5]:  # Show only first 5 events
                     print(
-                        f"  {event['label']} ({event['score']:.4f}) at {event['start_time']:.2f}-{event['end_time']:.2f}s"
+                        f"  {event['label']} (
+                            {event['score']:.4f}) at {event['start_time']:.2f}-{event['end_time']:.2f}s"
                     )
             except Exception as e:
                 print(f"Error detecting sound events: {e}")
@@ -266,8 +273,10 @@ def main():
         default="Hello, world!",
         help="Input text for text generation",
     )
-    parser.add_argument("--image - path", type=str, help="Path to an image file for vision models")
-    parser.add_argument("--audio - path", type=str, help="Path to an audio file for audio models")
+    parser.add_argument("--image - path", type=str, 
+        help="Path to an image file for vision models")
+    parser.add_argument("--audio - path", type=str, 
+        help="Path to an audio file for audio models")
     parser.add_argument(
         "--output - path",
         type=str,
@@ -301,7 +310,8 @@ def main():
         if not args.audio_path:
             print("Error: --audio - path is required for audio models")
             return
-        test_audio_model(args.model_path, args.audio_path, args.output_path, args.input_text)
+        test_audio_model(args.model_path, args.audio_path, args.output_path, 
+            args.input_text)
 
 
 if __name__ == "__main__":

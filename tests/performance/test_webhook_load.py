@@ -27,11 +27,16 @@ TEST_DURATION_SECONDS = 60  # Duration of the load test in seconds
 
 # Mock server configuration
 MOCK_SERVERS = [
-    {"url": "https://server1.example.com / webhook", "avg_response_time": 0.05, "error_rate": 0.01},
-    {"url": "https://server2.example.com / webhook", "avg_response_time": 0.1, "error_rate": 0.05},
-    {"url": "https://server3.example.com / webhook", "avg_response_time": 0.2, "error_rate": 0.1},
-    {"url": "https://server4.example.com / webhook", "avg_response_time": 0.5, "error_rate": 0.2},
-    {"url": "https://server5.example.com / webhook", "avg_response_time": 1.0, "error_rate": 0.3},
+    {"url": "https://server1.example.com / webhook", "avg_response_time": 0.05, 
+        "error_rate": 0.01},
+    {"url": "https://server2.example.com / webhook", "avg_response_time": 0.1, 
+        "error_rate": 0.05},
+    {"url": "https://server3.example.com / webhook", "avg_response_time": 0.2, 
+        "error_rate": 0.1},
+    {"url": "https://server4.example.com / webhook", "avg_response_time": 0.5, 
+        "error_rate": 0.2},
+    {"url": "https://server5.example.com / webhook", "avg_response_time": 1.0, 
+        "error_rate": 0.3},
 ]
 
 
@@ -51,7 +56,8 @@ class MockServer:
         self.requests_received += 1
 
         # Simulate network delay with some randomness
-        delay = random.normalvariate(self.avg_response_time, self.avg_response_time * 0.2)
+        delay = random.normalvariate(self.avg_response_time, 
+            self.avg_response_time * 0.2)
         delay = max(0.01, delay)  # Ensure delay is at least 10ms
         await asyncio.sleep(delay)
 
@@ -62,14 +68,16 @@ class MockServer:
             self.failed_requests += 1
             response = httpx.Response(
                 status_code=random.choice([429, 500, 502, 503, 504]),
-                content=f"Error processing webhook: {random.choice(['Timeout', 'Server Error', 'Rate Limited'])}".encode(),
+                content=f"Error processing webhook: {random.choice(['Timeout', 
+                    'Server Error', 'Rate Limited'])}".encode(),
                 request=request,
             )
         else:
             self.successful_requests += 1
             response = httpx.Response(
                 status_code=200,
-                content=json.dumps({"success": True, "message": "Webhook received"}).encode(),
+                content=json.dumps({"success": True, 
+                    "message": "Webhook received"}).encode(),
                 request=request,
             )
 
@@ -153,7 +161,8 @@ class LoadTestEnvironment:
                 "username": f"testuser{random.randint(1, 1000)}",
                 "email": f"test{random.randint(1, 1000)}@example.com",
                 "created_at": datetime.now(timezone.utc).isoformat(),
-                "metadata": {"source": "load_test", "batch": i // EVENT_BATCH_SIZE, "index": i},
+                "metadata": {"source": "load_test", "batch": i // EVENT_BATCH_SIZE, 
+                    "index": i},
             }
 
             # Select a random webhook and event type
@@ -176,7 +185,8 @@ class LoadTestEnvironment:
                     # Check if we should continue
                     if (
                         self.events_queue.empty()
-                        and time.time() - self.results["start_time"] >= TEST_DURATION_SECONDS
+                        and time.time() - \
+                            self.results["start_time"] >= TEST_DURATION_SECONDS
                     ):
                         break
                     continue
@@ -186,7 +196,8 @@ class LoadTestEnvironment:
 
                 # Patch httpx.AsyncClient.post to use our mock server
                 async def mock_post(*args, **kwargs):
-                    return await server.handle_request(httpx.Request("POST", server.url))
+                    return await server.handle_request(httpx.Request("POST", 
+                        server.url))
 
                 with patch("httpx.AsyncClient.post", mock_post):
                     # Record start time
@@ -195,7 +206,8 @@ class LoadTestEnvironment:
                     # Deliver event
                     try:
                         delivery = await self.service.deliver_event(
-                            webhook_id=webhook["id"], event_type=event_type, event_data=event_data
+                            webhook_id=webhook["id"], event_type=event_type, 
+                                event_data=event_data
                         )
 
                         # Record latency
@@ -231,17 +243,23 @@ class LoadTestEnvironment:
         sorted_latencies = sorted(self.latencies)
         self.results["latency_stats"]["min"] = sorted_latencies[0]
         self.results["latency_stats"]["max"] = sorted_latencies[-1]
-        self.results["latency_stats"]["avg"] = sum(sorted_latencies) / len(sorted_latencies)
-        self.results["latency_stats"]["p50"] = sorted_latencies[int(len(sorted_latencies) * 0.5)]
-        self.results["latency_stats"]["p90"] = sorted_latencies[int(len(sorted_latencies) * 0.9)]
-        self.results["latency_stats"]["p95"] = sorted_latencies[int(len(sorted_latencies) * 0.95)]
-        self.results["latency_stats"]["p99"] = sorted_latencies[int(len(sorted_latencies) * 0.99)]
+        self.results["latency_stats"]["avg"] = sum(sorted_latencies) / \
+            len(sorted_latencies)
+        self.results["latency_stats"]["p50"] = \
+            sorted_latencies[int(len(sorted_latencies) * 0.5)]
+        self.results["latency_stats"]["p90"] = \
+            sorted_latencies[int(len(sorted_latencies) * 0.9)]
+        self.results["latency_stats"]["p95"] = \
+            sorted_latencies[int(len(sorted_latencies) * 0.95)]
+        self.results["latency_stats"]["p99"] = \
+            sorted_latencies[int(len(sorted_latencies) * 0.99)]
 
     def collect_stats(self):
         """Collect statistics from the test."""
         # Calculate duration
         self.results["end_time"] = time.time()
-        self.results["total_duration"] = self.results["end_time"] - self.results["start_time"]
+        self.results["total_duration"] = self.results["end_time"] - \
+            self.results["start_time"]
 
         # Calculate events per second
         if self.results["total_duration"] > 0:
@@ -284,7 +302,8 @@ class LoadTestEnvironment:
 
             # Start worker tasks
             print(f"Starting {MAX_CONCURRENCY} worker tasks...")
-            workers = [asyncio.create_task(self.process_events(i)) for i in range(MAX_CONCURRENCY)]
+            workers = \
+                [asyncio.create_task(self.process_events(i)) for i in range(MAX_CONCURRENCY)]
 
             # Generate events periodically
             events_generated = EVENT_BATCH_SIZE
@@ -344,10 +363,12 @@ class LoadTestEnvironment:
         print(f"Duration: {self.results['total_duration']:.2f} seconds")
         print(f"Total events: {self.results['total_events']}")
         print(
-            f"Successful events: {self.results['successful_events']} ({self.results['successful_events'] / self.results['total_events'] * 100:.2f}%)"
+            f"Successful events: {self.results['successful_events']} (
+                {self.results['successful_events'] / self.results['total_events'] * 100:.2f}%)"
         )
         print(
-            f"Failed events: {self.results['failed_events']} ({self.results['failed_events'] / self.results['total_events'] * 100:.2f}%)"
+            f"Failed events: {self.results['failed_events']} (
+                {self.results['failed_events'] / self.results['total_events'] * 100:.2f}%)"
         )
         print(f"Events per second: {self.results['events_per_second']:.2f}")
 

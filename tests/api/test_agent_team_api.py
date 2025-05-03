@@ -232,7 +232,8 @@ class TestAgentTeamAPI:
         if response.status_code == 404:
             validate_error_response(response, 404)
         else:
-            result = validate_success_response(response, 202)  # Accepted (async operation)
+            result = validate_success_response(response, 
+                202)  # Accepted (async operation)
 
             # Validate fields
             validate_field_exists(result, "task_id")

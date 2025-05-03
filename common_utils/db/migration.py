@@ -87,12 +87,14 @@ class MigrationManager:
                 # Collections are created automatically when documents are inserted
                 # But we can create an index on the version field
                 if self.MIGRATIONS_TABLE not in self.db.db.list_collection_names():
-                    self.db.db[self.MIGRATIONS_TABLE].create_index("version", unique=True)
+                    self.db.db[self.MIGRATIONS_TABLE].create_index("version", 
+                        unique=True)
                     logger.info("Ensured migrations collection exists (MongoDB)")
             else:
                 # For other database types
                 logger.warning(
-                    f"Unknown database type: {type(self.db)}. Migration tracking may not work correctly."
+                    f"Unknown database type: {type(
+                        self.db)}. Migration tracking may not work correctly."
                 )
         except Exception as e:
             logger.error(f"Error creating migrations table / collection: {e}")
@@ -109,7 +111,8 @@ class MigrationManager:
             if isinstance(self.db, SQLiteAdapter):
                 # For SQL databases
                 result = self.db.fetch_all(
-                    f"SELECT version, name, applied_at, description FROM {self.MIGRATIONS_TABLE} ORDER BY version"
+                    f"SELECT version, name, applied_at, 
+                        description FROM {self.MIGRATIONS_TABLE} ORDER BY version"
                 )
                 return result
             elif isinstance(self.db, MongoDBAdapter):
@@ -117,7 +120,8 @@ class MigrationManager:
                 result = list(
                     self.db.db[self.MIGRATIONS_TABLE]
                     .find(
-                        {}, {"version": 1, "name": 1, "applied_at": 1, "description": 1, "_id": 0}
+                        {}, {"version": 1, "name": 1, "applied_at": 1, "description": 1, 
+                            "_id": 0}
                     )
                     .sort("version", 1)
                 )
@@ -125,7 +129,8 @@ class MigrationManager:
             else:
                 # For other database types
                 logger.warning(
-                    f"Unknown database type: {type(self.db)}. Cannot get applied migrations."
+                    f"Unknown database type: {type(
+                        self.db)}. Cannot get applied migrations."
                 )
                 return []
         except Exception as e:
@@ -160,7 +165,8 @@ class MigrationManager:
             # Find the Migration class in the module
             for attr_name in dir(module):
                 attr = getattr(module, attr_name)
-                if isinstance(attr, type) and issubclass(attr, Migration) and attr != Migration:
+                if isinstance(attr, type) and issubclass(attr, 
+                    Migration) and attr != Migration:
                     return attr()
 
             logger.warning(f"No Migration class found in {filename}")
@@ -271,7 +277,8 @@ class Migration{version_str}(Migration):
         Apply pending migrations up to the target version.
 
         Args:
-            target_version: Optional version to migrate to. If None, all pending migrations will be applied.
+            target_version: Optional version to migrate to. If None, 
+                all pending migrations will be applied.
         """
         applied_migrations = self.get_applied_migrations()
         applied_versions = {m["version"] for m in applied_migrations}
@@ -354,7 +361,8 @@ class Migration{version_str}(Migration):
             filename = migration_record["name"]
 
             logger.info(
-                f"Rolling back migration {version}: {migration_record.get('description', 'Unknown')}"
+                f"Rolling back migration {version}: {migration_record.get('description', 
+                    'Unknown')}"
             )
 
             # Load the migration class
@@ -371,7 +379,8 @@ class Migration{version_str}(Migration):
                 if isinstance(self.db, SQLiteAdapter):
                     # For SQL databases
                     self.db.delete(
-                        self.MIGRATIONS_TABLE, "version = :version", {"version": version}
+                        self.MIGRATIONS_TABLE, "version = :version", 
+                            {"version": version}
                     )
                 elif isinstance(self.db, MongoDBAdapter):
                     # For MongoDB
@@ -379,7 +388,8 @@ class Migration{version_str}(Migration):
                 else:
                     # For other database types
                     logger.warning(
-                        f"Unknown database type: {type(self.db)}. Migration record may not be removed."
+                        f"Unknown database type: {type(
+                            self.db)}. Migration record may not be removed."
                     )
 
                 logger.info(f"Successfully rolled back migration {version}")

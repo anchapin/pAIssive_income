@@ -43,7 +43,8 @@ def disk_cache_config(tmp_path):
         backend="disk",
         ttl=60,  # 60 seconds
         max_size=3,  # Small size to test eviction
-        backend_config={"disk": {"cache_dir": str(tmp_path / "cache"), "serialization": "json"}},
+        backend_config={"disk": {"cache_dir": str(tmp_path / "cache"), 
+            "serialization": "json"}},
     )
 
 
@@ -54,7 +55,8 @@ def sqlite_cache_config(tmp_path):
         enabled=True,
         backend="sqlite",
         ttl=60,  # 60 seconds
-        backend_config={"sqlite": {"db_path": str(tmp_path / "cache.db"), "serialization": "json"}},
+        backend_config={"sqlite": {"db_path": str(tmp_path / "cache.db"), 
+            "serialization": "json"}},
     )
 
 
@@ -115,9 +117,11 @@ def test_cache_size_and_eviction(memory_cache_config):
     assert cache.get_size() == 3
 
     # Access first and last items to update LRU status
-    cache.get(TEST_MODEL_ID, TEST_OPERATION, input_keys[0])  # Make "Input 0" most recent
+    cache.get(TEST_MODEL_ID, TEST_OPERATION, 
+        input_keys[0])  # Make "Input 0" most recent
     time.sleep(0.01)  # Ensure timestamps are different
-    cache.get(TEST_MODEL_ID, TEST_OPERATION, input_keys[2])  # Make "Input 2" most recent
+    cache.get(TEST_MODEL_ID, TEST_OPERATION, 
+        input_keys[2])  # Make "Input 2" most recent
     time.sleep(0.01)  # Ensure timestamps are different
 
     # Add one more item (should trigger eviction of "Input 1" since it's least recently used)
@@ -129,12 +133,15 @@ def test_cache_size_and_eviction(memory_cache_config):
     assert cache.get_size() == 3
 
     # Verify LRU item was evicted (should be "Input 1" since it wasn't recently accessed)
-    result = cache.get(TEST_MODEL_ID, TEST_OPERATION, input_keys[1])  # Try to get "Input 1"
+    result = cache.get(TEST_MODEL_ID, TEST_OPERATION, 
+        input_keys[1])  # Try to get "Input 1"
     assert result is None
 
     # Verify other items are still there
-    assert cache.get(TEST_MODEL_ID, TEST_OPERATION, input_keys[0]) is not None  # "Input 0"
-    assert cache.get(TEST_MODEL_ID, TEST_OPERATION, input_keys[2]) is not None  # "Input 2"
+    assert cache.get(TEST_MODEL_ID, TEST_OPERATION, 
+        input_keys[0]) is not None  # "Input 0"
+    assert cache.get(TEST_MODEL_ID, TEST_OPERATION, 
+        input_keys[2]) is not None  # "Input 2"
     assert cache.get(TEST_MODEL_ID, TEST_OPERATION, new_input) is not None  # "Input 3"
 
 
@@ -185,7 +192,8 @@ def test_sqlite_cache_features(sqlite_cache_config, tmp_path):
     locked_config = CacheConfig(
         enabled=True,
         backend="sqlite",
-        backend_config={"sqlite": {"db_path": str(locked_db_path), "serialization": "json"}},
+        backend_config={"sqlite": {"db_path": str(locked_db_path), 
+            "serialization": "json"}},
     )
 
     # Create and hold a lock on the database file

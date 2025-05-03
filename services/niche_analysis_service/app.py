@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Niche Analysis Service",
     description="Service for analyzing potential business niches and scoring opportunities",
+        
     version="1.0.0",
 )
 
@@ -55,7 +56,8 @@ niche_analyzer = None
 class NicheRequest(BaseModel):
     """Request model for niche analysis."""
 
-    market_segments: List[str] = Field(..., description="List of market segments to analyze")
+    market_segments: List[str] = Field(..., 
+        description="List of market segments to analyze")
     force_refresh: bool = Field(False, description="Force refresh of cached data")
 
 
@@ -76,7 +78,8 @@ class OpportunityRequest(BaseModel):
 class OpportunityResponse(BaseModel):
     """Response model for opportunity analysis."""
 
-    opportunities: List[Dict[str, Any]] = Field(..., description="List of opportunities")
+    opportunities: List[Dict[str, Any]] = Field(..., 
+        description="List of opportunities")
     niche_name: str = Field(..., description="Name of the analyzed niche")
     request_id: str = Field(..., description="Unique ID for this request")
 
@@ -101,7 +104,8 @@ async def analyze_niches(request: NicheRequest, background_tasks: BackgroundTask
 
     if not niche_analyzer:
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Niche analyzer not available"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, 
+                detail="Niche analyzer not available"
         )
 
     try:
@@ -123,13 +127,15 @@ async def analyze_niches(request: NicheRequest, background_tasks: BackgroundTask
 
 
 @app.post(" / api / niches / opportunities", response_model=OpportunityResponse)
-async def analyze_opportunities(request: OpportunityRequest, background_tasks: BackgroundTasks):
+async def analyze_opportunities(request: OpportunityRequest, 
+    background_tasks: BackgroundTasks):
     """Analyze opportunities for a specific niche."""
     import uuid
 
     if not niche_analyzer:
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Niche analyzer not available"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, 
+                detail="Niche analyzer not available"
         )
 
     try:
@@ -217,10 +223,12 @@ def register_with_service_registry(port: int):
     )
 
     if service_registration:
-        logger.info("Successfully registered Niche Analysis Service with service registry")
+        logger.info(
+            "Successfully registered Niche Analysis Service with service registry")
     else:
         logger.warning(
-            "Failed to register with service registry, continuing without service discovery"
+            "Failed to register with service registry, 
+                continuing without service discovery"
         )
 
 
@@ -236,7 +244,8 @@ def start_niche_analysis_service(host: str = "127.0.0.1", port: int = 8001):
 
     # Initialize the niche analyzer
     if not initialize_niche_analyzer():
-        logger.error("Failed to initialize niche analyzer, service may not function correctly")
+        logger.error("Failed to initialize niche analyzer, 
+            service may not function correctly")
 
     # Register with service registry
     register_with_service_registry(port)

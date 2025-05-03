@@ -232,7 +232,8 @@ class CacheManager:
             for key in keys:
                 if not self.backend.delete(key):
                     success = False
-                    logger.warning(f"Failed to delete key {key} from namespace {namespace}")
+                    logger.warning(
+                        f"Failed to delete key {key} from namespace {namespace}")
 
             return success
         except Exception as e:
@@ -333,5 +334,6 @@ class CacheManager:
                 )
                 return MemoryCache(**self.config.get_backend_config("memory"))
         except Exception as e:
-            logger.error(f"Error creating cache backend: {e}. Falling back to memory cache.")
+            logger.error(
+                f"Error creating cache backend: {e}. Falling back to memory cache.")
             return MemoryCache(**self.config.get_backend_config("memory"))

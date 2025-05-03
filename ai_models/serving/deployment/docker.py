@@ -354,10 +354,12 @@ fi
 # Start server
 if [ "$SERVER_TYPE" = "rest" ]; then
     echo "Starting REST API server..."
-    python -m ai_models.cli serve - rest --model - path $MODEL_PATH --model - type $MODEL_TYPE --host $HOST --port $PORT
+    python -m ai_models.cli serve - \
+        rest --model - path $MODEL_PATH --model - type $MODEL_TYPE --host $HOST --port $PORT
 elif [ "$SERVER_TYPE" = "grpc" ]; then
     echo "Starting gRPC server..."
-    python -m ai_models.cli serve - grpc --model - path $MODEL_PATH --model - type $MODEL_TYPE --host $HOST --port $PORT
+    python -m ai_models.cli serve - \
+        grpc --model - path $MODEL_PATH --model - type $MODEL_TYPE --host $HOST --port $PORT
 else
     echo "Unknown server type: $SERVER_TYPE"
     exit 1

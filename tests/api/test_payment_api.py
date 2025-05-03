@@ -103,7 +103,8 @@ class TestPaymentAPI:
             "proration_behavior": "create_prorations",
         }
 
-        response = api_test_client.put(f"payments / subscriptions/{subscription_id}", modify_data)
+        response = api_test_client.put(f"payments / subscriptions/{subscription_id}", 
+            modify_data)
         result = validate_success_response(response)
 
         # Validate subscription modification

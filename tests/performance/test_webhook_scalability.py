@@ -109,7 +109,8 @@ class ScalabilityTest:
         """Run the scalability test."""
         try:
             # Set up the environment
-            print(f"Setting up test environment (scaling factor: {self.scaling_factor})...")
+            print(
+                f"Setting up test environment (scaling factor: {self.scaling_factor})...")
             await self.setup()
 
             # Create a mock response
@@ -144,7 +145,8 @@ class ScalabilityTest:
                 # Create delivery tasks
                 for webhook in self.webhooks:
                     for event in self.events:
-                        task = asyncio.create_task(deliver_with_semaphore(webhook, event))
+                        task = asyncio.create_task(deliver_with_semaphore(webhook, 
+                            event))
                         tasks.append(task)
 
                 # Wait for all tasks to complete
@@ -173,22 +175,26 @@ class ScalabilityTest:
                 successful_deliveries = sum(
                     1
                     for d in deliveries
-                    if not isinstance(d, Exception) and d["status"] == WebhookDeliveryStatus.SUCCESS
+                    if not isinstance(d, 
+                        Exception) and d["status"] == WebhookDeliveryStatus.SUCCESS
                 )
                 if total_deliveries > 0:
-                    self.results["success_rate"] = successful_deliveries / total_deliveries
+                    self.results["success_rate"] = successful_deliveries / \
+                        total_deliveries
                 else:
                     self.results["success_rate"] = 0
 
                 # Calculate average CPU and memory usage
                 if self.results["cpu_usage"]:
-                    self.results["avg_cpu_percent"] = sum(self.results["cpu_usage"]) / len(
+                    self.results["avg_cpu_percent"] = \
+                        sum(self.results["cpu_usage"]) / len(
                         self.results["cpu_usage"]
                     )
                     self.results["max_cpu_percent"] = max(self.results["cpu_usage"])
 
                 if self.results["memory_usage"]:
-                    self.results["avg_memory_mb"] = sum(self.results["memory_usage"]) / len(
+                    self.results["avg_memory_mb"] = \
+                        sum(self.results["memory_usage"]) / len(
                         self.results["memory_usage"]
                     )
                     self.results["max_memory_mb"] = max(self.results["memory_usage"])
@@ -238,9 +244,11 @@ async def run_scalability_tests():
         for r in results:
             r_copy = r.copy()
             if "start_time" in r_copy:
-                r_copy["start_time"] = datetime.fromtimestamp(r_copy["start_time"]).isoformat()
+                r_copy["start_time"] = \
+                    datetime.fromtimestamp(r_copy["start_time"]).isoformat()
             if "end_time" in r_copy:
-                r_copy["end_time"] = datetime.fromtimestamp(r_copy["end_time"]).isoformat()
+                r_copy["end_time"] = \
+                    datetime.fromtimestamp(r_copy["end_time"]).isoformat()
 
             # Remove detailed CPU and memory usage arrays from JSON output
             if "cpu_usage" in r_copy:
@@ -256,7 +264,8 @@ async def run_scalability_tests():
 
     # Print summary
     print("\n=== Scalability Test Summary ===")
-    print("Scaling Factor | Events / Second | Success Rate | Avg CPU % | Avg Memory (MB)")
+    print("Scaling Factor | Events / \
+        Second | Success Rate | Avg CPU % | Avg Memory (MB)")
     print("-------------- | ------------- | ------------ | --------- | --------------")
 
     for r in results:

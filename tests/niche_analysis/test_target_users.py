@@ -139,5 +139,6 @@ class TestTargetUserAnalysis:
         assert first_result == second_result
 
         # Force refresh should bypass cache
-        fresh_result = market_analyzer.analyze_target_users("content creation", force_refresh=True)
+        fresh_result = market_analyzer.analyze_target_users("content creation", 
+            force_refresh=True)
         assert fresh_result != first_result  # Should have new timestamp

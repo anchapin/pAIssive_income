@@ -1,7 +1,8 @@
 """
 AI Models Service for pAIssive income microservices architecture.
 
-This module provides the AI Models Service implementation, which manages AI model deployment,
+This module provides the AI Models Service implementation, 
+    which manages AI model deployment,
 inference, and optimization for the pAIssive income platform.
 """
 
@@ -55,7 +56,8 @@ class ModelRequest(BaseModel):
     prompt: str = Field(..., description="Prompt for the AI model")
     max_tokens: int = Field(256, description="Maximum number of tokens to generate")
     temperature: float = Field(0.7, description="Sampling temperature")
-    options: Dict[str, Any] = Field({}, description="Additional model - specific options")
+    options: Dict[str, Any] = Field({}, 
+        description="Additional model - specific options")
 
 
 class ModelResponse(BaseModel):
@@ -64,8 +66,10 @@ class ModelResponse(BaseModel):
     model_name: str = Field(..., description="Name of the AI model used")
     generated_text: str = Field(..., description="Generated text from the model")
     tokens_used: int = Field(..., description="Number of tokens used")
-    processing_time: float = Field(..., description="Time taken to process the request in seconds")
-    metadata: Dict[str, Any] = Field({}, description="Additional metadata about the response")
+    processing_time: float = Field(..., 
+        description="Time taken to process the request in seconds")
+    metadata: Dict[str, Any] = Field({}, 
+        description="Additional metadata about the response")
 
 
 class ModelInfo(BaseModel):
@@ -77,7 +81,8 @@ class ModelInfo(BaseModel):
     provider: str = Field(..., description="Provider of the model")
     capabilities: List[str] = Field(..., description="Capabilities of the model")
     parameters: Dict[str, Any] = Field({}, description="Model parameters")
-    metadata: Dict[str, Any] = Field({}, description="Additional metadata about the model")
+    metadata: Dict[str, Any] = Field({}, 
+        description="Additional metadata about the model")
 
 
 # Mock data for demonstration purposes
@@ -135,7 +140,8 @@ async def get_model(model_name: str):
     """Get information about a specific AI model."""
     if model_name not in AVAILABLE_MODELS:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Model '{model_name}' not found"
+            status_code=status.HTTP_404_NOT_FOUND, 
+                detail=f"Model '{model_name}' not found"
         )
 
     return AVAILABLE_MODELS[model_name]
@@ -150,7 +156,8 @@ async def generate_text(request: ModelRequest, background_tasks: BackgroundTasks
     # Check if the requested model exists
     if request.model_name not in AVAILABLE_MODELS:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Model '{request.model_name}' not found"
+            status_code=status.HTTP_404_NOT_FOUND, 
+                detail=f"Model '{request.model_name}' not found"
         )
 
     # Simulate processing time
@@ -161,7 +168,8 @@ async def generate_text(request: ModelRequest, background_tasks: BackgroundTasks
     generated_text = f"This is a response to: {request.prompt}\n\n"
     generated_text += "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
     generated_text += "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-    generated_text += "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris."
+    generated_text += "Ut enim ad minim veniam, 
+        quis nostrud exercitation ullamco laboris."
 
     # Simulate variable processing time
     time.sleep(random.uniform(0.5, 2.0))
@@ -169,7 +177,8 @@ async def generate_text(request: ModelRequest, background_tasks: BackgroundTasks
     processing_time = time.time() - start_time
 
     # Add a background task to log the request (in a real implementation, this might save to a database)
-    background_tasks.add_task(log_model_request, request.model_name, len(request.prompt))
+    background_tasks.add_task(log_model_request, request.model_name, 
+        len(request.prompt))
 
     return ModelResponse(
         model_name=request.model_name,
@@ -213,7 +222,8 @@ def register_with_service_registry(port: int):
     # Get metadata and tags
     metadata = get_service_metadata()
     metadata.update(
-        {"models_available": ",".join(AVAILABLE_MODELS.keys()), "supports_async": "true"}
+        {"models_available": ",".join(AVAILABLE_MODELS.keys()), 
+            "supports_async": "true"}
     )
 
     tags = get_default_tags() + ["ai", "models", "inference"]
@@ -234,7 +244,8 @@ def register_with_service_registry(port: int):
         logger.info("Successfully registered AI Models Service with service registry")
     else:
         logger.warning(
-            "Failed to register with service registry, continuing without service discovery"
+            "Failed to register with service registry, 
+                continuing without service discovery"
         )
 
 

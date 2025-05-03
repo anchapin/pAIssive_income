@@ -12,7 +12,8 @@ import sys
 import time
 
 # Add the parent directory to the path to import the ai_models module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from ai_models.optimization import AWQQuantizer  # Quantization; Pruning
 from ai_models.optimization import (
@@ -102,8 +103,10 @@ def test_quantization(
         print("\nQuantization Analysis:")
         print(f"Original model size: {analysis['original_model']['size_mb']:.2f} MB")
         print(f"Quantized model size: {analysis['pruned_model']['size_mb']:.2f} MB")
-        print(f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%")
-        print(f"Speed improvement: {analysis['comparison']['speed_improvement_percent']:.2f}%")
+        print(
+            f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%")
+        print(
+            f"Speed improvement: {analysis['comparison']['speed_improvement_percent']:.2f}%")
         print(f"Output similarity: {analysis['comparison']['output_similarity']:.4f}")
 
         # Print sample outputs
@@ -181,9 +184,12 @@ def test_pruning(
         print(f"Original model sparsity: {analysis['original_model']['sparsity']:.4f}")
         print(f"Pruned model size: {analysis['pruned_model']['size_mb']:.2f} MB")
         print(f"Pruned model sparsity: {analysis['pruned_model']['sparsity']:.4f}")
-        print(f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%")
-        print(f"Sparsity increase: {analysis['comparison']['sparsity_increase_percent']:.2f}%")
-        print(f"Speed improvement: {analysis['comparison']['speed_improvement_percent']:.2f}%")
+        print(
+            f"Size reduction: {analysis['comparison']['size_reduction_percent']:.2f}%")
+        print(
+            f"Sparsity increase: {analysis['comparison']['sparsity_increase_percent']:.2f}%")
+        print(
+            f"Speed improvement: {analysis['comparison']['speed_improvement_percent']:.2f}%")
         print(f"Output similarity: {analysis['comparison']['output_similarity']:.4f}")
 
         # Print sample outputs
@@ -208,7 +214,8 @@ def main():
     Main function to demonstrate the model optimization utilities.
     """
     parser = argparse.ArgumentParser(description="Test model optimization utilities")
-    parser.add_argument("--model - path", type=str, required=True, help="Path to the model")
+    parser.add_argument("--model - path", type=str, required=True, 
+        help="Path to the model")
     parser.add_argument(
         "--output - dir",
         type=str,
@@ -229,7 +236,8 @@ def main():
         default="bitsandbytes - 4bit",
         help="Quantization method",
     )
-    parser.add_argument("--quant - bits", type=int, default=4, help="Number of bits for quantization")
+    parser.add_argument("--quant - bits", type=int, default=4, 
+        help="Number of bits for quantization")
     parser.add_argument(
         "--prune - method",
         type=str,

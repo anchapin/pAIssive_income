@@ -36,7 +36,8 @@ def subscription_model():
 @pytest.fixture
 def freemium_model():
     """Create a freemium model instance for testing."""
-    return FreemiumModel(name="Test Freemium Model", description="A test freemium model")
+    return FreemiumModel(name="Test Freemium Model", 
+        description="A test freemium model")
 
 
 @pytest.fixture
@@ -146,7 +147,8 @@ def test_competitor_to_pricing_workflow(
         optimal_price = pricing_calculator.calculate_optimal_price(
             tier_name=tier["name"],
             cost_per_user=5.0
-            * (1 + subscription_model.tiers.index(tier) * 0.5),  # Higher tiers cost more
+            * (1 + subscription_model.tiers.index(tier) * 0.5),  
+                # Higher tiers cost more
             value_perception=0.7
             + (
                 subscription_model.tiers.index(tier) * 0.1
@@ -172,7 +174,8 @@ def test_competitor_to_pricing_workflow(
 
     # Step 4: Project revenue based on the pricing strategy
     # Create a dictionary of tier prices
-    tier_prices = {tier["id"]: tier["price_monthly"] for tier in subscription_model.tiers}
+    tier_prices = \
+        {tier["id"]: tier["price_monthly"] for tier in subscription_model.tiers}
 
     # Project revenue for 24 months
     revenue_projection = revenue_projector.project_revenue(
@@ -222,7 +225,8 @@ def test_competitor_to_pricing_workflow_with_freemium(
         description="Advanced content creation tools",
         price_monthly=19.99,
         price_yearly=199.99,
-        features=differentiation_features[:3],  # Use first three differentiation features
+        features=differentiation_features[:3],  
+            # Use first three differentiation features
         limits={"content_pieces": 50, "exports": 20},
         target_users="Professional content creators",
     )
@@ -262,7 +266,8 @@ def test_competitor_to_pricing_workflow_with_freemium(
 
         optimal_price = pricing_calculator.calculate_optimal_price(
             tier_name=tier["name"],
-            cost_per_user=5.0 * (freemium_model.tiers.index(tier) * 0.5),  # Higher tiers cost more
+            cost_per_user=5.0 * (freemium_model.tiers.index(tier) * 0.5),  
+                # Higher tiers cost more
             value_perception=0.7
             + (
                 (freemium_model.tiers.index(tier) - 1) * 0.1
@@ -288,7 +293,8 @@ def test_competitor_to_pricing_workflow_with_freemium(
 
     # Update revenue projector for freemium model
     revenue_projector.conversion_rate = 0.05  # Lower conversion rate for freemium
-    revenue_projector.user_acquisition_rate = 200  # Higher acquisition rate for freemium
+    revenue_projector.user_acquisition_rate = \
+        200  # Higher acquisition rate for freemium
     revenue_projector.tier_distribution = {
         "free": 0.8,  # 80% free users
         "pro": 0.15,  # 15% pro users
@@ -297,7 +303,8 @@ def test_competitor_to_pricing_workflow_with_freemium(
 
     # Project revenue for 36 months
     revenue_projection = revenue_projector.project_revenue(
-        months=36, tier_prices=tier_prices, growth_rate=0.08  # Higher growth rate for freemium
+        months=36, tier_prices=tier_prices, 
+            growth_rate=0.08  # Higher growth rate for freemium
     )
 
     # Verify revenue projection
@@ -313,10 +320,12 @@ def test_competitor_to_pricing_workflow_with_freemium(
     last_month_revenue = revenue_projection["revenue"][-1]
 
     user_growth_rate = (
-        (last_month_users / first_month_users) if first_month_users > 0 else float("inf")
+        (last_month_users / \
+            first_month_users) if first_month_users > 0 else float("inf")
     )
     revenue_growth_rate = (
-        (last_month_revenue / first_month_revenue) if first_month_revenue > 0 else float("inf")
+        (last_month_revenue / \
+            first_month_revenue) if first_month_revenue > 0 else float("inf")
     )
 
     # In a freemium model, revenue growth should eventually outpace user growth

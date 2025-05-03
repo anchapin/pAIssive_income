@@ -59,7 +59,8 @@ class TestMessageQueueIntegration:
         # Define message handlers for each service
         def create_handler(service_name):
             def handler(message, headers):
-                received_messages[service_name].append({"message": message, "headers": headers})
+                received_messages[service_name].append({"message": message, 
+                    "headers": headers})
                 return True
 
             return handler
@@ -212,6 +213,7 @@ class TestMessageQueueIntegration:
                         },
                         headers={
                             "workflow_id": headers.get("workflow_id", "test - workflow"),
+                                
                             "step": next_step_index,
                         },
                     )
@@ -225,7 +227,8 @@ class TestMessageQueueIntegration:
             service = step["service"]
             next_step = i + 1
             consumers[service].register_handler(
-                routing_key=f"{service}.events", handler=create_workflow_handler(service, next_step)
+                routing_key=f"{service}.events", handler=create_workflow_handler(service, 
+                    next_step)
             )
 
         # Start consumers in separate threads
@@ -309,20 +312,23 @@ class TestMessageQueueIntegration:
 
             # All consumer listens to everything
             all_consumer.register_handler(
-                routing_key="#", handler=create_topic_handler(topic)  # Wildcard for all topics
+                routing_key="#", 
+                    handler=create_topic_handler(topic)  # Wildcard for all topics
             )
 
         # Start consumers in separate threads
         user_thread = threading.Thread(
             target=user_consumer.start_consuming,
-            kwargs={"queue_name": "user_events", "routing_keys": ["user.#"], "timeout": 1000},
+            kwargs={"queue_name": "user_events", "routing_keys": ["user.#"], 
+                "timeout": 1000},
         )
         user_thread.daemon = True
         user_thread.start()
 
         order_thread = threading.Thread(
             target=order_consumer.start_consuming,
-            kwargs={"queue_name": "order_events", "routing_keys": ["order.#"], "timeout": 1000},
+            kwargs={"queue_name": "order_events", "routing_keys": ["order.#"], 
+                "timeout": 1000},
         )
         order_thread.daemon = True
         order_thread.start()

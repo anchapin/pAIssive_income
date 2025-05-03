@@ -39,7 +39,8 @@ class TestTokenManagementAPI:
     def test_token_generation(self, api_test_client: APITestClient):
         """Test generating access and refresh tokens."""
         # Generate test credentials
-        data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
+        data = {"username": "test_user", "password": "test_password", 
+            "grant_type": "password"}
 
         # Make request
         response = api_test_client.post("auth / token", data)
@@ -62,7 +63,8 @@ class TestTokenManagementAPI:
     def test_token_validation(self, api_test_client: APITestClient):
         """Test token validation."""
         # First get a valid token
-        auth_data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
+        auth_data = {"username": "test_user", "password": "test_password", 
+            "grant_type": "password"}
 
         auth_response = api_test_client.post("auth / token", auth_data)
         auth_result = validate_success_response(auth_response)
@@ -88,7 +90,8 @@ class TestTokenManagementAPI:
     def test_token_renewal(self, api_test_client: APITestClient):
         """Test token renewal using refresh token."""
         # First get initial tokens
-        auth_data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
+        auth_data = {"username": "test_user", "password": "test_password", 
+            "grant_type": "password"}
 
         auth_response = api_test_client.post("auth / token", auth_data)
         auth_result = validate_success_response(auth_response)
@@ -121,7 +124,8 @@ class TestTokenManagementAPI:
         validate_success_response(config_response)
 
         # Get test token
-        auth_data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
+        auth_data = {"username": "test_user", "password": "test_password", 
+            "grant_type": "password"}
 
         auth_response = api_test_client.post("auth / token", auth_data)
         auth_result = validate_success_response(auth_response)
@@ -142,7 +146,8 @@ class TestTokenManagementAPI:
     def test_token_revocation(self, api_test_client: APITestClient):
         """Test token revocation."""
         # Get test token
-        auth_data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
+        auth_data = {"username": "test_user", "password": "test_password", 
+            "grant_type": "password"}
 
         auth_response = api_test_client.post("auth / token", auth_data)
         auth_result = validate_success_response(auth_response)
@@ -172,7 +177,8 @@ class TestTokenManagementAPI:
         validate_success_response(config_response)
 
         # Create multiple sessions
-        auth_data = {"username": "test_user", "password": "test_password", "grant_type": "password"}
+        auth_data = {"username": "test_user", "password": "test_password", 
+            "grant_type": "password"}
 
         sessions = []
         for _ in range(3):  # Try to create more sessions than allowed
