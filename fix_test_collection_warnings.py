@@ -235,6 +235,47 @@ def process_directory(directory: str, file_patterns: List[str] = None) -> bool:
     return all_passed
 
 
+def check_syntax_errors(file_path: str) -> bool:
+    """Check if a Python file has syntax errors without fixing them."""
+    try:
+        error = find_syntax_error(file_path)
+        if error:
+            print(f"❌ Syntax error in {file_path} at line {error.lineno}: {error}")
+            return False
+        return True
+    except Exception as e:
+        print(f"❌ Error processing {file_path}: {str(e)}")
+        return False
+
+
+def check_directory(directory: str, file_patterns: List[str] = None) -> bool:
+    """Check all Python files in a directory and its subdirectories for syntax errors."""
+    all_passed = True
+    ignore_patterns = get_gitignore_patterns()
+
+    if file_patterns:
+        # Process specific files/patterns
+        for pattern in file_patterns:
+            for file_path in Path(directory).glob(pattern):
+                if file_path.is_file() and file_path.suffix == ".py":
+                    relative_path = str(file_path.relative_to(directory))
+                    if not should_ignore(relative_path, ignore_patterns):
+                        if not check_syntax_errors(str(file_path)):
+                            all_passed = False
+    else:
+        # Process all Python files
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.endswith(".py"):
+                    file_path = os.path.join(root, file)
+                    relative_path = os.path.relpath(file_path, directory)
+                    if not should_ignore(relative_path, ignore_patterns):
+                        if not check_syntax_errors(file_path):
+                            all_passed = False
+
+    return all_passed
+
+
 def main():
     """Main function to parse args and run the script."""
     parser = argparse.ArgumentParser(
@@ -251,24 +292,46 @@ def main():
         nargs="+",
         help="Specific file patterns to process (e.g., '*.py' 'src/*.py')",
     )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Only check for syntax errors without fixing them",
+    )
 
     args = parser.parse_args()
 
     print("🔍 Scanning for Python files with syntax errors...")
 
-    if os.path.isfile(args.path):
-        # Process a single file
-        success = fix_syntax_errors(args.path)
-    else:
-        # Process a directory
-        success = process_directory(args.path, args.files)
+    if args.check:
+        # Check mode - only report errors without fixing
+        if os.path.isfile(args.path):
+            # Check a single file
+            success = check_syntax_errors(args.path)
+        else:
+            # Check a directory
+            success = check_directory(args.path, args.files)
 
-    if success:
-        print("\n✅ All fixable syntax errors have been corrected!")
-        return 0
+        if success:
+            print("\n✅ No syntax errors found!")
+            return 0
+        else:
+            print("\n❌ Syntax errors found. Please fix them manually or run without --check.")
+            return 1
     else:
-        print("\n⚠️ Some files still have syntax errors that need manual fixing.")
-        return 1
+        # Fix mode - attempt to fix errors
+        if os.path.isfile(args.path):
+            # Process a single file
+            success = fix_syntax_errors(args.path)
+        else:
+            # Process a directory
+            success = process_directory(args.path, args.files)
+
+        if success:
+            print("\n✅ All fixable syntax errors have been corrected!")
+            return 0
+        else:
+            print("\n⚠️ Some files still have syntax errors that need manual fixing.")
+            return 1
 
 
 if __name__ == "__main__":
