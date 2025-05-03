@@ -68,6 +68,10 @@ def run_workflow(workflow_file, job=None, platform="ubuntu-latest", test_path=No
             command.extend(["-e", "lint_only=true"])
         if test_only:
             command.extend(["-e", "test_only=true"])
+        if specific_file:
+            command.extend(["-e", f"specific_file={specific_file}"])
+        if test_path:
+            command.extend(["-e", f"test_path={test_path}"])
 
     print(f"\n🚀 Running workflow: {workflow_file}")
     print(f"   Command: {' '.join(command)}")
