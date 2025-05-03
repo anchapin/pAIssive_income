@@ -1,23 +1,18 @@
-
-import argparse
-import os
-import subprocess
-import sys
-from pathlib import Path
-from typing import List, Set
-
-
-def get_gitignore_patterns
-
 #!/usr/bin/env python
 """
 Script to run linting checks on Python files.
 """
 
+import argparse
+import ast
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import List, Set, Tuple, Optional
 
 
-
-() -> Set[str]:
+def get_gitignore_patterns() -> Set[str]:
     """Read .gitignore patterns and return them as a set."""
     patterns = set()
     try:
@@ -57,6 +52,19 @@ def should_ignore(file_path: str, ignore_patterns: Set[str]) -> bool:
     return False
 
 
+def check_syntax(file_path: str) -> Tuple[bool, Optional[str]]:
+    """Check Python file for syntax errors."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            source = file.read()
+        ast.parse(source, filename=file_path)
+        return True, None
+    except SyntaxError as e:
+        return False, f"Line {e.lineno}, column {e.offset}: {e.msg}"
+    except Exception as e:
+        return False, str(e)
+
+
 def run_command(command, file_path):
     """Run a command and return the result."""
     try:
@@ -79,6 +87,12 @@ def lint_file(file_path):
     """Run linting checks on a file."""
     print(f"\nLinting {file_path}...")
 
+    # First check for syntax errors
+    syntax_ok, error_msg = check_syntax(file_path)
+    if not syntax_ok:
+        print(f"❌ Syntax error in {file_path}: {error_msg}")
+        return False
+    
     # Check for syntax errors and undefined names
     flake8_result = run_command(
         [
@@ -106,11 +120,11 @@ def lint_file(file_path):
 
     # Check with Ruff
     ruff_result = run_command(
-        ["ruf", "check", file_path],
+        ["ruff", "check", file_path],
         file_path,
     )
 
-    return all([flake8_result, black_result, isort_result, ruff_result])
+    return all([syntax_ok, flake8_result, black_result, isort_result, ruff_result])
 
 
 def process_directory(directory: str, file_patterns: List[str] = None) -> bool:
