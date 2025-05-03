@@ -6,6 +6,9 @@ health information. It integrates with the monitoring system and can be embedded
 in the application or run as a standalone service.
 """
 
+import time
+
+
 import os
 import json
 from pathlib import Path
@@ -19,16 +22,23 @@ from common_utils.monitoring.metrics import export_metrics, get_metrics
 from common_utils.monitoring.health import get_health_status
 from common_utils.monitoring.system import get_system_metrics, monitor_resources
 
-logger = get_logger(__name__)
-
-# Check if dashboard dependencies are installed
-DASHBOARD_AVAILABLE = False
-try:
+logger 
     import dash
     from dash import dcc, html
     import plotly.graph_objs as go
     import pandas as pd
-    DASHBOARD_AVAILABLE = True
+    DASHBOARD_AVAILABLE 
+        
+        import random
+    import argparse
+
+= get_logger(__name__)
+
+# Check if dashboard dependencies are installed
+DASHBOARD_AVAILABLE = False
+try:
+
+= True
 except ImportError:
     logger.warning("Dashboard dependencies not installed. Run 'pip install dash plotly pandas' to enable the monitoring dashboard.")
 
@@ -555,8 +565,7 @@ class MonitoringDashboard:
             'Validation failed for input data',
             'Security warning: multiple failed login attempts'
         ]
-        
-        import random
+
         
         logs = []
         for i in range(offset, offset + limit):
@@ -599,7 +608,7 @@ class MonitoringDashboard:
                 details['status_code'] = random.choice([200, 201, 400, 401, 403, 404, 500])
             
             logs.append({
-                "timestamp": log_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+                "timestamp": log_time.strftime("%Y-%m-%d %H:%M:%S.%")[:-3],
                 "level": rand_level,
                 "component": component,
                 "message": message,
@@ -674,7 +683,7 @@ def start_dashboard(
 
 if __name__ == "__main__":
     # This allows running the dashboard as a standalone module
-    import argparse
+
     
     parser = argparse.ArgumentParser(description="Start the monitoring dashboard")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind the server to")

@@ -4,13 +4,16 @@ Examples of using the event bus for different services.
 This module provides examples of how to use the event bus for different services.
 """
 
+
 import time
 import logging
 import asyncio
 from typing import List
 from pydantic import BaseModel, ConfigDict
 
-from services.shared.event_bus import (
+from services.shared.event_bus import 
+
+(
     EventBus,
     AsyncEventBus,
     Event,
@@ -31,7 +34,7 @@ def niche_analysis_service_example():
 
     # Define event data schemas
     class NicheAnalysisCompleted(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())))
         """Event data for when a niche analysis is completed."""
 
         niche_id: str
@@ -42,7 +45,7 @@ def niche_analysis_service_example():
         competition_level: str
 
     class NicheOpportunityIdentified(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())))
         """Event data for when a niche opportunity is identified."""
 
         niche_id: str
@@ -134,7 +137,7 @@ def marketing_service_example():
 
     # Define event data schemas
     class NicheAnalysisCompleted(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())))
         """Event data for when a niche analysis is completed."""
 
         niche_id: str
@@ -145,7 +148,7 @@ def marketing_service_example():
         competition_level: str
 
     class NicheOpportunityIdentified(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())))
         """Event data for when a niche opportunity is identified."""
 
         niche_id: str
@@ -230,7 +233,7 @@ async def async_event_handling_example():
 
     # Define event data schemas
     class UserRegistered(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Event data for when a user registers."""
 
         user_id: str
@@ -299,7 +302,7 @@ def event_driven_workflow_example():
 
     # Define event data schemas
     class NicheSelected(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Event data for when a niche is selected."""
 
         niche_id: str
@@ -307,7 +310,7 @@ def event_driven_workflow_example():
         user_id: str
 
     class SolutionCreated(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Event data for when a solution is created."""
 
         solution_id: str
@@ -316,7 +319,7 @@ def event_driven_workflow_example():
         user_id: str
 
     class MarketingPlanGenerated(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Event data for when a marketing plan is generated."""
 
         plan_id: str

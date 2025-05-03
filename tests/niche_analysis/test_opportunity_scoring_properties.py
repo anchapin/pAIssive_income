@@ -5,6 +5,7 @@ This module tests properties that should hold true for opportunity scoring algor
 in the niche_analysis module, using the Hypothesis framework for property-based testing.
 """
 
+
 import uuid
 from datetime import datetime
 
@@ -13,7 +14,9 @@ from hypothesis.strategies import composite
 
 from hypothesis import example, given
 from hypothesis import strategies as st
-from niche_analysis.schemas import (
+from niche_analysis.schemas import 
+
+(
     FactorScoreSchema,
     FactorScoresSchema,
     FactorsSchema,

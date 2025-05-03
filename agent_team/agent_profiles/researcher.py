@@ -3,6 +3,9 @@ Research Agent for the pAIssive Income project.
 Specializes in market research and niche identification.
 """
 
+import time
+
+
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
@@ -10,7 +13,9 @@ from typing import Any, Dict, List
 from interfaces.agent_interfaces import IAgentTeam, IResearchAgent
 
 
-class ResearchAgent(IResearchAgent):
+class ResearchAgent
+
+(IResearchAgent):
     """
     AI agent specialized in market research and niche identification.
     Identifies profitable niches and user pain points that can be addressed

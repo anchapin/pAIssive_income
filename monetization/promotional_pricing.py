@@ -6,6 +6,9 @@ including time-limited promotions, coupon codes, referral discounts,
 bundle discounts, loyalty rewards, free trials, and special offers.
 """
 
+import time
+
+
 import random
 import string
 import uuid
@@ -13,7 +16,9 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 
-class PromotionStatus:
+class PromotionStatus
+
+:
     """Enumeration of promotion statuses."""
 
     DRAFT = "draft"

@@ -8,13 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from errors import ModelNotFoundError
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
-"""
-Fallback strategy for AI models.
 
-This module provides classes and functions for implementing fallback mechanisms
-when primary model selection fails. It includes configurable strategies for
-selecting alternative models based on various criteria.
-"""
 
 import logging
 import os
@@ -23,14 +17,28 @@ import time
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-# Add the project root to the Python path to import the errors module
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-if parent_dir not in sys.path:
-    sys.path.insert(0, parent_dir)
+
 
 from errors import ModelNotFoundError
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
+
+
+"""
+Fallback strategy for AI models.
+
+This module provides classes and functions for implementing fallback mechanisms
+when primary model selection fails. It includes configurable strategies for
+selecting alternative models based on various criteria.
+"""
+
+
+
+
+# Add the project root to the Python path to import the errors module
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

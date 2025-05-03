@@ -4,13 +4,16 @@ Command-line interface for AI models.
 This module provides the main entry point for the command-line interface.
 """
 
+
 import argparse
 import logging
 import sys
 from typing import Dict, List, Optional, Type
 
 from .base import BaseCommand
-from .commands import (
+from .commands import 
+
+(
     BenchmarkCommand,
     DeployCommand,
     DownloadCommand,

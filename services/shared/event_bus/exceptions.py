@@ -5,6 +5,7 @@ This module provides exceptions for the event bus.
 """
 
 
+
 class EventBusError(Exception):
     """Base exception for event bus errors."""
 

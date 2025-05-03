@@ -1,16 +1,22 @@
 
 import logging
-import os  # noqa: E402, F811
-from ui import app  # noqa: E402, F811
+import os
+from ui import app  
+
+import logging
+import os
+from ui import app  
+
+# noqa: E402, F811
+# noqa: E402, F811
 
 """
 Main application file for the pAIssive Income UI.
 
 This file is the entry point for running the web interface.
 """
-
-import logging  # noqa: E402, F811
-import os  # noqa: E402, F811
+  # noqa: E402, F811
+  # noqa: E402, F811
 
 # Set up logging
 logging.basicConfig(
@@ -19,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import the UI module
-from ui import app  # noqa: E402, F811
+# noqa: E402, F811
 
 if __name__ == "__main__":
     # Log startup information

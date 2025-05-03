@@ -5,6 +5,7 @@ This module provides utility functions to simplify the integration of service di
 into microservices in the pAIssive income platform.
 """
 
+
 import atexit
 import logging
 import os
@@ -13,7 +14,15 @@ from typing import Any, Callable, Dict, List, Optional
 
 from services.service_discovery.discovery_client import ServiceDiscoveryClient
 
-logger = logging.getLogger(__name__)
+logger 
+    from datetime import datetime
+
+    return datetime.utcnow
+        from fastapi.responses import JSONResponse
+
+        
+
+= logging.getLogger(__name__)
 
 
 def setup_service_discovery(
@@ -160,9 +169,7 @@ def import_iso_timestamp() -> str:
     Returns:
         str: Current timestamp in ISO 8601 format
     """
-    from datetime import datetime
-
-    return datetime.utcnow().isoformat() + "Z"
+().isoformat() + "Z"
 
 
 def register_health_check_endpoint(app, url_path: str = "/health", **kwargs):
@@ -187,9 +194,7 @@ def register_health_check_endpoint(app, url_path: str = "/health", **kwargs):
             return health_check()
 
     elif hasattr(app, "add_api_route"):  # FastAPI
-        from fastapi.responses import JSONResponse
-
-        @app.get(url_path)
+@app.get(url_path)
         def fastapi_health_check():
             result = health_check()
             status_code = 200 if result["status"] == "UP" else 503

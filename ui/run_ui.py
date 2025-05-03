@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-"""
-UI Runner Script for pAIssive Income Framework
-This script starts both the React development server and the Flask API server.
-"""
 
 import os
 import subprocess
@@ -11,6 +6,19 @@ import threading
 import time
 import webbrowser
 from pathlib import Path
+
+
+
+#!/usr/bin/env python
+"""
+UI Runner Script for pAIssive Income Framework
+This script starts both the React development server and the Flask API server.
+"""
+
+
+
+
+
 
 # Get the absolute path of the project
 PROJECT_ROOT = Path(__file__).parent.parent.absolute()

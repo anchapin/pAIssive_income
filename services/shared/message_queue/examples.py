@@ -4,13 +4,16 @@ Examples of using the message queue for different services.
 This module provides examples of how to use the message queue for different services.
 """
 
+
 import time
 import logging
 import asyncio
 from typing import Dict, Any, List
 from pydantic import BaseModel, ConfigDict
 
-from services.shared.message_queue import (
+from services.shared.message_queue import 
+
+(
     MessageQueueClient,
     AsyncMessageQueueClient,
     Message,
@@ -31,14 +34,14 @@ def niche_analysis_service_example():
 
     # Define message payload schemas
     class NicheAnalysisRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())))
         """Request for niche analysis."""
 
         niche_name: str
         force_refresh: bool = False
 
     class NicheAnalysisResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Response from niche analysis."""
 
         niche_name: str
@@ -130,7 +133,7 @@ async def ai_models_service_example():
 
     # Define message payload schemas
     class TextGenerationRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Request for text generation."""
 
         model_id: str
@@ -139,7 +142,7 @@ async def ai_models_service_example():
         temperature: float = 0.7
 
     class TextGenerationResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Response from text generation."""
 
         model_id: str
@@ -225,7 +228,7 @@ async def api_gateway_example():
 
     # Define message payload schemas
     class NicheAnalysisRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())))
         """Request for niche analysis."""
 
         niche_name: str
@@ -271,7 +274,7 @@ def event_driven_example():
 
     # Define message payload schemas
     class NicheAnalysisCompleted(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Event for when a niche analysis is completed."""
 
         niche_id: str

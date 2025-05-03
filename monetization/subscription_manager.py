@@ -5,6 +5,7 @@ This module provides classes for managing the subscription lifecycle,
 including creation, renewal, cancellation, and upgrades/downgrades.
 """
 
+
 import json
 import os
 import uuid
@@ -15,7 +16,12 @@ from .subscription import FeatureWrapper, SubscriptionPlan, TierWrapper
 from .user_subscription import Subscription, SubscriptionStatus
 
 
-class SubscriptionManager:
+class SubscriptionManager
+    from .subscription import SubscriptionPlan
+
+    
+
+:
     """
     Class for managing subscription lifecycles.
 
@@ -1372,9 +1378,7 @@ class SubscriptionManager:
 
 # Example usage
 if __name__ == "__main__":
-    from .subscription import SubscriptionPlan
-
-    # Create a subscription manager
+# Create a subscription manager
     manager = SubscriptionManager(storage_dir="subscriptions")
 
     # Create a subscription plan

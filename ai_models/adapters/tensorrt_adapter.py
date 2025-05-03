@@ -4,11 +4,29 @@ TensorRT adapter for the AI Models module.
 This module provides an adapter for using TensorRT for GPU-accelerated inference.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+
+
+    import torch
+    import tensorrt
+    import pycuda.autoinit
+    import pycuda.driver
+    from transformers import AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE 
+            from PIL import Image
+
+            
 
 # Set up logging
 logging.basicConfig(
@@ -18,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -28,7 +46,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import tensorrt as trt
+ as trt
 
     TENSORRT_AVAILABLE = True
 except ImportError:
@@ -38,8 +56,8 @@ except ImportError:
     TENSORRT_AVAILABLE = False
 
 try:
-    import pycuda.autoinit
-    import pycuda.driver as cuda
+
+ as cuda
 
     PYCUDA_AVAILABLE = True
 except ImportError:
@@ -49,9 +67,7 @@ except ImportError:
     PYCUDA_AVAILABLE = False
 
 try:
-    from transformers import AutoTokenizer
-
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("Transformers not available. Text processing will be limited.")
     TRANSFORMERS_AVAILABLE = False
@@ -604,9 +620,7 @@ class TensorRTAdapter:
             Preprocessed image as numpy array
         """
         try:
-            from PIL import Image
-
-            # Load image
+# Load image
             image = Image.open(image_path).convert("RGB")
 
             # Resize image

@@ -4,11 +4,16 @@ Integration tests for the competitor analysis → pricing strategy → revenue p
 This module tests the complete workflow from competitor analysis through pricing strategy
 development to revenue projection.
 """
+
+import time
+
 import pytest
 from unittest.mock import patch, MagicMock
 
 from niche_analysis import MarketAnalyzer
-from monetization import (
+from monetization import 
+
+(
     SubscriptionModel, PricingCalculator, RevenueProjector,
     FreemiumModel, MonetizationCalculator
 )

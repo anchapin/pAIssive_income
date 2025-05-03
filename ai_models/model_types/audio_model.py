@@ -5,12 +5,67 @@ This module provides specialized classes for working with audio models,
 including speech recognition, text-to-speech, and audio classification.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import json
 import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
+
+    import torch
+    import transformers
+    from transformers import AutoProcessor
+
+    TRANSFORMERS_AVAILABLE 
+    import librosa
+    import soundfile
+    import onnxruntime
+                from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
+
+                self.processor 
+                from transformers import AutoModelForTextToSpeech, AutoProcessor
+
+                self.processor 
+                    from transformers import AutoProcessor
+
+                    self.processor 
+                    from transformers import AutoProcessor
+
+                    self.processor 
+                    from transformers import AutoFeatureExtractor
+
+                    self.processor 
+                        from transformers import Wav2Vec2ForCTC
+
+                        self.model 
+                        from transformers import WhisperForConditionalGeneration
+
+                        self.model 
+                    from transformers import AutoProcessor
+
+                    self.processor 
+                    from transformers import AutoProcessor
+
+                    self.processor 
+                    from transformers import AutoFeatureExtractor
+
+                    self.processor 
+                    from scipy.io import wavfile
+
+                    wavfile.write
+                    from scipy.io import wavfile
+
+                    wavfile.write
+                    from scipy.io import wavfile
+
+                    wavfile.write
 
 # Set up logging
 logging.basicConfig(
@@ -20,7 +75,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -28,16 +83,14 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import transformers
-    from transformers import AutoProcessor
 
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("Transformers not available. Audio model support will be limited.")
     TRANSFORMERS_AVAILABLE = False
 
 try:
-    import librosa
+
 
     LIBROSA_AVAILABLE = True
 except ImportError:
@@ -45,7 +98,7 @@ except ImportError:
     LIBROSA_AVAILABLE = False
 
 try:
-    import soundfile as sf
+ as sf
 
     SOUNDFILE_AVAILABLE = True
 except ImportError:
@@ -53,7 +106,7 @@ except ImportError:
     SOUNDFILE_AVAILABLE = False
 
 try:
-    import onnxruntime as ort
+ as ort
 
     ONNX_AVAILABLE = True
 except ImportError:
@@ -167,17 +220,13 @@ class AudioModel:
         try:
             # Load processor and model based on model type
             if self.model_type == "speech-recognition":
-                from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
-
-                self.processor = AutoProcessor.from_pretrained(self.processor_path)
+= AutoProcessor.from_pretrained(self.processor_path)
                 self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
                     self.model_path, **self.kwargs
                 )
 
             elif self.model_type == "text-to-speech":
-                from transformers import AutoModelForTextToSpeech, AutoProcessor
-
-                self.processor = AutoProcessor.from_pretrained(self.processor_path)
+= AutoProcessor.from_pretrained(self.processor_path)
                 self.model = AutoModelForTextToSpeech.from_pretrained(
                     self.model_path, **self.kwargs
                 )
@@ -270,19 +319,13 @@ class AudioModel:
             # Try to load processor from processor_path
             if self.processor_path and os.path.exists(self.processor_path):
                 if self.model_type == "speech-recognition":
-                    from transformers import AutoProcessor
-
-                    self.processor = AutoProcessor.from_pretrained(self.processor_path)
+= AutoProcessor.from_pretrained(self.processor_path)
 
                 elif self.model_type == "text-to-speech":
-                    from transformers import AutoProcessor
-
-                    self.processor = AutoProcessor.from_pretrained(self.processor_path)
+= AutoProcessor.from_pretrained(self.processor_path)
 
                 elif self.model_type == "audio-classification":
-                    from transformers import AutoFeatureExtractor
-
-                    self.processor = AutoFeatureExtractor.from_pretrained(
+= AutoFeatureExtractor.from_pretrained(
                         self.processor_path
                     )
 
@@ -314,15 +357,11 @@ class AudioModel:
                 if "model_type" in self.kwargs:
                     model_type = self.kwargs["model_type"]
                     if model_type == "wav2vec2":
-                        from transformers import Wav2Vec2ForCTC
-
-                        self.model = Wav2Vec2ForCTC.from_pretrained(
+= Wav2Vec2ForCTC.from_pretrained(
                             "facebook/wav2vec2-base-960h"
                         )
                     elif model_type == "whisper":
-                        from transformers import WhisperForConditionalGeneration
-
-                        self.model = WhisperForConditionalGeneration.from_pretrained(
+= WhisperForConditionalGeneration.from_pretrained(
                             "openai/whisper-small"
                         )
                     else:
@@ -366,19 +405,13 @@ class AudioModel:
             # Try to load processor from processor_path
             if self.processor_path and os.path.exists(self.processor_path):
                 if self.model_type == "speech-recognition":
-                    from transformers import AutoProcessor
-
-                    self.processor = AutoProcessor.from_pretrained(self.processor_path)
+= AutoProcessor.from_pretrained(self.processor_path)
 
                 elif self.model_type == "text-to-speech":
-                    from transformers import AutoProcessor
-
-                    self.processor = AutoProcessor.from_pretrained(self.processor_path)
+= AutoProcessor.from_pretrained(self.processor_path)
 
                 elif self.model_type == "audio-classification":
-                    from transformers import AutoFeatureExtractor
-
-                    self.processor = AutoFeatureExtractor.from_pretrained(
+= AutoFeatureExtractor.from_pretrained(
                         self.processor_path
                     )
 
@@ -864,9 +897,7 @@ class AudioModel:
             else:
                 # Try to use scipy as fallback
                 try:
-                    from scipy.io import wavfile
-
-                    wavfile.write(output_path, sample_rate, waveform)
+(output_path, sample_rate, waveform)
                 except ImportError:
                     raise ImportError(
                         "Neither SoundFile nor scipy.io.wavfile is available. Please install one of them."
@@ -972,9 +1003,7 @@ class AudioModel:
             else:
                 # Try to use scipy as fallback
                 try:
-                    from scipy.io import wavfile
-
-                    wavfile.write(output_path, sample_rate, waveform)
+(output_path, sample_rate, waveform)
                 except ImportError:
                     raise ImportError(
                         "Neither SoundFile nor scipy.io.wavfile is available. Please install one of them."
@@ -1084,9 +1113,7 @@ class AudioModel:
             else:
                 # Try to use scipy as fallback
                 try:
-                    from scipy.io import wavfile
-
-                    wavfile.write(output_path, sample_rate, waveform)
+(output_path, sample_rate, waveform)
                 except ImportError:
                     raise ImportError(
                         "Neither SoundFile nor scipy.io.wavfile is available. Please install one of them."

@@ -10,6 +10,7 @@ This module tests the reliability of webhook delivery:
 6. Delivery across different event types
 """
 
+
 import pytest
 import asyncio
 import json
@@ -22,7 +23,9 @@ from api.services.webhook_service import WebhookService
 from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
 
 
-class TestDeliveryConfirmation:
+class TestDeliveryConfirmation
+
+:
     """Tests for delivery confirmation and idempotency."""
     
     @pytest.mark.asyncio

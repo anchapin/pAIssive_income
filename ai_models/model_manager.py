@@ -1,3 +1,8 @@
+try:
+    import torch
+except ImportError:
+    pass
+
 
 import json
 import logging
@@ -9,7 +14,28 @@ import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 from .model_config import ModelConfig
 from .model_versioning import ModelVersion, VersionedModelManager
-from errors import (
+from errors import 
+from interfaces.model_interfaces import IModelManager
+from .model_base_types import ModelInfo
+
+
+    import torch
+    import transformers
+    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+
+    TRANSFORMERS_AVAILABLE 
+    from sentence_transformers import SentenceTransformer
+
+    SENTENCE_TRANSFORMERS_AVAILABLE 
+    from llama_cpp import Llama
+
+    LLAMA_CPP_AVAILABLE 
+    import onnxruntime
+        from tests.mocks.mock_model_providers import create_mock_provider
+
+        return create_mock_provider
+
+(
     ConfigurationError,
     ModelError,
     ModelLoadError,
@@ -17,9 +43,6 @@ from errors import (
     ValidationError,
     handle_exception,
 )
-from interfaces.model_interfaces import IModelManager
-from .model_base_types import ModelInfo
-
 """
 Model manager for the AI Models module.
 
@@ -47,7 +70,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -55,10 +78,8 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import transformers
-    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Transformers not available. Hugging Face models will not be available."
@@ -66,9 +87,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
-    from sentence_transformers import SentenceTransformer
-
-    SENTENCE_TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Sentence Transformers not available. Embedding models will be limited."
@@ -76,9 +95,7 @@ except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
 
 try:
-    from llama_cpp import Llama
-
-    LLAMA_CPP_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "llama-cpp-python not available. Llama model support will be limited."
@@ -86,7 +103,7 @@ except ImportError:
     LLAMA_CPP_AVAILABLE = False
 
 try:
-    import onnxruntime as ort
+ as ort
 
     ONNX_AVAILABLE = True
 except ImportError:
@@ -366,7 +383,7 @@ class ModelManager(IModelManager):
         file_name = os.path.basename(file_path).lower()
 
         # Check for GGUF models (Llama)
-        if file_name.endswith(".gguf"):
+        if file_name.endswith(".ggu"):
             quantization = "unknown"
 
             # Try to detect quantization from filename
@@ -377,7 +394,7 @@ class ModelManager(IModelManager):
             elif "q8_0" in file_name:
                 quantization = "8-bit"
 
-            return "llama", "gguf", quantization
+            return "llama", "ggu", quantization
 
         # Check for ONNX models
         elif file_name.endswith(".onnx") or (
@@ -780,9 +797,7 @@ class ModelManager(IModelManager):
         Returns:
             A model provider instance
         """
-        from tests.mocks.mock_model_providers import create_mock_provider
-
-        return create_mock_provider(provider_type, kwargs.get("config"))
+(provider_type, kwargs.get("config"))
 
     def generate_text(self, prompt: str, model_id: str = "gpt-3.5-turbo", **kwargs):
         """

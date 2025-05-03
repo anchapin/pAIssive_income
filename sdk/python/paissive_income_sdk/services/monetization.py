@@ -4,12 +4,15 @@ Monetization service for the pAIssive Income API.
 This module provides a service for interacting with the monetization endpoints.
 """
 
+
 from typing import Any, Dict
 
 from .base import BaseService
 
 
-class MonetizationService(BaseService):
+class MonetizationService
+
+(BaseService):
     """
     Monetization service.
     """

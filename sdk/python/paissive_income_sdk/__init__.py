@@ -4,11 +4,13 @@ pAIssive Income SDK for Python.
 This package provides a Python client for the pAIssive Income API.
 """
 
-__version__ = "0.1.0"
 
 from .auth import APIKeyAuth, JWTAuth
 from .client import Client
-from .services import (
+from .services import 
+
+__version__ = "0.1.0"
+(
     AgentTeamService,
     AIModelsService,
     APIKeyService,

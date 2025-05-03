@@ -5,6 +5,9 @@ This module provides a class for managing invoices, including
 generation, storage, retrieval, and status updates.
 """
 
+import time
+
+
 import json
 import os
 from datetime import datetime, timedelta
@@ -15,7 +18,13 @@ from .invoice import Invoice, InvoiceStatus
 from .usage_tracker import UsageTracker
 
 
-class InvoiceManager:
+class InvoiceManager
+    from .billing_calculator import BillingCalculator
+    from .usage_tracker import UsageTracker
+
+    
+
+:
     """
     Class for managing invoices.
 
@@ -886,10 +895,7 @@ class InvoiceManager:
 
 # Example usage
 if __name__ == "__main__":
-    from .billing_calculator import BillingCalculator
-    from .usage_tracker import UsageTracker
-
-    # Create a usage tracker
+# Create a usage tracker
     tracker = UsageTracker()
 
     # Create a billing calculator

@@ -1,3 +1,12 @@
+
+import unittest
+import sys
+from tests.security.test_advanced_authentication import TestAdvancedAuthentication
+from tests.security.test_authorization_edge_cases import TestAuthorizationEdgeCases
+
+
+def run_tests
+
 #!/usr/bin/env python
 """
 Run advanced security tests for the pAIssive income platform.
@@ -6,13 +15,8 @@ This script runs the advanced security tests for authentication and authorizatio
 edge cases as recommended in the security testing section.
 """
 
-import unittest
-import sys
-from tests.security.test_advanced_authentication import TestAdvancedAuthentication
-from tests.security.test_authorization_edge_cases import TestAuthorizationEdgeCases
 
-
-def run_tests():
+():
     """Run the advanced security tests."""
     print("Running advanced security tests...")
     
@@ -29,7 +33,7 @@ def run_tests():
         result = test_runner.run(test_suite)
         
         # Print summary
-        print(f"\nTest Summary:")
+        print("\nTest Summary:")
         print(f"  Ran {result.testsRun} tests")
         print(f"  Failures: {len(result.failures)}")
         print(f"  Errors: {len(result.errors)}")
@@ -38,7 +42,7 @@ def run_tests():
         # Return exit code
         return 0 if result.wasSuccessful() else 1
     except Exception as e:
-        print(f"\nError: Unexpected exception occurred during test execution:")
+        print("\nError: Unexpected exception occurred during test execution:")
         print(f"  {type(e).__name__}: {str(e)}")
         return 1
 

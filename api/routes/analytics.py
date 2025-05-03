@@ -1,9 +1,20 @@
+import time
+
 
 import logging
 from datetime import datetime
 from typing import List, Optional
 from api.analytics import analytics_service
-from ..schemas.analytics import (
+from ..schemas.analytics import 
+from ..schemas.common import SuccessResponse
+
+
+    from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
+    from fastapi.responses import JSONResponse, StreamingResponse
+
+    FASTAPI_AVAILABLE 
+
+(
     AlertThresholdRequest,
     AlertThresholdResponse,
     AnalyticsSummaryResponse,
@@ -13,8 +24,6 @@ from ..schemas.analytics import (
     RequestStatsResponse,
     UserStatsResponse,
 )
-from ..schemas.common import SuccessResponse
-
 """
 API routes for analytics.
 
@@ -27,10 +36,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
-    from fastapi.responses import JSONResponse, StreamingResponse
-
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI is required for analytics routes")
     FASTAPI_AVAILABLE = False

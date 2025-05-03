@@ -4,6 +4,7 @@ Message schemas and utilities for the message queue.
 This module provides schemas and utilities for messages sent through the message queue.
 """
 
+
 import json
 import logging
 import time
@@ -13,6 +14,8 @@ from typing import Any, Dict, Generic, Optional, Type, TypeVar, Union
 
 import msgpack
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
 
 # Set up logging
 logging.basicConfig(
@@ -73,7 +76,7 @@ class MessageStatus(str, Enum):
 
 
 class Message(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Base message schema for all messages sent through the message queue.
     """

@@ -5,6 +5,7 @@ This module provides a class for managing payment methods, including
 storage, retrieval, and default payment method management.
 """
 
+
 import copy
 import json
 import os
@@ -13,7 +14,9 @@ from typing import Any, Dict, List, Optional
 from .payment_method import PaymentMethod
 
 
-class PaymentMethodManager:
+class PaymentMethodManager
+
+:
     """
     Class for managing payment methods.
 

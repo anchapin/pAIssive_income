@@ -5,12 +5,15 @@ This module provides a Consul implementation of the ServiceRegistry interface
 for service discovery in the pAIssive income microservices architecture.
 """
 
+
 import logging
 from typing import Dict, List
 
 import consul
 
-from services.service_discovery.service_registry import (
+from services.service_discovery.service_registry import 
+
+(
     ServiceDeregistrationError,
     ServiceHealthCheckError,
     ServiceInstance,

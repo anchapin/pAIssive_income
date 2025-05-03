@@ -5,6 +5,7 @@ This script demonstrates how to use the metered billing model
 to implement usage-based billing with precise metering.
 """
 
+
 import random
 import time
 from datetime import datetime, timedelta
@@ -13,7 +14,9 @@ from .metered_billing import MeteredBillingPricing, MeteringInterval
 from .usage_tracking import UsageCategory, UsageMetric
 
 
-def print_section(title: str) -> None:
+def print_section
+
+(title: str) -> None:
     """Print a section title."""
     print("\n" + "=" * 80)
     print(f" {title} ".center(80, "="))

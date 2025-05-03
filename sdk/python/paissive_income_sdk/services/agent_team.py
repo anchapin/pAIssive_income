@@ -4,12 +4,15 @@ Agent Team service for the pAIssive Income API.
 This module provides a service for interacting with the agent team endpoints.
 """
 
+
 from typing import Any, Dict
 
 from .base import BaseService
 
 
-class AgentTeamService(BaseService):
+class AgentTeamService
+
+(BaseService):
     """
     Agent Team service.
     """

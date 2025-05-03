@@ -5,9 +5,13 @@ This module provides an adapter for connecting to LM Studio,
 a desktop application for running large language models locally.
 """
 
+
 import json
 import logging
 from typing import Any, Dict, Generator, List, Optional, Union
+
+
+    import requests
 
 # Set up logging
 logging.basicConfig(
@@ -17,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import requests
+
 
     REQUESTS_AVAILABLE = True
 except ImportError:

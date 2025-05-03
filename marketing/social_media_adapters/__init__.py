@@ -5,6 +5,7 @@ This package provides adapters for various social media platforms to enable
 posting content, retrieving analytics, and managing social media campaigns.
 """
 
+
 from .base_adapter import BaseSocialMediaAdapter
 from .facebook_adapter import FacebookAdapter
 from .instagram_adapter import InstagramAdapter
@@ -14,7 +15,9 @@ from .tiktok_adapter import TikTokAdapter
 from .twitter_adapter import TwitterAdapter
 from .youtube_adapter import YouTubeAdapter
 
-__all__ = [
+__all__ 
+
+= [
     "BaseSocialMediaAdapter",
     "TwitterAdapter",
     "FacebookAdapter",

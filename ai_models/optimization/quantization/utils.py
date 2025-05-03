@@ -5,6 +5,12 @@ This module provides utility functions for quantizing models and analyzing
 the effects of quantization.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import json
 import logging
 import os
@@ -18,6 +24,24 @@ from .base import QuantizationConfig, QuantizationMethod
 from .bitsandbytes_quantizer import BitsAndBytesQuantizer
 from .gptq_quantizer import GPTQQuantizer
 
+
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE 
+            from transformers import BitsAndBytesConfig
+
+            quantization_config 
+            from transformers import BitsAndBytesConfig
+
+            quantization_config 
+            from auto_awq import AutoAWQForCausalLM
+
+            quantized_model 
+            from auto_gptq import AutoGPTQForCausalLM
+
+            quantized_model 
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -26,7 +50,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -34,9 +58,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Transformers not available. Some quantization utilities will have limited functionality."
@@ -149,9 +171,7 @@ def analyze_quantization(
 
         # Load model with appropriate configuration
         if quant_config.method == QuantizationMethod.BITS_AND_BYTES_4BIT:
-            from transformers import BitsAndBytesConfig
-
-            quantization_config = BitsAndBytesConfig(
+= BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_quant_type=quant_config.bnb_4bit_quant_type,
                 bnb_4bit_use_double_quant=quant_config.bnb_4bit_use_double_quant,
@@ -167,9 +187,7 @@ def analyze_quantization(
             )
 
         elif quant_config.method == QuantizationMethod.BITS_AND_BYTES_8BIT:
-            from transformers import BitsAndBytesConfig
-
-            quantization_config = BitsAndBytesConfig(
+= BitsAndBytesConfig(
                 load_in_8bit=True, llm_int8_enable_fp32_cpu_offload=True
             )
 
@@ -180,16 +198,12 @@ def analyze_quantization(
             )
 
         elif quant_config.method == QuantizationMethod.AWQ:
-            from auto_awq import AutoAWQForCausalLM
-
-            quantized_model = AutoAWQForCausalLM.from_quantized(
+= AutoAWQForCausalLM.from_quantized(
                 quantized_model_path, device_map="auto"
             )
 
         elif quant_config.method == QuantizationMethod.GPTQ:
-            from auto_gptq import AutoGPTQForCausalLM
-
-            quantized_model = AutoGPTQForCausalLM.from_quantized(
+= AutoGPTQForCausalLM.from_quantized(
                 quantized_model_path, device_map="auto"
             )
 

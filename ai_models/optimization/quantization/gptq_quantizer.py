@@ -5,11 +5,30 @@ This module provides a quantizer that uses the GPTQ method for
 quantizing transformer models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import logging
 import os
 from typing import Any, Dict, List, Optional
 
 from .base import QuantizationConfig, QuantizationMethod, Quantizer
+
+
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE 
+    from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+
+    GPTQ_AVAILABLE 
+            from datasets import load_dataset
+
+            calibration_dataset 
+        import json
 
 # Set up logging
 logging.basicConfig(
@@ -19,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -27,9 +46,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Transformers not available. GPTQ quantizer will have limited functionality."
@@ -38,9 +55,7 @@ except ImportError:
 
 # Check if GPTQ is available
 try:
-    from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
-
-    GPTQ_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "AutoGPTQ not available. Please install it with: pip install auto-gptq"
@@ -97,7 +112,7 @@ class GPTQQuantizer(Quantizer):
         if self.config.gptq_bits not in [2, 3, 4, 8]:
             raise ValueError(
                 f"Unsupported bits: {self.config.gptq_bits}. "
-                f"Supported bits: 2, 3, 4, 8"
+                "Supported bits: 2, 3, 4, 8"
             )
 
     def quantize(
@@ -136,9 +151,7 @@ class GPTQQuantizer(Quantizer):
             calibration_dataset = self.config.calibration_dataset
         else:
             # Use default dataset (WikiText-2)
-            from datasets import load_dataset
-
-            calibration_dataset = load_dataset(
+= load_dataset(
                 "wikitext", "wikitext-2-raw-v1", split="train"
             )
 
@@ -185,7 +198,7 @@ class GPTQQuantizer(Quantizer):
         Args:
             output_path: Path to save the configuration
         """
-        import json
+
 
         config_path = os.path.join(output_path, "quantization_config.json")
 

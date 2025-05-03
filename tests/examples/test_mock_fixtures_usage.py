@@ -5,9 +5,13 @@ This module contains example tests that demonstrate how to use
 the mock fixtures for external APIs in test scenarios.
 """
 
+
 import json
 import os
+    import requests
+    from huggingface_hub import hf_hub_download, list_models
 
+    
 
 # Test using mock_http fixture
 def test_openai_api_interaction(mock_http_with_common_responses):
@@ -66,7 +70,7 @@ def test_with_patched_requests(patch_requests):
     """
     # The patch_requests fixture replaces the actual requests library with our mock,
     # which allows us to import and use requests as normal in the code being tested
-    import requests
+
 
     # Set up a mock response
     patch_requests.add_response(
@@ -136,9 +140,7 @@ def test_with_patched_huggingface_hub(patch_huggingface_hub):
     """
     # The patch_huggingface_hub fixture replaces the actual huggingface_hub library
     # with our mock, which allows us to import and use huggingface_hub as normal
-    from huggingface_hub import hf_hub_download, list_models
-
-    # Add a model to the mock hub
+# Add a model to the mock hub
     patch_huggingface_hub.add_repo(
         {"id": "bert-base-uncased", "pipeline_tag": "fill-mask"}
     )

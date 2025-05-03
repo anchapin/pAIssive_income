@@ -5,6 +5,9 @@ This module provides classes for optimizing marketing content, including
 SEO optimization, readability analysis, and tone/style adjustment.
 """
 
+from datetime import datetime
+
+
 import datetime
 import json
 import math
@@ -13,16 +16,21 @@ import uuid
 from abc import ABC, abstractmethod
 from collections import Counter
 
-# Standard library imports
+
 from typing import Any, Dict, List, Optional, Tuple
 
-# Third-party imports
-try:
+
     import nltk
     from nltk.corpus import stopwords
     from nltk.tokenize import sent_tokenize, word_tokenize
 
-    NLTK_AVAILABLE = True
+    NLTK_AVAILABLE 
+
+# Standard library imports
+# Third-party imports
+try:
+
+= True
 except ImportError:
     NLTK_AVAILABLE = False
 

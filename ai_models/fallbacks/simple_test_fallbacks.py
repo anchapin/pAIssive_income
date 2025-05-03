@@ -4,6 +4,16 @@ import os
 import sys
 from ai_models.fallbacks import FallbackManager, FallbackStrategy
 
+
+
+import logging
+import os
+import sys
+from ai_models.fallbacks import FallbackManager, FallbackStrategy
+
+
+
+
 """
 Simplified test script for model fallback functionality.
 
@@ -11,9 +21,8 @@ This script tests the model fallback mechanisms using mock objects
 to avoid circular import issues.
 """
 
-import logging
-import os
-import sys
+
+
 
 # Add the project root to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -21,9 +30,6 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 # Import only what we need from our fallbacks module
-from ai_models.fallbacks import FallbackManager, FallbackStrategy
-
-
 # Create mock classes to avoid circular imports
 class MockModelInfo:
     """Mock model info class for testing purposes."""

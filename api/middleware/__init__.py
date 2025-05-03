@@ -4,6 +4,7 @@ Middleware for the API server.
 This module provides middleware components for the API server.
 """
 
+
 from .analytics import AnalyticsMiddleware
 from .auth import AuthMiddleware
 from .cors import CORSMiddleware
@@ -12,7 +13,9 @@ from .rate_limit import RateLimitMiddleware
 from .setup import setup_middleware
 from .version import VersionMiddleware
 
-__all__ = [
+__all__ 
+
+= [
     "AuthMiddleware",
     "RateLimitMiddleware",
     "CORSMiddleware",

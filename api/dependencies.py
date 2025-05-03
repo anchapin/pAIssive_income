@@ -4,12 +4,15 @@ Dependencies for API endpoints.
 This module provides dependencies for FastAPI routes.
 """
 
+
 from typing import Any, Dict
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 
 from .utils.auth import get_user_from_token, verify_token
+
+
 
 # Security schemes
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

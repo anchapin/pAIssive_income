@@ -6,14 +6,24 @@ existing AI models caching infrastructure to make caching available to
 all parts of the project.
 """
 
+import time
+
+
 import functools
 import hashlib
 import json
 from typing import Any, Callable, Dict, Optional, Tuple, TypeVar
 
-# Import the caching system from AI models module
+
 from ai_models.caching import CacheManager
 
+
+        from ai_models.caching import CacheConfig
+
+        config 
+            import re
+
+# Import the caching system from AI models module
 # Type variable for the decorator
 T = TypeVar("T")
 
@@ -48,9 +58,7 @@ class CacheService:
             redis_url: URL for Redis connection
         """
         # Create a cache config
-        from ai_models.caching import CacheConfig
-
-        config = CacheConfig(
+= CacheConfig(
             enabled=True,
             backend=backend_type,
             ttl=ttl,
@@ -65,7 +73,7 @@ class CacheService:
             config.backend_config["sqlite"] = {"db_path": db_path}
         elif backend_type == "redis" and redis_url:
             # Parse redis URL
-            import re
+
 
             match = re.match(
                 r"redis://(?:([^:@]+)(?::([^@]+))?@)?([^:]+)(?::(\d+))?(?:/(\d+))?",

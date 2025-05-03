@@ -5,8 +5,12 @@ This module tests the statistical analysis framework used in marketing analytics
 and A/B testing.
 """
 
-import numpy as np
+
+import numpy
 import pytest
+
+as np
+
 
 from marketing.statistical_analysis import (
     InsufficientDataError,
@@ -148,7 +152,7 @@ class TestStatisticalAnalysis:
         # Check result structure
         assert "chi2" in result
         assert "p_value" in result
-        assert "dof" in result
+        assert "do" in result
         assert "expected" in result
         assert "residuals" in result
         assert "is_significant" in result
@@ -156,7 +160,7 @@ class TestStatisticalAnalysis:
         assert "alpha" in result
 
         # Check specific values
-        assert result["dof"] == 1
+        assert result["do"] == 1
         assert result["test_name"] == "chi_square"
 
         # Test 1D array with expected values
@@ -164,7 +168,7 @@ class TestStatisticalAnalysis:
         expected = np.array([25, 25, 25, 25])
         result = stats_analysis.chi_square_test(observed, expected)
 
-        assert result["dof"] == 3
+        assert result["do"] == 3
         assert result["chi2"] == pytest.approx(20.0, abs=1e-10)
 
         # Test with insufficient data
@@ -687,7 +691,7 @@ class TestStatisticalAnalysis:
         table_no_effect = [[30, 70], [30, 70]]
         result_no_effect = stats_analysis.number_needed_to_treat(table_no_effect)
         assert result_no_effect["arr"] == 0
-        assert result_no_effect["nnt"] == float("inf")
+        assert result_no_effect["nnt"] == float("in")
         assert "no effect" in result_no_effect["interpretation"]
 
         # Test with invalid input
@@ -1778,7 +1782,7 @@ class TestStatisticalAnalysis:
             )
 
         # Check that final futility boundary is -inf (no stopping for futility at final analysis)
-        assert result["futility_boundaries"][-1] == float("-inf")
+        assert result["futility_boundaries"][-1] == float("-in")
 
         # Test with Pocock method
         result_pocock = stats_analysis.futility_boundary(
@@ -1786,7 +1790,7 @@ class TestStatisticalAnalysis:
         )
 
         assert result_pocock["method"] == "pocock"
-        assert result_pocock["futility_boundaries"][-1] == float("-inf")
+        assert result_pocock["futility_boundaries"][-1] == float("-in")
 
         # Test with custom parameters
         result_custom = stats_analysis.futility_boundary(
@@ -1893,7 +1897,7 @@ class TestStatisticalAnalysis:
         # Check result structure
         assert "test_statistic" in result
         assert "p_value" in result
-        assert "df_diff" in result
+        assert "df_dif" in result
         assert "df1" in result
         assert "df2" in result
         assert "loglik1" in result
@@ -1907,7 +1911,7 @@ class TestStatisticalAnalysis:
         assert result["test_statistic"] == pytest.approx(
             10.0, abs=1e-10
         )  # 2 * ((-95) - (-100))
-        assert result["df_diff"] == 2  # 4 - 2
+        assert result["df_dif"] == 2  # 4 - 2
         assert result["test_name"] == "log_likelihood_ratio"
 
         # Check model selection criteria
@@ -1971,7 +1975,7 @@ class TestStatisticalAnalysis:
         assert "aicc" in result
         assert "hqic" in result
         assert "loglik" in result
-        assert "df" in result
+        assert "d" in result
         assert "sample_size" in result
 
         # Check specific values

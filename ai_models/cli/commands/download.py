@@ -4,11 +4,18 @@ Download command for the command-line interface.
 This module provides a command for downloading models.
 """
 
+
 import argparse
 import logging
 import os
 
 from ..base import BaseCommand
+
+
+            from ...core import ModelDownloader
+
+            
+                import json
 
 # Set up logging
 logging.basicConfig(
@@ -93,9 +100,7 @@ class DownloadCommand(BaseCommand):
 
         try:
             # Import required modules
-            from ...core import ModelDownloader
-
-            # Create output directory if it doesn't exist
+# Create output directory if it doesn't exist
             os.makedirs(self.args.output_dir, exist_ok=True)
 
             # Create downloader
@@ -119,7 +124,7 @@ class DownloadCommand(BaseCommand):
 
             # Add proxies if provided
             if self.args.proxies:
-                import json
+
 
                 params["proxies"] = json.loads(self.args.proxies)
 

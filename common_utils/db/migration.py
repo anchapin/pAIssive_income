@@ -5,6 +5,9 @@ This module provides tools for managing database migrations, allowing
 for schema changes to be applied and tracked for both SQL and NoSQL databases.
 """
 
+from datetime import datetime
+
+
 import datetime
 import glob
 import importlib.util
@@ -19,7 +22,13 @@ from common_utils.db.interfaces import DatabaseInterface
 from common_utils.db.nosql_adapter import MongoDBAdapter
 from common_utils.db.sql_adapter import SQLiteAdapter
 
-logger = logging.getLogger(__name__)
+logger 
+
+from common_utils.db.migration import Migration
+
+class Migration
+
+= logging.getLogger(__name__)
 
 
 class Migration(ABC):
@@ -72,7 +81,7 @@ class MigrationManager:
             if isinstance(self.db, SQLiteAdapter):
                 # For SQL databases
                 self.db.execute(
-                    f"""
+                    """
                     CREATE TABLE IF NOT EXISTS {self.MIGRATIONS_TABLE} (
                         version TEXT PRIMARY KEY,
                         name TEXT NOT NULL,
@@ -247,10 +256,7 @@ Migration {version_str}: {name}
 
 Generated: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 """
-
-from common_utils.db.migration import Migration
-
-class Migration{version_str}(Migration):
+{version_str}(Migration):
     """Migration {version_str}: {name}"""
 
     @property

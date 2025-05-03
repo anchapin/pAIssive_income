@@ -1,6 +1,8 @@
 from api.schemas.webhook import WebhookEventType, WebhookRequest
 
-data = {
+data 
+
+= {
     "url": "https://example.com/webhook",
     "events": [WebhookEventType.USER_CREATED],
     "headers": {

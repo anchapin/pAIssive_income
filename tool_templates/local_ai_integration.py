@@ -13,14 +13,17 @@ Dependencies:
 - onnxruntime (optional, for ONNX models)
 """
 
-import hashlib
-import json
-import logging
-import os
-import threading
-import time
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Union
+try:
+    import torch  # noqa: F401
+    import transformers
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline  
+    from sentence_transformers import SentenceTransformer
+
+    SENTENCE_TRANSFORMERS_AVAILABLE 
+    from llama_cpp import Llama
+
+    LLAMA_CPP_AVAILABLE 
+    import onnxruntime
 
 # Set up logging
 logging.basicConfig(
@@ -30,9 +33,9 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch  # noqa: F401
-import transformers  # noqa: F401
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline  # noqa: F401
+  # noqa: F401
+  # noqa: F401
+# noqa: F401
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
@@ -42,9 +45,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
-    from sentence_transformers import SentenceTransformer
-
-    SENTENCE_TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Sentence Transformers not available. Embedding functionality will be limited."
@@ -52,9 +53,7 @@ except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
 
 try:
-    from llama_cpp import Llama
-
-    LLAMA_CPP_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "llama-cpp-python not available. Llama model support will be limited."
@@ -62,7 +61,7 @@ except ImportError:
     LLAMA_CPP_AVAILABLE = False
 
 try:
-    import onnxruntime as ort  # noqa: F401
+ as ort  # noqa: F401
 
     ONNX_AVAILABLE = True
 except ImportError:

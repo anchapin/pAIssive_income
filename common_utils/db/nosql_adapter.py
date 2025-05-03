@@ -4,25 +4,31 @@ MongoDB adapter implementation of the database interface.
 This module provides a concrete implementation of DatabaseInterface for MongoDB databases.
 """
 
+
 import json
 import logging
 from typing import Any, Dict, List, Optional
 
-# Use conditional import to avoid forcing pymongo as a dependency
-try:
+
     import pymongo
     from pymongo import MongoClient
     from pymongo.collection import Collection
     from pymongo.database import Database
     from pymongo.errors import PyMongoError
 
-    MONGODB_AVAILABLE = True
-except ImportError:
-    MONGODB_AVAILABLE = False
+    MONGODB_AVAILABLE 
 
 from common_utils.db.interfaces import DatabaseInterface, UnitOfWork
 
-logger = logging.getLogger(__name__)
+logger 
+
+# Use conditional import to avoid forcing pymongo as a dependency
+try:
+
+= True
+except ImportError:
+    MONGODB_AVAILABLE = False
+= logging.getLogger(__name__)
 
 
 class MongoDBAdapter(DatabaseInterface):

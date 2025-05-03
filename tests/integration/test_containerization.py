@@ -5,6 +5,7 @@ This module contains integration tests for containerized microservices,
 including container orchestration, service scaling, and health checks.
 """
 
+
 import subprocess
 from datetime import datetime
 from unittest.mock import MagicMock, patch
@@ -13,7 +14,9 @@ import pytest
 import requests
 
 
-class TestContainerization:
+class TestContainerization
+
+:
     """Integration tests for containerization of microservices."""
 
     def setup_method(self):

@@ -1,8 +1,11 @@
 """Tests for competitive analysis functionality."""
 
+
 import pytest
 
 from niche_analysis.market_analyzer import MarketAnalyzer
+
+
 
 
 @pytest.fixture

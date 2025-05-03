@@ -4,13 +4,16 @@ Throughput metric for benchmarking AI models.
 This module provides a metric for measuring the throughput of AI models.
 """
 
+
 import time
 from typing import Callable
 
 from .base_metric import BaseMetric
 
 
-class ThroughputMetric(BaseMetric):
+class ThroughputMetric
+
+(BaseMetric):
     """
     Metric for measuring throughput.
     """

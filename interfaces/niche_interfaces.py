@@ -5,11 +5,14 @@ This module provides interfaces for the niche analysis components to enable depe
 and improve testability and maintainability.
 """
 
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
 
-class IMarketAnalyzer(ABC):
+class IMarketAnalyzer
+
+(ABC):
     """Interface for market analyzer."""
 
     @abstractmethod

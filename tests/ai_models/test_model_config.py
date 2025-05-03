@@ -2,13 +2,16 @@
 Tests for the ModelConfig class.
 """
 
+
 import json
 import os
 
 from ai_models.model_config import ModelConfig
 
 
-def test_model_config_init():
+def test_model_config_init
+
+():
     """Test ModelConfig initialization."""
     config = ModelConfig()
 

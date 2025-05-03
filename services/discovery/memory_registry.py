@@ -4,6 +4,7 @@ In-Memory Service Registry
 This module provides an in-memory implementation of the ServiceRegistry interface.
 """
 
+
 import time
 import uuid
 from typing import Dict, List, Optional
@@ -11,7 +12,9 @@ from typing import Dict, List, Optional
 from .interfaces import ServiceInstance, ServiceRegistry, ServiceStatus
 
 
-class InMemoryServiceRegistry(ServiceRegistry):
+class InMemoryServiceRegistry
+
+(ServiceRegistry):
     """
     An in-memory implementation of ServiceRegistry.
 

@@ -4,13 +4,16 @@ Test client utilities for API tests.
 This module provides utilities for making requests to the API in tests.
 """
 
+
 from typing import Any, Dict, List, Optional
 
 import pytest
 from fastapi.testclient import TestClient
 
 
-class APITestClient:
+class APITestClient
+
+:
     """
     Test client for API tests.
 

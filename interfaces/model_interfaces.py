@@ -5,11 +5,14 @@ This module provides interfaces for the AI models components to enable dependenc
 and improve testability and maintainability.
 """
 
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 
-class IModelConfig(ABC):
+class IModelConfig
+
+(ABC):
     """Interface for model configuration."""
 
     @property

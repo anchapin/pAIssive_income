@@ -3,12 +3,17 @@ Monetization Agent for the pAIssive Income project.
 Specializes in designing subscription models and pricing strategies.
 """
 
+import time
+
+
 import uuid
 from datetime import datetime
 from typing import Any, Dict
 
 
-class MonetizationAgent:
+class MonetizationAgent
+
+:
     """
     AI agent specialized in designing subscription models and pricing strategies.
     Creates monetization plans for niche AI tools to maximize recurring revenue.

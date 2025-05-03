@@ -5,6 +5,7 @@ This module provides classes for managing payment methods, including
 creation, validation, and storage.
 """
 
+
 import json
 import re
 import uuid
@@ -12,7 +13,9 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 
-class PaymentMethod:
+class PaymentMethod
+
+:
     """
     Class for managing payment methods.
 

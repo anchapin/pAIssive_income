@@ -2,11 +2,16 @@
 Integration tests for the niche-to-solution workflow.
 """
 
+import time
+
+
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from agent_team import AgentTeam
+
+
 
 
 @pytest.fixture

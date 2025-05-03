@@ -4,8 +4,15 @@ AI Models GraphQL resolvers.
 This module provides resolvers for AI models queries and mutations.
 """
 
+
 import logging
 from typing import List, Optional
+
+
+    import strawberry
+    from strawberry.types import Info
+
+    STRAWBERRY_AVAILABLE 
 
 # Set up logging
 logging.basicConfig(
@@ -14,10 +21,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 try:
-    import strawberry
-    from strawberry.types import Info
 
-    STRAWBERRY_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("Strawberry GraphQL is required for GraphQL resolvers")
     STRAWBERRY_AVAILABLE = False

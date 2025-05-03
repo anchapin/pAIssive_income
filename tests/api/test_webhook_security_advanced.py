@@ -13,6 +13,7 @@ This module tests advanced security features for the webhook system:
 9. Rate limiting headers in responses
 """
 
+
 import pytest
 import time
 import json
@@ -21,7 +22,15 @@ import ipaddress
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock, AsyncMock
 
-from api.services.webhook_security import (
+from api.services.webhook_security import 
+from fastapi import FastAPI, Request, Response, status
+from fastapi.testclient import TestClient
+
+
+class TestReplayedSignatures
+        import random
+
+(
     WebhookIPAllowlist,
     WebhookSignatureVerifier,
     WebhookRateLimiter
@@ -30,11 +39,7 @@ from api.middleware.webhook_security import (
     WebhookIPAllowlistMiddleware,
     WebhookRateLimitMiddleware
 )
-from fastapi import FastAPI, Request, Response, status
-from fastapi.testclient import TestClient
-
-
-class TestReplayedSignatures:
+:
     """Tests for handling replayed webhook signatures."""
     
     def test_replay_protection_with_timestamp(self):
@@ -259,7 +264,7 @@ class TestRateLimitBehavior:
                     ]
         
         # Test with working storage
-        import random
+
         random.seed(42)  # For reproducible tests
         storage = UnreliableStorage(failure_rate=0.0)
         limiter = RobustRateLimiter(limit=5, window_seconds=60, storage=storage)

@@ -1,11 +1,15 @@
+
+import os
+import subprocess
+import sys
+
 #!/usr/bin/env python
 """
 Script to fix unsafe issues in Python files using ruff.
 """
 
-import os
-import subprocess
-import sys
+
+
 
 
 def fix_file(file_path):
@@ -15,7 +19,7 @@ def fix_file(file_path):
     # Fix issues with ruff using unsafe fixes
     try:
         subprocess.run(
-            ["ruff", "check", "--fix", "--unsafe-fixes", file_path],
+            ["ruf", "check", "--fix", "--unsafe-fixes", file_path],
             check=True,
             capture_output=True,
             text=True,

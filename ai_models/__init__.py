@@ -5,24 +5,40 @@ This module provides a comprehensive system for managing and using local AI mode
 for various tasks such as content generation, data analysis, and more.
 """
 
-# Import adapters
 from .adapters import LMStudioAdapter, OllamaAdapter, OpenAICompatibleAdapter
 from .agent_integration import AgentModelProvider
-from .batch_inference import (
+from .batch_inference import 
+from .model_base_types import ModelInfo
+from .model_config import ModelConfig
+from .model_downloader import DownloadProgress, DownloadTask, ModelDownloader
+from .model_manager import ModelManager
+
+
+from .model_types import AudioModel, ONNXModel, QuantizedModel, VisionModel
+from .performance_monitor import 
+    from .adapters import TensorRTAdapter
+
+    TENSORRT_AVAILABLE 
+from .caching.cache_integration import cache_model_result, invalidate_model_cache
+
+
+    from .caching import RedisCache
+
+    REDIS_CACHE_AVAILABLE 
+from .cli import main as cli_main
+
+
+
+# Import adapters
+(
     BatchInferenceProcessor,
     BatchInferenceRequest,
     BatchInferenceResult,
     generate_embeddings_batch,
     generate_text_batch,
 )
-from .model_base_types import ModelInfo
-from .model_config import ModelConfig
-from .model_downloader import DownloadProgress, DownloadTask, ModelDownloader
-from .model_manager import ModelManager
-
 # Import specialized model types
-from .model_types import AudioModel, ONNXModel, QuantizedModel, VisionModel
-from .performance_monitor import (
+(
     InferenceMetrics,
     InferenceTracker,
     ModelPerformanceReport,
@@ -31,9 +47,7 @@ from .performance_monitor import (
 
 # Import TensorRT adapter if available
 try:
-    from .adapters import TensorRTAdapter
-
-    TENSORRT_AVAILABLE = True
+= True
 except ImportError:
     TENSORRT_AVAILABLE = False
 
@@ -49,13 +63,9 @@ from .caching import (
 )
 
 # Import cache integration
-from .caching.cache_integration import cache_model_result, invalidate_model_cache
-
 # Import Redis cache if available
 try:
-    from .caching import RedisCache
-
-    REDIS_CACHE_AVAILABLE = True
+= True
 except ImportError:
     REDIS_CACHE_AVAILABLE = False
 
@@ -82,8 +92,6 @@ from .benchmarking import (
 )
 
 # Import CLI tools
-from .cli import main as cli_main
-
 # Import optimization utilities
 from .optimization import (  # Quantization; Pruning
     AWQQuantizer,

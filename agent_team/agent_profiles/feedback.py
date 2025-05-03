@@ -3,12 +3,15 @@ Feedback Agent for the pAIssive Income project.
 Specializes in gathering and analyzing user feedback.
 """
 
+
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
 
-class FeedbackAgent:
+class FeedbackAgent
+
+:
     """
     AI agent specialized in gathering and analyzing user feedback.
     Processes feedback to identify improvement opportunities for niche AI tools.

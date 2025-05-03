@@ -2,10 +2,13 @@
 Tests for the query parameter utilities.
 """
 
+
 import unittest
 from datetime import datetime, timedelta
 
-from api.utils.query_params import (
+from api.utils.query_params import 
+
+(
     FilterOperator,
     QueryParams,
     SortDirection,

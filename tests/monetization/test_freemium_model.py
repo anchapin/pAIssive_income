@@ -2,12 +2,15 @@
 Tests for the FreemiumModel class.
 """
 
+
 import os
 
 from monetization.subscription_models import FreemiumModel
 
 
-def test_freemium_model_init():
+def test_freemium_model_init
+
+():
     """Test FreemiumModel initialization."""
     model = FreemiumModel(
         name="Test Freemium Model", description="A test freemium model"

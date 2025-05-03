@@ -1,3 +1,11 @@
+
+import argparse
+import logging
+import os
+import subprocess
+import sys
+import time
+
 #!/usr/bin/env python
 """
 Startup script for the pAIssive income microservices architecture.
@@ -6,12 +14,11 @@ This script starts all the required components for the microservices architectur
 including the service registry and the microservices.
 """
 
-import argparse
-import logging
-import os
-import subprocess
-import sys
-import time
+
+
+
+
+
 
 # Set up logging
 logging.basicConfig(

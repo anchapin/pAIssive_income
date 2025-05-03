@@ -4,6 +4,7 @@ User router for the API server.
 This module provides route handlers for user operations.
 """
 
+
 import logging
 import uuid
 from datetime import datetime
@@ -13,7 +14,9 @@ from fastapi.security import OAuth2PasswordBearer
 
 from ..middleware.auth import verify_token
 from ..schemas.common import ErrorResponse, SuccessResponse
-from ..schemas.user import (
+from ..schemas.user import 
+
+(
     PaginatedActivityList,
     PaginatedProjectList,
     PaginatedTeamList,

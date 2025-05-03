@@ -4,7 +4,9 @@ from pydantic import ValidationError
 from api.schemas.webhook import WebhookEventType, WebhookRequest
 
 
-def test_webhook_request_schema_valid():
+def test_webhook_request_schema_valid
+
+():
     valid_data = {
         "url": "https://example.com/webhook",
         "events": [WebhookEventType.USER_CREATED, WebhookEventType.PAYMENT_RECEIVED],

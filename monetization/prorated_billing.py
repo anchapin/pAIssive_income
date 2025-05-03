@@ -5,12 +5,17 @@ This module provides classes for implementing prorated billing for subscription 
 including upgrades, downgrades, and cancellations.
 """
 
+import time
+
+
 import calendar
 from datetime import datetime, timedelta
 from typing import Any, Dict
 
 
-class ProratedBilling:
+class ProratedBilling
+
+:
     """
     Class for calculating prorated billing.
 

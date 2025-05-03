@@ -5,9 +5,14 @@ This module provides an adapter for connecting to OpenAI-compatible APIs,
 including local API servers and cloud services.
 """
 
+
 import json
 import logging
 from typing import Any, Dict, Generator, List, Optional, Union
+
+
+    import requests
+    import openai
 
 # Set up logging
 logging.basicConfig(
@@ -17,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import requests
+
 
     REQUESTS_AVAILABLE = True
 except ImportError:
@@ -25,7 +30,7 @@ except ImportError:
     REQUESTS_AVAILABLE = False
 
 try:
-    import openai
+
 
     OPENAI_AVAILABLE = True
 except ImportError:

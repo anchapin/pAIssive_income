@@ -3,6 +3,9 @@ Opportunity Scorer for the pAIssive Income project.
 Scores niche opportunities based on various factors.
 """
 
+import time
+
+
 import asyncio
 import hashlib
 import json
@@ -10,13 +13,17 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-# Import async utilities
+
 from ai_models.async_utils import run_in_thread
 
-# Import the centralized caching service
+
 from common_utils.caching import default_cache
 
-from .schemas import (
+from .schemas import 
+
+# Import async utilities
+# Import the centralized caching service
+(
     ComparativeAnalysisSchema,
     FactorScoreSchema,
     FactorScoresSchema,

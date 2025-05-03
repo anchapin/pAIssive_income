@@ -4,21 +4,31 @@ Perplexity metric for benchmarking AI models.
 This module provides a metric for measuring the perplexity of language models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import math
 from typing import Callable, Dict, List
 
 from .base_metric import BaseMetric
 
+
+    import torch
+    import numpy
+
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import numpy as np
+ as np
 
     NUMPY_AVAILABLE = True
 except ImportError:
@@ -69,19 +79,19 @@ class PerplexityMetric(BaseMetric):
             perplexity = (
                 torch.exp(total_loss / total_tokens).item()
                 if total_tokens > 0
-                else float("inf")
+                else float("in")
             )
         elif NUMPY_AVAILABLE and isinstance(total_loss, np.ndarray):
             perplexity = (
                 float(np.exp(total_loss / total_tokens))
                 if total_tokens > 0
-                else float("inf")
+                else float("in")
             )
         else:
             perplexity = (
                 math.exp(total_loss / total_tokens)
                 if total_tokens > 0
-                else float("inf")
+                else float("in")
             )
 
         # Update counters
@@ -129,7 +139,7 @@ class PerplexityMetric(BaseMetric):
             Overall perplexity
         """
         if self.total_tokens == 0:
-            return float("inf")
+            return float("in")
 
         if TORCH_AVAILABLE and isinstance(self.total_loss, torch.Tensor):
             return torch.exp(self.total_loss / self.total_tokens).item()

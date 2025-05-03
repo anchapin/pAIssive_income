@@ -3,12 +3,17 @@ Marketing Agent for the pAIssive Income project.
 Specializes in marketing strategies and user acquisition.
 """
 
+import time
+
+
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
 
-class MarketingAgent:
+class MarketingAgent
+
+:
     """
     AI agent specialized in marketing strategies and user acquisition.
     Creates marketing plans for niche AI tools to reach target users.

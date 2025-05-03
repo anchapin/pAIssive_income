@@ -4,12 +4,15 @@ Run the pAIssive Income Framework UI.
 This script is the main entry point for running the web interface.
 """
 
+
 import logging
 import os
 import sys
 
 from ui.app import app
 from ui.socketio_app import socketio
+
+
 
 # Set up logging
 logging.basicConfig(

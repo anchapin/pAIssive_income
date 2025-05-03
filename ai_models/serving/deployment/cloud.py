@@ -4,11 +4,18 @@ Cloud deployment utilities for AI models.
 This module provides utilities for deploying AI models to cloud platforms.
 """
 
+# ModelName should be defined in the context
+
+import boto3
+
+
 import enum
 import logging
 import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
+
+
 
 # Set up logging
 logging.basicConfig(
@@ -203,7 +210,7 @@ def _generate_gcp_config(config: CloudConfig, output_dir: str) -> str:
         Path to the generated configuration file
     """
     # Generate Terraform configuration
-    terraform_path = os.path.join(output_dir, "main.tf")
+    terraform_path = os.path.join(output_dir, "main.t")
     _generate_gcp_terraform(config, terraform_path)
 
     # Generate deployment script
@@ -248,7 +255,7 @@ def _generate_cloudformation_template(config: CloudConfig, output_path: str) -> 
         output_path: Path to save the CloudFormation template
     """
     # Create CloudFormation template content
-    content = f"""
+    content = """
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'AI Model Deployment'
 
@@ -368,7 +375,7 @@ def _generate_aws_deploy_script(config: CloudConfig, output_path: str) -> None:
         output_path: Path to save the deployment script
     """
     # Create deployment script content
-    content = f"""#!/bin/bash
+    content = """#!/bin/bash
 set -e
 
 # Configuration
@@ -429,7 +436,7 @@ def _generate_gcp_terraform(config: CloudConfig, output_path: str) -> None:
         output_path: Path to save the Terraform configuration
     """
     # Create Terraform configuration content
-    content = f"""
+    content = """
 provider "google" {{
   project = var.project_id
   region  = "{config.region}"
@@ -489,7 +496,7 @@ resource "google_cloud_run_service" "model_service" {{
 
     # Add environment variables
     for key, value in config.env_vars.items():
-        content += f"""
+        content += """
         env {{
           name  = "{key}"
           value = "{value}"
@@ -497,7 +504,7 @@ resource "google_cloud_run_service" "model_service" {{
 
     # Add GPU configuration if needed
     if config.gpu_count > 0 and config.gpu_type:
-        content += f"""
+        content += """
         
         # GPU configuration
         resources {{
@@ -507,7 +514,7 @@ resource "google_cloud_run_service" "model_service" {{
         }}"""
 
     # Add scaling configuration
-    content += f"""
+    content += """
       }}
       
       container_concurrency = 80
@@ -554,7 +561,7 @@ def _generate_gcp_deploy_script(config: CloudConfig, output_path: str) -> None:
         output_path: Path to save the deployment script
     """
     # Create deployment script content
-    content = f"""#!/bin/bash
+    content = """#!/bin/bash
 set -e
 
 # Configuration
@@ -608,7 +615,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
         output_path: Path to save the ARM template
     """
     # Create ARM template content
-    content = f"""{{
+    content = """{{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {{
@@ -708,7 +715,7 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
             {{
               "server": "[concat(parameters('containerRegistryName'), '.azurecr.io')]",
               "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), '2021-06-01-preview').username]",
-              "passwordSecretRef": "registry-password"
+              "passwordSecretRe": "registry-password"
             }}
           ],
           "secrets": [
@@ -749,14 +756,14 @@ def _generate_arm_template(config: CloudConfig, output_path: str) -> None:
     for i, (key, value) in enumerate(config.env_vars.items()):
         if i > 0 or len(config.env_vars) > 0:
             content += ","
-        content += f"""
+        content += """
                 {{
                   "name": "{key}",
                   "value": "{value}"
                 }}"""
 
     # Add scaling configuration
-    content += f"""
+    content += """
               ]
             }}
           ],
@@ -794,7 +801,7 @@ def _generate_azure_deploy_script(config: CloudConfig, output_path: str) -> None
         output_path: Path to save the deployment script
     """
     # Create deployment script content
-    content = f"""#!/bin/bash
+    content = """#!/bin/bash
 set -e
 
 # Configuration

@@ -4,6 +4,7 @@ Cache manager for the model cache system.
 This module provides the main cache manager for the model cache system.
 """
 
+
 import logging
 import re
 from typing import Any, Dict, List, Optional, Union
@@ -12,11 +13,14 @@ from .cache_backends import CacheBackend, DiskCache, MemoryCache, SQLiteCache
 from .cache_config import CacheConfig
 from .cache_key import generate_cache_key
 
-# Try to import Redis cache if available
-try:
+
     from .cache_backends import RedisCache
 
-    REDIS_AVAILABLE = True
+    REDIS_AVAILABLE 
+
+# Try to import Redis cache if available
+try:
+= True
 except ImportError:
     REDIS_AVAILABLE = False
 

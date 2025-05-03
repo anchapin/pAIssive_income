@@ -4,6 +4,9 @@ Logging router for the API server.
 This module provides route handlers for log operations.
 """
 
+import time
+
+
 import logging
 from datetime import datetime
 from typing import Optional
@@ -13,6 +16,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from ..middleware.auth import get_current_user, require_scopes
 from ..models.user import User
 from ..services.logging_service import LoggingService
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -5,19 +5,21 @@ This script demonstrates how to use the PerformanceMonitor to track
 and analyze model performance.
 """
 
+
 import logging
 import os
 import random
 import sys
 import time
 
+from ai_models import ModelInfo, ModelManager, PerformanceMonitor
+
+
+
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
-
-from ai_models import ModelInfo, ModelManager, PerformanceMonitor
-
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

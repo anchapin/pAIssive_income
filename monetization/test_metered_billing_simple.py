@@ -5,13 +5,17 @@ This script tests the basic functionality of the metered billing module
 without relying on the unittest framework.
 """
 
+
 from datetime import datetime, timedelta
 
-# Use absolute imports
+
 from monetization.metered_billing import MeteredBillingPricing, MeteringInterval
 
 
-def test_metering_intervals():
+def test_metering_intervals
+
+# Use absolute imports
+():
     """Test different metering intervals."""
     print("Testing metering intervals...")
 

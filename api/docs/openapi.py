@@ -4,8 +4,15 @@ OpenAPI documentation customization.
 This module provides functions for customizing the OpenAPI documentation.
 """
 
+
 import logging
 from typing import Any, Dict
+
+
+    from fastapi import FastAPI
+    from fastapi.openapi.utils import get_openapi as fastapi_get_openapi
+
+    FASTAPI_AVAILABLE 
 
 # Set up logging
 logging.basicConfig(
@@ -15,10 +22,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import FastAPI
-    from fastapi.openapi.utils import get_openapi as fastapi_get_openapi
-
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI is required for OpenAPI documentation")
     FASTAPI_AVAILABLE = False

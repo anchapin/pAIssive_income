@@ -6,13 +6,18 @@ These schemas ensure that data received through web forms and API endpoints
 is properly validated before being processed.
 """
 
+import uuid
+
+
 from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class NicheAnalysisRequest(BaseModel):
+class NicheAnalysisRequest
+
+(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Schema for niche analysis request validation."""
 
@@ -28,7 +33,7 @@ class NicheAnalysisRequest(BaseModel):
 
 
 class DeveloperSolutionRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for solution development request validation."""
 
     niche_id: str = Field(
@@ -48,7 +53,7 @@ class DeveloperSolutionRequest(BaseModel):
 
 
 class MonetizationStrategyRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for monetization strategy request validation."""
 
     solution_id: str = Field(
@@ -70,7 +75,7 @@ class MonetizationStrategyRequest(BaseModel):
 
 
 class MarketingCampaignRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for marketing campaign request validation."""
 
     solution_id: str = Field(
@@ -92,7 +97,7 @@ class MarketingCampaignRequest(BaseModel):
 
 
 class TaskRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for task-related requests."""
 
     task_id: UUID = Field(..., description="ID of the task to operate on")
@@ -101,7 +106,7 @@ class TaskRequest(BaseModel):
 
 
 class ApiQueryParams(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for common API query parameters."""
 
     limit: Optional[int] = Field(

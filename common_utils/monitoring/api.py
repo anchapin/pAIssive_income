@@ -6,6 +6,9 @@ system metrics, and log data. It's designed to be integrated with a web framewor
 like Flask or FastAPI.
 """
 
+import time
+
+
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -16,7 +19,9 @@ from common_utils.monitoring.health import get_health_status
 from common_utils.monitoring.metrics import export_metrics, get_metrics
 from common_utils.monitoring.system import get_system_metrics
 
-logger = get_logger(__name__)
+logger 
+
+= get_logger(__name__)
 
 
 class MonitoringAPI:

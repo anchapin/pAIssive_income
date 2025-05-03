@@ -4,12 +4,23 @@ Serve commands for the command-line interface.
 This module provides commands for serving models.
 """
 
+
 import argparse
 import json
 import logging
 import os
 
 from ..base import BaseCommand
+
+
+            from ...serving import RESTConfig, RESTServer
+
+            
+                import time
+            from ...serving import GRPCConfig, GRPCServer
+
+            
+                import time
 
 # Set up logging
 logging.basicConfig(
@@ -130,9 +141,7 @@ class ServeRESTCommand(BaseCommand):
 
         try:
             # Import required modules
-            from ...serving import RESTConfig, RESTServer
-
-            # Load configuration from file if provided
+# Load configuration from file if provided
             config_dict = {}
             if self.args.config_file and os.path.exists(self.args.config_file):
                 with open(self.args.config_file, "r", encoding="utf-8") as f:
@@ -193,7 +202,7 @@ class ServeRESTCommand(BaseCommand):
 
             # Wait for server to stop
             try:
-                import time
+
 
                 while server.is_running():
                     time.sleep(1)
@@ -291,9 +300,7 @@ class ServeGRPCCommand(BaseCommand):
 
         try:
             # Import required modules
-            from ...serving import GRPCConfig, GRPCServer
-
-            # Load configuration from file if provided
+# Load configuration from file if provided
             config_dict = {}
             if self.args.config_file and os.path.exists(self.args.config_file):
                 with open(self.args.config_file, "r", encoding="utf-8") as f:
@@ -335,7 +342,7 @@ class ServeGRPCCommand(BaseCommand):
 
             # Wait for server to stop
             try:
-                import time
+
 
                 while server.is_running():
                     time.sleep(1)

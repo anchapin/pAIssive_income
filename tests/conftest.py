@@ -1,12 +1,30 @@
+import time
+
 
 import os
 import sys
 from datetime import datetime
 from unittest.mock import MagicMock
 import pytest
-from tests.mocks.fixtures import *  # noqa: F403  # Import all fixtures
-from tests.mocks.mock_external_apis import *  # noqa: F403  # Import all mock APIs
-from tests.mocks.mock_model_providers import *  # noqa: F403  # Import all mock providers
+from tests.mocks.fixtures import *  
+from tests.mocks.mock_external_apis import *  
+from tests.mocks.mock_model_providers import *  
+
+import os
+import sys
+from datetime import datetime
+from unittest.mock import MagicMock
+
+import pytest
+
+
+from tests.mocks.fixtures import *  
+from tests.mocks.mock_external_apis import *  
+from tests.mocks.mock_model_providers import *  
+
+# noqa: F403  # Import all fixtures
+# noqa: F403  # Import all mock APIs
+# noqa: F403  # Import all mock providers
 
 """
 Pytest fixtures for the pAIssive_income project.
@@ -14,12 +32,6 @@ Pytest fixtures for the pAIssive_income project.
 This module provides fixtures that can be used across tests.
 """
 
-import os
-import sys
-from datetime import datetime
-from unittest.mock import MagicMock
-
-import pytest
 
 # Add project root to Python path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -27,9 +39,9 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Import our centralized mock fixtures
-from tests.mocks.fixtures import *  # noqa: F403  # Import all fixtures
-from tests.mocks.mock_external_apis import *  # noqa: F403  # Import all mock APIs
-from tests.mocks.mock_model_providers import *  # noqa: F403  # Import all mock providers
+# noqa: F403  # Import all fixtures
+# noqa: F403  # Import all mock APIs
+# noqa: F403  # Import all mock providers
 
 # Keep existing mock payment APIs for backward compatibility
 try:
@@ -374,3 +386,128 @@ def temp_dir(tmpdir):
 
     # Return the path as a string
     return str(temp_path)
+
+
+"""
+Central pytest configuration and fixtures.
+
+This file provides shared fixtures and configuration for all tests in the project.
+"""
+
+import asyncio
+import os
+import logging
+from datetime import datetime
+from typing import Any, Dict, Generator, List
+
+import pytest
+from pytest import MonkeyPatch
+
+from api.services.webhook_service import WebhookService
+from api.services.audit_service import AuditService
+from api.schemas.webhook import WebhookEventType
+
+# Configure logging for tests
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="function")
+def webhook_service() -> WebhookService:
+    """
+    Fixture that provides a WebhookService instance for testing.
+    
+    Returns:
+        A WebhookService instance
+    """
+    service = WebhookService()
+    return service
+
+
+@pytest.fixture(scope="function")
+async def running_webhook_service() -> Generator[WebhookService, None, None]:
+    """
+    Fixture that provides a running WebhookService instance and cleans up afterward.
+    
+    Yields:
+        A running WebhookService instance
+    """
+    service = WebhookService()
+    await service.start()
+    
+    yield service
+    
+    # Cleanup after the test
+    await service.stop()
+
+
+@pytest.fixture(scope="function")
+async def registered_webhook(running_webhook_service: WebhookService) -> Dict[str, Any]:
+    """
+    Fixture that registers a test webhook and returns it.
+    
+    Args:
+        running_webhook_service: A running webhook service instance
+        
+    Returns:
+        A registered webhook dictionary
+    """
+    webhook_data = {
+        "url": "https://example.com/test-webhook",
+        "events": [
+            WebhookEventType.USER_CREATED,
+            WebhookEventType.PAYMENT_RECEIVED,
+        ],
+        "description": "Test webhook for automated tests",
+        "headers": {"Authorization": "Bearer test-token"},
+        "is_active": True,
+    }
+    
+    webhook = await running_webhook_service.register_webhook(webhook_data)
+    return webhook
+
+
+@pytest.fixture(scope="function")
+def mock_http_client(monkeypatch: MonkeyPatch) -> None:
+    """
+    Fixture that mocks the HTTP client to avoid real HTTP requests during tests.
+    
+    Args:
+        monkeypatch: PyTest's monkeypatch fixture
+    """
+    from unittest.mock import AsyncMock, MagicMock
+    
+    # Create mock response
+    mock_response = MagicMock()
+    mock_response.status = 200
+    mock_response.text = AsyncMock(return_value='{"status": "success"}')
+    
+    # Create mock for aiohttp.ClientSession
+    mock_session = MagicMock()
+    mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+    mock_session.__aexit__ = AsyncMock(return_value=None)
+    mock_session.post = AsyncMock(return_value=mock_response)
+    
+    # Mock the ClientSession class
+    mock_client_session = MagicMock(return_value=mock_session)
+    
+    # Apply the patch
+    import aiohttp
+    monkeypatch.setattr(aiohttp, "ClientSession", mock_client_session)
+
+
+@pytest.fixture(scope="function")
+def mock_audit_service(monkeypatch: MonkeyPatch) -> None:
+    """
+    Fixture that mocks the AuditService to avoid side effects during tests.
+    
+    Args:
+        monkeypatch: PyTest's monkeypatch fixture
+    """
+    mock_audit = MagicMock(spec=AuditService)
+    mock_audit.create_event = AsyncMock()
+    
+    # Apply the patch
+    monkeypatch.setattr("api.services.webhook_service.AuditService", lambda: mock_audit)
+    
+    return mock_audit

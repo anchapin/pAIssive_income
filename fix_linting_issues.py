@@ -1,7 +1,8 @@
-#!/usr/bin/env python
-"""
-Script to fix linting issues in the codebase.
-"""
+try:
+    import torch
+except ImportError:
+    pass
+
 
 import os
 import re
@@ -9,7 +10,16 @@ import sys
 from pathlib import Path
 
 
-def fix_unused_imports(file_path):
+def fix_unused_imports
+
+#!/usr/bin/env python
+"""
+Script to fix linting issues in the codebase.
+"""
+
+
+
+(file_path):
     """Add noqa comments to unused imports."""
     with open(file_path, 'r') as f:
         content = f.read()

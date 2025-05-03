@@ -5,8 +5,11 @@ This package provides a command-line interface for managing AI models,
 including downloading, serving, and optimizing models.
 """
 
+
 from .cli import main
-from .commands import (
+from .commands import 
+
+(
     BenchmarkCommand,
     DeployCommand,
     DownloadCommand,

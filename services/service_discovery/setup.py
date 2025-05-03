@@ -5,6 +5,7 @@ This module provides utilities for setting up and configuring service discovery
 in different environments (development, testing, production).
 """
 
+
 import logging
 import os
 import subprocess
@@ -13,7 +14,12 @@ from typing import Any, Dict, Optional
 
 import requests
 
-logger = logging.getLogger(__name__)
+logger 
+        import json
+    import argparse
+    import sys
+
+= logging.getLogger(__name__)
 
 
 class ServiceDiscoverySetup:
@@ -128,7 +134,7 @@ class ServiceDiscoverySetup:
             ui: Whether to enable the web UI
             services: Dictionary of services to register at startup
         """
-        import json
+
 
         # Create config directory if it doesn't exist
         os.makedirs(config_dir, exist_ok=True)
@@ -209,8 +215,8 @@ class ServiceDiscoverySetup:
 
 # Command-line interface
 if __name__ == "__main__":
-    import argparse
-    import sys
+
+
 
     # Configure logging
     logging.basicConfig(

@@ -5,10 +5,13 @@ This module contains tests for version compatibility between services in the
 microservices architecture.
 """
 
+
 import pytest
 from unittest.mock import patch, MagicMock
 
-from services.discovery import (
+from services.discovery import 
+
+(
     ServiceDiscoveryClient,
     ServiceInstance,
     ServiceRegistry,

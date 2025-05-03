@@ -6,6 +6,7 @@ geographically distributed load, regional failover scenarios, and
 load balancing optimization.
 """
 
+
 import asyncio
 import time
 import json
@@ -16,9 +17,12 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import pytest
 
-# Import necessary services and utilities
+
 from services.discovery.service_registry import ServiceRegistry
-from services.discovery.load_balancing import (
+from services.discovery.load_balancing import 
+
+# Import necessary services and utilities
+(
     RoundRobinLoadBalancer,
     LeastConnectionsLoadBalancer,
     WeightedRandomLoadBalancer

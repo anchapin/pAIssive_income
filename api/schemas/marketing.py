@@ -4,13 +4,16 @@ Marketing schemas for the API server.
 This module provides Pydantic models for marketing-related data.
 """
 
+
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class MarketingStrategyRequest(BaseModel):
+class MarketingStrategyRequest
+
+(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Request model for creating a marketing strategy."""
     niche_id: str = Field(..., description="ID of the target niche")
@@ -21,7 +24,7 @@ class MarketingStrategyRequest(BaseModel):
 
 
 class MarketingStrategyResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for a marketing strategy."""
     id: str = Field(..., description="Strategy ID")
     niche_id: str = Field(..., description="ID of the target niche")
@@ -34,7 +37,7 @@ class MarketingStrategyResponse(BaseModel):
 
 
 class ContentGenerationRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for content generation."""
     content_type: str = Field(..., description="Type of content to generate")
     topic: str = Field(..., description="Content topic")
@@ -44,14 +47,14 @@ class ContentGenerationRequest(BaseModel):
 
 
 class ContentGenerationResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for content generation task."""
     task_id: str = Field(..., description="Task ID")
     status_url: str = Field(..., description="URL to check task status")
 
 
 class PersonaResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for a user persona."""
     id: str = Field(..., description="Persona ID")
     name: str = Field(..., description="Persona name")
@@ -60,7 +63,7 @@ class PersonaResponse(BaseModel):
 
 
 class ChannelResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for a marketing channel."""
     id: str = Field(..., description="Channel ID")
     name: str = Field(..., description="Channel name")
@@ -69,14 +72,14 @@ class ChannelResponse(BaseModel):
 
 
 class CampaignGoals(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Model for campaign goals."""
     metrics: List[str] = Field(..., description="Metrics to track")
     targets: Dict[str, Any] = Field(..., description="Target values for metrics")
 
 
 class MarketingCampaignRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for creating a marketing campaign."""
     name: str = Field(..., description="Campaign name")
     description: str = Field(..., description="Campaign description")
@@ -90,7 +93,7 @@ class MarketingCampaignRequest(BaseModel):
 
 
 class MarketingCampaignResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for a marketing campaign."""
     id: str = Field(..., description="Campaign ID")
     name: Optional[str] = Field(None, description="Campaign name")

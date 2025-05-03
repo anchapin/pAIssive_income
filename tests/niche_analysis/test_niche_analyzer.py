@@ -2,6 +2,7 @@
 Tests for the NicheAnalyzer class.
 """
 
+
 import uuid
 from unittest.mock import MagicMock
 
@@ -9,6 +10,8 @@ import pytest
 
 from interfaces.agent_interfaces import IAgentTeam
 from niche_analysis.niche_analyzer import NicheAnalyzer
+
+
 
 
 @pytest.fixture

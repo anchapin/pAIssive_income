@@ -5,6 +5,7 @@ This module provides tools for monitoring cache performance, analyzing hit rates
 and optimizing cache configurations based on usage patterns.
 """
 
+
 import json
 import logging
 import threading
@@ -12,6 +13,8 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -232,7 +235,7 @@ class CacheStatsDashboard:
                                 "issue": "low_hit_rate",
                                 "message": (
                                     f"Low hit rate ({stats.hit_rate:.2%}) for namespace '{namespace}'. "
-                                    f"Consider adjusting TTL or caching strategy."
+                                    "Consider adjusting TTL or caching strategy."
                                 ),
                                 "hit_rate": stats.hit_rate,
                             }
@@ -244,7 +247,7 @@ class CacheStatsDashboard:
                                 "issue": "high_hit_rate",
                                 "message": (
                                     f"Very high hit rate ({stats.hit_rate:.2%}) for namespace '{namespace}'. "
-                                    f"Consider increasing TTL to improve performance."
+                                    "Consider increasing TTL to improve performance."
                                 ),
                                 "hit_rate": stats.hit_rate,
                             }

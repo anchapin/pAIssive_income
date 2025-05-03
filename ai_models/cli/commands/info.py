@@ -4,12 +4,18 @@ Info command for the command-line interface.
 This module provides a command for getting information about a model.
 """
 
+
 import argparse
 import json
 import logging
 import os
 
 from ..base import BaseCommand
+
+
+            from ...core import ModelManager
+
+            
 
 # Set up logging
 logging.basicConfig(
@@ -69,9 +75,7 @@ class InfoCommand(BaseCommand):
 
         try:
             # Import required modules
-            from ...core import ModelManager
-
-            # Check if model exists
+# Check if model exists
             if not os.path.exists(self.args.model_path):
                 logger.error(f"Model not found: {self.args.model_path}")
                 return 1

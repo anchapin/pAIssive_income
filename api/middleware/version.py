@@ -4,11 +4,17 @@ Version middleware for the API server.
 This module provides middleware for handling API versioning.
 """
 
+
 import logging
 from typing import Any, Callable
 
 from ..config import APIConfig, APIVersion
 from ..version_manager import VersionManager
+
+
+    from fastapi import FastAPI, Request, Response
+
+    FASTAPI_AVAILABLE 
 
 # Set up logging
 logging.basicConfig(
@@ -18,9 +24,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import FastAPI, Request, Response
-
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI is required for version middleware")
     FASTAPI_AVAILABLE = False

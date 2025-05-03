@@ -4,12 +4,17 @@ Pydantic schemas for the Marketing module.
 This module provides Pydantic models for data validation in the Marketing module.
 """
 
+import time
+
+
 import uuid
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
 
 
 # Enums
@@ -145,7 +150,7 @@ class PostScheduleType(str, Enum):
 
 # Base schemas that don't depend on other schemas
 class ConfigSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for general configuration settings."""
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -159,7 +164,7 @@ class ConfigSchema(BaseModel):
 
 
 class TimeframeSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for timeframe specifications."""
 
     value: int = Field(..., description="The numeric value of the timeframe", gt=0)
@@ -173,7 +178,7 @@ class TimeframeSchema(BaseModel):
 
 
 class MetricSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for marketing metrics."""
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -188,7 +193,7 @@ class MetricSchema(BaseModel):
 
 
 class DemographicsSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for target audience demographics."""
 
     age_range: Optional[str] = Field(None, description="Age range (e.g., 18-24, 25-34)")
@@ -209,7 +214,7 @@ class DemographicsSchema(BaseModel):
 
 
 class BudgetSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for marketing budget."""
 
     total_amount: float = Field(..., description="Total budget amount")
@@ -228,7 +233,7 @@ class BudgetSchema(BaseModel):
 
 
 class TargetAudienceSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for target audience."""
 
     demographics: DemographicsSchema = Field(
@@ -252,7 +257,7 @@ class TargetAudienceSchema(BaseModel):
 
 # Content-related schemas
 class ContentItemSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for content calendar items."""
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -271,7 +276,7 @@ class ContentItemSchema(BaseModel):
 
 
 class ContentCalendarSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for content calendars."""
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -287,7 +292,7 @@ class ContentCalendarSchema(BaseModel):
 
 
 class ContentTemplateSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Base schema for content templates."""
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -372,7 +377,7 @@ class EmailNewsletterTemplateSchema(ContentTemplateSchema):
 
 
 class GeneratedBlogPostSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for generated blog posts."""
 
     id: str = Field(
@@ -403,7 +408,7 @@ class GeneratedBlogPostSchema(BaseModel):
 
 
 class GeneratedSocialMediaPostSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for generated social media posts."""
 
     id: str = Field(
@@ -433,7 +438,7 @@ class GeneratedSocialMediaPostSchema(BaseModel):
 
 
 class GeneratedEmailNewsletterSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for generated email newsletters."""
 
     id: str = Field(
@@ -471,7 +476,7 @@ class GeneratedEmailNewsletterSchema(BaseModel):
 
 
 class ContentGeneratorConfigSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for content generator configuration."""
 
     creativity_level: float = Field(
@@ -548,7 +553,7 @@ class ContentGeneratorConfigSchema(BaseModel):
 
 
 class MarketingChannelSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())))
     """Pydantic model for marketing channel."""
 
     id: str = Field(
@@ -601,7 +606,7 @@ class MarketingChannelSchema(BaseModel):
 
 
 class MarketingTacticSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for marketing tactic."""
 
     id: str = Field(
@@ -628,7 +633,7 @@ class MarketingTacticSchema(BaseModel):
 
 
 class MarketingMetricSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for marketing metric."""
 
     id: str = Field(
@@ -645,7 +650,7 @@ class MarketingMetricSchema(BaseModel):
 
 
 class MarketingStrategySchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for marketing strategy."""
 
     id: str = Field(
@@ -685,7 +690,7 @@ class MarketingStrategySchema(BaseModel):
 
 
 class MarketingStrategyInputSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for marketing strategy inputs."""
 
     business_type: BusinessType = Field(..., description="Type of business")
@@ -708,7 +713,7 @@ class MarketingStrategyInputSchema(BaseModel):
 
 
 class MarketingStrategyResultsSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for marketing strategy results."""
 
     id: str = Field(
@@ -737,7 +742,7 @@ class MarketingStrategyResultsSchema(BaseModel):
 
 
 class MarketingPlanSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for marketing plans."""
 
     id: str = Field(
@@ -769,7 +774,7 @@ class MarketingPlanSchema(BaseModel):
 
 
 class PersonaSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for user personas."""
 
     id: str = Field(
@@ -798,7 +803,7 @@ class PersonaSchema(BaseModel):
 
 
 class ChannelAnalysisSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for channel analysis."""
 
     id: str = Field(
@@ -833,7 +838,7 @@ class ChannelAnalysisSchema(BaseModel):
 
 
 class AudienceAnalysisSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for audience analysis."""
 
     id: str = Field(
@@ -876,7 +881,7 @@ class AudienceAnalysisSchema(BaseModel):
 
 
 class BusinessAnalysisSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for business analysis."""
 
     id: str = Field(
@@ -917,7 +922,7 @@ class BusinessAnalysisSchema(BaseModel):
 
 
 class EmailContentSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for email content."""
 
     subject: str = Field(..., description="Email subject line")
@@ -938,7 +943,7 @@ class EmailContentSchema(BaseModel):
 
 
 class SocialMediaAnalyticsMetricSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for social media analytics metric."""
 
     name: str = Field(..., description="Metric name")
@@ -955,7 +960,7 @@ class SocialMediaAnalyticsMetricSchema(BaseModel):
 
 
 class SocialMediaAnalyticsSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pydantic model for social media analytics data."""
 
     platform_id: str = Field(..., description="ID of the connected platform")
@@ -980,7 +985,7 @@ class SocialMediaAnalyticsSchema(BaseModel):
 
 
 class MarketingChannelSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=())))
     """Pydantic model for marketing channel."""
 
     id: str = Field(..., description="Unique identifier for the channel")
@@ -1005,7 +1010,7 @@ class MarketingChannelSchema(BaseModel):
 
 
 class SocialMediaAuthSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for social media authentication."""
 
     access_token: str = Field(..., description="OAuth access token")
@@ -1029,7 +1034,7 @@ class SocialMediaAuthSchema(BaseModel):
 
 
 class SocialMediaConnectionSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for social media platform connections."""
 
     id: str = Field(
@@ -1060,7 +1065,7 @@ class SocialMediaConnectionSchema(BaseModel):
 
 
 class SocialMediaPostSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for social media posts."""
 
     id: str = Field(
@@ -1093,7 +1098,7 @@ class SocialMediaPostSchema(BaseModel):
 
 
 class SocialMediaCampaignSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for social media campaigns."""
 
     id: str = Field(
@@ -1128,7 +1133,7 @@ class SocialMediaCampaignSchema(BaseModel):
 
 
 class AudienceInsightSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for social media audience insights."""
 
     platform_id: str = Field(..., description="ID of the connected platform")

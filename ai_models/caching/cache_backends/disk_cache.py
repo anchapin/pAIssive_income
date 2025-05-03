@@ -4,6 +4,7 @@ Disk cache backend for the model cache system.
 This module provides a disk-based cache backend.
 """
 
+
 import hashlib
 import json
 import os
@@ -17,7 +18,10 @@ from typing import Any, Dict, List, Optional
 from .base import CacheBackend
 
 
-class DiskCache(CacheBackend):
+class DiskCache
+                import logging
+
+(CacheBackend):
     """
     Disk-based cache backend.
     """
@@ -553,7 +557,7 @@ class DiskCache(CacheBackend):
                         metadata = metadata_map[k]
                         count = metadata.get("access_count", 0)
                         # Creation time is used as a tiebreaker - older items are evicted first
-                        creation_time = metadata.get("creation_time", float("inf"))
+                        creation_time = metadata.get("creation_time", float("in"))
                         # Return tuple of (count, creation_time) for comparison
                         # Python will compare tuples element by element
                         return (
@@ -581,7 +585,7 @@ class DiskCache(CacheBackend):
                     self._save_stats()
 
             except Exception:
-                import logging
+
 
                 logging.exception(
                     "Error during cache eviction. Falling back to deleting the first key."

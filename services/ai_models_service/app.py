@@ -5,6 +5,7 @@ This module provides the AI Models Service implementation, which manages AI mode
 inference, and optimization for the pAIssive income platform.
 """
 
+
 import argparse
 import logging
 from typing import Any, Dict, List
@@ -13,7 +14,12 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field
 
-from services.service_discovery.registration import (
+from services.service_discovery.registration import 
+    import random
+    import time
+    import uvicorn
+
+(
     get_default_tags,
     get_service_metadata,
     register_service,
@@ -47,7 +53,7 @@ service_registration = None
 
 # Define models for the API
 class ModelRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for AI model inference."""
 
     model_name: str = Field(..., description="Name of the AI model to use")
@@ -58,7 +64,7 @@ class ModelRequest(BaseModel):
 
 
 class ModelResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for AI model inference."""
 
     model_name: str = Field(..., description="Name of the AI model used")
@@ -73,7 +79,7 @@ class ModelResponse(BaseModel):
 
 
 class ModelInfo(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Information about an AI model."""
 
     name: str = Field(..., description="Name of the model")
@@ -152,8 +158,8 @@ async def get_model(model_name: str):
 @app.post("/api/generate", response_model=ModelResponse)
 async def generate_text(request: ModelRequest, background_tasks: BackgroundTasks):
     """Generate text using an AI model."""
-    import random
-    import time
+
+
 
     # Check if the requested model exists
     if request.model_name not in AVAILABLE_MODELS:
@@ -264,7 +270,7 @@ def start_ai_models_service(host: str = "0.0.0.0", port: int = 8002):
         host: Host to bind to
         port: Port to listen on
     """
-    import uvicorn
+
 
     # Register with service registry
     register_with_service_registry(port)

@@ -5,6 +5,7 @@ This module provides a factory for creating different types of database connecti
 based on configuration.
 """
 
+
 import logging
 from typing import Any, Dict
 
@@ -12,7 +13,9 @@ from common_utils.db.interfaces import DatabaseInterface, UnitOfWork
 from common_utils.db.nosql_adapter import MongoDBAdapter, MongoDBUnitOfWork
 from common_utils.db.sql_adapter import SQLiteAdapter, SQLiteUnitOfWork
 
-logger = logging.getLogger(__name__)
+logger 
+
+= logging.getLogger(__name__)
 
 
 class DatabaseFactory:

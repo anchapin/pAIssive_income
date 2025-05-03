@@ -5,11 +5,21 @@ This script demonstrates how to use the optimization utilities to quantize
 and prune models for improved performance.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import argparse
 import logging
 import os
 import sys
 import time
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE 
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -31,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -39,9 +49,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("Transformers not available. Some examples will not work.")
     TRANSFORMERS_AVAILABLE = False

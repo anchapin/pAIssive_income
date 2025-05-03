@@ -4,12 +4,15 @@ Benchmark command for the command-line interface.
 This module provides a command for benchmarking models.
 """
 
+
 import argparse
 import json
 import logging
 import os
 
 from ..base import BaseCommand
+
+
 
 # Set up logging
 logging.basicConfig(
@@ -115,7 +118,7 @@ class BenchmarkCommand(BaseCommand):
             "--plot-format",
             type=str,
             default="png",
-            choices=["png", "pdf", "svg"],
+            choices=["png", "pd", "svg"],
             help="Format for benchmark plots",
         )
         parser.add_argument(

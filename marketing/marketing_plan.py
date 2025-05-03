@@ -4,12 +4,15 @@ Marketing Plan module for the pAIssive Income project.
 This module provides functionality for creating and managing marketing plans.
 """
 
+
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 
-class MarketingPlan:
+class MarketingPlan
+
+:
     """Class for creating and managing marketing plans."""
 
     def __init__(self, name: str, description: str = ""):

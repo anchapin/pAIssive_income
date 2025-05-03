@@ -2,10 +2,13 @@
 Tests for the OpportunityScorer class.
 """
 
+
 from niche_analysis.opportunity_scorer import OpportunityScorer
 
 
-def test_opportunity_scorer_init():
+def test_opportunity_scorer_init
+
+():
     """Test OpportunityScorer initialization."""
     scorer = OpportunityScorer()
 

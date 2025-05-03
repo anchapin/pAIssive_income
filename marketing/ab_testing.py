@@ -6,6 +6,7 @@ for different marketing assets including email campaigns, landing pages,
 ad copy, call-to-action elements, and more.
 """
 
+
 import logging
 import uuid
 from datetime import datetime
@@ -14,7 +15,9 @@ from typing import Any, Dict, List, Optional, Tuple
 from scipy import stats
 
 from interfaces.marketing_interfaces import IABTesting
-from marketing.errors import (
+from marketing.errors import 
+
+(
     InvalidTestConfigurationError,
     MarketingError,
     TestNotFoundError,
@@ -888,7 +891,7 @@ class ABTesting(IABTesting):
                     "reason": "Affects form completion rates",
                 },
                 {
-                    "element": "social_proof",
+                    "element": "social_proo",
                     "importance": "medium",
                     "reason": "Builds trust",
                 },

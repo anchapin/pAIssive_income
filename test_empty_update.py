@@ -1,6 +1,8 @@
 from api.schemas.webhook import WebhookUpdate
 
-data = {}  # Empty update payload
+data 
+
+= {}  # Empty update payload
 
 try:
     webhook_update = WebhookUpdate(**data)

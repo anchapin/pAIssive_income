@@ -3,7 +3,9 @@ import re
 from pathlib import Path
 
 
-def fix_linting_issues(file_path):
+def fix_linting_issues
+
+(file_path):
     with open(file_path, "r", encoding="utf-8", errors="ignore") as file:
         try:
             content = file.read()

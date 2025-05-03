@@ -4,6 +4,7 @@ Provides minimal functionality for error handling.
 """
 
 
+
 class ServiceError(Exception):
     """
     Base exception for service-related errors.

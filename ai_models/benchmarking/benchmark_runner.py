@@ -4,6 +4,12 @@ Benchmark runner for AI models.
 This module provides a runner for benchmarking AI models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import gc
 import json
 import logging
@@ -14,6 +20,14 @@ from typing import List, Tuple
 from .benchmark_config import BenchmarkConfig, BenchmarkType
 from .benchmark_result import BenchmarkResult
 
+
+    import torch
+    import transformers
+    import psutil
+    import numpy
+            from rouge_score import rouge_scorer
+        except ImportError
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -22,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -30,7 +44,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import transformers
+
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
@@ -38,7 +52,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
-    import psutil
+
 
     PSUTIL_AVAILABLE = True
 except ImportError:
@@ -46,7 +60,7 @@ except ImportError:
     PSUTIL_AVAILABLE = False
 
 try:
-    import numpy as np
+ as np
 
     NUMPY_AVAILABLE = True
 except ImportError:
@@ -441,7 +455,7 @@ class BenchmarkRunner:
         perplexity = (
             torch.exp(total_loss / total_tokens).item()
             if total_tokens > 0
-            else float("inf")
+            else float("in")
         )
 
         # Save results
@@ -453,8 +467,7 @@ class BenchmarkRunner:
         Run a ROUGE benchmark.
         """
         try:
-            from rouge_score import rouge_scorer
-        except ImportError:
+:
             raise ValueError("rouge_score is required for ROUGE benchmarks")
 
         # Check if input data contains references

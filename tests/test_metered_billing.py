@@ -1,22 +1,35 @@
+import time
+
 
 import os
 import sys
-import unittest  # noqa: F811
-from datetime import datetime, timedelta  # noqa: E402, F811
-from unittest.mock import MagicMock  # noqa: E402, F811
-from monetization.metered_billing import MeteredBillingPricing, MeteringInterval  # noqa: E402, F811
+import unittest
+from datetime import datetime, timedelta  
+from unittest.mock import MagicMock  
+from monetization.metered_billing import MeteredBillingPricing, MeteringInterval  
+
+import os
+import sys
+import unittest
+from datetime import datetime, timedelta  
+from unittest.mock import MagicMock  
+from monetization.metered_billing import MeteredBillingPricing, MeteringInterval  
+
+# noqa: F811
+# noqa: E402, F811
+# noqa: E402, F811
+# noqa: E402, F811
 
 """
 Tests for the metered billing module.
 """
 
-import os
 
 # We'll use direct imports to avoid circular import issues
-import sys
-import unittest  # noqa: F811
-from datetime import datetime, timedelta  # noqa: E402, F811
-from unittest.mock import MagicMock  # noqa: E402, F811
+
+  # noqa: F811
+# noqa: E402, F811
+# noqa: E402, F811
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -36,7 +49,7 @@ class UsageCategory:
 
 
 # Import only the module we're testing
-from monetization.metered_billing import MeteredBillingPricing, MeteringInterval  # noqa: E402, F811
+# noqa: E402, F811
 
 
 class TestMeteredBilling(unittest.TestCase):

@@ -2,13 +2,17 @@
 Test script for webhook service.
 """
 
+
 import asyncio
 from datetime import datetime, timezone
+
+import pytest
 
 from api.schemas.webhook import WebhookEventType
 from api.services.webhook_service import WebhookService
 
 
+@pytest.mark.asyncio  # Mark the test function to use pytest-asyncio
 async def test_webhook_service():
     """Test the webhook service."""
     # Create a webhook service

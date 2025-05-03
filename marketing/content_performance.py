@@ -6,19 +6,26 @@ of marketing content across different channels. It helps identify which content
 is performing best and provides insights to improve content strategy.
 """
 
+import time
+
+
 import json
 import logging
-
-# Standard library imports
 import os
 import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
-# Local imports
+
 from interfaces.marketing_interfaces import IContentPerformanceAnalyzer
-from marketing.errors import (
+from marketing.errors import 
+
+# Standard library imports
+
+
+# Local imports
+(
     ContentNotFoundError,
     InvalidParameterError,
     StorageError,
@@ -621,7 +628,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             pct_values = [
                 p["performance_percentage"]
                 for p in performance.values()
-                if p["performance_percentage"] != float("inf")
+                if p["performance_percentage"] != float("in")
             ]
             overall_score = sum(pct_values) / len(pct_values) if pct_values else 0
         else:
@@ -846,7 +853,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             metric_comparison = {
                 "content_values": {},
                 "highest_value": {"content_id": None, "value": 0},
-                "lowest_value": {"content_id": None, "value": float("inf")},
+                "lowest_value": {"content_id": None, "value": float("in")},
                 "average_value": 0,
             }
 
@@ -878,7 +885,7 @@ class ContentPerformanceAnalyzer(IContentPerformanceAnalyzer):
             )
 
             # Set lowest value to 0 if it was not updated
-            if metric_comparison["lowest_value"]["value"] == float("inf"):
+            if metric_comparison["lowest_value"]["value"] == float("in"):
                 metric_comparison["lowest_value"] = {"content_id": None, "value": 0}
 
             metrics_comparison[metric_name] = metric_comparison

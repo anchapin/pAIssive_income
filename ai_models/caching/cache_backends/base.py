@@ -4,11 +4,16 @@ Base cache backend for the model cache system.
 This module provides the base interface for cache backends.
 """
 
+import time
+
+
 import abc
 from typing import Any, Dict, List, Optional
 
 
-class CacheBackend(abc.ABC):
+class CacheBackend
+
+(abc.ABC):
     """
     Base class for cache backends.
     """

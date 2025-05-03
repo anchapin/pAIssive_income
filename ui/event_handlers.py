@@ -4,8 +4,11 @@ Event handlers for the pAIssive Income UI.
 This module provides event handlers for the UI.
 """
 
+
 import logging
 from typing import Any, Dict
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)

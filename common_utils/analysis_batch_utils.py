@@ -5,10 +5,15 @@ This module provides utilities for performing batch processing on data analysis 
 such as feature extraction, data transformation, and model evaluation.
 """
 
+
 import logging
 import time
 from dataclasses import dataclass
-from typing import (
+from typing import 
+
+import numpy
+
+(
     Any,
     Callable,
     Dict,
@@ -17,8 +22,7 @@ from typing import (
     Tuple,
     TypeVar,
 )
-
-import numpy as np
+ as np
 
 from .batch_utils import (
     BatchProcessor,

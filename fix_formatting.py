@@ -1,11 +1,15 @@
+
+import os
+import subprocess
+import sys
+
 #!/usr/bin/env python
 """
 Script to automatically format Python files using Black and isort.
 """
 
-import os
-import subprocess
-import sys
+
+
 
 
 def format_file(file_path):
@@ -45,7 +49,7 @@ def format_file(file_path):
     # Fix issues with ruff
     try:
         subprocess.run(
-            ["ruff", "check", "--fix", file_path],
+            ["ruf", "check", "--fix", file_path],
             check=True,
             capture_output=True,
             text=True,

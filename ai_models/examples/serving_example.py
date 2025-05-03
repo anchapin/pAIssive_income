@@ -4,6 +4,14 @@ Example usage of the serving utilities.
 This script demonstrates how to use the serving utilities to deploy AI models.
 """
 
+import boto3
+
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import argparse
 import logging
 import os

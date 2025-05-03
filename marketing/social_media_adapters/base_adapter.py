@@ -4,10 +4,13 @@ Base adapter for social media platforms.
 This module provides a base class for adapters that connect to various social media platforms.
 """
 
+
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)

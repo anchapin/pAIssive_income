@@ -4,9 +4,18 @@ Dashboard router for the API server.
 This module provides API endpoints for dashboard operations.
 """
 
+import time
+
+
 import logging
 from typing import Dict, Any, List
 from datetime import datetime, timedelta
+
+
+    from fastapi import APIRouter, HTTPException, Query, Depends, Response, status
+    from fastapi.responses import JSONResponse, StreamingResponse
+    from pydantic import BaseModel, Field, ConfigDict
+    FASTAPI_AVAILABLE 
 
 # Set up logging
 logging.basicConfig(
@@ -17,10 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, HTTPException, Query, Depends, Response, status
-    from fastapi.responses import JSONResponse, StreamingResponse
-    from pydantic import BaseModel, Field, ConfigDict
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
@@ -34,7 +40,7 @@ else:
 # Define schemas if FastAPI is available
 if FASTAPI_AVAILABLE:
     class DashboardOverviewResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Dashboard overview response schema."""
         projects: List[Dict[str, Any]] = Field(..., description="List of projects")
         total_revenue: float = Field(..., description="Total revenue")
@@ -42,7 +48,7 @@ if FASTAPI_AVAILABLE:
         project_count: int = Field(..., description="Number of projects")
 
     class RevenueStatisticsResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Revenue statistics response schema."""
         daily_revenue: List[Dict[str, Any]] = Field(..., description="Daily revenue data")
         monthly_revenue: List[Dict[str, Any]] = Field(..., description="Monthly revenue data")
@@ -51,7 +57,7 @@ if FASTAPI_AVAILABLE:
         arr: float = Field(..., description="Annual recurring revenue")
 
     class SubscriberStatisticsResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Subscriber statistics response schema."""
         total_subscribers: int = Field(..., description="Total subscribers")
         active_subscribers: int = Field(..., description="Active subscribers")
@@ -60,7 +66,7 @@ if FASTAPI_AVAILABLE:
         subscribers_by_plan: List[Dict[str, Any]] = Field(..., description="Subscribers by plan")
 
     class MarketingStatisticsResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Marketing statistics response schema."""
         campaigns: List[Dict[str, Any]] = Field(..., description="Marketing campaigns")
         conversion_rate: float = Field(..., description="Conversion rate")
@@ -68,7 +74,7 @@ if FASTAPI_AVAILABLE:
         channel_performance: List[Dict[str, Any]] = Field(..., description="Channel performance")
 
     class ModelUsageStatisticsResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """Model usage statistics response schema."""
         total_requests: int = Field(..., description="Total requests")
         requests_by_model: List[Dict[str, Any]] = Field(..., description="Requests by model")

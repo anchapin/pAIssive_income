@@ -4,20 +4,26 @@ Example of API versioning configuration.
 This module demonstrates how to configure API versioning.
 """
 
+
 import logging
 import os
 import sys
 from datetime import datetime, timedelta
 
-# Add the project root to the path so we can import modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 
 from api.config import APIConfig, APIVersion
 
-# Import API server
+
 from api.server import APIServer
 from api.version_manager import VersionManager
 
+
+        import time
+
+# Add the project root to the path so we can import modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+# Import API server
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -128,7 +134,7 @@ def main() -> None:
         server.start()
 
         # Keep the main thread alive
-        import time
+
 
         while True:
             time.sleep(1)

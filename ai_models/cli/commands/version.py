@@ -4,11 +4,14 @@ Version command for the command-line interface.
 This module provides the version command for the command-line interface.
 """
 
+
 import argparse
 import logging
 
 from ...model_manager import ModelManager
 from ..base import BaseCommand
+
+
 
 # Set up logging
 logging.basicConfig(

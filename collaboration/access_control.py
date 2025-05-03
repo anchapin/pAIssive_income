@@ -5,9 +5,12 @@ This module provides classes for managing roles and permissions
 to control access to workspaces, projects, and resources.
 """
 
+
 import enum
 import logging
 from typing import Any, Dict, List, Optional, Set
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)

@@ -4,13 +4,16 @@ Base classes for model pruning.
 This module provides the base classes and interfaces for model pruning.
 """
 
+
 import abc
 import enum
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 
-class PruningMethod(enum.Enum):
+class PruningMethod
+
+(enum.Enum):
     """
     Enumeration of pruning methods.
     """

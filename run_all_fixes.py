@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-"""
-Script to run all fixes for GitHub Actions issues.
-This script orchestrates the execution of all fix scripts in the correct order.
-"""
 
 import argparse
 import os
@@ -11,7 +6,18 @@ import sys
 from pathlib import Path
 
 
-def run_command(command, description):
+def run_command
+
+#!/usr/bin/env python
+"""
+Script to run all fixes for GitHub Actions issues.
+This script orchestrates the execution of all fix scripts in the correct order.
+"""
+
+
+
+
+(command, description):
     """Run a command and print its output."""
     print(f"\n🚀 {description}")
     print(f"   Command: {' '.join(command)}")

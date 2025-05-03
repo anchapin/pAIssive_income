@@ -4,6 +4,7 @@ Webhook example for the pAIssive Income API.
 This example demonstrates how to register webhooks and emit events.
 """
 
+
 import asyncio
 import json
 
@@ -12,7 +13,11 @@ from ..services.event_emitter import EventEmitter
 from ..services.webhook_service import WebhookService
 
 
-async def register_webhook_example():
+async def register_webhook_example
+    import hashlib
+    import hmac
+
+():
     """Example of registering a webhook."""
 
     # Get webhook service
@@ -92,8 +97,8 @@ async def verify_webhook_signature_example():
     secret = "your-webhook-secret"
 
     # Verify the signature
-    import hashlib
-    import hmac
+
+
 
     expected_signature = hmac.new(
         secret.encode("utf-8"), raw_payload.encode("utf-8"), hashlib.sha256

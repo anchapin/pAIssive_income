@@ -5,6 +5,9 @@ This module provides classes for analyzing subscription data, including
 metrics calculation, churn analysis, and revenue forecasting.
 """
 
+import time
+
+
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
@@ -14,7 +17,14 @@ from .subscription_manager import SubscriptionManager
 from .user_subscription import Subscription, SubscriptionStatus
 
 
-class SubscriptionMetrics:
+class SubscriptionMetrics
+    from .subscription import SubscriptionPlan
+    from .subscription_manager import SubscriptionManager
+    from .user_subscription import Subscription
+
+    
+
+:
     """
     Class for calculating basic subscription metrics.
 
@@ -1754,11 +1764,7 @@ class SubscriptionForecasting:
 
 # Example usage
 if __name__ == "__main__":
-    from .subscription import SubscriptionPlan
-    from .subscription_manager import SubscriptionManager
-    from .user_subscription import Subscription
-
-    # Create a subscription manager
+# Create a subscription manager
     manager = SubscriptionManager()
 
     # Create a subscription plan

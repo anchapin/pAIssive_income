@@ -5,6 +5,7 @@ This module provides functions for initializing and configuring services
 used by the project, including dependency injection setup.
 """
 
+
 import logging
 from typing import Any, Dict, Optional
 
@@ -22,6 +23,8 @@ from marketing.strategy_generator import StrategyGenerator
 from monetization.calculator import MonetizationCalculator
 from niche_analysis.niche_analyzer import NicheAnalyzer
 from ui.service_registry import register_ui_services
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)

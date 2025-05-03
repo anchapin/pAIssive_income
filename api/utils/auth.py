@@ -4,6 +4,9 @@ Authentication utilities for API endpoints.
 This module provides utilities for authentication in API endpoints.
 """
 
+import time
+
+
 import os
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
@@ -11,6 +14,8 @@ from typing import Any, Dict, Optional
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
+
+
 
 # Constants
 SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "your-secret-key")  # Change in production

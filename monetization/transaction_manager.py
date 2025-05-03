@@ -5,24 +5,31 @@ This module provides a class for managing payment transactions, including
 storage, retrieval, and processing.
 """
 
+
 import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from common_utils import (
-    create_directory,
-    file_exists,
-    get_file_path,
-    is_date_in_range,
-    load_from_json_file,
-)
+from common_utils import 
 
 from .payment_method_manager import PaymentMethodManager
 from .payment_processor import PaymentProcessor
 from .transaction import Transaction, TransactionStatus, TransactionType
 
 
-class TransactionManager:
+class TransactionManager
+    from .mock_payment_processor import MockPaymentProcessor
+
+    
+
+(
+    create_directory,
+    file_exists,
+    get_file_path,
+    is_date_in_range,
+    load_from_json_file,
+)
+:
     """
     Class for managing payment transactions.
 
@@ -621,9 +628,7 @@ class TransactionManager:
 
 # Example usage
 if __name__ == "__main__":
-    from .mock_payment_processor import MockPaymentProcessor
-
-    # Create a payment processor
+# Create a payment processor
     processor = MockPaymentProcessor({"name": "Test Processor", "success_rate": 0.95})
 
     # Create a transaction manager

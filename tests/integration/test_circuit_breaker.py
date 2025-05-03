@@ -2,13 +2,16 @@
 Integration tests for circuit breaker functionality.
 """
 
+
 import time
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from services.errors import CircuitBreakerError, ServiceUnavailableError
-from services.resilience import (
+from services.resilience import 
+
+(
     CircuitBreaker,
     CircuitBreakerConfig,
     CircuitState,

@@ -5,6 +5,12 @@ This module provides utility functions for pruning models and analyzing
 the effects of pruning.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import json
 import logging
 import os
@@ -17,6 +23,12 @@ from .base import PruningConfig, PruningMethod
 from .magnitude_pruner import MagnitudePruner
 from .structured_pruner import StructuredPruner
 
+
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE 
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -25,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -33,9 +45,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Transformers not available. Some pruning utilities will have limited functionality."

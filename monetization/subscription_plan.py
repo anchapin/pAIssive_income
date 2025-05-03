@@ -5,13 +5,16 @@ This module provides classes for defining and managing subscription plans,
 including features, pricing, and billing intervals.
 """
 
+
 import json
 import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 
-class BillingInterval:
+class BillingInterval
+
+:
     """Enumeration of billing intervals."""
 
     DAILY = "daily"

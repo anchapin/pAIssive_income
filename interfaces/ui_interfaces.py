@@ -5,13 +5,16 @@ This module defines the interfaces for UI services, allowing the UI
 to interact with the core functionality of the framework.
 """
 
+
 from abc import abstractmethod
 from typing import Any, Dict, List, Optional
 
 from .health_interfaces import IHealthCheckable
 
 
-class IBaseService(IHealthCheckable):
+class IBaseService
+
+(IHealthCheckable):
     """Base interface for all services."""
 
     @abstractmethod

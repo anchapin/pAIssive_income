@@ -5,20 +5,27 @@ This module provides standardized error handling for the API server,
 including HTTP status codes, error response formatting, and exception mapping.
 """
 
+
 import logging
 import traceback
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Type
 
-# Try to import FastAPI
-try:
+
     from fastapi import FastAPI, Request, Response, status
     from fastapi.exceptions import RequestValidationError
     from fastapi.responses import JSONResponse
     from pydantic import ConfigDict
     from pydantic import ValidationError as PydanticValidationError
 
-    FASTAPI_AVAILABLE = True
+    FASTAPI_AVAILABLE 
+from errors import BaseError, ValidationError
+
+
+
+# Try to import FastAPI
+try:
+= True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
@@ -31,8 +38,6 @@ except ImportError:
 
 
 # Import base error classes
-from errors import BaseError, ValidationError
-
 # Set up logging
 logger = logging.getLogger(__name__)
 

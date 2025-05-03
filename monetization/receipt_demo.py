@@ -4,11 +4,14 @@ Receipt generation demo for the pAIssive Income project.
 This script demonstrates how to use the receipt generation system.
 """
 
+
 from .receipt_manager import ReceiptManager
 from .transaction import Transaction, TransactionStatus
 
 
-def print_separator():
+def print_separator
+
+():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")
 

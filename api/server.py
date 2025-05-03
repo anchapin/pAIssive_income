@@ -2,21 +2,19 @@
 RESTful API server for the pAIssive Income project.
 """
 
+
 import logging
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-# Import config
+
 from .config import APIConfig, APIVersion
 
-# Import middleware
+
 from .middleware.auth import AuthMiddleware, verify_token
-from .middleware.webhook_security import (
-    WebhookIPAllowlistMiddleware,
-    WebhookRateLimitMiddleware,
-)
+from .middleware.webhook_security import 
 from .routes.agent_team_router import router as agent_team_router
 from .routes.ai_models_router import router as ai_models_router
 from .routes.analytics_router import router as analytics_router
@@ -26,14 +24,24 @@ from .routes.developer_router import router as developer_router
 from .routes.marketing_router import router as marketing_router
 from .routes.monetization_router import router as monetization_router
 
-# Import routers
+
 from .routes.niche_analysis_router import router as niche_analysis_router
 from .routes.user_router import router as user_router
 from .routes.webhook_router import router as webhook_router
 
-# Import security services
+
 from .services.webhook_security import WebhookIPAllowlist, WebhookRateLimiter
 
+
+
+# Import config
+# Import middleware
+(
+    WebhookIPAllowlistMiddleware,
+    WebhookRateLimitMiddleware,
+)
+# Import routers
+# Import security services
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

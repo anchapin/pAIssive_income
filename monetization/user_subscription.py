@@ -5,6 +5,7 @@ This module provides classes for managing user subscriptions, including
 subscription creation, renewal, cancellation, and status tracking.
 """
 
+
 import json
 import uuid
 from datetime import datetime, timedelta
@@ -13,7 +14,12 @@ from typing import Any, Dict, List, Optional
 from .subscription import SubscriptionPlan, SubscriptionTier
 
 
-class SubscriptionStatus:
+class SubscriptionStatus
+    from .subscription import SubscriptionPlan
+
+    
+
+:
     """Enumeration of subscription statuses."""
 
     ACTIVE = "active"
@@ -581,9 +587,7 @@ class Subscription:
 
 # Example usage
 if __name__ == "__main__":
-    from .subscription import SubscriptionPlan
-
-    # Create a subscription plan
+# Create a subscription plan
     plan = SubscriptionPlan(
         name="AI Tool Subscription",
         description="Subscription plan for an AI-powered tool",

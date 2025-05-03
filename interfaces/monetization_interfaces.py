@@ -5,12 +5,15 @@ This module provides interfaces for the monetization components to enable depend
 and improve testability and maintainability.
 """
 
+
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
 
-class SubscriptionStatus(Enum):
+class SubscriptionStatus
+
+(Enum):
     """Subscription status enum."""
 
     ACTIVE = "active"

@@ -5,6 +5,7 @@ This script demonstrates how to use the SocialMediaIntegration class to connect 
 various social media platforms, post content, and retrieve analytics.
 """
 
+
 import json
 import logging
 import os
@@ -12,13 +13,16 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
+
+
+from marketing import SocialMediaIntegration, SocialMediaPlatform
+
+
+
 # Add the parent directory to the path to import the marketing module
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
-
-from marketing import SocialMediaIntegration, SocialMediaPlatform
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

@@ -4,19 +4,25 @@ Tests for mock model providers.
 This module demonstrates how to use the mock model providers in tests.
 """
 
+
 import os
 import sys
 import unittest
 
-import numpy as np
+import numpy
 import pytest
-
-# Add project root to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from ai_models.model_config import ModelConfig
 from ai_models.model_manager import ModelInfo
-from tests.mocks.mock_model_providers import (
+from tests.mocks.mock_model_providers import 
+        import tempfile
+
+as np
+
+
+# Add project root to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+(
     MockHuggingFaceProvider,
     MockLMStudioProvider,
     MockLocalModelProvider,
@@ -141,7 +147,7 @@ class TestMockProviders(unittest.TestCase):
 
         # Test completion
         completion = provider.generate_completion(
-            "llama-2-7b-chat.gguf", "Hello, world!"
+            "llama-2-7b-chat.ggu", "Hello, world!"
         )
         self.assertIsInstance(completion, dict)
         self.assertIn("text", completion)
@@ -149,14 +155,14 @@ class TestMockProviders(unittest.TestCase):
         # Test chat completion
         messages = [{"role": "user", "content": "Hello, world!"}]
         chat_completion = provider.generate_chat_completion(
-            "llama-2-7b-chat.gguf", messages
+            "llama-2-7b-chat.ggu", messages
         )
         self.assertIsInstance(chat_completion, dict)
         self.assertIn("text", chat_completion)
 
         # Test with streaming
         stream = provider.generate_completion(
-            "llama-2-7b-chat.gguf", "Hello", stream=True
+            "llama-2-7b-chat.ggu", "Hello", stream=True
         )
         chunks = list(stream)
         self.assertTrue(len(chunks) > 0)
@@ -189,7 +195,7 @@ class TestMockProviders(unittest.TestCase):
     def test_integration_with_model_manager(self):
         """Test integrating mock providers with the ModelManager."""
         # Create a mock model manager instead of a real one
-        import tempfile
+
 
         # Create a mock ModelManager that implements the required abstract methods
         class MockModelManager:
@@ -232,9 +238,9 @@ class TestMockProviders(unittest.TestCase):
             id="mock-local-model",
             name="Mock Local Model",
             type="llama",
-            path=os.path.join(temp_dir, "mock-model.gguf"),
+            path=os.path.join(temp_dir, "mock-model.ggu"),
             description="Mock local GGUF model for testing",
-            format="gguf",
+            format="ggu",
             quantization="q4_k_m",
         )
         # Create an empty file to simulate the model

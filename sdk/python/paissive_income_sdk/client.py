@@ -4,6 +4,7 @@ Client for the pAIssive Income API.
 This module provides a client for making requests to the pAIssive Income API.
 """
 
+
 import json
 import logging
 from typing import Any, Dict, Optional
@@ -11,6 +12,8 @@ from typing import Any, Dict, Optional
 import requests
 
 from .auth import Auth, NoAuth
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)

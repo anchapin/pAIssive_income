@@ -4,6 +4,12 @@ Validate command for the command-line interface.
 This module provides a command for validating models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import argparse
 import json
 import logging
@@ -11,6 +17,23 @@ import os
 from typing import Any, Dict, List
 
 from ..base import BaseCommand
+
+
+        import torch
+        from transformers import AutoModel, AutoTokenizer
+
+        
+                from transformers import AutoModelForCausalLM
+
+                model 
+                from transformers import AutoModelForSequenceClassification
+
+                model 
+            import time
+
+            import torch
+            import hashlib
+            import subprocess
 
 # Set up logging
 logging.basicConfig(
@@ -191,10 +214,8 @@ class ValidateCommand(BaseCommand):
             Dictionary with validation results
         """
         # Import required modules
-        import torch
-        from transformers import AutoModel, AutoTokenizer
 
-        # Initialize results
+# Initialize results
         results = {}
 
         # Check if model exists
@@ -217,9 +238,7 @@ class ValidateCommand(BaseCommand):
 
             # Load model based on type
             if self.args.model_type == "text-generation":
-                from transformers import AutoModelForCausalLM
-
-                model = AutoModelForCausalLM.from_pretrained(
+= AutoModelForCausalLM.from_pretrained(
                     self.args.model_path,
                     device_map=(
                         "auto"
@@ -228,9 +247,7 @@ class ValidateCommand(BaseCommand):
                     ),
                 )
             elif self.args.model_type == "text-classification":
-                from transformers import AutoModelForSequenceClassification
-
-                model = AutoModelForSequenceClassification.from_pretrained(
+= AutoModelForSequenceClassification.from_pretrained(
                     self.args.model_path,
                     device_map=(
                         "auto"
@@ -384,9 +401,8 @@ class ValidateCommand(BaseCommand):
 
         # Test inference
         try:
-            import time
 
-            import torch
+
 
             # Prepare input
             test_text = "Hello, world! This is a test."
@@ -465,7 +481,7 @@ class ValidateCommand(BaseCommand):
 
         # New: Verify model integrity using hash validation
         try:
-            import hashlib
+
 
             model_path = self.args.model_path
             if os.path.exists(model_path):
@@ -481,7 +497,7 @@ class ValidateCommand(BaseCommand):
 
         # New: Scan for vulnerabilities in dependencies
         try:
-            import subprocess
+
 
             result = subprocess.run(
                 ["pip-audit"], capture_output=True, text=True

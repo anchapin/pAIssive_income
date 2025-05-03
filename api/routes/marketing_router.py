@@ -1,14 +1,25 @@
 
+import logging
+import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+
+    from fastapi import APIRouter, Body, HTTPException, Path, Query, status
+    from fastapi.responses import JSONResponse
+
+    FASTAPI_AVAILABLE 
+
+from ..schemas.common import ErrorResponse, PaginatedResponse
+
+
+
 """
 Marketing router for the API server.
 
 This module provides route handlers for marketing operations.
 """
 
-import logging
-import uuid
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -18,16 +29,10 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, Body, HTTPException, Path, Query, status
-    from fastapi.responses import JSONResponse
-
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False
-
-from ..schemas.common import ErrorResponse, PaginatedResponse
-
 # Import schemas
 from ..schemas.marketing import (
     ChannelResponse,

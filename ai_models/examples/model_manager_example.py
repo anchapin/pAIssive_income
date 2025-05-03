@@ -5,17 +5,19 @@ This script demonstrates how to use the ModelManager to discover, register,
 and load AI models.
 """
 
+
 import logging
 import os
 import sys
+
+from ai_models import ModelManager
+
+
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
-
-from ai_models import ModelManager
-
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

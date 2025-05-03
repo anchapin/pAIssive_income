@@ -4,6 +4,7 @@ Provides minimal functionality to allow API gateway tests to run.
 """
 
 
+
 def forward_request(request):
     """
     Stub function to simulate forwarding an API request.

@@ -4,23 +4,31 @@ Plotting functions for benchmark results.
 This module provides functions for plotting benchmark results.
 """
 
+import time
+
+
 import os
 from typing import List, Optional
 
 from ..benchmark_config import BenchmarkType
 from ..benchmark_result import BenchmarkResult
 
+
+    import numpy
+    import matplotlib.pyplot
+    import matplotlib.ticker
+
 # Try to import optional dependencies
 try:
-    import numpy as np
+ as np
 
     NUMPY_AVAILABLE = True
 except ImportError:
     NUMPY_AVAILABLE = False
 
 try:
-    import matplotlib.pyplot as plt
-    import matplotlib.ticker as ticker
+ as plt
+ as ticker
 
     MATPLOTLIB_AVAILABLE = True
 except ImportError:

@@ -5,17 +5,12 @@ This module provides a class for managing receipts, including
 generation, storage, and retrieval.
 """
 
+
 import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
-from common_utils import (
-    create_directory,
-    file_exists,
-    get_file_path,
-    is_date_in_range,
-    load_from_json_file,
-)
+from common_utils import 
 
 from .payment_method import PaymentMethod
 from .payment_method_manager import PaymentMethodManager
@@ -24,7 +19,19 @@ from .transaction import Transaction
 from .transaction_manager import TransactionManager
 
 
-class ReceiptManager:
+class ReceiptManager
+    from .transaction import Transaction, TransactionStatus
+
+    
+
+(
+    create_directory,
+    file_exists,
+    get_file_path,
+    is_date_in_range,
+    load_from_json_file,
+)
+:
     """
     Class for managing receipts.
 
@@ -428,9 +435,7 @@ class ReceiptManager:
 
 # Example usage
 if __name__ == "__main__":
-    from .transaction import Transaction, TransactionStatus
-
-    # Create a transaction
+# Create a transaction
     transaction = Transaction(
         amount=29.99,
         currency="USD",

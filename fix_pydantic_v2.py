@@ -6,10 +6,10 @@ instead of validator and adds model_config = ConfigDict(protected_namespaces=())
 to all models to prevent namespace conflicts.
 """
 
+
 import os
 import re
 import sys
-
 
 def fix_pydantic_model(file_path):
     """Fix Pydantic models in a file to use V2 style."""

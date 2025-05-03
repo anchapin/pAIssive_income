@@ -4,6 +4,7 @@ Provides minimal functionality for circuit breaker and resilience features.
 """
 
 
+
 class CircuitBreakerConfig:
     """
     Stub class for CircuitBreakerConfig to satisfy import requirements.

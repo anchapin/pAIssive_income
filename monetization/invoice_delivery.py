@@ -5,6 +5,7 @@ This module provides classes for delivering invoices to customers,
 including email delivery, PDF generation, and export functionality.
 """
 
+
 import base64
 import json
 from datetime import datetime
@@ -13,7 +14,12 @@ from typing import Any, Dict, List, Optional, Union
 from .invoice import Invoice
 
 
-class InvoiceFormatter:
+class InvoiceFormatter
+    from .invoice import Invoice
+
+    
+
+:
     """
     Class for formatting invoices.
 
@@ -665,9 +671,9 @@ class InvoiceDelivery:
         if attach_pdf:
             pdf_data = InvoiceFormatter.to_pdf(invoice)
             {
-                "filename": f"Invoice_{invoice.number}.pdf",
+                "filename": f"Invoice_{invoice.number}.pd",
                 "content": base64.b64encode(pdf_data).decode("utf-8"),
-                "content_type": "application/pdf",
+                "content_type": "application/pd",
             }
 
         # Print email details (for demo purposes)
@@ -757,7 +763,7 @@ class InvoiceDelivery:
 
         Args:
             invoice: Invoice object to be exported containing all necessary details
-            format: Target export format - one of "json", "html", "text", "csv", or "pdf"
+            format: Target export format - one of "json", "html", "text", "csv", or "pd"
             output_path: Optional file path to save the exported data (returns data in memory if not provided)
 
         Returns:
@@ -780,7 +786,7 @@ class InvoiceDelivery:
         elif format == "csv":
             data = InvoiceFormatter.to_csv(invoice)
             binary = False
-        elif format == "pdf":
+        elif format == "pd":
             data = InvoiceFormatter.to_pdf(invoice)
             binary = True
         else:
@@ -913,9 +919,7 @@ class InvoiceDelivery:
 
 # Example usage
 if __name__ == "__main__":
-    from .invoice import Invoice
-
-    # Create an invoice
+# Create an invoice
     invoice = Invoice(customer_id="cust_123", currency="USD")
 
     # Set company and customer information
@@ -967,7 +971,7 @@ if __name__ == "__main__":
     print(f"Invoice exported to CSV: {csv_output}")
 
     # Generate PDF
-    pdf_output = delivery.generate_pdf(invoice, output_path="invoice_example.pdf")
+    pdf_output = delivery.generate_pdf(invoice, output_path="invoice_example.pd")
     print(f"Invoice exported to PDF: {pdf_output}")
 
     # Send invoice by email

@@ -2,6 +2,7 @@
 Tests for the AdapterFactory class.
 """
 
+
 import pytest
 
 from ai_models.adapters import AdapterFactory, BaseModelAdapter
@@ -9,7 +10,12 @@ from errors import ModelError
 from interfaces.model_interfaces import IModelAdapter
 
 
-class MockAdapter(BaseModelAdapter):
+class MockAdapter
+    from ai_models.adapters import adapter_factory, get_adapter_factory
+
+    
+
+(BaseModelAdapter):
     """Mock adapter for testing."""
 
     def __init__(self, **kwargs):
@@ -71,9 +77,7 @@ def test_adapter_factory_get_available_adapters():
 
 def test_global_adapter_factory():
     """Test the global adapter factory."""
-    from ai_models.adapters import adapter_factory, get_adapter_factory
-
-    # Get the global factory
+# Get the global factory
     factory = get_adapter_factory()
 
     # Verify it's the same instance

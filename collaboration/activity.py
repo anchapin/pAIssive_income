@@ -5,6 +5,7 @@ This module provides classes for tracking user activity and sending notification
 to team members about important events and changes.
 """
 
+
 import json
 import logging
 import os
@@ -12,6 +13,8 @@ import uuid
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)

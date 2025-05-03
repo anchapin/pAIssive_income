@@ -4,15 +4,20 @@ ROUGE metric for benchmarking AI models.
 This module provides a metric for measuring the ROUGE scores of text generation models.
 """
 
+
 from typing import Any, Callable, Dict, List
 
 from .base_metric import BaseMetric
 
-# Try to import optional dependencies
-try:
+
     from rouge_score import rouge_scorer
 
-    ROUGE_AVAILABLE = True
+    ROUGE_AVAILABLE 
+                import statistics
+
+# Try to import optional dependencies
+try:
+= True
 except ImportError:
     ROUGE_AVAILABLE = False
 
@@ -153,7 +158,7 @@ class RougeMetric(BaseMetric):
         # Add individual statistics for each ROUGE type
         for rouge_type in self.rouge_types:
             if self.scores[rouge_type]:
-                import statistics
+
 
                 stats[rouge_type] = {
                     "min": min(self.scores[rouge_type]),

@@ -5,13 +5,16 @@ This module provides classes for managing subscription plans, tiers, and user su
 It includes tools for subscription lifecycle management and payment processing.
 """
 
+
 import json
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 
-class FeatureWrapper:
+class FeatureWrapper
+
+:
     """
     Wrapper class for feature dictionaries to provide attribute access.
     """

@@ -5,11 +5,14 @@ This module provides interfaces for the agent profiles to enable dependency inje
 and improve testability and maintainability.
 """
 
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
 
-class IAgentProfile(ABC):
+class IAgentProfile
+
+(ABC):
     """Interface for agent profiles."""
 
     @property

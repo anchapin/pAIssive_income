@@ -1,11 +1,6 @@
-import time
-"""
-Subscription Models for the pAIssive Income project.
+from monetization.errors import MonetizationError
 
-This module provides classes for creating and managing different subscription models
-for AI-powered software tools. It includes base classes and specific implementations
-for various subscription models like freemium, tiered, usage-based, and hybrid models.
-"""
+import time
 
 import copy
 import logging
@@ -15,7 +10,28 @@ from typing import Any, Dict, List, Optional
 
 from common_utils import load_from_json_file, save_to_json_file, to_json
 
-from .errors import (
+from .errors import 
+            from .errors import MonetizationError
+
+            error 
+            from .errors import MonetizationError
+
+            error 
+            from .errors import MonetizationError
+
+            error 
+
+"""
+Subscription Models for the pAIssive Income project.
+
+This module provides classes for creating and managing different subscription models
+for AI-powered software tools. It includes base classes and specific implementations
+for various subscription models like freemium, tiered, usage-based, and hybrid models.
+"""
+
+
+
+(
     FeatureNotFoundError,
     TierNotFoundError,
     ValidationError,
@@ -376,9 +392,7 @@ class SubscriptionModel:
                 f"Successfully saved subscription model '{self.name}' to {file_path}"
             )
         except (IOError, OSError) as e:
-            from .errors import MonetizationError
-
-            error = MonetizationError(
+= MonetizationError(
                 message=f"Failed to save subscription model to {file_path}: {e}",
                 code="file_write_error",
                 original_exception=e,
@@ -387,9 +401,7 @@ class SubscriptionModel:
             raise error
         except Exception as e:
             # Handle unexpected errors
-            from .errors import MonetizationError
-
-            error = handle_exception(e, error_class=MonetizationError, reraise=True)
+= handle_exception(e, error_class=MonetizationError, reraise=True)
 
     @classmethod
     def load_from_file(cls, file_path: str) -> "SubscriptionModel":
@@ -568,9 +580,7 @@ class SubscriptionModel:
             raise
         except FileNotFoundError as e:
             # Convert file not found into a domain-specific error
-            from .errors import MonetizationError
-
-            error = MonetizationError(
+= MonetizationError(
                 message=f"File not found: {file_path}",
                 code="file_not_found",
                 original_exception=e,

@@ -4,6 +4,9 @@ Deploy command for the command-line interface.
 This module provides a command for deploying models.
 """
 
+import boto3
+
+
 import argparse
 import json
 import logging
@@ -11,6 +14,14 @@ import os
 from typing import Any, Dict
 
 from ..base import BaseCommand
+
+
+        from ...serving.deployment import DockerConfig, generate_docker_config
+
+        
+        from ...serving.deployment import KubernetesConfig, generate_kubernetes_config
+
+        
 
 # Set up logging
 logging.basicConfig(
@@ -158,9 +169,7 @@ class DeployCommand(BaseCommand):
             Exit code
         """
         # Import required modules
-        from ...serving.deployment import DockerConfig, generate_docker_config
-
-        # Get deployment name
+# Get deployment name
         name = self.args.name or os.path.basename(self.args.model_path)
 
         # Create configuration
@@ -208,9 +217,7 @@ class DeployCommand(BaseCommand):
             Exit code
         """
         # Import required modules
-        from ...serving.deployment import KubernetesConfig, generate_kubernetes_config
-
-        # Get deployment name
+# Get deployment name
         name = self.args.name or os.path.basename(self.args.model_path)
 
         # Create configuration

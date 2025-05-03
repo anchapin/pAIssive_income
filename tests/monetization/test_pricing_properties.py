@@ -5,6 +5,7 @@ This module tests properties that should hold true for the pricing calculation
 functions in the monetization module, using the Hypothesis framework for property-based testing.
 """
 
+
 import pytest
 from hypothesis.strategies import composite
 
@@ -12,6 +13,8 @@ from hypothesis import assume, example, given
 from hypothesis import strategies as st
 from monetization.calculator import MonetizationCalculator
 from monetization.pricing_calculator import PricingCalculator
+
+
 
 
 @composite

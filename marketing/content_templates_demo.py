@@ -5,6 +5,13 @@ This script demonstrates how to use the various content templates
 to create marketing content for different channels.
 """
 
+import time
+
+from user_personas import PersonaCreator
+
+
+def main
+
 from content_templates import (
     BlogPostTemplate,
     EmailNewsletterTemplate,
@@ -12,10 +19,7 @@ from content_templates import (
     SocialMediaTemplate,
     VideoScriptTemplate,
 )
-from user_personas import PersonaCreator
-
-
-def main():
+():
     """Main function to demonstrate the Content Templates module."""
     print("=" * 80)
     print("Content Templates Module Demo")

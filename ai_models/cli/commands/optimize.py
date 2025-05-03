@@ -4,6 +4,7 @@ Optimize command for the command-line interface.
 This module provides a command for optimizing models.
 """
 
+
 import argparse
 import json
 import logging
@@ -11,6 +12,14 @@ import os
 from typing import Any, Dict
 
 from ..base import BaseCommand
+
+
+        from ...optimization import analyze_quantization, quantize_model
+
+        
+        from ...optimization import analyze_pruning, prune_model
+
+        
 
 # Set up logging
 logging.basicConfig(
@@ -157,9 +166,7 @@ class OptimizeCommand(BaseCommand):
             Exit code
         """
         # Import required modules
-        from ...optimization import analyze_quantization, quantize_model
-
-        # Create configuration
+# Create configuration
         config = {
             "model_path": self.args.model_path,
             "output_path": self.args.output_path,
@@ -233,9 +240,7 @@ class OptimizeCommand(BaseCommand):
             Exit code
         """
         # Import required modules
-        from ...optimization import analyze_pruning, prune_model
-
-        # Create configuration
+# Create configuration
         config = {
             "model_path": self.args.model_path,
             "output_path": self.args.output_path,

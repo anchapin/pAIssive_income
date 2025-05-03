@@ -5,6 +5,13 @@ This script demonstrates how to use the content generators to create
 blog posts, product descriptions, and case studies.
 """
 
+import time
+
+from marketing.user_personas import PersonaCreator
+
+
+def create_demo_persona
+
 from marketing.content_generators import (
     BlogPostGenerator,
     CaseStudyGenerator,
@@ -15,10 +22,7 @@ from marketing.content_templates import (
     CaseStudyTemplate,
     ProductDescriptionTemplate,
 )
-from marketing.user_personas import PersonaCreator
-
-
-def create_demo_persona():
+():
     """Create a demo persona for the examples."""
     persona_creator = PersonaCreator()
 

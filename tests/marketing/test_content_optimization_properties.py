@@ -5,6 +5,9 @@ This module tests properties that should hold true for content optimization algo
 in the marketing.content_optimization module, using the Hypothesis framework for property-based testing.
 """
 
+import time
+
+
 import uuid
 from datetime import datetime
 
@@ -13,7 +16,9 @@ from hypothesis.strategies import composite
 
 from hypothesis import assume, given
 from hypothesis import strategies as st
-from marketing.content_optimization import (
+from marketing.content_optimization import 
+
+(
     KeywordAnalyzer,
     ReadabilityAnalyzer,
 )
@@ -68,7 +73,7 @@ SAMPLE_WORDS = [
 SIMPLE_WORDS = [
     "the",
     "and",
-    "of",
+    "o",
     "to",
     "in",
     "is",

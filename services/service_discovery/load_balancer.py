@@ -5,11 +5,14 @@ This module defines various load balancing strategies for distributing
 requests across multiple instances of a service.
 """
 
+
 import abc
 import random
 from typing import Generic, List, Optional, TypeVar
 
-T = TypeVar("T")
+T 
+
+= TypeVar("T")
 
 
 class LoadBalancerStrategy(Generic[T], abc.ABC):

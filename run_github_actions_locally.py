@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-"""
-Script to run GitHub Actions workflows locally using Act.
-This script helps verify that GitHub Actions workflows will pass before pushing to the repository.
-"""
 
 import argparse
 import os
@@ -11,7 +6,18 @@ import sys
 from pathlib import Path
 
 
-def list_workflows():
+def list_workflows
+
+#!/usr/bin/env python
+"""
+Script to run GitHub Actions workflows locally using Act.
+This script helps verify that GitHub Actions workflows will pass before pushing to the repository.
+"""
+
+
+
+
+():
     """List all available workflows in the .github/workflows directory."""
     workflows_dir = Path(".github/workflows")
     if not workflows_dir.exists():

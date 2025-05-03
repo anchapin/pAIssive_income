@@ -2,13 +2,16 @@
 Tests for payment gateway integration.
 """
 
+
 import unittest
 from datetime import datetime
 
 from monetization.mock_payment_processor import MockPaymentProcessor
 
 
-class TestPaymentGateway(unittest.TestCase):
+class TestPaymentGateway
+
+(unittest.TestCase):
     """Test cases for payment gateway integration."""
 
     def setUp(self):

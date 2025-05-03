@@ -4,6 +4,7 @@ Command implementations for the command-line interface.
 This module provides the implementation of all commands for the CLI.
 """
 
+
 import argparse
 import csv
 import json
@@ -15,12 +16,18 @@ from typing import Optional
 
 from .base import BaseCommand
 
-# Add the project root to the Python path to import other modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
 from ai_models.model_config import ModelConfig
 from ai_models.model_downloader import ModelDownloader
 from ai_models.model_manager import ModelManager
-from ai_models.performance_monitor import (
+from ai_models.performance_monitor import 
+                    import signal
+            import matplotlib
+                    import time
+
+# Add the project root to the Python path to import other modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+(
     InferenceTracker,
     PerformanceMonitor,
 )
@@ -966,7 +973,7 @@ class VersionCommand(BaseCommand):
                 print("Model supports generation. Example output:")
                 try:
                     # Use a very short timeout to avoid long waits
-                    import signal
+
 
                     def timeout_handler(signum, frame):
                         raise TimeoutError("Generation timed out")
@@ -1533,8 +1540,8 @@ class PerformanceCommand(BaseCommand):
                     writer.writerow(["Percent Differences (compared to best model)"])
 
                     for metric in metrics:
-                        diff_metric = f"{metric}_percent_diff"
-                        row = [f"{metric} % diff"]
+                        diff_metric = f"{metric}_percent_dif"
+                        row = [f"{metric} % dif"]
                         for model_key in comparison.comparison_metrics:
                             value = comparison.comparison_metrics[model_key].get(
                                 diff_metric, 0
@@ -1585,7 +1592,7 @@ class PerformanceCommand(BaseCommand):
                 print("-" * (25 + 20 * len(comparison.comparison_metrics)))
 
                 for metric, display_name in display_metrics.items():
-                    diff_metric = f"{metric}_percent_diff"
+                    diff_metric = f"{metric}_percent_dif"
                     print(f"{display_name + ' % diff':<25}", end="")
                     for model_key in comparison.comparison_metrics:
                         value = comparison.comparison_metrics[model_key].get(
@@ -1615,7 +1622,7 @@ class PerformanceCommand(BaseCommand):
         Generate visualizations of model performance metrics.
         """
         try:
-            import matplotlib
+
 
         except ImportError:
             logger.error(
@@ -1788,7 +1795,7 @@ class PerformanceCommand(BaseCommand):
                     output_text = model(input_text)
                 else:
                     # Just simulate an inference
-                    import time
+
 
                     time.sleep(0.5)
                     output_text = "Simulated output for " + input_text

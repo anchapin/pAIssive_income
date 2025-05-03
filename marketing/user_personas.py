@@ -3,12 +3,17 @@ User Personas module for the pAIssive Income project.
 Provides tools for defining and understanding target user personas.
 """
 
+import time
+
+
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 
-class PersonaCreator:
+class PersonaCreator
+
+:
     """
     Tool for creating detailed user personas for marketing campaigns.
     """

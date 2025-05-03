@@ -5,6 +5,10 @@ This package provides utilities for asynchronous communication between
 microservices using a message queue (RabbitMQ).
 """
 
+from .message import Message, MessagePriority, MessageSchema, MessageStatus, MessageType
+
+__all__ 
+
 from .client import (
     AsyncMessageHandler,
     AsyncMessageQueueClient,
@@ -18,9 +22,7 @@ from .exceptions import (
     PublishError,
     SchemaError,
 )
-from .message import Message, MessagePriority, MessageSchema, MessageStatus, MessageType
-
-__all__ = [
+= [
     "MessageQueueClient",
     "AsyncMessageQueueClient",
     "MessageHandler",

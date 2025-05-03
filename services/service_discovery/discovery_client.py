@@ -5,6 +5,7 @@ This module provides a high-level client for microservices to register
 themselves and discover other services in the system.
 """
 
+
 import logging
 import socket
 import time
@@ -12,7 +13,9 @@ import uuid
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from services.service_discovery.consul_registry import ConsulServiceRegistry
-from services.service_discovery.load_balancer import (
+from services.service_discovery.load_balancer import 
+
+(
     LoadBalancer,
     RandomStrategy,
     RoundRobinStrategy,

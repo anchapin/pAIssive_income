@@ -4,14 +4,18 @@ Text classification routes for REST API server.
 This module provides route handlers for text classification.
 """
 
+
 from typing import List
 
-# Try to import FastAPI
-try:
+
     from fastapi import APIRouter, Depends, HTTPException
     from pydantic import BaseModel, ConfigDict, Field
 
-    FASTAPI_AVAILABLE = True
+    FASTAPI_AVAILABLE 
+
+# Try to import FastAPI
+try:
+= True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
@@ -37,7 +41,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class ClassificationRequest(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Request model for text classification.
         """
@@ -45,7 +49,7 @@ if FASTAPI_AVAILABLE:
         text: str = Field(..., description="Input text for classification")
 
     class ClassificationLabel(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Model for a classification label.
         """
@@ -54,7 +58,7 @@ if FASTAPI_AVAILABLE:
         score: float = Field(..., description="Confidence score")
 
     class ClassificationResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Response model for text classification.
         """

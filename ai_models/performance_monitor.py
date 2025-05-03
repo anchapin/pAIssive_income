@@ -6,6 +6,7 @@ performance metrics across various dimensions including latency, throughput,
 memory usage, and quality metrics.
 """
 
+
 import csv
 import json
 import logging
@@ -19,6 +20,18 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
+
+
+            import psutil
+            import resource
+            import matplotlib.pyplot
+            import pandas
+            from matplotlib.dates import DateFormatter
+        except ImportError
+                    import numpy
+                    from scipy import stats
+
+                    
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -242,7 +255,7 @@ class ModelComparisonReport:
                         percent_diff = (best_value - current_value) / best_value * 100
 
                     self.comparison_metrics[model_key][
-                        f"{metric}_percent_diff"
+                        f"{metric}_percent_dif"
                     ] = percent_diff
 
 
@@ -423,7 +436,7 @@ class InferenceTracker:
         # Measure memory usage - we'll use a very simple approach here
         # In a real implementation, this would use process-specific metrics
         try:
-            import psutil
+
 
             process = psutil.Process(os.getpid())
             memory_info = process.memory_info()
@@ -440,7 +453,7 @@ class InferenceTracker:
             self.metrics.cpu_percent = process.cpu_percent()
         except ImportError:
             # psutil not available, use generic memory info
-            import resource
+
 
             memory_mb = (
                 resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
@@ -1407,10 +1420,9 @@ class PerformanceMonitor:
             List of paths to generated visualization files
         """
         try:
-            import matplotlib.pyplot as plt
-            import pandas as pd
-            from matplotlib.dates import DateFormatter
-        except ImportError:
+ as plt
+ as pd
+:
             logger.error(
                 "Visualization requires matplotlib and pandas. Install with: pip install matplotlib pandas"
             )
@@ -1472,10 +1484,8 @@ class PerformanceMonitor:
 
                 # Add trend line
                 try:
-                    import numpy as np
-                    from scipy import stats
-
-                    # Convert timestamps to numbers for correlation
+ as np
+# Convert timestamps to numbers for correlation
                     x = np.array(
                         [
                             (t - df["timestamp"].min()).total_seconds()

@@ -5,13 +5,18 @@ This module tests the Prometheus metrics collection, accuracy, and alert
 functionality in the API services.
 """
 
+
 import pytest
 import time
 from unittest.mock import MagicMock, patch
 import json
 import re
 
-from api.services.metrics import (
+from api.services.metrics import 
+    from prometheus_client import generate_latest
+    metrics_data 
+
+(
     WEBHOOK_DELIVERIES_TOTAL,
     WEBHOOK_DELIVERY_DURATION,
     WEBHOOK_QUEUE_SIZE,
@@ -210,8 +215,7 @@ webhook_queue_size{priority="low"} 5.0
     track_queue_size(size=5, priority="low")
     
     # Get metrics in Prometheus format
-    from prometheus_client import generate_latest
-    metrics_data = generate_latest()
+= generate_latest()
     
     # Check that the mock was called
     mock_generate_latest.assert_called_once()
@@ -247,7 +251,7 @@ webhook_queue_size{priority="low"} 5.0
     # Validate histogram buckets
     assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="0\.1"\} 0\.0', metrics_text)
     assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="0\.5"\} 1\.0', metrics_text)
-    assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="\+Inf"\} 2\.0', metrics_text)
+    assert re.search(r'webhook_delivery_duration_seconds_bucket\{.*le="\+In"\} 2\.0', metrics_text)
 
 
 @patch('api.services.metrics.WEBHOOK_HEALTH')

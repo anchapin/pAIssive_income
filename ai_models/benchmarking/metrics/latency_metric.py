@@ -4,13 +4,16 @@ Latency metric for benchmarking AI models.
 This module provides a metric for measuring the latency of AI models.
 """
 
+
 import time
 from typing import Callable, Dict
 
 from .base_metric import BaseMetric
 
 
-class LatencyMetric(BaseMetric):
+class LatencyMetric
+
+(BaseMetric):
     """
     Metric for measuring latency.
     """

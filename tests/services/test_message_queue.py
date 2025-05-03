@@ -4,6 +4,7 @@ Tests for message queue functionality.
 This module contains tests for the message queue implementation.
 """
 
+
 import json
 import time
 from unittest.mock import MagicMock, patch
@@ -15,7 +16,9 @@ from services.shared.message_queue.queue_client import MessageQueueClient
 from services.shared.message_queue.queue_config import QueueConfig
 
 
-class TestMessageQueue:
+class TestMessageQueue
+
+:
     """Tests for message queue functionality."""
 
     @patch("pika.BlockingConnection")

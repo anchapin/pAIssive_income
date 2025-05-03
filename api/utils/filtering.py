@@ -4,12 +4,15 @@ Filtering utilities for API endpoints.
 This module provides utilities for filtering data in API endpoints.
 """
 
+
 import re
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
 
-class FilterOperator(str, Enum):
+class FilterOperator
+
+(str, Enum):
     """Filter operator for query parameters."""
 
     EQ = "eq"  # Equal

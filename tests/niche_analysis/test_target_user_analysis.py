@@ -2,10 +2,13 @@
 Tests for target user analysis functionality.
 """
 
+
 import pytest
 
 from niche_analysis.errors import InsufficientDataError, InvalidUserDataError
-from niche_analysis.target_user_analysis import (
+from niche_analysis.target_user_analysis import 
+
+(
     UserNeedsPrioritizer,
     UserSegmentationAnalyzer,
     WillingnessToPay,

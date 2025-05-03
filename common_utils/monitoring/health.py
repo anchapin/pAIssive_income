@@ -5,6 +5,7 @@ This module provides functionality for monitoring the health of various system c
 integrating with monitoring systems, and providing a status endpoint for health checks.
 """
 
+
 import threading
 import time
 from enum import Enum
@@ -12,7 +13,10 @@ from typing import Any, Callable, Dict, Optional, Tuple
 
 from common_utils.logging import get_logger
 
-logger = get_logger(__name__)
+logger 
+            import requests
+
+= get_logger(__name__)
 
 
 class HealthStatus(str, Enum):
@@ -240,7 +244,7 @@ def api_health_check(
 
     def check() -> Tuple[HealthStatus, Dict[str, Any]]:
         try:
-            import requests
+
 
             start_time = time.time()
             response = requests.get(api_url, timeout=timeout)

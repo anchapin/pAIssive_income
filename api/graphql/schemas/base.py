@@ -5,7 +5,15 @@ This module provides the root Query and Mutation types that other
 module-specific types will extend.
 """
 
+
 import logging
+    import strawberry
+    from strawberry.types import Info
+
+    STRAWBERRY_AVAILABLE 
+            from datetime import datetime
+
+            
 
 # Set up logging
 logging.basicConfig(
@@ -14,10 +22,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 try:
-    import strawberry
-    from strawberry.types import Info
 
-    STRAWBERRY_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("Strawberry GraphQL is required for GraphQL schema")
     STRAWBERRY_AVAILABLE = False
@@ -45,9 +51,7 @@ if STRAWBERRY_AVAILABLE:
             Returns:
                 Basic health information about the API
             """
-            from datetime import datetime
-
-            # Get API server from context if available
+# Get API server from context if available
             server = getattr(info.context.get("request").app.state, "api_server", None)
             uptime = server.get_uptime() if server else 0
 

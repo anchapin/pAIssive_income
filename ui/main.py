@@ -4,7 +4,14 @@ Main entry point for the pAIssive Income UI.
 This module initializes the UI application and services in the correct order.
 """
 
+
 import logging
+    from ui import app, init_app_with_services
+
+    
+    from ui.routes import init_services
+
+    init_services
 
 # Set up logging
 logging.basicConfig(
@@ -18,15 +25,11 @@ def initialize_application():
     logger.info("Initializing pAIssive Income application")
 
     # Import the UI module
-    from ui import app, init_app_with_services
-
-    # Initialize services
+# Initialize services
     init_app_with_services()
 
     # Initialize routes services
-    from ui.routes import init_services
-
-    init_services()
+()
 
     logger.info("pAIssive Income application initialized")
 

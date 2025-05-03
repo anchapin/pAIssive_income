@@ -5,12 +5,25 @@ This module provides a pruner that uses magnitude-based pruning to reduce
 model size and improve inference speed.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import json
 import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
 from .base import Pruner, PruningConfig, PruningMethod
+
+
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE 
+    import torch.nn.utils.prune
 
 # Set up logging
 logging.basicConfig(
@@ -20,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -28,9 +41,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Transformers not available. Magnitude pruner will have limited functionality."
@@ -38,7 +49,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
-    import torch.nn.utils.prune as torch_prune
+ as torch_prune
 
     TORCH_PRUNE_AVAILABLE = True
 except ImportError:

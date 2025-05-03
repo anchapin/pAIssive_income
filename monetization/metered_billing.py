@@ -6,20 +6,26 @@ where customers are charged based on their actual measured usage of a service
 over a specific time period.
 """
 
+import time
+
+
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
-from .billing_calculator import (
-    BillingCalculator,
-    PricingRule,
-)
+from .billing_calculator import 
 from .invoice_manager import InvoiceManager
 from .usage_based_pricing import UsageBasedPricing
 from .usage_tracker import UsageTracker
 from .usage_tracking import UsageCategory, UsageMetric
 
 
-class MeteringInterval:
+class MeteringInterval
+
+(
+    BillingCalculator,
+    PricingRule,
+)
+:
     """Enumeration of metering intervals."""
 
     HOURLY = "hourly"

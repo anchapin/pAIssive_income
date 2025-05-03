@@ -5,11 +5,14 @@ This module mocks the requests library to allow testing of code that makes HTTP 
 without actually making network calls.
 """
 
+
 import json
 import re
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 from unittest.mock import MagicMock
 from urllib.parse import parse_qs, urlparse
+
+from requests.exceptions import HTTPError
 
 
 class MockResponse:
@@ -104,7 +107,6 @@ class MockResponse:
         """Raise an exception if the status code indicates an error."""
         if 400 <= self.status_code < 600:
             from requests.exceptions import HTTPError
-
             raise HTTPError(f"{self.status_code} {self.reason}", response=self)
 
 

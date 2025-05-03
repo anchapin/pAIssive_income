@@ -5,13 +5,16 @@ This module contains tests for analytics data collection across different
 API endpoints and services.
 """
 
+
 import pytest
 import time
 from unittest.mock import patch, MagicMock
 from typing import Dict, Any, List
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
+from tests.api.utils.test_data import 
+
+(
     generate_niche_analysis_data,
     generate_solution_data,
     generate_monetization_data,

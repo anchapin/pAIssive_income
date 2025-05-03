@@ -5,10 +5,14 @@ These tests verify that the RevenueProjector produces sensible
 projections across a wide range of input parameters.
 """
 
+
 from hypothesis import assume, given
 from hypothesis import strategies as st
 from monetization.revenue_projector import RevenueProjector
 from monetization.subscription_models import SubscriptionModel
+
+
+    import json
 
 # Strategies for generating valid RevenueProjector parameters
 names = st.text(min_size=1, max_size=100)
@@ -250,7 +254,7 @@ def test_invariant_properties(
     assert projector_dict["tier_distribution"] == tier_dist
 
     # Property 2: to_json() should be valid JSON that can be parsed back
-    import json
+
 
     projector_json = projector.to_json()
     parsed_json = json.loads(projector_json)

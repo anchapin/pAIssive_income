@@ -5,12 +5,15 @@ This module contains tests for workflows that span multiple API endpoints,
 such as niche analysis to solution development.
 """
 
+
 import pytest
 from unittest.mock import patch, MagicMock
 from typing import Dict, Any, List
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
+from tests.api.utils.test_data import 
+
+(
     generate_niche_analysis_data,
     generate_solution_data,
     generate_monetization_data,
@@ -202,7 +205,7 @@ class TestCrossAPIWorkflows:
             "solution_id": solution_id,
             "monetization_id": monetization_id,
             "marketing_id": marketing_id,
-            "format": "pdf"
+            "format": "pd"
         })
         
         # If the endpoint returns 404 or 501, skip the test

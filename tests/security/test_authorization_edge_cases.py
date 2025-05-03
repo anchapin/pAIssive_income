@@ -7,6 +7,7 @@ This module implements the authorization edge case tests recommended in the secu
 3. Test temporary permission elevation
 """
 
+
 import unittest
 import time
 import threading
@@ -19,7 +20,9 @@ from api.config import APIConfig
 from api.middleware.auth import AuthMiddleware
 
 
-class TestAuthorizationEdgeCases(unittest.TestCase):
+class TestAuthorizationEdgeCases
+
+(unittest.TestCase):
     """Test cases for authorization edge cases."""
 
     def setUp(self):

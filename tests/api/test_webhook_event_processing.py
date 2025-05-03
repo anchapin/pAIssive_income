@@ -10,6 +10,7 @@ This module tests the event processing capabilities of the webhook system:
 6. Custom header propagation
 """
 
+
 import pytest
 import asyncio
 import json
@@ -22,7 +23,9 @@ from api.services.webhook_service import WebhookService
 from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
 
 
-class TestEventFiltering:
+class TestEventFiltering
+
+:
     """Tests for event filtering by subscription type."""
     
     @pytest.mark.asyncio

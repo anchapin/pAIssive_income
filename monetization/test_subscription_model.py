@@ -2,12 +2,15 @@
 Test script for the SubscriptionModel class.
 """
 
+
 import os
 
 from subscription_models import SubscriptionModel
 
 
-def test_subscription_model():
+def test_subscription_model
+
+():
     """Test the basic functionality of the SubscriptionModel class."""
     print("Testing SubscriptionModel class...")
 

@@ -4,11 +4,17 @@ List command for the command-line interface.
 This module provides a command for listing available models.
 """
 
+
 import argparse
 import json
 import logging
 
 from ..base import BaseCommand
+
+
+            from ...core import ModelManager
+
+            
 
 # Set up logging
 logging.basicConfig(
@@ -63,9 +69,7 @@ class ListCommand(BaseCommand):
 
         try:
             # Import required modules
-            from ...core import ModelManager
-
-            # Create model manager
+# Create model manager
             manager = ModelManager(self.args.model_dir)
 
             # Get models

@@ -5,11 +5,31 @@ This module provides a quantizer that uses the AWQ method for
 quantizing transformer models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import logging
 import os
 from typing import Any, Dict, List, Optional
 
 from .base import QuantizationConfig, QuantizationMethod, Quantizer
+
+
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE 
+    import awq
+    from awq import AutoAWQForCausalLM
+
+    AWQ_AVAILABLE 
+            from datasets import load_dataset
+
+            calibration_dataset 
+        import json
 
 # Set up logging
 logging.basicConfig(
@@ -19,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -27,9 +47,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Transformers not available. AWQ quantizer will have limited functionality."
@@ -38,10 +56,8 @@ except ImportError:
 
 # Check if AWQ is available
 try:
-    import awq
-    from awq import AutoAWQForCausalLM
 
-    AWQ_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("AWQ not available. Please install it with: pip install autoawq")
     AWQ_AVAILABLE = False
@@ -95,7 +111,7 @@ class AWQQuantizer(Quantizer):
 
         if self.config.bits not in [4, 8]:
             raise ValueError(
-                f"Unsupported bits: {self.config.bits}. " f"Supported bits: 4, 8"
+                f"Unsupported bits: {self.config.bits}. " "Supported bits: 4, 8"
             )
 
     def quantize(
@@ -130,9 +146,7 @@ class AWQQuantizer(Quantizer):
             calibration_dataset = self.config.calibration_dataset
         else:
             # Use default dataset (WikiText-2)
-            from datasets import load_dataset
-
-            calibration_dataset = load_dataset(
+= load_dataset(
                 "wikitext", "wikitext-2-raw-v1", split="train"
             )
 
@@ -185,7 +199,7 @@ class AWQQuantizer(Quantizer):
         Args:
             output_path: Path to save the configuration
         """
-        import json
+
 
         config_path = os.path.join(output_path, "quantization_config.json")
 

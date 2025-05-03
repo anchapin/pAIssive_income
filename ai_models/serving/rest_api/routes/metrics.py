@@ -4,15 +4,19 @@ Metrics routes for REST API server.
 This module provides route handlers for metrics.
 """
 
+
 from typing import Dict, List
 
-# Try to import FastAPI
-try:
+
     from fastapi import APIRouter, Depends
     from fastapi.responses import PlainTextResponse
     from pydantic import BaseModel, ConfigDict, Field
 
-    FASTAPI_AVAILABLE = True
+    FASTAPI_AVAILABLE 
+
+# Try to import FastAPI
+try:
+= True
 except ImportError:
     FASTAPI_AVAILABLE = False
 

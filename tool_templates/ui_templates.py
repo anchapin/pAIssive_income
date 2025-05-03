@@ -11,6 +11,7 @@ Dependencies:
 - PyQt5 (for desktop applications, alternative to Electron)
 """
 
+
 import json
 import logging
 import os
@@ -18,6 +19,16 @@ import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
+
+
+    import flask
+from flask import Flask, jsonify, redirect, render_template, request, url_for  
+    from PyQt5 import QtCore, QtGui, QtWidgets  
+
+import sys
+from PyQt5 import QtWidgets, QtCore, QtGui
+
+class MainWindow
 
 # Set up logging
 logging.basicConfig(
@@ -27,8 +38,8 @@ logger = logging.getLogger(__name__)
 
 # Check for optional dependencies
 try:
-    import flask  # noqa: F401
-from flask import Flask, jsonify, redirect, render_template, request, url_for  # noqa: F401
+  # noqa: F401
+# noqa: F401
 
     FLASK_AVAILABLE = True
 except ImportError:
@@ -36,7 +47,7 @@ except ImportError:
     logger.warning("Flask not available. Web application templates will not work.")
 
 try:
-    from PyQt5 import QtCore, QtGui, QtWidgets  # noqa: F401
+# noqa: F401
 
     PYQT_AVAILABLE = True
 except ImportError:
@@ -91,9 +102,9 @@ class BaseUITemplate(ABC):
             "theme": {
                 "primary_color": "#4a6cf7",
                 "secondary_color": "#f78c6c",
-                "background_color": "#ffffff",
+                "background_color": "#fffff",
                 "text_color": "#333333",
-                "font_family": "Arial, sans-serif",
+                "font_family": "Arial, sans-seri",
             },
             "layout": {"sidebar": True, "navbar": True, "footer": True},
             "features": {"dark_mode": True, "responsive": True, "animations": True},
@@ -734,7 +745,7 @@ class DesktopAppTemplate(BaseUITemplate):
         Args:
             output_path: Path to save the Python script
         """
-        template = f"""#!/usr/bin/env python3
+        template = """#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 \"\"\"
@@ -743,10 +754,7 @@ Version: {self.version}
 Author: {self.author}
 \"\"\"
 
-import sys
-from PyQt5 import QtWidgets, QtCore, QtGui
-
-class MainWindow(QtWidgets.QMainWindow):
+(QtWidgets.QMainWindow):
     \"\"\"
     Main window for the {self.app_name} application.
     \"\"\"

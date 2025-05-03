@@ -2,11 +2,15 @@
 Tests for the PerformanceMonitor class.
 """
 
+
 from unittest.mock import MagicMock
 
 import pytest
 
-from ai_models.performance_monitor import (
+from ai_models.performance_monitor import 
+    import time
+
+(
     InferenceMetrics,
     InferenceTracker,
     ModelPerformanceReport,
@@ -104,7 +108,7 @@ def test_inference_tracker_start_stop(mock_model):
     assert tracker.start_time is not None
 
     # Add a small delay to ensure latency is measurable
-    import time
+
 
     time.sleep(0.01)
 

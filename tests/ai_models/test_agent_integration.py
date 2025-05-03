@@ -2,6 +2,7 @@
 Tests for the AgentModelProvider class.
 """
 
+
 from typing import Any, Dict
 from unittest.mock import MagicMock, patch
 
@@ -12,7 +13,9 @@ from ai_models.model_manager import ModelManager
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
 
-class MockModelInfo(IModelInfo):
+class MockModelInfo
+
+(IModelInfo):
     """Mock model info for testing."""
 
     def __init__(self, id, name, description, type, path, capabilities=None):

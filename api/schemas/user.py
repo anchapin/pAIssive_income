@@ -2,12 +2,15 @@
 User schemas for the API server.
 """
 
+
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
-class UserRegisterRequest(BaseModel):
+class UserRegisterRequest
+
+(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Request model for user registration."""
     username: str = Field(..., description="Username")
@@ -18,21 +21,21 @@ class UserRegisterRequest(BaseModel):
 
 
 class UserLoginRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for user login."""
     username: str = Field(..., description="Username")
     password: str = Field(..., description="Password")
 
 
 class UserLoginResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for user login."""
     access_token: str = Field(..., description="Access token")
     token_type: str = Field(..., description="Token type")
 
 
 class UserResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for user data."""
     id: str = Field(..., description="User ID")
     username: str = Field(..., description="Username")
@@ -46,7 +49,7 @@ class UserResponse(BaseModel):
 
 
 class UserProfileUpdateRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for updating user profile."""
     email: EmailStr = Field(..., description="Email address")
     first_name: str = Field(..., description="First name")
@@ -54,14 +57,14 @@ class UserProfileUpdateRequest(BaseModel):
 
 
 class PasswordChangeRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for changing password."""
     current_password: str = Field(..., description="Current password")
     new_password: str = Field(..., description="New password")
 
 
 class Project(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Model for a user project."""
     id: str = Field(..., description="Project ID")
     name: str = Field(..., description="Project name")
@@ -73,7 +76,7 @@ class Project(BaseModel):
 
 
 class Team(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Model for a user team."""
     id: str = Field(..., description="Team ID")
     name: str = Field(..., description="Team name")
@@ -85,7 +88,7 @@ class Team(BaseModel):
 
 
 class Activity(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Model for a user activity."""
     id: str = Field(..., description="Activity ID")
     type: str = Field(..., description="Activity type")
@@ -97,7 +100,7 @@ class Activity(BaseModel):
 
 
 class UserSettings(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Model for user settings."""
     theme: str = Field("light", description="UI theme preference")
     notifications_enabled: bool = Field(
@@ -109,19 +112,19 @@ class UserSettings(BaseModel):
 
 
 class UserSettingsResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for user settings."""
     settings: UserSettings = Field(..., description="User settings")
 
 
 class UserSettingsUpdateRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for updating user settings."""
     settings: UserSettings = Field(..., description="New user settings")
 
 
 class PaginatedList(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Base model for paginated lists."""
     total: int = Field(..., description="Total number of items")
     page: int = Field(1, description="Current page number")

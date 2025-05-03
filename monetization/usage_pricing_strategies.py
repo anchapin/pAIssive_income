@@ -6,19 +6,25 @@ usage-based pricing strategies, such as pay-as-you-go, tiered usage,
 and consumption-based pricing.
 """
 
+import time
+
+
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .billing_calculator import (
-    BillingCalculator,
-    PricingRule,
-)
+from .billing_calculator import 
 from .usage_based_pricing import UsageBasedPricing
 from .usage_tracker import UsageTracker
 from .usage_tracking import UsageCategory, UsageMetric
 
 
-class PayAsYouGoPricing(UsageBasedPricing):
+class PayAsYouGoPricing
+
+(
+    BillingCalculator,
+    PricingRule,
+)
+(UsageBasedPricing):
     """
     Pay-as-you-go pricing model.
 

@@ -4,6 +4,9 @@ Integration tests for the niche analysis → market trend → A/B testing workfl
 This module tests the complete workflow from niche analysis through market trend
 analysis to A/B testing setup and analysis.
 """
+
+import time
+
 import pytest
 import hashlib
 from unittest.mock import patch, MagicMock
@@ -11,6 +14,8 @@ from unittest.mock import patch, MagicMock
 from niche_analysis import MarketAnalyzer
 from marketing import ABTesting
 from agent_team import AgentTeam
+
+
 
 
 @pytest.fixture

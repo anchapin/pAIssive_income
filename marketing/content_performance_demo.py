@@ -5,6 +5,9 @@ This script demonstrates how to track and analyze the performance of marketing c
 across different channels using the ContentPerformanceAnalyzer.
 """
 
+import time
+
+
 import random
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -13,7 +16,9 @@ from typing import Any, Dict
 from marketing.content_performance import ContentPerformanceAnalyzer
 
 
-def create_demo_storage():
+def create_demo_storage
+
+():
     """Create a directory for demo storage if it doesn't exist."""
     storage_dir = Path("./demo_storage")
     if not storage_dir.exists():

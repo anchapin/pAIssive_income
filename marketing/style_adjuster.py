@@ -4,6 +4,11 @@ Style adjuster module for the pAIssive Income project.
 This module provides classes for adjusting the style and tone of content.
 """
 
+import time
+
+from datetime import datetime
+
+
 import datetime
 import json
 import random
@@ -11,21 +16,26 @@ import re
 import uuid
 from typing import Any, Dict, List, Optional, Tuple
 
-# Third-party imports
-try:
+
     import nltk
     from nltk.corpus import stopwords
     from nltk.tokenize import sent_tokenize, word_tokenize
 
-    NLTK_AVAILABLE = True
+    NLTK_AVAILABLE 
+from .tone_analyzer import ToneAnalyzer
+
+
+class StyleAdjuster
+
+# Third-party imports
+try:
+
+= True
 except ImportError:
     NLTK_AVAILABLE = False
 
 # Local imports
-from .tone_analyzer import ToneAnalyzer
-
-
-class StyleAdjuster:
+:
     """
     Class for adjusting the style and tone of content.
 
@@ -50,7 +60,7 @@ class StyleAdjuster:
                 "gotta",
                 "kinda",
                 "sorta",
-                "stuff",
+                "stuf",
                 "things",
                 "whatever",
                 "anyway",
@@ -197,7 +207,7 @@ class StyleAdjuster:
                 "sorta",
                 "pretty much",
                 "more or less",
-                "stuff",
+                "stuf",
                 "things",
                 "whatever",
                 "anyway",
@@ -258,7 +268,7 @@ class StyleAdjuster:
             "gotta": ["have to", "must", "need to"],
             "kinda": ["somewhat", "rather", "relatively"],
             "sorta": ["somewhat", "rather", "relatively"],
-            "stuff": ["items", "materials", "elements"],
+            "stuf": ["items", "materials", "elements"],
             "things": ["items", "elements", "components"],
             "whatever": ["regardless", "irrespective", "notwithstanding"],
             "anyway": ["nevertheless", "nonetheless", "however"],
@@ -326,7 +336,7 @@ class StyleAdjuster:
             "sorta": ["approximately", "roughly", "nearly"],
             "pretty much": ["approximately", "roughly", "nearly"],
             "more or less": ["approximately", "roughly", "nearly"],
-            "stuff": ["components", "elements", "factors"],
+            "stuf": ["components", "elements", "factors"],
             "things": ["components", "elements", "factors"],
             "whatever": [
                 "any relevant factors",
@@ -761,7 +771,7 @@ class StyleAdjuster:
                 "to",
                 "by",
                 "in",
-                "of",
+                "o",
                 "with",
                 "about",
                 "against",
@@ -777,7 +787,7 @@ class StyleAdjuster:
                 "up",
                 "down",
                 "out",
-                "off",
+                "of",
                 "over",
                 "under",
                 "again",
@@ -866,7 +876,7 @@ class StyleAdjuster:
                 "i",
                 "me",
                 "my",
-                "myself",
+                "mysel",
                 "we",
                 "our",
                 "ours",
@@ -874,19 +884,19 @@ class StyleAdjuster:
                 "you",
                 "your",
                 "yours",
-                "yourself",
+                "yoursel",
                 "yourselves",
                 "he",
                 "him",
                 "his",
-                "himself",
+                "himsel",
                 "she",
                 "her",
                 "hers",
-                "herself",
+                "hersel",
                 "it",
                 "its",
-                "itself",
+                "itsel",
                 "they",
                 "them",
                 "their",

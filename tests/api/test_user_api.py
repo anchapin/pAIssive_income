@@ -4,9 +4,12 @@ Tests for the user API.
 This module contains tests for the user API endpoints.
 """
 
+
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id, generate_user_data
-from tests.api.utils.test_validators import (
+from tests.api.utils.test_validators import 
+
+(
     validate_bulk_response,
     validate_error_response,
     validate_field_equals,

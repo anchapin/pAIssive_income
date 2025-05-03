@@ -4,6 +4,7 @@ Monetization Service for the pAIssive Income UI.
 This service provides methods for interacting with the Monetization Agent module.
 """
 
+
 import logging
 import uuid
 from datetime import datetime
@@ -12,6 +13,15 @@ from typing import Any, Dict, List, Optional
 from interfaces.ui_interfaces import IMonetizationService
 
 from .base_service import BaseService
+
+
+            from agent_team.agent_profiles.monetization import MonetizationAgent  
+        from .developer_service import DeveloperService
+
+        developer_service 
+                from agent_team import AgentTeam
+
+                
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -29,7 +39,7 @@ class MonetizationService(BaseService, IMonetizationService):
 
         # Import the Monetization Agent class
         try:
-            from agent_team.agent_profiles.monetization import MonetizationAgent  # noqa: F401
+# noqa: F401
 
             self.monetization_agent_available = True
         except ImportError:
@@ -47,9 +57,7 @@ class MonetizationService(BaseService, IMonetizationService):
             Monetization strategy data
         """
         # Get the solution data
-        from .developer_service import DeveloperService
-
-        developer_service = DeveloperService()
+= DeveloperService()
         solution = developer_service.get_solution(solution_id)
 
         if solution is None:
@@ -58,9 +66,7 @@ class MonetizationService(BaseService, IMonetizationService):
 
         if self.monetization_agent_available:
             try:
-                from agent_team import AgentTeam
-
-                # Create a new agent team for this strategy
+# Create a new agent team for this strategy
                 team = AgentTeam(f"{solution['name']} Monetization")
 
                 # Create the monetization strategy

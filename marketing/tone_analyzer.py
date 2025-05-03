@@ -4,6 +4,11 @@ Tone analyzer module for the pAIssive Income project.
 This module provides classes for analyzing and adjusting the tone of content.
 """
 
+import time
+
+from datetime import datetime
+
+
 import datetime
 import json
 import math
@@ -13,13 +18,17 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 
-# Third-party imports
-try:
+
     import nltk
     from nltk.corpus import stopwords
     from nltk.tokenize import sent_tokenize, word_tokenize
 
-    NLTK_AVAILABLE = True
+    NLTK_AVAILABLE 
+
+# Third-party imports
+try:
+
+= True
 except ImportError:
     NLTK_AVAILABLE = False
 

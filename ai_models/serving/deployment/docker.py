@@ -4,10 +4,18 @@ Docker deployment utilities for AI models.
 This module provides utilities for deploying AI models with Docker.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import logging
 import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
+
+
 
 # Set up logging
 logging.basicConfig(
@@ -140,7 +148,7 @@ def _generate_dockerfile(config: DockerConfig, output_path: str) -> None:
         output_path: Path to save the Dockerfile
     """
     # Create Dockerfile content
-    content = f"""
+    content = """
 FROM {config.base_image}
 
 # Set working directory
@@ -216,7 +224,7 @@ def _generate_docker_compose(config: DockerConfig, output_path: str) -> None:
         output_path: Path to save the docker-compose.yml file
     """
     # Create docker-compose.yml content
-    content = f"""
+    content = """
 version: '3'
 
 services:
@@ -248,7 +256,7 @@ services:
             content += f"      - {volume['source']}:{volume['target']}\n"
 
     # Add resource limits
-    content += f"""
+    content += """
     deploy:
       resources:
         limits:

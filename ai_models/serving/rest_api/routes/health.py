@@ -4,12 +4,14 @@ Health check routes for REST API server.
 This module provides route handlers for health checks.
 """
 
-# Try to import FastAPI
-try:
     from fastapi import APIRouter, Depends
     from pydantic import BaseModel, ConfigDict, Field
 
-    FASTAPI_AVAILABLE = True
+    FASTAPI_AVAILABLE 
+
+# Try to import FastAPI
+try:
+= True
 except ImportError:
     FASTAPI_AVAILABLE = False
 

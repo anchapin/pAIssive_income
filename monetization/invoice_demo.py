@@ -4,6 +4,7 @@ Invoice generation and management demo for the pAIssive Income project.
 This script demonstrates how to use the invoice generation and management system.
 """
 
+
 import os
 import random
 from datetime import datetime, timedelta
@@ -15,7 +16,9 @@ from .invoice_manager import InvoiceManager
 from .usage_tracker import UsageTracker
 
 
-def print_separator():
+def print_separator
+
+():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")
 
@@ -158,7 +161,7 @@ def run_demo():
     # Generate PDF
     print("Generating PDF invoice...")
     pdf_output = delivery.generate_pdf(
-        invoice, output_path="invoice_exports/invoice_example.pdf"
+        invoice, output_path="invoice_exports/invoice_example.pd"
     )
     print(f"Invoice exported to PDF: {pdf_output}")
 

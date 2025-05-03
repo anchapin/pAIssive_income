@@ -4,14 +4,18 @@ Embedding routes for REST API server.
 This module provides route handlers for embeddings.
 """
 
+
 from typing import Dict, List, Optional, Union
 
-# Try to import FastAPI
-try:
+
     from fastapi import APIRouter, Depends, HTTPException
     from pydantic import BaseModel, ConfigDict, Field
 
-    FASTAPI_AVAILABLE = True
+    FASTAPI_AVAILABLE 
+
+# Try to import FastAPI
+try:
+= True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
@@ -37,7 +41,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class EmbeddingRequest(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Request model for embeddings.
         """
@@ -48,7 +52,7 @@ if FASTAPI_AVAILABLE:
         model: Optional[str] = Field(None, description="Model to use for embedding")
 
     class EmbeddingData(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Model for embedding data.
         """
@@ -57,7 +61,7 @@ if FASTAPI_AVAILABLE:
         index: int = Field(..., description="Index of the input")
 
     class EmbeddingResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Response model for embeddings.
         """

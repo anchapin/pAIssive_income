@@ -4,6 +4,9 @@ Pydantic schemas for the AI Models module.
 This module provides Pydantic models for data validation in the AI models module.
 """
 
+import time
+
+
 import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
@@ -11,7 +14,9 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class ModelConfigSchema(BaseModel):
+class ModelConfigSchema
+
+(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """
     Pydantic model for AI model configuration.
@@ -74,7 +79,7 @@ class ModelConfigSchema(BaseModel):
 
 
 class ModelInfoSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Pydantic model for AI model information.
     """
@@ -106,7 +111,7 @@ class ModelInfoSchema(BaseModel):
 
 
 class ModelParametersSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Pydantic model for AI model parameters.
     """
@@ -134,7 +139,7 @@ class ModelParametersSchema(BaseModel):
 
 
 class TextGenerationRequestSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Pydantic model for text generation request.
     """
@@ -149,7 +154,7 @@ class TextGenerationRequestSchema(BaseModel):
 
 
 class TextGenerationResponseSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Pydantic model for text generation response.
     """
@@ -176,7 +181,7 @@ class TextGenerationResponseSchema(BaseModel):
 
 
 class EmbeddingRequestSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Pydantic model for text embedding request.
     """
@@ -188,7 +193,7 @@ class EmbeddingRequestSchema(BaseModel):
 
 
 class EmbeddingResponseSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Pydantic model for text embedding response.
     """
@@ -212,7 +217,7 @@ class EmbeddingResponseSchema(BaseModel):
 
 
 class BenchmarkConfigSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Pydantic model for benchmark configuration.
     """
@@ -233,7 +238,7 @@ class BenchmarkConfigSchema(BaseModel):
 
 
 class BenchmarkResultSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Pydantic model for benchmark result.
     """

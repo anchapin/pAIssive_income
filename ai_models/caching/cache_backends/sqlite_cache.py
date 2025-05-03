@@ -4,6 +4,7 @@ SQLite cache backend for the model cache system.
 This module provides a SQLite-based cache backend.
 """
 
+
 import json
 import os
 import pickle
@@ -16,7 +17,9 @@ from typing import Any, Dict, List, Optional
 from .base import CacheBackend
 
 
-class SQLiteCache(CacheBackend):
+class SQLiteCache
+
+(CacheBackend):
     """
     SQLite-based cache backend.
     """

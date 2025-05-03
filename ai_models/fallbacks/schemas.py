@@ -5,13 +5,16 @@ This module provides Pydantic models for validating and serializing/deserializin
 fallback configurations.
 """
 
+
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class FallbackStrategyEnum(str, Enum):
+class FallbackStrategyEnum
+
+(str, Enum):
     """Enumeration of fallback strategy types for Pydantic models."""
 
     NONE = "none"  # No fallback, just fail
@@ -25,7 +28,7 @@ class FallbackStrategyEnum(str, Enum):
 
 
 class FallbackPreferences(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Model for fallback preferences configuration."""
 
     preferred_model_types: Dict[str, List[str]] = Field(
@@ -47,7 +50,7 @@ class FallbackPreferences(BaseModel):
 
 
 class FallbackConfig(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Configuration model for fallback behavior."""
 
     enabled: bool = Field(
@@ -103,7 +106,7 @@ class FallbackConfig(BaseModel):
 
 
 class FallbackEventSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for a model fallback event."""
 
     original_model_id: Optional[str] = Field(
@@ -137,7 +140,7 @@ class FallbackEventSchema(BaseModel):
 
 
 class FallbackMetrics(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Schema for fallback metrics."""
 
     success_count: int = Field(

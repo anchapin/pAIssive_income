@@ -8,12 +8,7 @@ from typing import Any, Dict, List, Optional
 from unittest.mock import patch
 from errors import ModelLoadError, ModelNotFoundError
 
-"""
-Tests for the fallback strategy implementation.
 
-This module contains tests for the FallbackManager and related classes
-to ensure the fallback mechanism works correctly in different scenarios.
-"""
 
 import os
 import sys
@@ -23,15 +18,32 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from unittest.mock import patch
 
+
+from errors import ModelLoadError, ModelNotFoundError
+
+
+
+    from ai_models.fallbacks.fallback_strategy import FallbackManager
+
+
+class ModelInfoMock
+
+"""
+Tests for the fallback strategy implementation.
+
+This module contains tests for the FallbackManager and related classes
+to ensure the fallback mechanism works correctly in different scenarios.
+"""
+
+
+
+
 # Add the project root to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 # Import the errors module
-from errors import ModelLoadError, ModelNotFoundError
-
-
 # Mock the FallbackStrategy enum to avoid import issues
 class FallbackStrategy(Enum):
     """Enumeration of fallback strategy types."""
@@ -85,10 +97,7 @@ class FallbackEvent:
 with patch(
     "ai_models.fallbacks.fallback_strategy.FallbackStrategy", FallbackStrategy
 ), patch("ai_models.fallbacks.fallback_strategy.FallbackEvent", FallbackEvent):
-    from ai_models.fallbacks.fallback_strategy import FallbackManager
-
-
-class ModelInfoMock:
+:
     """Mock implementation of IModelInfo for testing."""
 
     def __init__(

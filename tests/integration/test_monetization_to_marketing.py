@@ -2,12 +2,17 @@
 Integration tests for the monetization-to-marketing workflow.
 """
 
+import time
+
+
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from agent_team import AgentTeam
 from marketing import ChannelStrategy, ConcreteContentGenerator, MarketingPlan
+
+
 
 
 @pytest.fixture
@@ -343,7 +348,7 @@ def test_freemium_model_to_content_strategy_integration(mock_monetization_strate
             # For pro tier, focus on lead nurturing and conversion
             generator.add_content_type(
                 name="Case Studies",
-                format="pdf",
+                format="pd",
                 frequency="monthly",
                 goal="conversion",
                 target_metrics=["downloads", "sales calls"],
@@ -360,7 +365,7 @@ def test_freemium_model_to_content_strategy_integration(mock_monetization_strate
             # For business tier, focus on ROI and integration
             generator.add_content_type(
                 name="White Papers",
-                format="pdf",
+                format="pd",
                 frequency="quarterly",
                 goal="thought_leadership",
                 target_metrics=["downloads", "sales meetings"],

@@ -4,6 +4,7 @@ Tests for mock external API implementations.
 This module demonstrates how to use the mock external API implementations in tests.
 """
 
+
 import json
 import os
 import sys
@@ -11,11 +12,12 @@ import unittest
 
 import pytest
 
+from tests.mocks.mock_http import mock_requests
+from tests.mocks.mock_huggingface_hub import 
+
 # Add project root to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-
-from tests.mocks.mock_http import mock_requests
-from tests.mocks.mock_huggingface_hub import (
+(
     mock_huggingface_hub,
 )
 

@@ -2,6 +2,7 @@
 Tests for the service initialization module.
 """
 
+
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -12,7 +13,13 @@ from interfaces.marketing_interfaces import IMarketingStrategy
 from interfaces.model_interfaces import IModelConfig, IModelManager
 from interfaces.monetization_interfaces import IMonetizationCalculator
 from interfaces.niche_interfaces import INicheAnalyzer
-from service_initialization import (
+from service_initialization import 
+from ui.service_registry import get_service
+
+
+
+
+(
     _register_agent_team,
     _register_ai_models,
     _register_configuration,
@@ -21,9 +28,6 @@ from service_initialization import (
     _register_niche_analysis,
     initialize_services,
 )
-from ui.service_registry import get_service
-
-
 @pytest.fixture
 def mock_container():
     """Create a mock dependency container."""

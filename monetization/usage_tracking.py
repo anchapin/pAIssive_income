@@ -5,6 +5,9 @@ This module provides classes for tracking usage of API calls and resources,
 including usage limits, quota management, and analytics.
 """
 
+import time
+
+
 import json
 import uuid
 from datetime import datetime, timedelta
@@ -13,7 +16,9 @@ from typing import Any, Dict, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class UsageMetric:
+class UsageMetric
+
+:
     """Enumeration of usage metric types."""
 
     API_CALL = "api_call"
@@ -38,7 +43,7 @@ class UsageCategory:
 
 
 class UsageRecordSchema(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     id: str = Field(..., description="Unique identifier for the usage record")
     customer_id: str = Field(..., description="ID of the customer")
     metric: str = Field(

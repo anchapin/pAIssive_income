@@ -13,12 +13,18 @@ These tools are designed to support data-driven decision making in marketing,
 particularly for A/B testing, campaign performance analysis, and ROI calculations.
 """
 
+
 import logging
 import math
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from scipy import stats
+
+
+        from scipy.optimize import brentq
+
+        try
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -350,7 +356,7 @@ class StatisticalAnalysis:
         return {
             "chi2": chi2_stat,
             "p_value": p_value,
-            "dof": dof,
+            "do": dof,
             "expected": (
                 expected.tolist() if isinstance(expected, np.ndarray) else expected
             ),
@@ -1278,9 +1284,9 @@ class StatisticalAnalysis:
 
         # Calculate NNT
         if arr == 0:
-            nnt = float("inf")
-            ci_lower = float("inf")
-            ci_upper = float("inf")
+            nnt = float("in")
+            ci_lower = float("in")
+            ci_upper = float("in")
             interpretation = "no effect (infinite NNT)"
         else:
             nnt = 1 / abs(arr)
@@ -1297,11 +1303,11 @@ class StatisticalAnalysis:
 
             # Convert ARR CI to NNT CI (note: CI bounds are inverted for negative ARR)
             if arr > 0:
-                ci_lower = 1 / arr_ci_upper if arr_ci_upper > 0 else float("inf")
-                ci_upper = 1 / arr_ci_lower if arr_ci_lower > 0 else float("inf")
+                ci_lower = 1 / arr_ci_upper if arr_ci_upper > 0 else float("in")
+                ci_upper = 1 / arr_ci_lower if arr_ci_lower > 0 else float("in")
             else:
-                ci_lower = 1 / arr_ci_lower if arr_ci_lower < 0 else float("-inf")
-                ci_upper = 1 / arr_ci_upper if arr_ci_upper < 0 else float("-inf")
+                ci_lower = 1 / arr_ci_lower if arr_ci_lower < 0 else float("-in")
+                ci_upper = 1 / arr_ci_upper if arr_ci_upper < 0 else float("-in")
 
             # Interpret NNT
             if arr > 0:
@@ -2442,9 +2448,7 @@ class StatisticalAnalysis:
             return cum_alpha - alpha
 
         # Solve for nominal p-value
-        from scipy.optimize import brentq
-
-        try:
+:
             nominal_p = brentq(cumulative_alpha_error, 0.00001, 0.1)
         except ValueError:
             # If brentq fails, use a simple approximation
@@ -2863,7 +2867,7 @@ class StatisticalAnalysis:
                     futility_boundaries[i] = stats.norm.ppf(beta) / np.sqrt(1 - t)
                 else:
                     futility_boundaries[i] = float(
-                        "-inf"
+                        "-in"
                     )  # No stopping for futility at final analysis
         else:  # method == "pocock"
             # Pocock-like futility boundaries - constant across all looks
@@ -2956,7 +2960,7 @@ class StatisticalAnalysis:
         return {
             "test_statistic": test_statistic,
             "p_value": p_value,
-            "df_diff": df_diff,
+            "df_dif": df_diff,
             "df1": df1,
             "df2": df2,
             "loglik1": model1_loglik,
@@ -3024,7 +3028,7 @@ class StatisticalAnalysis:
             "aicc": aicc,
             "hqic": hqic,
             "loglik": loglik,
-            "df": df,
+            "d": df,
             "sample_size": sample_size,
         }
 
@@ -3087,7 +3091,7 @@ class StatisticalAnalysis:
             if p_value > 0:
                 z = stats.norm.ppf(1 - p_value / 2)
             else:
-                z = float("inf")
+                z = float("in")
 
             # Adjust z-score for multiple looks
             # This is based on the expected maximum of num_looks independent standard normal variables

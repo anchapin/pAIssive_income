@@ -5,10 +5,13 @@ This script directly imports the modules we need to test without
 going through the package structure, avoiding circular imports.
 """
 
+
 import logging
 import time
 from enum import Enum
 from typing import Any, Dict, List, Optional
+
+
 
 
 # Define the fallback strategy enum directly instead of importing it
@@ -403,7 +406,7 @@ class FallbackManager:
         if original_size > 0:
             # Get models with size info
             sized_models = [
-                (m, getattr(m, "size_mb", float("inf"))) for m in candidates
+                (m, getattr(m, "size_mb", float("in"))) for m in candidates
             ]
 
             # Sort by size (smallest first)

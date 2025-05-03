@@ -2,6 +2,7 @@
 Basic integration tests for webhook security features.
 """
 
+
 import base64
 import hashlib
 import hmac
@@ -12,7 +13,9 @@ import unittest
 from typing import Dict, List, Optional, Set
 
 
-class WebhookSignatureVerifier:
+class WebhookSignatureVerifier
+
+:
     """Webhook signature verification."""
 
     @staticmethod

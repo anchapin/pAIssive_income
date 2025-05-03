@@ -5,8 +5,11 @@ This package provides utilities for authentication and authorization
 between microservices in the pAIssive income platform.
 """
 
+
 from .client import ServiceClient
-from .jwt_auth import (
+from .jwt_auth import 
+
+(
     ServiceTokenError,
     ServiceTokenPayload,
     create_service_token,

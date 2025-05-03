@@ -5,13 +5,19 @@ This module provides an adapter for connecting to the YouTube API for uploading 
 retrieving analytics, and managing YouTube channels.
 """
 
+
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 import requests
 
-from marketing.errors import (
+from marketing.errors import 
+from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
+
+
+
+(
     AuthenticationError,
     ContentValidationError,
     DeletionError,
@@ -19,8 +25,6 @@ from marketing.errors import (
     PostNotFoundError,
     SchedulingError,
 )
-from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
-
 # Set up logging
 logger = logging.getLogger(__name__)
 

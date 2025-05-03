@@ -4,6 +4,7 @@ Background tasks for the pAIssive Income UI.
 This module defines Celery tasks for asynchronous processing.
 """
 
+
 import logging
 import time
 import traceback
@@ -11,17 +12,20 @@ from typing import Any, Dict, List
 
 from celery import current_task
 
-from interfaces.ui_interfaces import (
+from interfaces.ui_interfaces import 
+
+from .celery_app import celery_app
+from .service_registry import get_service
+
+
+
+(
     IAgentTeamService,
     IDeveloperService,
     IMarketingService,
     IMonetizationService,
     INicheAnalysisService,
 )
-
-from .celery_app import celery_app
-from .service_registry import get_service
-
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

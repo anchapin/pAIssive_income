@@ -2,10 +2,15 @@
 Tests for error handling functionality.
 """
 
+from monetization.errors import MonetizationError
+
+
 import unittest
 from unittest.mock import MagicMock, patch
 
-from api.errors import (
+from api.errors import 
+
+(
     ErrorDetail,
     ErrorResponse,
     HTTPStatus,

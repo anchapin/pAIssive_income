@@ -4,6 +4,11 @@ Content generators for marketing materials.
 This module provides generators for different types of marketing content.
 """
 
+import time
+
+from datetime import datetime
+
+
 import datetime
 import hashlib
 import json
@@ -12,10 +17,13 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
 
-# Import the centralized caching service
+
 from common_utils.caching import default_cache
 
-from .schemas import (
+from .schemas import 
+
+# Import the centralized caching service
+(
     BlogPostTemplateSchema,
     ContentGeneratorConfigSchema,
     EmailNewsletterTemplateSchema,
@@ -972,7 +980,7 @@ class EmailNewsletterGenerator(ContentGenerator):
                 "text": "Learn more",
                 "url": "{{website_url}}",
                 "button_color": "#4CAF50",
-                "text_color": "#ffffff",
+                "text_color": "#fffff",
             }
         return random.choice(cta_options)
 

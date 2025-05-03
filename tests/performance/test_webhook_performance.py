@@ -5,6 +5,7 @@ This module contains tests to evaluate the performance of the webhook delivery s
 under various load conditions.
 """
 
+
 import asyncio
 import json
 import statistics
@@ -17,6 +18,11 @@ import httpx
 
 from api.schemas.webhook import WebhookEventType
 from api.services.webhook_service import WebhookService
+
+
+    import os
+
+    import psutil
 
 # Test configuration
 NUM_WEBHOOKS = [1, 10, 50, 100]  # Number of webhooks to test with
@@ -237,9 +243,8 @@ async def test_memory_usage(
     service: WebhookService, num_webhooks: int, num_events: int
 ) -> Dict[str, Any]:
     """Test memory usage of the webhook system."""
-    import os
 
-    import psutil
+
 
     # Get initial memory usage
     process = psutil.Process(os.getpid())

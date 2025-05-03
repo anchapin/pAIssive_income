@@ -5,13 +5,16 @@ This module provides centralized control over caching settings for different par
 of the application, allowing for consistent cache management from a single location.
 """
 
+
 import logging
 from enum import Enum
 from typing import Any, Dict, Set, Union
 
 from .cache_service import default_cache
 
-logger = logging.getLogger(__name__)
+logger 
+
+= logging.getLogger(__name__)
 
 
 class CachingPolicy(Enum):

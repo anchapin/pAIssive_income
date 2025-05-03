@@ -7,6 +7,7 @@ This module implements the advanced authentication tests recommended in the secu
 3. Test session invalidation propagation
 """
 
+
 import unittest
 import time
 import threading
@@ -20,7 +21,9 @@ from api.middleware.auth import AuthMiddleware
 from api.services.api_key_service import APIKeyService
 
 
-class TestAdvancedAuthentication(unittest.TestCase):
+class TestAdvancedAuthentication
+
+(unittest.TestCase):
     """Test cases for advanced authentication scenarios."""
 
     def setUp(self):

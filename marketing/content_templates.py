@@ -3,12 +3,17 @@ Content Templates module for the pAIssive Income project.
 Provides templates for creating marketing content.
 """
 
+import time
+
+
 import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from .errors import ContentTemplateError, ValidationError, handle_exception
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -2009,7 +2014,7 @@ class VideoScriptTemplate(ContentTemplate):
                     "script": f"[HOST ON CAMERA]\n\nLet's talk about {point}. "
                     f"This is important because it helps {self.target_persona['name']}s achieve {self.target_persona['goals'][0] if self.target_persona['goals'] else 'their goals'}."
                     f"{b_roll}\n\n"
-                    f"[HOST ON CAMERA]\n\n"
+                    "[HOST ON CAMERA]\n\n"
                     f"The key thing to remember about {point} is...",
                 }
             )
@@ -2268,7 +2273,7 @@ class LandingPageTemplate(ContentTemplate):
                     "headline": f"Introducing {self.title}",
                     "description": f"Our solution helps {self.target_persona['name']}s "
                     f"{self.target_persona['goals'][0] if self.target_persona['goals'] else 'achieve their goals'} "
-                    f"without the hassle.",
+                    "without the hassle.",
                     "image": "Image or screenshot of the product/service",
                 },
             }
@@ -2809,7 +2814,7 @@ class CaseStudyTemplate(ContentTemplate):
                 "title": "The Challenge",
                 "description": "Description of the client's challenge",
                 "content": f"## The Challenge\n\n{self.challenge}\n\n"
-                f"Specifically, they were struggling with:\n\n"
+                "Specifically, they were struggling with:\n\n"
                 + "\n".join(
                     [
                         f"- {point}"
@@ -2828,7 +2833,7 @@ class CaseStudyTemplate(ContentTemplate):
                 "title": "The Solution",
                 "description": "Description of the solution provided",
                 "content": f"## The Solution\n\n{self.solution}\n\n"
-                f"Our approach included:\n\n"
+                "Our approach included:\n\n"
                 + "\n".join([f"- {point}" for point in self.key_points]),
             }
         )
@@ -2839,13 +2844,13 @@ class CaseStudyTemplate(ContentTemplate):
                 "section_type": "implementation",
                 "title": "Implementation Process",
                 "description": "Description of how the solution was implemented",
-                "content": f"## Implementation Process\n\n"
+                "content": "## Implementation Process\n\n"
                 f"The implementation of {self.title} for {self.client_name} followed these key steps:\n\n"
                 f"1. **Discovery and Analysis**: We conducted a thorough analysis of {self.client_name}'s needs and challenges.\n\n"
-                f"2. **Customized Solution Design**: We designed a tailored solution based on their specific requirements.\n\n"
-                f"3. **Implementation**: Our team implemented the solution with minimal disruption to their operations.\n\n"
-                f"4. **Training and Onboarding**: We provided comprehensive training to ensure smooth adoption.\n\n"
-                f"5. **Ongoing Support**: We continue to provide support and optimization.",
+                "2. **Customized Solution Design**: We designed a tailored solution based on their specific requirements.\n\n"
+                "3. **Implementation**: Our team implemented the solution with minimal disruption to their operations.\n\n"
+                "4. **Training and Onboarding**: We provided comprehensive training to ensure smooth adoption.\n\n"
+                "5. **Ongoing Support**: We continue to provide support and optimization.",
             }
         )
 
@@ -2874,7 +2879,7 @@ class CaseStudyTemplate(ContentTemplate):
                     f'> "{self.title} has been a game-changer for our team. '
                     f"We've seen significant improvements in {self.target_persona['goals'][0] if self.target_persona['goals'] else 'our operations'} "
                     f"and would highly recommend this solution to other {self.target_persona['name']}s.\"\n\n"
-                    f"**[Client Representative Name]**\n"
+                    "**[Client Representative Name]**\n"
                     f"[Client Representative Title], {self.client_name}",
                 }
             )
@@ -3206,7 +3211,7 @@ class TestimonialTemplate(ContentTemplate):
                 "Rotate testimonials to keep content fresh",
                 "Use different formats for different channels",
                 "Pair testimonials with relevant product features",
-                "Create testimonial clusters for social proof",
+                "Create testimonial clusters for social proo",
             ],
         }
 
@@ -3221,7 +3226,7 @@ class TestimonialTemplate(ContentTemplate):
         """
         request_template = {
             "email_subject": f"Request for Feedback on Your Experience with {self.title}",
-            "email_body": f"""
+            "email_body": """
 Dear {self.client_name},
 
 I hope this email finds you well. We value your partnership and would love to hear about your experience with {self.title}.
@@ -3245,7 +3250,7 @@ Best regards,
 [Your Name]
 [Your Title]
             """,
-            "follow_up_email": f"""
+            "follow_up_email": """
 Dear {self.client_name},
 
 I'm just following up on my previous email requesting your feedback on {self.title}. We would greatly value your perspective and would be honored to feature your testimonial.
@@ -3258,7 +3263,7 @@ Best regards,
 [Your Name]
 [Your Title]
             """,
-            "thank_you_email": f"""
+            "thank_you_email": """
 Dear {self.client_name},
 
 Thank you so much for providing your testimonial about {self.title}! We truly appreciate you taking the time to share your experience.

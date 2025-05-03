@@ -5,18 +5,22 @@ This module provides classes for implementing tiered pricing models,
 including volume discounts and graduated pricing.
 """
 
+
 from typing import Any, Dict, List, Optional
 
-from .billing_calculator import (
+from .billing_calculator import 
+from .usage_tracking import UsageCategory, UsageMetric
+
+
+class VolumeDiscount
+
+(
     BillingCalculator,
     PricingModel,
     PricingRule,
     PricingTier,
 )
-from .usage_tracking import UsageCategory, UsageMetric
-
-
-class VolumeDiscount:
+:
     """
     Class representing a volume discount.
 

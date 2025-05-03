@@ -2,6 +2,7 @@
 Tests for the ModelDownloader class.
 """
 
+
 import os
 import shutil
 import tempfile
@@ -12,7 +13,9 @@ import pytest
 from ai_models.model_downloader import DownloadProgress, DownloadTask, ModelDownloader
 
 
-def test_download_progress_init():
+def test_download_progress_init
+
+():
     """Test DownloadProgress initialization."""
     progress = DownloadProgress(
         total_size=1000, downloaded_size=500, percentage=50.0, speed=1024, eta=30

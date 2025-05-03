@@ -4,6 +4,12 @@ REST API server for AI models.
 This module provides a REST API server for serving AI models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import logging
 import os
 import threading
@@ -13,7 +19,26 @@ from typing import Any, Dict, List
 from ..server import ModelServer
 from .config import RESTConfig
 from .middleware import setup_middleware
-from .routes import (
+from .routes import 
+    import uvicorn
+    from fastapi import Depends, FastAPI
+
+    FASTAPI_AVAILABLE 
+            import torch
+            from transformers import AutoTokenizer
+        except ImportError
+            from transformers import AutoModelForCausalLM
+
+            self.model 
+            from transformers import AutoModelForSequenceClassification
+
+            self.model 
+            from transformers import AutoModel
+
+            self.model 
+            import statistics
+
+(
     audio_router,
     embedding_router,
     health_router,
@@ -31,10 +56,8 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    import uvicorn
-    from fastapi import Depends, FastAPI
 
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI and uvicorn are required for REST API server")
     FASTAPI_AVAILABLE = False
@@ -77,9 +100,8 @@ class RESTServer(ModelServer):
 
         # Import required modules
         try:
-            import torch
-            from transformers import AutoTokenizer
-        except ImportError:
+
+:
             raise ImportError("PyTorch and Transformers are required for model loading")
 
         # Load tokenizer
@@ -87,21 +109,15 @@ class RESTServer(ModelServer):
 
         # Load model based on type
         if self.config.model_type == "text-generation":
-            from transformers import AutoModelForCausalLM
-
-            self.model = AutoModelForCausalLM.from_pretrained(
+= AutoModelForCausalLM.from_pretrained(
                 self.config.model_path, device_map="auto"
             )
         elif self.config.model_type == "text-classification":
-            from transformers import AutoModelForSequenceClassification
-
-            self.model = AutoModelForSequenceClassification.from_pretrained(
+= AutoModelForSequenceClassification.from_pretrained(
                 self.config.model_path, device_map="auto"
             )
         elif self.config.model_type == "embedding":
-            from transformers import AutoModel
-
-            self.model = AutoModel.from_pretrained(
+= AutoModel.from_pretrained(
                 self.config.model_path, device_map="auto"
             )
         else:
@@ -244,7 +260,7 @@ class RESTServer(ModelServer):
 
         # Add latency metrics
         if self.latencies:
-            import statistics
+
 
             # Calculate latency statistics
             latency_mean = statistics.mean(self.latencies)

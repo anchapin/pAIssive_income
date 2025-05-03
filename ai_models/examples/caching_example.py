@@ -5,12 +5,18 @@ This script demonstrates how to use the caching system to improve performance
 by caching model responses.
 """
 
+
 import argparse
 import logging
 import os
 import sys
 import time
 from typing import Any, Dict
+
+
+    from ai_models.caching import RedisCache
+
+    REDIS_AVAILABLE 
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -24,9 +30,7 @@ from ai_models.caching import (
 
 # Try to import Redis cache if available
 try:
-    from ai_models.caching import RedisCache
-
-    REDIS_AVAILABLE = True
+= True
 except ImportError:
     REDIS_AVAILABLE = False
 

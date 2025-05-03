@@ -5,6 +5,7 @@ This module tests the payment gateway integration functionality in the monetizat
 including payment processing, subscription lifecycle, refund handling, and error scenarios.
 """
 
+
 import os
 import shutil
 import tempfile
@@ -15,7 +16,9 @@ from monetization.transaction import TransactionStatus
 from monetization.transaction_manager import TransactionManager
 
 
-class TestPaymentGatewayIntegration(unittest.TestCase):
+class TestPaymentGatewayIntegration
+
+(unittest.TestCase):
     """Test cases for payment gateway integration."""
 
     def setUp(self):

@@ -5,18 +5,25 @@ This module provides classes and functions for configuring AI models,
 including settings for model paths, cache, and performance options.
 """
 
+
 import os
 import sys
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert
 from common_utils import load_from_json_file, save_to_json_file, to_json
 from interfaces.model_interfaces import IModelConfig
 
 from .schemas import ModelConfigSchema
 
 
+
+                from pydantic import ConfigDict, ValidationError
+
+                
+
+(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 @dataclass
 class ModelConfig(IModelConfig):
     """
@@ -165,9 +172,7 @@ class ModelConfig(IModelConfig):
 
             # Validate using Pydantic schema
             try:
-                from pydantic import ConfigDict, ValidationError
-
-                # Use the Pydantic schema to validate the config
+# Use the Pydantic schema to validate the config
                 validated_config = ModelConfigSchema.model_validate(config_dict)
 
                 # Convert back to dict for creating the ModelConfig instance

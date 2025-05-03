@@ -4,6 +4,7 @@ Redis cache backend for the model cache system.
 This module provides a Redis-based cache backend.
 """
 
+
 import json
 import pickle
 import re
@@ -12,9 +13,12 @@ from typing import Any, Dict, List, Optional
 
 from .base import CacheBackend
 
+
+    import redis
+
 # Try to import Redis
 try:
-    import redis
+
 
     REDIS_AVAILABLE = True
 except ImportError:

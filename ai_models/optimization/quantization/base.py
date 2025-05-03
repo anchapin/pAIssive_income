@@ -4,13 +4,16 @@ Base classes for model quantization.
 This module provides the base classes and interfaces for model quantization.
 """
 
+
 import abc
 import enum
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 
-class QuantizationMethod(enum.Enum):
+class QuantizationMethod
+
+(enum.Enum):
     """
     Enumeration of quantization methods.
     """
@@ -25,7 +28,7 @@ class QuantizationMethod(enum.Enum):
     AWQ = "awq"
     GPTQ = "gptq"
     GGML = "ggml"
-    GGUF = "gguf"
+    GGUF = "ggu"
 
 
 @dataclass

@@ -4,10 +4,13 @@ Base command for the command-line interface.
 This module provides the base class for all commands.
 """
 
+
 import abc
 import argparse
 import logging
 from typing import Any, List
+
+
 
 # Set up logging
 logging.basicConfig(

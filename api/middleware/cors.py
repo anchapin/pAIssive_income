@@ -4,10 +4,17 @@ CORS middleware for the API server.
 This module provides CORS middleware for the API server.
 """
 
+
 import logging
 from typing import Any, List
 
 from ..config import APIConfig
+
+
+    from fastapi import FastAPI
+    from fastapi.middleware.cors import CORSMiddleware as FastAPICORSMiddleware
+
+    FASTAPI_AVAILABLE 
 
 # Set up logging
 logging.basicConfig(
@@ -17,10 +24,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import FastAPI
-    from fastapi.middleware.cors import CORSMiddleware as FastAPICORSMiddleware
-
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI is required for CORS middleware")
     FASTAPI_AVAILABLE = False

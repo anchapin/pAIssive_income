@@ -2,11 +2,11 @@
 Script to run tests locally with the correct Python path.
 """
 
+
 import argparse
 import os
 import subprocess
 import sys
-
 
 def main():
     """Run tests with the correct Python path."""

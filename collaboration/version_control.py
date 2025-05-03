@@ -5,6 +5,9 @@ This module provides classes for tracking versions of projects and resources,
 allowing teams to manage changes, track history, and restore previous versions.
 """
 
+import time
+
+
 import difflib
 import json
 import logging
@@ -14,6 +17,8 @@ import uuid
 import zipfile
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -420,7 +425,7 @@ class VersionControl:
                     )
 
                 comparison_results["differences"].append(
-                    {"file": file_path, "diff": "".join(diff)}
+                    {"file": file_path, "dif": "".join(diff)}
                 )
             elif os.path.exists(file_path1):
                 comparison_results["differences"].append(

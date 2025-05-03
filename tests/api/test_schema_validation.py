@@ -5,6 +5,7 @@ This module contains tests for validating API schemas across different modules.
 """
 
 
+
 import pytest
 from pydantic import ValidationError
 
@@ -14,11 +15,14 @@ from api.schemas.monetization import PricingTierCreate, SubscriptionModelCreate
 from api.schemas.niche_analysis import NicheAnalysisCreate, NicheCreate
 from api.schemas.user import UserCreate, UserRole, UserUpdate
 
-# Import schemas to test
+
 from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
 
-class TestSchemaValidation:
+class TestSchemaValidation
+
+# Import schemas to test
+:
     """Tests for API schema validation."""
 
     def test_webhook_schema_validation(self):

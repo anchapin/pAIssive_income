@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-"""
-Script to update Pydantic models to use the new V2 style with ConfigDict.
-This script addresses the remaining Pydantic deprecation warnings for class-based config.
-"""
 
 import argparse
 import ast
@@ -13,7 +8,19 @@ from pathlib import Path
 from typing import List, Optional, Set, Tuple
 
 
-def get_python_files(directory: str, exclude_patterns: Optional[List[str]] = None) -> List[Path]:
+def get_python_files
+
+#!/usr/bin/env python
+"""
+Script to update Pydantic models to use the new V2 style with ConfigDict.
+This script addresses the remaining Pydantic deprecation warnings for class-based config.
+"""
+
+
+
+
+
+(directory: str, exclude_patterns: Optional[List[str]] = None) -> List[Path]:
     """Get all Python files in a directory and its subdirectories."""
     if exclude_patterns is None:
         exclude_patterns = []

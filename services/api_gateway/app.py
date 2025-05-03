@@ -5,6 +5,7 @@ This module provides the API Gateway implementation, which serves as the entry p
 for all client requests to the microservices architecture.
 """
 
+
 import argparse
 import logging
 import time
@@ -17,7 +18,10 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from services.api_gateway.middleware import RateLimitMiddleware, ServiceAuthMiddleware
-from services.service_discovery.registration import (
+from services.service_discovery.registration import 
+    import uvicorn
+
+(
     get_default_tags,
     get_service_metadata,
     register_service,
@@ -144,7 +148,7 @@ async def health_check():
 
 # Service token models
 class ServiceTokenRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for service token generation."""
 
     service_name: str = Field(
@@ -161,7 +165,7 @@ class ServiceTokenRequest(BaseModel):
 
 
 class ServiceTokenResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for service token generation."""
 
     token: str = Field(..., description="The generated JWT token")
@@ -439,7 +443,7 @@ def start_api_gateway(host: str = "0.0.0.0", port: int = 8000):
         host: Host to bind to
         port: Port to listen on
     """
-    import uvicorn
+
 
     # Register with service registry
     register_with_service_registry(port)

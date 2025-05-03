@@ -4,6 +4,9 @@ Test data utilities for API tests.
 This module provides utilities for generating test data for API tests.
 """
 
+import time
+
+
 import random
 import string
 import uuid
@@ -11,7 +14,9 @@ from datetime import datetime, timedelta
 from typing import Any, Dict
 
 
-def generate_id() -> str:
+def generate_id
+
+() -> str:
     """
     Generate a random ID.
 
@@ -474,7 +479,7 @@ def generate_ui_component_data() -> Dict[str, Any]:
             "margin": f"{random.randint(0, 20)}px",
             "borderRadius": f"{random.randint(0, 10)}px",
             "backgroundColor": random.choice(
-                ["#f5f5f5", "#e0e0e0", "#ffffff", "#000000"]
+                ["#f5f5f5", "#e0e0e0", "#fffff", "#000000"]
             ),
         },
         "created_at": generate_date(10),

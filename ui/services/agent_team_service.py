@@ -4,6 +4,7 @@ Agent Team Service for the pAIssive Income UI.
 This service provides methods for interacting with the Agent Team module.
 """
 
+
 import logging
 import uuid
 from typing import Any, Dict, List, Optional
@@ -12,6 +13,20 @@ from common_utils import format_datetime
 from interfaces.ui_interfaces import IAgentTeamService
 
 from .base_service import BaseService
+
+
+                from agent_team import AgentTeam  
+                from agent_team import AgentTeam  
+
+                from datetime import datetime
+
+                now 
+                from datetime import datetime
+
+                project
+        from datetime import datetime
+
+        now 
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -39,7 +54,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
         else:
             # Try to import the AgentTeam class
             try:
-                from agent_team import AgentTeam  # noqa: F401
+# noqa: F401
 
                 self.agent_team_available = True
             except ImportError:
@@ -61,13 +76,10 @@ class AgentTeamService(BaseService, IAgentTeamService):
         """
         if self.agent_team_available:
             try:
-                from agent_team import AgentTeam  # noqa: F401
+# noqa: F401
 
                 team = AgentTeam(project_name, config_path=None)
-
-                from datetime import datetime
-
-                now = datetime.now()
+= datetime.now()
                 project = {
                     "id": str(uuid.uuid4()),
                     "name": project_name,
@@ -136,9 +148,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
         for i, project in enumerate(projects):
             if project["id"] == project_id:
                 project.update(updates)
-                from datetime import datetime
-
-                project["updated_at"] = format_datetime(
+["updated_at"] = format_datetime(
                     datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ"
                 )
                 projects[i] = project
@@ -177,9 +187,7 @@ class AgentTeamService(BaseService, IAgentTeamService):
         Returns:
             Mock project data
         """
-        from datetime import datetime
-
-        now = datetime.now()
+= datetime.now()
         return {
             "id": str(uuid.uuid4()),
             "name": project_name,

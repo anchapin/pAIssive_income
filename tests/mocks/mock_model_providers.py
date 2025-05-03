@@ -5,6 +5,9 @@ This module provides mock implementations of various AI model providers
 that can be used for consistent testing without external dependencies.
 """
 
+import time
+
+
 import logging
 from datetime import datetime
 from typing import Any, Dict, Generator, List, Optional, Union
@@ -1141,43 +1144,43 @@ class MockLocalModelProvider(MockBaseModelProvider):
             "available_models",
             [
                 {
-                    "id": "llama-2-7b-chat.gguf",
+                    "id": "llama-2-7b-chat.ggu",
                     "name": "Llama 2 7B Chat",
                     "capabilities": ["text-generation", "chat"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/llama-2-7b-chat.gguf",
+                    "path": "/path/to/llama-2-7b-chat.ggu",
                     "size_mb": 3900,
-                    "format": "gguf",
+                    "format": "ggu",
                     "quantization": "q4_k_m",
                 },
                 {
-                    "id": "llama-3-8b-instruct.gguf",
+                    "id": "llama-3-8b-instruct.ggu",
                     "name": "Llama 3 8B Instruct",
                     "capabilities": ["text-generation", "chat"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/llama-3-8b-instruct.gguf",
+                    "path": "/path/to/llama-3-8b-instruct.ggu",
                     "size_mb": 4200,
-                    "format": "gguf",
+                    "format": "ggu",
                     "quantization": "q5_k_m",
                 },
                 {
-                    "id": "mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+                    "id": "mistral-7b-instruct-v0.2.Q4_K_M.ggu",
                     "name": "Mistral 7B Instruct",
                     "capabilities": ["text-generation", "chat"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+                    "path": "/path/to/mistral-7b-instruct-v0.2.Q4_K_M.ggu",
                     "size_mb": 3800,
-                    "format": "gguf",
+                    "format": "ggu",
                     "quantization": "q4_k_m",
                 },
                 {
-                    "id": "phi-2.Q4_K_M.gguf",
+                    "id": "phi-2.Q4_K_M.ggu",
                     "name": "Phi-2",
                     "capabilities": ["text-generation"],
                     "created": int(datetime.now().timestamp()),
-                    "path": "/path/to/phi-2.Q4_K_M.gguf",
+                    "path": "/path/to/phi-2.Q4_K_M.ggu",
                     "size_mb": 1700,
-                    "format": "gguf",
+                    "format": "ggu",
                     "quantization": "q4_k_m",
                 },
             ],

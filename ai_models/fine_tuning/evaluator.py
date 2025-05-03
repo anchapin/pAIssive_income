@@ -5,6 +5,12 @@ This module provides tools for evaluating fine-tuned AI models, including
 performance measurement, comparison, and report generation.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import json
 import logging
 import os
@@ -17,9 +23,22 @@ import torch
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Import metrics from benchmarking
+
 from ai_models.benchmarking.metrics import AccuracyMetric, PerplexityMetric, RougeMetric
 
+
+            import matplotlib.pyplot
+            import pandas
+            import seaborn
+            import matplotlib.pyplot
+            import pandas
+            import seaborn
+            import pandas
+            from tabulate import tabulate
+
+            
+
+# Import metrics from benchmarking
 # Configure logger
 logger = logging.getLogger(__name__)
 
@@ -324,7 +343,7 @@ class ModelEvaluator:
             logger.warning(
                 f"Text field {text_field} is not a list, skipping perplexity evaluation"
             )
-            return {"perplexity": float("inf")}
+            return {"perplexity": float("in")}
 
     def _evaluate_accuracy(self, dataset: Dataset) -> Dict[str, float]:
         """
@@ -589,9 +608,9 @@ class ModelEvaluator:
             return ""
 
         try:
-            import matplotlib.pyplot as plt
-            import pandas as pd
-            import seaborn as sns
+ as plt
+ as pd
+ as sns
 
             # Create output directory if it doesn't exist
             if output_path is None and self.config.output_dir:
@@ -753,9 +772,9 @@ class ModelEvaluator:
             Path to the saved visualization
         """
         try:
-            import matplotlib.pyplot as plt
-            import pandas as pd
-            import seaborn as sns
+ as plt
+ as pd
+ as sns
 
             # Create output directory if it doesn't exist
             os.makedirs(output_dir, exist_ok=True)
@@ -850,10 +869,8 @@ class ModelEvaluator:
             Path to the saved report
         """
         try:
-            import pandas as pd
-            from tabulate import tabulate
-
-            # Create output directory if it doesn't exist
+ as pd
+# Create output directory if it doesn't exist
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
             # Prepare report content

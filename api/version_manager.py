@@ -4,6 +4,7 @@ API version management.
 This module provides classes and functions for managing API versions.
 """
 
+
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -11,7 +12,9 @@ from typing import Any, Dict, List, Optional
 from .config import APIVersion
 
 
-class ChangeType(str, Enum):
+class ChangeType
+
+(str, Enum):
     """
     Enum for types of API changes.
     """

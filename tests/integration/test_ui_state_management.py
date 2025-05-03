@@ -5,6 +5,7 @@ This module contains tests for UI event handling and state management across
 different UI components.
 """
 
+
 import pytest
 from unittest.mock import patch, MagicMock
 
@@ -12,6 +13,8 @@ from ui.web_ui import WebUI
 from ui.cli_ui import CommandLineInterface
 from ui.state_management import StateManager, UIState, StateTransition
 from ui.event_handlers import EventHandler
+
+
 
 
 @pytest.fixture

@@ -4,12 +4,15 @@ String utilities for the pAIssive Income project.
 This module provides common string manipulation functions used across the project.
 """
 
+
 import re
 import unicodedata
 from typing import Optional, Union
 
 
-def is_empty(s: Optional[str]) -> bool:
+def is_empty
+
+(s: Optional[str]) -> bool:
     """
     Check if a string is empty or None.
 

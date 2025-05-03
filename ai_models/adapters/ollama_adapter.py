@@ -5,6 +5,7 @@ This module provides an adapter for connecting to Ollama,
 a local API server for running large language models.
 """
 
+
 import json
 import logging
 from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Union
@@ -12,6 +13,10 @@ from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Union
 import aiohttp
 
 from .base_adapter import BaseModelAdapter
+
+
+    import requests
+    import aiohttp
 
 # Set up logging
 logging.basicConfig(
@@ -21,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import requests
+
 
     REQUESTS_AVAILABLE = True
 except ImportError:
@@ -30,7 +35,7 @@ except ImportError:
 
 # Check for aiohttp availability for async operations
 try:
-    import aiohttp
+
 
     AIOHTTP_AVAILABLE = True
 except ImportError:

@@ -5,6 +5,7 @@ This module provides a comprehensive system for managing versioning of AI models
 including version tracking, compatibility checking, and version migration.
 """
 
+
 import copy
 import hashlib
 import json
@@ -16,11 +17,14 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import semver
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert
 from errors import ConfigurationError
 
 from .model_base_types import ModelInfo
 
+
+
+(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -861,7 +865,7 @@ class VersionedModelManager:
             if current_hash != version.hash_value:
                 logger.warning(
                     f"Model hash mismatch for {model_id} version {version.version}. "
-                    f"The model may have been modified since this version was created."
+                    "The model may have been modified since this version was created."
                 )
 
         # Load the model

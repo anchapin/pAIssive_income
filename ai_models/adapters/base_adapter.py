@@ -4,16 +4,20 @@ Base adapter for AI model frameworks.
 This module provides a base class for adapters that connect to various AI model frameworks.
 """
 
+
 import logging
 import os
 import sys
 from abc import abstractmethod
 from typing import Any, Dict, List
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+sys.path.insert
 from errors import ModelError
 from interfaces.model_interfaces import IModelAdapter
 
+
+
+(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 # Set up logging
 logger = logging.getLogger(__name__)
 

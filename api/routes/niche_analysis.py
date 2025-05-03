@@ -1,16 +1,24 @@
 
-"""
-Niche Analysis routes for the API server.
-
-This module provides route handlers for Niche Analysis operations.
-"""
-
 import logging
 import time
 import uuid
 from typing import Any, Dict, List, Optional
 
 from errors import BaseError, ValidationError
+
+
+    from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
+    from fastapi.responses import JSONResponse
+
+    FASTAPI_AVAILABLE 
+
+"""
+Niche Analysis routes for the API server.
+
+This module provides route handlers for Niche Analysis operations.
+"""
+
+
 
 # Set up logging
 logging.basicConfig(
@@ -20,10 +28,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
-    from fastapi.responses import JSONResponse
-
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False

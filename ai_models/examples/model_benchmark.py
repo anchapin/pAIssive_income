@@ -5,6 +5,7 @@ This script provides a tool for benchmarking and comparing the performance
 of different AI models.
 """
 
+
 import argparse
 import json
 import logging
@@ -13,13 +14,16 @@ import sys
 import time
 from typing import Any, Dict, List, Optional
 
+
+
+from ai_models import ModelConfig, ModelInfo, ModelManager, PerformanceMonitor
+
+
+
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
-
-from ai_models import ModelConfig, ModelInfo, ModelManager, PerformanceMonitor
-
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -307,10 +311,10 @@ class ModelBenchmark:
             Dictionary with comparison data
         """
         comparison = {
-            "fastest_inference": {"model": None, "time": float("inf")},
+            "fastest_inference": {"model": None, "time": float("in")},
             "highest_throughput": {"model": None, "tokens_per_second": 0},
-            "lowest_latency": {"model": None, "time_to_first_token": float("inf")},
-            "lowest_memory": {"model": None, "memory_mb": float("inf")},
+            "lowest_latency": {"model": None, "time_to_first_token": float("in")},
+            "lowest_memory": {"model": None, "memory_mb": float("in")},
             "ranking": [],
         }
 

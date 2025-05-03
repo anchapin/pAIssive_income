@@ -2,6 +2,7 @@
 Tests for security features.
 """
 
+
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -12,7 +13,10 @@ from api.middleware.auth import AuthMiddleware
 from api.services.api_key_service import APIKeyService
 
 
-class TestSecurity(unittest.TestCase):
+class TestSecurity
+        import time
+
+(unittest.TestCase):
     """Test cases for security features."""
 
     def setUp(self):
@@ -133,7 +137,7 @@ class TestSecurity(unittest.TestCase):
         self.assertEqual(payload["user_id"], "123")
 
         # Wait for token to expire
-        import time
+
 
         time.sleep(7)
 

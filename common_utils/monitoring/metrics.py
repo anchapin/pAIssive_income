@@ -5,6 +5,7 @@ This module provides tools for creating, updating, and exporting application met
 to various backends (Prometheus, CloudWatch, etc.) for monitoring and visualization.
 """
 
+
 import json
 import os
 import threading
@@ -14,10 +15,13 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union
 
-# Import our logging module
+
 from common_utils.logging import get_logger
 
-logger = get_logger(__name__)
+logger 
+
+# Import our logging module
+= get_logger(__name__)
 
 
 class MetricType(Enum):
@@ -168,8 +172,8 @@ class MetricsRegistry:
                 if "count" not in metric.value:
                     metric.value["count"] = 0
                     metric.value["sum"] = 0
-                    metric.value["min"] = float("inf")
-                    metric.value["max"] = float("-inf")
+                    metric.value["min"] = float("in")
+                    metric.value["max"] = float("-in")
 
                 metric.value["count"] += 1
                 metric.value["sum"] += value
@@ -417,8 +421,8 @@ def json_file_exporter(metrics: Dict[str, Metric], file_path: str) -> None:
             metric_data["value"] = {
                 "count": metric.value.get("count", 0),
                 "sum": metric.value.get("sum", 0),
-                "min": metric.value.get("min", float("inf")),
-                "max": metric.value.get("max", float("-inf")),
+                "min": metric.value.get("min", float("in")),
+                "max": metric.value.get("max", float("-in")),
             }
 
             # Don't include raw values in the export

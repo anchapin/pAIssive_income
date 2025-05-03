@@ -5,19 +5,23 @@ These tests verify that the system can handle different model versions
 and properly manage version compatibility.
 """
 
+
 import unittest
 from unittest.mock import MagicMock, patch
 import json
 import tempfile
 import os
 
-from ai_models.model_versioning import (
-    ModelVersion, ModelVersionRegistry, VersionedModelManager, ModelMigrationTool
-)
+from ai_models.model_versioning import 
 from ai_models.model_base_types import ModelInfo
 
 
-class TestModelVersionCompatibility(unittest.TestCase):
+class TestModelVersionCompatibility
+
+(
+    ModelVersion, ModelVersionRegistry, VersionedModelManager, ModelMigrationTool
+)
+(unittest.TestCase):
     """Test suite for model version compatibility."""
 
     def setUp(self):

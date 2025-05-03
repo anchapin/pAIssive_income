@@ -5,10 +5,13 @@ This module provides abstract base classes and interfaces for the database abstr
 layer. These interfaces define the contract that all database implementations must follow.
 """
 
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
-T = TypeVar("T")
+T 
+
+= TypeVar("T")
 
 
 class DatabaseInterface(ABC):

@@ -5,6 +5,11 @@ This module provides examples of using the mock fixtures for testing
 different components of the pAIssive_income project.
 """
 
+    from unittest.mock import MagicMock
+
+    from ai_models.adapters.openai_compatible_adapter import OpenAICompatibleAdapter
+
+    
 
 def test_openai_provider(mock_openai_provider):
     """Test the mock OpenAI provider."""
@@ -117,11 +122,7 @@ def test_huggingface_api(mock_huggingface_api):
 
 def test_with_patched_model_providers(patch_model_providers, monkeypatch):
     """Test using the patched model providers."""
-    from unittest.mock import MagicMock
-
-    from ai_models.adapters.openai_compatible_adapter import OpenAICompatibleAdapter
-
-    # Get the mock providers
+# Get the mock providers
 
     # Mock the API key and disable API status check
     monkeypatch.setenv("OPENAI_API_KEY", "sk-mock-key")

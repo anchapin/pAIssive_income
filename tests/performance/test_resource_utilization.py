@@ -6,6 +6,7 @@ including memory usage under sustained load, CPU utilization during concurrent
 operations, and I/O bottleneck identification.
 """
 
+
 import asyncio
 import time
 import json
@@ -19,20 +20,24 @@ import tempfile
 import shutil
 import pytest
 
+
+    import psutil
+from api.services.webhook_service import WebhookService
+from api.schemas.webhook import WebhookEventType
+
+
+class ResourceMonitor
+
 # Try to import psutil for system metrics
 try:
-    import psutil
+
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
     print("psutil not available, some tests will be skipped")
 
 # Import necessary services and utilities
-from api.services.webhook_service import WebhookService
-from api.schemas.webhook import WebhookEventType
-
-
-class ResourceMonitor:
+:
     """Monitor system resource utilization."""
     
     def __init__(self, interval: float = 0.1):

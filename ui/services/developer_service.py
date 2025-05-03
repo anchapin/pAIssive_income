@@ -4,6 +4,7 @@ Developer Service for the pAIssive Income UI.
 This service provides methods for interacting with the Developer Agent module.
 """
 
+
 import logging
 import uuid
 from datetime import datetime
@@ -12,6 +13,15 @@ from typing import Any, Dict, List, Optional
 from interfaces.ui_interfaces import IDeveloperService
 
 from .base_service import BaseService
+
+
+            from agent_team.agent_profiles.developer import DeveloperAgent  
+        from .niche_analysis_service import NicheAnalysisService
+
+        niche_service 
+                from agent_team import AgentTeam
+
+                
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -29,7 +39,7 @@ class DeveloperService(BaseService, IDeveloperService):
 
         # Import the Developer Agent class
         try:
-            from agent_team.agent_profiles.developer import DeveloperAgent  # noqa: F401
+# noqa: F401
 
             self.developer_agent_available = True
         except ImportError:
@@ -47,9 +57,7 @@ class DeveloperService(BaseService, IDeveloperService):
             Solution data
         """
         # Get the niche data
-        from .niche_analysis_service import NicheAnalysisService
-
-        niche_service = NicheAnalysisService()
+= NicheAnalysisService()
         niche = niche_service.get_niche(niche_id)
 
         if niche is None:
@@ -58,9 +66,7 @@ class DeveloperService(BaseService, IDeveloperService):
 
         if self.developer_agent_available:
             try:
-                from agent_team import AgentTeam
-
-                # Create a new agent team for this solution
+# Create a new agent team for this solution
                 team = AgentTeam(f"{niche['name']} Solution")
 
                 # Develop the solution

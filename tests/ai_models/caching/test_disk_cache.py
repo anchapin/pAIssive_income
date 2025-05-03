@@ -2,6 +2,7 @@
 Tests for the DiskCache backend.
 """
 
+
 import os
 import shutil
 import tempfile
@@ -11,6 +12,13 @@ import pytest
 
 from ai_models.caching.cache_backends.disk_cache import DiskCache
 
+
+
+    import random
+    from concurrent.futures import ThreadPoolExecutor
+
+    def cache_operation
+    import threading
 
 @pytest.fixture
 def temp_cache_dir():
@@ -203,10 +211,8 @@ def test_eviction_policies(temp_cache_dir):
 
 def test_concurrent_access(disk_cache):
     """Test thread safety of cache operations."""
-    import random
-    from concurrent.futures import ThreadPoolExecutor
 
-    def cache_operation(i: int):
+(i: int):
         # Randomly choose between get and set operations
         if random.random() < 0.5:
             disk_cache.set(f"key{i}", {"data": f"value{i}"})
@@ -235,7 +241,7 @@ def test_error_handling(disk_cache):
     assert cache.get("test_key") == value
 
     # Test with unserializable value
-    import threading
+
 
     unserializable = {"lock": threading.Lock()}
     assert not disk_cache.set("bad_key", unserializable)

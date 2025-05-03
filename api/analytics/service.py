@@ -4,6 +4,9 @@ API Analytics Service.
 This module provides a service for collecting, analyzing, and reporting on API usage.
 """
 
+import time
+
+
 import csv
 import io
 import logging
@@ -15,6 +18,8 @@ from datetime import datetime, timedelta
 from typing import Any, Callable, Dict, List
 
 from .database import AnalyticsDatabase
+
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

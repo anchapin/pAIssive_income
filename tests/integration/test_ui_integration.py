@@ -2,15 +2,22 @@
 Integration tests for UI interactions with backend services.
 """
 
+
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from ui.cli_ui import CommandLineInterface
 
-# Import UI modules
+
 from ui.web_ui import WebUI
 
+
+    from ui.routes import init_services
+
+    init_services
+
+# Import UI modules
 # Import test fixtures
 
 
@@ -18,9 +25,7 @@ from ui.web_ui import WebUI
 def initialize_ui_services(register_mock_services):
     """Initialize UI services for testing."""
     # Initialize routes services
-    from ui.routes import init_services
-
-    init_services()
+()
     return True
 
 

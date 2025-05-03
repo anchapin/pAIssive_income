@@ -5,11 +5,19 @@ This module provides real-time communication between the server and clients
 for updating task progress and status.
 """
 
+import time
+
+
 import logging
 from typing import Any, Dict
 
 from celery.result import AsyncResult
 from flask_socketio import SocketIO, emit
+
+
+        from .tasks import celery_app
+
+        task_result 
 
 # Set up logging
 logging.basicConfig(
@@ -62,9 +70,7 @@ def init_socketio(app):
         socketio.join_room(task_id)
 
         # Send initial task status
-        from .tasks import celery_app
-
-        task_result = AsyncResult(task_id, app=celery_app)
+= AsyncResult(task_id, app=celery_app)
 
         if task_result.state == "PENDING":
             response = {

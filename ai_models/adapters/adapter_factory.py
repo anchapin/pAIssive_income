@@ -4,15 +4,19 @@ Factory for creating model adapters.
 This module provides a factory for creating model adapters based on adapter type.
 """
 
+
 import logging
 import os
 import sys
 from typing import Dict, List, Type
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+sys.path.insert
 from errors import ModelError
 from interfaces.model_interfaces import IModelAdapter
 
+
+
+(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 # Set up logging
 logger = logging.getLogger(__name__)
 

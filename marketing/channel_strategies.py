@@ -3,10 +3,15 @@ Channel Strategies module for the pAIssive Income project.
 Provides templates for marketing strategies across different channels.
 """
 
+import time
+
+
 import logging
 import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -793,7 +798,7 @@ class MarketingStrategy:
             # Calculate efficiency score for ranking
             efficiency_score = (
                 channel_metrics.get("roi", 0) * 0.4
-                + (1 / channel_metrics.get("cpa", float("inf"))) * 0.3
+                + (1 / channel_metrics.get("cpa", float("in"))) * 0.3
                 + channel_metrics.get("conversion_rate", 0) * 0.3
             )
 

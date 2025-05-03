@@ -6,16 +6,27 @@ disk usage, and network activity. It integrates with the metrics system to recor
 and track resource usage over time.
 """
 
+import time
+
+
 import platform
 import threading
 from enum import Enum
 from typing import Any, Dict, Optional, Union
 
-# Import our logging and metrics modules
+
 from common_utils.logging import get_logger
 from common_utils.monitoring.metrics import MetricType, create_metric, record_value
 
-logger = get_logger(__name__)
+logger 
+            import psutil
+            import psutil
+            import psutil
+            import psutil
+            import psutil
+
+# Import our logging and metrics modules
+= get_logger(__name__)
 
 
 class ResourceType(str, Enum):
@@ -92,7 +103,7 @@ class SystemMonitor:
             Dictionary of CPU metrics
         """
         try:
-            import psutil
+
 
             cpu_percent = psutil.cpu_percent(interval=0.5)
             cpu_count = psutil.cpu_count()
@@ -125,7 +136,7 @@ class SystemMonitor:
             Dictionary of memory metrics
         """
         try:
-            import psutil
+
 
             memory = psutil.virtual_memory()
 
@@ -159,7 +170,7 @@ class SystemMonitor:
             Dictionary of disk metrics
         """
         try:
-            import psutil
+
 
             disk = psutil.disk_usage(path)
 
@@ -190,7 +201,7 @@ class SystemMonitor:
             Dictionary of network metrics by interface
         """
         try:
-            import psutil
+
 
             network = psutil.net_io_counters(pernic=True)
 
@@ -236,7 +247,7 @@ class SystemMonitor:
             Dictionary of process metrics
         """
         try:
-            import psutil
+
 
             current_process = psutil.Process()
 

@@ -4,6 +4,9 @@ Marketing Service for the pAIssive Income UI.
 This service provides methods for interacting with the Marketing Agent module.
 """
 
+import time
+
+
 import logging
 import uuid
 from datetime import datetime
@@ -13,6 +16,15 @@ from common_utils import add_days, format_datetime
 from interfaces.ui_interfaces import IMarketingService
 
 from .base_service import BaseService
+
+
+            from agent_team.agent_profiles.marketing import MarketingAgent  
+        from .developer_service import DeveloperService
+
+        developer_service 
+                from agent_team import AgentTeam
+
+                
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -30,7 +42,7 @@ class MarketingService(BaseService, IMarketingService):
 
         # Import the Marketing Agent class
         try:
-            from agent_team.agent_profiles.marketing import MarketingAgent  # noqa: F401
+# noqa: F401
 
             self.marketing_agent_available = True
         except ImportError:
@@ -50,9 +62,7 @@ class MarketingService(BaseService, IMarketingService):
             Marketing campaign data
         """
         # Get the solution data
-        from .developer_service import DeveloperService
-
-        developer_service = DeveloperService()
+= DeveloperService()
         solution = developer_service.get_solution(solution_id)
 
         if solution is None:
@@ -61,9 +71,7 @@ class MarketingService(BaseService, IMarketingService):
 
         if self.marketing_agent_available:
             try:
-                from agent_team import AgentTeam
-
-                # Create a new agent team for this campaign
+# Create a new agent team for this campaign
                 team = AgentTeam(f"{solution['name']} Marketing")
 
                 # Create the marketing campaign
@@ -302,7 +310,7 @@ class MarketingService(BaseService, IMarketingService):
                 "sections": [
                     "Attention-grabbing headline",
                     "Value proposition",
-                    "Social proof",
+                    "Social proo",
                     "Call to action",
                 ],
                 "estimated_length": "50-100 words",

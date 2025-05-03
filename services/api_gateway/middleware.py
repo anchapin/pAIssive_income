@@ -5,6 +5,7 @@ This module provides middleware for the API Gateway service,
 including authentication, rate limiting, and other cross-cutting concerns.
 """
 
+
 import logging
 import time
 from typing import Callable, Dict, List, Optional
@@ -14,6 +15,8 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from services.shared.auth import ServiceTokenError, validate_service_token
+
+
 
 # Set up logging
 logging.basicConfig(

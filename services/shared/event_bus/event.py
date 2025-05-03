@@ -4,6 +4,7 @@ Event schemas and utilities for the event bus.
 This module provides schemas and utilities for events published through the event bus.
 """
 
+
 import logging
 import time
 import uuid
@@ -11,6 +12,8 @@ from enum import Enum
 from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
 
 # Set up logging
 logging.basicConfig(
@@ -39,7 +42,7 @@ class EventType(str, Enum):
 
 
 class EventMetadata(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Metadata for events."""
 
     # Event ID (UUID)
@@ -71,7 +74,7 @@ class EventMetadata(BaseModel):
 
 
 class Event(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """
     Base event schema for all events published through the event bus.
     """

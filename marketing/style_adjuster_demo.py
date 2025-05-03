@@ -5,6 +5,9 @@ This script demonstrates how to use the style adjuster to analyze and adjust
 the style of marketing content.
 """
 
+import time
+
+
 from marketing.content_generators import BlogPostGenerator
 from marketing.content_templates import BlogPostTemplate
 from marketing.style_adjuster import StyleAdjuster
@@ -12,7 +15,9 @@ from marketing.tone_analyzer import ToneAnalyzer
 from marketing.user_personas import PersonaCreator
 
 
-def demo_style_adjuster():
+def demo_style_adjuster
+
+():
     """Demonstrate the StyleAdjuster."""
     print("\n" + "=" * 80)
     print("STYLE ADJUSTER DEMO")
@@ -109,8 +114,8 @@ def demo_style_adjuster():
     print(f"\nTop {len(suggestions)} Style Adjustment Suggestions:")
     for i, suggestion in enumerate(suggestions[:5], 1):
         print(f"{i}. {suggestion['message']}")
-        print(f"   Original: \"{suggestion['original'][:50]}...\"")
-        print(f"   Replacement: \"{suggestion['replacement'][:50]}...\"")
+        print("   Original: \"{suggestion['original'][:50]}...\"")
+        print("   Replacement: \"{suggestion['replacement'][:50]}...\"")
         print(
             f"   Impact: {suggestion['impact']}, Confidence: {suggestion['confidence']:.2f}"
         )

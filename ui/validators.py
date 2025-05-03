@@ -6,6 +6,7 @@ These functions make it easy to validate requests against Pydantic schemas
 and handle validation errors consistently.
 """
 
+
 import logging
 from typing import Type, TypeVar
 
@@ -16,7 +17,9 @@ from flask import request
 
 from .errors import ValidationError
 
-logger = logging.getLogger(__name__)
+logger 
+
+= logging.getLogger(__name__)
 
 T = TypeVar("T", bound=BaseModel)
 

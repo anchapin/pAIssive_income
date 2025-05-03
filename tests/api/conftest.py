@@ -4,6 +4,7 @@ Pytest fixtures for API tests.
 This module provides fixtures that can be used across API tests.
 """
 
+
 import time
 from typing import Dict, Optional
 from unittest.mock import patch
@@ -15,9 +16,21 @@ from fastapi.testclient import TestClient
 
 from api.config import APIVersion
 
-# Import API server
+
 from api.server import APIConfig, APIServer
 
+
+    from fastapi import APIRouter
+
+    niche_analysis_router 
+    from fastapi import Body, HTTPException, Response
+
+    
+    from tests.api.utils.rate_limiting_router import create_rate_limiting_router
+
+    rate_limiting_router 
+
+# Import API server
 # Import test client fixtures
 
 # Import mock fixtures
@@ -86,14 +99,10 @@ def api_server(api_config: APIConfig) -> APIServer:
     )
 
     # Create a mock router for niche analysis
-    from fastapi import APIRouter
-
-    niche_analysis_router = APIRouter()
+= APIRouter()
 
     # Add routes to the mock router
-    from fastapi import Body, HTTPException, Response
-
-    @niche_analysis_router.post("/analyze")
+@niche_analysis_router.post("/analyze")
     async def analyze_niche(
         request: Request, response: Response, data: dict = Body(...)
     ):
@@ -1840,9 +1849,7 @@ def api_server(api_config: APIConfig) -> APIServer:
     )
 
     # Create a rate limiting router for testing
-    from tests.api.utils.rate_limiting_router import create_rate_limiting_router
-
-    rate_limiting_router = create_rate_limiting_router()
+= create_rate_limiting_router()
 
     # Include the rate limiting router in the app
     server.app.include_router(

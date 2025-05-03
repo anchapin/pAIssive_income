@@ -5,9 +5,26 @@ This module provides specialized classes for working with quantized models,
 including 4-bit and 8-bit quantized models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import logging
 import os
 from typing import Any, Dict
+
+
+    import torch
+    import transformers
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE 
+    import bitsandbytes
+    from llama_cpp import Llama
+
+    LLAMA_CPP_AVAILABLE 
 
 # Set up logging
 logging.basicConfig(
@@ -17,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -27,10 +44,8 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import transformers
-    from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Transformers not available. Text processing for quantized models will be limited."
@@ -38,7 +53,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
-    import bitsandbytes as bnb
+ as bnb
 
     BITSANDBYTES_AVAILABLE = True
 except ImportError:
@@ -48,9 +63,7 @@ except ImportError:
     BITSANDBYTES_AVAILABLE = False
 
 try:
-    from llama_cpp import Llama
-
-    LLAMA_CPP_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "llama-cpp-python not available. GGUF model support will be limited."
@@ -118,8 +131,8 @@ class QuantizedModel:
         else:
             # Check file extension
             file_ext = os.path.splitext(self.model_path)[1].lower()
-            if file_ext == ".gguf":
-                return "gguf"
+            if file_ext == ".ggu":
+                return "ggu"
             elif file_ext == ".bin" and os.path.exists(
                 os.path.join(os.path.dirname(self.model_path), "config.json")
             ):
@@ -134,7 +147,7 @@ class QuantizedModel:
         """
         if self.model_format == "huggingface":
             self._load_huggingface_model()
-        elif self.model_format == "gguf":
+        elif self.model_format == "ggu":
             self._load_gguf_model()
         else:
             raise ValueError(f"Unsupported model format: {self.model_format}")
@@ -267,7 +280,7 @@ class QuantizedModel:
             return self._generate_text_huggingface(
                 prompt, max_tokens, temperature, top_p, top_k, **kwargs
             )
-        elif self.model_format == "gguf":
+        elif self.model_format == "ggu":
             return self._generate_text_gguf(
                 prompt, max_tokens, temperature, top_p, top_k, **kwargs
             )

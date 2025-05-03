@@ -1,0 +1,131 @@
+[
+  {
+    "id": "69de033d-81fa-4d76-ab79-970177e5080c",
+    "event_type": "webhook.created",
+    "resource_type": "webhook",
+    "resource_id": "8ce5f2c1-1f28-4ea5-bef5-ead7619c4be0",
+    "action": "create",
+    "actor_id": null,
+    "actor_type": "system",
+    "timestamp": "2025-05-03T00:32:19.674610+00:00",
+    "status": "success",
+    "details": {
+      "url": "https://example.com/webhook",
+      "events": [
+        "user.created",
+        "payment.received"
+      ],
+      "description": "Test webhook",
+      "is_active": true
+    },
+    "ip_address": null,
+    "user_agent": null
+  },
+  {
+    "id": "4817cf0a-1f21-449d-9005-1547ed6d2588",
+    "event_type": "webhook.updated",
+    "resource_type": "webhook",
+    "resource_id": "8ce5f2c1-1f28-4ea5-bef5-ead7619c4be0",
+    "action": "update",
+    "actor_id": null,
+    "actor_type": "system",
+    "timestamp": "2025-05-03T00:32:19.674610+00:00",
+    "status": "success",
+    "details": {
+      "original": {
+        "url": "https://example.com/webhook",
+        "events": [
+          "user.created",
+          "payment.received"
+        ],
+        "description": "Test webhook",
+        "headers": {
+          "Authorization": "Bearer test-token"
+        },
+        "is_active": true
+      },
+      "updated": {
+        "url": "https://example.com/webhook",
+        "events": [
+          "user.created",
+          "payment.received"
+        ],
+        "description": "Updated test webhook",
+        "headers": {
+          "Authorization": "Bearer test-token"
+        },
+        "is_active": false
+      },
+      "changes": {
+        "description": "Updated test webhook",
+        "is_active": false
+      }
+    },
+    "ip_address": null,
+    "user_agent": null
+  },
+  {
+    "id": "6e695f08-9274-4a4c-b042-38c89a480cfa",
+    "event_type": "webhook.updated",
+    "resource_type": "webhook",
+    "resource_id": "8ce5f2c1-1f28-4ea5-bef5-ead7619c4be0",
+    "action": "update",
+    "actor_id": null,
+    "actor_type": "system",
+    "timestamp": "2025-05-03T00:32:19.675611+00:00",
+    "status": "success",
+    "details": {
+      "original": {
+        "url": "https://example.com/webhook",
+        "events": [
+          "user.created",
+          "payment.received"
+        ],
+        "description": "Updated test webhook",
+        "headers": {
+          "Authorization": "Bearer test-token"
+        },
+        "is_active": false
+      },
+      "updated": {
+        "url": "https://example.com/webhook",
+        "events": [
+          "user.created",
+          "payment.received"
+        ],
+        "description": "Updated test webhook",
+        "headers": {
+          "Authorization": "Bearer test-token"
+        },
+        "is_active": true
+      },
+      "changes": {
+        "is_active": true
+      }
+    },
+    "ip_address": null,
+    "user_agent": null
+  },
+  {
+    "id": "7fdf758c-cfaf-4bcc-9bb2-736dfba2f9cb",
+    "event_type": "webhook.deleted",
+    "resource_type": "webhook",
+    "resource_id": "8ce5f2c1-1f28-4ea5-bef5-ead7619c4be0",
+    "action": "delete",
+    "actor_id": null,
+    "actor_type": "system",
+    "timestamp": "2025-05-03T00:32:19.786091+00:00",
+    "status": "success",
+    "details": {
+      "url": "https://example.com/webhook",
+      "events": [
+        "user.created",
+        "payment.received"
+      ],
+      "description": "Updated test webhook",
+      "is_active": true
+    },
+    "ip_address": null,
+    "user_agent": null
+  }
+]

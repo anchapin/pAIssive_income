@@ -4,6 +4,7 @@ Memory cache backend for the model cache system.
 This module provides an in-memory cache backend.
 """
 
+
 import re
 import threading
 import time
@@ -12,7 +13,9 @@ from typing import Any, Dict, List, Optional, Tuple
 from .base import CacheBackend
 
 
-class MemoryCache(CacheBackend):
+class MemoryCache
+
+(CacheBackend):
     """
     In-memory cache backend.
     """

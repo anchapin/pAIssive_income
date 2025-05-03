@@ -2,17 +2,21 @@
 Tests for competitive analysis functionality.
 """
 
+import time
+
+
 import pytest
+from niche_analysis.errors import InvalidCompetitorDataError
+
+
+class TestCompetitiveAnalysis
 
 from niche_analysis.competitive_analysis import (
     CompetitorAnalyzer,
     MarketPositionMapper,
     StrengthWeaknessAnalyzer,
 )
-from niche_analysis.errors import InvalidCompetitorDataError
-
-
-class TestCompetitiveAnalysis:
+:
     """Test cases for competitive analysis."""
 
     def setup_method(self):

@@ -4,14 +4,18 @@ Base agent profile for the Agent Team module.
 This module provides the base agent profile class that all agent profiles inherit from.
 """
 
+
 import logging
 import os
 import sys
 from typing import Any, Dict, List, Optional
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+sys.path.insert
 from interfaces.agent_interfaces import IAgentProfile
 
+
+
+(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 # Set up logging
 logger = logging.getLogger(__name__)
 

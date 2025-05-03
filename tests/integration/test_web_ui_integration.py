@@ -4,6 +4,7 @@ Integration tests for Web UI integration with backend services.
 This module contains tests for the Web UI integration with backend services.
 """
 
+
 import pytest
 from unittest.mock import patch, MagicMock
 
@@ -12,6 +13,8 @@ from niche_analysis.market_analyzer import MarketAnalyzer
 from ai_models.model_manager import ModelManager
 from monetization.subscription_manager import SubscriptionManager
 from agent_team.agent_team import AgentTeam
+
+
 
 
 @pytest.fixture

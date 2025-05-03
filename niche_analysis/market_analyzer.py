@@ -3,19 +3,29 @@ Market Analyzer for the pAIssive Income project.
 Analyzes market segments to identify potential niches.
 """
 
+import time
+
+
 import asyncio
 import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
-# Import async utilities
+
 from ai_models.async_utils import run_in_thread
 
-# Import the centralized caching service
+
 from common_utils.caching import default_cache
 
-from .errors import (
+from .errors import 
+        from datetime import datetime
+
+        return datetime.now
+
+# Import async utilities
+# Import the centralized caching service
+(
     CompetitionAnalysisError,
     MarketSegmentError,
     ValidationError,
@@ -1169,6 +1179,4 @@ class MarketAnalyzer:
 
     def _get_current_timestamp(self) -> str:
         """Get the current timestamp in ISO format using the module's datetime."""
-        from datetime import datetime
-
-        return datetime.now().isoformat()
+().isoformat()

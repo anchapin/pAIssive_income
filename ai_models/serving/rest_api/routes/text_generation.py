@@ -4,15 +4,19 @@ Text generation routes for REST API server.
 This module provides route handlers for text generation.
 """
 
+
 from typing import List, Optional
 
-# Try to import FastAPI
-try:
+
     from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
     from fastapi.responses import StreamingResponse
     from pydantic import BaseModel, ConfigDict, Field
 
-    FASTAPI_AVAILABLE = True
+    FASTAPI_AVAILABLE 
+
+# Try to import FastAPI
+try:
+= True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
@@ -38,7 +42,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class GenerationRequest(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Request model for text generation.
         """
@@ -55,7 +59,7 @@ if FASTAPI_AVAILABLE:
         stream: bool = Field(False, description="Whether to stream the response")
 
     class GenerationResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Response model for text generation.
         """
@@ -69,7 +73,7 @@ if FASTAPI_AVAILABLE:
         finish_reason: str = Field(..., description="Reason for finishing generation")
 
     class ChatMessage(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Chat message model.
         """
@@ -78,7 +82,7 @@ if FASTAPI_AVAILABLE:
         content: str = Field(..., description="Content of the message")
 
     class ChatRequest(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Request model for chat completion.
         """
@@ -95,7 +99,7 @@ if FASTAPI_AVAILABLE:
         stream: bool = Field(False, description="Whether to stream the response")
 
     class ChatResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Response model for chat completion.
         """

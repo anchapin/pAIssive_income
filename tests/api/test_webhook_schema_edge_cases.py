@@ -2,13 +2,16 @@
 Tests for edge cases in webhook schema validation.
 """
 
+
 import pytest
 from pydantic import ValidationError
 
 from api.schemas.webhook import WebhookEventType, WebhookRequest, WebhookUpdate
 
 
-def test_webhook_request_empty_events():
+def test_webhook_request_empty_events
+
+():
     """Test that webhook request with empty events list is rejected."""
     invalid_data = {
         "url": "https://example.com/webhook",

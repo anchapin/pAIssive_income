@@ -5,6 +5,7 @@ This module provides automatic cache key versioning to handle cache invalidation
 when code or data models change, ensuring stale cached results aren't returned.
 """
 
+
 import hashlib
 import inspect
 import logging
@@ -12,6 +13,11 @@ import os
 import sys
 import time
 from typing import Any, Callable, Dict, Optional, Set, Tuple, Type
+
+
+    from .cache_service import _generate_cache_key
+
+    
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -274,9 +280,7 @@ def generate_versioned_key(
     Returns:
         Versioned cache key
     """
-    from .cache_service import _generate_cache_key
-
-    # Start with base key - either provided or generated
+# Start with base key - either provided or generated
     if base_key is None:
         base_key = _generate_cache_key(func, args, kwargs)
 
@@ -306,7 +310,7 @@ def clear_namespace_on_code_change(namespace: str, func_or_class: Any = None) ->
         # Try to determine the caller
         frame = inspect.currentframe().f_back
         try:
-            func_or_class = frame.f_locals.get("self", None).__class__
+            func_or_class = frame.f_locals.get("sel", None).__class__
         except (AttributeError, KeyError):
             logger.warning(
                 f"Could not automatically determine caller for namespace {namespace}"

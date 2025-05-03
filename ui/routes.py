@@ -5,6 +5,7 @@ This module defines the routes for the web interface, handling requests
 for different parts of the application.
 """
 
+
 import logging
 import os
 import traceback
@@ -14,7 +15,51 @@ from datetime import datetime
 from flask import flash, jsonify, redirect, render_template, request, session, url_for
 
 from . import app
-from .errors import (
+from .errors import 
+
+    from .service_registry import get_ui_service
+
+    
+    from .validation_schemas import NicheAnalysisRequest
+    from .validators import validate_form_data
+
+    
+    from .validation_schemas import DeveloperSolutionRequest
+    from .validators import validate_form_data
+
+    
+    from .validation_schemas import MonetizationStrategyRequest
+    from .validators import validate_form_data
+
+    
+    from .validation_schemas import MarketingCampaignRequest
+    from .validators import validate_form_data
+
+    
+    from .validators import sanitize_input
+
+    try
+    from .validators import sanitize_input
+
+    try
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+
+    try
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+
+    try
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+
+    try
+    from .validation_schemas import ApiQueryParams
+    from .validators import validate_query_params
+
+    try
+
+(
     RouteError,
     ServiceError,
     UIError,
@@ -58,10 +103,7 @@ def init_services():
         IMonetizationService,
         INicheAnalysisService,
     )
-
-    from .service_registry import get_ui_service
-
-    # Initialize services
+# Initialize services
     agent_team_service = get_ui_service(IAgentTeamService)
     niche_analysis_service = get_ui_service(INicheAnalysisService)
     developer_service = get_ui_service(IDeveloperService)
@@ -107,10 +149,7 @@ def niche_analysis():
 @app.route("/niche-analysis/run", methods=["POST"])
 def run_niche_analysis():
     """Run niche analysis on selected market segments as a background task."""
-    from .validation_schemas import NicheAnalysisRequest
-    from .validators import validate_form_data
-
-    # Validate input using Pydantic schema
+# Validate input using Pydantic schema
     validated_data = validate_form_data(NicheAnalysisRequest)
     market_segments = validated_data.market_segments
 
@@ -185,10 +224,7 @@ def developer():
 @app.route("/developer/solution", methods=["POST"])
 def develop_solution():
     """Develop a solution for a selected niche as a background task."""
-    from .validation_schemas import DeveloperSolutionRequest
-    from .validators import validate_form_data
-
-    # Validate input using Pydantic schema
+# Validate input using Pydantic schema
     validated_data = validate_form_data(DeveloperSolutionRequest)
     niche_id = validated_data.niche_id
 
@@ -263,10 +299,7 @@ def monetization():
 @app.route("/monetization/strategy", methods=["POST"])
 def create_monetization_strategy_route():
     """Create a monetization strategy for a selected solution as a background task."""
-    from .validation_schemas import MonetizationStrategyRequest
-    from .validators import validate_form_data
-
-    # Validate input using Pydantic schema
+# Validate input using Pydantic schema
     validated_data = validate_form_data(MonetizationStrategyRequest)
     solution_id = validated_data.solution_id
 
@@ -343,10 +376,7 @@ def marketing():
 @app.route("/marketing/campaign", methods=["POST"])
 def create_marketing_campaign_route():
     """Create a marketing campaign for a selected solution as a background task."""
-    from .validation_schemas import MarketingCampaignRequest
-    from .validators import validate_form_data
-
-    # Validate input using Pydantic schema
+# Validate input using Pydantic schema
     validated_data = validate_form_data(MarketingCampaignRequest)
     solution_id = validated_data.solution_id
 
@@ -453,9 +483,7 @@ def health_check():
 @app.route("/api/task/<task_id>", methods=["GET"])
 def get_task(task_id):
     """API endpoint to get task status."""
-    from .validators import sanitize_input
-
-    try:
+:
         # Sanitize the task_id to prevent injection attacks
         sanitized_task_id = sanitize_input(task_id)
 
@@ -479,9 +507,7 @@ def get_task(task_id):
 @app.route("/api/task/<task_id>/cancel", methods=["POST"])
 def cancel_task_route(task_id):
     """API endpoint to cancel a task."""
-    from .validators import sanitize_input
-
-    try:
+:
         # Sanitize the task_id to prevent injection attacks
         sanitized_task_id = sanitize_input(task_id)
 
@@ -513,10 +539,7 @@ def cancel_task_route(task_id):
 @app.route("/api/niches", methods=["GET"])
 def api_get_niches():
     """API endpoint to get niches."""
-    from .validation_schemas import ApiQueryParams
-    from .validators import validate_query_params
-
-    try:
+:
         # Validate query parameters
         params = validate_query_params(ApiQueryParams)
 
@@ -535,10 +558,7 @@ def api_get_niches():
 @app.route("/api/solutions", methods=["GET"])
 def api_get_solutions():
     """API endpoint to get solutions."""
-    from .validation_schemas import ApiQueryParams
-    from .validators import validate_query_params
-
-    try:
+:
         # Validate query parameters
         params = validate_query_params(ApiQueryParams)
 
@@ -557,10 +577,7 @@ def api_get_solutions():
 @app.route("/api/monetization-strategies", methods=["GET"])
 def api_get_monetization_strategies():
     """API endpoint to get monetization strategies."""
-    from .validation_schemas import ApiQueryParams
-    from .validators import validate_query_params
-
-    try:
+:
         # Validate query parameters
         params = validate_query_params(ApiQueryParams)
 
@@ -579,10 +596,7 @@ def api_get_monetization_strategies():
 @app.route("/api/marketing-campaigns", methods=["GET"])
 def api_get_marketing_campaigns():
     """API endpoint to get marketing campaigns."""
-    from .validation_schemas import ApiQueryParams
-    from .validators import validate_query_params
-
-    try:
+:
         # Validate query parameters
         params = validate_query_params(ApiQueryParams)
 

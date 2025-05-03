@@ -5,13 +5,22 @@ This module provides example tests that showcase how to effectively use
 the mock implementations of external dependencies for testing.
 """
 
+
 from datetime import datetime
 from unittest.mock import patch
 
 import pytest
 
 
-def test_openai_provider_usage(mock_openai_provider):
+def test_openai_provider_usage
+        from ai_models.model_manager import get_model_provider
+
+        
+        from monetization.mock_payment_processor_impl import MockPaymentProcessorImpl
+
+        
+
+(mock_openai_provider):
     """Test using the mock OpenAI provider."""
     # List available models
     models = mock_openai_provider.list_models()
@@ -163,9 +172,7 @@ def test_model_manager_with_mock(mock_get_model_provider, mock_openai_provider):
     # Import here to avoid import errors if the module doesn't exist yet
     try:
         # Instead of using the abstract ModelManager class, we'll use the get_model_provider function directly
-        from ai_models.model_manager import get_model_provider
-
-        # Get the model provider
+# Get the model provider
         provider = get_model_provider("openai")
 
         # Use the provider to generate text
@@ -198,9 +205,7 @@ def test_payment_processor_with_mock(mock_get_payment_gateway, mock_stripe_gatew
 
     # Import here to avoid import errors if the module doesn't exist yet
     try:
-        from monetization.mock_payment_processor_impl import MockPaymentProcessorImpl
-
-        # Create a payment processor
+# Create a payment processor
         processor = MockPaymentProcessorImpl()
 
         # Create a customer and payment method for testing

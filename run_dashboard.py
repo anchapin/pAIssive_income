@@ -1,3 +1,15 @@
+
+import argparse
+import sys
+from pathlib import Path
+
+
+from common_utils.logging import LogLevel, setup_logging
+
+setup_logging
+    from common_utils.monitoring.dashboard import start_dashboard
+except ImportError as e
+
 #!/usr/bin/env python
 """
 Dashboard launcher for the pAIssive_income monitoring system.
@@ -6,17 +18,12 @@ This script launches the monitoring dashboard as a standalone web application,
 allowing users to monitor metrics, logs, and system health.
 """
 
-import argparse
-import sys
-from pathlib import Path
 
 # Ensure the application root is in the Python path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Set up logging before importing the dashboard
-from common_utils.logging import LogLevel, setup_logging
-
-setup_logging(
+(
     level=LogLevel.INFO,
     log_file="logs/dashboard.log",
     log_to_console=True,
@@ -25,8 +32,7 @@ setup_logging(
 
 # Import the dashboard module
 try:
-    from common_utils.monitoring.dashboard import start_dashboard
-except ImportError as e:
+:
     print(f"Error importing dashboard module: {e}")
     print("\nMake sure you have the required dependencies installed:")
     print("pip install dash plotly pandas")

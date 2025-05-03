@@ -2,21 +2,25 @@
 Tests for the A/B testing module.
 """
 
+
 from datetime import datetime
 
 import pytest
 
-from marketing.ab_testing import (
+from marketing.ab_testing import 
+from marketing.errors import InvalidTestConfigurationError, TestNotFoundError
+
+
+class TestABTest
+
+(
     ABTest,
     ABTesting,
     InsufficientDataError,
     InvalidVariantError,
     TestAlreadyEndedError,
 )
-from marketing.errors import InvalidTestConfigurationError, TestNotFoundError
-
-
-class TestABTest:
+:
     """Tests for the ABTest class."""
 
     def test_init(self):

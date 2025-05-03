@@ -6,6 +6,19 @@ from ai_models.agent_integration import AgentModelProvider
 from ai_models.fallbacks import FallbackManager, FallbackStrategy
 from ai_models.model_manager import ModelInfo, ModelManager
 
+
+
+import logging
+import os
+import sys
+
+from ai_models.agent_integration import AgentModelProvider
+from ai_models.fallbacks import FallbackManager, FallbackStrategy
+from ai_models.model_manager import ModelInfo, ModelManager
+
+
+def setup_test_environment
+
 """
 Test script for model fallback functionality.
 
@@ -13,21 +26,14 @@ This script demonstrates and tests the model fallback mechanisms to ensure
 they work as expected under various scenarios.
 """
 
-import logging
-import os
-import sys
+
+
 
 # Add the project root to the Python path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
-
-from ai_models.agent_integration import AgentModelProvider
-from ai_models.fallbacks import FallbackManager, FallbackStrategy
-from ai_models.model_manager import ModelInfo, ModelManager
-
-
-def setup_test_environment():
+():
     """Set up a test environment with a model manager and some test models."""
     print("\n=== Setting up test environment ===")
 

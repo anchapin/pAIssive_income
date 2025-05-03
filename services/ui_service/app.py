@@ -5,6 +5,7 @@ This module provides the UI Service implementation, which serves the web-based
 user interface for the pAIssive income platform.
 """
 
+
 import argparse
 import logging
 import os
@@ -15,7 +16,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from services.service_discovery.registration import (
+from services.service_discovery.registration import 
+    import uvicorn
+
+(
     get_default_tags,
     get_service_metadata,
     register_service,
@@ -233,7 +237,7 @@ def start_ui_service(host: str = "0.0.0.0", port: int = 3000):
         host: Host to bind to
         port: Port to listen on
     """
-    import uvicorn
+
 
     # Register with service registry
     register_with_service_registry(port)

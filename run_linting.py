@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-"""
-Script to run linting checks on Python files.
-"""
 
 import argparse
 import os
@@ -11,7 +7,17 @@ from pathlib import Path
 from typing import List, Set
 
 
-def get_gitignore_patterns() -> Set[str]:
+def get_gitignore_patterns
+
+#!/usr/bin/env python
+"""
+Script to run linting checks on Python files.
+"""
+
+
+
+
+() -> Set[str]:
     """Read .gitignore patterns and return them as a set."""
     patterns = set()
     try:
@@ -100,7 +106,7 @@ def lint_file(file_path):
 
     # Check with Ruff
     ruff_result = run_command(
-        ["ruff", "check", file_path],
+        ["ruf", "check", file_path],
         file_path,
     )
 

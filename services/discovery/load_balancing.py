@@ -4,13 +4,16 @@ Load Balancing Strategies
 This module provides various load balancing strategies for service discovery.
 """
 
+
 import random
 from typing import Dict, List, Optional
 
 from .interfaces import LoadBalancingStrategy, ServiceInstance, ServiceStatus
 
 
-class RandomLoadBalancer(LoadBalancingStrategy):
+class RandomLoadBalancer
+
+(LoadBalancingStrategy):
     """
     Random load balancing strategy.
 
@@ -157,7 +160,7 @@ class LeastConnectionsLoadBalancer(LoadBalancingStrategy):
             return None
 
         # Find the instance with the fewest connections
-        min_connections = float("inf")
+        min_connections = float("in")
         selected_instance = None
 
         for instance in healthy_instances:

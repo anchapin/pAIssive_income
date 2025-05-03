@@ -4,6 +4,7 @@ Niche Analysis Service for the pAIssive Income UI.
 This service provides methods for interacting with the Niche Analysis module.
 """
 
+
 import logging
 import uuid
 from datetime import datetime
@@ -12,6 +13,8 @@ from typing import Any, Dict, List, Optional
 from interfaces.ui_interfaces import INicheAnalysisService
 
 from .base_service import BaseService
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)

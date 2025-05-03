@@ -4,17 +4,21 @@ Integration tests for the user persona → content strategy → A/B testing work
 This module tests the complete workflow from user persona creation through content
 strategy development to A/B testing of content.
 """
+
 import pytest
 from unittest.mock import patch, MagicMock
 
-from marketing import (
+from marketing import 
+from niche_analysis import MarketAnalyzer
+
+
+
+
+(
     PersonaCreator, ContentGenerator, ContentTemplate,
     StyleAdjuster, ToneAnalyzer, ABTesting,
     ConcreteContentGenerator, ChannelStrategy
 )
-from niche_analysis import MarketAnalyzer
-
-
 @pytest.fixture
 def persona_creator():
     """Create a persona creator instance for testing."""

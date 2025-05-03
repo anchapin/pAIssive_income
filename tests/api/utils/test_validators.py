@@ -2,12 +2,16 @@
 Utility functions for validating API responses in tests.
 """
 
+
 from typing import Any, Dict, List, Optional
 
 from requests import Response
 
 
-def validate_status_code(response: Response, expected_status_code: int) -> None:
+def validate_status_code
+    import uuid
+
+(response: Response, expected_status_code: int) -> None:
     """
     Validate that a response has the expected status code.
 
@@ -476,6 +480,6 @@ def generate_id() -> str:
     Returns:
         Random ID
     """
-    import uuid
+
 
     return str(uuid.uuid4())

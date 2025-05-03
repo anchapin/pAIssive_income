@@ -4,6 +4,7 @@ Logging middleware for the API server.
 This module provides middleware for request logging and performance monitoring.
 """
 
+
 import logging
 import time
 import uuid
@@ -13,6 +14,8 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from ..services.logging_service import LoggingService
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

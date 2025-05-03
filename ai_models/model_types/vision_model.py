@@ -5,12 +5,57 @@ This module provides specialized classes for working with vision models,
 including image classification, object detection, and image generation.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import json
 import logging
 import os
 from typing import Any, Dict, List, Optional
 
 import numpy as np
+
+
+    import torch
+    from torch import nn
+
+    TORCH_AVAILABLE 
+    import transformers
+    from transformers import AutoImageProcessor, AutoModelForImageClassification
+
+    TRANSFORMERS_AVAILABLE 
+    from PIL import Image
+
+    PIL_AVAILABLE 
+    import cv2
+    import onnxruntime
+                from transformers import AutoModelForObjectDetection
+
+                self.processor 
+                from transformers import AutoModelForImageSegmentation
+
+                self.processor 
+                from transformers import AutoModelForVision2Seq, ViTImageProcessor
+
+                self.processor 
+                        from torchvision.models import resnet50
+
+                        self.model 
+                        from transformers import ViTForImageClassification
+
+                        self.model 
+                from transformers import AutoModelForImageClassification
+
+                if isinstance
+        from torchvision import transforms
+
+        
+        from torchvision import transforms
+
+        
 
 # Set up logging
 logging.basicConfig(
@@ -20,33 +65,27 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
-    from torch import nn
 
-    TORCH_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("PyTorch not available. Vision model support will be limited.")
     TORCH_AVAILABLE = False
 
 try:
-    import transformers
-    from transformers import AutoImageProcessor, AutoModelForImageClassification
 
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("Transformers not available. Vision model support will be limited.")
     TRANSFORMERS_AVAILABLE = False
 
 try:
-    from PIL import Image
-
-    PIL_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("PIL not available. Image processing will be limited.")
     PIL_AVAILABLE = False
 
 try:
-    import cv2
+
 
     CV2_AVAILABLE = True
 except ImportError:
@@ -54,7 +93,7 @@ except ImportError:
     CV2_AVAILABLE = False
 
 try:
-    import onnxruntime as ort
+ as ort
 
     ONNX_AVAILABLE = True
 except ImportError:
@@ -173,23 +212,17 @@ class VisionModel:
                     self.model_path, **self.kwargs
                 )
             elif self.model_type == "object-detection":
-                from transformers import AutoModelForObjectDetection
-
-                self.processor = AutoImageProcessor.from_pretrained(self.processor_path)
+= AutoImageProcessor.from_pretrained(self.processor_path)
                 self.model = AutoModelForObjectDetection.from_pretrained(
                     self.model_path, **self.kwargs
                 )
             elif self.model_type == "image-segmentation":
-                from transformers import AutoModelForImageSegmentation
-
-                self.processor = AutoImageProcessor.from_pretrained(self.processor_path)
+= AutoImageProcessor.from_pretrained(self.processor_path)
                 self.model = AutoModelForImageSegmentation.from_pretrained(
                     self.model_path, **self.kwargs
                 )
             elif self.model_type == "image-to-text":
-                from transformers import AutoModelForVision2Seq, ViTImageProcessor
-
-                self.processor = ViTImageProcessor.from_pretrained(self.processor_path)
+= ViTImageProcessor.from_pretrained(self.processor_path)
                 self.model = AutoModelForVision2Seq.from_pretrained(
                     self.model_path, **self.kwargs
                 )
@@ -275,13 +308,9 @@ class VisionModel:
                 if "model_type" in self.kwargs:
                     model_type = self.kwargs["model_type"]
                     if model_type == "resnet":
-                        from torchvision.models import resnet50
-
-                        self.model = resnet50()
+= resnet50()
                     elif model_type == "vit":
-                        from transformers import ViTForImageClassification
-
-                        self.model = ViTForImageClassification.from_pretrained(
+= ViTForImageClassification.from_pretrained(
                             "google/vit-base-patch16-224"
                         )
                     else:
@@ -341,9 +370,7 @@ class VisionModel:
         # If no label file found, try to use ImageNet labels for common models
         try:
             if TRANSFORMERS_AVAILABLE:
-                from transformers import AutoModelForImageClassification
-
-                if isinstance(self.model, AutoModelForImageClassification):
+(self.model, AutoModelForImageClassification):
                     self.labels = list(self.model.config.id2label.values())
                     logger.info(f"Using {len(self.labels)} labels from model config")
                     return
@@ -509,9 +536,7 @@ class VisionModel:
             Dictionary of class labels and scores
         """
         # Preprocess image
-        from torchvision import transforms
-
-        # Default transformation for common models
+# Default transformation for common models
         transform = transforms.Compose(
             [
                 transforms.Resize(256),
@@ -747,9 +772,7 @@ class VisionModel:
             List of detected objects with bounding boxes and scores
         """
         # Preprocess image
-        from torchvision import transforms
-
-        # Default transformation for common models
+# Default transformation for common models
         transform = transforms.Compose([transforms.ToTensor()])
 
         # Transform image

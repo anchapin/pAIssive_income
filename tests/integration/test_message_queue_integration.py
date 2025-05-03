@@ -5,13 +5,16 @@ This module contains integration tests for the message queue service
 and its integration with other microservices.
 """
 
+
 import threading
 import time
 from datetime import datetime
 
 import pytest
 
-from services.messaging import (
+from services.messaging import 
+
+(
     DeadLetterQueue,
     MessageConsumer,
     MessagePublisher,

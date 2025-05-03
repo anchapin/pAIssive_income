@@ -1,14 +1,21 @@
 
+import logging
+import uuid
+from datetime import datetime
+from typing import Optional
+
+
+    from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
+    from fastapi.responses import JSONResponse
+
+    FASTAPI_AVAILABLE 
+
 """
 Monetization routes for the API server.
 
 This module provides route handlers for Monetization operations.
 """
 
-import logging
-import uuid
-from datetime import datetime
-from typing import Optional
 
 # Set up logging
 logging.basicConfig(
@@ -18,10 +25,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
-    from fastapi.responses import JSONResponse
-
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI is required for API routes")
     FASTAPI_AVAILABLE = False

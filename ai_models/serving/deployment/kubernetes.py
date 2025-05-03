@@ -4,10 +4,13 @@ Kubernetes deployment utilities for AI models.
 This module provides utilities for deploying AI models with Kubernetes.
 """
 
+
 import logging
 import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
+
+
 
 # Set up logging
 logging.basicConfig(
@@ -166,7 +169,7 @@ def _generate_deployment(config: KubernetesConfig, output_path: str) -> None:
         output_path: Path to save the deployment.yaml file
     """
     # Create deployment.yaml content
-    content = f"""
+    content = """
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -213,7 +216,7 @@ spec:
     if config.env_vars:
         content += "        env:\n"
         for key, value in config.env_vars.items():
-            content += f"""        - name: {key}
+            content += """        - name: {key}
           value: "{value}"
 """
 
@@ -221,7 +224,7 @@ spec:
     if config.volumes:
         content += "        volumeMounts:\n"
         for i, volume in enumerate(config.volumes):
-            content += f"""        - name: volume-{i}
+            content += """        - name: volume-{i}
           mountPath: {volume['target']}
 """
 
@@ -230,12 +233,12 @@ spec:
             volume_type = volume.get("type", "hostPath")
 
             if volume_type == "hostPath":
-                content += f"""      - name: volume-{i}
+                content += """      - name: volume-{i}
         hostPath:
           path: {volume['source']}
 """
             elif volume_type == "persistentVolumeClaim":
-                content += f"""      - name: volume-{i}
+                content += """      - name: volume-{i}
         persistentVolumeClaim:
           claimName: {volume['source']}
 """
@@ -254,7 +257,7 @@ def _generate_service(config: KubernetesConfig, output_path: str) -> None:
         output_path: Path to save the service.yaml file
     """
     # Create service.yaml content
-    content = f"""
+    content = """
 apiVersion: v1
 kind: Service
 metadata:
@@ -291,7 +294,7 @@ def _generate_ingress(config: KubernetesConfig, output_path: str) -> None:
         output_path: Path to save the ingress.yaml file
     """
     # Create ingress.yaml content
-    content = f"""
+    content = """
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -305,7 +308,7 @@ metadata:
 
     # Add TLS if enabled
     if config.ingress_tls:
-        content += f"""spec:
+        content += """spec:
   tls:
   - hosts:
     - {config.ingress_host}
@@ -323,7 +326,7 @@ metadata:
               number: {config.port}
 """
     else:
-        content += f"""spec:
+        content += """spec:
   rules:
   - host: {config.ingress_host}
     http:
@@ -351,7 +354,7 @@ def _generate_hpa(config: KubernetesConfig, output_path: str) -> None:
         output_path: Path to save the hpa.yaml file
     """
     # Create hpa.yaml content
-    content = f"""
+    content = """
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -389,7 +392,7 @@ def _generate_kustomization(config: KubernetesConfig, output_path: str) -> None:
         output_path: Path to save the kustomization.yaml file
     """
     # Create kustomization.yaml content
-    content = f"""
+    content = """
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: {config.namespace}

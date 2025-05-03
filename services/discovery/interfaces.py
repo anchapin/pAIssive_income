@@ -4,13 +4,16 @@ Service Discovery Interfaces
 This module defines the core interfaces for the service discovery system.
 """
 
+
 import enum
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 
-class ServiceStatus(enum.Enum):
+class ServiceStatus
+
+(enum.Enum):
     """Enum representing the status of a service instance."""
 
     UNKNOWN = "unknown"

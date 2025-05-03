@@ -7,12 +7,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 from ai_models.metrics import EnhancedPerformanceMonitor
 
-"""
-Dashboard generation for model performance metrics.
 
-This module provides tools for generating interactive dashboards and reports
-to visualize model performance metrics, token usage, and cost data.
-"""
 
 import json
 import logging
@@ -21,15 +16,42 @@ import time
 from datetime import datetime, timedelta
 from typing import List, Optional
 
+
+from ai_models.metrics import EnhancedPerformanceMonitor
+
+
+class MetricsDashboard
+            import matplotlib
+            import pandas
+            import plotly
+            import jinja2
+            import jinja2
+            import pandas
+            import plotly.express
+            import plotly.graph_objects
+            from plotly.subplots import make_subplots
+        except ImportError
+            import jinja2
+            import pandas
+            import plotly.express
+            import plotly.graph_objects
+
+"""
+Dashboard generation for model performance metrics.
+
+This module provides tools for generating interactive dashboards and reports
+to visualize model performance metrics, token usage, and cost data.
+"""
+
+
+
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import metrics classes
-from ai_models.metrics import EnhancedPerformanceMonitor
-
-
-class MetricsDashboard:
+:
     """
     Dashboard generator for model performance metrics.
 
@@ -61,22 +83,22 @@ class MetricsDashboard:
         missing_deps = []
 
         try:
-            import matplotlib
+
         except ImportError:
             missing_deps.append("matplotlib")
 
         try:
-            import pandas
+
         except ImportError:
             missing_deps.append("pandas")
 
         try:
-            import plotly
+
         except ImportError:
             missing_deps.append("plotly")
 
         try:
-            import jinja2
+
         except ImportError:
             missing_deps.append("jinja2")
 
@@ -110,12 +132,11 @@ class MetricsDashboard:
             Path to the generated dashboard HTML file
         """
         try:
-            import jinja2
-            import pandas as pd
-            import plotly.express as px
-            import plotly.graph_objects as go
-            from plotly.subplots import make_subplots
-        except ImportError:
+
+ as pd
+ as px
+ as go
+:
             logger.error(
                 "Dashboard generation requires additional packages. Install with: "
                 "pip install pandas plotly jinja2"
@@ -364,7 +385,7 @@ class MetricsDashboard:
                                 <h5 class="card-title">Usage Summary</h5>
                                 <p class="card-text">Inferences: {{ report.num_inferences }}</p>
                                 <p class="card-text">Total Tokens: {{ total_tokens }}</p>
-                                <p class="card-text">Avg. Latency: {{ "%.2f"|format(report.avg_latency_ms) }} ms</p>
+                                <p class="card-text">Avg. Latency: {{ "%.2"|format(report.avg_latency_ms) }} ms</p>
                             </div>
                         </div>
                     </div>
@@ -372,9 +393,9 @@ class MetricsDashboard:
                         <div class="card summary-card">
                             <div class="card-body">
                                 <h5 class="card-title">Cost Summary</h5>
-                                <p class="card-text">Total Cost: ${{ "%.2f"|format(total_cost) }}</p>
-                                <p class="card-text">Average Cost: ${{ "%.4f"|format(avg_cost_per_inference) }}</p>
-                                <p class="card-text">Cost per 1K Tokens: ${{ "%.4f"|format(report.cost_per_1k_tokens or 0) }}</p>
+                                <p class="card-text">Total Cost: ${{ "%.2"|format(total_cost) }}</p>
+                                <p class="card-text">Average Cost: ${{ "%.4"|format(avg_cost_per_inference) }}</p>
+                                <p class="card-text">Cost per 1K Tokens: ${{ "%.4"|format(report.cost_per_1k_tokens or 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -382,8 +403,8 @@ class MetricsDashboard:
                         <div class="card summary-card">
                             <div class="card-body">
                                 <h5 class="card-title">Performance Summary</h5>
-                                <p class="card-text">Avg. Inference Time: {{ "%.2f"|format(report.avg_inference_time) }} s</p>
-                                <p class="card-text">Tokens per Second: {{ "%.2f"|format(report.avg_tokens_per_second) }}</p>
+                                <p class="card-text">Avg. Inference Time: {{ "%.2"|format(report.avg_inference_time) }} s</p>
+                                <p class="card-text">Tokens per Second: {{ "%.2"|format(report.avg_tokens_per_second) }}</p>
                                 <p class="card-text">Error Rate: {{ "%.2f"|format(error_rate * 100) }}%</p>
                             </div>
                         </div>
@@ -548,10 +569,10 @@ class MetricsDashboard:
             Path to the generated comparison dashboard HTML file
         """
         try:
-            import jinja2
-            import pandas as pd
-            import plotly.express as px
-            import plotly.graph_objects as go
+
+ as pd
+ as px
+ as go
         except ImportError:
             logger.error(
                 "Dashboard generation requires additional packages. Install with: "
@@ -603,8 +624,8 @@ class MetricsDashboard:
                             {
                                 "model": model_name,
                                 "value": model_data[metric],
-                                "percent_diff": model_data.get(
-                                    f"{metric}_percent_diff", 0
+                                "percent_dif": model_data.get(
+                                    f"{metric}_percent_dif", 0
                                 ),
                             }
                         )

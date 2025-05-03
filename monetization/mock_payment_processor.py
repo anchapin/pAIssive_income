@@ -5,6 +5,7 @@ This module provides a mock implementation of the payment processor interface
 for testing and development purposes.
 """
 
+
 import copy
 import random
 import uuid
@@ -14,7 +15,9 @@ from typing import Any, Dict, List, Optional
 from .payment_processor import PaymentProcessor
 
 
-class MockPaymentProcessor(PaymentProcessor):
+class MockPaymentProcessor
+
+(PaymentProcessor):
     """
     Mock implementation of the payment processor interface.
 

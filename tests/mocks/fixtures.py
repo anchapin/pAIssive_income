@@ -5,6 +5,9 @@ This module provides pytest fixtures for common testing scenarios,
 making it easier to use mocks consistently across tests.
 """
 
+import time
+
+
 import json
 import tempfile
 from datetime import datetime, timedelta
@@ -12,24 +15,9 @@ from typing import Any, Dict, Optional
 
 import pytest
 
-from .mock_external_apis import (
-    MockEmailAPI,
-    MockHuggingFaceAPI,
-    MockPaymentAPI,
-    MockStorageAPI,
-)
+from .mock_external_apis import MockEmailAPI, MockHuggingFaceAPI, MockPaymentAPI, MockStorageAPI
 from .mock_http import mock_requests
 from .mock_huggingface_hub import HfHubHTTPError, mock_huggingface_hub
-
-# Import our mock implementations
-from .mock_model_providers import (
-    MockHuggingFaceProvider,
-    MockLMStudioProvider,
-    MockLocalModelProvider,
-    MockOllamaProvider,
-    MockONNXProvider,
-    MockOpenAIProvider,
-)
 
 # Model Provider Fixtures
 
@@ -361,7 +349,7 @@ def mock_hf_hub_with_models():
     )
 
     # Add common files
-    import json
+
 
     mock_huggingface_hub.add_file(
         repo_id="gpt2",
@@ -1023,6 +1011,13 @@ def mock_niche_analysis_testing_setup(patch_model_providers, mock_niche_analysis
     }
 
     # Add generate method to model providers if not already present
+    for provider_name, provider in patch_model_providers.items():
+        if not hasattr(provider, "generate"):
+            provider.generate = (
+                lambda text, **kwargs: f"This is a mock response for: {text}"
+            )
+
+    # Create a temporary directory for file operations
     for provider_name, provider in patch_model_providers.items():
         if not hasattr(provider, "generate"):
             provider.generate = (

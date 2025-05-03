@@ -3,10 +3,13 @@ Main script for the pAIssive Income project.
 Demonstrates how to use the framework to identify niches and develop AI tools.
 """
 
+
 from agent_team import AgentTeam
 
 
-def main():
+def main
+
+():
     """Main function to demonstrate the pAIssive Income framework."""
     print("=" * 80)
     print("pAIssive Income Framework Demo")

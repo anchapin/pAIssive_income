@@ -2,12 +2,15 @@
 Integration tests for service discovery functionality.
 """
 
+
 import time
 from unittest.mock import patch
 
 import pytest
 
-from services.discovery import (
+from services.discovery import 
+
+(
     DiscoveryConfig,
     LoadBalancer,
     ServiceDiscoveryClient,

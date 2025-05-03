@@ -5,19 +5,24 @@ This module provides functions and classes for integrating the AI Models module
 with the agent team, allowing agents to use local AI models for their tasks.
 """
 
+
 import logging
 import os
 import sys
 from typing import Any, Dict, Optional
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert
 from dependency_container import get_container
 from interfaces.model_interfaces import IModelInfo, IModelManager
 
-# Import the fallback manager classes
+
 from .fallbacks import FallbackManager, FallbackStrategy
 from .model_manager import ModelManager
 
+
+
+(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Import the fallback manager classes
 # Import specific error types
 
 # Set up logging
@@ -146,7 +151,7 @@ class AgentModelProvider:
                 # Log the failure and continue to fallback mechanisms
                 logger.warning(
                     f"Failed to load assigned model {model_id} for agent {agent_type}, task {task_type}: {str(e)}. "
-                    f"Attempting fallback."
+                    "Attempting fallback."
                 )
                 # Try to find a fallback model
                 fallback_model_info, event = self.fallback_manager.find_fallback_model(
@@ -191,7 +196,7 @@ class AgentModelProvider:
         if not model_info:
             raise ValueError(
                 f"No suitable model found for agent type {agent_type} and task type {task_type} "
-                f"after exhausting all fallback options."
+                "after exhausting all fallback options."
             )
 
         # Load the model
@@ -222,7 +227,7 @@ class AgentModelProvider:
                 else:
                     raise ValueError(
                         f"Failed to load model for agent {agent_type}, task {task_type}. "
-                        f"No fallback models available."
+                        "No fallback models available."
                     ) from e
             else:
                 raise ValueError(
@@ -413,7 +418,7 @@ class AgentModelProvider:
             # Log the failure and continue to fallback mechanisms
             logger.warning(
                 f"Failed to load model {model_id} for agent {agent_type}, task {task_type}: {str(e)}. "
-                f"Attempting fallback."
+                "Attempting fallback."
             )
 
             # Try to find a fallback model

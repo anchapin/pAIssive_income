@@ -6,6 +6,7 @@ This module provides FastAPI middleware for webhook security:
 2. Rate limiting
 """
 
+
 import logging
 import time
 from typing import Callable, Optional
@@ -16,6 +17,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from ..services.audit_service import AuditService
 from ..services.webhook_security import WebhookIPAllowlist, WebhookRateLimiter
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

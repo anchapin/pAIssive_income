@@ -5,6 +5,12 @@ This module provides tools for fine-tuning AI models using various methods
 and configurations.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import json
 import logging
 import os
@@ -15,7 +21,9 @@ from typing import Any, Dict, List, Optional, Union
 
 import torch
 from datasets import Dataset, DatasetDict, load_dataset, load_from_disk
-from peft import (
+from peft import 
+
+(
     LoraConfig,
     PeftConfig,
     TaskType,

@@ -5,13 +5,19 @@ This module provides a concrete implementation of the PaymentProcessor
 abstract base class for testing purposes.
 """
 
+
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from .payment_processor import PaymentProcessor
 
 
-class MockPaymentProcessorImpl(PaymentProcessor):
+class MockPaymentProcessorImpl
+            from .payment_processor import get_payment_gateway
+
+            self.payment_gateway 
+
+(PaymentProcessor):
     """
     Concrete implementation of PaymentProcessor for testing.
     """
@@ -34,9 +40,7 @@ class MockPaymentProcessorImpl(PaymentProcessor):
         # Set up the payment gateway
         self.payment_gateway = None
         try:
-            from .payment_processor import get_payment_gateway
-
-            self.payment_gateway = get_payment_gateway()
+= get_payment_gateway()
         except (ImportError, AttributeError):
             pass
 

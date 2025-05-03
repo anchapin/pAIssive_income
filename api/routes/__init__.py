@@ -4,6 +4,7 @@ API route handlers.
 This module provides route handlers for different API endpoints.
 """
 
+
 from .agent_team_router import router as agent_team_router
 from .ai_models_router import router as ai_models_router
 from .analytics_router import router as analytics_router
@@ -16,7 +17,9 @@ from .niche_analysis_router import router as niche_analysis_router
 from .user_router import router as user_router
 from .webhook_router import router as webhook_router
 
-__all__ = [
+__all__ 
+
+= [
     "niche_analysis_router",
     "monetization_router",
     "marketing_router",

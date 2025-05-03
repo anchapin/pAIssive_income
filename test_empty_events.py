@@ -1,6 +1,8 @@
 from api.schemas.webhook import WebhookRequest
 
-data = {"url": "https://example.com/webhook", "events": [], "is_active": True}
+data 
+
+= {"url": "https://example.com/webhook", "events": [], "is_active": True}
 
 try:
     WebhookRequest(**data)

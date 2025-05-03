@@ -5,11 +5,16 @@ This script demonstrates how to use the A/B testing tools to create and analyze
 A/B tests for various marketing assets.
 """
 
+import time
+
+
 from marketing.ab_testing import ABTesting
 from marketing.user_personas import PersonaCreator
 
 
-def demo_email_subject_testing():
+def demo_email_subject_testing
+
+():
     """Demonstrate A/B testing for email subject lines."""
     print("\n=== A/B Testing Demo: Email Subject Lines ===\n")
 

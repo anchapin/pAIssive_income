@@ -2,11 +2,14 @@
 Tests for market trend analysis functionality.
 """
 
+
 import pytest
 
 from niche_analysis.errors import InsufficientDataError
 from niche_analysis.market_analyzer import MarketAnalyzer
-from niche_analysis.market_trends import (
+from niche_analysis.market_trends import 
+
+(
     HistoricalTrendAnalyzer,
     MarketTrendAnalyzer,
     TrendIdentifier,

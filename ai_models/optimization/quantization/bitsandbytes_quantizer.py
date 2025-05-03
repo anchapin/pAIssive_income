@@ -5,11 +5,28 @@ This module provides a quantizer that uses the BitsAndBytes library for
 4-bit and 8-bit quantization of transformer models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import logging
 import os
 from typing import Any, Dict, List, Optional
 
 from .base import QuantizationConfig, QuantizationMethod, Quantizer
+
+
+    import torch
+    import bitsandbytes
+    from bitsandbytes.functional import dequantize_4bit, dequantize_8bit
+
+    BNB_AVAILABLE 
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+    TRANSFORMERS_AVAILABLE 
+        import json
 
 # Set up logging
 logging.basicConfig(
@@ -19,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -27,10 +44,8 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import bitsandbytes as bnb
-    from bitsandbytes.functional import dequantize_4bit, dequantize_8bit
-
-    BNB_AVAILABLE = True
+ as bnb
+= True
 except ImportError:
     logger.warning(
         "BitsAndBytes not available. Please install it with: pip install bitsandbytes"
@@ -38,9 +53,7 @@ except ImportError:
     BNB_AVAILABLE = False
 
 try:
-    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Transformers not available. BitsAndBytes quantizer will have limited functionality."
@@ -98,7 +111,7 @@ class BitsAndBytesQuantizer(Quantizer):
             if self.config.bnb_4bit_quant_type not in ["nf4", "fp4"]:
                 raise ValueError(
                     f"Unsupported 4-bit quantization type: {self.config.bnb_4bit_quant_type}. "
-                    f"Supported types: nf4, fp4"
+                    "Supported types: nf4, fp4"
                 )
 
     def quantize(
@@ -172,7 +185,7 @@ class BitsAndBytesQuantizer(Quantizer):
         Args:
             output_path: Path to save the configuration
         """
-        import json
+
 
         config_path = os.path.join(output_path, "quantization_config.json")
 

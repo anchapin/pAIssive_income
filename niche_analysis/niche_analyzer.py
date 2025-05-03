@@ -4,6 +4,9 @@ Niche analyzer for the Niche Analysis module.
 This module provides the NicheAnalyzer class that analyzes niches and identifies opportunities.
 """
 
+import time
+
+
 import asyncio
 import hashlib
 import logging
@@ -11,16 +14,20 @@ import os
 import sys
 from typing import Any, Dict, List, Optional
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-# Import async utilities
+sys.path.insert
 from ai_models.async_utils import run_in_thread
 
-# Import the centralized caching service
+
 from common_utils.caching import default_cache
 from interfaces.agent_interfaces import IAgentTeam
 from interfaces.niche_interfaces import INicheAnalyzer
 from niche_analysis.errors import NicheAnalysisError
 
+
+
+(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Import async utilities
+# Import the centralized caching service
 # Set up logging
 logger = logging.getLogger(__name__)
 

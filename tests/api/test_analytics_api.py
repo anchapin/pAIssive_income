@@ -1,16 +1,20 @@
+    import uuid
+import time
+
+from tests.api.utils.test_client import APITestClient
+from tests.api.utils.test_validators import 
+
 def generate_id():
     """Generate a random ID."""
-    import uuid
+
     return str(uuid.uuid4())
-import time
+
 """
 Tests for the analytics API.
 
 This module contains tests for the analytics API endpoints.
 """
-
-from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_validators import (
+(
     validate_bulk_response,
     validate_error_response,
     validate_field_equals,

@@ -5,20 +5,26 @@ This script demonstrates how to use the usage-based pricing models
 to implement different pricing strategies.
 """
 
+import time
+
+
 import random
 from datetime import datetime, timedelta
 
-from .usage_pricing_strategies import (
+from .usage_pricing_strategies import 
+from .usage_tracker import UsageTracker
+from .usage_tracking import UsageCategory, UsageMetric
+
+
+def print_separator
+
+(
     ConsumptionBasedPricing,
     HybridUsagePricing,
     PayAsYouGoPricing,
     TieredUsagePricing,
 )
-from .usage_tracker import UsageTracker
-from .usage_tracking import UsageCategory, UsageMetric
-
-
-def print_separator():
+():
     """Print a separator line."""
     print("\n" + "-" * 80 + "\n")
 

@@ -5,6 +5,7 @@ This module provides functionality for downloading AI models from various source
 including Hugging Face Hub and other repositories.
 """
 
+
 import hashlib
 import logging
 import os
@@ -18,10 +19,23 @@ from urllib.parse import urlparse
 
 from .model_config import ModelConfig
 
-# Import ModelManager only for type checking to avoid circular imports
-if TYPE_CHECKING:
+
     from .model_manager import ModelInfo, ModelManager
 
+
+    import requests
+    from tqdm import tqdm
+
+    TQDM_AVAILABLE 
+    from huggingface_hub import hf_hub_download, list_models, login, snapshot_download
+    from huggingface_hub.utils import HfHubHTTPError
+
+    HUGGINGFACE_HUB_AVAILABLE 
+            import inspect
+            import inspect
+
+# Import ModelManager only for type checking to avoid circular imports
+if TYPE_CHECKING:
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -30,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import requests
+
 
     REQUESTS_AVAILABLE = True
 except ImportError:
@@ -38,18 +52,13 @@ except ImportError:
     REQUESTS_AVAILABLE = False
 
 try:
-    from tqdm import tqdm
-
-    TQDM_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("tqdm not available. Download progress bars will not be shown.")
     TQDM_AVAILABLE = False
 
 try:
-    from huggingface_hub import hf_hub_download, list_models, login, snapshot_download
-    from huggingface_hub.utils import HfHubHTTPError
-
-    HUGGINGFACE_HUB_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "huggingface_hub not available. Hugging Face model downloads will be limited."
@@ -152,7 +161,7 @@ class DownloadTask:
 
         # For test compatibility, set the status based on the test name
         if "pytest" in sys.modules:
-            import inspect
+
 
             stack = inspect.stack()
             test_name = ""
@@ -532,7 +541,7 @@ class ModelDownloader:
                 )
             elif model_type == "llama":
                 destination = os.path.join(
-                    self.config.models_dir, "llama", f"{model_id}.gguf"
+                    self.config.models_dir, "llama", f"{model_id}.ggu"
                 )
             else:
                 destination = os.path.join(
@@ -559,7 +568,7 @@ class ModelDownloader:
 
         # For test compatibility, call download_from_url in the test
         if "pytest" in sys.modules:
-            import inspect
+
 
             stack = inspect.stack()
             test_name = ""
@@ -729,8 +738,8 @@ class ModelDownloader:
 
         # Determine model format
         model_format = ""
-        if task.destination.endswith(".gguf"):
-            model_format = "gguf"
+        if task.destination.endswith(".ggu"):
+            model_format = "ggu"
         elif task.destination.endswith(".onnx"):
             model_format = "onnx"
         elif task.destination.endswith(".bin"):

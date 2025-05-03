@@ -5,13 +5,21 @@ This module provides an adapter for connecting to the Twitter API for posting co
 retrieving analytics, and managing social media campaigns.
 """
 
+import time
+
+
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 import requests
 
-from marketing.errors import (
+from marketing.errors import 
+from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
+
+
+
+(
     AuthenticationError,
     ContentValidationError,
     DeletionError,
@@ -19,8 +27,6 @@ from marketing.errors import (
     PostNotFoundError,
     SchedulingError,
 )
-from marketing.social_media_adapters.base_adapter import BaseSocialMediaAdapter
-
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -169,7 +175,7 @@ class TwitterAdapter(BaseSocialMediaAdapter):
                 )
 
             # Check media types
-            allowed_types = ["photo", "video", "gif"]
+            allowed_types = ["photo", "video", "gi"]
             for item in media:
                 if "type" not in item:
                     raise ContentValidationError("twitter", "Media type is required")

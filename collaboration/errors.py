@@ -5,9 +5,12 @@ This module defines custom exception classes and error handling utilities
 for the collaboration module.
 """
 
+
 import logging
 import traceback
 from typing import Any, Callable, Dict, Optional
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -124,7 +127,7 @@ def handle_exception(func: Callable) -> Callable:
                 raise IntegrationError(f"Integration operation failed: {str(e)}", e)
             elif "activity" in func.__name__.lower():
                 raise ActivityError(f"Activity tracking operation failed: {str(e)}", e)
-            elif "notif" in func.__name__.lower():
+            elif "noti" in func.__name__.lower():
                 raise NotificationError(f"Notification operation failed: {str(e)}", e)
             else:
                 raise CollaborationError(f"Operation failed: {str(e)}", e)

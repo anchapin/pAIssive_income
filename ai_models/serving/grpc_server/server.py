@@ -4,6 +4,12 @@ gRPC server for AI models.
 This module provides a gRPC server for serving AI models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import logging
 import os
 import threading
@@ -15,6 +21,28 @@ from ..server import ModelServer
 from .config import GRPCConfig
 from .servicer import ModelServicer
 
+
+    import grpc
+    from grpc_health.v1 import health, health_pb2, health_pb2_grpc
+    from grpc_reflection.v1alpha import reflection
+
+    GRPC_AVAILABLE 
+            import torch
+            from transformers import AutoTokenizer
+        except ImportError
+            from transformers import AutoModelForCausalLM
+
+            self.model 
+            from transformers import AutoModelForSequenceClassification
+
+            self.model 
+            from transformers import AutoModel
+
+            self.model 
+            import statistics
+            from .proto import model_pb2, model_pb2_grpc
+        except ImportError
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -23,11 +51,8 @@ logger = logging.getLogger(__name__)
 
 # Try to import gRPC
 try:
-    import grpc
-    from grpc_health.v1 import health, health_pb2, health_pb2_grpc
-    from grpc_reflection.v1alpha import reflection
 
-    GRPC_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("gRPC is required for gRPC server")
     GRPC_AVAILABLE = False
@@ -69,9 +94,8 @@ class GRPCServer(ModelServer):
 
         # Import required modules
         try:
-            import torch
-            from transformers import AutoTokenizer
-        except ImportError:
+
+:
             raise ImportError("PyTorch and Transformers are required for model loading")
 
         # Load tokenizer
@@ -79,21 +103,15 @@ class GRPCServer(ModelServer):
 
         # Load model based on type
         if self.config.model_type == "text-generation":
-            from transformers import AutoModelForCausalLM
-
-            self.model = AutoModelForCausalLM.from_pretrained(
+= AutoModelForCausalLM.from_pretrained(
                 self.config.model_path, device_map="auto"
             )
         elif self.config.model_type == "text-classification":
-            from transformers import AutoModelForSequenceClassification
-
-            self.model = AutoModelForSequenceClassification.from_pretrained(
+= AutoModelForSequenceClassification.from_pretrained(
                 self.config.model_path, device_map="auto"
             )
         elif self.config.model_type == "embedding":
-            from transformers import AutoModel
-
-            self.model = AutoModel.from_pretrained(
+= AutoModel.from_pretrained(
                 self.config.model_path, device_map="auto"
             )
         else:
@@ -255,7 +273,7 @@ class GRPCServer(ModelServer):
 
         # Add latency metrics
         if self.latencies:
-            import statistics
+
 
             # Calculate latency statistics
             latency_mean = statistics.mean(self.latencies)
@@ -343,8 +361,7 @@ class GRPCServer(ModelServer):
         """
         # Import proto modules
         try:
-            from .proto import model_pb2, model_pb2_grpc
-        except ImportError:
+:
             logger.warning(
                 "Proto modules not found. Make sure to generate them from .proto files."
             )

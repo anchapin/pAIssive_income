@@ -4,6 +4,9 @@ Audit router for the API server.
 This module provides route handlers for audit operations.
 """
 
+import time
+
+
 import logging
 from datetime import datetime
 from typing import Optional
@@ -12,7 +15,12 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from ..middleware.auth import get_current_user, require_scopes
 from ..models.user import User
-from ..schemas.audit import (
+from ..schemas.audit import 
+from ..services.audit_service import AuditService
+
+
+
+(
     AuditAction,
     AuditEventList,
     AuditEventResponse,
@@ -20,8 +28,6 @@ from ..schemas.audit import (
     AuditResourceType,
     AuditStatus,
 )
-from ..services.audit_service import AuditService
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

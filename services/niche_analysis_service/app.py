@@ -5,6 +5,7 @@ This module provides the Niche Analysis Service implementation, which handles
 opportunity discovery, analysis, and comparison of niche markets.
 """
 
+
 import argparse
 import logging
 from typing import Any, Dict, List
@@ -15,7 +16,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from agent_team import AgentTeam
 from niche_analysis.niche_analyzer import NicheAnalyzer
-from services.service_discovery.registration import (
+from services.service_discovery.registration import 
+    import uuid
+    import uuid
+    import uvicorn
+
+(
     get_default_tags,
     get_service_metadata,
     register_service,
@@ -50,7 +56,7 @@ niche_analyzer = None
 
 # Models
 class NicheRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for niche analysis."""
 
     market_segments: List[str] = Field(
@@ -60,7 +66,7 @@ class NicheRequest(BaseModel):
 
 
 class NicheResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for niche analysis."""
 
     niches: List[Dict[str, Any]] = Field(..., description="List of analyzed niches")
@@ -68,7 +74,7 @@ class NicheResponse(BaseModel):
 
 
 class OpportunityRequest(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Request model for opportunity analysis."""
 
     niche_name: str = Field(..., description="Name of the niche to analyze")
@@ -76,7 +82,7 @@ class OpportunityRequest(BaseModel):
 
 
 class OpportunityResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Response model for opportunity analysis."""
 
     opportunities: List[Dict[str, Any]] = Field(
@@ -102,7 +108,7 @@ async def api_status():
 @app.post("/api/niches/analyze", response_model=NicheResponse)
 async def analyze_niches(request: NicheRequest, background_tasks: BackgroundTasks):
     """Analyze potential niches based on market segments."""
-    import uuid
+
 
     if not niche_analyzer:
         raise HTTPException(
@@ -133,7 +139,7 @@ async def analyze_opportunities(
     request: OpportunityRequest, background_tasks: BackgroundTasks
 ):
     """Analyze opportunities for a specific niche."""
-    import uuid
+
 
     if not niche_analyzer:
         raise HTTPException(
@@ -243,7 +249,7 @@ def start_niche_analysis_service(host: str = "0.0.0.0", port: int = 8001):
         host: Host to bind to
         port: Port to listen on
     """
-    import uvicorn
+
 
     # Initialize the niche analyzer
     if not initialize_niche_analyzer():

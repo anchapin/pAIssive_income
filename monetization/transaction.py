@@ -5,13 +5,16 @@ This module provides classes for managing payment transactions, including
 creation, processing, and status tracking.
 """
 
+
 import json
 import uuid
 from datetime import datetime
 from typing import Any, Dict, Optional
 
 
-class TransactionStatus:
+class TransactionStatus
+
+:
     """Enumeration of transaction statuses."""
 
     PENDING = "pending"

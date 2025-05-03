@@ -5,11 +5,22 @@ This script demonstrates how to use the benchmarking tools to measure
 the performance of AI models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import argparse
 import logging
 import os
 import sys
 from typing import List
+
+
+    import torch
+    import transformers
+    import matplotlib.pyplot
 
 # Add the parent directory to the path to import the ai_models module
 sys.path.append(
@@ -34,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -42,7 +53,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    import transformers
+
 
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
@@ -50,7 +61,7 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 try:
-    import matplotlib.pyplot as plt
+ as plt
 
     MATPLOTLIB_AVAILABLE = True
 except ImportError:

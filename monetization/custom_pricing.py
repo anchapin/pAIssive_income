@@ -6,6 +6,9 @@ where pricing is determined by complex conditions, formulas, or other
 custom logic beyond standard pricing models.
 """
 
+import time
+
+
 import math
 import re
 import uuid
@@ -16,7 +19,9 @@ from .billing_calculator import BillingCalculator, PricingModel, PricingRule
 from .usage_tracking import UsageCategory, UsageMetric
 
 
-class CustomPricingRule(PricingRule):
+class CustomPricingRule
+
+(PricingRule):
     """
     Base class for custom pricing rules.
 

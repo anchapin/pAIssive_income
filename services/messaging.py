@@ -3,6 +3,7 @@ Stub implementation for the services.messaging module.
 Provides minimal functionality for message queue handling.
 """
 
+
 import json
 import time
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -10,7 +11,9 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from services.errors import MessagePublishError, QueueConfigError
 
 
-class MessageQueue:
+class MessageQueue
+
+:
     """
     Stub class for MessageQueue to simulate a simple messaging system.
     """

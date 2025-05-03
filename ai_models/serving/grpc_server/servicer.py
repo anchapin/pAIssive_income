@@ -4,9 +4,34 @@ gRPC servicer for AI models.
 This module provides a gRPC servicer for handling model requests.
 """
 
+
 import logging
 import time
 from typing import Dict, List
+
+
+    import grpc
+            from .proto import model_pb2
+
+            
+            from .proto import model_pb2
+
+            
+            from .proto import model_pb2
+
+            
+            from .proto import model_pb2
+
+            
+            from .proto import model_pb2
+
+            
+            from .proto import model_pb2
+
+            
+            from .proto import model_pb2
+
+            
 
 # Set up logging
 logging.basicConfig(
@@ -16,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import gRPC
 try:
-    import grpc
+
 
     GRPC_AVAILABLE = True
 except ImportError:
@@ -53,9 +78,7 @@ class ModelServicer:
         """
         try:
             # Import proto modules
-            from .proto import model_pb2
-
-            # Track request
+# Track request
             self.server.request_count += 1
             start_time = time.time()
 
@@ -126,9 +149,7 @@ class ModelServicer:
         """
         try:
             # Import proto modules
-            from .proto import model_pb2
-
-            # Track request
+# Track request
             self.server.request_count += 1
             start_time = time.time()
 
@@ -198,9 +219,7 @@ class ModelServicer:
         """
         try:
             # Import proto modules
-            from .proto import model_pb2
-
-            # Track request
+# Track request
             self.server.request_count += 1
             start_time = time.time()
 
@@ -279,9 +298,7 @@ class ModelServicer:
         """
         try:
             # Import proto modules
-            from .proto import model_pb2
-
-            # Track request
+# Track request
             self.server.request_count += 1
             start_time = time.time()
 
@@ -359,9 +376,7 @@ class ModelServicer:
         """
         try:
             # Import proto modules
-            from .proto import model_pb2
-
-            # Track request
+# Track request
             self.server.request_count += 1
             start_time = time.time()
 
@@ -420,9 +435,7 @@ class ModelServicer:
         """
         try:
             # Import proto modules
-            from .proto import model_pb2
-
-            # Track request
+# Track request
             self.server.request_count += 1
             start_time = time.time()
 
@@ -493,9 +506,7 @@ class ModelServicer:
         """
         try:
             # Import proto modules
-            from .proto import model_pb2
-
-            # Get server info
+# Get server info
             info = self.server.get_info()
 
             # Create response

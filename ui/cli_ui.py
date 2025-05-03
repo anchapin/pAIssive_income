@@ -4,8 +4,11 @@ Command Line Interface for the pAIssive Income project.
 This module provides a command line interface for interacting with the pAIssive Income framework.
 """
 
+
 import logging
 from typing import List
+
+
 
 # Set up logging
 logger = logging.getLogger(__name__)

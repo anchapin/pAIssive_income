@@ -5,19 +5,28 @@ This module provides classes for calculating billing based on usage,
 including different pricing models and cost estimation.
 """
 
+import time
+
+
 import hashlib
 import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-# Import the centralized caching service
+
 from common_utils.caching import default_cache
 
 from .usage_tracker import UsageTracker
 from .usage_tracking import UsageCategory, UsageMetric
 
 
-class PricingModel:
+class PricingModel
+    from .usage_tracker import UsageTracker
+
+    
+
+# Import the centralized caching service
+:
     """Enumeration of pricing models."""
 
     FLAT_RATE = "flat_rate"
@@ -1062,9 +1071,7 @@ class BillingCalculator:
 
 # Example usage
 if __name__ == "__main__":
-    from .usage_tracker import UsageTracker
-
-    # Create a usage tracker
+# Create a usage tracker
     tracker = UsageTracker()
 
     # Create a billing calculator

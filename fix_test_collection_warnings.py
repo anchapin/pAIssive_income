@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-"""
-Script to fix test collection warnings for classes with __init__ constructors.
-This script addresses the pytest collection warnings for test classes.
-"""
 
 import argparse
 import ast
@@ -13,7 +8,19 @@ from pathlib import Path
 from typing import List, Optional, Set, Tuple
 
 
-def get_test_files(directory: str, exclude_patterns: Optional[List[str]] = None) -> List[Path]:
+def get_test_files
+
+#!/usr/bin/env python
+"""
+Script to fix test collection warnings for classes with __init__ constructors.
+This script addresses the pytest collection warnings for test classes.
+"""
+
+
+
+
+
+(directory: str, exclude_patterns: Optional[List[str]] = None) -> List[Path]:
     """Get all test files in a directory and its subdirectories."""
     if exclude_patterns is None:
         exclude_patterns = []
@@ -73,7 +80,7 @@ def fix_test_class_init(file_path: Path, dry_run: bool = False) -> Tuple[bool, s
                     init_content = "\n".join(init_lines)
                     
                     # Create the setup_method function
-                    setup_method_content = init_content.replace("def __init__(self", "def setup_method(self")
+                    setup_method_content = init_content.replace("def __init__(sel", "def setup_method(sel")
                     
                     # Replace the __init__ method with setup_method
                     updated_content = updated_content.replace(init_content, setup_method_content)

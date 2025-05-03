@@ -28,6 +28,10 @@ jobs:
       
       - name: Run linting checks
         run: |
+          # Define patterns to ignore
+          IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|build|dist"
+          export IGNORE_PATTERNS
+          
           # Function to check if a file matches any ignore pattern
           should_ignore() {
             local file="$1"
@@ -104,6 +108,10 @@ jobs:
       - name: Run tests
         run: |
           mkdir -p junit
+          # Define patterns to ignore
+          IGNORE_PATTERNS="__pycache__|\.git|\.pytest_cache|\.venv|build|dist"
+          export IGNORE_PATTERNS
+          
           # Filter test files using ignore patterns
           if [ -n "$IGNORE_PATTERNS" ]; then
             FILTERED_TESTS=$(find tests/ -name "*.py" -type f | grep -vE "$IGNORE_PATTERNS")

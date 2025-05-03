@@ -5,6 +5,7 @@ This module tests error recovery scenarios in cross-module workflows, including
 partial failure recovery, data consistency after interruptions, and transaction
 rollback scenarios.
 """
+
 import pytest
 from unittest.mock import patch, MagicMock, call
 import threading
@@ -15,6 +16,8 @@ from niche_analysis import MarketAnalyzer
 from marketing import ABTesting
 from monetization import SubscriptionModel, PricingCalculator
 from agent_team import AgentTeam
+
+
 
 
 @pytest.fixture

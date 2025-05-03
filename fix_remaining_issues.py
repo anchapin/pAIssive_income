@@ -1,12 +1,22 @@
-#!/usr/bin/env python
-"""
-Script to fix remaining issues in Python files.
-"""
+try:
+    import torch
+except ImportError:
+    pass
+
 
 import os
 import re
 import subprocess
 import sys
+
+#!/usr/bin/env python
+"""
+Script to fix remaining issues in Python files.
+"""
+
+
+
+
 
 
 def fix_e402_issues(file_path):
@@ -71,7 +81,7 @@ def fix_f401_issues(file_path):
     try:
         # Use ruff to fix unused imports
         subprocess.run(
-            ["ruff", "check", "--select=F401", "--fix", file_path],
+            ["ruf", "check", "--select=F401", "--fix", file_path],
             check=True,
             capture_output=True,
             text=True,
@@ -143,7 +153,7 @@ def process_file(file_path):
     # Check for E402 issues
     try:
         result = subprocess.run(
-            ["ruff", "check", "--select=E402", file_path],
+            ["ruf", "check", "--select=E402", file_path],
             capture_output=True,
             text=True,
         )
@@ -155,7 +165,7 @@ def process_file(file_path):
     # Check for F401 issues
     try:
         result = subprocess.run(
-            ["ruff", "check", "--select=F401", file_path],
+            ["ruf", "check", "--select=F401", file_path],
             capture_output=True,
             text=True,
         )
@@ -167,7 +177,7 @@ def process_file(file_path):
     # Check for F821 issues
     try:
         result = subprocess.run(
-            ["ruff", "check", "--select=F821", file_path],
+            ["ruf", "check", "--select=F821", file_path],
             capture_output=True,
             text=True,
         )

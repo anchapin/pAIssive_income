@@ -5,6 +5,7 @@ This module provides utilities for registering microservices with the service re
 and managing service lifecycle events.
 """
 
+
 import atexit
 import logging
 import os
@@ -14,7 +15,9 @@ import sys
 from typing import Any, Callable, Dict, List, Optional
 
 from services.service_discovery.discovery_client import ServiceDiscoveryClient
-from services.service_discovery.helpers import (
+from services.service_discovery.helpers import 
+
+(
     register_health_check_endpoint,
 )
 

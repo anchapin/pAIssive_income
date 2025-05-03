@@ -7,14 +7,7 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
-from ai_models.performance_monitor import (
-
-"""
-Enhanced performance metrics for AI models.
-
-This module extends the base performance monitoring with advanced metrics tracking,
-cost calculation, and model comparison features.
-"""
+from ai_models.performance_monitor import 
 
 import logging
 import os
@@ -24,6 +17,29 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
+
+
+            import matplotlib.pyplot
+            import numpy
+            import pandas
+            from matplotlib.dates import DateFormatter
+        except ImportError
+            import traceback
+            import psutil
+                import resource
+
+(
+
+"""
+Enhanced performance metrics for AI models.
+
+This module extends the base performance monitoring with advanced metrics tracking,
+cost calculation, and model comparison features.
+"""
+
+
+
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -602,11 +618,10 @@ class EnhancedPerformanceMonitor(PerformanceMonitor):
             List of paths to generated visualization files
         """
         try:
-            import matplotlib.pyplot as plt
-            import numpy as np
-            import pandas as pd
-            from matplotlib.dates import DateFormatter
-        except ImportError:
+ as plt
+ as np
+ as pd
+:
             logger.error(
                 "Visualization requires matplotlib and pandas. Install with: pip install matplotlib pandas"
             )
@@ -1005,7 +1020,7 @@ class EnhancedInferenceTracker:
             self.performance_monitor.save_enhanced_metrics(self.metrics)
         except Exception as e:
             logger.error(f"Error saving metrics: {e}")
-            import traceback
+
 
             traceback.print_exc()
 
@@ -1017,7 +1032,7 @@ class EnhancedInferenceTracker:
         """
         # Use the same implementation as the base class
         try:
-            import psutil
+
 
             process = psutil.Process(os.getpid())
             memory_info = process.memory_info()
@@ -1028,7 +1043,7 @@ class EnhancedInferenceTracker:
         except ImportError:
             # psutil not available, use generic memory info
             try:
-                import resource
+
 
                 self.metrics.memory_usage_mb = (
                     resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024

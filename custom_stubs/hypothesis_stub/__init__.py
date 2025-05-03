@@ -2,11 +2,14 @@
 Minimal stub for the hypothesis package.
 """
 
+
 from enum import Enum
 from functools import wraps
 
 
-class Verbosity(Enum):
+class Verbosity
+
+(Enum):
     quiet = 0
     normal = 1
     verbose = 2

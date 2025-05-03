@@ -5,12 +5,31 @@ This module provides specialized classes for working with ONNX models,
 including loading, inference, and optimization.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import json
 import logging
 import os
 from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
+
+
+    import onnxruntime
+    import torch
+    from transformers import AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE 
+                    from torchvision.models import list_models
+
+                    labels 
+            from PIL import Image
+
+            
 
 # Set up logging
 logging.basicConfig(
@@ -20,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import optional dependencies
 try:
-    import onnxruntime as ort
+ as ort
 
     ONNX_AVAILABLE = True
 except ImportError:
@@ -28,7 +47,7 @@ except ImportError:
     ONNX_AVAILABLE = False
 
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:
@@ -36,9 +55,7 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 try:
-    from transformers import AutoTokenizer
-
-    TRANSFORMERS_AVAILABLE = True
+= True
 except ImportError:
     logger.warning(
         "Transformers not available. Text processing for ONNX models will be limited."
@@ -515,9 +532,7 @@ class ONNXModel:
             else:
                 # Try to load ImageNet labels if it's a common image classification model
                 try:
-                    from torchvision.models import list_models
-
-                    labels = list_models()
+= list_models()
                 except Exception:
                     labels = [f"Class {i}" for i in range(probs.shape[-1])]
 
@@ -542,9 +557,7 @@ class ONNXModel:
         """
         try:
             # Try to use PIL for image loading
-            from PIL import Image
-
-            # Load image
+# Load image
             image = Image.open(image_path).convert("RGB")
 
             # Resize image

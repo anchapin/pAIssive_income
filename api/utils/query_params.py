@@ -4,12 +4,16 @@ Query parameter utilities for API endpoints.
 This module provides utilities for handling query parameters in API endpoints.
 """
 
+
 from enum import Enum
 from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
-T = TypeVar("T")
+T 
+                import re
+
+= TypeVar("T")
 
 
 class SortDirection(str, Enum):
@@ -37,7 +41,7 @@ class FilterOperator(str, Enum):
 
 
 class FilterParam(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Filter parameter for query parameters."""
     field: str = Field(..., description="Field to filter by")
     operator: FilterOperator = Field(FilterOperator.EQ, description="Filter operator")
@@ -47,7 +51,7 @@ class FilterParam(BaseModel):
 
 
 class QueryParams(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Query parameters for API endpoints."""
     page: int = Field(1, ge=1, description="Page number")
     page_size: int = Field(10, ge=1, le=100, description="Page size")
@@ -194,7 +198,7 @@ def apply_filtering(
                     include = False
                     break
             elif operator == FilterOperator.REGEX:
-                import re
+
 
                 if not (
                     isinstance(field_value, str)

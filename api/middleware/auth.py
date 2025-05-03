@@ -4,6 +4,7 @@ Authentication middleware for the API server.
 This module provides middleware for API authentication and authorization.
 """
 
+
 import logging
 from typing import Any, Callable, Dict, List, Optional
 
@@ -16,6 +17,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from ..models.api_key import APIKey
 from ..models.user import User
 from ..services.api_key_service import APIKeyService
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

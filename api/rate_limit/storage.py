@@ -4,10 +4,14 @@ Rate limiting storage backends.
 This module provides storage backends for rate limiting.
 """
 
+
 import logging
 import time
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
+
+
+            import redis
 
 # Set up logging
 logging.basicConfig(
@@ -197,7 +201,7 @@ class RedisStorage(RateLimitStorage):
         self.redis = None
 
         try:
-            import redis
+
 
             self.redis = redis.from_url(redis_url)
             logger.info("Connected to Redis")

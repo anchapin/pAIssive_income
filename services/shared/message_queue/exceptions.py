@@ -5,6 +5,7 @@ This module provides exceptions for the message queue client.
 """
 
 
+
 class MessageQueueError(Exception):
     """Base exception for message queue errors."""
 

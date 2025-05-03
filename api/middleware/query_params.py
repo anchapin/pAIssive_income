@@ -4,6 +4,7 @@ Query parameter middleware for the API server.
 This module provides middleware for processing query parameters in API requests.
 """
 
+
 import logging
 from typing import Callable, Dict, List
 
@@ -12,14 +13,17 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from ..utils.query_params import QueryParams
 
+
+    from fastapi import FastAPI
+
+    FASTAPI_AVAILABLE 
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
 # Try to import FastAPI
 try:
-    from fastapi import FastAPI
-
-    FASTAPI_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("FastAPI is not available. QueryParamsMiddleware will not work.")
     FASTAPI_AVAILABLE = False

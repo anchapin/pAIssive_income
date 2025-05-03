@@ -2,9 +2,11 @@
 Webhook schemas for the API server.
 """
 
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
+from ipaddress import ip_network
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
@@ -44,7 +46,6 @@ class WebhookDeliveryStatus(str, Enum):
 class WebhookRequest(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Request model for registering a webhook."""
-    model_config = ConfigDict(protected_namespaces=())
 
     url: HttpUrl = Field(..., description="Webhook URL")
     events: List[WebhookEventType] = Field(..., description="Events to subscribe to")
@@ -65,7 +66,6 @@ class WebhookRequest(BaseModel):
 class WebhookUpdate(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Request model for updating a webhook."""
-    model_config = ConfigDict(protected_namespaces=())
 
     url: Optional[HttpUrl] = Field(None, description="New webhook URL")
     events: Optional[List[WebhookEventType]] = Field(
@@ -88,7 +88,6 @@ class WebhookUpdate(BaseModel):
 class WebhookResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Response model for webhook operations."""
-    model_config = ConfigDict(protected_namespaces=())
 
     id: str = Field(..., description="Webhook ID")
     url: HttpUrl = Field(..., description="Webhook URL")
@@ -115,7 +114,6 @@ class WebhookResponse(BaseModel):
 class WebhookList(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Response model for listing webhooks."""
-    model_config = ConfigDict(protected_namespaces=())
 
     items: List[WebhookResponse] = Field(..., description="List of webhooks")
     total: int = Field(..., description="Total number of webhooks")
@@ -127,7 +125,6 @@ class WebhookList(BaseModel):
 class WebhookDeliveryAttempt(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Model for a webhook delivery attempt."""
-    model_config = ConfigDict(protected_namespaces=())
 
     id: str = Field(..., description="Attempt ID")
     webhook_id: str = Field(..., description="Webhook ID")
@@ -147,7 +144,6 @@ class WebhookDeliveryAttempt(BaseModel):
 class WebhookDeliveryResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Response model for webhook delivery."""
-    model_config = ConfigDict(protected_namespaces=())
 
     id: str = Field(..., description="Delivery ID")
     webhook_id: str = Field(..., description="Webhook ID")
@@ -159,7 +155,6 @@ class WebhookDeliveryResponse(BaseModel):
 class WebhookDeliveryList(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Response model for listing webhook deliveries."""
-    model_config = ConfigDict(protected_namespaces=())
 
     items: List[WebhookDeliveryResponse] = Field(..., description="List of deliveries")
     total: int = Field(..., description="Total number of deliveries")
@@ -171,7 +166,6 @@ class WebhookDeliveryList(BaseModel):
 class IPAllowlistConfig(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Request/Response model for IP allowlist configuration."""
-    model_config = ConfigDict(protected_namespaces=())
 
     allowed_ips: List[str] = Field(
         ..., description="List of allowed IP addresses or CIDR ranges"
@@ -181,8 +175,6 @@ class IPAllowlistConfig(BaseModel):
     @field_validator("allowed_ips")
     def validate_ip_addresses(cls, v):
         """Validate IP addresses and CIDR ranges."""
-        from ipaddress import ip_network
-
         for ip in v:
             try:
                 ip_network(ip)
@@ -194,7 +186,6 @@ class IPAllowlistConfig(BaseModel):
 class IPAllowlistResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Response model for IP allowlist configuration."""
-    model_config = ConfigDict(protected_namespaces=())
 
     webhook_id: str = Field(..., description="Webhook ID")
     allowed_ips: List[str] = Field(
@@ -207,7 +198,6 @@ class IPAllowlistResponse(BaseModel):
 class SecretRotationResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Response model for webhook secret rotation."""
-    model_config = ConfigDict(protected_namespaces=())
 
     webhook_id: str = Field(..., description="Webhook ID")
     new_secret: str = Field(..., description="New webhook secret")
@@ -219,7 +209,6 @@ class SecretRotationResponse(BaseModel):
 class RateLimitConfig(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Request/Response model for rate limit configuration."""
-    model_config = ConfigDict(protected_namespaces=())
 
     per_minute: int = Field(
         ..., ge=1, le=1000, description="Maximum requests per minute"
@@ -237,7 +226,6 @@ class RateLimitConfig(BaseModel):
 class RateLimitResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     """Response model for rate limit configuration."""
-    model_config = ConfigDict(protected_namespaces=())
 
     webhook_id: str = Field(..., description="Webhook ID")
     rate_limits: RateLimitConfig = Field(..., description="Rate limit configuration")

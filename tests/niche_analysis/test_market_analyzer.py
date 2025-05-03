@@ -2,6 +2,7 @@
 Tests for the MarketAnalyzer class.
 """
 
+
 from datetime import datetime
 
 import pytest
@@ -9,7 +10,9 @@ import pytest
 from niche_analysis.market_analyzer import MarketAnalyzer
 
 
-def test_market_analyzer_init():
+def test_market_analyzer_init
+
+():
     """Test MarketAnalyzer initialization."""
     analyzer = MarketAnalyzer()
 

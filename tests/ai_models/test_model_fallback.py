@@ -5,6 +5,7 @@ These tests verify that the system can gracefully handle model failures
 and properly implement fallback strategies.
 """
 
+
 import unittest
 from unittest.mock import MagicMock, patch
 import time
@@ -16,7 +17,9 @@ from ai_models.model_base_types import ModelInfo
 from errors import ModelError, ModelLoadError, ModelAPIError
 
 
-class TestModelFallback(unittest.TestCase):
+class TestModelFallback
+
+(unittest.TestCase):
     """Test suite for model fallback mechanisms."""
 
     def setUp(self):

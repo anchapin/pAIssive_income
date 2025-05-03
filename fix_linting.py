@@ -2,7 +2,9 @@ import os
 from pathlib import Path
 
 
-def fix_boolean_comparisons(file_path):
+def fix_boolean_comparisons
+
+(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
 

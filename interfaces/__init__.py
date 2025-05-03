@@ -5,6 +5,13 @@ This module provides interfaces for key components to enable dependency injectio
 and improve testability and maintainability.
 """
 
+from .marketing_interfaces import IContentTemplate, IMarketingStrategy, IPersonaCreator
+
+
+from .niche_interfaces import IMarketAnalyzer, IOpportunityScorer, IProblemIdentifier
+
+
+
 # Import agent interfaces
 from .agent_interfaces import (
     IAgentTeam,
@@ -16,8 +23,6 @@ from .agent_interfaces import (
 )
 
 # Import marketing interfaces
-from .marketing_interfaces import IContentTemplate, IMarketingStrategy, IPersonaCreator
-
 # Import model interfaces
 from .model_interfaces import (
     ICacheManager,
@@ -40,8 +45,6 @@ from .monetization_interfaces import (
 )
 
 # Import niche analysis interfaces
-from .niche_interfaces import IMarketAnalyzer, IOpportunityScorer, IProblemIdentifier
-
 # Import UI interfaces
 from .ui_interfaces import (
     IAgentTeamService,

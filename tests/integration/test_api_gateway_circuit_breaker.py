@@ -5,6 +5,7 @@ This module contains integration tests for the API gateway service
 with circuit breaker pattern for resilience.
 """
 
+
 import time
 from unittest.mock import patch
 
@@ -12,7 +13,9 @@ import pytest
 import requests
 
 from services.gateway import APIGateway, GatewayConfig, RouteManager
-from services.resilience import (
+from services.resilience import 
+
+(
     CircuitBreaker,
     CircuitBreakerConfig,
     CircuitState,

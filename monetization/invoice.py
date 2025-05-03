@@ -5,6 +5,9 @@ This module provides classes for generating and managing invoices,
 including invoice items, status tracking, and formatting.
 """
 
+import time
+
+
 import json
 import uuid
 from datetime import datetime
@@ -13,7 +16,9 @@ from typing import Any, Dict, List, Optional
 from common_utils import add_days, format_datetime
 
 
-class InvoiceStatus:
+class InvoiceStatus
+
+:
     """Enumeration of invoice statuses."""
 
     DRAFT = "draft"

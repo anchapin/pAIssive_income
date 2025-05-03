@@ -2,13 +2,16 @@
 Tests for the OllamaAdapter class.
 """
 
+
 from unittest.mock import MagicMock, Mock, patch
 
 from ai_models.adapters import OllamaAdapter
 from interfaces.model_interfaces import IModelAdapter
 
 
-def test_ollama_adapter_implements_interface():
+def test_ollama_adapter_implements_interface
+
+():
     """Test that OllamaAdapter implements the IModelAdapter interface."""
     with patch("requests.Session") as mock_session:
         # Mock the get response

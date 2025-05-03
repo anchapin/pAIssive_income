@@ -4,6 +4,7 @@ Provides a minimal ServiceDiscoveryClient.
 """
 
 
+
 class ServiceDiscoveryClient:
     def __init__(self):
         pass

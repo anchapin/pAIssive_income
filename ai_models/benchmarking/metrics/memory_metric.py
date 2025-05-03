@@ -4,22 +4,32 @@ Memory metric for benchmarking AI models.
 This module provides a metric for measuring the memory usage of AI models.
 """
 
+try:
+    import torch
+except ImportError:
+    pass
+
+
 import gc
 import os
 from typing import Callable, Optional
 
 from .base_metric import BaseMetric
 
+
+    import psutil
+    import torch
+
 # Try to import optional dependencies
 try:
-    import psutil
+
 
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
 
 try:
-    import torch
+
 
     TORCH_AVAILABLE = True
 except ImportError:

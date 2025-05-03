@@ -4,12 +4,15 @@ User service for the pAIssive Income API.
 This module provides a service for interacting with the user endpoints.
 """
 
+
 from typing import Any, Dict
 
 from .base import BaseService
 
 
-class UserService(BaseService):
+class UserService
+
+(BaseService):
     """
     User service.
     """

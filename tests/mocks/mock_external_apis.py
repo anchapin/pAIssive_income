@@ -5,6 +5,11 @@ This module provides mock implementations of various external APIs
 that can be used for consistent testing without external dependencies.
 """
 
+import boto3
+
+import time
+
+
 import json
 import logging
 import random
@@ -670,7 +675,7 @@ class MockStorageAPI(MockExternalAPIBase):
         """
         self.record_call("create_bucket", bucket_name=bucket_name)
 
-        if bucket_name in self.buckets:
+        if (bucket_name in self.buckets):
             raise ValueError(f"Bucket {bucket_name} already exists")
 
         self.buckets[bucket_name] = {}

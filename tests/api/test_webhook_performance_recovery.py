@@ -11,6 +11,7 @@ This module tests the recovery mechanisms of the webhook system:
 7. Dead letter queue processing
 """
 
+
 import pytest
 import asyncio
 import json
@@ -23,7 +24,10 @@ from api.services.webhook_service import WebhookService
 from api.schemas.webhook import WebhookEventType, WebhookDeliveryStatus
 
 
-class TestDeliveryRecovery:
+class TestDeliveryRecovery
+            import os
+
+:
     """Tests for delivery recovery after system overload."""
     
     @pytest.mark.asyncio
@@ -466,7 +470,7 @@ class TestQueuePersistence:
         
         finally:
             # Clean up
-            import os
+
             if os.path.exists("test_queue.json"):
                 os.remove("test_queue.json")
 

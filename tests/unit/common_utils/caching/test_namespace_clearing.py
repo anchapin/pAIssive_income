@@ -2,12 +2,24 @@
 Tests for namespace-specific cache clearing functionality.
 """
 
+
 import logging
 import unittest
 from unittest.mock import MagicMock, patch
 
 from ai_models.caching import CacheManager
 from common_utils.caching.cache_service import CacheService
+
+
+        from ai_models.caching.cache_key import parse_cache_key
+
+        
+                from ai_models.caching.cache_key import CacheKey
+
+                return CacheKey
+                from ai_models.caching.cache_key import CacheKey
+
+                return CacheKey
 
 # Set up logging
 logging.basicConfig(
@@ -107,25 +119,19 @@ class TestNamespaceClearing(unittest.TestCase):
 
     def test_cache_manager_clear_namespace(self):
         """Test the CacheManager.clear_namespace method directly."""
-        from ai_models.caching.cache_key import parse_cache_key
-
-        # Mock the parse_cache_key function to return appropriate CacheKey objects
+# Mock the parse_cache_key function to return appropriate CacheKey objects
         original_parse_cache_key = parse_cache_key
 
         def mock_parse_cache_key(key_str):
             if key_str == "namespace1:key1":
-                from ai_models.caching.cache_key import CacheKey
-
-                return CacheKey(
+(
                     model_id="namespace1",
                     operation="key1",
                     input_hash="hash",
                     parameters_hash="hash",
                 )
             elif key_str == "namespace1:key2":
-                from ai_models.caching.cache_key import CacheKey
-
-                return CacheKey(
+(
                     model_id="namespace1",
                     operation="key2",
                     input_hash="hash",

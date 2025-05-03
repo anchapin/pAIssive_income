@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-"""
-Script to automatically generate API documentation for the pAIssive_income project.
-This script:
-1. Scans the project structure to identify modules and submodules
-2. Creates or updates .rst files for modules
-3. Updates index files with the latest module structure
-"""
 
 import importlib
 import inspect
@@ -15,7 +7,22 @@ import sys
 from typing import Dict, List, Set
 
 
-def create_directory(path: str) -> None:
+def create_directory
+
+#!/usr/bin/env python3
+"""
+Script to automatically generate API documentation for the pAIssive_income project.
+This script:
+1. Scans the project structure to identify modules and submodules
+2. Creates or updates .rst files for modules
+3. Updates index files with the latest module structure
+"""
+
+
+
+
+
+(path: str) -> None:
     """Create a directory if it doesn't exist."""
     if not os.path.exists(path):
         os.makedirs(path)

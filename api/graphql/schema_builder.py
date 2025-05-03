@@ -5,7 +5,16 @@ This module constructs the complete GraphQL schema by merging
 all the type definitions and resolvers from different modules.
 """
 
+
 import logging
+    import strawberry
+    from strawberry.fastapi import GraphQLRouter
+    from strawberry.schema.config import StrawberryConfig
+
+    STRAWBERRY_AVAILABLE 
+    from .context import get_context
+
+    
 
 # Set up logging
 logging.basicConfig(
@@ -14,11 +23,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 try:
-    import strawberry
-    from strawberry.fastapi import GraphQLRouter
-    from strawberry.schema.config import StrawberryConfig
 
-    STRAWBERRY_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("Strawberry GraphQL is required for GraphQL API")
     STRAWBERRY_AVAILABLE = False
@@ -118,9 +124,7 @@ def create_graphql_router(path: str = "/graphql", graphiql: bool = True):
         return None
 
     # Create context getter
-    from .context import get_context
-
-    # Create router
+# Create router
     router = GraphQLRouter(
         schema=schema, graphiql=graphiql, path=path, context_getter=get_context
     )

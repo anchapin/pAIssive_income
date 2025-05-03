@@ -4,6 +4,7 @@ Tests for service discovery functionality.
 This module contains tests for the service discovery and registration.
 """
 
+
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -12,7 +13,9 @@ from api.config import APIConfig
 from api.service_discovery import ServiceDiscovery, ServiceRegistration
 
 
-class TestServiceDiscovery:
+class TestServiceDiscovery
+
+:
     """Tests for service discovery functionality."""
 
     @patch("consul.Consul")

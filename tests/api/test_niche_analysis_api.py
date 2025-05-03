@@ -4,10 +4,13 @@ Tests for the niche analysis API.
 This module contains tests for the niche analysis API endpoints.
 """
 
+
 import pytest
 
 from tests.api.utils.test_client import APITestClient
-from tests.api.utils.test_data import (
+from tests.api.utils.test_data import 
+
+(
     generate_id,
     generate_niche_analysis_data,
     generate_niche_data,

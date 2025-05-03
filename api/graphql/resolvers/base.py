@@ -5,8 +5,18 @@ This module provides the base Query and Mutation classes that other
 module-specific resolvers will extend.
 """
 
+from datetime import datetime
+
+
 import datetime
 import logging
+    import strawberry
+    from strawberry.types import Info
+
+    STRAWBERRY_AVAILABLE 
+    from ..schemas.base import HealthCheckResult
+
+    
 
 # Set up logging
 logging.basicConfig(
@@ -15,18 +25,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 try:
-    import strawberry
-    from strawberry.types import Info
 
-    STRAWBERRY_AVAILABLE = True
+= True
 except ImportError:
     logger.warning("Strawberry GraphQL is required for GraphQL resolvers")
     STRAWBERRY_AVAILABLE = False
 
 if STRAWBERRY_AVAILABLE:
-    from ..schemas.base import HealthCheckResult
-
-    @strawberry.type
+@strawberry.type
     class Query:
         """Base query type that all other query types will extend."""
 

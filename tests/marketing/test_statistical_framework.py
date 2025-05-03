@@ -2,11 +2,16 @@
 Tests for the statistical analysis framework used in marketing.
 """
 
-import numpy as np
+
+import numpy
 import pytest
 
 from marketing.errors import InsufficientDataError, InvalidTestConfigurationError
-from marketing.statistical_framework import (
+from marketing.statistical_framework import 
+
+as np
+
+(
     ConfidenceIntervalCalculator,
     EffectSizeEstimator,
     MultipleTestingAdjuster,
@@ -37,8 +42,8 @@ class TestStatisticalFramework:
         # Validate results
         assert "statistic" in result
         assert "p_value" in result
-        assert "dof" in result
-        assert result["dof"] == 1  # 2x2 table has 1 degree of freedom
+        assert "do" in result
+        assert result["do"] == 1  # 2x2 table has 1 degree of freedom
         assert 0 <= result["p_value"] <= 1
 
         # Test assumptions validation

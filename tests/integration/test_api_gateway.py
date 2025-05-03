@@ -2,6 +2,7 @@
 Integration tests for API gateway functionality.
 """
 
+
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
@@ -10,7 +11,9 @@ import pytest
 import requests
 
 from services.errors import AuthenticationError, RateLimitExceededError, RoutingError
-from services.gateway import (
+from services.gateway import 
+
+(
     APIGateway,
     AuthManager,
     GatewayConfig,

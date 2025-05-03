@@ -4,16 +4,20 @@ Image routes for REST API server.
 This module provides route handlers for image operations.
 """
 
+
 import base64
 from typing import Dict, List, Union
 
-# Try to import FastAPI
-try:
+
     from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
     from fastapi.responses import Response
     from pydantic import BaseModel, ConfigDict, Field
 
-    FASTAPI_AVAILABLE = True
+    FASTAPI_AVAILABLE 
+
+# Try to import FastAPI
+try:
+= True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
@@ -45,7 +49,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class ImageGenerationRequest(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Request model for image generation.
         """
@@ -58,7 +62,7 @@ if FASTAPI_AVAILABLE:
         )
 
     class ImageGenerationResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Response model for image generation.
         """
@@ -67,7 +71,7 @@ if FASTAPI_AVAILABLE:
         data: List[Dict[str, str]] = Field(..., description="Generated images")
 
     class ImageClassificationResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Response model for image classification.
         """

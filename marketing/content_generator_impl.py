@@ -2,6 +2,7 @@
 Concrete implementation of ContentGenerator for use in tests and examples.
 """
 
+
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
@@ -9,7 +10,9 @@ from typing import Any, Dict, List
 from .content_generators import ContentGenerator
 
 
-class ConcreteContentGenerator(ContentGenerator):
+class ConcreteContentGenerator
+
+(ContentGenerator):
     """
     Concrete implementation of ContentGenerator for use in tests and examples.
     This class implements the abstract methods from ContentGenerator.

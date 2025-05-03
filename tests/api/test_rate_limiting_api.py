@@ -4,12 +4,18 @@ Tests for the rate limiting functionality.
 This module contains tests for rate limiting and throttling endpoints.
 """
 
+
 import time
 from concurrent.futures import ThreadPoolExecutor
 
 from tests.api.utils.test_client import APITestClient
 from tests.api.utils.test_data import generate_id
-from tests.api.utils.test_validators import (
+from tests.api.utils.test_validators import 
+        from concurrent.futures import ThreadPoolExecutor
+
+        def make_request
+
+(
     validate_error_response,
     validate_field_exists,
     validate_success_response,
@@ -145,9 +151,7 @@ class TestRateLimitingAPI:
         validate_success_response(response)
 
         # Make concurrent requests
-        from concurrent.futures import ThreadPoolExecutor
-
-        def make_request():
+():
             return api_test_client.get(f"rate-limiting/{endpoint}")
 
         with ThreadPoolExecutor(max_workers=5) as executor:

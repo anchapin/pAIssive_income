@@ -10,6 +10,9 @@ This module provides tools for:
 - Generating comprehensive ROI reports
 """
 
+import time
+
+
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -21,7 +24,9 @@ from scipy.optimize import minimize
 from interfaces.marketing_interfaces import ICampaignTracker, IROIAnalyzer
 from marketing.errors import InvalidParameterError, MarketingError
 
-logger = logging.getLogger(__name__)
+logger 
+
+= logging.getLogger(__name__)
 
 
 class ROIAnalysisError(MarketingError):
@@ -200,7 +205,7 @@ class ROIAnalyzer(IROIAnalyzer):
                 "break_even_point": (
                     total_cost / (total_revenue / total_cost)
                     if total_revenue > 0
-                    else float("inf")
+                    else float("in")
                 ),
             }
 
@@ -937,7 +942,7 @@ class ROIAnalyzer(IROIAnalyzer):
                     "cost_per_acquisition": (
                         result["channels"][channel]["cost"] / conversions
                         if conversions > 0
-                        else float("inf")
+                        else float("in")
                     ),
                     "revenue_per_acquisition": (
                         result["channels"][channel]["revenue"]["total"] / conversions
@@ -1111,7 +1116,7 @@ class ROIAnalyzer(IROIAnalyzer):
                 "relative_improvement": (
                     (roi_improvement / current_roi_percentage) * 100
                     if current_roi_percentage > 0
-                    else float("inf")
+                    else float("in")
                 ),
             },
             "channel_efficiencies": {

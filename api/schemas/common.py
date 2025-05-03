@@ -4,17 +4,20 @@ Common schemas for the API server.
 This module provides common schema models used throughout the API.
 """
 
+
 from enum import Enum
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
 
 # Define generic type variable
 T = TypeVar("T")
 
 
 class ErrorResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Error response model."""
 
     detail: str = Field(..., description="Error message")
@@ -33,7 +36,7 @@ class ErrorResponse(BaseModel):
 
 
 class SuccessResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Success response model."""
 
     message: str = Field(..., description="Success message")
@@ -41,7 +44,7 @@ class SuccessResponse(BaseModel):
 
 
 class IdResponse(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """ID response model."""
 
     id: str = Field(..., description="Resource ID")
@@ -72,7 +75,7 @@ class FilterOperator(str, Enum):
 
 
 class FilterParam(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Filter parameter model."""
 
     field: str = Field(..., description="Field to filter by")
@@ -83,7 +86,7 @@ class FilterParam(BaseModel):
 
 
 class SortParam(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Sort parameter model."""
 
     field: str = Field(..., description="Field to sort by")
@@ -91,7 +94,7 @@ class SortParam(BaseModel):
 
 
 class PaginationParams(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Pagination parameters model."""
 
     page: int = Field(1, description="Page number", ge=1)
@@ -99,7 +102,7 @@ class PaginationParams(BaseModel):
 
 
 class QueryParams(BaseModel):
-    model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
     """Query parameters model."""
 
     page: int = Field(1, description="Page number", ge=1)

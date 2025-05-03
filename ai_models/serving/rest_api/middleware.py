@@ -4,16 +4,26 @@ Middleware for REST API server.
 This module provides middleware for the REST API server.
 """
 
+
 import time
 from typing import Callable, List
 
-# Try to import FastAPI
-try:
+
     from fastapi import Depends, FastAPI, HTTPException, Request, Response
     from fastapi.security import APIKeyHeader
     from starlette.middleware.base import BaseHTTPMiddleware
 
-    FASTAPI_AVAILABLE = True
+    FASTAPI_AVAILABLE 
+        from fastapi.middleware.cors import CORSMiddleware
+
+        app.add_middleware
+        from fastapi.middleware.gzip import GZipMiddleware
+
+        app.add_middleware
+
+# Try to import FastAPI
+try:
+= True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
@@ -167,9 +177,7 @@ def setup_middleware(app, config):
 
     # Add CORS middleware if enabled
     if config.enable_cors:
-        from fastapi.middleware.cors import CORSMiddleware
-
-        app.add_middleware(
+(
             CORSMiddleware,
             allow_origins=config.cors_origins,
             allow_credentials=True,
@@ -179,6 +187,4 @@ def setup_middleware(app, config):
 
     # Add GZip middleware if enabled
     if config.enable_gzip:
-        from fastapi.middleware.gzip import GZipMiddleware
-
-        app.add_middleware(GZipMiddleware, minimum_size=1000)
+(GZipMiddleware, minimum_size=1000)

@@ -4,16 +4,20 @@ Audio routes for REST API server.
 This module provides route handlers for audio operations.
 """
 
+
 import base64
 from typing import Optional
 
-# Try to import FastAPI
-try:
+
     from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
     from fastapi.responses import Response, StreamingResponse
     from pydantic import BaseModel, ConfigDict, Field
 
-    FASTAPI_AVAILABLE = True
+    FASTAPI_AVAILABLE 
+
+# Try to import FastAPI
+try:
+= True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
@@ -45,7 +49,7 @@ else:
 if FASTAPI_AVAILABLE:
 
     class SpeechToTextRequest(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Request model for speech-to-text.
         """
@@ -55,7 +59,7 @@ if FASTAPI_AVAILABLE:
         language: Optional[str] = Field(None, description="Language of the audio")
 
     class SpeechToTextResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Response model for speech-to-text.
         """
@@ -63,7 +67,7 @@ if FASTAPI_AVAILABLE:
         text: str = Field(..., description="Transcribed text")
 
     class TextToSpeechRequest(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Request model for text-to-speech.
         """
@@ -75,7 +79,7 @@ if FASTAPI_AVAILABLE:
         )
 
     class TextToSpeechResponse(BaseModel):
-        model_config = ConfigDict(protected_namespaces=())
+    model_config = ConfigDict(protected_namespaces=()))
         """
         Response model for text-to-speech.
         """

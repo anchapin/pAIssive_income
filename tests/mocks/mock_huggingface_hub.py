@@ -5,6 +5,7 @@ This module mocks the huggingface_hub library to allow testing of code that inte
 the Hugging Face Hub API without making actual API calls.
 """
 
+
 import json
 import os
 import shutil
@@ -13,6 +14,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
+import hashlib
+import fnmatch
 
 @dataclass
 class MockRepoInfo:
@@ -47,8 +50,6 @@ class MockRepoInfo:
 
         # Set SHA if not provided
         if not self.sha:
-            import hashlib
-
             self.sha = hashlib.sha256(self.id.encode()).hexdigest()
 
 
@@ -435,8 +436,6 @@ class MockHuggingFaceHub:
         Returns:
             True if the path matches the pattern, False otherwise
         """
-        import fnmatch
-
         return fnmatch.fnmatch(path, pattern)
 
 

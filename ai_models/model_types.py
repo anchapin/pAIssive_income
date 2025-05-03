@@ -5,6 +5,7 @@ This module provides shared data structures used across the AI Models module
 to avoid circular imports between model_manager.py and model_versioning.py.
 """
 
+
 import json
 import logging
 import os
@@ -14,9 +15,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert
 from interfaces.model_interfaces import IModelInfo
 
+
+
+(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

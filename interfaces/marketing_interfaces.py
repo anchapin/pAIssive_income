@@ -5,12 +5,17 @@ This module provides interfaces for the marketing components to enable dependenc
 and improve testability and maintainability.
 """
 
+import time
+
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 
-class IPersonaCreator(ABC):
+class IPersonaCreator
+
+(ABC):
     """Interface for persona creator."""
 
     @abstractmethod

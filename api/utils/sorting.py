@@ -4,11 +4,14 @@ Sorting utilities for API endpoints.
 This module provides utilities for sorting data in API endpoints.
 """
 
+
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
 
-class SortDirection(str, Enum):
+class SortDirection
+
+(str, Enum):
     """Sort direction for query parameters."""
 
     ASC = "asc"
