@@ -146,7 +146,7 @@ Returns:
         except Exception as e:
             print(f"Could not open coverage report in browser: {e}")
 
-                return exit_code
+    return exit_code
 
 
 def main():

@@ -111,20 +111,20 @@ def should_ignore(file_path: str, ignore_patterns: Set[str]) -> bool:
         if pattern.endswith("/"):
             # Directory pattern
             if pattern[:-1] in file_path.split("/"):
-                    return True
+                return True
         elif pattern.startswith("**/"):
             # Match anywhere in path
             if file_path.endswith(pattern[3:]):
-                    return True
+                return True
         elif pattern.startswith("/"):
             # Match from root
             if file_path.startswith(pattern[1:]):
-                    return True
+                return True
         else:
             # Simple pattern
             if pattern in file_path:
-                    return True
-        return False
+                return True
+    return False
 
 
 def find_python_files(directory='.') -> List[Path]:
@@ -152,7 +152,7 @@ def find_python_files(directory='.') -> List[Path]:
     # Also apply gitignore patterns
     ignore_patterns = get_gitignore_patterns()
 
-        return [
+    return [
         file_path for file_path in all_python_files
         if not should_ignore(str(file_path.relative_to(directory)), ignore_patterns)
     ]
@@ -167,7 +167,7 @@ def main():
             fix_indentation_issues(file_path)
         else:
             print(f"Error: {file_path} is not a Python file.")
-                return 1
+            return 1
     else:
         # Fix all Python files
         python_files = find_python_files()
@@ -182,8 +182,8 @@ def main():
 
         print(f"\nFixed {fixed_count} files.")
 
-            return 0
+    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main()
+    sys.exit(main())
