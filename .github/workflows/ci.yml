@@ -1,10 +1,8 @@
 name: CI - Lint and Test
 
 on:
-  push:
-    branches: [ main, master, develop, devops_tasks ]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       lint_only:
