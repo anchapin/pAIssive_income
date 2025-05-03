@@ -95,8 +95,7 @@ jobs:
             echo "No Python files to check after applying ignore patterns."
           fi
         fi
-      env:
-        IGNORE_PATTERNS: ${{ env.IGNORE_PATTERNS }}
+      # No need to set env here as IGNORE_PATTERNS is already defined in the script
 
     - name: Lint with Ruff
       run: |
